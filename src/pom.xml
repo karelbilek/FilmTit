@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <filmtit.version>0.1</filmtit.version>
+
+        <heapspace.Xmx.compiler>-Xmx5g</heapspace.Xmx.compiler>
+        <heapspace.Xmx.indexer>-Xmx2g</heapspace.Xmx.indexer>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.compiler.version>1.6</java.compiler.version>
+        <maven.scala.plugin.version>2.15.0</maven.scala.plugin.version>
+        <maven.install.plugin.version>2.3.1</maven.install.plugin.version>
+        <maven.assembly.plugin.version>2.2-beta-5</maven.assembly.plugin.version>
+        <scala.compiler.version>2.9.1</scala.compiler.version>
+    </properties>
+
+    <groupId>cz.filmtit</groupId>
+    <artifactId>filmtit</artifactId>
+    <version>${filmtit.version}</version>
+    <packaging>pom</packaging>
+    <name>Film title translation memory</name>
+
+    <modules>
+        <module>eval</module>
+        <module>core</module>
+    </modules>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven.scala.plugin.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jvmArgs>
+                        <jvmArg>${heapspace.Xmx.compiler}</jvmArg>
+                    </jvmArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.compiler.version}</source>
+                    <target>${java.compiler.version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <repositories>
+
+        <!-- Repository for JDBC tool -->
+        <repository>
+          <id>twitter.com</id>
+          <url>http://www.lag.net/nest</url>
+        </repository>
+
+
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.compiler.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.compiler.version}</version>
+        </dependency>
+
+        <dependency>
+        	<groupId>postgresql</groupId>
+        	<artifactId>postgresql</artifactId>
+        	<version>9.1-901.jdbc4</version>
+        </dependency>
+
+    </dependencies>
+
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>scala-tools.org</id>
+            <name>Scala-tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
