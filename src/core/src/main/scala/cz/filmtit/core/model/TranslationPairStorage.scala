@@ -1,12 +1,10 @@
 package cz.filmtit.core.model
 
 /**
+ *
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
-
 trait TranslationPairStorage {
 
   def candidates(sentence: String): List[ScoredTranslationPair]

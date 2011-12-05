@@ -5,12 +5,12 @@
     <parent>
         <artifactId>filmtit</artifactId>
         <groupId>cz.filmtit</groupId>
-        <version>0.1</version>
+        <version>${filmtit.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>core</artifactId>
-    <name>Core translation memory</name>
+    <name>Translation memory core</name>
 
 
 </project>
