@@ -7,11 +7,16 @@ package cz.filmtit.core.model
  */
 trait TranslationPairStorage {
 
-  def candidates(sentence: String): List[ScoredTranslationPair]
+  def candidates(sentence: Chunk): List[ScoredTranslationPair]
   def initialize(translationPairs: TraversableOnce[TranslationPair])
   def addTranslationPair(translationPair: TranslationPair)
 
-  def name(): String
+  def name: String
 
+}
+
+trait SignatureBasedStorage extends TranslationPairStorage {
+
+  def signature(sentence: Chunk): String
 
 }
