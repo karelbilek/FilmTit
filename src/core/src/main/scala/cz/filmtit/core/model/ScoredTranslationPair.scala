@@ -5,7 +5,6 @@ package cz.filmtit.core.model
  *
  *
  */
-
 class ScoredTranslationPair(sourceSentence: String, targetSentence: String,  val candidateScore: Float, val finalScore: Float)
   extends TranslationPair(sourceSentence, targetSentence) with Ordered[ScoredTranslationPair] {
 

@@ -7,6 +7,7 @@ package cz.filmtit.core.model
 class Chunk(val surfaceform: String)
 
 object Chunk {
+
   implicit def toChunk(string: String): Chunk = {
     new Chunk(string)
   }

@@ -4,4 +4,4 @@ package cz.filmtit.core.model
  * @author Joachim Daiber
  */
 
-class TranslationPair(val sourceSentence: Chunk, val targetSentece: Chunk)
+class TranslationPair(val source: Chunk, val target: Chunk)
