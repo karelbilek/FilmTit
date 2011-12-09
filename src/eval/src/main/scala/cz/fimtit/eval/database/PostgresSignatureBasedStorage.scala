@@ -16,7 +16,7 @@ abstract class PostgresSignatureBasedStorage
   def indexName: String
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
-    connection.createStatement().execute("DROP TABLE IF EXISTS %s; CREATE TABLE sentences (signature VARCHAR(100), sentence VARCHAR(10000));".format(tableName))
+    connection.createStatement().execute("DROP TABLE IF EXISTS %s; CREATE TABLE %s (signature VARCHAR(100), sentence VARCHAR(10000));".format(tableName, tableName))
 
     val insertStatement = connection.prepareStatement("INSERT INTO %s (signature, sentence) VALUES (?, ?)".format(tableName))
 
@@ -44,7 +44,7 @@ abstract class PostgresSignatureBasedStorage
     val rs = select.executeQuery()
 
     while (rs.next) {
-      println(rs.getString("sentence"))
+      println(" "+rs.getString("sentence"))
     }
 
     null;

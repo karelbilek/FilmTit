@@ -16,7 +16,7 @@ class PostgresFirstLetterStorage extends PostgresSignatureBasedStorage {
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
   override def signature(chunk: Chunk): String = {
-    new String(chunk.surfaceform.split(" ") map { word => word.charAt(0).toLower })
+    new String(chunk.surfaceform.split(" ") filter (_ != "") map { _.charAt(0).toLower })
   }
 
   override def name: String = "Translation pair storage using the first letter of every word as an index."

@@ -13,7 +13,7 @@ class PostgresFulltextStorage extends PostgresStorage with TranslationPairStorag
 
     //Create the index:
     println("Creating index...")
-    connection.createStatement().execute("drop index idx_fulltext; CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));".format(tableName))
+    connection.createStatement().execute("drop index if exists idx_fulltext; CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));".format(tableName))
 
   }
 
@@ -27,7 +27,7 @@ class PostgresFulltextStorage extends PostgresStorage with TranslationPairStorag
     val rs = select.executeQuery()
 
     while (rs.next) {
-      println(rs.getString("sentence"))
+      println(" " + rs.getString("sentence"))
     }
 
     null;

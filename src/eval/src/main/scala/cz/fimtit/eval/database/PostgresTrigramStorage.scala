@@ -17,7 +17,7 @@ class PostgresTrigramStorage extends PostgresStorage with TranslationPairStorage
 
     //Create the index:
     println("Creating index...")
-    connection.createStatement().execute("CREATE INDEX idx_trigrams ON sentences USING gist (sentence gist_trgm_ops);")
+    connection.createStatement().execute("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING gist (sentence gist_trgm_ops);".format(tableName))
 
   }
 
@@ -26,13 +26,12 @@ class PostgresTrigramStorage extends PostgresStorage with TranslationPairStorage
   }
 
   override def candidates(chunk: Chunk): List[ScoredTranslationPair] = {
-    val select = connection.prepareStatement("SELECT sentence, similarity(sentence, ?) AS sml FROM %s WHERE sentence % ? ORDER BY sml DESC, sentence;".format(tableName))
+    val select = connection.prepareStatement("SELECT sentence FROM "+tableName+" WHERE sentence % ?;")
     select.setString(1, chunk)
-    select.setString(2, chunk)
     val rs = select.executeQuery()
 
     while (rs.next) {
-      println(rs.getFloat("sml") + ": " + rs.getString("sentence"))
+      println(rs.getString("sentence"))
     }
 
     null;
@@ -43,17 +42,3 @@ class PostgresTrigramStorage extends PostgresStorage with TranslationPairStorage
 
 
 }
-
-/**
-  * Postgres-based storage using a full-text index.
-  */
-
-
-
-
-
-
-
-
-
-
