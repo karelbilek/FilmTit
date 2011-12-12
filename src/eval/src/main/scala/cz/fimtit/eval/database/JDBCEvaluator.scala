@@ -20,7 +20,8 @@ object JDBCEvaluator {
   def fill() {
     storages foreach (_.initialize(
         //Read our format: scala.io.Source.fromFile(...).getLines().asInstanceOf[Iterator[TranslationPair]]
-        scala.io.Source.fromFile("/Users/jodaiber/Desktop/src/FilmTit/dbms_experiments/corpus.1m.txt").getLines().map(
+        //scala.io.Source.fromFile("/Users/jodaiber/Desktop/src/FilmTit/dbms_experiments/corpus.1m.txt").getLines()
+        scala.io.Source.fromFile("").getLines().asInstanceOf[Iterator[TranslationPair]].map(
           line => { new TranslationPair(line.trim(), null) }
         ).filter(pair => pair.source != "" && pair.source.split(" ").size < 30)
       )

@@ -6,7 +6,12 @@ package cz.filmtit.core.model
  * TODO: Movie source? Data from IMDB?
  */
 
-class TranslationPair(val source: Chunk, val target: Chunk)
+class TranslationPair(val source: Chunk, val target: Chunk, var mediaSource: MediaSource) {
+  def this(source: Chunk, target: Chunk) {
+    this(source, target, null)
+  }
+
+}
 
 object TranslationPair {
 
@@ -14,5 +19,8 @@ object TranslationPair {
     val splitString = string.trim().split("\t")
     new TranslationPair(splitString(0), splitString(1))
   }
+
+
+
 
 }

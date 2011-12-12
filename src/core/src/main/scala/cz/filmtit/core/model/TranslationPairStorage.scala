@@ -12,6 +12,9 @@ trait TranslationPairStorage {
     */
   def candidates(sentence: Chunk): List[ScoredTranslationPair]
 
+  /** Create a new empty database. */
+  def initialize()
+
   /** Create a new database with the initial set of translation pairs. */
   def initialize(translationPairs: TraversableOnce[TranslationPair])
 

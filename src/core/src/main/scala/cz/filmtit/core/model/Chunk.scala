@@ -8,7 +8,7 @@ class Chunk(val surfaceform: String)
 
 object Chunk {
 
-  implicit def toChunk(string: String): Chunk = {
+  implicit def fromString(string: String): Chunk = {
     new Chunk(string)
   }
 
