@@ -2,6 +2,7 @@ package cz.fimtit.eval.database
 
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
+import cz.filmtit.core.database.{PostgresTrigramStorage, PostgresFirstLetterStorage, PostgresStorage, PostgresFulltextStorage}
 
 object JDBCEvaluator {
 

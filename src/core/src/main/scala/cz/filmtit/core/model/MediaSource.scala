@@ -1,5 +1,7 @@
 package cz.filmtit.core.model
 
+import collection.mutable.HashSet
+
 /**
  * @author Joachim Daiber
  *
@@ -7,4 +9,4 @@ package cz.filmtit.core.model
  *
  */
 
-class MediaSource(title: String,  year: Int, genre: String)
+class MediaSource(val title: String,  val year: Int, var genres: HashSet[String])
