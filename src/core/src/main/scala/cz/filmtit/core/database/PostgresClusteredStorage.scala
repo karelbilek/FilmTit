@@ -3,6 +3,8 @@ package cz.filmtit.core.database
 import cz.filmtit.core.model._
 import scala.collection.mutable.HashMap
 import scala.io.Source
+import cz.filmtit.core.model.Language._
+
 
 
 /**
@@ -29,7 +31,7 @@ class PostgresClusteredStorage extends PostgresSignatureBasedStorage {
   }
   })
 
-  override def signature(chunk: Chunk): String = {
+  override def signature(chunk: Chunk, language: Language): String = {
     new String(chunk.surfaceform.split(" ") flatMap {token =>
       cluster.get(token) match {
         case Some(i) => "c%d,".format(i)

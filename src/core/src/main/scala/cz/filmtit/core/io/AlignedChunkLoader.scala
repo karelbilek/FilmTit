@@ -1,15 +1,18 @@
 package cz.filmtit.core.io
 
-import java.io.File
-import scala.io.Source
 import cz.filmtit.core.model.{MediaSource, TranslationPairStorage, TranslationPair}
-import com.github.savvasdalkitsis.jtmdb.{GeneralSettings, Movie}
-import com.github.savvasdalkitsis.jtmdb.Movie.deepSearch
-import collection.JavaConversions._
+
 import collection.mutable.HashMap
-import java.util.{Calendar, GregorianCalendar}
-import java.text.SimpleDateFormat
+import org.json.JSONObject
+import java.net.URL
+import java.io.{BufferedInputStream, File}
+import io.{BufferedSource, Source}
+import cz.filmtit.core.database.PostgresFirstLetterStorage
 import collection.mutable.HashSet
+import java.net.URLEncoder
+import cz.filmtit.core.model.TranslationPair.fromString
+import cz.filmtit.core.model.Language
+
 
 /**
  * @author Joachim Daiber
@@ -17,7 +20,6 @@ import collection.mutable.HashSet
 
 object AlignedChunkLoader {
 
-  GeneralSettings.setApiKey("")
   var subtitles = HashMap[String, MediaSource]()
 
   def loadSubtitleMapping() {
@@ -26,7 +28,7 @@ object AlignedChunkLoader {
         val data = line.split("\t")
 
         if (!subtitles.contains(data(0)))
-          subtitles.put(data(0), new MediaSource(data(7), data(8).toInt, null))
+          subtitles.put(data(0), new MediaSource(data(7), data(8), new HashSet[String]()))
       }
   }
 
@@ -37,17 +39,15 @@ object AlignedChunkLoader {
     subtitles.get(id) match {
       case Some(mediaSource) =>
       {
-        deepSearch(mediaSource.title) find (movie => {
-          //Get the first movie with a matching year.
-          movie.getReleasedDate != null &&
-          new SimpleDateFormat("yyyy").format(movie.getReleasedDate).toInt == mediaSource.year
-        }) match {
-          case Some(movie) => {
-            hit += 1
-            mediaSource.genres = movie.getGenres.map(_.getName).asInstanceOf[HashSet[String]]
-          }
-          case None => miss += 1
+        val imdbInfo: JSONObject = queryIMDB(mediaSource.title, mediaSource.year)
+
+        if (imdbInfo.has("Genre")) {
+          hit += 1
+          imdbInfo.getString("Genre").split(", ") foreach { mediaSource.genres += _ }
+        }else{
+          miss += 1
         }
+
         mediaSource
       }
       case None => {
@@ -57,22 +57,48 @@ object AlignedChunkLoader {
     }
   }
 
+
   def loadChunks(storage: TranslationPairStorage, folder: File) {
 
-    //storage.initialize()
+    storage.initialize(
+      folder.listFiles flatMap (
+        sourceFile => {
+          val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
+          mediaSource.id = storage.addMediaSource(mediaSource)
 
-    folder.listFiles foreach (
-      sourceFile => {
-        val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
-        Source.fromFile(sourceFile).getLines().asInstanceOf[Iterator[TranslationPair]].map(_.mediaSource = mediaSource)
-      })
+          Source.fromFile(sourceFile).getLines()
+            .map( TranslationPair.fromString(_) )
+            .filter( _ != null )
+            .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
+        })
+    )
 
   }
 
   def main(args: Array[String]) {
     loadSubtitleMapping()
-    loadChunks(null, new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel"))
+    val storage: PostgresFirstLetterStorage = new PostgresFirstLetterStorage()
+    storage.l1 = Language.en
+    storage.l2 = Language.cz
+
+    loadChunks(storage, new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"))
     println("hits:" + hit + ", miss:" + miss)
+
+  }
+
+  def queryIMDB(title: String, year: String): JSONObject = {
+    val patternTVShow = "\"(.+)\" .+".r
+
+    val response = title match {
+      case patternTVShow(titleShow) => {
+        Source.fromURL( "http://www.imdbapi.com/?t=%s".format(URLEncoder.encode(titleShow, "utf-8")) ).getLines()
+      }
+      case _ => {
+        Source.fromURL( "http://www.imdbapi.com/?t=%s&y=%s".format(URLEncoder.encode(title, "utf-8"), year) ).getLines()
+      }
+    }
+
+    new JSONObject( response.next() )
   }
 
 }

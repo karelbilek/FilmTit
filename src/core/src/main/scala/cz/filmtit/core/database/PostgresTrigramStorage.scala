@@ -1,6 +1,7 @@
 package cz.filmtit.core.database
 
 import cz.filmtit.core.model._
+import cz.filmtit.core.model.Language._
 
 
 /**
@@ -9,15 +10,15 @@ import cz.filmtit.core.model._
  */
 
 
-class PostgresTrigramStorage extends PostgresStorage with TranslationPairStorage {
+class PostgresTrigramStorage extends PostgresStorage {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
 
-    createTable(translationPairs);
+    createChunkTables(translationPairs);
 
     //Create the index:
     println("Creating index...")
-    connection.createStatement().execute("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING gist (sentence gist_trgm_ops);".format(tableName))
+    connection.createStatement().execute("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING gist (sentence gist_trgm_ops);".format(tableNameChunks))
 
   }
 
@@ -25,8 +26,8 @@ class PostgresTrigramStorage extends PostgresStorage with TranslationPairStorage
 
   }
 
-  override def candidates(chunk: Chunk): List[ScoredTranslationPair] = {
-    val select = connection.prepareStatement("SELECT sentence FROM "+tableName+" WHERE sentence % ?;")
+  override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
+    val select = connection.prepareStatement("SELECT sentence FROM "+tableNameChunks+" WHERE sentence % ?;")
     select.setString(1, chunk)
     val rs = select.executeQuery()
 

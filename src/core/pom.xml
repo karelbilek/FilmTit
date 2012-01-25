@@ -13,11 +13,6 @@
     <name>Translation memory core</name>
 
     <dependencies>
-        <dependency>
-            <groupId>com.github.savvasdalkitsis</groupId>
-            <artifactId>jtmdb</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
     </dependencies>
 </project>

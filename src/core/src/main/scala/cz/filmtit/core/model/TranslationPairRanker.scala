@@ -6,7 +6,7 @@ package cz.filmtit.core.model
 
 trait TranslationPairRanker {
 
-  def rank(pairs: List[TranslationPair]): List[ScoredTranslationPair]
+  def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]): List[ScoredTranslationPair]
 
   def name: String
 

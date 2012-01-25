@@ -1,16 +1,22 @@
 package cz.filmtit.core.model
+import cz.filmtit.core.model.Language._
+
 
 /** Interface for retrieving translation pair candidates from a database.
   *
   * @author Joachim Daiber
   */
-trait TranslationPairStorage {
+abstract class TranslationPairStorage {
+
+  var l1: Language = _
+  var l2: Language = _
+
 
   /** Retrieve a list of candidate translation pairs from the database.
     * Depending on the implementation, the pairs may have a
-    * [[ScoredTranslationPair#canidateScore]]
+    * [[cz.filmtit.core.model.ScoredTranslationPair#canidateScore]]
     */
-  def candidates(sentence: Chunk): List[ScoredTranslationPair]
+  def candidates(sentence: Chunk, language: Language): List[TranslationPair]
 
   /** Create a new empty database. */
   def initialize()
@@ -20,6 +26,8 @@ trait TranslationPairStorage {
 
   /** Add a single translation pair to the database */
   def addTranslationPair(translationPair: TranslationPair)
+
+  def addMediaSource(mediaSource: MediaSource): Long
 
   /** Short description of the implementation */
   def name: String
