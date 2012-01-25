@@ -9,13 +9,13 @@ object JDBCEvaluator {
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
   storages += new PostgresFulltextStorage()
-  storages.last.asInstanceOf[PostgresStorage].tableName = "sentences_fulltext"
+  storages.last.asInstanceOf[PostgresStorage].tableNameChunks = "sentences_fulltext"
 
   storages += new PostgresFirstLetterStorage()
-  storages.last.asInstanceOf[PostgresStorage].tableName = "sentences_firstletter"
+  storages.last.asInstanceOf[PostgresStorage].tableNameChunks = "sentences_firstletter"
 
   storages += new PostgresTrigramStorage()
-  storages.last.asInstanceOf[PostgresStorage].tableName = "sentences_trigram"
+  storages.last.asInstanceOf[PostgresStorage].tableNameChunks = "sentences_trigram"
 
 
   def fill() {
@@ -23,7 +23,7 @@ object JDBCEvaluator {
         //Read our format: scala.io.Source.fromFile(...).getLines().asInstanceOf[Iterator[TranslationPair]]
         //scala.io.Source.fromFile("/Users/jodaiber/Desktop/src/FilmTit/dbms_experiments/corpus.1m.txt").getLines()
         scala.io.Source.fromFile("").getLines().asInstanceOf[Iterator[TranslationPair]].map(
-          line => { new TranslationPair(line.trim(), null) }
+          line => { new TranslationPair(line., null) }
         ).filter(pair => pair.source != "" && pair.source.split(" ").size < 30)
       )
     )

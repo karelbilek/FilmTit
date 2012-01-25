@@ -2,8 +2,6 @@ package cz.filmtit.core.rank
 
 import cz.filmtit.core.model._
 import cz.filmtit.core.model.Chunk._
-import cz.filmtit.core.model.ScoredTranslationPair._
-import com.swabunga.spell.engine.EditDistance
 import org.apache.xmlbeans.impl.common.Levenshtein
 
 /**
@@ -15,17 +13,20 @@ import org.apache.xmlbeans.impl.common.Levenshtein
 
 class MixedRanker extends TranslationPairRanker {
 
+  val lambdas = (0.95, 0.05)
+
   override def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
     List[ScoredTranslationPair] = {
     pairs.map { pair =>
-      val editDistance = Levenshtein.distance(chunk, pair.source)
+      val editDistanceScore = 1.0 - (Levenshtein.distance(chunk, pair.source) / chunk.length.toFloat)
+
       val genreMatches = if (mediaSource != null) {
-        mediaSource.genres.size - pair.mediaSource.genres.intersect(mediaSource.genres).size
+        pair.mediaSource.genres.intersect(mediaSource.genres).size / mediaSource.genres.size.toFloat
       } else {
-        0
+        0.0
       }
 
-      ScoredTranslationPair.fromTranslationPair(pair, (100 * editDistance) + (genreMatches))
+      ScoredTranslationPair.fromTranslationPair(pair, ((lambdas._1 * editDistanceScore) + (lambdas._2 * genreMatches)).toFloat)
     }.sorted
   }
 

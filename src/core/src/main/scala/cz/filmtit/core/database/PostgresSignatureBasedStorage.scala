@@ -50,13 +50,13 @@ abstract class PostgresSignatureBasedStorage
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ?;".format(tableNameChunkSignature,tableNameChunks))
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(tableNameChunkSignature,tableNameChunks, maxCandidates))
     select.setString(1, signature(chunk, language))
     val rs = select.executeQuery()
 
     val candidates = new ListBuffer[TranslationPair]()
     while (rs.next()) {
-      candidates += new TranslationPair(rs.getString("chunk_l1"), rs.getString("chunk_l1"), getMediaSource(rs.getInt("source_id")))
+      candidates += new TranslationPair(rs.getString("chunk_l1"), rs.getString("chunk_l2"), getMediaSource(rs.getInt("source_id")))
     }
 
     candidates.toList

@@ -16,7 +16,7 @@ abstract class TranslationPairStorage {
     * Depending on the implementation, the pairs may have a
     * [[cz.filmtit.core.model.ScoredTranslationPair#canidateScore]]
     */
-  def candidates(sentence: Chunk, language: Language): List[TranslationPair]
+  def candidates(chunk: Chunk, language: Language): List[TranslationPair]
 
   /** Create a new empty database. */
   def initialize()

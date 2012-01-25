@@ -79,10 +79,15 @@
 
         <!-- Repository for JDBC tool -->
         <repository>
-          <id>twitter.com</id>
-          <url>http://www.lag.net/nest</url>
+            <id>twitter.com</id>
+            <url>http://www.lag.net/nest</url>
         </repository>
 
+        <repository>
+            <id>scala-tools.org</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </repository>
 
     </repositories>
 
@@ -94,6 +99,8 @@
             <scope>provided</scope>
         </dependency>
 
+
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -101,15 +108,32 @@
         </dependency>
 
         <dependency>
-        	<groupId>postgresql</groupId>
-        	<artifactId>postgresql</artifactId>
-        	<version>9.1-901.jdbc4</version>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
         </dependency>
 
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20090211</version>
+        </dependency>
+
+        <dependency>
+          <groupId>com.weiglewilczek.slf4s</groupId>
+          <artifactId>slf4s_2.9.1</artifactId>
+          <version>1.0.7</version>
+        </dependency>
+        <dependency>
+        	<groupId>log4j</groupId>
+        	<artifactId>log4j</artifactId>
+        	<version>1.2.16</version>
+        </dependency>
+
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-simple</artifactId>
+        	<version>1.6.4</version>
         </dependency>
 
     </dependencies>

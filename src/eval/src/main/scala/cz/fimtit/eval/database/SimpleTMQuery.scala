@@ -21,7 +21,10 @@ object SimpleTMQuery {
     val tm = new TranslationMemory(storage, ranker)
 
 
-    print(tm.nBest("Watch out!", null, Language.en))
+    println(tm.nBest("I love you!", null, Language.en))
+    println(tm.nBest("What did the minister tell you about his intentions?", null, Language.en))
+    println(tm.nBest("Never gonna give you up!", null, Language.en))
+    println(tm.nBest("What?", null, Language.en))
 
 
   }

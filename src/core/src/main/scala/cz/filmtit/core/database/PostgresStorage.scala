@@ -21,6 +21,8 @@ abstract class PostgresStorage extends TranslationPairStorage {
   var tableNameChunks = "chunks"
   var tableNameMediaSources = "mediasources"
 
+  var maxCandidates = 500
+
 
   def initialize() {
     connection.createStatement().execute("DROP TABLE IF EXISTS %s CASCADE; CREATE TABLE %s (source_id SERIAL PRIMARY KEY, title TEXT, year VARCHAR(4), genres TEXT);".format(tableNameMediaSources, tableNameMediaSources))

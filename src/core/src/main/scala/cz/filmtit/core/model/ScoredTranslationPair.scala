@@ -15,10 +15,12 @@ class ScoredTranslationPair(source: String, target: String, mediaSource: MediaSo
 
   override def compare (that: ScoredTranslationPair): Int = {
     math.signum(
-      (finalScore * 10 + candidateScore) -
-        (that.finalScore * 10 + that.candidateScore)
+      (that.finalScore * 10 + that.candidateScore) - (this.finalScore * 10 + this.candidateScore)
     ).toInt
   }
+
+  override def toString: String = "%s @ %.2f".format(super.toString, finalScore)
+
 
 }
 
