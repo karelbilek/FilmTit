@@ -3,6 +3,8 @@ package cz.filmtit.core.database
 import cz.filmtit.core.model.{TranslationPairStorage, MediaSource, TranslationPair}
 import org.postgresql.util.PSQLException
 import java.sql.{SQLException, PreparedStatement, Statement, DriverManager}
+import java.net.ConnectException
+import cz.filmtit.core.model.Language._
 
 
 /**
@@ -10,13 +12,18 @@ import java.sql.{SQLException, PreparedStatement, Statement, DriverManager}
  *
  */
 
-abstract class PostgresStorage extends TranslationPairStorage {
+abstract class PostgresStorage(l1: Language, l2: Language) extends TranslationPairStorage(l1, l2) {
 
   //Load the driver:
   classOf[org.postgresql.Driver]
 
   //Initialize connection
-  val connection = DriverManager.getConnection("jdbc:postgresql://localhost/filmtit", "postgres", "postgres")
+  val connection = try {
+    DriverManager.getConnection("jdbc:postgresql://localhost/filmtit", "postgres", "postgres")
+  } catch{
+    case e: PSQLException => throw new ConnectException("Could not connect to database. " +
+      "Please check if the database is running.")
+  }
 
   var tableNameChunks = "chunks"
   var tableNameMediaSources = "mediasources"

@@ -7,7 +7,7 @@ import cz.filmtit.core.model.Language._
 /**
   * Postgres-based storage using a full-text index.
   */
-class PostgresFulltextStorage extends PostgresStorage {
+class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
 

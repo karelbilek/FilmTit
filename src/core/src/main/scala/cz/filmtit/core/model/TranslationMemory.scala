@@ -6,8 +6,6 @@ import com.weiglewilczek.slf4s.{Logger, Logging}
 /**
  * @author Joachim Daiber
  *
- *
- *
  */
 
 class TranslationMemory(val storage: TranslationPairStorage, val ranker: TranslationPairRanker) extends Logging {
@@ -15,11 +13,11 @@ class TranslationMemory(val storage: TranslationPairStorage, val ranker: Transla
   def nBest(chunk: Chunk, mediaSource: MediaSource, language: Language, n: Int = 10): List[ScoredTranslationPair] = {
     var s = System.currentTimeMillis
     val candidates = storage.candidates(chunk, language)
-    logger.info("Retrieved %d candiates in %dms...".format(candidates.size, System.currentTimeMillis - s))
+    logger.info( "Retrieved %d candiates in %dms...".format(candidates.size, System.currentTimeMillis - s) )
 
     s = System.currentTimeMillis
     val ranked = ranker.rank(chunk, null, candidates)
-    logger.info("Ranking candiates took %dms...".format(System.currentTimeMillis - s))
+    logger.info( "Ranking candiates took %dms...".format(System.currentTimeMillis - s) )
 
     ranked.take(n)
   }

@@ -12,7 +12,7 @@ import cz.filmtit.core.model.Language._
  *
  */
 
-class PostgresClusteredStorage extends PostgresSignatureBasedStorage {
+class PostgresClusteredStorage(l1: Language, l2: Language) extends PostgresSignatureBasedStorage(l1, l2) {
 
   def indexName = "idx_clustered"
 

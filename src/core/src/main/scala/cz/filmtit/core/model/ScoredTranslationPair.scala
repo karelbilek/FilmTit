@@ -7,13 +7,12 @@ import cz.filmtit.core.model.Chunk._
  *
  *
  */
-class ScoredTranslationPair(source: String, target: String, mediaSource: MediaSource)
+class ScoredTranslationPair(source: String, target: String, mediaSource: MediaSource, var finalScore: Double = 0.0)
   extends TranslationPair(source, target, mediaSource) with Ordered[ScoredTranslationPair] {
 
   var candidateScore = 0.0
-  var finalScore = 0.0
 
-  override def compare (that: ScoredTranslationPair): Int = {
+  override def compare(that: ScoredTranslationPair): Int = {
     math.signum(
       (that.finalScore * 10 + that.candidateScore) - (this.finalScore * 10 + this.candidateScore)
     ).toInt
@@ -30,10 +29,8 @@ object ScoredTranslationPair {
     new ScoredTranslationPair(pair.source, pair.target, pair.mediaSource)
   }
 
-  def fromTranslationPair(pair: TranslationPair, score: Float): ScoredTranslationPair = {
-    val scoredPair: ScoredTranslationPair = new ScoredTranslationPair(pair.source, pair.target, pair.mediaSource)
-    scoredPair.finalScore = score
-    scoredPair
+  def fromTranslationPair(pair: TranslationPair, score: Double): ScoredTranslationPair = {
+    new ScoredTranslationPair(pair.source, pair.target, pair.mediaSource, score)
   }
 
 }

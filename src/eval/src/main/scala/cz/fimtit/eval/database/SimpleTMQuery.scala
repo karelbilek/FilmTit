@@ -14,12 +14,10 @@ import cz.filmtit.core.model.{TranslationMemory, Language}
 object SimpleTMQuery {
   def main(args: Array[String]) {
 
-    val storage = new PostgresFirstLetterStorage()
+    val storage = new PostgresFirstLetterStorage(Language.en, Language.cz)
     val ranker = new MixedRanker()
-    storage.l1 = Language.en
-    storage.l2 = Language.cz
-    val tm = new TranslationMemory(storage, ranker)
 
+    val tm = new TranslationMemory(storage, ranker)
 
     println(tm.nBest("I love you!", null, Language.en))
     println(tm.nBest("What did the minister tell you about his intentions?", null, Language.en))

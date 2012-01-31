@@ -4,7 +4,7 @@ import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
 import cz.filmtit.core.database.{PostgresTrigramStorage, PostgresFirstLetterStorage, PostgresStorage, PostgresFulltextStorage}
 
-object JDBCEvaluator {
+object EvaluateJDBC {
 
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
@@ -23,7 +23,7 @@ object JDBCEvaluator {
         //Read our format: scala.io.Source.fromFile(...).getLines().asInstanceOf[Iterator[TranslationPair]]
         //scala.io.Source.fromFile("/Users/jodaiber/Desktop/src/FilmTit/dbms_experiments/corpus.1m.txt").getLines()
         scala.io.Source.fromFile("").getLines().asInstanceOf[Iterator[TranslationPair]].map(
-          line => { new TranslationPair(line., null) }
+          line => { new TranslationPair(line, null) }
         ).filter(pair => pair.source != "" && pair.source.split(" ").size < 30)
       )
     )

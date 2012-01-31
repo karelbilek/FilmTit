@@ -9,5 +9,6 @@ package cz.filmtit.core.model
 
 object Language extends Enumeration {
   type Language = Value
-  val en, cz = Value
+  val en = Value("English")
+  val cz = Value("Czech")
 }

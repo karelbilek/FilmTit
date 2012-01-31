@@ -6,11 +6,14 @@ import cz.filmtit.core.model.Language._
   *
   * @author Joachim Daiber
   */
-abstract class TranslationPairStorage {
+abstract class TranslationPairStorage(val l1: Language, val l2: Language) {
 
-  var l1: Language = _
-  var l2: Language = _
-
+  def chunk(pair: TranslationPair, language: Language): Chunk = {
+    if (language equals l1)
+      pair.source
+    else
+      pair.target
+  }
 
   /** Retrieve a list of candidate translation pairs from the database.
     * Depending on the implementation, the pairs may have a

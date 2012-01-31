@@ -6,6 +6,10 @@ package cz.filmtit.core.model
 
 class Chunk(val surfaceform: String) {
   override def toString: String = this.surfaceform
+
+  override def hashCode = this.surfaceform.hashCode()
+  override def equals(other: Any) = this.surfaceform.equals(other.toString)
+
 }
 
 

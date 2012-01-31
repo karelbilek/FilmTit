@@ -26,7 +26,7 @@ class MixedRanker extends TranslationPairRanker {
         0.0
       }
 
-      ScoredTranslationPair.fromTranslationPair(pair, ((lambdas._1 * editDistanceScore) + (lambdas._2 * genreMatches)).toFloat)
+      ScoredTranslationPair.fromTranslationPair(pair, ((lambdas._1 * editDistanceScore) + (lambdas._2 * genreMatches)))
     }.sorted
   }
 

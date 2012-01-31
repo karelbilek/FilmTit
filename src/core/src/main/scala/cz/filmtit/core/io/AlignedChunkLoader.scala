@@ -77,9 +77,7 @@ object AlignedChunkLoader {
 
   def main(args: Array[String]) {
     loadSubtitleMapping()
-    val storage: PostgresFirstLetterStorage = new PostgresFirstLetterStorage()
-    storage.l1 = Language.en
-    storage.l2 = Language.cz
+    val storage: PostgresFirstLetterStorage = new PostgresFirstLetterStorage(Language.en, Language.cz)
 
     loadChunks(storage, new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"))
     println("hits:" + hit + ", miss:" + miss)

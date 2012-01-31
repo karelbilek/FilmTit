@@ -12,8 +12,8 @@ import cz.filmtit.core.model.Language._
  *
  */
 
-abstract class PostgresSignatureBasedStorage
-  extends PostgresStorage
+abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language)
+  extends PostgresStorage(l1, l2)
   with SignatureBasedStorage {
 
   var tableNameChunkSignature = "chunk_signatures"

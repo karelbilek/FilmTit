@@ -3,6 +3,8 @@ package cz.filmtit.core.model
 /**
  * @author Joachim Daiber
  *
+ * TODO: is there a P(pair)?
+ *
  */
 
 class TranslationPair(val source: Chunk, val target: Chunk, var mediaSource: MediaSource) {
