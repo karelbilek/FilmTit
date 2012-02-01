@@ -14,11 +14,11 @@ class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
 
-    createChunkTables(translationPairs);
+    createChunks(translationPairs);
 
     //Create the index:
     println("Creating index...")
-    connection.createStatement().execute("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING gist (sentence gist_trgm_ops);".format(tableNameChunks))
+    connection.createStatement().execute("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING gist (sentence gist_trgm_ops);".format(chunkTable))
 
   }
 
@@ -27,7 +27,8 @@ class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage
   }
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
-    val select = connection.prepareStatement("SELECT sentence FROM "+tableNameChunks+" WHERE sentence % ?;")
+    val select = connection.prepareStatement("SELECT sentence FROM " +
+      ""+ chunkTable +" WHERE sentence % ?;")
     select.setString(1, chunk)
     val rs = select.executeQuery()
 

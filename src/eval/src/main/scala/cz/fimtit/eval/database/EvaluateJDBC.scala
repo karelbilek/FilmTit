@@ -9,13 +9,13 @@ object EvaluateJDBC {
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
   storages += new PostgresFulltextStorage()
-  storages.last.asInstanceOf[PostgresStorage].tableNameChunks = "sentences_fulltext"
+  storages.last.asInstanceOf[PostgresStorage].chunkTable = "sentences_fulltext"
 
   storages += new PostgresFirstLetterStorage()
-  storages.last.asInstanceOf[PostgresStorage].tableNameChunks = "sentences_firstletter"
+  storages.last.asInstanceOf[PostgresStorage].chunkTable = "sentences_firstletter"
 
   storages += new PostgresTrigramStorage()
-  storages.last.asInstanceOf[PostgresStorage].tableNameChunks = "sentences_trigram"
+  storages.last.asInstanceOf[PostgresStorage].chunkTable = "sentences_trigram"
 
 
   def fill() {

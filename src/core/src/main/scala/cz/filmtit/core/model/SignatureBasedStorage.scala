@@ -12,4 +12,7 @@ trait SignatureBasedStorage extends TranslationPairStorage {
   /** A signature String for a specific [[cz.filmtit.core.model.Chunk]] used to index and retrieve it. */
   def signature(sentence: Chunk, language: Language): String
 
+  /** Write the signatures for the chunk table to the database. */
+  def createSignatures()
+
 }

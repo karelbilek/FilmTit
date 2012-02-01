@@ -12,20 +12,27 @@ import cz.filmtit.core.model.Language._
  *
  */
 
-abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language)
+abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
+                                             signatureTable: String)
   extends PostgresStorage(l1, l2)
   with SignatureBasedStorage {
 
-  var tableNameChunkSignature = "chunk_signatures"
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
+  override def initialize(translationPairs: TraversableOnce[TranslationPair],
+                          overrideChunks: Boolean = false) {
 
-    createChunkTables(translationPairs)
+    if(overrideChunks)
+      createChunks(translationPairs)
 
-    connection.createStatement().execute("DROP TABLE IF EXISTS %s; CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);".format(tableNameChunkSignature, tableNameChunkSignature, tableNameChunks))
+    createSignatures()
+
+  }
+
+  def createSignatures() {
+    connection.createStatement().execute("DROP TABLE IF EXISTS %s; CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);".format(signatureTable, signatureTable, chunkTable))
 
     val pairs: Statement = connection.createStatement()
-    pairs.execute("SELECT * FROM %s;".format(tableNameChunks))
+    pairs.execute("SELECT * FROM %s;".format(chunkTable))
 
     val signatureInsert: PreparedStatement = connection.prepareStatement("INSERT INTO chunk_signatures(chunk_id, signature_l1, signature_l2) VALUES(?, ?, ?);")
     while (pairs.getResultSet.next()) {
@@ -38,19 +45,21 @@ abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language)
 
     //Create the index:
     println("Creating indexes...")
-    connection.createStatement().execute("CREATE INDEX idx_chunkl1 ON %s (signature_l1);".format(tableNameChunkSignature))
-    connection.createStatement().execute("CREATE INDEX idx_chunkl2 ON %s (signature_l2);".format(tableNameChunkSignature))
+    connection.createStatement().execute(
+      "CREATE INDEX idx_chunkl1_%s ON %s (signature_l1);"
+        .format(signatureTable, signatureTable))
 
+    connection.createStatement().execute((
+      "CREATE INDEX idx_chunkl2_%s ON %s (signature_l2);")
+      .format(signatureTable, signatureTable))
 
   }
 
-  override def addTranslationPair(translationPair: TranslationPair) {
-
-  }
+  override def addTranslationPair(translationPair: TranslationPair)
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(tableNameChunkSignature,tableNameChunks, maxCandidates))
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable,chunkTable, maxCandidates))
     select.setString(1, signature(chunk, language))
     val rs = select.executeQuery()
 

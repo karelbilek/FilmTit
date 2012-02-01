@@ -11,11 +11,11 @@ class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorag
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
 
-    createChunkTables(translationPairs);
+    createChunks(translationPairs);
 
     //Create the index:
     println("Creating index...")
-    connection.createStatement().execute("drop index if exists idx_fulltext; CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));".format(tableNameChunks))
+    connection.createStatement().execute("drop index if exists idx_fulltext; CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));".format(chunkTable))
 
   }
 
@@ -24,7 +24,7 @@ class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorag
   }
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
-    val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(tableNameChunks))
+    val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(chunkTable))
     select.setString(1, chunk)
     val rs = select.executeQuery()
 

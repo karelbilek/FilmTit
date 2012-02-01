@@ -10,7 +10,8 @@ import java.lang.String
  *
  */
 
-class PostgresFirstLetterStorage(l1: Language, l2: Language) extends PostgresSignatureBasedStorage(l1, l2) {
+class PostgresFirstLetterStorage(l1: Language, l2: Language)
+  extends PostgresSignatureBasedStorage(l1, l2, "sign_firstletter") {
 
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.

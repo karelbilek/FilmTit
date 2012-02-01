@@ -1,8 +1,8 @@
 package cz.fimtit.eval.database
 
-import cz.filmtit.core.database.PostgresFirstLetterStorage
-import cz.filmtit.core.rank.MixedRanker
-import cz.filmtit.core.model.{TranslationMemory, Language}
+import cz.filmtit.core.model.Language
+import cz.filmtit.core.factory.TMFactory
+import cz.filmtit.core.TMFactory
 
 /**
  * @author Joachim Daiber
@@ -14,10 +14,7 @@ import cz.filmtit.core.model.{TranslationMemory, Language}
 object SimpleTMQuery {
   def main(args: Array[String]) {
 
-    val storage = new PostgresFirstLetterStorage(Language.en, Language.cz)
-    val ranker = new MixedRanker()
-
-    val tm = new TranslationMemory(storage, ranker)
+    val tm = TMFactory.defaultTM()
 
     println(tm.nBest("I love you!", null, Language.en))
     println(tm.nBest("What did the minister tell you about his intentions?", null, Language.en))

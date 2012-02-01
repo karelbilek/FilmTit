@@ -12,6 +12,8 @@ import collection.mutable.HashSet
 import java.net.URLEncoder
 import cz.filmtit.core.model.TranslationPair.fromString
 import cz.filmtit.core.model.Language
+import cz.filmtit.core.factory.TMFactory
+import cz.filmtit.core.{TMFactory, Configuration}
 
 
 /**
@@ -23,7 +25,7 @@ object AlignedChunkLoader {
   var subtitles = HashMap[String, MediaSource]()
 
   def loadSubtitleMapping() {
-    Source.fromFile("/Users/jodaiber/Dropbox/FilmTit/Examples, experiments/opensubtitles stats/export_final.txt").getLines() foreach
+    Source.fromFile(Configuration.subtitleMovieMapping).getLines() foreach
       { line =>
         val data = line.split("\t")
 
@@ -77,9 +79,11 @@ object AlignedChunkLoader {
 
   def main(args: Array[String]) {
     loadSubtitleMapping()
-    val storage: PostgresFirstLetterStorage = new PostgresFirstLetterStorage(Language.en, Language.cz)
 
-    loadChunks(storage, new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"))
+    val tm = TMFactory.defaultTM()
+
+    loadChunks(tm.storage, new File(Configuration.alignedChunkFolder))
+
     println("hits:" + hit + ", miss:" + miss)
 
   }
@@ -89,10 +93,12 @@ object AlignedChunkLoader {
 
     val response = title match {
       case patternTVShow(titleShow) => {
-        Source.fromURL( "http://www.imdbapi.com/?t=%s".format(URLEncoder.encode(titleShow, "utf-8")) ).getLines()
+        Source.fromURL( "http://www.imdbapi.com/?t=%s".format(
+          URLEncoder.encode(titleShow, "utf-8")) ).getLines()
       }
       case _ => {
-        Source.fromURL( "http://www.imdbapi.com/?t=%s&y=%s".format(URLEncoder.encode(title, "utf-8"), year) ).getLines()
+        Source.fromURL( "http://www.imdbapi.com/?t=%s&y=%s".format(
+          URLEncoder.encode(title, "utf-8"), year) ).getLines()
       }
     }
 

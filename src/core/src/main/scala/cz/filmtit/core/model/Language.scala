@@ -3,8 +3,6 @@ package cz.filmtit.core.model
 /**
  * @author Joachim Daiber
  *
- *
- *
  */
 
 object Language extends Enumeration {
