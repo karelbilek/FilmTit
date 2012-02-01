@@ -1,4 +1,4 @@
 import:
-	mvn scala:run -Dlauncher=import -DaddArgs="/filmtit/data/utf8|/filmtit/data/export_final.txt"
+	mvn scala:run -Dlauncher=import -DaddArgs="/filmtit/data/export_final.txt|/filmtit/data/utf8"
 
 .PHONY: import
