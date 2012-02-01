@@ -94,7 +94,7 @@ object AlignedChunkLoader {
 
 
   def main(args: Array[String]) {
-    loadSubtitleMapping(args(1))
+    loadSubtitleMapping(new File(args(1)))
 
     val tm = TMFactory.defaultTM()
 
