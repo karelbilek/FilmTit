@@ -9,7 +9,6 @@ import io.Source
 import collection.mutable.HashSet
 import java.net.URLEncoder
 import cz.filmtit.core.factory.TMFactory
-import cz.filmtit.core.Configuration
 import cz.filmtit.core.tm.BackoffTranslationMemory
 
 
@@ -94,12 +93,12 @@ object AlignedChunkLoader {
 
 
   def main(args: Array[String]) {
-    loadSubtitleMapping(new File(args(1)))
+    loadSubtitleMapping(new File(args(0)))
 
     val tm = TMFactory.defaultTM()
 
     loadChunks(tm.asInstanceOf[BackoffTranslationMemory].storage,
-      new File(args(0)))
+      new File(args(1)))
 
     println("hits:" + hit + ", miss:" + miss)
 

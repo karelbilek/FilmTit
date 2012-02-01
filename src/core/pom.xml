@@ -28,11 +28,6 @@
                             <id>import</id>
                             <mainClass>cz.filmtit.core.io.AlignedChunkLoader</mainClass>
 
-                            <args>
-                                <arg>dataFolder</arg>
-                                <arg>indexFile</arg>
-                            </args>
-
                             <jvmArgs>
                                 <jvmArg>-Xmx2G</jvmArg>
                             </jvmArgs>
