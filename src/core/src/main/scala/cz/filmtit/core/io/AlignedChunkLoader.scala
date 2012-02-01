@@ -4,16 +4,12 @@ import cz.filmtit.core.model.{MediaSource, TranslationPairStorage, TranslationPa
 
 import collection.mutable.HashMap
 import org.json.JSONObject
-import java.net.URL
-import java.io.{BufferedInputStream, File}
-import io.{BufferedSource, Source}
-import cz.filmtit.core.database.PostgresFirstLetterStorage
+import java.io.File
+import io.Source
 import collection.mutable.HashSet
 import java.net.URLEncoder
-import cz.filmtit.core.model.TranslationPair.fromString
-import cz.filmtit.core.model.Language
 import cz.filmtit.core.factory.TMFactory
-import cz.filmtit.core.{Configuration}
+import cz.filmtit.core.Configuration
 import cz.filmtit.core.tm.BackoffTranslationMemory
 
 
@@ -25,8 +21,8 @@ object AlignedChunkLoader {
 
   var subtitles = HashMap[String, MediaSource]()
 
-  def loadSubtitleMapping() {
-    Source.fromFile(Configuration.subtitleMovieMapping).getLines() foreach
+  def loadSubtitleMapping(mappingFile: File) {
+    Source.fromFile(mappingFile).getLines() foreach
       { line =>
         val data = line.split("\t")
 
@@ -78,17 +74,6 @@ object AlignedChunkLoader {
 
   }
 
-  def main(args: Array[String]) {
-    loadSubtitleMapping()
-
-    val tm = TMFactory.defaultTM()
-
-    loadChunks(tm.asInstanceOf[BackoffTranslationMemory].storage,
-      new File(args(0)))
-
-    println("hits:" + hit + ", miss:" + miss)
-
-  }
 
   def queryIMDB(title: String, year: String): JSONObject = {
     val patternTVShow = "\"(.+)\" .+".r
@@ -105,6 +90,19 @@ object AlignedChunkLoader {
     }
 
     new JSONObject( response.next() )
+  }
+
+
+  def main(args: Array[String]) {
+    loadSubtitleMapping(args(1))
+
+    val tm = TMFactory.defaultTM()
+
+    loadChunks(tm.asInstanceOf[BackoffTranslationMemory].storage,
+      new File(args(0)))
+
+    println("hits:" + hit + ", miss:" + miss)
+
   }
 
 }

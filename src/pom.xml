@@ -61,6 +61,7 @@
 
                             <args>
                                 <arg>dataFolder</arg>
+                                <arg>indexFile</arg>
                             </args>
 
                             <jvmArgs>
