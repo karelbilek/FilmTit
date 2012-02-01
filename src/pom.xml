@@ -52,6 +52,25 @@
                     <jvmArgs>
                         <jvmArg>${heapspace.Xmx.compiler}</jvmArg>
                     </jvmArgs>
+
+                    <launchers>
+
+                        <!-- Initial Import launcher -->
+                        <launcher>
+                            <id>import</id>
+                            <mainClass>cz.filmtit.core.io.AlignedChunkLoader</mainClass>
+
+                            <args>
+                                <arg>dataFolder</arg>
+                            </args>
+
+                            <jvmArgs>
+                                <jvmArg>-Xmx3G</jvmArg>
+                            </jvmArgs>
+                        </launcher>
+
+
+                    </launchers>
                 </configuration>
             </plugin>
 
@@ -89,6 +108,11 @@
             <url>http://scala-tools.org/repo-releases</url>
         </repository>
 
+        <repository>
+            <id>maven.iscpif.fr</id>
+            <url>http://maven.iscpif.fr/public</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -98,8 +122,6 @@
             <version>${scala.compiler.version}</version>
             <scope>provided</scope>
         </dependency>
-
-
 
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -120,20 +142,20 @@
         </dependency>
 
         <dependency>
-          <groupId>com.weiglewilczek.slf4s</groupId>
-          <artifactId>slf4s_2.9.1</artifactId>
-          <version>1.0.7</version>
+            <groupId>com.weiglewilczek.slf4s</groupId>
+            <artifactId>slf4s_2.9.1</artifactId>
+            <version>1.0.7</version>
         </dependency>
         <dependency>
-        	<groupId>log4j</groupId>
-        	<artifactId>log4j</artifactId>
-        	<version>1.2.16</version>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
         </dependency>
 
         <dependency>
-        	<groupId>org.slf4j</groupId>
-        	<artifactId>slf4j-simple</artifactId>
-        	<version>1.6.4</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
         </dependency>
 
     </dependencies>

@@ -12,7 +12,8 @@ import cz.filmtit.core.model.Language._
 
 class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
+  override def initialize(translationPairs: TraversableOnce[TranslationPair],
+                          overrideChunks: Boolean) {
 
     createChunks(translationPairs);
 

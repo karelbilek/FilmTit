@@ -7,12 +7,19 @@ package cz.filmtit.core.model
 abstract class TranslationPairRanker {
 
   def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-        List[ScoredTranslationPair] = pairs.map(rankOne).sorted
+  List[ScoredTranslationPair]
+  = pairs.map(pair => rankOne(chunk, mediaSource,pair)).sorted
 
   def best(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-        ScoredTranslationPair = pairs.map(rankOne).max
+  Option[ScoredTranslationPair] = {
+    pairs.map(pair => rankOne(chunk, mediaSource,pair)) match {
+      case List()                                  => None
+      case x: List[Ordered[ScoredTranslationPair]] => Some(x.max)
+    }
+  }
 
-  def rankOne(pair: TranslationPair): ScoredTranslationPair
+  def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair):
+  ScoredTranslationPair
 
   def name: String
 

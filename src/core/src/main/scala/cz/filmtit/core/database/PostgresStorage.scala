@@ -13,7 +13,8 @@ import cz.filmtit.core.model.Language._
  *
  */
 
-abstract class PostgresStorage(l1: Language, l2: Language) extends TranslationPairStorage(l1, l2) {
+abstract class PostgresStorage(l1: Language, l2: Language)
+  extends TranslationPairStorage(l1, l2) {
 
   //Load the driver:
   classOf[org.postgresql.Driver]

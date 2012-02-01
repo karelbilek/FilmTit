@@ -13,7 +13,8 @@ import java.net.URLEncoder
 import cz.filmtit.core.model.TranslationPair.fromString
 import cz.filmtit.core.model.Language
 import cz.filmtit.core.factory.TMFactory
-import cz.filmtit.core.{TMFactory, Configuration}
+import cz.filmtit.core.{Configuration}
+import cz.filmtit.core.tm.BackoffTranslationMemory
 
 
 /**
@@ -72,8 +73,8 @@ object AlignedChunkLoader {
             .map( TranslationPair.fromString(_) )
             .filter( _ != null )
             .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
-        })
-    )
+        }),
+      true)
 
   }
 
@@ -82,7 +83,8 @@ object AlignedChunkLoader {
 
     val tm = TMFactory.defaultTM()
 
-    loadChunks(tm.storage, new File(Configuration.alignedChunkFolder))
+    loadChunks(tm.asInstanceOf[BackoffTranslationMemory].storage,
+      new File(args(0)))
 
     println("hits:" + hit + ", miss:" + miss)
 

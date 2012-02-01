@@ -2,7 +2,7 @@ package cz.fimtit.eval.database
 
 import cz.filmtit.core.model.Language
 import cz.filmtit.core.factory.TMFactory
-import cz.filmtit.core.TMFactory
+
 
 /**
  * @author Joachim Daiber

@@ -15,6 +15,6 @@ trait TranslationMemory {
             n: Int = 10): List[ScoredTranslationPair]
 
   def firstBest(chunk: Chunk, mediaSource: MediaSource, language: Language):
-    ScoredTranslationPair
+    Option[ScoredTranslationPair]
 
 }

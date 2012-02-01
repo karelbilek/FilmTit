@@ -22,7 +22,8 @@ abstract class TranslationPairStorage(val l1: Language, val l2: Language) {
   def candidates(chunk: Chunk, language: Language): List[TranslationPair]
 
   /** Create a new database with the initial set of translation pairs. */
-  def initialize(translationPairs: TraversableOnce[TranslationPair])
+  def initialize(translationPairs: TraversableOnce[TranslationPair],
+                 overrideChunks: Boolean )
 
   /** Add a single translation pair to the database */
   def addTranslationPair(translationPair: TranslationPair)

@@ -9,13 +9,15 @@ import cz.filmtit.core.model.Language._
   */
 class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
+  override def initialize(translationPairs: TraversableOnce[TranslationPair],
+                          overrideChunks: Boolean) {
 
     createChunks(translationPairs);
 
     //Create the index:
     println("Creating index...")
-    connection.createStatement().execute("drop index if exists idx_fulltext; CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));".format(chunkTable))
+    connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext;" +
+      "CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));").format(chunkTable))
 
   }
 

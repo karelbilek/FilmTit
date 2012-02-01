@@ -21,7 +21,7 @@ abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
   override def initialize(translationPairs: TraversableOnce[TranslationPair],
                           overrideChunks: Boolean = false) {
 
-    if(overrideChunks)
+    if (overrideChunks)
       createChunks(translationPairs)
 
     createSignatures()
@@ -34,13 +34,15 @@ abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
     val pairs: Statement = connection.createStatement()
     pairs.execute("SELECT * FROM %s;".format(chunkTable))
 
-    val signatureInsert: PreparedStatement = connection.prepareStatement("INSERT INTO chunk_signatures(chunk_id, signature_l1, signature_l2) VALUES(?, ?, ?);")
+    val inStmt: PreparedStatement = connection.prepareStatement("INSERT INTO chunk_signatures(chunk_id, signature_l1, signature_l2) VALUES(?, ?, ?);")
     while (pairs.getResultSet.next()) {
       val row = pairs.getResultSet
-      signatureInsert.setInt(1, row.getInt("chunk_id"))
-      signatureInsert.setString(2, signature(row.getString("chunk_l1"), l1))
-      signatureInsert.setString(3, signature(row.getString("chunk_l2"), l2))
-      signatureInsert.execute()
+
+      inStmt.setInt(1, row.getInt("chunk_id"))
+      inStmt.setString(2, signature(row.getString("chunk_l1"), l1))
+      inStmt.setString(3, signature(row.getString("chunk_l2"), l2))
+
+      inStmt.execute()
     }
 
     //Create the index:
@@ -55,7 +57,7 @@ abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
 
   }
 
-  override def addTranslationPair(translationPair: TranslationPair)
+  override def addTranslationPair(translationPair: TranslationPair) = {}
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
