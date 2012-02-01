@@ -3,6 +3,7 @@ package cz.filmtit.core.tm
 import cz.filmtit.core.model._
 import cz.filmtit.core.model.Language._
 import com.weiglewilczek.slf4s.{Logging}
+import scala.Predef._
 
 
 /**
@@ -34,6 +35,7 @@ class BackoffTranslationMemory(val storage: TranslationPairStorage,
     val s = System.currentTimeMillis
 
     val ranked = ranker.rank(chunk, null, candidates(chunk, mediaSource, language))
+
     logger.info( "Ranking candiates took %dms..."
       .format(System.currentTimeMillis - s) )
 
@@ -59,6 +61,26 @@ class BackoffTranslationMemory(val storage: TranslationPairStorage,
         }
     }
 
+  }
+
+  def initialize(pairs: Array[TranslationPair]) {
+    storage.initialize(pairs)
+
+    backoff match {
+      case Some(tm) => tm.initialize(pairs)
+    }
+  }
+
+  def reindex() {
+    storage.reindex()
+
+    backoff match {
+      case Some(tm) => tm.reindex()
+    }
+  }
+
+  def addMediaSource(mediaSource: MediaSource): Long = {
+    storage.addMediaSource(mediaSource)
   }
 
 }

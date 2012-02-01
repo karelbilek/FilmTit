@@ -12,16 +12,12 @@ import cz.filmtit.core.model.Language._
 
 class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair],
-                          overrideChunks: Boolean) {
-
+  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs);
-
-    //Create the index:
-    println("Creating index...")
-    connection.createStatement().execute("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING gist (sentence gist_trgm_ops);".format(chunkTable))
-
+    reindex()
   }
+
+
 
   override def addTranslationPair(translationPair: TranslationPair) {
 
@@ -43,5 +39,9 @@ class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage
 
   override def name: String = "Translation pair storage using a trigram index."
 
-
+  def reindex() {
+    connection.createStatement().execute(
+      ("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING " +
+        "gist (sentence gist_trgm_ops);").format(chunkTable))
+  }
 }

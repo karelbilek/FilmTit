@@ -26,7 +26,7 @@
                         <!-- Initial Import launcher -->
                         <launcher>
                             <id>import</id>
-                            <mainClass>cz.filmtit.core.io.AlignedChunkLoader</mainClass>
+                            <mainClass>cz.filmtit.core.io.ImportChunks</mainClass>
 
                             <jvmArgs>
                                 <jvmArg>-Xmx2G</jvmArg>
@@ -34,6 +34,15 @@
                         </launcher>
 
 
+                        <!-- Reindex launcher -->
+                        <launcher>
+                            <id>reindex</id>
+                            <mainClass>cz.filmtit.core.io.Reindex</mainClass>
+
+                            <jvmArgs>
+                                <jvmArg>-Xmx2G</jvmArg>
+                            </jvmArgs>
+                        </launcher>
 
                     </launchers>
                 </configuration>

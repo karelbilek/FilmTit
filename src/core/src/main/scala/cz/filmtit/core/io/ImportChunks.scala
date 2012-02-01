@@ -1,6 +1,5 @@
 package cz.filmtit.core.io
 
-import cz.filmtit.core.model.{MediaSource, TranslationPairStorage, TranslationPair}
 
 import collection.mutable.HashMap
 import org.json.JSONObject
@@ -10,13 +9,14 @@ import collection.mutable.HashSet
 import java.net.URLEncoder
 import cz.filmtit.core.factory.TMFactory
 import cz.filmtit.core.tm.BackoffTranslationMemory
+import cz.filmtit.core.model.{TranslationMemory, MediaSource, TranslationPairStorage, TranslationPair}
 
 
 /**
  * @author Joachim Daiber
  */
 
-object AlignedChunkLoader {
+object ImportChunks {
 
   var subtitles = HashMap[String, MediaSource]()
 
@@ -56,21 +56,19 @@ object AlignedChunkLoader {
   }
 
 
-  def loadChunks(storage: TranslationPairStorage, folder: File) {
+  def loadChunks(tm: TranslationMemory, folder: File) {
 
-    storage.initialize(
+    tm.initialize(
       folder.listFiles flatMap (
         sourceFile => {
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
-          mediaSource.id = storage.addMediaSource(mediaSource)
+          mediaSource.id = tm.addMediaSource(mediaSource)
 
           Source.fromFile(sourceFile).getLines()
             .map( TranslationPair.fromString(_) )
             .filter( _ != null )
             .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
-        }),
-      true)
-
+        }))
   }
 
 
@@ -97,8 +95,7 @@ object AlignedChunkLoader {
 
     val tm = TMFactory.defaultTM()
 
-    loadChunks(tm.asInstanceOf[BackoffTranslationMemory].storage,
-      new File(args(1)))
+    loadChunks(tm, new File(args(1)))
 
     println("hits:" + hit + ", miss:" + miss)
 

@@ -13,6 +13,6 @@ trait SignatureBasedStorage extends TranslationPairStorage {
   def signature(sentence: Chunk, language: Language): String
 
   /** Write the signatures for the chunk table to the database. */
-  def createSignatures()
+  def reindex()
 
 }

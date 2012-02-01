@@ -18,17 +18,12 @@ abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
   with SignatureBasedStorage {
 
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair],
-                          overrideChunks: Boolean = false) {
-
-    if (overrideChunks)
-      createChunks(translationPairs)
-
-    createSignatures()
-
+  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
+    createChunks(translationPairs)
+    reindex()
   }
 
-  def createSignatures() {
+  override def reindex() {
     connection.createStatement().execute("DROP TABLE IF EXISTS %s; CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);".format(signatureTable, signatureTable, chunkTable))
 
     val pairs: Statement = connection.createStatement()

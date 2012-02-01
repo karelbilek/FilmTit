@@ -9,16 +9,9 @@ import cz.filmtit.core.model.Language._
   */
 class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair],
-                          overrideChunks: Boolean) {
-
+  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs);
-
-    //Create the index:
-    println("Creating index...")
-    connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext;" +
-      "CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));").format(chunkTable))
-
+    reindex()
   }
 
   override def addTranslationPair(translationPair: TranslationPair) {
@@ -40,5 +33,8 @@ class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorag
 
   override def name: String = "Translation pair storage using a full text index."
 
-
+  def reindex() {
+    connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext;" +
+      "CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));").format(chunkTable))
+  }
 }
