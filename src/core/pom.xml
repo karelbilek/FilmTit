@@ -12,12 +12,48 @@
     <artifactId>core</artifactId>
     <name>Translation memory core</name>
 
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+
+                <configuration>
+                    <launchers>
+
+
+                        <!-- Initial Import launcher -->
+                        <launcher>
+                            <id>import</id>
+                            <mainClass>cz.filmtit.core.io.AlignedChunkLoader</mainClass>
+
+                            <args>
+                                <arg>dataFolder</arg>
+                                <arg>indexFile</arg>
+                            </args>
+
+                            <jvmArgs>
+                                <jvmArg>-Xmx2G</jvmArg>
+                            </jvmArgs>
+                        </launcher>
+
+
+
+                    </launchers>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
     <dependencies>
 
         <dependency>
-        	<groupId>org.apache.commons</groupId>
-        	<artifactId>commons-lang3</artifactId>
-        	<version>3.1</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
         </dependency>
 
     </dependencies>
