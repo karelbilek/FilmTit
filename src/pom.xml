@@ -8,8 +8,7 @@
     <properties>
         <filmtit.version>0.1</filmtit.version>
 
-        <heapspace.Xmx.compiler>-Xmx5g</heapspace.Xmx.compiler>
-        <heapspace.Xmx.indexer>-Xmx2g</heapspace.Xmx.indexer>
+        <heapspace.Xmx.compiler>-Xmx2500m</heapspace.Xmx.compiler>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.compiler.version>1.6</java.compiler.version>
@@ -65,7 +64,7 @@
                             </args>
 
                             <jvmArgs>
-                                <jvmArg>-Xmx3G</jvmArg>
+                                <jvmArg>-Xmx2G</jvmArg>
                             </jvmArgs>
                         </launcher>
 
