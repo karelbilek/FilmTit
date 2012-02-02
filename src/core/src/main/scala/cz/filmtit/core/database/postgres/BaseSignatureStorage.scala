@@ -1,4 +1,4 @@
-package cz.filmtit.core.database
+package cz.filmtit.core.database.postgres
 
 import cz.filmtit.core.model._
 import java.sql.{PreparedStatement, Statement}
@@ -6,15 +6,14 @@ import collection.mutable.ListBuffer
 import cz.filmtit.core.model.Language._
 
 
-
 /**
  * @author Joachim Daiber
  *
  */
 
-abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
-                                             signatureTable: String)
-  extends PostgresStorage(l1, l2)
+abstract class BaseSignatureStorage(l1: Language, l2: Language,
+                                    signatureTable: String)
+  extends BaseStorage(l1, l2)
   with SignatureBasedStorage {
 
 
@@ -56,7 +55,7 @@ abstract class PostgresSignatureBasedStorage(l1: Language, l2: Language,
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable,chunkTable, maxCandidates))
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, chunkTable, maxCandidates))
     select.setString(1, signature(chunk, language))
     val rs = select.executeQuery()
 

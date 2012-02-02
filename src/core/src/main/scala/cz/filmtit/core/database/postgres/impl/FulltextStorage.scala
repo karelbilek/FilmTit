@@ -1,13 +1,14 @@
-package cz.filmtit.core.database
+package cz.filmtit.core.database.postgres.impl
 
+import cz.filmtit.core.database.postgres.BaseStorage
 import cz.filmtit.core.model._
 import cz.filmtit.core.model.Language._
 
 
 /**
-  * Postgres-based storage using a full-text index.
-  */
-class PostgresFulltextStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
+ * Postgres-based storage using a full-text index.
+ */
+class FulltextStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2) {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs);

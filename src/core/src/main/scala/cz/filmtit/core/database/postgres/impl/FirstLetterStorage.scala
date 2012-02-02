@@ -1,7 +1,8 @@
-package cz.filmtit.core.database
+package cz.filmtit.core.database.postgres.impl
 
+import cz.filmtit.core.database.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
-import cz.filmtit.core.model.Language._
+import cz.filmtit.core.model.Language.Language
 import java.lang.String
 
 
@@ -10,8 +11,8 @@ import java.lang.String
  *
  */
 
-class PostgresFirstLetterStorage(l1: Language, l2: Language)
-  extends PostgresSignatureBasedStorage(l1, l2, "sign_firstletter") {
+class FirstLetterStorage(l1: Language, l2: Language)
+  extends BaseSignatureStorage(l1, l2, "sign_firstletter") {
 
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
@@ -34,7 +35,7 @@ class PostgresFirstLetterStorage(l1: Language, l2: Language)
             ).toLowerCase
           }
         }
-    } mkString(" ")
+    } mkString (" ")
   }
 
   override def name: String = "Translation pair storage using the first letter of every word as an index."

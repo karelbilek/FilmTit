@@ -2,20 +2,21 @@ package cz.fimtit.eval.database
 
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
-import cz.filmtit.core.database.{PostgresTrigramStorage, PostgresFirstLetterStorage, PostgresStorage, PostgresFulltextStorage}
+import cz.filmtit.core.database.postgres.impl.{FulltextStorage, FirstLetterStorage, TrigramStorage}
+import cz.filmtit.core.database.postgres.BaseStorage
 
 object EvaluateJDBC {
 
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
-  storages += new PostgresFulltextStorage(Language.en, Language.cz)
-  storages.last.asInstanceOf[PostgresStorage].chunkTable = "sentences_fulltext"
+  storages += new FulltextStorage(Language.en, Language.cz)
+  storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_fulltext"
 
-  storages += new PostgresFirstLetterStorage(Language.en, Language.cz)
-  storages.last.asInstanceOf[PostgresStorage].chunkTable = "sentences_firstletter"
+  storages += new FirstLetterStorage(Language.en, Language.cz)
+  storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_firstletter"
 
-  storages += new PostgresTrigramStorage(Language.en, Language.cz)
-  storages.last.asInstanceOf[PostgresStorage].chunkTable = "sentences_trigram"
+  storages += new TrigramStorage(Language.en, Language.cz)
+  storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_trigram"
 
 
   def fill() {

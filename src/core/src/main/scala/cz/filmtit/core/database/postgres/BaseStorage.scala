@@ -1,4 +1,4 @@
-package cz.filmtit.core.database
+package cz.filmtit.core.database.postgres
 
 import cz.filmtit.core.Configuration
 import cz.filmtit.core.model.{TranslationPairStorage, MediaSource, TranslationPair}
@@ -13,7 +13,7 @@ import cz.filmtit.core.model.Language._
  *
  */
 
-abstract class PostgresStorage(l1: Language, l2: Language)
+abstract class BaseStorage(l1: Language, l2: Language)
   extends TranslationPairStorage(l1, l2) {
 
   //Load the driver:
@@ -22,12 +22,12 @@ abstract class PostgresStorage(l1: Language, l2: Language)
   //Initialize connection
   val connection = try {
     DriverManager.getConnection(Configuration.dbConnector,
-                                Configuration.dbUser,
-                                Configuration.dbPassword)
-  } catch{
+      Configuration.dbUser,
+      Configuration.dbPassword)
+  } catch {
     case e: PSQLException => throw new ConnectException(
       "Could not connect to database. " +
-      "Please check if the database is running.")
+        "Please check if the database is running.")
   }
 
   var chunkTable = "chunks"
@@ -40,12 +40,12 @@ abstract class PostgresStorage(l1: Language, l2: Language)
 
     connection.createStatement().execute((
       "DROP TABLE IF EXISTS %s; " +
-      "CREATE TABLE %s (chunk_id SERIAL PRIMARY KEY, chunk_l1 TEXT, chunk_l2 TEXT, source_id INTEGER references %s(source_id));"
+        "CREATE TABLE %s (chunk_id SERIAL PRIMARY KEY, chunk_l1 TEXT, chunk_l2 TEXT, source_id INTEGER references %s(source_id));"
       ).format(chunkTable, chunkTable, mediasourceTable))
 
     connection.createStatement().execute((
       "DROP TABLE IF EXISTS %s CASCADE; " +
-      "CREATE TABLE %s (source_id SERIAL PRIMARY KEY, title TEXT, year VARCHAR(4), genres TEXT);"
+        "CREATE TABLE %s (source_id SERIAL PRIMARY KEY, title TEXT, year VARCHAR(4), genres TEXT);"
       ).format(mediasourceTable, mediasourceTable))
 
     val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))

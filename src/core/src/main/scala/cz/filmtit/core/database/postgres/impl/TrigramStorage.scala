@@ -1,7 +1,8 @@
-package cz.filmtit.core.database
+package cz.filmtit.core.database.postgres.impl
 
 import cz.filmtit.core.model._
-import cz.filmtit.core.model.Language._
+import cz.filmtit.core.model.Language.Language
+import cz.filmtit.core.database.postgres.BaseStorage
 
 
 /**
@@ -10,13 +11,12 @@ import cz.filmtit.core.model.Language._
  */
 
 
-class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage(l1, l2) {
+class TrigramStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2) {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs);
     reindex()
   }
-
 
 
   override def addTranslationPair(translationPair: TranslationPair) {
@@ -25,7 +25,7 @@ class PostgresTrigramStorage(l1: Language, l2: Language) extends PostgresStorage
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
-      ""+ chunkTable +" WHERE sentence % ?;")
+      "" + chunkTable + " WHERE sentence % ?;")
     select.setString(1, chunk)
     val rs = select.executeQuery()
 

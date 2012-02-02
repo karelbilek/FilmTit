@@ -16,7 +16,7 @@ import cz.filmtit.core.model.{TranslationMemory, MediaSource, TranslationPairSto
  * @author Joachim Daiber
  */
 
-object ImportChunks {
+object Import {
 
   var subtitles = HashMap[String, MediaSource]()
 

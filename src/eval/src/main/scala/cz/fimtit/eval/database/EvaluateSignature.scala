@@ -3,7 +3,7 @@ package cz.fimtit.eval.database
 import io.Source
 import java.io.File
 import org.apache.commons.math.stat.StatUtils
-import cz.filmtit.core.database.PostgresFirstLetterStorage
+import cz.filmtit.core.database.postgres.impl.FirstLetterStorage
 import cz.filmtit.core.model.{Language, TranslationPair, SignatureBasedStorage,
                               TranslationPairStorage}
 
@@ -62,7 +62,7 @@ object EvaluateSignature {
 
   def main(args: Array[String]) {
 
-    evaluateSignatures(new PostgresFirstLetterStorage(Language.en, Language.cz),
+    evaluateSignatures(new FirstLetterStorage(Language.en, Language.cz),
                        new File("/Users/jodaiber/Desktop/LCT/" +
                          "LCT W11:12/FilmTit/data/parallel/utf8"))
   }
