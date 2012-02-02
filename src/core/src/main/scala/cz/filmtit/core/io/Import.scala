@@ -61,6 +61,7 @@ object Import {
     tm.initialize(
       folder.listFiles flatMap (
         sourceFile => {
+          println( "Processing file %s".format(sourceFile) )
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
           mediaSource.id = tm.addMediaSource(mediaSource)
 
@@ -92,13 +93,11 @@ object Import {
 
   def main(args: Array[String]) {
     loadSubtitleMapping(new File(args(0)))
+    println("Loaded subtitle -> movie mapping")
 
-    val tm = TMFactory.defaultTM()
-
+    val tm = TMFactory.defaultTM()    
     loadChunks(tm, new File(args(1)))
-
     println("hits:" + hit + ", miss:" + miss)
-
   }
 
 }
