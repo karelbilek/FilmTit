@@ -7,9 +7,8 @@ import java.io.File
 import io.Source
 import collection.mutable.HashSet
 import java.net.URLEncoder
-import cz.filmtit.core.factory.TMFactory
-import cz.filmtit.core.tm.BackoffTranslationMemory
-import cz.filmtit.core.model.{TranslationMemory, MediaSource, TranslationPairStorage, TranslationPair}
+import cz.filmtit.core.factory.Factory
+import cz.filmtit.core.model.{TranslationMemory, MediaSource, TranslationPair}
 
 
 /**
@@ -26,7 +25,13 @@ object Import {
         val data = line.split("\t")
 
         if (!subtitles.contains(data(0)))
-          subtitles.put(data(0), new MediaSource(data(7), data(8), new HashSet[String]()))
+          subtitles.put(data(0),
+            new MediaSource(
+              data(7),
+              data(8),
+              new HashSet[String]()
+            )
+          )
       }
   }
 
@@ -95,7 +100,7 @@ object Import {
     loadSubtitleMapping(new File(args(0)))
     println("Loaded subtitle -> movie mapping")
 
-    val tm = TMFactory.defaultTM()    
+    val tm = Factory.createTM()
     loadChunks(tm, new File(args(1)))
     println("hits:" + hit + ", miss:" + miss)
   }

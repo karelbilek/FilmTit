@@ -1,6 +1,6 @@
 package cz.filmtit.core.io
 
-import cz.filmtit.core.factory.TMFactory
+import cz.filmtit.core.factory.Factory
 
 /**
  * @author Joachim Daiber
@@ -8,6 +8,6 @@ import cz.filmtit.core.factory.TMFactory
 
 object Reindex {
   def main(args: Array[String]) {
-    TMFactory.defaultTM().reindex()
+    Factory.createTM().reindex()
   }
 }

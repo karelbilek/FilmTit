@@ -51,7 +51,7 @@
                     <jvmArgs>
                         <jvmArg>${heapspace.Xmx.compiler}</jvmArg>
                     </jvmArgs>
-            </configuration>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -75,6 +75,13 @@
     </build>
 
     <repositories>
+
+        <!-- OpenNLP -->
+        <repository>
+            <id>opennlp.sf.net</id>
+            <url>http://opennlp.sourceforge.net/maven2</url>
+        </repository>
+
 
         <!-- Repository for JDBC tool -->
         <repository>

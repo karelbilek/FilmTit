@@ -6,6 +6,7 @@ import org.postgresql.util.PSQLException
 import java.sql.{SQLException, DriverManager}
 import java.net.ConnectException
 import cz.filmtit.core.model.Language._
+import com.weiglewilczek.slf4s.Logger
 
 
 /**
@@ -15,6 +16,8 @@ import cz.filmtit.core.model.Language._
 
 abstract class BaseStorage(l1: Language, l2: Language)
   extends TranslationPairStorage(l1, l2) {
+
+  val log = Logger(this.getClass.getSimpleName)
 
   //Load the driver:
   classOf[org.postgresql.Driver]

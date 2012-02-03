@@ -68,6 +68,7 @@ class BackoffTranslationMemory(val storage: TranslationPairStorage,
 
     backoff match {
       case Some(tm) => tm.initialize(pairs)
+      case None =>
     }
   }
 
@@ -76,6 +77,7 @@ class BackoffTranslationMemory(val storage: TranslationPairStorage,
 
     backoff match {
       case Some(tm) => tm.reindex()
+      case None =>
     }
   }
 

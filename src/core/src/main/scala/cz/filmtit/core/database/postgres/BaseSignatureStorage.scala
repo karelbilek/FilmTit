@@ -1,7 +1,6 @@
 package cz.filmtit.core.database.postgres
 
 import cz.filmtit.core.model._
-import java.sql.{PreparedStatement, Statement}
 import collection.mutable.ListBuffer
 import cz.filmtit.core.model.Language._
 
@@ -16,7 +15,6 @@ abstract class BaseSignatureStorage(l1: Language, l2: Language,
   extends BaseStorage(l1, l2)
   with SignatureBasedStorage {
 
-
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs)
     reindex()
@@ -25,29 +23,57 @@ abstract class BaseSignatureStorage(l1: Language, l2: Language,
   override def reindex() {
     connection.createStatement().execute("DROP TABLE IF EXISTS %s; CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);".format(signatureTable, signatureTable, chunkTable))
 
-    val pairs: Statement = connection.createStatement()
-    pairs.execute("SELECT * FROM %s;".format(chunkTable))
+    connection.setAutoCommit(false);
 
-    val inStmt: PreparedStatement = connection.prepareStatement("INSERT INTO chunk_signatures(chunk_id, signature_l1, signature_l2) VALUES(?, ?, ?);")
-    while (pairs.getResultSet.next()) {
-      val row = pairs.getResultSet
+    log.info("Reading chunks...")
+    val selStmt = connection.createStatement(
+      java.sql.ResultSet.TYPE_FORWARD_ONLY,
+      java.sql.ResultSet.CONCUR_READ_ONLY
+    )
+
+    selStmt.setFetchSize(1000);
+    selStmt.execute("SELECT * FROM %s;".format(chunkTable))
+
+    log.info("Creating chunk signatures...")
+    val inStmt = connection.prepareStatement(
+      "INSERT INTO %s(chunk_id, signature_l1, signature_l2) VALUES(?, ?, ?);"
+        .format(signatureTable)
+    )
+    //inStmt.setFetchSize(500)
+
+    var i = 0
+    while (selStmt.getResultSet.next()) {
+      val row = selStmt.getResultSet
 
       inStmt.setInt(1, row.getInt("chunk_id"))
       inStmt.setString(2, signature(row.getString("chunk_l1"), l1))
       inStmt.setString(3, signature(row.getString("chunk_l2"), l2))
 
       inStmt.execute()
+
+      i += 1
+      if(i % 50000 == 0)
+        log.info("Wrote %d signatures...".format(i))
     }
 
+    connection.commit()
+    inStmt.close()
+    selStmt.close()
+
     //Create the index:
-    println("Creating indexes...")
+    log.info("Creating indexes...")
+
     connection.createStatement().execute(
       "CREATE INDEX idx_chunkl1_%s ON %s (signature_l1);"
-        .format(signatureTable, signatureTable))
+       .format(signatureTable, signatureTable)
+    )
 
-    connection.createStatement().execute((
-      "CREATE INDEX idx_chunkl2_%s ON %s (signature_l2);")
-      .format(signatureTable, signatureTable))
+    connection.createStatement().execute(
+      "CREATE INDEX idx_chunkl2_%s ON %s (signature_l2);"
+      .format(signatureTable, signatureTable)
+    )
+
+    connection.commit()
 
   }
 
@@ -67,6 +93,6 @@ abstract class BaseSignatureStorage(l1: Language, l2: Language,
     candidates.toList
   }
 
-  def signature(sentence: Chunk, language: Language): String
+  //abstract def signature(sentence: Chunk, language: Language): String
 
 }
