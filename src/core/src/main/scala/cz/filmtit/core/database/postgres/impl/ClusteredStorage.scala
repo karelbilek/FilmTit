@@ -2,6 +2,7 @@ package cz.filmtit.core.database.postgres.impl
 
 import cz.filmtit.core.database.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
+import data.Chunk
 import scala.collection.mutable.HashMap
 import scala.io.Source
 import cz.filmtit.core.model.Language._

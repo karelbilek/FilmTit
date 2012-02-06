@@ -4,8 +4,9 @@ import io.Source
 import java.io.File
 import org.apache.commons.math.stat.StatUtils
 import cz.filmtit.core.database.postgres.impl.FirstLetterStorage
-import cz.filmtit.core.model.{Language, TranslationPair, SignatureBasedStorage,
-                              TranslationPairStorage}
+import cz.filmtit.core.model.storage.{TranslationPairStorage, SignatureBasedStorage}
+import cz.filmtit.core.model.data.TranslationPair
+import cz.filmtit.core.model.{Language}
 
 /**
  * @author Joachim Daiber

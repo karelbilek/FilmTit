@@ -1,8 +1,7 @@
 package cz.filmtit.core.rank
 
 import cz.filmtit.core.model._
-
-import cz.filmtit.core.model.Chunk._
+import cz.filmtit.core.model.data._
 import org.apache.commons.lang3.StringUtils
 
 /**

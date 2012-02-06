@@ -1,7 +1,7 @@
 package cz.filmtit.core.model.names
 
 import cz.filmtit.core.model.annotation.ChunkAnnotation
-import cz.filmtit.core.model.Chunk
+import cz.filmtit.core.model.data.Chunk
 
 
 /**

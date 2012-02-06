@@ -4,6 +4,7 @@ import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
 import cz.filmtit.core.database.postgres.impl.{FulltextStorage, FirstLetterStorage, TrigramStorage}
 import cz.filmtit.core.database.postgres.BaseStorage
+import storage.TranslationPairStorage
 
 object EvaluateJDBC {
 

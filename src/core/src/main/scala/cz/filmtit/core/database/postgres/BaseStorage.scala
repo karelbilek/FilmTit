@@ -1,12 +1,13 @@
 package cz.filmtit.core.database.postgres
 
 import cz.filmtit.core.Configuration
-import cz.filmtit.core.model.{TranslationPairStorage, MediaSource, TranslationPair}
+import cz.filmtit.core.model.storage.TranslationPairStorage
 import org.postgresql.util.PSQLException
 import java.sql.{SQLException, DriverManager}
 import java.net.ConnectException
-import cz.filmtit.core.model.Language._
 import com.weiglewilczek.slf4s.Logger
+import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
+import cz.filmtit.core.model.Language._
 
 
 /**

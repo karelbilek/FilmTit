@@ -1,4 +1,5 @@
-package cz.filmtit.core.model
+package cz.filmtit.core.model.data
+
 
 /**
  * @author Joachim Daiber

@@ -1,9 +1,12 @@
 package cz.filmtit.core.tm
 
-import cz.filmtit.core.model._
-import cz.filmtit.core.model.Language._
 import scala.Predef._
-import com.weiglewilczek.slf4s.{Logger, Logging}
+import com.weiglewilczek.slf4s.{Logger}
+import cz.filmtit.core.model.storage._
+import cz.filmtit.core.model.data._
+
+import cz.filmtit.core.model.{TranslationPairRanker, TranslationMemory}
+import cz.filmtit.core.model.Language._
 
 
 /**

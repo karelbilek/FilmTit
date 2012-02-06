@@ -1,5 +1,8 @@
 package cz.filmtit.core.model
 
+import data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
+
+
 /**
  * @author Joachim Daiber
  */

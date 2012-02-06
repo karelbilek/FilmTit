@@ -1,6 +1,4 @@
-package cz.filmtit.core.model
-
-import cz.filmtit.core.model.Chunk._
+package cz.filmtit.core.model.data
 
 /**
  * @author Joachim Daiber

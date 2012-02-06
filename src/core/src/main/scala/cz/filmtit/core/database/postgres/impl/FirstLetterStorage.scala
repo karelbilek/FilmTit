@@ -3,6 +3,7 @@ package cz.filmtit.core.database.postgres.impl
 import cz.filmtit.core.database.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 import cz.filmtit.core.model.Language.Language
+import data.Chunk
 import java.lang.String
 
 

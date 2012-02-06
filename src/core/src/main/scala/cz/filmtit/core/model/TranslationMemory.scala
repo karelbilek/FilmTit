@@ -1,5 +1,6 @@
 package cz.filmtit.core.model
 
+import cz.filmtit.core.model.data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
 import cz.filmtit.core.model.Language._
 
 /**
@@ -19,7 +20,7 @@ trait TranslationMemory {
             n: Int = 10): List[ScoredTranslationPair]
 
   def firstBest(chunk: Chunk, mediaSource: MediaSource, language: Language):
-    Option[ScoredTranslationPair]
+  Option[ScoredTranslationPair]
 
   def addMediaSource(mediaSource: MediaSource): Long
 

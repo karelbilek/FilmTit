@@ -8,7 +8,8 @@ import io.Source
 import collection.mutable.HashSet
 import java.net.URLEncoder
 import cz.filmtit.core.factory.Factory
-import cz.filmtit.core.model.{TranslationMemory, MediaSource, TranslationPair}
+import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
+import cz.filmtit.core.model.TranslationMemory
 
 
 /**

@@ -7,6 +7,7 @@ import cz.filmtit.core.factory.Factory
 import cz.filmtit.core.Configuration
 import cz.filmtit.core.Utils.t2mapper
 import collection.mutable.ListBuffer
+import data.Chunk
 
 /**
  * Translation pair storage using named entity types to identify names.

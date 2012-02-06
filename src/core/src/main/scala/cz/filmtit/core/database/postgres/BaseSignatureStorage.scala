@@ -3,6 +3,8 @@ package cz.filmtit.core.database.postgres
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
 import cz.filmtit.core.model.Language._
+import data.{Chunk, TranslationPair}
+import storage.SignatureBasedStorage
 
 
 /**
