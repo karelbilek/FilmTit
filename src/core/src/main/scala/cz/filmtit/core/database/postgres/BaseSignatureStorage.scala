@@ -32,7 +32,7 @@ abstract class BaseSignatureStorage(l1: Language, l2: Language,
     )
 
     selStmt.setFetchSize(1000);
-    selStmt.execute("SELECT * FROM %s;".format(chunkTable))
+    selStmt.execute("SELECT * FROM %s LIMIT 500000;".format(chunkTable))
 
     log.info("Creating chunk signatures...")
     val inStmt = connection.prepareStatement(
@@ -77,8 +77,17 @@ abstract class BaseSignatureStorage(l1: Language, l2: Language,
 
   }
 
+
+  /**
+   * Add annotations to the chunk that represent parts of the chunk
+   * that are special, e.g. that should be edited.
+   */
+  def annotate(chunk: Chunk, signature: String): Chunk = chunk
+  
+  
   override def addTranslationPair(translationPair: TranslationPair) = {}
 
+  
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
     val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, chunkTable, maxCandidates))
@@ -87,7 +96,24 @@ abstract class BaseSignatureStorage(l1: Language, l2: Language,
 
     val candidates = new ListBuffer[TranslationPair]()
     while (rs.next()) {
-      candidates += new TranslationPair(rs.getString("chunk_l1"), rs.getString("chunk_l2"), getMediaSource(rs.getInt("source_id")))
+
+      val chunkL1: Chunk = rs.getString("chunk_l1")
+      val chunkL2: Chunk = rs.getString("chunk_l2")
+
+      /*
+        If there are any annotations added by the signature method, e.g.
+        by a NER, add them to the TP.
+       */
+      language match {
+        case l if (l equals l1) => annotate(chunkL1, rs.getString("signature_l1"))
+        case l if (l equals l2) => annotate(chunkL2, rs.getString("signature_l2"))
+      }
+
+      candidates += new TranslationPair(
+        chunkL1,
+        chunkL2,
+        getMediaSource(rs.getInt("source_id"))
+      )
     }
 
     candidates.toList

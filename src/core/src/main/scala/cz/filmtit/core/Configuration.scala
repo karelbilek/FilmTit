@@ -1,7 +1,8 @@
 package cz.filmtit.core
 
-import model.Language
-import model.names.NEType
+import cz.filmtit.core.model.annotation.Name
+import cz.filmtit.core.model.Language
+
 
 /**
  * @author Joachim Daiber
@@ -22,11 +23,13 @@ object Configuration {
   val modelPath = "/filmtit/models/"
   val neRecognizers = Map(
     Language.en -> List(
-      (NEType.Person,       modelPath + "en-ner-person.bin"),
-      (NEType.Place,        modelPath + "en-ner-location.bin"),
-      (NEType.Organization, modelPath + "en-ner-organization.bin")
+      (Name.Person,       modelPath + "en-ner-person.bin"),
+      (Name.Place,        modelPath + "en-ner-location.bin"),
+      (Name.Organization, modelPath + "en-ner-organization.bin")
     ),
-    Language.cz -> List()
+    Language.cz -> List(
+
+     )
   )
 
 

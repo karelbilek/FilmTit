@@ -1,12 +1,12 @@
 package cz.filmtit.core.names
 
-import opennlp.tools.namefind.{TokenNameFinder}
+import opennlp.tools.namefind.TokenNameFinder
 import opennlp.tools.util.Span
 
-import cz.filmtit.core.model.names.NEType.NEType
-import cz.filmtit.core.model.names.{NERecognizer}
-import cz.filmtit.core.model.{Chunk}
+import cz.filmtit.core.model.names.NERecognizer
 import opennlp.tools.tokenize.Tokenizer
+import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.core.model.Chunk
 
 
 /**
@@ -17,15 +17,15 @@ import opennlp.tools.tokenize.Tokenizer
  */
 
 class OpenNLPNameFinder(
-  val neType: NEType,
+  val neType: ChunkAnnotation,
   val nameFinder: TokenNameFinder,
   val tokenizer: Tokenizer
 ) extends NERecognizer(neType) {
 
   override def detect(chunk: Chunk): Chunk = {
 
-    val tokenized = tokenizer.tokenize(chunk.toString)
-    val tokenizedPos = tokenizer.tokenizePos(chunk.toString)
+    val tokenized = tokenizer.tokenize(chunk.surfaceform)
+    val tokenizedPos = tokenizer.tokenizePos(chunk.surfaceform)
 
     val find: Array[Span] = nameFinder.find(tokenized)
 

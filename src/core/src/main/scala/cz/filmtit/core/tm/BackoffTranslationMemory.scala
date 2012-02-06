@@ -2,8 +2,8 @@ package cz.filmtit.core.tm
 
 import cz.filmtit.core.model._
 import cz.filmtit.core.model.Language._
-import com.weiglewilczek.slf4s.{Logging}
 import scala.Predef._
+import com.weiglewilczek.slf4s.{Logger, Logging}
 
 
 /**
@@ -11,11 +11,17 @@ import scala.Predef._
  *
  */
 
-class BackoffTranslationMemory(val storage: TranslationPairStorage,
-                               val ranker: TranslationPairRanker,
-                               val backoff: Option[TranslationMemory] = None,
-                               val threshold: Double = 0.90
-                                ) extends TranslationMemory with Logging {
+class BackoffTranslationMemory(
+  val storage: TranslationPairStorage,
+  val ranker: TranslationPairRanker,
+  val backoff: Option[TranslationMemory] = None,
+  val threshold: Double = 0.90
+) extends TranslationMemory {
+
+  val logger = Logger("BackoffTM[%s, %s]".format(
+    storage.getClass.getSimpleName,
+    ranker.getClass.getSimpleName
+  ))
 
   def candidates(chunk: Chunk, mediaSource: MediaSource, language: Language) = {
 
@@ -31,6 +37,8 @@ class BackoffTranslationMemory(val storage: TranslationPairStorage,
 
   def nBest(chunk: Chunk, mediaSource: MediaSource, language: Language,
             n: Int = 10): List[ScoredTranslationPair] = {
+
+    logger.info( "n-best: (%s) %s".format(language, chunk) )
 
     val s = System.currentTimeMillis
 
@@ -52,6 +60,7 @@ class BackoffTranslationMemory(val storage: TranslationPairStorage,
   def firstBest(chunk: Chunk, mediaSource: MediaSource, language: Language):
     Option[ScoredTranslationPair] = {
 
+    logger.info( "first-best: (%s) %s".format(language, chunk) )
     ranker.best(chunk, null, candidates(chunk, mediaSource, language)) match {
       case Some(best) if best.finalScore >= threshold => Some(best)
       case _ =>

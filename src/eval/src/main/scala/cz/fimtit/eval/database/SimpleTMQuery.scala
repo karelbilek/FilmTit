@@ -18,8 +18,8 @@ object SimpleTMQuery {
 
     println(tm.nBest("I love you!", null, Language.en))
     println(tm.nBest("What did the minister tell you about his intentions?", null, Language.en))
-    println(tm.nBest("Never gonna give you up!", null, Language.en))
-    println(tm.nBest("What?", null, Language.en))
+    println(tm.nBest("Peter called.", null, Language.en))
+    println(tm.nBest("Dear Mr. Bush", null, Language.en))
 
 
   }
