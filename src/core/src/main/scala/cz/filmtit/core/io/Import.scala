@@ -2,11 +2,11 @@ package cz.filmtit.core.io
 
 
 import collection.mutable.HashMap
+import cz.filmtit.core.io.load.IMDB
 import org.json.JSONObject
 import java.io.File
 import io.Source
 import collection.mutable.HashSet
-import java.net.URLEncoder
 import cz.filmtit.core.factory.Factory
 import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
@@ -43,7 +43,7 @@ object Import {
     subtitles.get(id) match {
       case Some(mediaSource) =>
       {
-        val imdbInfo: JSONObject = queryIMDB(mediaSource.title, mediaSource.year)
+        val imdbInfo: JSONObject = IMDB.query(mediaSource.title, mediaSource.year)
 
         if (imdbInfo.has("Genre")) {
           hit += 1
@@ -76,24 +76,6 @@ object Import {
             .filter( _ != null )
             .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
         }))
-  }
-
-
-  def queryIMDB(title: String, year: String): JSONObject = {
-    val patternTVShow = "\"(.+)\" .+".r
-
-    val response = title match {
-      case patternTVShow(titleShow) => {
-        Source.fromURL( "http://www.imdbapi.com/?t=%s".format(
-          URLEncoder.encode(titleShow, "utf-8")) ).getLines()
-      }
-      case _ => {
-        Source.fromURL( "http://www.imdbapi.com/?t=%s&y=%s".format(
-          URLEncoder.encode(title, "utf-8"), year) ).getLines()
-      }
-    }
-
-    new JSONObject( response.next() )
   }
 
 
