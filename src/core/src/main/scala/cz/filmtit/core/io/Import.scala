@@ -4,12 +4,12 @@ package cz.filmtit.core.io
 import collection.mutable.HashMap
 import cz.filmtit.core.io.load.IMDB
 import org.json.JSONObject
-import java.io.File
 import io.Source
 import collection.mutable.HashSet
 import cz.filmtit.core.factory.Factory
 import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
+import java.io.{IOException, IOError, File}
 
 
 /**
@@ -39,26 +39,9 @@ object Import {
   var hit = 0
   var miss = 0
 
-  def loadMediaSource(id: String): MediaSource = {
-    subtitles.get(id) match {
-      case Some(mediaSource) =>
-      {
-        val imdbInfo: JSONObject = IMDB.query(mediaSource.title, mediaSource.year)
-
-        if (imdbInfo.has("Genre")) {
-          hit += 1
-          imdbInfo.getString("Genre").split(", ") foreach { mediaSource.genres += _ }
-        }else{
-          miss += 1
-        }
-
-        mediaSource
-      }
-      case None => {
-        println("No movie found in the DB!")
-        null
-      }
-    }
+  def loadMediaSource(id: String): MediaSource = subtitles.get(id) match {
+    case Some(mediaSource) => MediaSource.fromIMDB(mediaSource.title, mediaSource.year)
+    case None => throw new IOException("No movie found in the DB!")
   }
 
 
