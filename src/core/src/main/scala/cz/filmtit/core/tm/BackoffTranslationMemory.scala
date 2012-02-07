@@ -1,12 +1,12 @@
 package cz.filmtit.core.tm
 
-import scala.Predef._
-import com.weiglewilczek.slf4s.{Logger}
-import cz.filmtit.core.model.storage._
+import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data._
+import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
+import cz.filmtit.core.model.storage.TranslationPairStorage
 
-import cz.filmtit.core.model.{TranslationPairRanker, TranslationMemory}
 import cz.filmtit.core.model.Language._
+import scala.Predef._
 
 
 /**
@@ -15,21 +15,21 @@ import cz.filmtit.core.model.Language._
  */
 
 class BackoffTranslationMemory(
-  val storage: TranslationPairStorage,
+  val searcher: TranslationPairSearcher,
   val ranker: TranslationPairRanker,
   val backoff: Option[TranslationMemory] = None,
   val threshold: Double = 0.90
 ) extends TranslationMemory {
 
   val logger = Logger("BackoffTM[%s, %s]".format(
-    storage.getClass.getSimpleName,
+    searcher.getClass.getSimpleName,
     ranker.getClass.getSimpleName
   ))
 
   def candidates(chunk: Chunk, mediaSource: MediaSource, language: Language) = {
 
     val s = System.currentTimeMillis
-    val candidates = storage.candidates(chunk, language)
+    val candidates = searcher.candidates(chunk, language)
 
     logger.info( "Retrieved %d candiates in %dms...".format(candidates.size,
       System.currentTimeMillis - s) )
@@ -76,7 +76,11 @@ class BackoffTranslationMemory(
   }
 
   def initialize(pairs: Array[TranslationPair]) {
-    storage.initialize(pairs)
+
+    searcher match {
+      case s: TranslationPairStorage => s.initialize(pairs)
+      case _ =>
+    }
 
     backoff match {
       case Some(tm) => tm.initialize(pairs)
@@ -85,7 +89,11 @@ class BackoffTranslationMemory(
   }
 
   def reindex() {
-    storage.reindex()
+
+    searcher match {
+      case s: TranslationPairStorage => s.reindex()
+      case _ =>
+    }
 
     backoff match {
       case Some(tm) => tm.reindex()
@@ -94,7 +102,12 @@ class BackoffTranslationMemory(
   }
 
   def addMediaSource(mediaSource: MediaSource): Long = {
-    storage.addMediaSource(mediaSource)
+
+    searcher match {
+      case s: TranslationPairStorage => s.addMediaSource(mediaSource)
+      case _ => throw new UnsupportedOperationException()
+    }
+
   }
 
 }

@@ -1,15 +1,16 @@
 package cz.filmtit.core.model.storage
 
 import cz.filmtit.core.model._
+import cz.filmtit.core.model.data.{Chunk, MediaSource, TranslationPair}
 import cz.filmtit.core.model.Language._
-import data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
 
 
 /**Interface for retrieving translation pair candidates from a database.
  *
  * @author Joachim Daiber
  */
-abstract class TranslationPairStorage(val l1: Language, val l2: Language) {
+abstract class TranslationPairStorage(val l1: Language, val l2: Language)
+extends TranslationPairSearcher {
 
   def chunk(pair: TranslationPair, language: Language): Chunk = {
     if (language equals l1)
@@ -17,12 +18,6 @@ abstract class TranslationPairStorage(val l1: Language, val l2: Language) {
     else
       pair.target
   }
-
-  /**Retrieve a list of candidate translation pairs from the database.
-   * Depending on the implementation, the pairs may have a
-   * [[cz.filmtit.core.model.ScoredTranslationPair# c a n i d a t e S c o r e]]
-   */
-  def candidates(chunk: Chunk, language: Language): List[TranslationPair]
 
   /**Create a new database with the initial set of translation pairs. */
   def initialize(translationPairs: TraversableOnce[TranslationPair])

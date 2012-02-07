@@ -28,9 +28,8 @@ class Chunk(val surfaceform: String) {
 
   override def equals(other: Any) = this.surfaceform.equals(other.toString)
 
-  def toAnnotatedString(
-                         formatAnnotation: (ChunkAnnotation, String) => String
-                         ): String = {
+  def toAnnotatedString(formatAnnotation: (ChunkAnnotation, String) => String):
+  String = {
 
     var lastOffset = 0
     (this.annotations.toList map {
@@ -53,7 +52,6 @@ class Chunk(val surfaceform: String) {
 object Chunk {
 
   implicit def fromString(string: String): Chunk = new Chunk(string)
-
   implicit def toString(chunk: Chunk): String = chunk.toString
 
 }
