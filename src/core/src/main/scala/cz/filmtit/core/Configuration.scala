@@ -1,7 +1,8 @@
 package cz.filmtit.core
 
-import cz.filmtit.core.model.annotation.Name
 import cz.filmtit.core.model.Language
+import groovy.lang.Tuple
+import model.annotation.{ChunkAnnotation, Name}
 
 
 /**
@@ -21,7 +22,7 @@ object Configuration {
   //Named entity recognition:
 
   val modelPath = "/filmtit/models/"
-  val neRecognizers = Map(
+  val neRecognizers: Map[Language, List[Pair[ChunkAnnotation, String]]] = Map(
     Language.en -> List(
       (Name.Person,       modelPath + "en-ner-person.bin"),
       (Name.Place,        modelPath + "en-ner-location.bin"),

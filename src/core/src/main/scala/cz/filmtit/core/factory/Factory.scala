@@ -41,7 +41,7 @@ object Factory {
 
   def createNERecognizer(
     neType: ChunkAnnotation,
-    language: Language.Language,
+    language: Language,
     modelFile: String
   ): NERecognizer = {
 
@@ -56,7 +56,7 @@ object Factory {
     )
   }
 
-  def createTokenizer(language: Language.Language): Tokenizer = {
+  def createTokenizer(language: Language): Tokenizer = {
     WhitespaceTokenizer.INSTANCE
   }
 

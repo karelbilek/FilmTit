@@ -5,7 +5,7 @@ import cz.filmtit.core.model.data._
 import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
 import cz.filmtit.core.model.storage.TranslationPairStorage
 
-import cz.filmtit.core.model.Language._
+import cz.filmtit.core.model.Language
 import scala.Predef._
 
 

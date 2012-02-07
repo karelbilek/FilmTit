@@ -1,7 +1,6 @@
 package cz.filmtit.core.database.postgres.impl
 
 import cz.filmtit.core.model._
-import cz.filmtit.core.model.Language.Language
 import cz.filmtit.core.database.postgres.BaseStorage
 import data.{Chunk, ScoredTranslationPair, TranslationPair}
 

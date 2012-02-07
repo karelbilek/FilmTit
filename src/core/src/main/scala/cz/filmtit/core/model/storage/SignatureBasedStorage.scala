@@ -1,8 +1,7 @@
 package cz.filmtit.core.model.storage
 
 import cz.filmtit.core.model.data.Chunk
-import cz.filmtit.core.model.Language._
-
+import cz.filmtit.core.model.Language
 
 /**A special case of [[cz.filmtit.core.model.TranslationPairStorage]], in which the
  * candidates are retrieved and indexed using a signature string.

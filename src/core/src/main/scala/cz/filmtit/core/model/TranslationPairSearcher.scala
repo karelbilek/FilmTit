@@ -1,11 +1,9 @@
 package cz.filmtit.core.model
 
 import cz.filmtit.core.model.data.{TranslationPair, Chunk}
-import cz.filmtit.core.model.Language._
 
 /**
  * @author Joachim Daiber
-
  */
 
 abstract class TranslationPairSearcher {

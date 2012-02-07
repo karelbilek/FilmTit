@@ -7,7 +7,7 @@ import java.sql.{SQLException, DriverManager}
 import java.net.ConnectException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
-import cz.filmtit.core.model.Language._
+import cz.filmtit.core.model.Language
 
 
 /**

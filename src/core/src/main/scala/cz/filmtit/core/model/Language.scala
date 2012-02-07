@@ -5,8 +5,11 @@ package cz.filmtit.core.model
  *
  */
 
-object Language extends Enumeration {
-  type Language = Value
-  val en = Value("English")
-  val cz = Value("Czech")
+class Language(name: String, code: String)
+
+object Language {
+  def apply(name: String, code: String): Language = new Language(name, code)
+
+  val en = Language("English", "en")
+  val cz = Language("Czech", "cz")
 }

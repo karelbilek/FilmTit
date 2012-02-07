@@ -5,8 +5,7 @@ import cz.filmtit.core.model._
 import data.Chunk
 import scala.collection.mutable.HashMap
 import scala.io.Source
-import cz.filmtit.core.model.Language._
-
+import cz.filmtit.core.model.Language
 
 /**
  * @author Joachim Daiber

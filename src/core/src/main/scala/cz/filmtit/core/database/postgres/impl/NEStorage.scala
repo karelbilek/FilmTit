@@ -1,7 +1,6 @@
 package cz.filmtit.core.database.postgres.impl
 
 import cz.filmtit.core.database.postgres.BaseSignatureStorage
-import cz.filmtit.core.model.Language.Language
 import cz.filmtit.core.model._
 import cz.filmtit.core.factory.Factory
 import cz.filmtit.core.Configuration
@@ -23,7 +22,7 @@ class NEStorage(l1: Language, l2: Language)
 
   object NERecognizers {
     val (neL1, neL2) = (l1, l2) map {
-      l => Configuration.neRecognizers.get(l) match {
+      l: Language => Configuration.neRecognizers.get(l) match {
         case Some(recognizers) => recognizers map {
           pair => {
             val (neType, modelFile) = pair

@@ -21,21 +21,21 @@ object EvaluateSignature {
 
   def evaluateSignature(storage: TranslationPairStorage,
                         pairs: Array[TranslationPair],
-                        language: Language.Language) {
+                        language: Language) {
 
     val counts = (((pairs map (p => storage.asInstanceOf[SignatureBasedStorage]
-      .signature(storage.chunk(p, language), language))).toArray
+      .signature(storage.chunkForLanguage(p, language), language))).toArray
       .groupBy(identity)) map({ case (x, y) => y.size.toDouble })).toArray
 
     val sigs = (pairs map (p => storage.asInstanceOf[SignatureBasedStorage]
-      .signature(storage.chunk(p, language), language))).toArray
+      .signature(storage.chunkForLanguage(p, language), language))).toArray
 
     println("=" * 35)
     println("Language: %s".format(language))
     println("=" * 35)
 
     println("Uniq chunks:   " + pairs.map(p =>
-      storage.chunk(p, language)).distinct.size / pairs.size.toFloat )
+      storage.chunkForLanguage(p, language)).distinct.size / pairs.size.toFloat )
     println("Uniq sign.:    " + counts.size )
 
     println("\nChunks per Signature:")

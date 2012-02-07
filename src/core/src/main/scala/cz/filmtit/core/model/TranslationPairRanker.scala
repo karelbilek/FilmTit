@@ -36,14 +36,12 @@ abstract class TranslationPairRanker {
    * @return best-match translation pair with score
    */
   def best(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-    Option[ScoredTranslationPair] = {
-
+    Option[ScoredTranslationPair] =
     pairs.map(pair => rankOne(chunk, mediaSource, pair)) match {
       case List()                                  => None
-      case x: List[Ordered[ScoredTranslationPair]] =>
-        Some(x.max.asInstanceOf[ScoredTranslationPair])
-    }
+      case x: List[Ordered[ScoredTranslationPair]] => Some(x.max.asInstanceOf[ScoredTranslationPair])
   }
+
 
 
   /**
