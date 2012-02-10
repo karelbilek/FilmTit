@@ -1,6 +1,7 @@
 package cz.filmtit.core.model
 
 import cz.filmtit.core.model.data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
+import storage.MediaStorage
 
 /**
  * A Translation Memory.
@@ -52,12 +53,12 @@ trait TranslationMemory {
   def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
   Option[ScoredTranslationPair]
 
+
   /**
-   * TODO refactor this
-   * @param mediaSource
+   * Retrieve an instance of a MediaStorage which allows access to
+   * information in the database about the sources of translation pairs.
+   *
    * @return
    */
-  def addMediaSource(mediaSource: MediaSource): Long
-
-
+  def mediaStorage: MediaStorage
 }

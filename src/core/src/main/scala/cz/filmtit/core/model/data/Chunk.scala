@@ -57,7 +57,7 @@ class Chunk(val surfaceform: String) {
     annotations += ((annotation, from, to))
   }
 
-  override def toString = this.surfaceform
+  override def toString = this.toAnnotatedString( (_, s) => "[" + s + "]" )
   override def hashCode = this.surfaceform.hashCode()
   override def equals(other: Any) = this.surfaceform.equals(other.toString)
 

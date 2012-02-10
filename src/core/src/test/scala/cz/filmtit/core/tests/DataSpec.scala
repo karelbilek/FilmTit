@@ -28,7 +28,7 @@ class DataSpec extends Spec {
     chunk.addAnnotation(Name.Person, 5, 7)
 
     it("can have annotations") {
-      assert(chunk.annotations.size == 1)
+      assert(chunk.annotations.size > 0)
     }
 
     it("can be printed with its annotations") {
@@ -36,7 +36,7 @@ class DataSpec extends Spec {
       //Show only type:
       assertEquals(
         "I am <Person>",
-        chunk.toAnnotatedString((ann, string) => "<%s>".format(ann))
+        chunk.toAnnotatedString()
       )
 
       //Show type and surface form:

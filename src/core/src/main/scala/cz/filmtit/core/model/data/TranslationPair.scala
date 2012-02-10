@@ -14,7 +14,10 @@ class TranslationPair(val source: Chunk, val target: Chunk, var mediaSource: Med
     this(source, target, null)
   }
 
-  override def toString: String = "TP(%s, %s)".format(source, target)
+  override def toString: String = "TP(%s, %s)".format(
+    source.toAnnotatedString( (c, s) => "["+s+"]" ),
+    target.toAnnotatedString( (c, s) => "["+s+"]" )
+  )
 
 }
 

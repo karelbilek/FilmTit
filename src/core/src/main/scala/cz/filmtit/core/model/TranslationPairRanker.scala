@@ -26,7 +26,7 @@ abstract class TranslationPairRanker {
    */
   def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
     List[ScoredTranslationPair] =
-    pairs.map(pair => rankOne(chunk, mediaSource,pair)).sorted
+    pairs.map(pair => rankOne(chunk, mediaSource, pair)).sorted
 
 
   /**

@@ -6,8 +6,9 @@ import data.{Chunk, ScoredTranslationPair, TranslationPair}
 
 
 /**
- * @author Joachim Daiber
+ * Postgres-based retrieval via vector-based full text search.
  *
+ * @author Joachim Daiber
  */
 
 

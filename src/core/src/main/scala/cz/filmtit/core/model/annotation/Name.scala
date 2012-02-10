@@ -5,18 +5,9 @@ package cz.filmtit.core.model.annotation
  *
  */
 
-class NameType(name: String) extends ChunkAnnotation {
-  override def toString = name
-}
-
-object NameType {
-  def apply(n: String): NameType = new NameType(n)
-  def apply(): NameType = new NameType("")
-}
-
 object Name {
-  val Person = NameType("Person")
-  val Place = NameType("Place")
-  val Organization = NameType("Organization")
+  val Person =       ChunkAnnotation("Person", "NE_Per")
+  val Place =        ChunkAnnotation("Place", "NE_Pla")
+  val Organization = ChunkAnnotation("Organization", "NE_Pla")
 }
 

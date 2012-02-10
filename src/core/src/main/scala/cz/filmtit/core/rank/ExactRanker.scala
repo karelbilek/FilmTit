@@ -7,8 +7,7 @@ import org.apache.commons.lang3.StringUtils
 /**
  * @author Joachim Daiber
  *
- *
- *
+ * TODO add more features
  */
 
 class ExactRanker extends TranslationPairRanker {
@@ -18,7 +17,7 @@ class ExactRanker extends TranslationPairRanker {
   def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair):
   ScoredTranslationPair = {
     val editDistanceScore = 1.0 - (
-      StringUtils.getLevenshteinDistance(chunk,pair.source)
+      StringUtils.getLevenshteinDistance(chunk, pair.source)
       / chunk.length.toFloat)
 
     val genreMatches = if (mediaSource != null) {

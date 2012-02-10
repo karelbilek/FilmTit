@@ -5,7 +5,8 @@ package cz.filmtit.core.model.data
  *
  *
  */
-class ScoredTranslationPair(source: String, target: String, mediaSource: MediaSource, var finalScore: Double = 0.0)
+class ScoredTranslationPair(source: Chunk, target: Chunk,
+                            mediaSource: MediaSource, var finalScore: Double = 0.0)
   extends TranslationPair(source, target, mediaSource) with Ordered[ScoredTranslationPair] {
 
   var candidateScore = 0.0
