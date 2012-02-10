@@ -5,7 +5,9 @@ package cz.filmtit.core.model
  *
  */
 
-class Language(name: String, code: String)
+class Language(name: String, code: String) {
+  override def toString = code
+}
 
 object Language {
   def apply(name: String, code: String): Language = new Language(name, code)

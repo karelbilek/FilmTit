@@ -2,8 +2,8 @@ package cz.fimtit.eval.database
 
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
-import cz.filmtit.core.database.postgres.impl.{FulltextStorage, FirstLetterStorage, TrigramStorage}
-import cz.filmtit.core.database.postgres.BaseStorage
+import cz.filmtit.core.search.postgres.impl.{FulltextStorage, FirstLetterStorage, TrigramStorage}
+import cz.filmtit.core.search.postgres.BaseStorage
 import storage.TranslationPairStorage
 
 object EvaluateJDBC {

@@ -1,6 +1,6 @@
-package cz.filmtit.core.database.postgres.impl
+package cz.filmtit.core.search.postgres.impl
 
-import cz.filmtit.core.database.postgres.BaseSignatureStorage
+import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 
 import data.Chunk

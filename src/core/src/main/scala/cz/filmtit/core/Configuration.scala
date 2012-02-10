@@ -1,7 +1,6 @@
 package cz.filmtit.core
 
 import cz.filmtit.core.model.Language
-import groovy.lang.Tuple
 import model.annotation.{ChunkAnnotation, Name}
 
 

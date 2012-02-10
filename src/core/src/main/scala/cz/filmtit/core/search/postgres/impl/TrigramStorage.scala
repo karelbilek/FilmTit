@@ -1,7 +1,7 @@
-package cz.filmtit.core.database.postgres.impl
+package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.model._
-import cz.filmtit.core.database.postgres.BaseStorage
+import cz.filmtit.core.search.postgres.BaseStorage
 import data.{Chunk, ScoredTranslationPair, TranslationPair}
 
 
@@ -22,6 +22,7 @@ class TrigramStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2) {
   override def addTranslationPair(translationPair: TranslationPair) {
 
   }
+
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
@@ -44,4 +45,5 @@ class TrigramStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2) {
       ("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING " +
         "gist (sentence gist_trgm_ops);").format(chunkTable))
   }
+
 }

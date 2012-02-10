@@ -8,8 +8,8 @@ import cz.filmtit.core.model.Language
  *
  * @author Joachim Daiber
  */
-abstract class TranslationPairStorage(val l1: Language, val l2: Language)
-extends TranslationPairSearcher {
+abstract class TranslationPairStorage(l1: Language, l2: Language)
+extends TranslationPairSearcher(l1, l2) {
 
   def chunkForLanguage(pair: TranslationPair, language: Language): Chunk = {
     if (language equals l1)

@@ -4,6 +4,9 @@ import data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
 
 
 /**
+ * Assigns scores to translation pairs retrieved from the database or external
+ * services.
+ *
  * @author Joachim Daiber
  */
 

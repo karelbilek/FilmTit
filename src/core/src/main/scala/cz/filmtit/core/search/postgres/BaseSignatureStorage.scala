@@ -1,4 +1,4 @@
-package cz.filmtit.core.database.postgres
+package cz.filmtit.core.search.postgres
 
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer

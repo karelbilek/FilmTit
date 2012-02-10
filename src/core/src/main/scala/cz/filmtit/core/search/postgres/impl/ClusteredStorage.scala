@@ -1,11 +1,11 @@
-package cz.filmtit.core.database.postgres.impl
+package cz.filmtit.core.search.postgres.impl
 
-import cz.filmtit.core.database.postgres.BaseSignatureStorage
-import cz.filmtit.core.model._
-import data.Chunk
+import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import scala.collection.mutable.HashMap
 import scala.io.Source
 import cz.filmtit.core.model.Language
+import cz.filmtit.core.model.data.Chunk
+
 
 /**
  * @author Joachim Daiber

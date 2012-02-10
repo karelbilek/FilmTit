@@ -1,9 +1,8 @@
-package cz.filmtit.core.database.postgres.impl
+package cz.filmtit.core.search.postgres.impl
 
-import cz.filmtit.core.database.postgres.BaseSignatureStorage
+import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
-import cz.filmtit.core.factory.Factory
-import cz.filmtit.core.Configuration
+import cz.filmtit.core.Factory
 import cz.filmtit.core.Utils.t2mapper
 import collection.mutable.ListBuffer
 import data.Chunk
@@ -20,19 +19,7 @@ import data.Chunk
 class NEStorage(l1: Language, l2: Language)
   extends BaseSignatureStorage(l1, l2, "sign_ne") {
 
-  object NERecognizers {
-    val (neL1, neL2) = (l1, l2) map {
-      l: Language => Configuration.neRecognizers.get(l) match {
-        case Some(recognizers) => recognizers map {
-          pair => {
-            val (neType, modelFile) = pair
-            Factory.createNERecognizer(neType, l, modelFile)
-          }
-        }
-        case None => List()
-      }
-    }
-  }
+  val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_) }
 
   override def signature(sentence: Chunk, language: Language): String = {
 
@@ -41,11 +28,9 @@ class NEStorage(l1: Language, l2: Language)
     //Use the NE Recognizers for the given language to find names
     // in the Chunk:
     (language match {
-      case lang if (lang equals l1) => NERecognizers.neL1
-      case lang if (lang equals l2) => NERecognizers.neL2
-    }) foreach {
-      ner => chunk = ner.detect(chunk)
-    }
+      case lang if (lang equals l1) => neL1
+      case lang if (lang equals l2) => neL2
+    }) foreach { _.detect(chunk) }
 
     //Replace NEs in Chunk with their NE type (e.g. "<Person>"):
     if (chunk.annotations.size > 0) {
@@ -82,7 +67,7 @@ class NEStorage(l1: Language, l2: Language)
           chunk.annotations(i)._3,
           chunk.annotations(i + 1)._2,
           chunk.annotations(i + 1)._3
-        )
+          )
 
         /* Matches for exactly the same areas:
          ------######------

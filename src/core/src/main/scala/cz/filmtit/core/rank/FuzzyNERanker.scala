@@ -1,7 +1,7 @@
 package cz.filmtit.core.rank
 
 import cz.filmtit.core.model.data.{Chunk, MediaSource, TranslationPair}
-import cz.filmtit.core.model.{TranslationPairRanker}
+import cz.filmtit.core.model.TranslationPairRanker
 
 
 /**

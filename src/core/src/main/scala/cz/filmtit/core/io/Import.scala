@@ -2,14 +2,12 @@ package cz.filmtit.core.io
 
 
 import collection.mutable.HashMap
-import cz.filmtit.core.io.load.IMDB
-import org.json.JSONObject
 import io.Source
 import collection.mutable.HashSet
-import cz.filmtit.core.factory.Factory
+import cz.filmtit.core.Factory
 import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
-import java.io.{IOException, IOError, File}
+import java.io.{IOException, File}
 
 
 /**
