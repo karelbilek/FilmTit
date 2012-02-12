@@ -3,10 +3,10 @@ package cz.fimtit.eval.database
 import io.Source
 import java.io.File
 import org.apache.commons.math.stat.StatUtils
-import cz.filmtit.core.database.postgres.impl.FirstLetterStorage
-import cz.filmtit.core.model.storage.{TranslationPairStorage, SignatureBasedStorage}
+import cz.filmtit.core.search.postgres.impl.FirstLetterStorage
+import cz.filmtit.core.model.storage.{TranslationPairStorage, SignatureTranslationPairStorage}
 import cz.filmtit.core.model.data.TranslationPair
-import cz.filmtit.core.model.{Language}
+import cz.filmtit.core.model.Language
 
 /**
  * @author Joachim Daiber
@@ -23,11 +23,11 @@ object EvaluateSignature {
                         pairs: Array[TranslationPair],
                         language: Language) {
 
-    val counts = (((pairs map (p => storage.asInstanceOf[SignatureBasedStorage]
+    val counts = (((pairs map (p => storage.asInstanceOf[SignatureTranslationPairStorage]
       .signature(storage.chunkForLanguage(p, language), language))).toArray
       .groupBy(identity)) map({ case (x, y) => y.size.toDouble })).toArray
 
-    val sigs = (pairs map (p => storage.asInstanceOf[SignatureBasedStorage]
+    val sigs = (pairs map (p => storage.asInstanceOf[SignatureTranslationPairStorage]
       .signature(storage.chunkForLanguage(p, language), language))).toArray
 
     println("=" * 35)

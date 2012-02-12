@@ -11,8 +11,8 @@ import cz.filmtit.core.model.data.Chunk
  *
  */
 
-abstract class NERecognizer(neClass: ChunkAnnotation) {
+abstract class NERecognizer(val neClass: ChunkAnnotation) {
 
-  def detect(chunk: Chunk): Chunk
+  def detect(chunk: Chunk)
 
 }

@@ -1,22 +1,25 @@
-package cz.filmtit.core.database.postgres
+package cz.filmtit.core.search.postgres
 
 import cz.filmtit.core.Configuration
-import cz.filmtit.core.model.storage.TranslationPairStorage
 import org.postgresql.util.PSQLException
 import java.sql.{SQLException, DriverManager}
 import java.net.ConnectException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
 import cz.filmtit.core.model.Language
+import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 
 
 /**
+ * Base class for all translation pair storages using Postgres.
+ *
  * @author Joachim Daiber
  *
  */
 
 abstract class BaseStorage(l1: Language, l2: Language)
-  extends TranslationPairStorage(l1, l2) {
+  extends TranslationPairStorage(l1, l2)
+  with MediaStorage {
 
   val log = Logger(this.getClass.getSimpleName)
 
@@ -39,18 +42,25 @@ abstract class BaseStorage(l1: Language, l2: Language)
 
   var maxCandidates = 500
 
+  /**
+   *
+   */
+  def reset() {
+    connection.createStatement().execute(
+      "DROP TABLE IF EXISTS %s; DROP TABLE IF EXISTS %s;"
+        .format(chunkTable, mediasourceTable))
+
+    connection.createStatement().execute(
+      "CREATE TABLE %s (source_id SERIAL PRIMARY KEY, title TEXT, year VARCHAR(4), genres TEXT);"
+        .format(mediasourceTable))
+
+    connection.createStatement().execute(
+      "CREATE TABLE %s (chunk_id SERIAL PRIMARY KEY, chunk_l1 TEXT, chunk_l2 TEXT, source_id INTEGER references %s(source_id));"
+        .format(chunkTable, mediasourceTable))
+  }
+
 
   def createChunks(translationPairs: TraversableOnce[TranslationPair]) {
-
-    connection.createStatement().execute((
-      "DROP TABLE IF EXISTS %s; " +
-        "CREATE TABLE %s (chunk_id SERIAL PRIMARY KEY, chunk_l1 TEXT, chunk_l2 TEXT, source_id INTEGER references %s(source_id));"
-      ).format(chunkTable, chunkTable, mediasourceTable))
-
-    connection.createStatement().execute((
-      "DROP TABLE IF EXISTS %s CASCADE; " +
-        "CREATE TABLE %s (source_id SERIAL PRIMARY KEY, title TEXT, year VARCHAR(4), genres TEXT);"
-      ).format(mediasourceTable, mediasourceTable))
 
     val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))
 
@@ -80,7 +90,11 @@ abstract class BaseStorage(l1: Language, l2: Language)
     stmt.execute()
     stmt.getResultSet.next()
 
-    new MediaSource(stmt.getResultSet.getString("title"), stmt.getResultSet.getString("year"), stmt.getResultSet.getString("year"))
+    new MediaSource(
+      stmt.getResultSet.getString("title"),
+      stmt.getResultSet.getString("year"),
+      stmt.getResultSet.getString("genres")
+    )
   }
 
   def addMediaSource(mediaSource: MediaSource): Long = {

@@ -22,26 +22,18 @@ class OpenNLPNameFinder(
   val tokenizer: Tokenizer
 ) extends NERecognizer(neType) {
 
-  override def detect(chunk: Chunk): Chunk = {
+  override def detect(chunk: Chunk) {
 
     val tokenized = tokenizer.tokenize(chunk.surfaceform)
     val tokenizedPos = tokenizer.tokenizePos(chunk.surfaceform)
 
-    val find: Array[Span] = nameFinder.find(tokenized)
-
     nameFinder.find(tokenized) foreach {
-      name: Span => {
-        
-        val annotation = (neType,
-                          tokenizedPos(name.getStart).getStart,
-                          tokenizedPos(name.getEnd - 1).getEnd)
-        
-        assert(annotation._2 <= annotation._3)
-        chunk.annotations += annotation
-      }
+      name: Span => chunk.addAnnotation(
+        neType,
+        tokenizedPos(name.getStart).getStart,
+        tokenizedPos(name.getEnd - 1).getEnd
+      )
     }
-
-    chunk
   }
 
 

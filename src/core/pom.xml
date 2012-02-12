@@ -13,11 +13,22 @@
     <name>Translation memory core</name>
 
     <build>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
+
         <plugins>
 
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
 
                 <configuration>
                     <launchers>

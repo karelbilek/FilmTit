@@ -1,15 +1,17 @@
-package cz.filmtit.core.database.postgres.impl
+package cz.filmtit.core.search.postgres.impl
 
-import cz.filmtit.core.database.postgres.BaseSignatureStorage
+import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 
-import data.Chunk
+import data.{Signature, Chunk}
 import java.lang.String
 
 
 /**
- * @author Joachim Daiber
+ * Simple exact signature based translation pair storage using the
+ * first letters of words in the chunk as a signature for indexing.
  *
+ * @author Joachim Daiber
  */
 
 class FirstLetterStorage(l1: Language, l2: Language)
@@ -18,7 +20,7 @@ class FirstLetterStorage(l1: Language, l2: Language)
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
-  override def signature(chunk: Chunk, language: Language): String = {
+  override def signature(chunk: Chunk, language: Language): Signature = {
     val tokens: Array[String] = chunk.surfaceform.split("[ ,.?!-]") filter (_ != "")
 
     tokens map {

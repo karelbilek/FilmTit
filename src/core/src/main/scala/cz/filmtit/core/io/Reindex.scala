@@ -1,6 +1,6 @@
 package cz.filmtit.core.io
 
-import cz.filmtit.core.factory.Factory
+import cz.filmtit.core.Factory
 
 /**
  * @author Joachim Daiber

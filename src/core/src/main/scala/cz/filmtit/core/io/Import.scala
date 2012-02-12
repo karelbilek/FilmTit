@@ -2,14 +2,12 @@ package cz.filmtit.core.io
 
 
 import collection.mutable.HashMap
-import cz.filmtit.core.io.load.IMDB
-import org.json.JSONObject
 import io.Source
 import collection.mutable.HashSet
-import cz.filmtit.core.factory.Factory
+import cz.filmtit.core.Factory
 import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
-import java.io.{IOException, IOError, File}
+import java.io.{IOException, File}
 
 
 /**
@@ -47,12 +45,14 @@ object Import {
 
   def loadChunks(tm: TranslationMemory, folder: File) {
 
+    tm.mediaStorage.reset()
+
     tm.initialize(
-      folder.listFiles flatMap (
+      folder.listFiles take(10) flatMap (
         sourceFile => {
           println( "Processing file %s".format(sourceFile) )
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
-          mediaSource.id = tm.addMediaSource(mediaSource)
+          mediaSource.id = tm.mediaStorage.addMediaSource(mediaSource)
 
           Source.fromFile(sourceFile).getLines()
             .map( TranslationPair.fromString(_) )
@@ -68,7 +68,7 @@ object Import {
 
     val tm = Factory.createTM()
     loadChunks(tm, new File(args(1)))
-    println("hits:" + hit + ", miss:" + miss)
+    //println("hits:" + hit + ", miss:" + miss)
   }
 
 }

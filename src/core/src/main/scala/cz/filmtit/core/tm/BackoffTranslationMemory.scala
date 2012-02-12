@@ -3,13 +3,19 @@ package cz.filmtit.core.tm
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data._
 import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
-import cz.filmtit.core.model.storage.TranslationPairStorage
 
 import cz.filmtit.core.model.Language
 import scala.Predef._
+import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
+import cz.filmtit.core.search.postgres.BaseStorage
 
 
 /**
+ * Simple [[cz.filmtit.core.model.TranslationMemory]] implementation with
+ * a number of backoff TMs. Each TM can have a threshold score (over which
+ * it outputs translation pairs) and a backoff TM, which is used if none of
+ * the pairs are over the threshold.
+ *
  * @author Joachim Daiber
  *
  */
@@ -25,8 +31,13 @@ class BackoffTranslationMemory(
     searcher.getClass.getSimpleName,
     ranker.getClass.getSimpleName
   ))
+  
+  override val mediaStorage = searcher match {
+    case s: BaseStorage => s.asInstanceOf[MediaStorage]
+    case _ => null
+  }
 
-  def candidates(chunk: Chunk, mediaSource: MediaSource, language: Language) = {
+  def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource) = {
 
     val s = System.currentTimeMillis
     val candidates = searcher.candidates(chunk, language)
@@ -38,15 +49,15 @@ class BackoffTranslationMemory(
   }
 
 
-  def nBest(chunk: Chunk, mediaSource: MediaSource, language: Language,
+  def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
             n: Int = 10): List[ScoredTranslationPair] = {
 
-    logger.info( "n-best: (%s) %s".format(language, chunk) )
 
     val s = System.currentTimeMillis
 
-    val ranked = ranker.rank(chunk, null, candidates(chunk, mediaSource, language))
+    val ranked = ranker.rank(chunk, null, candidates(chunk, language, mediaSource))
 
+    logger.info( "n-best: (%s) %s".format(language, chunk) )
     logger.info( "Ranking candiates took %dms..."
       .format(System.currentTimeMillis - s) )
 
@@ -54,21 +65,21 @@ class BackoffTranslationMemory(
       ranked.take(n)
     else
       backoff match {
-        case Some(backoffTM) => backoffTM.nBest(chunk, mediaSource, language, n)
+        case Some(backoffTM) => backoffTM.nBest(chunk, language, mediaSource, n)
         case None => List[ScoredTranslationPair]()
       }
   }
 
 
-  def firstBest(chunk: Chunk, mediaSource: MediaSource, language: Language):
+  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
     Option[ScoredTranslationPair] = {
 
     logger.info( "first-best: (%s) %s".format(language, chunk) )
-    ranker.best(chunk, null, candidates(chunk, mediaSource, language)) match {
+    ranker.best(chunk, null, candidates(chunk, language, mediaSource)) match {
       case Some(best) if best.finalScore >= threshold => Some(best)
       case _ =>
         backoff match {
-          case Some(backoffTM) => backoffTM.firstBest(chunk, mediaSource, language)
+          case Some(backoffTM) => backoffTM.firstBest(chunk, language, mediaSource)
           case None => None
         }
     }
@@ -99,15 +110,6 @@ class BackoffTranslationMemory(
       case Some(tm) => tm.reindex()
       case None =>
     }
-  }
-
-  def addMediaSource(mediaSource: MediaSource): Long = {
-
-    searcher match {
-      case s: TranslationPairStorage => s.addMediaSource(mediaSource)
-      case _ => throw new UnsupportedOperationException()
-    }
-
   }
 
 }

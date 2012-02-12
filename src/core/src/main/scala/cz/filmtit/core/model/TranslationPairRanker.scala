@@ -4,6 +4,9 @@ import data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
 
 
 /**
+ * Assigns scores to translation pairs retrieved from the database or external
+ * services.
+ *
  * @author Joachim Daiber
  */
 
@@ -23,7 +26,7 @@ abstract class TranslationPairRanker {
    */
   def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
     List[ScoredTranslationPair] =
-    pairs.map(pair => rankOne(chunk, mediaSource,pair)).sorted
+    pairs.map(pair => rankOne(chunk, mediaSource, pair)).sorted
 
 
   /**
