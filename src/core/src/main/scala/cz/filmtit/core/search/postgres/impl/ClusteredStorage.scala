@@ -3,8 +3,8 @@ package cz.filmtit.core.search.postgres.impl
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import scala.collection.mutable.HashMap
 import scala.io.Source
-import cz.filmtit.core.model.Language
 import cz.filmtit.core.model.data.{Chunk, Signature}
+import cz.filmtit.core.model.{TranslationSource, Language}
 
 
 /**
@@ -13,7 +13,7 @@ import cz.filmtit.core.model.data.{Chunk, Signature}
  */
 
 class ClusteredStorage(l1: Language, l2: Language)
-  extends BaseSignatureStorage(l1, l2, "sign_clustered") {
+  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalFuzzy, "sign_clustered") {
 
   val cluster: HashMap[String, Int] = new HashMap[String, Int]()
 

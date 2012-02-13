@@ -6,10 +6,9 @@ import java.net.URLEncoder
 
 
 /**
+ * Utilities for retrieving movie/TV show information from IMDB.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 object IMDB {

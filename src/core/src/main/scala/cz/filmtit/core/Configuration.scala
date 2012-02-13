@@ -23,11 +23,11 @@ object Configuration {
   val modelPath = "/filmtit/models/"
   val neRecognizers: Map[Language, List[Pair[ChunkAnnotation, String]]] = Map(
     Language.en -> List(
-      (Name.Person,       modelPath + "en-ner-person.bin"),
-      (Name.Place,        modelPath + "en-ner-location.bin"),
-      (Name.Organization, modelPath + "en-ner-organization.bin")
+      (Name.Person,       modelPath+"en-ner-person.bin"),
+      (Name.Place,        modelPath+"en-ner-location.bin"),
+      (Name.Organization, modelPath+"en-ner-organization.bin")
     ),
-    Language.cz -> List(
+    Language.cs -> List(
 
      )
   )

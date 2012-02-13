@@ -1,5 +1,7 @@
 package cz.filmtit.core.model.data
 
+import cz.filmtit.core.model.TranslationSource
+
 
 /**
  * @author Joachim Daiber
@@ -8,15 +10,21 @@ package cz.filmtit.core.model.data
  *
  */
 
-class TranslationPair(val source: Chunk, val target: Chunk, var mediaSource: MediaSource) {
+class TranslationPair(
+  val chunkL1: Chunk,
+  val chunkL2: Chunk,
+  val source: TranslationSource,
+  var mediaSource: MediaSource
+) {
 
-  def this(source: Chunk, target: Chunk) {
-    this(source, target, null)
+  def this(chunkL1: Chunk, chunkL2: Chunk) {
+    this(chunkL1, chunkL2, TranslationSource.Unknown, null)
   }
 
-  override def toString: String = "TP(%s, %s)".format(
-    source.toAnnotatedString( (c, s) => "["+s+"]" ),
-    target.toAnnotatedString( (c, s) => "["+s+"]" )
+  override def toString = "TP(%s, %s, Source: %s)".format(
+    chunkL1.toAnnotatedString( (c, s) => "["+s+"]" ),
+    chunkL2.toAnnotatedString( (c, s) => "["+s+"]" ),
+    source
   )
 
 }

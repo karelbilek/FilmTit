@@ -12,7 +12,7 @@ import data.{Chunk, ScoredTranslationPair, TranslationPair}
  */
 
 
-class TrigramStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2) {
+class TrigramStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy) {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs);

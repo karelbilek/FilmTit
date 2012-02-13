@@ -11,8 +11,8 @@ import java.io.FileInputStream
 import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
 import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.core.search.mt.BingTranslateSearcher
 import cz.filmtit.core.model.{Language, TranslationMemory}
-import search.google.GoogleTranslateSearcher
 
 /**
  * @author Joachim Daiber
@@ -24,21 +24,21 @@ object Factory {
   def createTM(): TranslationMemory = {
 
     //Third level: Google translate
-    val googleTM = new BackoffTranslationMemory(
-      new GoogleTranslateSearcher(Language.en, Language.cz),
+    val machineTranslation = new BackoffTranslationMemory(
+      new BingTranslateSearcher(Language.en, Language.cs),
       new ExactRanker()
     )
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.en, Language.cz),
+      new NEStorage(Language.en, Language.cs),
       new ExactRanker(),
       threshold = 0.0
     )
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.en, Language.cz),
+      new FirstLetterStorage(Language.en, Language.cs),
       new ExactRanker(),
       backoff = Some(neTM)
     )

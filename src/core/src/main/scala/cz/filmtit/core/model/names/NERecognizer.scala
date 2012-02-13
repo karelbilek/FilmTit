@@ -13,6 +13,13 @@ import cz.filmtit.core.model.data.Chunk
 
 abstract class NERecognizer(val neClass: ChunkAnnotation) {
 
+
+  /**
+   * Recognize named entities and add them as annotations to the chunk.
+   *
+   * @param chunk chunk on which NER will be performed
+   */
+
   def detect(chunk: Chunk)
 
 }

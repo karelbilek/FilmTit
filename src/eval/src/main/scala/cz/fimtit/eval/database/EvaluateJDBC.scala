@@ -10,13 +10,13 @@ object EvaluateJDBC {
 
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
-  storages += new FulltextStorage(Language.en, Language.cz)
+  storages += new FulltextStorage(Language.en, Language.cs)
   storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_fulltext"
 
-  storages += new FirstLetterStorage(Language.en, Language.cz)
+  storages += new FirstLetterStorage(Language.en, Language.cs)
   storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_firstletter"
 
-  storages += new TrigramStorage(Language.en, Language.cz)
+  storages += new TrigramStorage(Language.en, Language.cs)
   storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_trigram"
 
 

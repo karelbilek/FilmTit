@@ -6,8 +6,8 @@ import java.sql.{SQLException, DriverManager}
 import java.net.ConnectException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
-import cz.filmtit.core.model.Language
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
+import cz.filmtit.core.model.{TranslationSource, Language}
 
 
 /**
@@ -17,8 +17,11 @@ import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
  *
  */
 
-abstract class BaseStorage(l1: Language, l2: Language)
-  extends TranslationPairStorage(l1, l2)
+abstract class BaseStorage(
+  l1: Language,
+  l2: Language,
+  source: TranslationSource
+) extends TranslationPairStorage(l1, l2)
   with MediaStorage {
 
   val log = Logger(this.getClass.getSimpleName)
@@ -47,7 +50,7 @@ abstract class BaseStorage(l1: Language, l2: Language)
    */
   def reset() {
     connection.createStatement().execute(
-      "DROP TABLE IF EXISTS %s; DROP TABLE IF EXISTS %s;"
+      "DROP TABLE IF EXISTS %s CASCADE; DROP TABLE IF EXISTS %s CASCADE; "
         .format(chunkTable, mediasourceTable))
 
     connection.createStatement().execute(
@@ -68,14 +71,14 @@ abstract class BaseStorage(l1: Language, l2: Language)
     translationPairs foreach {
       translationPair => {
         try {
-          inStmt.setString(1, translationPair.source)
-          inStmt.setString(2, translationPair.target)
+          inStmt.setString(1, translationPair.chunkL1)
+          inStmt.setString(2, translationPair.chunkL2)
           inStmt.setLong(3, translationPair.mediaSource.id)
           inStmt.execute()
         } catch {
           case e: SQLException => {
-            System.err.println("Could not write pair to database: " + translationPair)
-            e.printStackTrace()
+            System.err.println("Skipping translation pair (database error): " +
+              translationPair)
           }
         }
       }

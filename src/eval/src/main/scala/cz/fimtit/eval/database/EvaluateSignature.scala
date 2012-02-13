@@ -63,7 +63,7 @@ object EvaluateSignature {
 
   def main(args: Array[String]) {
 
-    evaluateSignatures(new FirstLetterStorage(Language.en, Language.cz),
+    evaluateSignatures(new FirstLetterStorage(Language.en, Language.cs),
                        new File("/Users/jodaiber/Desktop/LCT/" +
                          "LCT W11:12/FilmTit/data/parallel/utf8"))
   }

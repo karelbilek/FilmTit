@@ -29,19 +29,18 @@ class FuzzyNERanker extends TranslationPairRanker {
   def rankOne(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair):
   ScoredTranslationPair = {
 
-    /**
-     * We know that the two strings have the same NE annotations and that
+    /* We know that the two strings have the same NE annotations and that
      * the rests of the strings are equal.
      *
-     * Check whether despite the NEs, the underling surface forms are also
+     * Check whether despite the NEs, the underlying surface forms are also
      * the same.
      */
-    val matchingNESurfaces = 0
-    for (i <- (0 until pair.source.annotations.size)) {
-      val (_, aPF, aPT): (ChunkAnnotation, Int, Int) = pair.source.annotations(i)
+    var matchingNESurfaces = 0
+    for (i <- (0 until pair.chunkL1.annotations.size)) {
+      val (_, aPF, aPT): (ChunkAnnotation, Int, Int) = pair.chunkL1.annotations(i)
       val (_, aCF, aCT): (ChunkAnnotation, Int, Int) = chunk.annotations(i)
 
-      if (pair.source.surfaceform.substring(aPF, aPT) equals
+      if (pair.chunkL1.surfaceform.substring(aPF, aPT) equals
         chunk.surfaceform.substring(aCF, aCT))
         matchingNESurfaces += 1
     }

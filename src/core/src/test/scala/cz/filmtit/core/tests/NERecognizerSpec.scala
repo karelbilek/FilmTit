@@ -1,4 +1,4 @@
-package cz.filmtit.core.test
+package cz.filmtit.core.tests
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

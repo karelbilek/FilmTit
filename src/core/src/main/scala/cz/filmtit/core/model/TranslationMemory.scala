@@ -28,6 +28,7 @@ trait TranslationMemory {
    */
   def reindex()
 
+
   /**
    * Retrieve n (by default 10) best candidates for a Chunk c in language l,
    * which is from a given MediaSource.

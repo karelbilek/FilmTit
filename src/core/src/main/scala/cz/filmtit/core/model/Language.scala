@@ -1,11 +1,13 @@
 package cz.filmtit.core.model
 
 /**
- * @author Joachim Daiber
+ * Static object for identification of languages. A language has a name
+ * and an ISO code.
  *
+ * @author Joachim Daiber
  */
 
-class Language(name: String, code: String) {
+class Language(val name: String, val code: String) {
   override def toString = code
 }
 
@@ -13,5 +15,5 @@ object Language {
   def apply(name: String, code: String): Language = new Language(name, code)
 
   val en = Language("English", "en")
-  val cz = Language("Czech", "cz")
+  val cs = Language("Czech", "cs")
 }

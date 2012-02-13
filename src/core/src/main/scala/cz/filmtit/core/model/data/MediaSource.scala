@@ -4,9 +4,11 @@ import collection.mutable.HashSet
 import org.json.JSONObject
 import cz.filmtit.core.io.load.IMDB
 
+
 /**
- * @author Joachim Daiber
  *
+ *
+ * @author Joachim Daiber
  */
 
 class MediaSource(val title: String, val year: String, var genres: HashSet[String]) {
@@ -22,6 +24,7 @@ class MediaSource(val title: String, val year: String, var genres: HashSet[Strin
   }
 
 }
+
 
 object MediaSource {
 

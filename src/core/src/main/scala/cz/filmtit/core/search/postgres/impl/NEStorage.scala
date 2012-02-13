@@ -17,7 +17,8 @@ import cz.filmtit.core.model.data.{Signature, Chunk}
  */
 
 class NEStorage(l1: Language, l2: Language)
-  extends BaseSignatureStorage(l1, l2, "sign_ne", reversible = true) {
+  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalNE, "sign_ne",
+    reversible = true) {
 
   val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_) }
 

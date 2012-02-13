@@ -1,15 +1,16 @@
 package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.search.postgres.BaseStorage
-import cz.filmtit.core.model.Language
 import cz.filmtit.core.model.data.{Chunk, ScoredTranslationPair,
 TranslationPair}
+import cz.filmtit.core.model.{TranslationSource, Language}
 
 
 /**
  * Postgres-based storage using a full-text index.
  */
-class FulltextStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2) {
+class FulltextStorage(l1: Language, l2: Language)
+  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy) {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
     createChunks(translationPairs);

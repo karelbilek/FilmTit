@@ -10,10 +10,9 @@ import cz.filmtit.core.model.data.Chunk
 
 
 /**
+ * Simple NE recognizer based on OpenNLP ME models.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 class OpenNLPNameFinder(
@@ -21,6 +20,7 @@ class OpenNLPNameFinder(
   val nameFinder: TokenNameFinder,
   val tokenizer: Tokenizer
 ) extends NERecognizer(neType) {
+
 
   override def detect(chunk: Chunk) {
 

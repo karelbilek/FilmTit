@@ -61,7 +61,7 @@ class BackoffTranslationMemory(
     logger.info( "Ranking candiates took %dms..."
       .format(System.currentTimeMillis - s) )
 
-    if ( ranked.take(n).exists(pair => pair.finalScore >= threshold) )
+    if ( ranked.take(n).exists(pair => pair.score >= threshold) )
       ranked.take(n)
     else
       backoff match {
@@ -76,7 +76,7 @@ class BackoffTranslationMemory(
 
     logger.info( "first-best: (%s) %s".format(language, chunk) )
     ranker.best(chunk, null, candidates(chunk, language, mediaSource)) match {
-      case Some(best) if best.finalScore >= threshold => Some(best)
+      case Some(best) if best.score >= threshold => Some(best)
       case _ =>
         backoff match {
           case Some(backoffTM) => backoffTM.firstBest(chunk, language, mediaSource)

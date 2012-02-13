@@ -17,9 +17,10 @@ import storage.SignatureTranslationPairStorage
 abstract class BaseSignatureStorage(
   l1: Language,
   l2: Language,
+  source: TranslationSource,
   signatureTable: String,
   reversible: Boolean = false
-) extends BaseStorage(l1, l2)
+) extends BaseStorage(l1, l2, source)
   with SignatureTranslationPairStorage {
 
   override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
@@ -166,6 +167,7 @@ abstract class BaseSignatureStorage(
       candidates += new TranslationPair(
         chunkL1,
         chunkL2,
+        source,
         getMediaSource(rs.getInt("source_id"))
       )
     }

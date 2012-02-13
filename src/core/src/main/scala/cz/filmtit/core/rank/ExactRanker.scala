@@ -17,7 +17,7 @@ class ExactRanker extends TranslationPairRanker {
   def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair):
   ScoredTranslationPair = {
     val editDistanceScore = 1.0 - (
-      StringUtils.getLevenshteinDistance(chunk, pair.source)
+      StringUtils.getLevenshteinDistance(chunk, pair.chunkL1)
       / chunk.length.toFloat)
 
     val genreMatches = if (mediaSource != null) {
