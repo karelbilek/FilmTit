@@ -7,11 +7,12 @@ import junit.framework.Assert._
 import org.scalatest.Spec
 import cz.filmtit.core.model.annotation.Name
 import cz.filmtit.core.model.data.Chunk
+
+
 /**
+ * Test specification for the data model classes.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 

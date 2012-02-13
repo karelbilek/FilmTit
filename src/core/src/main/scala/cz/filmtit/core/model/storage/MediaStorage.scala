@@ -3,10 +3,10 @@ package cz.filmtit.core.model.storage
 import cz.filmtit.core.model.data.MediaSource
 
 /**
+ * Interface for retrieving information about the movie/TV show that contained
+ * the translation pair.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 trait MediaStorage {

@@ -12,8 +12,9 @@ import cz.filmtit.core.model.annotation.Name
 
 
 /**
- * @author Joachim Daiber
+ * Test specification for NE recognizers.
  *
+ * @author Joachim Daiber
  */
 
 

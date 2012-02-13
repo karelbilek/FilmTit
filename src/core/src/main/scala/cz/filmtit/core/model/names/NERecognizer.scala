@@ -5,10 +5,10 @@ import cz.filmtit.core.model.data.Chunk
 
 
 /**
+ * Interface for named entity recognizers. NE should be added as annotations
+ * to the [[cz.filmtit.core.model.data.Chunk]].
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 abstract class NERecognizer(val neClass: ChunkAnnotation) {

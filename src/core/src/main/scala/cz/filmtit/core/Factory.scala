@@ -21,6 +21,11 @@ import cz.filmtit.core.model.{Language, TranslationMemory}
 
 object Factory {
 
+  /**
+   * Create the default implementation of a TranslationMemory.
+   *
+   * @return the TM
+   */
   def createTM(): TranslationMemory = {
 
     //Third level: Google translate
@@ -46,6 +51,15 @@ object Factory {
   }
 
 
+  /**
+   * Build a NE recognizer for NE type #neType and language #language with the
+   * model specified in #modelFile .
+   *
+   * @param neType the type of NE, the recognizer detects
+   * @param language the language that is recognized
+   * @param modelFile the external model file for the NE recognizer
+   * @return
+   */
   def createNERecognizer(
     neType: ChunkAnnotation,
     language: Language,
@@ -63,21 +77,43 @@ object Factory {
     )
   }
 
-  def createNERecognizers(l: Language): List[NERecognizer] = {
-    Configuration.neRecognizers.get(l) match {
+  /**
+   * Build all NE recognizers specified for the language in
+   * [[org.scalatest.prop.Configuration]].
+   *
+   * @param language the language the NE recognizers work on
+   * @return
+   */
+  def createNERecognizers(language: Language): List[NERecognizer] = {
+    Configuration.neRecognizers.get(language) match {
       case Some(recognizers) => recognizers map {
         pair => {
           val (neType, modelFile) = pair
-          Factory.createNERecognizer(neType, l, modelFile)
+          Factory.createNERecognizer(neType, language, modelFile)
         }
       }
       case None => List()
     }
   }
 
-  def createNERecognizer(l: Language, t: ChunkAnnotation): NERecognizer =
-    createNERecognizers(l).filter( _.neClass == t ).head
 
+  /**
+   * Build a NE recognizer from [[cz.filmtit.core.Configuration]].
+   *
+   * @param language the language the NE recognizers works on
+   * @param neType the type of NE, the recognizer detects
+   * @return
+   */
+  def createNERecognizer(language: Language, neType: ChunkAnnotation): NERecognizer =
+    createNERecognizers(language).filter( _.neClass == neType ).head
+
+
+  /**
+   * Build the default Tokenizer for a language.
+   *
+   * @param language language to be tokenized
+   * @return
+   */
   def createTokenizer(language: Language): Tokenizer = {
     WhitespaceTokenizer.INSTANCE
   }

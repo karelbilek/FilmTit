@@ -1,4 +1,4 @@
-package cz.filmtit.core.io.load
+package cz.filmtit.core.io.data
 
 import org.json.JSONObject
 import io.Source

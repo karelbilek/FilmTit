@@ -5,10 +5,9 @@ import model.annotation.{ChunkAnnotation, Name}
 
 
 /**
+ * Configuration file for the external files and databases required by the TM.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 object Configuration {

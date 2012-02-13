@@ -48,7 +48,7 @@ object Import {
     tm.mediaStorage.reset()
 
     tm.initialize(
-      folder.listFiles flatMap (
+      folder.listFiles take 10 flatMap (
         sourceFile => {
           System.err.println( "Processing file %s".format(sourceFile) )
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
