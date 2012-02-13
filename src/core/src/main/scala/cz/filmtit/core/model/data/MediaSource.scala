@@ -2,7 +2,7 @@ package cz.filmtit.core.model.data
 
 import collection.mutable.HashSet
 import org.json.JSONObject
-import cz.filmtit.core.io.load.IMDB
+import cz.filmtit.core.io.data.IMDB
 
 
 /**
