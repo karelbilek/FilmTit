@@ -4,6 +4,10 @@ import collection.mutable.ListBuffer
 import cz.filmtit.core.model.annotation.ChunkAnnotation
 
 /**
+ * Wrapper class for chunks in the parallel data. In the most basic case,
+ * a chunk only consists of the the surface form in a particular language.
+ * Chunks can also have annotations, e.g. Named entities.
+ *
  * @author Joachim Daiber
  */
 
@@ -25,7 +29,7 @@ class Chunk(val surfaceform: String) {
    * @return
    */
   def toAnnotatedString(
-    format: (ChunkAnnotation, String) => String =  { (t, s) => "<" + t + ">" }
+    format: (ChunkAnnotation, String) => String =  { (t, _) => "<" + t + ">" }
   ): String = {
 
     var lastOffset = 0

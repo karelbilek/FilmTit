@@ -43,7 +43,7 @@ trait TranslationMemory {
             n: Int = 10): List[ScoredTranslationPair]
 
   /**
-   * Retrieve only the best tranlation candidate for a chunk in language l,
+   * Retrieve only the best translation candidate for a chunk in language l,
    * with given MediaResource.
    *
    * @param chunk the chunk to be queried

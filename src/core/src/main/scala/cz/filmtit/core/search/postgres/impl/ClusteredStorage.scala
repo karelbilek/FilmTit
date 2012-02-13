@@ -3,7 +3,8 @@ package cz.filmtit.core.search.postgres.impl
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import scala.collection.mutable.HashMap
 import scala.io.Source
-import cz.filmtit.core.model.data.{Chunk, Signature}
+import cz.filmtit.core.model.storage.Signature
+import cz.filmtit.core.model.data.{Chunk}
 import cz.filmtit.core.model.{TranslationSource, Language}
 
 

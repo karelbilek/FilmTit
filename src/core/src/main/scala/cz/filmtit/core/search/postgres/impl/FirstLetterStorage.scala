@@ -3,7 +3,8 @@ package cz.filmtit.core.search.postgres.impl
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 
-import data.{Signature, Chunk}
+import storage.Signature
+import data.{Chunk}
 import java.lang.String
 
 

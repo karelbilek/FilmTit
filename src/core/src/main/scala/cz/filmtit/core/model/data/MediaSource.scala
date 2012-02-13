@@ -6,7 +6,7 @@ import cz.filmtit.core.io.load.IMDB
 
 
 /**
- *
+ * The source of subtitle chunk. This may be a movie, TV series etc.
  *
  * @author Joachim Daiber
  */

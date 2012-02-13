@@ -1,10 +1,10 @@
 package cz.filmtit.core.model
 
 /**
+ * Static class for identification of the source of a matches translation
+ * pair.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 class TranslationSource(val name: String) {

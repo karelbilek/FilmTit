@@ -1,10 +1,12 @@
-package cz.filmtit.core.model.data
+package cz.filmtit.core.model.storage
 
 import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.core.model.data._
+
 import collection.mutable.ListBuffer
 
 /**
- * Wrapper class for signature Strings.
+ * Wrapper class for database signature Strings.
  *
  * A signature string is a representation of a Chunk that is used
  * to index the chunks in the database. A Signature can have
@@ -18,8 +20,8 @@ class Signature(val surfaceform: String) {
 
   lazy val annotations = ListBuffer[Triple[ChunkAnnotation, Int, Int]]()
 
-  def listAnnotations(): String = annotations.map( t => ("%s,%d,%d").format(t._1.id,t._2,t._3) ).mkString(",")
-  
+  def listAnnotations(): String = annotations.map(t => ("%s,%d,%d").format(t._1.id, t._2, t._3)).mkString(",")
+
 }
 
 object Signature {
@@ -49,7 +51,7 @@ object Signature {
     val sig = new Signature(signature)
     if (!annotations.equals(""))
       sig.annotations ++= annotations.split(",").sliding(3) map {
-        ( a => (ChunkAnnotation.fromID(a(0)).get, a(1).toInt, a(2).toInt) )
+        (a => (ChunkAnnotation.fromID(a(0)).get, a(1).toInt, a(2).toInt))
       }
 
     sig

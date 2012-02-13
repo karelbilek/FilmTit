@@ -5,7 +5,8 @@ import cz.filmtit.core.model._
 import cz.filmtit.core.Factory
 import cz.filmtit.core.Utils.t2mapper
 import collection.mutable.ListBuffer
-import cz.filmtit.core.model.data.{Signature, Chunk}
+import storage.Signature
+import cz.filmtit.core.model.data.Chunk
 
 /**
  * Translation pair storage using named entity types to identify names.
