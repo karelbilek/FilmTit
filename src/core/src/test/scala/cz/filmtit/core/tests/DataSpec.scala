@@ -21,14 +21,14 @@ class DataSpec extends Spec {
 
   describe("A Chunk") {
 
-    it("should be created from a String") {
+    it("can be created from a String") {
       assert( Chunk.fromString("test") equals new Chunk("test") )
     }
 
     val chunk: Chunk = "I am Jo"
-    chunk.addAnnotation(Name.Person, 5, 7)
 
     it("can have annotations") {
+      chunk.addAnnotation(Name.Person, 5, 7)
       assert(chunk.annotations.size > 0)
     }
 
@@ -43,7 +43,7 @@ class DataSpec extends Spec {
       //Show type and surface form:
       assertEquals(
         "I am <Person:Jo>",
-        chunk.toAnnotatedString((ann, string) => "<%s:%s>".format(ann, string))
+        chunk.toAnnotatedString((tag, surface) => "<%s:%s>".format(tag, surface))
       )
 
     }

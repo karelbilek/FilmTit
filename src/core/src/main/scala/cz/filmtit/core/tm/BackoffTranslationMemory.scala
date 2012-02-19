@@ -17,15 +17,15 @@ import cz.filmtit.core.search.postgres.BaseStorage
  * the pairs are over the threshold.
  *
  * @author Joachim Daiber
- *
+
  */
 
 class BackoffTranslationMemory(
-  val searcher: TranslationPairSearcher,
-  val ranker: TranslationPairRanker,
-  val backoff: Option[TranslationMemory] = None,
-  val threshold: Double = 0.90
-) extends TranslationMemory {
+                                val searcher: TranslationPairSearcher,
+                                val ranker: TranslationPairRanker,
+                                val backoff: Option[TranslationMemory] = None,
+                                val threshold: Double = 0.90
+                                ) extends TranslationMemory {
 
   val logger = Logger("BackoffTM[%s, %s]".format(
     searcher.getClass.getSimpleName,
@@ -72,7 +72,7 @@ class BackoffTranslationMemory(
 
 
   def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
-    Option[ScoredTranslationPair] = {
+  Option[ScoredTranslationPair] = {
 
     logger.info( "first-best: (%s) %s".format(language, chunk) )
     ranker.best(chunk, null, candidates(chunk, language, mediaSource)) match {
@@ -89,20 +89,24 @@ class BackoffTranslationMemory(
   def initialize(pairs: Array[TranslationPair]) {
 
     //If the searcher can be initialized with translation pairs, do it:
-    if(searcher.isInstanceOf[TranslationPairStorage]) searcher.initialize(pairs)
+    searcher match {
+      case s: TranslationPairStorage => s.initialize(pairs)
+    }
 
     //If there is a backoff TM (there is either 0 or 1 backoff TM), init. it
-    if (backoff.isDefined) backoff.initialize(pairs)
+    if (backoff.isDefined) backoff.get.initialize(pairs)
 
   }
 
   def reindex() {
 
     //If the searcher can reindexed, do it:
-    if(searcher.isInstanceOf[TranslationPairStorage]) seacher.reindex()
+    searcher match {
+      case s: TranslationPairStorage => s.reindex()
+    }
 
     //If there is a backoff TM (there is either 0 or 1 backoff TM), reindex it
-    if (backoff.isDefined) backoff.reindex()
+    if (backoff.isDefined) backoff.get.reindex()
 
   }
 

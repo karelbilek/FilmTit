@@ -3,7 +3,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Spec
 import cz.filmtit.core.model.Language
-import cz.filmtit.core.search.mt.MyMemorySearcher
+import cz.filmtit.core.search.external.MyMemorySearcher
 
 
 /**

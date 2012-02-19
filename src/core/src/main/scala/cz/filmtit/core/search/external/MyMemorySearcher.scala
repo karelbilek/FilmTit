@@ -17,16 +17,19 @@ import cz.filmtit.core.model.data.{ScoredTranslationPair, TranslationPair, Chunk
 class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearcher(l1, l2) {
 
   val limit = 5
-  val baseURL = "http://mymemory.translated.net/api/get?langpair=%s|%s&q=%s"
+  val apiURL = (l1: String, l2: String, text: String) =>
+    "http://mymemory.translated.net/api/get?langpair=%s|%s&q=%s"
+      .format(l1, l2, URLEncoder.encode(text, "utf-8"))
 
   def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
     val v = new JSONObject(
+
       Source.fromURL(
-        baseURL.format(
+        apiURL(
           language.code,
           if (language == l1) l2.code else l1.code,
-          URLEncoder.encode(chunk.surfaceform, "utf-8")
+          chunk.surfaceform
         )
       ).getLines().next())
 

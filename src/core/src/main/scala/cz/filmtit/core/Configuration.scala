@@ -28,7 +28,7 @@ object Configuration {
     ),
     Language.cs -> List(
 
-     )
+    )
   )
 
 

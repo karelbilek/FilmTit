@@ -25,7 +25,7 @@ abstract class TranslationPairRanker {
    * @return sorted list of scored translation pairs with best first
    */
   def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-    List[ScoredTranslationPair] =
+  List[ScoredTranslationPair] =
     pairs.map(pair => rankOne(chunk, mediaSource, pair)).sorted
 
 
@@ -39,11 +39,11 @@ abstract class TranslationPairRanker {
    * @return best-match translation pair with score
    */
   def best(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-    Option[ScoredTranslationPair] =
+  Option[ScoredTranslationPair] =
     pairs.map(pair => rankOne(chunk, mediaSource, pair)) match {
       case List()                                  => None
       case x: List[Ordered[ScoredTranslationPair]] => Some(x.max.asInstanceOf[ScoredTranslationPair])
-  }
+    }
 
 
 
@@ -58,7 +58,7 @@ abstract class TranslationPairRanker {
    * @return translation pair with score
    */
   def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair):
-    ScoredTranslationPair
+  ScoredTranslationPair
 
 
   /**

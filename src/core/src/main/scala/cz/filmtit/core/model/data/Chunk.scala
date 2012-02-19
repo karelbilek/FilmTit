@@ -6,7 +6,7 @@ import cz.filmtit.core.model.annotation.ChunkAnnotation
 /**
  * Wrapper class for chunks in the parallel data. In the most basic case,
  * a chunk only consists of the the surface form in a particular language.
- * Chunks can also have annotations, e.g. Named entities.
+ * Chunks can also have annotations, e.g. Named Entities.
  *
  * @author Joachim Daiber
  */
