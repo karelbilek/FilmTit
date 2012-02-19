@@ -11,8 +11,8 @@ import java.io.FileInputStream
 import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
 import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
-import cz.filmtit.core.search.mt.BingTranslateSearcher
 import cz.filmtit.core.model.{Language, TranslationMemory}
+import search.external.MyMemorySearcher
 
 /**
  * @author Joachim Daiber
@@ -29,8 +29,8 @@ object Factory {
   def createTM(): TranslationMemory = {
 
     //Third level: Google translate
-    val machineTranslation = new BackoffTranslationMemory(
-      new BingTranslateSearcher(Language.en, Language.cs),
+    val mtTM = new BackoffTranslationMemory(
+      new MyMemorySearcher(Language.en, Language.cs),
       new ExactRanker()
     )
 

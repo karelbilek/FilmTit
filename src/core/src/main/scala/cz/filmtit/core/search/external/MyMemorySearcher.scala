@@ -1,4 +1,4 @@
-package cz.filmtit.core.search.mt
+package cz.filmtit.core.search.external
 
 import io.Source
 import java.net.URLEncoder
@@ -16,7 +16,7 @@ import cz.filmtit.core.model.data.{ScoredTranslationPair, TranslationPair, Chunk
 
 class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearcher(l1, l2) {
 
-  val MAX_CANDIDATES = 5
+  val limit = 5
   val baseURL = "http://mymemory.translated.net/api/get?langpair=%s|%s&q=%s"
 
   def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
@@ -36,7 +36,7 @@ class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearch
     val matches: JSONArray = v.getJSONArray("matches")
 
     //Retrieve all matches:
-    for (i <- 0 to math.min(matches.length() - 1, MAX_CANDIDATES)) {
+    for (i <- 0 to math.min(matches.length() - 1, limit)) {
       val translation = matches.getJSONObject(i)
 
       //Set the chunks for the resulting translation pair
