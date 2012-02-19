@@ -31,7 +31,7 @@ class BackoffTranslationMemory(
     searcher.getClass.getSimpleName,
     ranker.getClass.getSimpleName
   ))
-  
+
   override val mediaStorage = searcher match {
     case s: BaseStorage => s.asInstanceOf[MediaStorage]
     case _ => null
@@ -88,28 +88,22 @@ class BackoffTranslationMemory(
 
   def initialize(pairs: Array[TranslationPair]) {
 
-    searcher match {
-      case s: TranslationPairStorage => s.initialize(pairs)
-      case _ =>
-    }
+    //If the searcher can be initialized with translation pairs, do it:
+    if(searcher.isInstanceOf[TranslationPairStorage]) searcher.initialize(pairs)
 
-    backoff match {
-      case Some(tm) => tm.initialize(pairs)
-      case None =>
-    }
+    //If there is a backoff TM (there is either 0 or 1 backoff TM), init. it
+    if (backoff.isDefined) backoff.initialize(pairs)
+
   }
 
   def reindex() {
 
-    searcher match {
-      case s: TranslationPairStorage => s.reindex()
-      case _ =>
-    }
+    //If the searcher can reindexed, do it:
+    if(searcher.isInstanceOf[TranslationPairStorage]) seacher.reindex()
 
-    backoff match {
-      case Some(tm) => tm.reindex()
-      case None =>
-    }
+    //If there is a backoff TM (there is either 0 or 1 backoff TM), reindex it
+    if (backoff.isDefined) backoff.reindex()
+
   }
 
 }
