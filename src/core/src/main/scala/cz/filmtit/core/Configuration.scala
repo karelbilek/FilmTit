@@ -18,7 +18,6 @@ object Configuration {
   val dbPassword = "postgres"
 
   //Named entity recognition:
-
   val modelPath = "/filmtit/models/"
   val neRecognizers: Map[Language, List[Pair[ChunkAnnotation, String]]] = Map(
     Language.en -> List(

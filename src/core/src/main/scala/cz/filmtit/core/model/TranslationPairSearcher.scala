@@ -3,7 +3,7 @@ package cz.filmtit.core.model
 import cz.filmtit.core.model.data.{TranslationPair, Chunk}
 
 /**
- * Interface for translation pair searchers, based on the database,
+ * Interface for translation pair searchers, based on a local database,
  * external services, etc.
  *
  * @author Joachim Daiber

@@ -21,21 +21,29 @@ import cz.filmtit.core.search.postgres.BaseStorage
  */
 
 class BackoffTranslationMemory(
-                                val searcher: TranslationPairSearcher,
-                                val ranker: TranslationPairRanker,
-                                val backoff: Option[TranslationMemory] = None,
-                                val threshold: Double = 0.90
-                                ) extends TranslationMemory {
+  val searcher: TranslationPairSearcher,
+  val ranker: TranslationPairRanker,
+  val backoff: Option[TranslationMemory] = None,
+  val threshold: Double = 0.90
+  ) extends TranslationMemory {
 
   val logger = Logger("BackoffTM[%s, %s]".format(
     searcher.getClass.getSimpleName,
     ranker.getClass.getSimpleName
   ))
 
+
+  /**
+   * TODO: this is a bit confusing
+   *
+   * If the searcher extends BaseStorage, then it will also be a MediaStorage,
+   * hence the media storage for this TM will be the searcher
+   */
   override val mediaStorage = searcher match {
     case s: BaseStorage => s.asInstanceOf[MediaStorage]
     case _ => null
   }
+
 
   def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource) = {
 
@@ -50,7 +58,7 @@ class BackoffTranslationMemory(
 
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-            n: Int = 10): List[ScoredTranslationPair] = {
+    n: Int = 10): List[ScoredTranslationPair] = {
 
 
     val s = System.currentTimeMillis

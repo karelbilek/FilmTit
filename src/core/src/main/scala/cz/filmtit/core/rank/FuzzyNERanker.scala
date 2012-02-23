@@ -7,9 +7,6 @@ import cz.filmtit.core.model.annotation.ChunkAnnotation
 
 /**
  * @author Joachim Daiber
- *
- *
- *
  */
 
 class FuzzyNERanker extends TranslationPairRanker {

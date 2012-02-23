@@ -8,6 +8,9 @@ import collection.mutable.ListBuffer
 import cz.filmtit.core.model.data.{ScoredTranslationPair, TranslationPair, Chunk}
 
 /**
+ * Translation pair searcher using the API of mymemory.translated.net
+ *
+ * The results contain both TM results and MT results.
  *
  * See [[http://mymemory.translated.net/doc/spec.php]]
  *
@@ -23,20 +26,16 @@ class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearch
 
   def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val v = new JSONObject(
-
+    val apiResponse = new JSONObject(
       Source.fromURL(
-        apiURL(
-          language.code,
-          if (language == l1) l2.code else l1.code,
-          chunk.surfaceform
-        )
-      ).getLines().next())
+        apiURL(language.code, {if (language == l1) l2.code else l1.code}, chunk.surfaceform)
+      ).getLines().next()
+    )
 
     //TODO: add exception handling!
 
     val candidates = ListBuffer[TranslationPair]()
-    val matches: JSONArray = v.getJSONArray("matches")
+    val matches: JSONArray = apiResponse.getJSONArray("matches")
 
     //Retrieve all matches:
     for (i <- 0 to math.min(matches.length() - 1, limit)) {
