@@ -26,7 +26,7 @@ class NESearcherSpec extends Spec {
       /* Since we found the results via NE matches, the corresponding NE
          annotations must be restorable from the database. */
       assert(
-        candidates.exists({ _.chunkL1.toAnnotatedString() contains "<Person>"})
+        candidates.exists(_.chunkL1.toAnnotatedString() contains "<Person>" )
       )
     }
   }

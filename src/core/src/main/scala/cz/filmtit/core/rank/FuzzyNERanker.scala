@@ -1,15 +1,20 @@
 package cz.filmtit.core.rank
 
-import cz.filmtit.core.model.TranslationPairRanker
 import cz.filmtit.core.model.data.{ScoredTranslationPair, Chunk, MediaSource, TranslationPair}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
+import collection.mutable.ListBuffer
+import org.apache.commons.lang3.StringUtils
+import cz.filmtit.core.model.data.Chunk._
 
 
 /**
  * @author Joachim Daiber
  */
 
-class FuzzyNERanker extends TranslationPairRanker {
+class FuzzyNERanker extends BaseRanker {
+
+  val lambdas = (0.95, 0.05)
+
 
   /**
    * NE-based translation pairs should be ranked by their similarity
@@ -31,20 +36,48 @@ class FuzzyNERanker extends TranslationPairRanker {
      * Check whether despite the NEs, the underlying surface forms are also
      * the same.
      */
-    var matchingNESurfaces = 0
-    for (i <- (0 until pair.chunkL1.annotations.size)) {
-      val (_, aPF, aPT): (ChunkAnnotation, Int, Int) = pair.chunkL1.annotations(i)
-      val (_, aCF, aCT): (ChunkAnnotation, Int, Int) = chunk.annotations(i)
 
-      if (pair.chunkL1.surfaceform.substring(aPF, aPT) equals
-        chunk.surfaceform.substring(aCF, aCT))
-        matchingNESurfaces += 1
+    val scoredPair = ScoredTranslationPair.fromTranslationPair(pair)
+    val matches: List[Int] = matchingSFs(pair.chunkL1, chunk)
+
+    //Add all the non-matching annotations to the chunk so that it can be
+    //post-edited
+    for ( i <- (0 until pair.chunkL1.annotations.size) ) {
+      if (!(matches contains i))
+        scoredPair.chunkL1.annotations += pair.chunkL1.annotations(i)
+    }
+    val distanceScore = 1.0 - ( scoredPair.chunkL1.toAnnotatedString({(_, _) => "" }).length / chunk.length.toFloat )
+    scoredPair.score = (lambdas._1 * distanceScore) + (lambdas._2 * genreMatches(mediaSource, pair))
+
+    scoredPair
+  }
+
+
+  /**
+   * Return the indexes of all NEs which have the same surface form in both
+   * chunks.
+   *
+   * @param chunk1 first chunk
+   * @param chunk2 second chunk
+   * @return
+   */
+  def matchingSFs(chunk1: Chunk, chunk2: Chunk): List[Int] = {
+
+    val matches = ListBuffer[Int]()
+
+    for (i <- (0 until chunk1.annotations.size)) {
+      val (_, neFrom1, neTo1): (ChunkAnnotation, Int, Int) = chunk1.annotations(i)
+      val (_, neFrom2, neTo2): (ChunkAnnotation, Int, Int) = chunk2.annotations(i)
+
+      if (chunk1.surfaceform.substring(neFrom1, neTo1)
+           equals chunk2.surfaceform.substring(neFrom2, neTo2)) {
+        matches += i
+      }
     }
 
-    //TODO!
-
-    ScoredTranslationPair.fromTranslationPair(pair, matchingNESurfaces)
+    matches.toList
   }
+
 
   def name = "Fuzzy ranker for Named Entities."
 
