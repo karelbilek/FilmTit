@@ -45,11 +45,10 @@ object Import {
 
   def loadChunks(tm: TranslationMemory, folder: File) {
 
-    tm.mediaStorage.reset()
+    tm.reset()
 
-    tm.initialize(
-      folder.listFiles flatMap (
-        sourceFile => {
+    folder.listFiles grouped(1000) foreach( (files: Array[File]) => tm.add(
+      files flatMap ( (sourceFile: File) => {
           System.err.println( "Processing file %s".format(sourceFile) )
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
           mediaSource.id = tm.mediaStorage.addMediaSource(mediaSource)
@@ -59,6 +58,9 @@ object Import {
             .filter( _ != null )
             .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
         }))
+      )
+
+    tm.reindex()
   }
 
 

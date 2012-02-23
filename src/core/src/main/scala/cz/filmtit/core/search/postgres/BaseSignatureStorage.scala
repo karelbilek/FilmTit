@@ -23,11 +23,6 @@ abstract class BaseSignatureStorage(
 ) extends BaseStorage(l1, l2, source)
   with SignatureTranslationPairStorage {
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
-    createChunks(translationPairs)
-    reindex()
-  }
-
   /**Write the signatures for the chunk table to the database. */
   override def reindex() {
     connection.createStatement().execute(
@@ -126,10 +121,6 @@ abstract class BaseSignatureStorage(
    * parts of the chunk that are special, e.g. that should be post-edited.
    */
   def annotate(chunk: Chunk, signature: Signature) {}
-
-
-  override def addTranslationPair(translationPair: TranslationPair) = {}
-
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 

@@ -3,7 +3,6 @@ package cz.filmtit.core.rank
 import cz.filmtit.core.model.data.{ScoredTranslationPair, Chunk, MediaSource, TranslationPair}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
 import collection.mutable.ListBuffer
-import org.apache.commons.lang3.StringUtils
 import cz.filmtit.core.model.data.Chunk._
 
 

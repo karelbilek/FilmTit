@@ -12,14 +12,6 @@ import cz.filmtit.core.model.{TranslationSource, Language}
 class FulltextStorage(l1: Language, l2: Language)
   extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy) {
 
-  override def initialize(translationPairs: TraversableOnce[TranslationPair]) {
-    createChunks(translationPairs);
-    reindex()
-  }
-
-  override def addTranslationPair(translationPair: TranslationPair) {
-
-  }
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(chunkTable))
@@ -30,7 +22,7 @@ class FulltextStorage(l1: Language, l2: Language)
       println(" " + rs.getString("sentence"))
     }
 
-    null;
+    null
   }
 
 

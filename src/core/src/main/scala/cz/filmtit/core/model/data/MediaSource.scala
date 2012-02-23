@@ -29,12 +29,12 @@ class MediaSource(val title: String, val year: String, var genres: HashSet[Strin
 object MediaSource {
 
   def fromIMDB(title: String, year: String): MediaSource = {
-    val imdbInfo: JSONObject = IMDB.query(title, year)
-
-    if (imdbInfo.has("Genre"))
+    try {
+      val imdbInfo: JSONObject = IMDB.query(title, year)
       new MediaSource(title, year, imdbInfo.getString("Genre"))
-    else
-      new MediaSource(title, year)
+    } catch {
+      case e: Exception => new MediaSource(title, year)
+    }
   }
 
 }

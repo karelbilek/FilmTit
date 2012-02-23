@@ -45,10 +45,9 @@ abstract class BaseStorage(
 
   var maxCandidates = 500
 
-  /**
-   *
-   */
   def reset() {
+    System.err.println("Resetting BaseStorage (chunks, mediasources).")
+
     connection.createStatement().execute(
       "DROP TABLE IF EXISTS %s CASCADE; DROP TABLE IF EXISTS %s CASCADE; "
         .format(chunkTable, mediasourceTable))
@@ -63,7 +62,7 @@ abstract class BaseStorage(
   }
 
 
-  def createChunks(translationPairs: TraversableOnce[TranslationPair]) {
+  def add(translationPairs: TraversableOnce[TranslationPair]) {
 
     val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))
 

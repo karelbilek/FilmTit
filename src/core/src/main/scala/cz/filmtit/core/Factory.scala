@@ -30,21 +30,20 @@ object Factory {
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
-      new MyMemorySearcher(Language.en, Language.cs),
-      new ExactRanker()
+      new MyMemorySearcher(Language.en, Language.cs)
     )
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
       new NEStorage(Language.en, Language.cs),
-      new ExactRanker(),
+      Some(new ExactRanker()),
       threshold = 0.0
     )
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
       new FirstLetterStorage(Language.en, Language.cs),
-      new ExactRanker(),
+      Some(new ExactRanker()),
       backoff = Some(neTM)
     )
 

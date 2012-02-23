@@ -19,7 +19,7 @@ trait TranslationMemory {
    *
    * @param pairs training translation pairs
    */
-  def initialize(pairs: Array[TranslationPair])
+  def add(pairs: Array[TranslationPair])
 
 
   /**
@@ -27,6 +27,11 @@ trait TranslationMemory {
    * pairs.
    */
   def reindex()
+
+  /**
+   * Reset the TranslationMemory (this will clear all database tables!)
+   */
+  def reset()
 
 
   /**

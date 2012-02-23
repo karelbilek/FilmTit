@@ -64,7 +64,7 @@ class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearch
         chunkL2,
         source,
         null,
-        priorScore = quality
+        score = quality
       )
     }
 
