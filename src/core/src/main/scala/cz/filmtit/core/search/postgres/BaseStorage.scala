@@ -66,14 +66,14 @@ abstract class BaseStorage(
 
     val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))
 
-    System.err.println("Reading aligned chunks...")
+    System.err.println("Writing chunks to database...")
     translationPairs foreach {
       translationPair => {
         try {
           inStmt.setString(1, translationPair.chunkL1)
           inStmt.setString(2, translationPair.chunkL2)
           inStmt.setLong(3, translationPair.mediaSource.id)
-          inStmt.execute()
+          inStmt.addBatch()
         } catch {
           case e: SQLException => {
             System.err.println("Skipping translation pair (database error): " +
@@ -82,6 +82,8 @@ abstract class BaseStorage(
         }
       }
     }
+    inStmt.executeBatch()
+
 
   }
 

@@ -21,7 +21,7 @@ abstract class BaseSignatureStorage(
   signatureTable: String,
   reversible: Boolean = false
 ) extends BaseStorage(l1, l2, source)
-  with SignatureTranslationPairStorage {
+with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */
   override def reindex() {
@@ -30,12 +30,12 @@ abstract class BaseSignatureStorage(
     )
     connection.createStatement().execute(
       ( if (!reversible)
-         "CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);"
-        else
+        "CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);"
+      else
         "CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s" +
           "(chunk_id), signature_l1 TEXT, annotations_l1 TEXT, " +
           "signature_l2 TEXT, annotations_l2 TEXT);"
-       ).format(signatureTable, chunkTable)
+        ).format(signatureTable, chunkTable)
     )
 
     connection.setAutoCommit(false);
@@ -58,7 +58,7 @@ abstract class BaseSignatureStorage(
       else
         "INSERT INTO %s(chunk_id, signature_l1, annotations_l1, " +
           "signature_l2, annotations_l2) VALUES(?, ?, ?, ?, ?);"
-      ).format(signatureTable)
+        ).format(signatureTable)
     )
     //inStmt.setFetchSize(500)
 
@@ -69,7 +69,7 @@ abstract class BaseSignatureStorage(
       val sigL1 = signature(row.getString("chunk_l1"), l1)
       val sigL2 = signature(row.getString("chunk_l2"), l2)
 
-      
+
       if (reversible) {
         inStmt.setInt(1, row.getInt("chunk_id"))
 
@@ -103,12 +103,12 @@ abstract class BaseSignatureStorage(
 
     connection.createStatement().execute(
       "CREATE INDEX idx_chunkl1_%s ON %s (signature_l1);"
-       .format(signatureTable, signatureTable)
+        .format(signatureTable, signatureTable)
     )
 
     connection.createStatement().execute(
       "CREATE INDEX idx_chunkl2_%s ON %s (signature_l2);"
-      .format(signatureTable, signatureTable)
+        .format(signatureTable, signatureTable)
     )
 
     connection.commit()
@@ -138,7 +138,7 @@ abstract class BaseSignatureStorage(
         Signature.fromString(rs.getString("signature_l1"))
       else
         Signature.fromDatabase(rs.getString("signature_l1"), rs.getString("annotations_l1"))
-      
+
       val sigL2 = if (!reversible)
         Signature.fromString(rs.getString("signature_l2"))
       else

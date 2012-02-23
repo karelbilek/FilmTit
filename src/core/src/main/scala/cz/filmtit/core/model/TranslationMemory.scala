@@ -28,6 +28,7 @@ trait TranslationMemory {
    */
   def reindex()
 
+
   /**
    * Reset the TranslationMemory (this will clear all database tables!)
    */
@@ -46,6 +47,7 @@ trait TranslationMemory {
    */
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
             n: Int = 10): List[ScoredTranslationPair]
+
 
   /**
    * Retrieve only the best translation candidate for a chunk in language l,

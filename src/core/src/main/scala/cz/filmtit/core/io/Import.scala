@@ -47,7 +47,7 @@ object Import {
 
     tm.reset()
 
-    folder.listFiles grouped(1000) foreach( (files: Array[File]) => tm.add(
+    folder.listFiles grouped(100) foreach( (files: Array[File]) => tm.add(
       files flatMap ( (sourceFile: File) => {
           System.err.println( "Processing file %s".format(sourceFile) )
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))

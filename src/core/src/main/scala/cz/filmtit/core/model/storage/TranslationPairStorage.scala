@@ -15,7 +15,7 @@ extends TranslationPairSearcher(l1, l2) {
   /** Reset the database  */
   def reset()
 
-  /**Create a new database with the initial set of translation pairs. */
+  /**Add the translation pairs to the database. */
   def add(translationPairs: TraversableOnce[TranslationPair])
 
   /**Reload indexes */
