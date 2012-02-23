@@ -40,7 +40,8 @@
                             <mainClass>cz.filmtit.core.io.Import</mainClass>
 
                             <jvmArgs>
-                                <jvmArg>-Xmx2G</jvmArg>
+                                <jvmArg>-Xmx2000m</jvmArg>
+                                <jvmArg>-Xms1500m</jvmArg>
                             </jvmArgs>
                         </launcher>
 
@@ -51,7 +52,8 @@
                             <mainClass>cz.filmtit.core.io.Reindex</mainClass>
 
                             <jvmArgs>
-                                <jvmArg>-Xmx2G</jvmArg>
+                                <jvmArg>-Xmx2000m</jvmArg>
+                                <jvmArg>-Xms1500m</jvmArg>
                             </jvmArgs>
                         </launcher>
 
