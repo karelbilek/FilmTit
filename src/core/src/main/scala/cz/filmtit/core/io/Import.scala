@@ -47,9 +47,11 @@ object Import {
 
     tm.reset()
 
-    folder.listFiles grouped(100) foreach( (files: Array[File]) => tm.add(
+    System.err.println("Processing files:")
+    folder.listFiles filter(_.getName.endsWith(".txt")) grouped(100) foreach(
+      (files: Array[File])=> tm.add(
       files flatMap ( (sourceFile: File) => {
-          System.err.println( "Processing file %s".format(sourceFile) )
+          System.err.println( "- %s" .format(sourceFile.getName) )
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
           mediaSource.id = tm.mediaStorage.addMediaSource(mediaSource)
 
@@ -59,8 +61,6 @@ object Import {
             .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
         }))
       )
-
-    tm.reindex()
   }
 
 

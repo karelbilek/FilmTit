@@ -2,12 +2,13 @@ package cz.filmtit.core.search.postgres
 
 import cz.filmtit.core.Configuration
 import org.postgresql.util.PSQLException
-import java.sql.{SQLException, DriverManager}
 import java.net.ConnectException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.model.{TranslationSource, Language}
+import java.sql.{BatchUpdateException, SQLException, DriverManager}
+import java.util.Iterator
 
 
 /**
@@ -22,7 +23,7 @@ abstract class BaseStorage(
   l2: Language,
   source: TranslationSource
 ) extends TranslationPairStorage(l1, l2)
-  with MediaStorage {
+with MediaStorage {
 
   val log = Logger(this.getClass.getSimpleName)
 
@@ -67,22 +68,21 @@ abstract class BaseStorage(
     val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))
 
     System.err.println("Writing chunks to database...")
-    translationPairs foreach {
-      translationPair => {
-        try {
-          inStmt.setString(1, translationPair.chunkL1)
-          inStmt.setString(2, translationPair.chunkL2)
-          inStmt.setLong(3, translationPair.mediaSource.id)
-          inStmt.addBatch()
-        } catch {
-          case e: SQLException => {
-            System.err.println("Skipping translation pair (database error): " +
-              translationPair)
-          }
-        }
+    translationPairs foreach { translationPair => {
+      try {
+
+        inStmt.setString(1, translationPair.chunkL1)
+        inStmt.setString(2, translationPair.chunkL2)
+        inStmt.setLong(3, translationPair.mediaSource.id)
+        inStmt.execute()
+
+      } catch {
+        case e: SQLException =>
+          System.err.println("Skipping translation pair due to database " +
+            "error: " + translationPair)
       }
     }
-    inStmt.executeBatch()
+    }
 
 
   }
