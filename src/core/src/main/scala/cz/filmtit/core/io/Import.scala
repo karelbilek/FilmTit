@@ -50,10 +50,20 @@ object Import {
     System.err.println("Processing files:")
     folder.listFiles filter(_.getName.endsWith(".txt")) grouped(100) foreach(
       (files: Array[File])=> tm.add(
-      files flatMap ( (sourceFile: File) => {
-          System.err.println( "- %s" .format(sourceFile.getName) )
+        files flatMap ( (sourceFile: File) => {
+
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
           mediaSource.id = tm.mediaStorage.addMediaSource(mediaSource)
+
+          System.err.println( "- %s (%s, %s, %s)"
+            .format(sourceFile.getName, mediaSource.title, mediaSource.year,
+              if (mediaSource.genres.size > 0)
+                mediaSource.genres.toString()
+              else
+                "Could not retrieve additional information"
+            )
+          )
+
 
           Source.fromFile(sourceFile).getLines()
             .map( TranslationPair.fromString(_) )
