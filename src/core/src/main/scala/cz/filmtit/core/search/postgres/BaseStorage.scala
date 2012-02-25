@@ -67,6 +67,10 @@ with MediaStorage {
 
     val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))
 
+    //Important for performance: Only commit after all INSERT statements are
+    //executed:
+    connection.setAutoCommit(false)
+
     System.err.println("Writing chunks to database...")
     translationPairs foreach { translationPair => {
       try {
@@ -84,6 +88,8 @@ with MediaStorage {
     }
     }
 
+    //Commit the changes to the database:
+    connection.commit()
 
   }
 
@@ -100,6 +106,7 @@ with MediaStorage {
       stmt.getResultSet.getString("genres")
     )
   }
+
 
   def addMediaSource(mediaSource: MediaSource): Long = {
     val stmt = connection.prepareStatement("INSERT INTO %s(title, year, genres) VALUES(?, ?, ?) RETURNING source_id;".format(mediasourceTable))
