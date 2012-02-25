@@ -55,7 +55,7 @@ object Import {
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
           mediaSource.id = tm.mediaStorage.addMediaSource(mediaSource)
 
-          System.err.println( "- %s (%s, %s, %s)"
+          System.err.println( "- %s: %s, %s, %s"
             .format(sourceFile.getName, mediaSource.title, mediaSource.year,
               if (mediaSource.genres.size > 0)
                 mediaSource.genres.toString()
