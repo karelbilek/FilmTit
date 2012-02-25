@@ -47,8 +47,17 @@ class NEStorage(l1: Language, l2: Language)
   }
 
 
+  /**
+   * Ensure there are no overlapping annotations.
+   * If there are two annotations on the same substring, choose the
+   * longer annotation.
+   *
+   * @param chunk annotated chunk
+   */
   def removeOverlap(chunk: Chunk) {
     if (chunk.annotations.size > 1) {
+
+      //Sor the annotations by their start and end
       val sorted = chunk.annotations.sortBy(pair => (pair._2, pair._3))
       chunk.annotations.clear()
       chunk.annotations ++= sorted
@@ -62,13 +71,13 @@ class NEStorage(l1: Language, l2: Language)
           chunk.annotations(i)._3,
           chunk.annotations(i + 1)._2,
           chunk.annotations(i + 1)._3
-          )
+        )
+
 
         /* Matches for exactly the same areas:
          ------######------
          ------######------
         */
-
         if ((startSecond == startFirst) && (endSecond == endFirst))
           remove += first
 
@@ -82,8 +91,8 @@ class NEStorage(l1: Language, l2: Language)
           remove += first
 
 
-        /* Matches where the end of the first is greater than the start
-          of the second.
+        /* Matches where the the start of the second is smaller than the end
+           of the first.
           -----############-------
           ------##############----
         */
@@ -91,7 +100,18 @@ class NEStorage(l1: Language, l2: Language)
           remove += second
 
 
+        /* Matches where the second match is altogether smaller than the first:
+          ------########------
+          -------#####--------
+        */
+        else if ((startFirst < startSecond) && (endFirst < endSecond))
+          remove += second
+
+
       }
+
+      //Remove the annotations in reverse order (so that the offsets are still
+      //valid):
       remove.reverse foreach { i => chunk.annotations.remove(i) }
     }
   }

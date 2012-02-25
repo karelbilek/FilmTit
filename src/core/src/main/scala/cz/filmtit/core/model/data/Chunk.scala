@@ -29,7 +29,7 @@ class Chunk(val surfaceform: String) {
    * @return
    */
   def toAnnotatedString(
-    format: (ChunkAnnotation, String) => String =  { (t, _) => "<" + t + ">" }
+    format: (ChunkAnnotation, String) => String = { (t, _) => "<" + t + ">" }
   ): String = {
 
     var lastOffset = 0
