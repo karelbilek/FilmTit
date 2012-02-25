@@ -29,7 +29,10 @@ class BackoffTranslationMemory(
 
   val logger = Logger("BackoffTM[%s, %s]".format(
     searcher.getClass.getSimpleName,
-    ranker.getClass.getSimpleName
+    ranker match {
+      case Some(r) => r.getClass.getSimpleName
+      case None => "no ranker"
+    }
   ))
 
 
