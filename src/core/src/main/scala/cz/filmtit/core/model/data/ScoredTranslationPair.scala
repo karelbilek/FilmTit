@@ -32,6 +32,8 @@ class ScoredTranslationPair(
 
   override def toString = "%s[score: %.2f, prior: %.2f]".format(super.toString, score, priorScore)
 
+  def getScore = score
+
 }
 
 object ScoredTranslationPair {
