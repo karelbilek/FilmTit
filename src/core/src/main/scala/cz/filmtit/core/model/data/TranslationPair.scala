@@ -27,6 +27,9 @@ class TranslationPair(
     source
   )
 
+  def getStringL1 = chunkL1.surfaceform
+  def getStringL2 = chunkL2.surfaceform
+
 }
 
 object TranslationPair {
