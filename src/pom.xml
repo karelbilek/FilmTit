@@ -22,7 +22,7 @@
     <artifactId>filmtit</artifactId>
     <version>${filmtit.version}</version>
     <packaging>pom</packaging>
-    <name>Film title translation memory</name>
+    <name>Film title userTranslation memory</name>
 
     <modules>
         <module>eval</module>
