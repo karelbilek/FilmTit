@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="cz.filmtit.userspace">
+
+    <class name="Translation" table="Translations">
+        <id name="databaseId" column="Id">
+            <generator class="native"/>
+        </id>
+        <!-- name, type, column -->
+        <property name=""/>
+        <property name="" />
+        <property name="" />
+    </class>
+
+</hibernate-mapping>
