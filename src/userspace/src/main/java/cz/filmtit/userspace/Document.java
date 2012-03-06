@@ -37,7 +37,7 @@ public class Document {
     public Document() {
     }
 
-    private int databaseId;
+    private Long databaseId;
     private String movieTitle;
     private int year;
     private List<Chunk> chunks;
@@ -51,11 +51,11 @@ public class Document {
     private MediaSource mediaSource;
     private boolean finished;
 
-    public int getDatabaseId() {
+    public Long getDatabaseId() {
         return databaseId;
     }
 
-    public void setDatabaseId(int databaseId) {
+    public void setDatabaseId(Long databaseId) {
         this.databaseId = databaseId;
     }
 

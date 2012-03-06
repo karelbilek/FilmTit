@@ -12,13 +12,13 @@ import cz.filmtit.core.model.data.*;
 public class Chunk {
     /**
      * Creates a new chunk of given properties.
-     * @param documentDbId
+     * @param documentDatabaseId
      * @param startTime
      * @param endTime
      * @param text
      */
-    public Chunk(int documentDbId, String startTime, String endTime, String text) {
-        this.documentDbId = documentDbId;
+    public Chunk(Long documentDatabaseId, String startTime, String endTime, String text) {
+        this.documentDatabaseId = documentDatabaseId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.text = text;
@@ -31,8 +31,8 @@ public class Chunk {
     public Chunk() {
     }
 
-    private int databaseId;
-    private int documentDbId;
+    private Long databaseId;
+    private Long documentDatabaseId;
     private String startTime;
     private String endTime;
     private String text;
@@ -41,21 +41,25 @@ public class Chunk {
     private boolean done;
     private Document parent;
     private List<Match> matches;
+    /**
+     * Id of the selected tranlsation in the translation memory.
+     */
+    private int selectedTranslation;
 
-    public int getDatabaseId() {
+    public Long getDatabaseId() {
         return databaseId;
     }
 
-    public void setDatabaseId(int databaseId) {
+    public void setDatabaseId(Long databaseId) {
         this.databaseId = databaseId;
     }
 
-    public int getDocumentDbId() {
-        return documentDbId;
+    public Long getDocumentDatabaseId() {
+        return documentDatabaseId;
     }
 
-    public void setDocumentDbId(int documentDbId) {
-        this.documentDbId = documentDbId;
+    public void setDocumentDatabaseId(Long documentDatabaseId) {
+        this.documentDatabaseId = documentDatabaseId;
     }
 
     public String getStartTime() {
@@ -108,39 +112,31 @@ public class Chunk {
         this.partNumber = partNumber;
     }
 
-    /**
-     * Fake setter for distance of the userTranslation from the closest matched userTranslation.
-     * It's necessary for the Hibernate to have it.
-     * @param translationDistance An arbitrary value.
-     */
-    public void setTranslationDistance(double translationDistance) {}
+    // TODO: solve the situation that the found matches are out of date and must be regenerated
+    //  ... we must be careful about the ID of already used translation
+    //  ... the old ones has to be deleted probably
 
-    /**
-     * Gets the minimum distance of the user's userTranslation from the TM-generated translations.
-     * It's recomputed every time again because it's used only when this is stored to the database.
-     * @return The minimum distance the user's and suggested translations.
-     */
-    public double getTranslationDistance() {
-        double minDistance = Double.MAX_VALUE;
+    public void LoadMatchesFromDatabase() {
+        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        // query the matches from the database
+        List foundMatches = session.createQuery("select m from Matches where m.chunkId = :cid")
+                .setParameter("cid", databaseId).list();
         
-        for (Match match : matches) {
-            for (Translation translation : match.getTranslations()) {
-                double thisDistance = editingDistance(translation.getText(), userTranslation);
-                if (thisDistance < minDistance) {
-                    minDistance = thisDistance;
-                }
-            }
+        // store them in this object
+        matches = new ArrayList<Match>();
+        for (Object m : foundMatches) {
+            matches.add((Match)m);
         }
-        
-        return minDistance;
-    }
-    
-    private double editingDistance(String s1, String s2) {
-        // TODO: implement the editing distance function
-        return 0;
-    }
 
-    // TODO: method that loads the Chunk matches from the User Space database
+        session.getTransaction().commit();
+
+        // once the matches ar loaded, load translations for them
+        for (Match m : matches) {
+            m.loadTranslationsFromDatabase();
+        }
+    }
 
     public void LoadMTSuggestions() {        
         matches = new ArrayList<Match>(); // throws away previous matches if there were any
@@ -168,6 +164,6 @@ public class Chunk {
             matches.add(new Match(matchString, matchesTable.get(matchString)));
         }
 
-        // here probably a JSON response will be generated
+        // here the JSON response will be generated
     }
 }
