@@ -18,9 +18,10 @@ import java.util.*;
  * Represents a subtitle file the user work with.
  * @author Jindřich Libovický
  */
-public class Document {
-    private static final int MINIMUM_YEAR = 1850;
-    private static final int ALLOWED_FUTURE = 5;
+public class Document extends DatabaseObject {
+    private static final int MINIMUM_MOVIE_YEAR = 1850;
+    private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
+    private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
     
     public Document(String movieTitle, int year, Language language) {
         this.movieTitle = movieTitle;
@@ -37,7 +38,6 @@ public class Document {
     public Document() {
     }
 
-    private Long databaseId;
     private String movieTitle;
     private int year;
     private List<Chunk> chunks;
@@ -51,15 +51,7 @@ public class Document {
     private MediaSource mediaSource;
     private boolean finished;
 
-    public Long getDatabaseId() {
-        return databaseId;
-    }
-
-    public void setDatabaseId(Long databaseId) {
-        this.databaseId = databaseId;
-    }
-
-    public String getMovieTitle() {
+     public String getMovieTitle() {
         return movieTitle;
     }
 
@@ -70,9 +62,6 @@ public class Document {
      */
     public void setMovieTitle(String movieTitle) {
         this.movieTitle = movieTitle;
-        if (year != 0) {
-            mediaSource = cz.filmtit.core.model.data.MediaSource.fromIMDB(movieTitle, Integer.toString(year));
-        }
     }
 
     public int getYear() {
@@ -85,14 +74,11 @@ public class Document {
      * @throws IllegalArgumentException
      */
     public void setYear(int year) {
-        // the movie should be from some reasonable
-        if (year < MINIMUM_YEAR || year > Calendar.getInstance().get(Calendar.YEAR + ALLOWED_FUTURE) ) {
+        // the movie should be from a reasonable time period
+        if (year < MINIMUM_MOVIE_YEAR || year > Calendar.getInstance().get(Calendar.YEAR + ALLOWED_FUTURE_FOR_YEARS) ) {
             throw new IllegalArgumentException("Value of year should from 1850 to the current year + 5.");
         }
         this.year = year;
-        if (movieTitle != null) {
-            mediaSource = cz.filmtit.core.model.data.MediaSource.fromIMDB(movieTitle, Integer.toString(year));
-        }
     }
 
     /**
@@ -127,6 +113,9 @@ public class Document {
     }
 
     public MediaSource getMediaSource() {
+        if (mediaSource == null) {
+            mediaSource = cz.filmtit.core.model.data.MediaSource.fromIMDB(movieTitle, Integer.toString(year));
+        }
         return mediaSource;
     }
 
@@ -141,7 +130,45 @@ public class Document {
     /**
      * Loads the chunks from User Space database.
      */
-    public void LoadChunksFromDb() {
-        // TODO: loading from the database and maybe regenerate the translations
+    public void loadChunksFromDb() {
+        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+    
+        // query the database for the chunks
+        List foundChunks = session.createQuery("select c from Chunks where c.documentId = :did")
+                .setParameter("did", getDatabaseId()).list();
+
+        chunks = new ArrayList<Chunk>();
+        for (Object o : foundChunks) {
+            chunks.add((Chunk)o);
+        }
+    
+        session.getTransaction().commit();
+
+        // if the chunks have old translations, regenerate them
+        if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
+            for (Chunk chunk : chunks) {
+                chunk.renewMTSuggestions();
+            }
+        }
+        else { // otherwise just load them from the database
+            for (Chunk chunk : chunks) {
+                chunk.loadMatchesFromDatabase();
+            }
+        }
+
+    }
+
+    public void saveToDatabase() {
+        saveJustObject();
+
+        for (Chunk chunk : chunks) {
+            chunk.saveToDatabase();
+        }
+    }
+
+    public void deleteFromDatabase() {
+        deleteJustObject();
+
     }
 }
