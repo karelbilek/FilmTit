@@ -30,12 +30,12 @@ public class Filmtit0 implements EntryPoint {
 		"        \"source\": \"Hi, Tom!\"," +
 		"        \"match\": \"Hi, Tom!\"," +
 		"        \"translation\": \"Ahoj, Tome!\"" +
-		"    }" +
+		"    }," +
 		"    {" +
 		"        \"source\": \"And he hath spoken...\"," +
 		"        \"match\": \"\"," +
 		"        \"translation\": \"\"" +
-		"    }" +
+		"    }," +
 		"    {" +
 		"        \"source\": \"- Run, you fools!\"," +
 		"        \"match\": \"\"," +
