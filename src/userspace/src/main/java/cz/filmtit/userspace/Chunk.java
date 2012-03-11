@@ -9,7 +9,7 @@ import cz.filmtit.core.model.data.*;
  * Represents a subtitle chunk.
  * @author Jindřich Libovický
  */
-public class Chunk {
+public class Chunk extends DatabaseObject {
     /**
      * Creates a new chunk of given properties.
      * @param documentDatabaseId
@@ -45,14 +45,6 @@ public class Chunk {
      * Id of the selected tranlsation in the translation memory.
      */
     private int selectedTranslation;
-
-    public Long getDatabaseId() {
-        return databaseId;
-    }
-
-    public void setDatabaseId(Long databaseId) {
-        this.databaseId = databaseId;
-    }
 
     public Long getDocumentDatabaseId() {
         return documentDatabaseId;
@@ -112,11 +104,7 @@ public class Chunk {
         this.partNumber = partNumber;
     }
 
-    // TODO: solve the situation that the found matches are out of date and must be regenerated
-    //  ... we must be careful about the ID of already used translation
-    //  ... the old ones has to be deleted probably
-
-    public void LoadMatchesFromDatabase() {
+    public void loadMatchesFromDatabase() {
         org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
@@ -125,27 +113,32 @@ public class Chunk {
                 .setParameter("cid", databaseId).list();
         
         // store them in this object
-        matches = new ArrayList<Match>();
+        List<Match> newMatches = new ArrayList<Match>();
         for (Object m : foundMatches) {
-            matches.add((Match)m);
+            newMatches.add((Match)m);
         }
+        matches = Collections.synchronizedList(newMatches);
 
         session.getTransaction().commit();
 
-        // once the matches ar loaded, load translations for them
+        // once the matches are loaded, load translations for them
         for (Match m : matches) {
             m.loadTranslationsFromDatabase();
         }
     }
 
-    public void LoadMTSuggestions() {        
-        matches = new ArrayList<Match>(); // throws away previous matches if there were any
+    public void loadMTSuggestions() {
+        // TODO: Parallel this method
+
+
         cz.filmtit.core.model.data.Chunk tmChunk = new cz.filmtit.core.model.data.Chunk(text);
         TranslationMemory TM = Factory.createTM();
         
         scala.collection.immutable.List<ScoredTranslationPair> TMResults =
                 TM.nBest(tmChunk, parent.getLanguage(), parent.getMediaSource(), 10);
+
         // the retrieved Scala collection must be transformed to a Java collection
+        // otherwise it cannot be iterated by the for loop
         Collection<ScoredTranslationPair> javaList =
                 scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
 
@@ -160,10 +153,41 @@ public class Chunk {
         }
 
         // creates the match objects
+        List<Match> newMatches = new ArrayList<Match>();
         for (String matchString : matchesTable.keySet()) {
-            matches.add(new Match(matchString, matchesTable.get(matchString)));
+            newMatches.add(new Match(matchString, matchesTable.get(matchString)));
         }
+        matches = Collections.synchronizedList(newMatches); // throws away previous matches if there were any
 
         // here the JSON response will be generated
+    }
+
+    public void renewMTSuggestions() {
+        deleteMatches();
+        loadMTSuggestions();
+    }
+
+    /**
+     * Deletes the matches for this chunk. (In case of regenerating translations or deleting the chunk.)
+     */
+    void deleteMatches() {
+        for (Match match : matches) {
+            match.deleteFromDatabase();
+        }
+        matches = new ArrayList<Match>();
+    }
+
+    public void saveToDatabase() {
+        saveJustObject();
+
+        // save or update also all dependent matches
+        for (Match match : matches) {
+            match.saveToDatabase();
+        }
+    }
+
+    public void deleteFromDatabase() {
+        deleteJustObject();
+        deleteMatches();
     }
 }

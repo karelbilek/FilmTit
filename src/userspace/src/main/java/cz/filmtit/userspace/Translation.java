@@ -5,7 +5,7 @@ package cz.filmtit.userspace;
  * @author Jindřich Libovický
 */
 
-public class Translation {
+public class Translation extends DatabaseObject {
     /**
      * Creates the translation object of given score and text.
      * @param text Text of the translation.
@@ -22,62 +22,44 @@ public class Translation {
     public Translation() {}
 
     private String text;
-    private double score;
-    private Long databaseId;
-    private Long matchDatabaseId = -1l;
-    /**
-     * A sign if the object was received from that databas (true)
-     * or is still just in the memory.
-     */
-    private boolean gotFromDb = false;
+    private double score = Double.MIN_VALUE;
+    private long matchDatabaseId = -1l;
 
     public String getText() {
         return text;
     }
 
     public void setText(String text) {
-        this.text = text;
+        if (text == null) { this.text = text; }
+        else { throw new UnsupportedOperationException("Translation text can be set just once."); }
     }
 
     public double getScore() {
         return score;
     }
 
-    public void setScore(Float score) {
-        this.score = score;
+    public void setScore(double score) {
+        if (score == Double.MIN_VALUE) { this.score = score; }
+        else { throw new UnsupportedOperationException("Translation text can be set just once."); }
     }
 
-    public Long getDatabaseId() {
-        return databaseId;
-    }
-
-    public void setDatabaseId(Long databaseId) {
-        gotFromDb = true;
-        this.databaseId = databaseId;
-    }
-
-    public Long getMatchDatabaseId() {
+    public long getMatchDatabaseId() {
         return matchDatabaseId;
     }
 
-    public void setMatchDatabaseId(Long matchDatabaseId) {
+    public void setMatchDatabaseId(long matchDatabaseId) {
         this.matchDatabaseId = matchDatabaseId;
     }
 
     public void saveToDatabase() {
-        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-
         if (matchDatabaseId == -1) {
             throw(new IllegalStateException("The database ID of the parent match must be set" +
                     " before saving the object to database."));
         }
-
-        if (gotFromDb) { session.update(this); }
-        else { session.save(this);}
-
-        session.getTransaction().commit();
+        saveJustObject();
     }
 
-    // TODO: Delete from database
+    public void deleteFromDatabase() {
+        deleteJustObject();
+    }
 }

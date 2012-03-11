@@ -14,8 +14,9 @@ public class Session {
     private User user;
     private long sessionStart;
     private long lastOperation;
+    private SessionState state;
 
-    enum state {active, loggedOut, terminated, kill}
+    enum SessionState {active, loggedOut, terminated, kill}
 
     public long getLastOperation() {
         return lastOperation;
@@ -30,7 +31,8 @@ public class Session {
     }
 
     public void Logout() {
-        // save everything to database and write a log of this session
+        state = SessionState.loggedOut;
+        // ...
     }
 
     /**
@@ -45,5 +47,15 @@ public class Session {
      */
     public void Kill() {
         // save everything to database and write a log of this session
+    }
+
+    /**
+     * Writes log of this session to the database.
+     */
+    public void saveToDatabase() {
+        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.save(this);
+        session.getTransaction().commit();
     }
 }
