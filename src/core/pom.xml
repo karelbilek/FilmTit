@@ -12,5 +12,72 @@
     <artifactId>core</artifactId>
     <name>Translation memory core</name>
 
+    <build>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
 
+        <plugins>
+
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <launchers>
+
+
+                        <!-- Initial Import launcher -->
+                        <launcher>
+                            <id>import</id>
+                            <mainClass>cz.filmtit.core.io.Import</mainClass>
+
+                            <jvmArgs>
+                                <jvmArg>-Xmx2000m</jvmArg>
+                                <jvmArg>-Xms1500m</jvmArg>
+                            </jvmArgs>
+                        </launcher>
+
+
+                        <!-- Reindex launcher -->
+                        <launcher>
+                            <id>reindex</id>
+                            <mainClass>cz.filmtit.core.io.Reindex</mainClass>
+
+                            <jvmArgs>
+                                <jvmArg>-Xmx2000m</jvmArg>
+                                <jvmArg>-Xms1500m</jvmArg>
+                            </jvmArgs>
+                        </launcher>
+
+                    </launchers>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>opennlp</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
+    </dependencies>
 </project>

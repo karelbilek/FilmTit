@@ -8,8 +8,7 @@
     <properties>
         <filmtit.version>0.1</filmtit.version>
 
-        <heapspace.Xmx.compiler>-Xmx5g</heapspace.Xmx.compiler>
-        <heapspace.Xmx.indexer>-Xmx2g</heapspace.Xmx.indexer>
+        <heapspace.Xmx.compiler>-Xmx2g</heapspace.Xmx.compiler>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.compiler.version>1.6</java.compiler.version>
@@ -23,14 +22,16 @@
     <artifactId>filmtit</artifactId>
     <version>${filmtit.version}</version>
     <packaging>pom</packaging>
-    <name>Film title translation memory</name>
+    <name>Film title userTranslation memory</name>
 
     <modules>
         <module>eval</module>
         <module>core</module>
+
     </modules>
 
     <build>
+
         <plugins>
 
             <plugin>
@@ -68,7 +69,25 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>false</skipTests>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <argLine>-Xmx2G -Xms512m</argLine>
+                    <useFile>true</useFile>
+                    <disableXmlReport>true</disableXmlReport>
+                    <includes>
+                        <include>**/*Test.*</include>
+                        <include>**/*Suite.*</include>
+                        <include>**/*Spec.*</include>
+                    </includes>
+
+                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>
 
@@ -77,16 +96,34 @@
 
     <repositories>
 
-        <!-- Repository for JDBC tool -->
+        <!-- OpenNLP -->
         <repository>
-          <id>twitter.com</id>
-          <url>http://www.lag.net/nest</url>
+            <id>opennlp.sf.net</id>
+            <url>http://opennlp.sourceforge.net/maven2</url>
         </repository>
 
+
+        <!-- Repository for JDBC tool -->
+        <repository>
+            <id>twitter.com</id>
+            <url>http://www.lag.net/nest</url>
+        </repository>
+
+        <repository>
+            <id>scala-tools.org</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </repository>
+
+        <repository>
+            <id>maven.iscpif.fr</id>
+            <url>http://maven.iscpif.fr/public</url>
+        </repository>
 
     </repositories>
 
     <dependencies>
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>
@@ -101,9 +138,45 @@
         </dependency>
 
         <dependency>
-        	<groupId>postgresql</groupId>
-        	<artifactId>postgresql</artifactId>
-        	<version>9.1-901.jdbc4</version>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.weiglewilczek.slf4s</groupId>
+            <artifactId>slf4s_2.9.1</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.9.0</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+        	<groupId>junit</groupId>
+        	<artifactId>junit</artifactId>
+        	<version>4.10</version>
         </dependency>
 
     </dependencies>
@@ -116,5 +189,6 @@
             <url>http://scala-tools.org/repo-releases/</url>
         </pluginRepository>
     </pluginRepositories>
+
 
 </project>

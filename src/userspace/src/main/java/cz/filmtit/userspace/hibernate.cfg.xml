@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">
+            com.mysql.jdbc.Driver
+        </property>
+        <property name="hibernate.connection.url">
+            <!-- jdbc address to the database -->
+            <!-- e.g. jdbc:mysql://localhost/hibernatetutorial -->
+        </property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password"></property>
+        <property name="hibernate.connection.pool_size">10</property>
+        <property name="show_sql">true</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- List of mapping files -->
+        <mapping resource="chunk.hbm.xml"/>
+        <mapping resource="document.hbm.xml"/>
+        <mapping resource="match.hbm.xml"/>
+        <mapping resource="session.hbm.xml"/>
+        <mapping resource="translation.hbm.xml"/>
+        <mapping resource="user.hbm.xml"/>
+
+    </session-factory>
+</hibernate-configuration>
