@@ -13,7 +13,9 @@ import filmtit0.client.SubtitleList;
 
 public class Filmtit0 implements EntryPoint {
 
-	private Label subtitleBar;
+	private Label subtitleBarSource;
+	private Label subtitleBarMatch;
+	private Label subtitleBarTranslation;
 	private SubtitleList sublist;
 
 	@Override
@@ -28,8 +30,8 @@ public class Filmtit0 implements EntryPoint {
 		"    }," +
 		"    {" +
 		"        \"source\": \"Hi, Tom!\"," +
-		"        \"match\": \"Hi, Tom!\"," +
-		"        \"translation\": \"Ahoj, Tome!\"" +
+		"        \"match\": \"Hi, <Ray>!\"," +
+		"        \"translation\": \"Ahoj, <Tom>!\"" +
 		"    }," +
 		"    {" +
 		"        \"source\": \"And he hath spoken...\"," +
@@ -47,19 +49,25 @@ public class Filmtit0 implements EntryPoint {
 		JSONHandler jhandler = new JSONHandler(jsonText);
 		sublist = jhandler.generateSubtitleList();
 		
-		subtitleBar = new Label("< nothing here yet >");
+		subtitleBarSource = new Label("< nothing here yet >");
+		subtitleBarMatch = new Label("< nothing here yet >");
+		subtitleBarTranslation = new Label("< nothing here yet >");
 		Button button = new Button("Next subtitle");
 		button.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
 				SubtitleChunk nextSentence = sublist.getNextSubtitleChunk(); 
-				subtitleBar.setText(nextSentence.source);
+				subtitleBarSource.setText(nextSentence.source);
+				subtitleBarMatch.setText(nextSentence.match);
+				subtitleBarTranslation.setText(nextSentence.translation);
 			}
 			
 		});
 
-		RootPanel.get().add(subtitleBar);
+		RootPanel.get().add(subtitleBarSource);
+		RootPanel.get().add(subtitleBarMatch);
+		RootPanel.get().add(subtitleBarTranslation);
 		RootPanel.get().add(button, 105, 200);
 	}
 }
