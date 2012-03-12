@@ -19,7 +19,8 @@ abstract class BaseSignatureStorage(
   l2: Language,
   source: TranslationSource,
   signatureTable: String,
-  reversible: Boolean = false
+  reversible: Boolean = false,
+  readOnly: Boolean = true
 ) extends BaseStorage(l1, l2, source)
 with SignatureTranslationPairStorage {
 

@@ -17,7 +17,6 @@ import cz.filmtit.core.search.postgres.BaseStorage
  * the pairs are over the threshold.
  *
  * @author Joachim Daiber
-
  */
 
 class BackoffTranslationMemory(
@@ -48,40 +47,36 @@ class BackoffTranslationMemory(
   }
 
 
-  def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource) = {
-
-    val s = System.currentTimeMillis
-    val candidates = searcher.candidates(chunk, language)
-
-    logger.info( "Retrieved %d candiates in %dms...".format(candidates.size,
-      System.currentTimeMillis - s) )
-
-    candidates
-  }
+  def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource) =
+    searcher.candidates(chunk, language)
 
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-    n: Int = 10): List[ScoredTranslationPair] = {
+    n: Int = 10, inner: Boolean = false): List[ScoredTranslationPair] = {
 
+    //Only on first level:
+    if (!inner)
+      logger.info( "n-best: (%s) %s".format(language, chunk) )
 
-    val s = System.currentTimeMillis
-
+    val s1 = System.currentTimeMillis
     val pairs: List[TranslationPair] = candidates(chunk, language, mediaSource)
+    val s2 = System.currentTimeMillis
+
     val ranked = ranker match {
       case Some(r) => r.rank(chunk, null, pairs)
       case None => pairs.asInstanceOf[List[ScoredTranslationPair]]
     }
+    val s3 = System.currentTimeMillis
 
-
-    logger.info( "n-best: (%s) %s".format(language, chunk) )
-    logger.info( "Ranking candiates took %dms..."
-      .format(System.currentTimeMillis - s) )
+    logger.info( "Retrieved %d candidates (%dms), ranking: %dms, total: %dms"
+      .format(pairs.size, s2 - s1, s3 - s2, s3 - s1) )
 
     if ( ranked.take(n).exists(pair => pair.score >= threshold) )
       ranked.take(n)
     else
       backoff match {
-        case Some(backoffTM) => backoffTM.nBest(chunk, language, mediaSource, n)
+        case Some(backoffTM) => 
+          backoffTM.nBest(chunk, language, mediaSource, n, inner=true)
         case None => List[ScoredTranslationPair]()
       }
   }
@@ -114,6 +109,7 @@ class BackoffTranslationMemory(
     //If the searcher can be initialized with translation pairs, do it:
     searcher match {
       case s: TranslationPairStorage => s.add(pairs)
+      case _ =>
     }
 
   }
@@ -123,6 +119,7 @@ class BackoffTranslationMemory(
     //If the searcher can reindexed, do it:
     searcher match {
       case s: TranslationPairStorage => s.reindex()
+      case _ =>
     }
 
     //If there is a backoff TM (there is either 0 or 1 backoff TM), reindex it
@@ -134,6 +131,7 @@ class BackoffTranslationMemory(
     //If the searcher can be reset, do it:
     searcher match {
       case s: TranslationPairStorage => s.reset()
+      case _ =>
     }
 
   }

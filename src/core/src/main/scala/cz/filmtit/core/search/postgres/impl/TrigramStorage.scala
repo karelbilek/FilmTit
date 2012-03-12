@@ -12,7 +12,8 @@ import data.{Chunk, ScoredTranslationPair, TranslationPair}
  */
 
 
-class TrigramStorage(l1: Language, l2: Language) extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy) {
+class TrigramStorage(l1: Language, l2: Language, readOnly: Boolean = true)
+  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly) {
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +

@@ -13,8 +13,9 @@ import cz.filmtit.core.model.{TranslationSource, Language}
  *
  */
 
-class ClusteredStorage(l1: Language, l2: Language)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalFuzzy, "sign_clustered") {
+class ClusteredStorage(l1: Language, l2: Language, readOnly: Boolean = true)
+  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalFuzzy,
+    "sign_clustered", readOnly) {
 
   val cluster: HashMap[String, Int] = new HashMap[String, Int]()
 

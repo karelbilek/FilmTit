@@ -42,8 +42,8 @@ class FuzzyNERanker extends BaseRanker {
     //Add all the non-matching annotations to the chunk so that it can be
     //post-edited
     for ( i <- (0 until pair.chunkL1.annotations.size) ) {
-      if (!(matches contains i))
-        scoredPair.chunkL1.annotations += pair.chunkL1.annotations(i)
+      //if (!(matches contains i))
+        //scoredPair.chunkL1.annotations += pair.chunkL1.annotations(i)
     }
     val distanceScore = 1.0 - ( scoredPair.chunkL1.toAnnotatedString({(_, _) => "" }).length / chunk.length.toFloat )
     scoredPair.score = (lambdas._1 * distanceScore) + (lambdas._2 * genreMatches(mediaSource, pair))

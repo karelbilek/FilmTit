@@ -9,8 +9,8 @@ import cz.filmtit.core.model.{TranslationSource, Language}
 /**
  * Postgres-based storage using a full-text index.
  */
-class FulltextStorage(l1: Language, l2: Language)
-  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy) {
+class FulltextStorage(l1: Language, l2: Language, readOnly: Boolean = true)
+  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly) {
 
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {

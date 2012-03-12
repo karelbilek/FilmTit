@@ -21,7 +21,8 @@ import java.util.Iterator
 abstract class BaseStorage(
   l1: Language,
   l2: Language,
-  source: TranslationSource
+  source: TranslationSource,
+  readOnly: Boolean = true
 ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
 
@@ -41,10 +42,14 @@ with MediaStorage {
         "Please check if the database is running.")
   }
 
+  //Assure the database is in read-only mode if required.
+  if (readOnly)
+    connection.setReadOnly(true)
+
   var chunkTable = "chunks"
   var mediasourceTable = "mediasources"
 
-  var maxCandidates = 500
+  var maxCandidates = 200
 
   def reset() {
     System.err.println("Resetting BaseStorage (chunks, mediasources).")

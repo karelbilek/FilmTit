@@ -6,9 +6,9 @@ import org.apache.commons.lang3.StringUtils
 /**
  * @author Joachim Daiber
  *
- * TODO add more features
+ *
  */
-
+//TODO add more features
 class ExactRanker extends BaseRanker {
 
   val lambdas = (0.95, 0.05)

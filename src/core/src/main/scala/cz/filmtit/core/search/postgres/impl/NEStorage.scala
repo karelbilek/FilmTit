@@ -17,9 +17,9 @@ import cz.filmtit.core.model.data.Chunk
  * @author Joachim Daiber
  */
 
-class NEStorage(l1: Language, l2: Language)
+class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   extends BaseSignatureStorage(l1, l2, TranslationSource.InternalNE, "sign_ne",
-    reversible = true) {
+    reversible = true, readOnly) {
 
   val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_) }
 
@@ -44,6 +44,7 @@ class NEStorage(l1: Language, l2: Language)
 
   override def annotate(chunk: Chunk, signature: Signature) {
     chunk.annotations ++= signature.annotations
+    println()
   }
 
 

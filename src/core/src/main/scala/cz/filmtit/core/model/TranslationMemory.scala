@@ -46,7 +46,7 @@ trait TranslationMemory {
    * @return
    */
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-            n: Int = 10): List[ScoredTranslationPair]
+            n: Int = 10, inner: Boolean = false): List[ScoredTranslationPair]
 
 
   /**

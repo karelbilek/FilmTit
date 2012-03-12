@@ -27,6 +27,17 @@ class TranslationPair(
     source
   )
 
+  
+  def toExternalString: String = {
+
+    val s: String = chunkL1.surfaceform + "\t" + chunkL2.surfaceform
+    
+    if (mediaSource != null)
+      s + "\t" + mediaSource.genres.mkString(",")
+    else
+      s
+  }
+  
   def getStringL1 = chunkL1.surfaceform
   def getStringL2 = chunkL2.surfaceform
 
@@ -43,6 +54,5 @@ object TranslationPair {
     }
 
   }
-
 
 }

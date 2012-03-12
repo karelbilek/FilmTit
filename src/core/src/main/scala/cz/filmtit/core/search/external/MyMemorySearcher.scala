@@ -17,7 +17,14 @@ import cz.filmtit.core.model.data.{ScoredTranslationPair, TranslationPair, Chunk
  * @author Joachim Daiber
  */
 
-class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearcher(l1, l2) {
+class MyMemorySearcher(
+  l1: Language,
+  l2: Language,
+  allowedSources: Set[TranslationSource] = Set(
+    TranslationSource.ExternalMT,
+    TranslationSource.ExternalTM
+  )
+) extends TranslationPairSearcher(l1, l2) {
 
   val limit = 5
   val apiURL = (l1: String, l2: String, text: String) =>
@@ -59,13 +66,14 @@ class MyMemorySearcher(l1: Language, l2: Language) extends TranslationPairSearch
         case s: String => s.toInt * 0.01
       }
 
-      candidates += new ScoredTranslationPair(
-        chunkL1,
-        chunkL2,
-        source,
-        null,
-        score = quality
-      )
+      if(allowedSources contains source)
+        candidates += new ScoredTranslationPair(
+          chunkL1,
+          chunkL2,
+          source,
+          null,
+          score = quality
+        )
     }
 
     candidates.toList
