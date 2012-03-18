@@ -36,7 +36,7 @@ public class User extends DatabaseObject {
         //  if the list of owned documents is empty...
         if (ownedDocuments == null) {
             ownedDocuments = new ArrayList<Document>();
-            org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+            org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
             session.beginTransaction();
 
             // query the documents owned by the user

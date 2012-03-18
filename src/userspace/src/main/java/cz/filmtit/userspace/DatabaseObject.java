@@ -30,7 +30,7 @@ public abstract class DatabaseObject {
      * but not the dependent objects (like matches for chunks etc.).
      */
     protected void saveJustObject() {
-        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
         if (gotFromDb) { // completely new object
@@ -53,7 +53,7 @@ public abstract class DatabaseObject {
         if (!gotFromDb) { return; }
 
         // simply remove the corresponding line from db
-        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         session.delete(this);
         session.getTransaction().commit();

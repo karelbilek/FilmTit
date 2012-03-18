@@ -6,7 +6,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">
-            com.mysql.jdbc.Driver
+            org.postgresql.Driver
         </property>
         <property name="hibernate.connection.url">
             <!-- jdbc address to the database -->
@@ -20,12 +20,13 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- List of mapping files -->
-        <mapping resource="chunk.hbm.xml"/>
+        <!-- <mapping resource="chunk.hbm.xml"/>
         <mapping resource="document.hbm.xml"/>
         <mapping resource="match.hbm.xml"/>
         <mapping resource="session.hbm.xml"/>
-        <mapping resource="translation.hbm.xml"/>
         <mapping resource="user.hbm.xml"/>
+        <mapping resource="translation.hbm.xml"/> -->
+
 
     </session-factory>
 </hibernate-configuration>

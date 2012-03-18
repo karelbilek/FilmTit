@@ -21,16 +21,16 @@ public class Translation extends DatabaseObject {
      */
     public Translation() {}
 
-    private String text;
+    private String text = null;
     private double score = Double.MIN_VALUE;
-    private long matchDatabaseId = -1l;
+    private long matchDatabaseId = Long.MIN_VALUE;
 
     public String getText() {
         return text;
     }
 
     public void setText(String text) {
-        if (text == null) { this.text = text; }
+        if (this.text == null) { this.text = text; }
         else { throw new UnsupportedOperationException("Translation text can be set just once."); }
     }
 
@@ -39,7 +39,7 @@ public class Translation extends DatabaseObject {
     }
 
     public void setScore(double score) {
-        if (score == Double.MIN_VALUE) { this.score = score; }
+        if (this.score == Double.MIN_VALUE) { this.score = score; }
         else { throw new UnsupportedOperationException("Translation text can be set just once."); }
     }
 
@@ -52,7 +52,7 @@ public class Translation extends DatabaseObject {
     }
 
     public void saveToDatabase() {
-        if (matchDatabaseId == -1) {
+        if (matchDatabaseId == Long.MIN_VALUE) {
             throw(new IllegalStateException("The database ID of the parent match must be set" +
                     " before saving the object to database."));
         }

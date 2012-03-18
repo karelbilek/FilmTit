@@ -131,7 +131,7 @@ public class Document extends DatabaseObject {
      * Loads the chunks from User Space database.
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
     
         // query the database for the chunks

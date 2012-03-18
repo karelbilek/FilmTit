@@ -51,7 +51,7 @@ public class Match extends DatabaseObject {
     }
 
     public void loadTranslationsFromDatabase() {
-        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
         // query the matches from the database

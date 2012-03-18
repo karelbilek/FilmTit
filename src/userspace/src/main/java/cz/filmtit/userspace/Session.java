@@ -53,7 +53,7 @@ public class Session {
      * Writes log of this session to the database.
      */
     public void saveToDatabase() {
-        org.hibernate.Session session = UserSpace.getSessionFactory().getCurrentSession();
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         session.save(this);
         session.getTransaction().commit();
