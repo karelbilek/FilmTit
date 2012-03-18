@@ -27,7 +27,7 @@ public class TestTranslation {
         //assertTrue(testTranslation.getDatabaseId() != Long.MIN_VALUE);
 
         //  load the translation from database
-        HibernateUtil.getSessionFactory();
+        //HibernateUtil.getSessionFactory();
 
     }
 }
