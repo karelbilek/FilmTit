@@ -6,13 +6,14 @@
 <hibernate-mapping package="cz.filmtit.userspace">
 
     <class name="Translation" table="Translations">
-        <id name="databaseId" column="Id">
+        <id name="databaseId" type="long" column="Id">
             <generator class="native"/>
         </id>
+
         <!-- name, type, column -->
-        <property name=""/>
-        <property name="" />
-        <property name="" />
+        <property name="text" type="java.lang.String" column="text"/>
+        <property name="score" type="double" column="score" />
+        <property name="matchDatabaseId" type="long" column="matchId" />
     </class>
 
 </hibernate-mapping>

@@ -18,8 +18,6 @@ public class Match extends DatabaseObject {
         translations = new ArrayList<Translation>();
     }
 
-    // Here another constructor will follow for creating from TM
-
     private String match;
     private List<Translation> translations;
     private Long chunkDatabaseId = -1l;
@@ -29,7 +27,7 @@ public class Match extends DatabaseObject {
     }
 
     public void setMatch(String match) {
-        if (match == null) { this.match = match; }
+        if (this.match == null) { this.match = match; }
         else { throw new UnsupportedOperationException("The match text can be set just once."); }
     }
 
@@ -55,7 +53,7 @@ public class Match extends DatabaseObject {
         session.beginTransaction();
 
         // query the matches from the database
-        List foundTranslations = session.createQuery("select t from Translations where m.chunkId = :tid")
+        List foundTranslations = session.createQuery("select t from Translation t where t.matchDatabaseId = :tid")
                 .setParameter("tid", getDatabaseId()).list();
 
         List <Translation> newTranslations = new ArrayList<Translation>();
@@ -72,9 +70,7 @@ public class Match extends DatabaseObject {
      */
     public void saveToDatabase() {
         saveJustObject();
-        
-        // TODO: if it was a new object, is the databaseId set right now?
-        
+
         for (Translation t : translations) {
             t.setMatchDatabaseId(getDatabaseId());
             t.saveToDatabase();

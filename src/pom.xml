@@ -27,6 +27,7 @@
     <modules>
         <module>eval</module>
         <module>core</module>
+        <module>userspace</module>
 
     </modules>
 

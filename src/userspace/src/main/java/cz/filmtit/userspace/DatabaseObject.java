@@ -16,7 +16,8 @@ public abstract class DatabaseObject {
     }
 
     public void setDatabaseId(long databaseId) {
-        if (databaseId == Long.MIN_VALUE) {
+        if (this.databaseId == databaseId) { return; }
+        if (this.databaseId == Long.MIN_VALUE) {
             this.databaseId = databaseId;
             gotFromDb = true;
         }
@@ -33,9 +34,9 @@ public abstract class DatabaseObject {
         org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        if (gotFromDb) { // completely new object
+        if (!gotFromDb) { // completely new object
             session.save(this);
-            setDatabaseId((Long)session.getIdentifier(this));
+            //setDatabaseId((Long)session.getIdentifier(this));
         }
         else {           // just update an existing one
             session.update(this);
