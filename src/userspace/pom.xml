@@ -14,26 +14,7 @@
     <name>Translation memory user space</name>
 
     <build>
-        <!--<testSourceDirectory>src/test/scala</testSourceDirectory>-->
-
-        <plugins>
-
-            <!--<plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-            </plugin>-->
-
-        </plugins>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
     </build>
 
 
@@ -46,14 +27,28 @@
         </dependency>
 
         <dependency>
+            <artifactId>share</artifactId>
+            <groupId>cz.filmtit</groupId>
+            <version>${filmtit.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <version>4.1.0.Final</version>
         </dependency>
 
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
         </dependency>
 
 

@@ -25,9 +25,11 @@
     <name>Film title userTranslation memory</name>
 
     <modules>
+        <module>userspace</module>
+        <module>share</module>
         <module>eval</module>
         <module>core</module>
-        <module>userspace</module>
+
 
     </modules>
 
@@ -178,6 +180,19 @@
         	<groupId>junit</groupId>
         	<artifactId>junit</artifactId>
         	<version>4.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>4.1.0.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.0.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
