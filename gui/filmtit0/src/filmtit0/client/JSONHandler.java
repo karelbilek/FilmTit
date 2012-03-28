@@ -5,6 +5,15 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
+import java.util.List;
+
+/**
+ * An attempt to create a minimal handler of a JSON string,
+ * for creating only a SubtitleList (older version!) from it.
+ * 
+ * @author Ruda Rosa
+ * @deprecated
+ */
 
 public class JSONHandler {
 	

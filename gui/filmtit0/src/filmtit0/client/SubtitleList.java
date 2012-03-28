@@ -1,30 +1,49 @@
 package filmtit0.client;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
 //import com.google.gwt.user.client.Window;
 
 public class SubtitleList {
-	public ArrayList<SubtitleChunk> subtitles;
-	private ListIterator<SubtitleChunk> _cursor;
+	private List<GUIChunk> subtitles;
+	private ListIterator<GUIChunk> _cursor;
 	
 	public SubtitleList() {
-		subtitles = new ArrayList<SubtitleChunk>();
+		subtitles = new ArrayList<GUIChunk>();
 		_cursor = subtitles.listIterator();
 	}
 	
-	public SubtitleChunk getNextSubtitleChunk() {
+	public GUIChunk getNextSubtitleChunk() {
 		if (_cursor.hasNext()) {		
 			return _cursor.next();
 		}
 		else {
 			//Window.alert("no next subtitle");
-			return SubtitleChunk.NoNextSubtitle;
+			return GUIChunk.NoNextSubtitle;
 		}
 	}
 	
-	public void addSubtitleChunk(SubtitleChunk chunk) {
+	public GUIChunk getSubtitleChunkAt(int index) {
+		return subtitles.get(index);
+	}
+	
+	public List<GUIChunk> getChunks() {
+    	return subtitles;
+    }
+
+	public List<String> getChunksAsStrings() {
+		List<String> allSources = new ArrayList<String>();
+		ListIterator<GUIChunk> li = subtitles.listIterator();
+		while (li.hasNext()) {
+			allSources.add(li.next().getChunkText());
+		}
+		return allSources;
+	}
+	
+	
+	public void addSubtitleChunk(GUIChunk chunk) {
 		subtitles.add(chunk);
 	}
 	

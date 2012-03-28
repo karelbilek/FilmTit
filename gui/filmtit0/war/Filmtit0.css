@@ -3,11 +3,12 @@
 
 /** Example rules used by the template application (remove for your app) */
 h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+	color: Black;
+	margin: 40px 0px 70px;
+	font-size: 2em;
+	font-weight: bold;
+	text-align: center;
+	background-color: Silver;
 }
 
 .sendButton {
@@ -31,4 +32,16 @@ h1 {
 /** Set ids using widget.getElement().setId("idOfElement") */
 #closeButton {
   margin: 15px 6px 6px;
+}
+.gwt-Label {
+	margin: 2px;
+	font-size: larger;
+	font-family: Verdana, sans-serif;
+	background-color: Silver;
+}
+.gwt-Header {
+	color: Black;
+	margin: 40px 0px 70px;
+	font-size: 2em;
+	font-weight: bold;
 }
