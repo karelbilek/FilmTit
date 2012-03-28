@@ -1,4 +1,4 @@
-package filmtit0.client;
+package cz.filmtit.client;
 
 import com.google.gwt.view.client.TreeViewModel;
 import com.google.gwt.cell.client.AbstractCell;

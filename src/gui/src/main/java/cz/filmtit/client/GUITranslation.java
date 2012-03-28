@@ -1,4 +1,4 @@
-package filmtit0.client;
+package cz.filmtit.client;
 
 
 /**

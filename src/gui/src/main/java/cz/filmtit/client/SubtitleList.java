@@ -1,4 +1,4 @@
-package filmtit0.client;
+package cz.filmtit.client;
 
 import java.util.List;
 import java.util.ArrayList;

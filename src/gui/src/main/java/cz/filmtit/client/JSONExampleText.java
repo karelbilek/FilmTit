@@ -1,4 +1,4 @@
-package filmtit0.client;
+package cz.filmtit.client;
 
 /**
  * A wrapper for a simple example JSON string.
