@@ -26,7 +26,7 @@
         <module>share</module>
         <module>eval</module>
         <module>core</module>
-    <module>gui</module>
+        <module>gui</module>
   </modules>
 
     <build>
@@ -61,14 +61,6 @@
                 <configuration>
                     <source>${java.compiler.version}</source>
                     <target>${java.compiler.version}</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>
 
