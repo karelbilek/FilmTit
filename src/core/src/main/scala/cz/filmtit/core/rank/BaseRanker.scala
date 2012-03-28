@@ -13,7 +13,7 @@ abstract class BaseRanker extends TranslationPairRanker {
 
   def genreMatches(mediaSource: MediaSource, pair: TranslationPair): Double =
     if (mediaSource != null) {
-      pair.mediaSource.genres.intersect(mediaSource.genres).size / mediaSource.genres.size.toFloat
+      pair.mediaSources.toList.flatMap(_.genres).toSet.intersect(mediaSource.genres).size / mediaSource.genres.size.toFloat
     } else {
       0.0
     }

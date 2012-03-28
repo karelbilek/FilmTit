@@ -21,7 +21,7 @@ abstract class BaseSignatureStorage(
   signatureTable: String,
   reversible: Boolean = false,
   readOnly: Boolean = true
-) extends BaseStorage(l1, l2, source)
+) extends BaseStorage(l1, l2, source, readOnly=readOnly)
 with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */
@@ -36,7 +36,7 @@ with SignatureTranslationPairStorage {
         "CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s" +
           "(chunk_id), signature_l1 TEXT, annotations_l1 TEXT, " +
           "signature_l2 TEXT, annotations_l2 TEXT);"
-        ).format(signatureTable, chunkTable)
+        ).format(signatureTable, pairTable)
     )
 
     connection.setAutoCommit(false);
@@ -48,7 +48,7 @@ with SignatureTranslationPairStorage {
     )
 
     selStmt.setFetchSize(1000);
-    selStmt.execute("SELECT * FROM %s;".format(chunkTable))
+    selStmt.execute("SELECT * FROM %s;".format(pairTable))
 
     log.info("Creating chunk signatures...")
 
@@ -113,28 +113,46 @@ with SignatureTranslationPairStorage {
     )
 
     connection.commit()
-
   }
 
 
   /**
-   * If the storage is reversible,a dd annotations to the chunk that represent
-   * parts of the chunk that are special, e.g. that should be post-edited.
+   * If the storage is reversible, add annotations to the chunk that represent
+   * parts of the chunk that are special, e.g. named entities to be post-edited.
    */
-  def annotate(chunk: Chunk, signature: Signature) {}
+  def annotate(chunk: Chunk, signature: Signature) {
+    //do nothing, must be overridden
+  }
 
+
+  /**
+   * This is the candidate retrieval method all signature-based storages use.
+   * All signature-based storages differ only in the implementation of the
+   * signature method, which is used for retrieval here and for indexing
+   * in the this class.
+   *
+   * @param chunk chunk to be searched
+   * @param language language of the chunk
+   * @return
+   */
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, chunkTable, maxCandidates))
-    select.setString(1, signature(chunk, language).surfaceform)
-    val rs = select.executeQuery()
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, pairTable, maxCandidates))
+    val mediaSourceSelect = connection.prepareStatement("SELECT source_id FROM %s WHERE pair_id = ?;".format(chunkSourceMappingTable))
 
+    //Use the signature function of the specific storage:
+    select.setString(1, signature(chunk, language).surfaceform)
+
+    //Get and process all candidates
+    val rs = select.executeQuery()
     val candidates = new ListBuffer[TranslationPair]()
     while (rs.next()) {
 
       val chunkL1: Chunk = rs.getString("chunk_l1")
       val chunkL2: Chunk = rs.getString("chunk_l2")
+      val pairID: Long = rs.getLong("pair_id")
 
+      //Restore the signature for both chunks if possible
       val sigL1 = if (!reversible)
         Signature.fromString(rs.getString("signature_l1"))
       else
@@ -145,23 +163,31 @@ with SignatureTranslationPairStorage {
       else
         Signature.fromDatabase(rs.getString("signature_l2"), rs.getString("annotations_l2"))
 
-
-      /*
-        If there are any annotations added by the signature method, e.g.
-        by a NER, add them to the TP.
-       */
       if (language == l1)
         annotate(chunkL1, sigL1)
       else
         annotate(chunkL2, sigL2)
 
+      //Add all media sources to the translation pair
+      mediaSourceSelect.setLong(1, pairID)
+      mediaSourceSelect.execute()
 
-      candidates += new TranslationPair(
-        chunkL1,
-        chunkL2,
-        source,
-        getMediaSource(rs.getInt("source_id"))
-      )
+      val mediaSourceIDs: List[Int] = {
+        val s = ListBuffer[Int]()
+        while(mediaSourceSelect.getResultSet.next()) {
+          s += mediaSourceSelect.getResultSet.getInt("source_id")
+        }
+        s.toList
+      }
+
+      //Add the candidate to the list of candidates
+      candidates +=
+        new TranslationPair(
+          chunkL1,
+          chunkL2,
+          source,
+          mediaSourceIDs.map(getMediaSource)
+        )
     }
 
     candidates.toList

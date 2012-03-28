@@ -17,7 +17,7 @@ import java.lang.String
 
 class FirstLetterStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   extends BaseSignatureStorage(l1, l2, TranslationSource.InternalExact,
-    "sign_firstletter", readOnly) {
+    "sign_firstletter", readOnly = readOnly) {
 
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.

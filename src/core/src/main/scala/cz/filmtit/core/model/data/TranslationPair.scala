@@ -14,11 +14,11 @@ class TranslationPair(
   val chunkL1: Chunk,
   val chunkL2: Chunk,
   val source: TranslationSource,
-  var mediaSource: MediaSource
+  var mediaSources: List[MediaSource]
 ) {
 
   def this(chunkL1: Chunk, chunkL2: Chunk) {
-    this(chunkL1, chunkL2, TranslationSource.Unknown, null)
+    this(chunkL1, chunkL2, TranslationSource.Unknown, List[MediaSource]())
   }
 
   override def toString = "TP(%s, %s, Source: %s)".format(
@@ -27,13 +27,16 @@ class TranslationPair(
     source
   )
 
+  def setMediaSource(mediaSource: MediaSource) {
+    mediaSources = List[MediaSource](mediaSource)
+  }
   
   def toExternalString: String = {
 
     val s: String = chunkL1.surfaceform + "\t" + chunkL2.surfaceform
     
-    if (mediaSource != null)
-      s + "\t" + mediaSource.genres.mkString(",")
+    if (mediaSources.size > 0)
+      s + "\t" + mediaSources.flatMap(_.genres).mkString(",")
     else
       s
   }

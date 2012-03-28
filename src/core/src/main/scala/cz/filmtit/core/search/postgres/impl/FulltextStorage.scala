@@ -10,11 +10,11 @@ import cz.filmtit.core.model.{TranslationSource, Language}
  * Postgres-based storage using a full-text index.
  */
 class FulltextStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly) {
+  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly = readOnly) {
 
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
-    val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(chunkTable))
+    val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(pairTable))
     select.setString(1, chunk)
     val rs = select.executeQuery()
 
@@ -30,6 +30,6 @@ class FulltextStorage(l1: Language, l2: Language, readOnly: Boolean = true)
 
   def reindex() {
     connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext;" +
-      "CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));").format(chunkTable))
+      "CREATE INDEX idx_fulltext ON %s USING gin(to_tsvector('english', sentence));").format(pairTable))
   }
 }

@@ -13,11 +13,11 @@ import data.{Chunk, ScoredTranslationPair, TranslationPair}
 
 
 class TrigramStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly) {
+  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly = readOnly) {
 
   override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
-      "" + chunkTable + " WHERE sentence % ?;")
+      "" + pairTable + " WHERE sentence % ?;")
     select.setString(1, chunk)
     val rs = select.executeQuery()
 
@@ -34,7 +34,7 @@ class TrigramStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   def reindex() {
     connection.createStatement().execute(
       ("DROP INDEX IF EXISTS idx_trigrams; CREATE INDEX idx_trigrams ON %s USING " +
-        "gist (sentence gist_trgm_ops);").format(chunkTable))
+        "gist (sentence gist_trgm_ops);").format(pairTable))
   }
 
 }

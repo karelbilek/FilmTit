@@ -40,7 +40,7 @@ object Signature {
   }
 
   /**
-   * Create the signature from the signature and annotations that
+   * Create the signature from the signature String and annotations that
    * are stored in the database.
    *
    * @param signature

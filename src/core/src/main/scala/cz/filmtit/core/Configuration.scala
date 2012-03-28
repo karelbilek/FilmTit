@@ -2,6 +2,7 @@ package cz.filmtit.core
 
 import cz.filmtit.core.model.Language
 import model.annotation.{ChunkAnnotation, Name}
+import java.io.File
 
 
 /**
@@ -29,5 +30,8 @@ object Configuration {
 
     )
   )
+
+  val heldoutSize = 0.02 //percentage of all data
+  val heldoutFile = new File("/filmtit/heldout.csv")
 
 }

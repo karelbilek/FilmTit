@@ -4,10 +4,11 @@ package cz.filmtit.core.io
 import collection.mutable.HashMap
 import io.Source
 import collection.mutable.HashSet
-import cz.filmtit.core.Factory
 import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
-import java.io.{IOException, File}
+import scala.util.Random
+import cz.filmtit.core.{Configuration, Factory}
+import java.io.{PrintWriter, IOException, File}
 
 
 /**
@@ -47,6 +48,8 @@ object Import {
 
     tm.reset()
 
+    val heldoutWriter = new PrintWriter(Configuration.heldoutFile)
+
     System.err.println("Processing files:")
     folder.listFiles filter(_.getName.endsWith(".txt")) grouped(100) foreach(
       (files: Array[File])=> tm.add(
@@ -64,13 +67,23 @@ object Import {
             )
           )
 
-
-          Source.fromFile(sourceFile).getLines()
+          //Read all pairs from the file and convert them to translation pairs
+          val pairs = Source.fromFile(sourceFile).getLines()
             .map( TranslationPair.fromString(_) )
             .filter( _ != null )
-            .map( { pair: TranslationPair => pair.mediaSource = mediaSource; pair } )
+            .map( { pair => pair.setMediaSource(mediaSource); pair } )
+
+          //Exclude heldoutSize% of the data as heldout data
+          val (training, heldout) =
+            pairs.toList.partition(_ => !(Random.nextFloat() < Configuration.heldoutSize) )
+
+          heldout.foreach( pair => heldoutWriter.println(pair.toExternalString) )
+
+          training
         }))
       )
+
+    heldoutWriter.close()
   }
 
 
@@ -78,7 +91,7 @@ object Import {
     loadSubtitleMapping(new File(args(0)))
     System.err.println("Loaded subtitle -> movie mapping")
 
-    val tm = Factory.createTM()
+    val tm = Factory.createTM(readOnly = false)
     loadChunks(tm, new File(args(1)))
     //System.err.println("hits:" + hit + ", miss:" + miss)
   }

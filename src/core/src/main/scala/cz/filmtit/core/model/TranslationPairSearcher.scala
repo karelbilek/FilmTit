@@ -9,7 +9,11 @@ import cz.filmtit.core.model.data.{TranslationPair, Chunk}
  * @author Joachim Daiber
  */
 
-abstract class TranslationPairSearcher(val l1: Language, val l2: Language) {
+abstract class TranslationPairSearcher(
+  val l1: Language,
+  val l2: Language,
+  readOnly: Boolean = true
+) {
 
   /**
    * Get the correct chunk for the language from the translation pair.

@@ -19,7 +19,7 @@ import cz.filmtit.core.model.data.Chunk
 
 class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   extends BaseSignatureStorage(l1, l2, TranslationSource.InternalNE, "sign_ne",
-    reversible = true, readOnly) {
+    reversible = true, readOnly = readOnly) {
 
   val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_) }
 

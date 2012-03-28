@@ -43,10 +43,11 @@ with MediaStorage {
   }
 
   //Assure the database is in read-only mode if required.
-  if (readOnly)
+  if (readOnly == true)
     connection.setReadOnly(true)
 
-  var chunkTable = "chunks"
+  var pairTable = "chunks"
+  var chunkSourceMappingTable = "chunk_mediasources"
   var mediasourceTable = "mediasources"
 
   var maxCandidates = 200
@@ -55,47 +56,121 @@ with MediaStorage {
     System.err.println("Resetting BaseStorage (chunks, mediasources).")
 
     connection.createStatement().execute(
-      "DROP TABLE IF EXISTS %s CASCADE; DROP TABLE IF EXISTS %s CASCADE; "
-        .format(chunkTable, mediasourceTable))
+      "DROP TABLE IF EXISTS %s CASCADE; DROP TABLE IF EXISTS %s CASCADE; DROP TABLE IF EXISTS %s CASCADE;"
+        .format(pairTable, mediasourceTable, chunkSourceMappingTable))
 
     connection.createStatement().execute(
       "CREATE TABLE %s (source_id SERIAL PRIMARY KEY, title TEXT, year VARCHAR(4), genres TEXT);"
         .format(mediasourceTable))
 
     connection.createStatement().execute(
-      "CREATE TABLE %s (chunk_id SERIAL PRIMARY KEY, chunk_l1 TEXT, chunk_l2 TEXT, source_id INTEGER references %s(source_id));"
-        .format(chunkTable, mediasourceTable))
+      ("CREATE TABLE %s (pair_id SERIAL PRIMARY KEY, chunk_l1 TEXT, chunk_l2 TEXT, count INTEGER);")
+        .format(pairTable))
+
+    connection.createStatement().execute(
+      ("CREATE TABLE %s (" +
+        "pair_id INTEGER references %s(pair_id), " +
+        "source_id INTEGER references %s(source_id)," +
+        "PRIMARY KEY(pair_id, source_id)" +
+        ");")
+        .format(chunkSourceMappingTable, pairTable, mediasourceTable))
+
+
+  }
+
+  private val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
+
+
+  /**
+   * Add a media source <-> translation pair correspondence to
+   * the database.
+   *
+   * @param pairID
+   * @param mediaSourceID
+   */
+  private def addMediaSourceForChunk(pairID: Long, mediaSourceID: Long) {
+    msInsertStmt.setLong(1, pairID)
+    msInsertStmt.setLong(2, mediaSourceID)
+    msInsertStmt.execute()
   }
 
 
+  private val pairIDStmt = connection.prepareStatement("SELECT * FROM %s WHERE chunk_l1 = ? AND chunk_l2 = ? LIMIT 1;".format(pairTable))
+
+  /**
+   * Search for the translation pair in the database and return its
+   * ID if it is present. This method is slow, it should only
+   * be used while indexing!
+   *
+   * @param translationPair
+   * @return
+   */
+  private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] = {
+    pairIDStmt.setString(1, translationPair.chunkL1.surfaceform)
+    pairIDStmt.setString(2, translationPair.chunkL2.surfaceform)
+    pairIDStmt.execute()
+
+    if (pairIDStmt.getResultSet.next()) {
+      Some(pairIDStmt.getResultSet.getLong("pair_id"))
+    }else{
+      None
+    }
+  }
+
+
+  /**
+   * This is the only place where {TranslationPair}s are actually
+   * added to the database. All subclasses of BaseStorage work with the
+   * translation pairs that were added to the database by this method.
+   *
+   * @param translationPairs a Traversable of translation pairs
+   */
   def add(translationPairs: TraversableOnce[TranslationPair]) {
 
-    val inStmt = connection.prepareStatement("INSERT INTO %s (chunk_l1, chunk_l2, source_id) VALUES (?, ?, ?)".format(chunkTable))
+    val inStmt = connection.prepareStatement(("INSERT INTO %s (chunk_l1, chunk_l2, count) VALUES (?, ?, 1) RETURNING pair_id;").format(pairTable))
+    val upStmt = connection.prepareStatement(("UPDATE %s SET count = count + 1 WHERE pair_id = ?;").format(pairTable))
 
     //Important for performance: Only commit after all INSERT statements are
     //executed:
     connection.setAutoCommit(false)
 
-    System.err.println("Writing chunks to database...")
+    System.err.println("Writing translation pairs to database...")
     translationPairs foreach { translationPair => {
       try {
 
-        inStmt.setString(1, translationPair.chunkL1)
-        inStmt.setString(2, translationPair.chunkL2)
-        inStmt.setLong(3, translationPair.mediaSource.id)
-        inStmt.execute()
+        val pairID = pairIDInDatabase(translationPair) match {
+          case None => {
+            //Normal case: there is no equivalent translation pair in the database
 
+            inStmt.setString(1, translationPair.chunkL1)
+            inStmt.setString(2, translationPair.chunkL2)
+            inStmt.execute()
+
+            //Get the pair_id of the new translation pair
+            inStmt.getResultSet.next()
+            inStmt.getResultSet.getLong("chunk_id")
+          }
+          case Some(existingPairID) => {
+            //Special case: there is an equivalent translation pair in the database,
+            upStmt.setLong(1, existingPairID)
+            upStmt.execute()
+            existingPairID
+          }
+        }
+
+        //Add the MediaSource as the source to the TP
+        addMediaSourceForChunk(pairID, translationPair.mediaSources(0).id)
       } catch {
-        case e: SQLException =>
-          System.err.println("Skipping translation pair due to database " +
-            "error: " + translationPair)
+        case e: SQLException => {
+          e.printStackTrace()
+          System.err.println("Skipping translation pair due to database error: " + translationPair)
+        }
       }
     }
     }
 
     //Commit the changes to the database:
     connection.commit()
-
   }
 
 

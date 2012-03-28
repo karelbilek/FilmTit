@@ -11,13 +11,13 @@ object EvaluateJDBC {
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
   storages += new FulltextStorage(Language.en, Language.cs)
-  storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_fulltext"
+  storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_fulltext"
 
   storages += new FirstLetterStorage(Language.en, Language.cs)
-  storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_firstletter"
+  storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_firstletter"
 
   storages += new TrigramStorage(Language.en, Language.cs)
-  storages.last.asInstanceOf[BaseStorage].chunkTable = "sentences_trigram"
+  storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_trigram"
 
 
   def fill() {

@@ -3,10 +3,10 @@ package cz.fimtit.eval.database
 import io.Source
 import java.io.File
 import org.apache.commons.math.stat.StatUtils
-import cz.filmtit.core.search.postgres.impl.FirstLetterStorage
 import cz.filmtit.core.model.storage.{TranslationPairStorage, SignatureTranslationPairStorage}
 import cz.filmtit.core.model.data.TranslationPair
 import cz.filmtit.core.model.Language
+import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 
 /**
  * @author Joachim Daiber
@@ -17,21 +17,32 @@ import cz.filmtit.core.model.Language
 
 object EvaluateSignature {
 
-  val n = 2000000
+  val n = -1
 
-  def evaluateSignature(storage: TranslationPairStorage,
-                        pairs: Array[TranslationPair],
-                        language: Language) {
+  def evaluateSignature(
+    storage: SignatureTranslationPairStorage,
+    pairs: Array[TranslationPair],
+    language: Language
+  ) {
 
-    val counts = (((pairs map (p => storage.asInstanceOf[SignatureTranslationPairStorage]
-      .signature(storage.chunkForLanguage(p, language), language))).toArray
-      .groupBy(identity)) map({ case (x, y) => y.size.toDouble })).toArray
+    val s = System.currentTimeMillis
+    val counts = (
+      (pairs map
+        {
+          p: TranslationPair =>
+          storage.signature(storage.chunkForLanguage(p, language), language)
+        })
+        .toArray
+        .groupBy(identity)
+        .map({ case (x, y) => y.size.toDouble }))
+        .toArray
 
-    val sigs = (pairs map (p => storage.asInstanceOf[SignatureTranslationPairStorage]
-      .signature(storage.chunkForLanguage(p, language), language))).toArray
+    val sigTime = System.currentTimeMillis - s
+
 
     println("=" * 35)
     println("Language: %s".format(language))
+    println("n = %d".format(n))
     println("=" * 35)
 
     println("Uniq chunks:   " + pairs.map(p =>
@@ -44,28 +55,38 @@ object EvaluateSignature {
     println("Max:           " + StatUtils.max(counts) )
     println("SD:            " + math.sqrt(StatUtils.variance(counts)) )
 
+    println("\nSignature function:")
+    println("Mean signature creation time: %2.fms".format(sigTime/n.toFloat) )
+
+
     println("\n" * 2)
   }
 
 
-  def evaluateSignatures(storage: TranslationPairStorage, dataFolder: File) {
+  def evaluateSignatures(
+    storage: SignatureTranslationPairStorage,
+    dataFolder: File,
+    languages: Set[Language]
+  ) {
 
     val pairs = ((dataFolder.listFiles flatMap (
       Source.fromFile(_).getLines().map( TranslationPair.fromString(_) )
         filter( _ != null ) ))
         take (if (n > 0) n else Integer.MAX_VALUE))
 
-    evaluateSignature(storage, pairs, storage.l1)
-    evaluateSignature(storage, pairs, storage.l2)
+    languages foreach {
+      evaluateSignature(storage, pairs, _)
+    }
 
   }
 
 
   def main(args: Array[String]) {
-
-    evaluateSignatures(new FirstLetterStorage(Language.en, Language.cs),
-                       new File("/Users/jodaiber/Desktop/LCT/" +
-                         "LCT W11:12/FilmTit/data/parallel/utf8"))
+    evaluateSignatures(
+      new NEStorage(Language.en, Language.cs),
+      new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"),
+      languages = Set(Language.en)
+    )
   }
 
 

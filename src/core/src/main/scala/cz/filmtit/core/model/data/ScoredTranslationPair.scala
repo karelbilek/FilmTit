@@ -12,10 +12,10 @@ class ScoredTranslationPair(
   chunkL1: Chunk,
   chunkL2: Chunk,
   source: TranslationSource,
-  mediaSource: MediaSource,
+  mediaSources: List[MediaSource],
   var score: Double = 0.0,
   var priorScore: Double = 0.0
-) extends TranslationPair(chunkL1, chunkL2, source, mediaSource) with
+) extends TranslationPair(chunkL1, chunkL2, source, mediaSources) with
   Ordered[ScoredTranslationPair] {
 
   /**
@@ -40,12 +40,12 @@ object ScoredTranslationPair {
 
   implicit def fromTranslationPair(pair: TranslationPair): ScoredTranslationPair = {
     new ScoredTranslationPair(pair.chunkL1, pair.chunkL2,
-      pair.source, pair.mediaSource)
+      pair.source, pair.mediaSources)
   }
 
   def fromTranslationPair(pair: TranslationPair, score: Double): ScoredTranslationPair = {
     new ScoredTranslationPair(pair.chunkL1, pair.chunkL2,
-      pair.source, pair.mediaSource, score)
+      pair.source, pair.mediaSources, score)
   }
 
 }
