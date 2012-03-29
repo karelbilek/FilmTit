@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">
+            org.postgresql.Driver
+        </property>
+        <property name="hibernate.connection.url">
+            <!-- jdbc address to the database -->
+            jdbc:postgresql://localhost/filmtit
+        </property>
+        <property name="hibernate.connection.username">postgres</property>
+        <property name="hibernate.connection.password">postgres</property>
+        <property name="hibernate.connection.pool_size">10</property>
+        <property name="show_sql">true</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="current_session_context_class">thread</property>
+
+        <!-- List of mapping files -->
+        <!-- <mapping resource="cz/filmtit/userspace/chunk.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/document.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/user.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/session.hbm.xml"/> -->
+        <mapping resource="cz/filmtit/userspace/match.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/translation.hbm.xml"/>
+
+
+    </session-factory>
+</hibernate-configuration>
