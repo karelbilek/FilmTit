@@ -132,10 +132,10 @@ public class Chunk extends DatabaseObject {
 
 
         cz.filmtit.core.model.data.Chunk tmChunk = new cz.filmtit.core.model.data.Chunk(text);
-        TranslationMemory TM = Factory.createTM();
+        TranslationMemory TM = Factory.createTM(true);
         
         scala.collection.immutable.List<ScoredTranslationPair> TMResults =
-                TM.nBest(tmChunk, parent.getLanguage(), parent.getMediaSource(), 10);
+                TM.nBest(tmChunk, parent.getLanguage(), parent.getMediaSource(), 10, false);
 
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
