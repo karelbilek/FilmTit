@@ -22,7 +22,7 @@ object Configuration {
   val dbPassword: String = (dbXML \ "password").text
 
   //Named entity recognition:
-  val modelPath: String = (XMLFile \ "modelPath").text
+  val modelPath: String = (XMLFile \ "model_path").text
   val neRecognizers: Map[Language, List[Pair[ChunkAnnotation, String]]] = Map(
     Language.en -> List(
       (Name.Person,       modelPath+"en-ner-person.bin"),
