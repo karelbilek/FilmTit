@@ -6,7 +6,7 @@
 
     <groupId>cz.filmtit</groupId>
     <artifactId>eval</artifactId>
-    <version>1.0</version>
+    <!--version>1.0</version-->
     <name>Evaluation</name>
 
 
