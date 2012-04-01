@@ -10,3 +10,7 @@
 .idea
 */*.iml
 *.iml
+
+
+#vim stuff
+*.swp
