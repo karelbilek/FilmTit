@@ -1,5 +1,12 @@
+#eclipse stuff
+.classpath
+.project
+.settings
+
+#targets
+*/target*
+
+#IntelliJ stuff
 .idea
-eval/target
-core/target
 */*.iml
 *.iml
