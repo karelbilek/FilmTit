@@ -37,9 +37,11 @@ with MediaStorage {
       Configuration.dbUser,
       Configuration.dbPassword)
   } catch {
-    case e: PSQLException => throw new ConnectException(
-      "Could not connect to database. " +
-        "Please check if the database is running.")
+    case e: PSQLException => {
+      System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(Configuration.dbConnector))
+      System.exit(1)
+      null
+    }
   }
 
   //Assure the database is in read-only mode if required.
@@ -79,6 +81,7 @@ with MediaStorage {
   }
 
   private val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
+  private val msCheckStmt = connection.prepareStatement("SELECT * FROM %s WHERE pair_id = ? AND source_id=?;".format(chunkSourceMappingTable))
 
 
   /**
@@ -89,9 +92,18 @@ with MediaStorage {
    * @param mediaSourceID
    */
   private def addMediaSourceForChunk(pairID: Long, mediaSourceID: Long) {
-    msInsertStmt.setLong(1, pairID)
-    msInsertStmt.setLong(2, mediaSourceID)
-    msInsertStmt.execute()
+
+    //TODO make this faster!
+    msCheckStmt.setLong(1, pairID)
+    msCheckStmt.setLong(2, mediaSourceID)
+    msCheckStmt.execute()
+
+    if (!msCheckStmt.getResultSet.next()) {
+      msInsertStmt.setLong(1, pairID)
+      msInsertStmt.setLong(2, mediaSourceID)
+      msInsertStmt.execute()
+    }
+
   }
 
 
@@ -148,7 +160,7 @@ with MediaStorage {
 
             //Get the pair_id of the new translation pair
             inStmt.getResultSet.next()
-            inStmt.getResultSet.getLong("chunk_id")
+            inStmt.getResultSet.getLong("pair_id")
           }
           case Some(existingPairID) => {
             //Special case: there is an equivalent translation pair in the database,

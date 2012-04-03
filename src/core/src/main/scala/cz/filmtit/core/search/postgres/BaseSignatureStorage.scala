@@ -5,6 +5,8 @@ import collection.mutable.ListBuffer
 import cz.filmtit.core.model.Language
 import storage.{Signature, SignatureTranslationPairStorage}
 import data.{Chunk, TranslationPair}
+import org.postgresql.util.PSQLException
+import cz.filmtit.share.exceptions.DatabaseException
 
 
 /**
@@ -31,10 +33,10 @@ with SignatureTranslationPairStorage {
     )
     connection.createStatement().execute(
       ( if (!reversible)
-        "CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s(chunk_id), signature_l1 TEXT, signature_l2 TEXT);"
+        "CREATE TABLE %s (pair_id INTEGER PRIMARY KEY references %s(pair_id), signature_l1 TEXT, signature_l2 TEXT);"
       else
-        "CREATE TABLE %s (chunk_id INTEGER PRIMARY KEY references %s" +
-          "(chunk_id), signature_l1 TEXT, annotations_l1 TEXT, " +
+        "CREATE TABLE %s (pair_id INTEGER PRIMARY KEY references %s" +
+          "(pair_id), signature_l1 TEXT, annotations_l1 TEXT, " +
           "signature_l2 TEXT, annotations_l2 TEXT);"
         ).format(signatureTable, pairTable)
     )
@@ -55,9 +57,9 @@ with SignatureTranslationPairStorage {
     val inStmt = connection.prepareStatement(
 
       (if (!reversible)
-        "INSERT INTO %s(chunk_id, signature_l1, signature_l2) VALUES(?, ?, ?);"
+        "INSERT INTO %s(pair_id, signature_l1, signature_l2) VALUES(?, ?, ?);"
       else
-        "INSERT INTO %s(chunk_id, signature_l1, annotations_l1, " +
+        "INSERT INTO %s(pair_id, signature_l1, annotations_l1, " +
           "signature_l2, annotations_l2) VALUES(?, ?, ?, ?, ?);"
         ).format(signatureTable)
     )
@@ -72,7 +74,7 @@ with SignatureTranslationPairStorage {
 
 
       if (reversible) {
-        inStmt.setInt(1, row.getInt("chunk_id"))
+        inStmt.setInt(1, row.getInt("pair_id"))
 
         //Signature, annotations for L1
         inStmt.setString(2, sigL1.surfaceform)
@@ -83,7 +85,7 @@ with SignatureTranslationPairStorage {
         inStmt.setString(5, sigL2.listAnnotations())
 
       }else{
-        inStmt.setInt(1, row.getInt("chunk_id"))
+        inStmt.setInt(1, row.getInt("pair_id"))
         inStmt.setString(2, sigL1.surfaceform)
         inStmt.setString(3, sigL2.surfaceform)
       }
@@ -137,14 +139,21 @@ with SignatureTranslationPairStorage {
    */
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.chunk_id = chunks.chunk_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, pairTable, maxCandidates))
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.pair_id = chunks.pair_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, pairTable, maxCandidates))
     val mediaSourceSelect = connection.prepareStatement("SELECT source_id FROM %s WHERE pair_id = ?;".format(chunkSourceMappingTable))
 
     //Use the signature function of the specific storage:
     select.setString(1, signature(chunk, language).surfaceform)
 
     //Get and process all candidates
-    val rs = select.executeQuery()
+    val rs = try {
+      select.executeQuery()
+    } catch {
+      case e: PSQLException => {
+        throw new DatabaseException("Could not use database indexes, please make sure the TM is properly indexed. To reindex, run $ make index in the main directory.")
+      }
+    }
+
     val candidates = new ListBuffer[TranslationPair]()
     while (rs.next()) {
 

@@ -8,6 +8,6 @@ import cz.filmtit.core.Factory
 
 object Reindex {
   def main(args: Array[String]) {
-    Factory.createTM().reindex()
+    Factory.createTM(readOnly = false).reindex()
   }
 }
