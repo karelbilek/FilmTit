@@ -14,10 +14,10 @@ import java.net.URLEncoder
 object IMDB {
 
   def query(title: String, year: String): JSONObject = {
-    val patternTVShow = "\"(.+)\" .+".r
+    val tvShowPattern = "\"(.+)\" .+".r
 
     val response = title match {
-      case patternTVShow(titleShow) => {
+      case tvShowPattern(titleShow) => {
         Source.fromURL("http://www.imdbapi.com/?t=%s".format(
           URLEncoder.encode(titleShow, "utf-8"))).getLines()
       }

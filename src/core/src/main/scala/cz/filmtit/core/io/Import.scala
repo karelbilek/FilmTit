@@ -17,8 +17,15 @@ import java.io.{PrintWriter, IOException, File}
 
 object Import {
 
+  /** Contains the subtitle file <-> media source mapping */
   var subtitles = HashMap[String, MediaSource]()
 
+  /**
+   * Loads the index file that contains the
+   * mapping from subtitle files to movies.
+   *
+   * @param mappingFile index file
+   */
   def loadSubtitleMapping(mappingFile: File) {
     Source.fromFile(mappingFile).getLines() foreach
       { line =>
@@ -38,16 +45,29 @@ object Import {
   var hit = 0
   var miss = 0
 
+
+  /**
+   * Get the MediaSource with additional information on the movie/TV show
+   * which corresponds to the subtitle file.
+   *
+   * @param id id of the mediasource from the index file
+   * @return
+   */
   def loadMediaSource(id: String): MediaSource = subtitles.get(id) match {
     case Some(mediaSource) => MediaSource.fromIMDB(mediaSource.title, mediaSource.year)
     case None => throw new IOException("No movie found in the DB!")
   }
 
 
+  /**
+   * Load the aligned chunk pairs in the folder into the translation memory.
+   *
+   * @param tm the translation memory instance to be initialized
+   * @param folder source folder with aligned subtitle files
+   */
   def loadChunks(tm: TranslationMemory, folder: File) {
 
     tm.reset()
-
     val heldoutWriter = new PrintWriter(Configuration.heldoutFile)
 
     System.err.println("Processing files:")
@@ -93,7 +113,7 @@ object Import {
 
     val tm = Factory.createTM(readOnly = false)
     loadChunks(tm, new File(args(1)))
-    //System.err.println("hits:" + hit + ", miss:" + miss)
+
   }
 
 }
