@@ -3,6 +3,7 @@ package cz.filmtit.server;
 import cz.filmtit.client.GreetingService;
 import cz.filmtit.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import cz.filmtit.share.Chunk;
 
 /**
  * The server side implementation of the RPC service.

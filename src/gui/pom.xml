@@ -24,6 +24,11 @@
 
   <dependencies>
     <dependency>
+      <artifactId>share</artifactId>
+      <groupId>cz.filmtit</groupId>
+      <version>${filmtit.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-servlet</artifactId>
       <version>${gwtVersion}</version>
@@ -54,8 +59,7 @@
       <classifier>sources</classifier>
       <scope>test</scope>
     </dependency>
-  </dependencies>
-
+</dependencies>
   <build>
     <!-- Generate compiled stuff in the folder used for developing mode -->
     <outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>

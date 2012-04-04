@@ -2,6 +2,7 @@ package cz.filmtit.client;
 
 
 import java.util.*;
+import cz.filmtit.share.Chunk;
 
 /**
  * Represents a subtitle chunk,
@@ -20,6 +21,8 @@ public class GUIChunk {
     private boolean done;
     private int partNumber;
     private List<GUIMatch> matches;
+    
+                private Chunk chunk;
     
     public static GUIChunk NoNextSubtitle = new GUIChunk("< no next subtitle >", null);
     
