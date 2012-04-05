@@ -18,7 +18,7 @@ trait MediaStorage {
 
   /**
    * Add a media source to the database.
-   * @param mediaSource
+   * @param mediaSource filled media source object
    * @return
    */
   def addMediaSource(mediaSource: MediaSource): Long
@@ -26,7 +26,7 @@ trait MediaStorage {
 
   /**
    * Get a media source by its database identifier.
-   * @param id
+   * @param id media source identifier
    * @return
    */
   def getMediaSource(id: Int): MediaSource

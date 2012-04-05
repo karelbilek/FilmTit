@@ -2,13 +2,11 @@ package cz.filmtit.core.search.postgres
 
 import cz.filmtit.core.Configuration
 import org.postgresql.util.PSQLException
-import java.net.ConnectException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.model.{TranslationSource, Language}
-import java.sql.{BatchUpdateException, SQLException, DriverManager}
-import java.util.Iterator
+import java.sql.{SQLException, DriverManager}
 import collection.mutable.HashSet
 import com.google.common.hash.{Funnels, BloomFilter}
 
@@ -56,6 +54,9 @@ with MediaStorage {
 
   var maxCandidates = 200
 
+  /**
+   * Drop all tables from the database and recreate them.
+   */
   def reset() {
     System.err.println("Resetting BaseStorage (chunks, mediasources).")
 
@@ -79,23 +80,24 @@ with MediaStorage {
         ");")
         .format(chunkSourceMappingTable, pairTable, mediasourceTable))
 
-
   }
 
-  private val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
 
   /**
    * The following two data structures are only used for indexing, hence
-   * they are lazy and are not initiliazed in read-only mode.
+   * they are lazy and are not initialized in read-only mode.
    */
-  private lazy val bloomFilter: BloomFilter[java.lang.CharSequence] = BloomFilter.create(Funnels.stringFunnel(), Configuration.expectedNumberOfTranslationPairs)
-  private lazy val pairMediaSourceMappings:HashSet[Pair[Long, Long]] = HashSet[Pair[Long, Long]]()
+  private lazy val pairsInDatabase: BloomFilter[java.lang.CharSequence] = BloomFilter.create(Funnels.stringFunnel(), Configuration.expectedNumberOfTranslationPairs)
+  private lazy val pairMediaSourceMappings: HashSet[Pair[Long, Long]] = HashSet[Pair[Long, Long]]()
+
+  private lazy val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
+
   /**
    * Add a media source <-> translation pair correspondence to
    * the database.
    *
-   * @param pairID
-   * @param mediaSourceID
+   * @param pairID pair identifier that will be linked to the media source
+   * @param mediaSourceID media source DB identifier
    */
   private def addMediaSourceForChunk(pairID: Long, mediaSourceID: Long) {
 
@@ -109,19 +111,22 @@ with MediaStorage {
   }
 
 
-  private val pairIDStmt = connection.prepareStatement("SELECT * FROM %s WHERE chunk_l1 = ? AND chunk_l2 = ? LIMIT 1;".format(pairTable))
+  private lazy val pairIDStmt = connection.prepareStatement("SELECT * FROM %s WHERE chunk_l1 = ? AND chunk_l2 = ? LIMIT 1;".format(pairTable))
 
   /**
    * Search for the translation pair in the database and return its
    * ID if it is present. This method is slow, it should only
    * be used while indexing!
    *
-   * @param translationPair
+   * @param translationPair the translation pair to be looked up
    * @return
    */
   private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] = {
 
-    if ( bloomFilter.mightContain( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) ) ) {
+    if ( pairsInDatabase.mightContain( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) ) ) {
+      // The translation pair might already be in the database, check if this is
+      // true and return its pair_id if it is there.
+
       pairIDStmt.setString(1, translationPair.chunkL1.surfaceform)
       pairIDStmt.setString(2, translationPair.chunkL2.surfaceform)
       pairIDStmt.execute()
@@ -134,6 +139,7 @@ with MediaStorage {
     } else {
       None
     }
+
   }
 
 
@@ -166,7 +172,7 @@ with MediaStorage {
             inStmt.execute()
 
             //Remember that we already put it into the database
-            bloomFilter.put( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) )
+            pairsInDatabase.put( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) )
 
             //Get the pair_id of the new translation pair
             inStmt.getResultSet.next()
@@ -196,6 +202,11 @@ with MediaStorage {
   }
 
 
+  /**
+    * Get a media source by its database identifier.
+    * @param id media source identifier
+    * @return
+    */
   def getMediaSource(id: Int): MediaSource = {
     val stmt = connection.prepareStatement("SELECT * FROM %s where source_id = ? LIMIT 1;".format(mediasourceTable))
     stmt.setLong(1, id)
@@ -210,6 +221,11 @@ with MediaStorage {
   }
 
 
+  /**
+   * Add a media source to the database.
+   * @param mediaSource filled media source object
+   * @return
+   */
   def addMediaSource(mediaSource: MediaSource): Long = {
     val stmt = connection.prepareStatement("INSERT INTO %s(title, year, genres) VALUES(?, ?, ?) RETURNING source_id;".format(mediasourceTable))
 
