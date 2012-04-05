@@ -34,8 +34,11 @@ object Configuration {
     )
   )
 
-  private val heldoutXML = XMLFile \ "heldout"
+  //Indexing:
+  private val importXML = XMLFile \ "import"
+  val expectedNumberOfTranslationPairs = (importXML \ "expected_number_of_translationpairs").text.toInt
 
+  private val heldoutXML = importXML \ "heldout"
   val heldoutSize = (heldoutXML \ "size").text.toDouble //percentage of all data
   val heldoutFile = new File((heldoutXML \ "path").text)
 

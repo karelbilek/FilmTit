@@ -1,4 +1,5 @@
 <configuration>
+
   <database>
     <connector>jdbc:postgresql://localhost/filmtit</connector>
     <user>postgres</user>
@@ -6,10 +7,12 @@
   </database>
   <model_path>/filmtit/models/</model_path>
 
-  <heldout>
-    <size>0.02</size>
-    <path>/filmtit/heldout.csv</path>
-
-  </heldout>
+  <import>
+      <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
+      <heldout>
+        <size>0.02</size>
+        <path>/filmtit/heldout.csv</path>
+      </heldout>
+  </import>
 
 </configuration>

@@ -9,6 +9,8 @@ import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.model.{TranslationSource, Language}
 import java.sql.{BatchUpdateException, SQLException, DriverManager}
 import java.util.Iterator
+import collection.mutable.HashSet
+import com.google.common.hash.{Funnels, BloomFilter}
 
 
 /**
@@ -23,7 +25,7 @@ abstract class BaseStorage(
   l2: Language,
   source: TranslationSource,
   readOnly: Boolean = true
-) extends TranslationPairStorage(l1, l2)
+  ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
 
   val log = Logger(this.getClass.getSimpleName)
@@ -81,9 +83,13 @@ with MediaStorage {
   }
 
   private val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
-  private val msCheckStmt = connection.prepareStatement("SELECT * FROM %s WHERE pair_id = ? AND source_id=?;".format(chunkSourceMappingTable))
 
-
+  /**
+   * The following two data structures are only used for indexing, hence
+   * they are lazy and are not initiliazed in read-only mode.
+   */
+  private lazy val bloomFilter: BloomFilter[java.lang.CharSequence] = BloomFilter.create(Funnels.stringFunnel(), Configuration.expectedNumberOfTranslationPairs)
+  private lazy val pairMediaSourceMappings:HashSet[Pair[Long, Long]] = HashSet[Pair[Long, Long]]()
   /**
    * Add a media source <-> translation pair correspondence to
    * the database.
@@ -93,15 +99,11 @@ with MediaStorage {
    */
   private def addMediaSourceForChunk(pairID: Long, mediaSourceID: Long) {
 
-    //TODO make this faster!
-    msCheckStmt.setLong(1, pairID)
-    msCheckStmt.setLong(2, mediaSourceID)
-    msCheckStmt.execute()
-
-    if (!msCheckStmt.getResultSet.next()) {
+    if ( !(pairMediaSourceMappings.contains(Pair(pairID, mediaSourceID))) ) {
       msInsertStmt.setLong(1, pairID)
       msInsertStmt.setLong(2, mediaSourceID)
       msInsertStmt.execute()
+      pairMediaSourceMappings.add(Pair(pairID, mediaSourceID))
     }
 
   }
@@ -118,13 +120,18 @@ with MediaStorage {
    * @return
    */
   private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] = {
-    pairIDStmt.setString(1, translationPair.chunkL1.surfaceform)
-    pairIDStmt.setString(2, translationPair.chunkL2.surfaceform)
-    pairIDStmt.execute()
 
-    if (pairIDStmt.getResultSet.next()) {
-      Some(pairIDStmt.getResultSet.getLong("pair_id"))
-    }else{
+    if ( bloomFilter.mightContain( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) ) ) {
+      pairIDStmt.setString(1, translationPair.chunkL1.surfaceform)
+      pairIDStmt.setString(2, translationPair.chunkL2.surfaceform)
+      pairIDStmt.execute()
+
+      if (pairIDStmt.getResultSet.next()) {
+        Some(pairIDStmt.getResultSet.getLong("pair_id"))
+      }else{
+        None
+      }
+    } else {
       None
     }
   }
@@ -157,6 +164,9 @@ with MediaStorage {
             inStmt.setString(1, translationPair.chunkL1)
             inStmt.setString(2, translationPair.chunkL2)
             inStmt.execute()
+
+            //Remember that we already put it into the database
+            bloomFilter.put( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) )
 
             //Get the pair_id of the new translation pair
             inStmt.getResultSet.next()
