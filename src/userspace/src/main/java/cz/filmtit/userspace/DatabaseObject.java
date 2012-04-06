@@ -1,5 +1,7 @@
 package cz.filmtit.userspace;
 
+import org.hibernate.Session;
+
 /**
  * An object which is stored in the database.
  * @author Jindřich Libovický
@@ -29,37 +31,31 @@ public abstract class DatabaseObject {
     /**
      * Save the properties of the DatabaseObject to the database,
      * but not the dependent objects (like matches for chunks etc.).
+     * @param session A database transaction in which operation is done.
      */
-    protected void saveJustObject() {
-        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-
+    protected void saveJustObject(Session session) {
         if (!gotFromDb) { // completely new object
             session.save(this);
-            //setDatabaseId((Long)session.getIdentifier(this));
         }
         else {           // just update an existing one
             session.update(this);
         }
 
-        session.getTransaction().commit();
     }
 
     /**
      * Deletes this object stored in the database,
      * but not the dependent objects (like matches for chunks etc.).
+     * @param session A database transaction in which operation is done.
      */
-    protected void deleteJustObject() {
+    protected void deleteJustObject(Session session) {
         // object which is from the database, just cannot be removed
         if (!gotFromDb) { return; }
 
         // simply remove the corresponding line from db
-        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
         session.delete(this);
-        session.getTransaction().commit();
     }
 
-    public abstract void saveToDatabase();
-    public abstract void deleteFromDatabase();
+    public abstract void saveToDatabase(Session session);
+    public abstract void deleteFromDatabase(Session session);
 }

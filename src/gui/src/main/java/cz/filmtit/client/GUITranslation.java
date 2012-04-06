@@ -3,7 +3,7 @@ package cz.filmtit.client;
 
 /**
  * Represents a single translation chunk.
- * (vaguely based on class Translation from Jindra)
+ * (vaguely based on class TranslationUS from Jindra)
  * 
  * @author Honza Václ
 */
@@ -27,7 +27,7 @@ public class GUITranslation {
 
     public void setTranslationText(String text) {
         if (text == null) { this.text = text; }
-        else { throw new UnsupportedOperationException("Translation text can be set just once."); }
+        else { throw new UnsupportedOperationException("TranslationUS text can be set just once."); }
     }
 
 }

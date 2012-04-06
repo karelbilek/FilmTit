@@ -1,6 +1,9 @@
 package cz.filmtit.userspace;
 
-import java.util.*;
+import org.hibernate.Session;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /* what may come from the interface
     - administrating the account =
@@ -17,12 +20,12 @@ import java.util.*;
  * Represents a user of the application
  * @author Jindřich Libovický
  */
-public class User extends DatabaseObject {
+public class UserUS extends DatabaseObject {
     private String name;
     private String passwordHash;
     private String fcbId;
-    private List<Document> ownedDocuments;
-    private Document activeDocument;
+    private List<DocumentUS> ownedDocuments;
+    private DocumentUS activeDocument;
     /**
      * Sign if the active document was created in the current session and therefore is not yet in the database.
      */
@@ -30,12 +33,12 @@ public class User extends DatabaseObject {
 
     /**
      * Gets the list of documents owned by this user.
-     * @return List of Document objects
+     * @return List of DocumentUS objects
      */
-    public List<Document> getOwnedDocuments() {
+    public List<DocumentUS> getOwnedDocuments() {
         //  if the list of owned documents is empty...
         if (ownedDocuments == null) {
-            ownedDocuments = new ArrayList<Document>();
+            ownedDocuments = new ArrayList<DocumentUS>();
             org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
             session.beginTransaction();
 
@@ -44,22 +47,22 @@ public class User extends DatabaseObject {
                     .setParameter("uid", getDatabaseId()).list();
 
             // store it to the variable
-            for (Object o : result) { ownedDocuments.add((Document)o); }
+            for (Object o : result) { ownedDocuments.add((DocumentUS)o); }
             
             session.getTransaction().commit();
         }
         return ownedDocuments;
     }
 
-    public void saveToDatabase() {
-        saveJustObject();
-        activeDocument.saveToDatabase();
+    public void saveToDatabase(Session dbSession) {
+        saveJustObject(dbSession);
+        activeDocument.saveToDatabase(dbSession);
     }
 
-    public void deleteFromDatabase() {
-        deleteJustObject();
-        for (Document document : ownedDocuments) {
-            document.deleteFromDatabase();
+    public void deleteFromDatabase(Session dbSession) {
+        deleteJustObject(dbSession);
+        for (DocumentUS document : ownedDocuments) {
+            document.deleteFromDatabase(dbSession);
         }
     }
     
