@@ -22,11 +22,11 @@
     <name>Film title userTranslation memory</name>
 
     <modules>
-        <module>gui</module>
         <module>userspace</module>
         <module>share</module>
         <module>eval</module>
         <module>core</module>
+        <module>gui</module>
   </modules>
 
     <build>
