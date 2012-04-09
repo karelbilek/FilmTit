@@ -1,9 +1,13 @@
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.Language;
-import cz.filmtit.core.model.data.*;
+import cz.filmtit.core.model.data.MediaSource;
+import org.hibernate.Session;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /* Functionality ... what may happen
     - changing the title / year or even language of the document => regenerate no finished translations
@@ -18,29 +22,29 @@ import java.util.*;
  * Represents a subtitle file the user work with.
  * @author Jindřich Libovický
  */
-public class Document extends DatabaseObject {
+public class DocumentUS extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
     
-    public Document(String movieTitle, int year, Language language) {
+    public DocumentUS(String movieTitle, int year, Language language) {
         this.movieTitle = movieTitle;
         this.year = year;
         this.language = language;
         workStartTime = new Date().getTime();
         spentOnThisTime = 0;
-        chunks = new ArrayList<Chunk>();
+        chunks = new ArrayList<ChunkUS>();
     }
 
     /**
      * Default constructor (for Hibernate).
      */
-    public Document() {
+    public DocumentUS() {
     }
 
     private String movieTitle;
     private int year;
-    private List<Chunk> chunks;
+    private List<ChunkUS> chunks;
     private long workStartTime;
     private long spentOnThisTime;
     private Language language;
@@ -128,47 +132,48 @@ public class Document extends DatabaseObject {
     }
 
     /**
-     * Loads the chunks from User Space database.
+     * Loads the chunks from UserUS Space database.
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();
     
         // query the database for the chunks
-        List foundChunks = session.createQuery("select c from Chunks where c.documentId = :did")
+        List foundChunks = dbSession.createQuery("select c from Chunks where c.documentId = :did")
                 .setParameter("did", getDatabaseId()).list();
 
-        chunks = new ArrayList<Chunk>();
+        chunks = new ArrayList<ChunkUS>();
         for (Object o : foundChunks) {
-            chunks.add((Chunk)o);
+            chunks.add((ChunkUS)o);
         }
     
-        session.getTransaction().commit();
+        dbSession.getTransaction().commit();
 
         // if the chunks have old translations, regenerate them
         if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
-            for (Chunk chunk : chunks) {
-                chunk.renewMTSuggestions();
+            for (ChunkUS chunk : chunks) {
+                chunk.renewMTSuggestions(); // TODO: request separate DB transaction now, redo it
             }
         }
         else { // otherwise just load them from the database
-            for (Chunk chunk : chunks) {
-                chunk.loadMatchesFromDatabase();
+            for (ChunkUS chunk : chunks) {
+                chunk.loadMatchesFromDatabase(dbSession);
             }
         }
 
+        dbSession.getTransaction().commit();
     }
 
-    public void saveToDatabase() {
-        saveJustObject();
+    public void saveToDatabase(Session dbSession) {
+        saveJustObject(dbSession);
 
-        for (Chunk chunk : chunks) {
-            chunk.saveToDatabase();
+        for (ChunkUS chunk : chunks) {
+            chunk.saveToDatabase(dbSession);
         }
     }
 
-    public void deleteFromDatabase() {
-        deleteJustObject();
+    public void deleteFromDatabase(Session dbSession) {
+        deleteJustObject(dbSession);
 
     }
 }

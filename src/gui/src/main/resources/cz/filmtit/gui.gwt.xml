@@ -23,10 +23,11 @@
   <!-- Specify the paths for translatable code                    -->
   <source path='client' />
   <source path='shared' />
-  <source path='share' />
+  <!--source path='share' / -->
 
   <!-- TODO: do we need this now? -->
   <inherits name="com.google.gwt.json.JSON" />
   <inherits name="com.google.gwt.http.HTTP" />
+  <inherits name="cz.filmtit.share" />
 
 </module>

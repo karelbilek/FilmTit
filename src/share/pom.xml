@@ -8,11 +8,26 @@
     <name>Shared classes by GUI and User Space</name>
     <groupId>cz.filmtit</groupId>
     <!--version>1.0</version-->
-
+    
     <parent>
         <artifactId>filmtit</artifactId>
         <groupId>cz.filmtit</groupId>
         <version>${filmtit.version}</version>
     </parent>
-
+    <build>
+    <plugins> 
+    <!--this is needed for GWT-->
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    </build>
 </project>
