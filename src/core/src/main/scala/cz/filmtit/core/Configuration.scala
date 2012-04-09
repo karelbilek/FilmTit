@@ -1,9 +1,10 @@
 package cz.filmtit.core
 
 import cz.filmtit.core.model.Language
-import model.annotation.{ChunkAnnotation, Name}
+import cz.filmtit.core.model.annotation.{ChunkAnnotation, Name}
 import java.io.File
 import scala.xml._
+import collection.mutable.{HashMap, ListBuffer}
 
 /**
  * Configuration file for the external files and databases required by the TM.
@@ -23,16 +24,16 @@ object Configuration {
 
   //Named entity recognition:
   val modelPath: String = (XMLFile \ "model_path").text
-  val neRecognizers: Map[Language, List[Pair[ChunkAnnotation, String]]] = Map(
-    Language.en -> List(
-      (Name.Person,       modelPath+"en-ner-person.bin"),
-      (Name.Place,        modelPath+"en-ner-location.bin"),
-      (Name.Organization, modelPath+"en-ner-organization.bin")
-    ),
-    Language.cs -> List(
+  val neRecognizers = HashMap[Language, List[Pair[ChunkAnnotation, String]]]()
 
-    )
-  )
+  //Read the NER models and them by their language
+  (XMLFile \ "ner_models" \ "ner_model") foreach( ner_model => {
+    val language_code = Language.fromCode( (ner_model \ "@language").text )
+    val updated_models = neRecognizers.getOrElse(
+      language_code, List[Pair[ChunkAnnotation, String]]()
+    ) ++ List(Pair(ChunkAnnotation.fromName( (ner_model \ "@type").text ), modelPath + ner_model.text))
+    neRecognizers.update(language_code, updated_models)
+  })
 
   //Indexing:
   private val importXML = XMLFile \ "import"

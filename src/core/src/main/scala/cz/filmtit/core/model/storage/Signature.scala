@@ -51,7 +51,7 @@ object Signature {
     val sig = new Signature(signature)
     if (!annotations.equals(""))
       sig.annotations ++= annotations.split(",").sliding(3) map {
-        (a => (ChunkAnnotation.fromID(a(0)).get, a(1).toInt, a(2).toInt))
+        (a => (ChunkAnnotation.fromID(a(0)), a(1).toInt, a(2).toInt))
       }
 
     sig

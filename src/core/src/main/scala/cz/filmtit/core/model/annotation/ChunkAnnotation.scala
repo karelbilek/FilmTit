@@ -14,7 +14,18 @@ class ChunkAnnotation(val name: String, val id: String) {
 
 
 object ChunkAnnotation {
-  val types = new HashMap[String, ChunkAnnotation]()
+
+  /**
+   * Get the ChunkAnnotation corresponding to the unique
+   * identifier.
+   */
+  val fromID = new HashMap[String, ChunkAnnotation]()
+
+  /**
+   * Get the ChunkAnnotation corresponding to the unique
+   * name.
+   */
+  val fromName = new HashMap[String, ChunkAnnotation]()
 
   /**
    * Instantiate new ChunkAnnotation. All ChunkAnnotation
@@ -27,16 +38,13 @@ object ChunkAnnotation {
    */
   def apply(name: String, id: String): ChunkAnnotation = {
     val ann = new ChunkAnnotation(name, id)
-    types.put(id, ann)
+    fromID.put(id, ann)
+    fromName.put(name, ann)
     ann
   }
 
-  /**
-   * Get the ChunkAnnotation corresponding to the unique
-   * identifier.
-   *
-   * @param id unique identifier for the annotation
-   * @return
-   */
-  def fromID(id: String) = types.get(id)
+
+  //HACK, all names must be initialized to be able to query
+  //them with fromID, fromName
+  Name.Person
 }

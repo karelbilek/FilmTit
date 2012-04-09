@@ -1,18 +1,30 @@
 <configuration>
 
-  <database>
-    <connector>jdbc:postgresql://localhost/filmtit</connector>
-    <user>postgres</user>
-    <password>postgres</password>
-  </database>
-  <model_path>/filmtit/models/</model_path>
+    <database>
+        <connector>jdbc:postgresql://localhost/filmtit</connector>
+        <user>postgres</user>
+        <password>postgres</password>
+    </database>
 
-  <import>
-      <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
-      <heldout>
-        <size>0.02</size>
-        <path>/filmtit/heldout.csv</path>
-      </heldout>
-  </import>
+    <model_path>/filmtit/models/</model_path>
+    <ner_models>
+        <!-- English -->
+        <ner_model language="en" type="Person">en-ner-person.bin</ner_model>
+        <ner_model language="en" type="Place">en-ner-location.bin</ner_model>
+        <ner_model language="en" type="Organization">en-ner-organization.bin</ner_model>
+
+        <!-- Czech -->
+        <ner_model language="cs" type="Person">cs-ner-person.bin</ner_model>
+        <ner_model language="cs" type="Place">cs-ner-place.bin</ner_model>
+        <ner_model language="cs" type="Organization">cs-ner-organization.bin</ner_model>
+    </ner_models>
+
+    <import>
+        <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
+        <heldout>
+            <size>0.02</size>
+            <path>/filmtit/heldout.csv</path>
+        </heldout>
+    </import>
 
 </configuration>
