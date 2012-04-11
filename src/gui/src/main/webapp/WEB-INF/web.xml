@@ -16,6 +16,16 @@
     <url-pattern>/gui/greet</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>FilmTitServiceImpl</servlet-name>
+    <servlet-class>cz.filmtit.server.FilmTitServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>FilmTitServiceImpl</servlet-name>
+    <url-pattern>/gui/filmtit</url-pattern>
+  </servlet-mapping>
+
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>gui.html</welcome-file>

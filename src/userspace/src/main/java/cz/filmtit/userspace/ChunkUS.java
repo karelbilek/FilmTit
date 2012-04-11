@@ -54,6 +54,10 @@ public class ChunkUS extends DatabaseObject {
         chunk = c;
     }
     
+    public Chunk getChunk() {
+        return chunk;
+    }
+    
     public int hashCode() {
         return chunk.hashCode();
     }    
