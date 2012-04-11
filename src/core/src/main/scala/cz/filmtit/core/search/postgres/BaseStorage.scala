@@ -7,8 +7,8 @@ import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.model.{TranslationSource, Language}
 import java.sql.{SQLException, DriverManager}
-import collection.mutable.HashSet
 import com.google.common.hash.{Funnels, BloomFilter}
+import collection.mutable.{HashMap, HashSet}
 
 
 /**
@@ -87,7 +87,7 @@ with MediaStorage {
    * The following two data structures are only used for indexing, hence
    * they are lazy and are not initialized in read-only mode.
    */
-  private lazy val pairsInDatabase: BloomFilter[java.lang.CharSequence] = BloomFilter.create(Funnels.stringFunnel(), Configuration.expectedNumberOfTranslationPairs)
+  private lazy val pairIDCache: HashMap[String, Long] = HashMap[String, Long]()
   private lazy val pairMediaSourceMappings: HashSet[Pair[Long, Long]] = HashSet[Pair[Long, Long]]()
 
   private lazy val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
@@ -110,37 +110,15 @@ with MediaStorage {
 
   }
 
-
-  private lazy val pairIDStmt = connection.prepareStatement("SELECT * FROM %s WHERE chunk_l1 = ? AND chunk_l2 = ? LIMIT 1;".format(pairTable))
-
   /**
    * Search for the translation pair in the database and return its
-   * ID if it is present. This method is slow, it should only
-   * be used while indexing!
+   * ID if it is present.
    *
    * @param translationPair the translation pair to be looked up
    * @return
    */
-  private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] = {
-
-    if ( pairsInDatabase.mightContain( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) ) ) {
-      // The translation pair might already be in the database, check if this is
-      // true and return its pair_id if it is there.
-
-      pairIDStmt.setString(1, translationPair.chunkL1.surfaceform)
-      pairIDStmt.setString(2, translationPair.chunkL2.surfaceform)
-      pairIDStmt.execute()
-
-      if (pairIDStmt.getResultSet.next()) {
-        Some(pairIDStmt.getResultSet.getLong("pair_id"))
-      }else{
-        None
-      }
-    } else {
-      None
-    }
-
-  }
+  private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] =
+    pairIDCache.get("%s-%s".format(translationPair.chunkL1, translationPair.chunkL2))
 
 
   /**
@@ -164,20 +142,25 @@ with MediaStorage {
       try {
 
         val pairID = pairIDInDatabase(translationPair) match {
+
+          //Normal case: there is no equivalent translation pair in the database
           case None => {
-            //Normal case: there is no equivalent translation pair in the database
 
             inStmt.setString(1, translationPair.chunkL1)
             inStmt.setString(2, translationPair.chunkL2)
             inStmt.execute()
 
-            //Remember that we already put it into the database
-            pairsInDatabase.put( "%s-%s".format(translationPair.chunkL1, translationPair.chunkL2) )
-
             //Get the pair_id of the new translation pair
             inStmt.getResultSet.next()
-            inStmt.getResultSet.getLong("pair_id")
+            val newPairID = inStmt.getResultSet.getLong("pair_id")
+
+            //Remember that we already put it into the database
+            pairIDCache.put("%s-%s".format(translationPair.chunkL1, translationPair.chunkL2), newPairID)
+
+            newPairID
           }
+
+          //It is already there
           case Some(existingPairID) => {
             //Special case: there is an equivalent translation pair in the database,
             upStmt.setLong(1, existingPairID)
