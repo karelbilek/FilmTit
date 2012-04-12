@@ -89,8 +89,8 @@ object Import {
 
           //Read all pairs from the file and convert them to translation pairs
           val pairs = Source.fromFile(sourceFile).getLines()
-            .map( TranslationPair.fromString(_) )
-            .filter( _ != null )
+            .map( TranslationPair.maybeFromString(_) )
+            .flatten
             .map( { pair => pair.setMediaSource(mediaSource); pair } )
 
           //Exclude heldoutSize% of the data as heldout data

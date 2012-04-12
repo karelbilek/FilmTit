@@ -48,6 +48,19 @@ class TranslationPair(
 
 object TranslationPair {
 
+  def maybeFromString(string:String) = {
+    if (string contains '\0') {
+        None
+    } else {
+        val original = fromString(string)
+        if (original == null) {
+            None
+        } else {
+            Some(original)
+        }
+    }
+  }
+
   implicit def fromString(string: String): TranslationPair = {
     val splitString = string.trim().split("\t")
 
