@@ -1,10 +1,5 @@
 # FilmTit How-To
 
-## Configuration
-
-For the configuration, please see the configuration.xml file.
-
-
 ## Initial import
 
 To run an initial import of the data run
