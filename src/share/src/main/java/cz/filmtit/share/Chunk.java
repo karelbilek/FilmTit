@@ -1,8 +1,10 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Chunk {
+
+public class Chunk implements Serializable {
     public String startTime;
     public String endTime;
     public String text;

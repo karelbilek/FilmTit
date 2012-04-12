@@ -4,13 +4,21 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.cellview.client.CellBrowser;
+import cz.filmtit.share.Chunk;
 
 /**
  * Entry point for the FilmTit GWT web application,
@@ -24,6 +32,12 @@ public class gui implements EntryPoint {
 
 	private SubtitleList sublist;
 
+	private FilmTitServiceAsync filmTitSvc = GWT.create(FilmTitService.class);
+	
+	TextBox txtbxText;
+	Label translation;
+
+	
 	@Override
 	public void onModuleLoad() {
 		/*
@@ -156,6 +170,63 @@ public class gui implements EntryPoint {
 		cellBrowser.setSize("100%", "100px");
 		rootPanel.add(cellBrowser, 10, 219);
 		// --- end of CellBrowser interface --- //
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			txtbxText = new TextBox();
+			txtbxText.setText("hi");
+			rootPanel.add(txtbxText, 17, 25);
+			
+			Button btnTranslate = new Button("Translate");
+			btnTranslate.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					// handling todleto
+					if (filmTitSvc == null) {
+						filmTitSvc = GWT.create(FilmTitService.class);
+					}
+					
+					AsyncCallback<Chunk> callback = new AsyncCallback<Chunk>() {
+						
+						public void onSuccess(Chunk result) {
+							translation.setText(result.userTranslation);
+						}
+						
+						public void onFailure(Throwable caught) {
+							Window.alert(caught.getLocalizedMessage());
+						}
+					};
+					
+					Chunk chunk = new Chunk();
+					chunk.text = txtbxText.getText();
+					filmTitSvc.suggestions(chunk, callback);
+					
+				}
+			});
+			rootPanel.add(btnTranslate, 57, 73);
+			
+			translation = new Label("");
+			rootPanel.add(translation, 30, 129);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 
 	}	// onModuleLoad()
