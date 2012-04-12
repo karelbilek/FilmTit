@@ -108,11 +108,11 @@ object Import {
 
 
   def main(args: Array[String]) {
-    loadSubtitleMapping(new File(args(0)))
+    loadSubtitleMapping(Configuration.fileMediasourceMapping)
     System.err.println("Loaded subtitle -> movie mapping")
 
     val tm = Factory.createTM(readOnly = false)
-    loadChunks(tm, new File(args(1)))
+    loadChunks(tm, Configuration.dataFolder)
 
   }
 

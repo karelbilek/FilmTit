@@ -128,14 +128,14 @@ with MediaStorage {
    *
    * @param translationPairs a Traversable of translation pairs
    */
-  def add(translationPairs: TraversableOnce[TranslationPair]) {
+  def addVerbose(translationPairs: TraversableOnce[TranslationPair], autoCommit: Boolean = false) {
 
     val inStmt = connection.prepareStatement(("INSERT INTO %s (chunk_l1, chunk_l2, count) VALUES (?, ?, 1) RETURNING pair_id;").format(pairTable))
     val upStmt = connection.prepareStatement(("UPDATE %s SET count = count + 1 WHERE pair_id = ?;").format(pairTable))
 
     //Important for performance: Only commit after all INSERT statements are
     //executed:
-    connection.setAutoCommit(false)
+    connection.setAutoCommit(autoCommit)
 
     System.err.println("Writing translation pairs to database...")
     translationPairs foreach { translationPair => {
@@ -173,16 +173,34 @@ with MediaStorage {
         addMediaSourceForChunk(pairID, translationPair.mediaSources(0).id)
       } catch {
         case e: SQLException => {
-          e.printStackTrace()
-          System.err.println("Skipping translation pair due to database error: " + translationPair)
+          if (!autoCommit) {
+            System.err.println("Database error in current batch, switching to auto-commit mode. ");
+            connection.rollback()
+            addVerbose(translationPairs, autoCommit=true)
+            return;
+          } else {
+            System.err.println("Single insert failed, skipping it..." + translationPair);
+          }
+
         }
       }
     }
-    }
+  }
 
     //Commit the changes to the database:
-    connection.commit()
+    if (!autoCommit)
+      connection.commit()
   }
+
+ /**
+   * This is the only place where {TranslationPair}s are actually
+   * added to the database. All subclasses of BaseStorage work with the
+   * translation pairs that were added to the database by this method.
+   *
+   * @param translationPairs a Traversable of translation pairs
+   */
+  def add(translationPairs: TraversableOnce[TranslationPair]) = addVerbose(translationPairs)
+
 
 
   /**

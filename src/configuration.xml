@@ -20,6 +20,9 @@
     </ner_models>
 
     <import>
+        <data_folder>/filmtit/data/utf8</data_folder>
+        <file_mediasource_mapping>/filmtit/data/export_final.txt</file_mediasource_mapping>
+
         <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
         <heldout>
             <size>0.02</size>

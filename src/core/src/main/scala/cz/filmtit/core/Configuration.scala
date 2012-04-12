@@ -37,6 +37,11 @@ object Configuration {
 
   //Indexing:
   private val importXML = XMLFile \ "import"
+
+
+  val dataFolder = new File((importXML \ "data_folder").text)
+  val fileMediasourceMapping = new File((importXML \ "file_mediasource_mapping").text)
+
   val expectedNumberOfTranslationPairs = (importXML \ "expected_number_of_translationpairs").text.toInt
 
   private val heldoutXML = importXML \ "heldout"
