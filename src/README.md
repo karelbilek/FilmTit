@@ -17,3 +17,9 @@ from /filmtit/data/ (to change this directory, see the Makefile) and queries
 the IMDB API for more information. The reindex part initializes the indexes
 that are required by the TM. This part is separate so that the pairs don't have
 to be re-imported after a change to the TM.
+
+
+## Configuration
+
+All configuration should be done in configuration.xml. This file also includes
+the path of the initial data import.
