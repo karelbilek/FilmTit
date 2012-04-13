@@ -8,7 +8,8 @@ import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
 import scala.util.Random
 import cz.filmtit.core.{Configuration, Factory}
-import java.io.{PrintWriter, IOException, File}
+import java.io._
+import java.nio.charset.MalformedInputException
 
 
 /**
@@ -45,6 +46,13 @@ object Import {
   var hit = 0
   var miss = 0
 
+  val imdbCache = if( Configuration.importIMDBCache.exists() ) {
+    System.err.println("Reading cached IMDB database from file...")
+    new ObjectInputStream(new FileInputStream(Configuration.importIMDBCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
+  } else {
+    HashMap[String, MediaSource]()
+  }
+  System.err.println("IMDB cache contains %d elements...".format(imdbCache.size))
 
   /**
    * Get the MediaSource with additional information on the movie/TV show
@@ -54,7 +62,7 @@ object Import {
    * @return
    */
   def loadMediaSource(id: String): MediaSource = subtitles.get(id) match {
-    case Some(mediaSource) => MediaSource.fromIMDB(mediaSource.title, mediaSource.year)
+    case Some(mediaSource) => MediaSource.fromIMDB(mediaSource.title, mediaSource.year, cache=imdbCache)
     case None => throw new IOException("No movie found in the DB!")
   }
 
@@ -71,7 +79,7 @@ object Import {
     val heldoutWriter = new PrintWriter(Configuration.heldoutFile)
 
     System.err.println("Processing files:")
-    folder.listFiles filter(_.getName.endsWith(".txt")) grouped(100) foreach(
+    folder.listFiles filter(_.getName.endsWith(".txt")) grouped( Configuration.importBatchSize ) foreach(
       (files: Array[File])=> tm.add(
         files flatMap ( (sourceFile: File) => {
 
@@ -80,30 +88,40 @@ object Import {
 
           System.err.println( "- %s: %s, %s, %s"
             .format(sourceFile.getName, mediaSource.title, mediaSource.year,
-              if (mediaSource.genres.size > 0)
-                mediaSource.genres.toString()
-              else
-                "Could not retrieve additional information"
-            )
+            if (mediaSource.genres.size > 0)
+              mediaSource.genres.toString()
+            else
+              "Could not retrieve additional information"
+          )
           )
 
           //Read all pairs from the file and convert them to translation pairs
-          val pairs = Source.fromFile(sourceFile).getLines()
-            .map( TranslationPair.maybeFromString(_) )
-            .flatten
-            .map( { pair => pair.setMediaSource(mediaSource); pair } )
+          try {
+            val pairs = Source.fromFile(sourceFile).getLines()
+              .map( TranslationPair.maybeFromString(_) )
+              .flatten
+              .map( { pair => pair.setMediaSource(mediaSource); pair } )
 
-          //Exclude heldoutSize% of the data as heldout data
-          val (training, heldout) =
-            pairs.toList.partition(_ => !(Random.nextFloat() < Configuration.heldoutSize) )
+            //Exclude heldoutSize% of the data as heldout data
+            val (training, heldout) =
+              pairs.toList.partition(_ => !(Random.nextFloat() < Configuration.heldoutSize) )
 
-          heldout.foreach( pair => heldoutWriter.println(pair.toExternalString) )
+            heldout.foreach( pair => heldoutWriter.println(pair.toExternalString) )
 
-          training
+            training
+          } catch {
+            case e: MalformedInputException => {
+              System.err.println("Error: Could not read file %s".format(sourceFile))
+              List()
+            }
+          }
         }))
       )
 
     heldoutWriter.close()
+
+    System.err.println("Writing cached IMDB database to file...")
+    new ObjectOutputStream(new FileOutputStream(Configuration.importIMDBCache)).writeObject(imdbCache)
   }
 
 

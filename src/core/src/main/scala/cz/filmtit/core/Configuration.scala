@@ -40,6 +40,9 @@ object Configuration {
 
 
   val dataFolder = new File((importXML \ "data_folder").text)
+  val importBatchSize = (importXML \ "batch_size").text.toInt
+  val importIMDBCache = new File((importXML \ "imdb_cache").text)
+
   val fileMediasourceMapping = new File((importXML \ "file_mediasource_mapping").text)
 
   val expectedNumberOfTranslationPairs = (importXML \ "expected_number_of_translationpairs").text.toInt

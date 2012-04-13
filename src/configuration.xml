@@ -20,8 +20,11 @@
     </ner_models>
 
     <import>
-        <data_folder>/filmtit/data/utf8</data_folder>
+        <data_folder>/filmtit/data/utf8_broken</data_folder>
         <file_mediasource_mapping>/filmtit/data/export_final.txt</file_mediasource_mapping>
+        <batch_size>100</batch_size>
+        <imdb_cache>/filmtit/data/imdb_cache</imdb_cache>
+
 
         <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
         <heldout>

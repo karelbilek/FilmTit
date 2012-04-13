@@ -180,6 +180,7 @@ with MediaStorage {
             return;
           } else {
             System.err.println("Single insert failed, skipping it..." + translationPair);
+            e.printStackTrace()
           }
 
         }

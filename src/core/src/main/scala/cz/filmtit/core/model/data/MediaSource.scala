@@ -1,8 +1,8 @@
 package cz.filmtit.core.model.data
 
-import collection.mutable.HashSet
 import org.json.JSONObject
 import cz.filmtit.core.io.data.IMDB
+import collection.mutable.{HashMap, HashSet}
 
 
 /**
@@ -11,7 +11,7 @@ import cz.filmtit.core.io.data.IMDB
  * @author Joachim Daiber
  */
 
-class MediaSource(val title: String, val year: String, var genres: HashSet[String]) {
+class MediaSource(val title: String, val year: String, var genres: HashSet[String]) extends Serializable{
 
   var id: Long = _
 
@@ -28,12 +28,27 @@ class MediaSource(val title: String, val year: String, var genres: HashSet[Strin
 
 object MediaSource {
 
-  def fromIMDB(title: String, year: String): MediaSource = {
+  def fromIMDBAPI(title: String, year: String): MediaSource = {
     try {
       val imdbInfo: JSONObject = IMDB.query(title, year)
       new MediaSource(title, year, imdbInfo.getString("Genre"))
     } catch {
       case e: Exception => new MediaSource(title, year)
+    }
+  }
+
+  def fromIMDB(title: String, year: String, cache: HashMap[String, MediaSource] = null): MediaSource = {
+    if (cache != null) {
+      cache.get( (title, year).toString() ) match {
+        case Some(ms) => ms
+        case None => {
+          val ms = fromIMDBAPI(title, year)
+          cache.put( (title, year).toString(), ms)
+          ms
+        }
+      }
+    } else {
+      fromIMDBAPI(title, year)
     }
   }
 
