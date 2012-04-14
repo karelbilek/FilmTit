@@ -5,7 +5,7 @@
     <properties>
         <filmtit.version>0.1</filmtit.version>
 
-        <heapspace.Xmx.compiler>-Xmx2g</heapspace.Xmx.compiler>
+        <heapspace.Xmx.compiler>-Xmx200m</heapspace.Xmx.compiler>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.compiler.version>1.6</java.compiler.version>
@@ -70,7 +70,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
-                    <argLine>-Xmx2G -Xms512m</argLine>
+                    <argLine>-Xmx1G -Xms512m</argLine>
                     <useFile>true</useFile>
                     <disableXmlReport>true</disableXmlReport>
                     <includes>

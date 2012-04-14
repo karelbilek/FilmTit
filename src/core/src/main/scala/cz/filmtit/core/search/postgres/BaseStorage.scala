@@ -182,7 +182,6 @@ with MediaStorage {
         case e: SQLException => {
           if (!autoCommit) {
             System.err.println("Database error in current batch, switching to auto-commit mode. ");
-            connection.rollback()
             addVerbose(translationPairs, autoCommit=true)
             return;
           } else {
@@ -194,6 +193,9 @@ with MediaStorage {
       }
     }
   }
+
+    System.err.println("Clearing pair<->MS set.");
+    pairMediaSourceMappings.clear()
 
     //Commit the changes to the database:
     if (!autoCommit)
