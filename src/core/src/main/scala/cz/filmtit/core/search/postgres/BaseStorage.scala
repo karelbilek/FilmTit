@@ -200,7 +200,9 @@ with MediaStorage {
    *
    * @param translationPairs a Traversable of translation pairs
    */
-  def add(translationPairs: TraversableOnce[TranslationPair]) = addVerbose(translationPairs)
+  def add(translationPairs: TraversableOnce[TranslationPair]) {
+    addVerbose(translationPairs)
+  }
 
 
 

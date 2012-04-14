@@ -28,7 +28,7 @@ class MediaSource(val title: String, val year: String, var genres: HashSet[Strin
 
 object MediaSource {
 
-  def fromIMDBAPI(title: String, year: String): MediaSource = {
+  def fromIMD(title: String, year: String): MediaSource = {
     try {
       val imdbInfo: JSONObject = IMDB.query(title, year)
       new MediaSource(title, year, imdbInfo.getString("Genre"))
@@ -37,7 +37,7 @@ object MediaSource {
     }
   }
 
-  def fromIMDB(title: String, year: String, cache: HashMap[String, MediaSource] = null): MediaSource = {
+  def fromCachedIMDB(title: String, year: String, cache: HashMap[String, MediaSource]): MediaSource = {
     if (cache != null) {
       cache.get( (title, year).toString() ) match {
         case Some(ms) => ms

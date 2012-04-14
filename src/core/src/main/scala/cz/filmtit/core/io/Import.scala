@@ -46,7 +46,12 @@ object Import {
   var hit = 0
   var miss = 0
 
-  val imdbCache = if( Configuration.importIMDBCache.exists() ) {
+  def writeIMDBCache() {
+    System.err.println("Writing cached IMDB database to file...")
+    new ObjectOutputStream(new FileOutputStream(Configuration.importIMDBCache)).writeObject(imdbCache)
+  }
+
+  var imdbCache = if( Configuration.importIMDBCache.exists() ) {
     System.err.println("Reading cached IMDB database from file...")
     new ObjectInputStream(new FileInputStream(Configuration.importIMDBCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
   } else {
@@ -62,7 +67,7 @@ object Import {
    * @return
    */
   def loadMediaSource(id: String): MediaSource = subtitles.get(id) match {
-    case Some(mediaSource) => MediaSource.fromIMDB(mediaSource.title, mediaSource.year, cache=imdbCache)
+    case Some(mediaSource) => MediaSource.fromCachedIMDB(mediaSource.title, mediaSource.year, imdbCache)
     case None => throw new IOException("No movie found in the DB!")
   }
 
@@ -78,9 +83,12 @@ object Import {
     tm.reset()
     val heldoutWriter = new PrintWriter(Configuration.heldoutFile)
 
+    var finishedFiles = 0
+
     System.err.println("Processing files:")
-    folder.listFiles filter(_.getName.endsWith(".txt")) grouped( Configuration.importBatchSize ) foreach(
-      (files: Array[File])=> tm.add(
+    val inputFiles = folder.listFiles filter(_.getName.endsWith(".txt"))
+    inputFiles grouped( Configuration.importBatchSize ) foreach(
+      (files: Array[File])=> { tm.add(
         files flatMap ( (sourceFile: File) => {
 
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
@@ -91,8 +99,7 @@ object Import {
             if (mediaSource.genres.size > 0)
               mediaSource.genres.toString()
             else
-              "Could not retrieve additional information"
-          )
+              "Could not retrieve additional information")
           )
 
           //Read all pairs from the file and convert them to translation pairs
@@ -116,12 +123,26 @@ object Import {
             }
           }
         }))
+        finishedFiles += files.size
+        System.err.println("Processed %d of %d files...".format(finishedFiles, inputFiles.size))
+
+        if ( finishedFiles % (Configuration.importBatchSize * 5) == 0 ) {
+          System.err.println("Doing some cleanup...")
+          writeIMDBCache()
+
+          val r = Runtime.getRuntime
+          System.err.println("Total memory is: " + r.totalMemory())
+          System.err.println("Free memory is: " +  r.freeMemory())
+          System.err.println("Running GC")
+          System.gc(); System.gc(); System.gc(); System.gc()
+          System.err.println("Free memory is: " +  r.freeMemory())
+        }
+      }
       )
 
     heldoutWriter.close()
 
-    System.err.println("Writing cached IMDB database to file...")
-    new ObjectOutputStream(new FileOutputStream(Configuration.importIMDBCache)).writeObject(imdbCache)
+    writeIMDBCache()
   }
 
 
