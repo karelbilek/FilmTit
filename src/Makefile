@@ -1,7 +1,7 @@
 import:
-	LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 mvn scala:run -Dlauncher=import -Dmaven.test.skip=true
+	cd core; ./import.sh
 
 reindex:
-	mvn scala:run -Dlauncher=reindex
+	cd core; ./reindex.sh
 
 .PHONY: import

@@ -30,35 +30,6 @@
                     </execution>
                 </executions>
 
-                <configuration>
-                    <launchers>
-
-
-                        <!-- Initial Import launcher -->
-                        <launcher>
-                            <id>import</id>
-                            <mainClass>cz.filmtit.core.io.Import</mainClass>
-
-                            <jvmArgs>
-                                <jvmArg>-Xmx2250m</jvmArg>
-                                <jvmArg>-Xms2250m</jvmArg>
-                            </jvmArgs>
-                        </launcher>
-
-
-                        <!-- Reindex launcher -->
-                        <launcher>
-                            <id>reindex</id>
-                            <mainClass>cz.filmtit.core.io.Reindex</mainClass>
-
-                            <jvmArgs>
-                                <jvmArg>-Xmx1800m</jvmArg>
-                                <jvmArg>-Xms1500m</jvmArg>
-                            </jvmArgs>
-                        </launcher>
-
-                    </launchers>
-                </configuration>
             </plugin>
 
         </plugins>

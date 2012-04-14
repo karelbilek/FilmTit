@@ -26,11 +26,14 @@
         <module>share</module>
         <module>eval</module>
         <module>core</module>
-        <module>gui</module>
   </modules>
 
     <build>
-
+        <resources>
+ <resource>
+         <directory>resources</directory>
+   </resource>
+ </resources>
         <plugins>
 
             <plugin>
