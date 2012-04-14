@@ -42,13 +42,13 @@ object MediaSource {
       cache.get( (title, year).toString() ) match {
         case Some(ms) => ms
         case None => {
-          val ms = fromIMDBAPI(title, year)
+          val ms = fromIMDB(title, year)
           cache.put( (title, year).toString(), ms)
           ms
         }
       }
     } else {
-      fromIMDBAPI(title, year)
+      fromIMDB(title, year)
     }
   }
 
