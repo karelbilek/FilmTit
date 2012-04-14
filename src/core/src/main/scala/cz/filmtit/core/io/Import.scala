@@ -131,11 +131,11 @@ object Import {
           writeIMDBCache()
 
           val r = Runtime.getRuntime
-          System.err.println("Total memory is: " + r.totalMemory())
-          System.err.println("Free memory is: " +  r.freeMemory())
+          System.err.println("Total memory is: %.2fMB".format(r.totalMemory() / 1024*1024))
+          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / 1024*1024))
           System.err.println("Running GC")
           System.gc(); System.gc(); System.gc(); System.gc()
-          System.err.println("Free memory is: " +  r.freeMemory())
+          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / 1024*1024))
         }
       }
       )

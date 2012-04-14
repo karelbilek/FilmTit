@@ -9,6 +9,7 @@ import cz.filmtit.core.model.{TranslationSource, Language}
 import java.sql.{SQLException, DriverManager}
 import com.google.common.hash.{Funnels, BloomFilter}
 import collection.mutable.{HashMap, HashSet}
+import gnu.trove.map.hash.TObjectLongHashMap
 
 
 /**
@@ -87,7 +88,7 @@ with MediaStorage {
    * The following two data structures are only used for indexing, hence
    * they are lazy and are not initialized in read-only mode.
    */
-  private lazy val pairIDCache: HashMap[String, Long] = HashMap[String, Long]()
+  private lazy val pairIDCache: TObjectLongHashMap[java.lang.String] = new TObjectLongHashMap[java.lang.String]()
   private lazy val pairMediaSourceMappings: HashSet[Pair[Long, Long]] = HashSet[Pair[Long, Long]]()
 
   private lazy val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
@@ -117,8 +118,14 @@ with MediaStorage {
    * @param translationPair the translation pair to be looked up
    * @return
    */
-  private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] =
-    pairIDCache.get("%s-%s".format(translationPair.chunkL1, translationPair.chunkL2))
+  private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] = {
+    val l: Long = pairIDCache.get("%s-%s".format(translationPair.chunkL1, translationPair.chunkL2))
+    if (l == 0) {
+      None
+    }else{
+      Some(l)
+    }
+  }
 
 
   /**
