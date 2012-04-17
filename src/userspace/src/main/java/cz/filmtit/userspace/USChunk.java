@@ -5,7 +5,9 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.model.data.ScoredTranslationPair;
 import cz.filmtit.share.Chunk;
 import cz.filmtit.share.Match;
+import cz.filmtit.share.Translation;
 import org.hibernate.Session;
+import sun.nio.cs.ext.MacHebrew;
 
 import java.util.*;
 
@@ -13,11 +15,11 @@ import java.util.*;
  * Represents a subtitle chunk.
  * @author Jindřich Libovický
  */
-public class ChunkUS extends DatabaseObject {
-    private Long documentDatabaseId;
+public class USChunk extends DatabaseObject {
+    private long documentDatabaseId;
     private Chunk chunk;
-    private DocumentUS parent;
-    private List<MatchUS> matches;
+    private USDocument parent;
+    private List<USMatch> matches;
 
     /**
      * Creates a new chunk of given properties. ... porably never needed ???
@@ -26,7 +28,7 @@ public class ChunkUS extends DatabaseObject {
      * @param endTime
      * @param text
      */
-    public ChunkUS(Long documentDatabaseId, String startTime, String endTime, String text) {
+    public USChunk(long documentDatabaseId, String startTime, String endTime, String text) {
         this.documentDatabaseId = documentDatabaseId;
         chunk = new Chunk();
 
@@ -39,7 +41,7 @@ public class ChunkUS extends DatabaseObject {
     /**
      * Default constructor for Hibernate.
      */
-    public ChunkUS() {
+    public USChunk() {
         chunk = new Chunk();
     }
 
@@ -50,11 +52,11 @@ public class ChunkUS extends DatabaseObject {
      * wrapping the contained translations are created when necessary.
      * @param c
      */
-    public ChunkUS(Chunk c) {
+    public USChunk(Chunk c) {
         chunk = c;
     }
     
-    public Chunk getChunk() {
+    public Chunk getSharedChunk() {
         return chunk;
     }
     
@@ -64,14 +66,14 @@ public class ChunkUS extends DatabaseObject {
     
     public boolean equals(Object obj) {
         if (obj.getClass() != this.getClass()) { return false; }
-        return  chunk.equals(((ChunkUS)obj).chunk);
+        return  chunk.equals(((USChunk)obj).chunk);
     }
 
-    public Long getDocumentDatabaseId() {
+    public long getDocumentDatabaseId() {
         return documentDatabaseId;
     }
 
-    public void setDocumentDatabaseId(Long documentDatabaseId) {
+    public void setDocumentDatabaseId(long documentDatabaseId) {
         this.documentDatabaseId = documentDatabaseId;
     }
 
@@ -125,28 +127,43 @@ public class ChunkUS extends DatabaseObject {
         chunk.partNumber = partNumber;
     }
 
+    public List<USMatch> getMatches() {
+        // create it if it does not exist
+        if (matches == null && chunk.matches != null) {
+            List<USMatch> newMatches = new ArrayList<USMatch>();
+            for (Match m : chunk.matches) {
+                USMatch newMatch =  new USMatch(m);
+                newMatch.setChunkDatabaseId(getDatabaseId());
+                newMatches.add(newMatch);
+            }
+
+            matches = Collections.synchronizedList(newMatches);
+        }
+        return matches;
+    }
+
     public void loadMatchesFromDatabase(Session dbSession) {
         // query the matches from the database
-        List foundMatches = dbSession.createQuery("select m from Matches where m.chunkId = :cid")
+        List foundMatches = dbSession.createQuery("select m from USMatch m where m.chunkDatabaseId = :cid")
                 .setParameter("cid", getDatabaseId()).list();
         
         // store them in this object and also in the shared chunk object
-        List<MatchUS> newMatches = new ArrayList<MatchUS>();
+        List<USMatch> newMatches = new ArrayList<USMatch>();
         chunk.matches = new ArrayList<Match>();
         for (Object m : foundMatches) {
-            newMatches.add((MatchUS)m);
-            chunk.matches.add(((MatchUS)m).getSharedMatch());
+            newMatches.add((USMatch)m);
+            chunk.matches.add(((USMatch)m).getSharedMatch());
         }
         matches = Collections.synchronizedList(newMatches);
 
         // once the matches are loaded, load translations for them
-        for (MatchUS m : matches) {
+        for (USMatch m : matches) {
             m.loadTranslationsFromDatabase(dbSession);
         }
     }
 
     public void loadMTSuggestions() {
-        // TODO: Parallelize this method
+        // TODO: Make this method parallel
 
         cz.filmtit.core.model.data.Chunk tmChunk = new cz.filmtit.core.model.data.Chunk(chunk.text);
         TranslationMemory TM = Factory.createTM(true);
@@ -160,21 +177,23 @@ public class ChunkUS extends DatabaseObject {
                 scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
 
         // table of matched string and corresponding translations
-        Map<String, List<TranslationUS>> matchesTable = new HashMap<String, List<TranslationUS>>();
+        Map<String, List<Translation>> matchesTable = new HashMap<String, List<Translation>>();
         for(ScoredTranslationPair pair : javaList) {
             // if a match does not exist, create its entry
             if (matchesTable.get(pair.getStringL1()) == null) {
-                matchesTable.put(pair.getStringL1(), new ArrayList<TranslationUS>());
+                matchesTable.put(pair.getStringL1(), new ArrayList<Translation>());
             }
-            matchesTable.get(pair.getStringL1()).add(new TranslationUS(pair.getStringL1(), pair.getScore()));
+            matchesTable.get(pair.getStringL1()).add(new Translation(pair.getStringL1(), pair.getScore()));
         }
 
         // creates the match objects
-        List<MatchUS> newMatches = new ArrayList<MatchUS>();
+        List<USMatch> newMatches = new ArrayList<USMatch>();
         for (String matchString : matchesTable.keySet()) {
-            newMatches.add(new MatchUS(matchString, matchesTable.get(matchString)));
+            Match newMatch = new Match();
+            newMatch.text = matchString;
+            newMatch.translations = matchesTable.get(matchString);
+            chunk.matches.add(newMatch);
         }
-        matches = Collections.synchronizedList(newMatches); // throws away previous matches if there were any
     }
 
     public void renewMTSuggestions() {
@@ -194,17 +213,18 @@ public class ChunkUS extends DatabaseObject {
      * (In case of regenerating translations or deleting the chunk.)
      */
     void deleteMatches(Session dbSession) {
-        for (MatchUS match : matches) {
+        for (USMatch match : getMatches()) {
             match.deleteFromDatabase(dbSession);
         }
         matches = null;
+        chunk.matches = new ArrayList<Match>();
     }
 
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
 
         // save or update also all dependent matches
-        for (MatchUS match : matches) {
+        for (USMatch match : getMatches()) {
             match.saveToDatabase(dbSession);
         }
     }

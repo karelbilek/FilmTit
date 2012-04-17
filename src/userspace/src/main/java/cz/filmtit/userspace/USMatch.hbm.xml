@@ -5,14 +5,14 @@
 
 <hibernate-mapping package="cz.filmtit.userspace">
 
-    <class name="Match" table="Matches">
+    <class name="USMatch" table="Matches">
         <id name="databaseId" type="long" column="Id">
             <generator class="native"/>
         </id>
 
         <!-- name, type, column -->
-        <property name="match" type="java.lang.String" column="text"/>
-        <property name="chunkDatabaseId" type="long" column="documentId" />
+        <property name="text" type="java.lang.String" column="text"/>
+        <property name="chunkDatabaseId" type="long" column="chunkId" />
     </class>
 
 </hibernate-mapping>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="cz.filmtit.userspace">
+
+    <class name="USChunk" table="Chunks">
+        <id name="databaseId" type="long" column="Id">
+            <generator class="native"/>
+        </id>
+
+        <!-- name, type, column -->
+        <property name="text" type="java.lang.String" column="text"/>
+        <property name="documentDatabaseId" type="long" column="documentId" />
+        <property name="startTime" type="java.lang.String" column="startTime" />
+        <property name="endTime" type="java.lang.String" column="endTime" />
+        <property name="partNumber" type="int" column="partNumber" />
+        <property name="userTranslation" type="java.lang.String" column="userTranslation" />
+        <!-- <property mame="done" type="boolean" column="done" /> -->
+    </class>
+
+</hibernate-mapping>

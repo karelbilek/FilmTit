@@ -22,29 +22,29 @@ import java.util.List;
  * Represents a subtitle file the user work with.
  * @author Jindřich Libovický
  */
-public class DocumentUS extends DatabaseObject {
+public class USDocument extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
     
-    public DocumentUS(String movieTitle, int year, Language language) {
+    public USDocument(String movieTitle, int year, Language language) {
         this.movieTitle = movieTitle;
         this.year = year;
         this.language = language;
         workStartTime = new Date().getTime();
         spentOnThisTime = 0;
-        chunks = new ArrayList<ChunkUS>();
+        chunks = new ArrayList<USChunk>();
     }
 
     /**
      * Default constructor (for Hibernate).
      */
-    public DocumentUS() {
+    public USDocument() {
     }
 
     private String movieTitle;
     private int year;
-    private List<ChunkUS> chunks;
+    private List<USChunk> chunks;
     private long workStartTime;
     private long spentOnThisTime;
     private Language language;
@@ -132,7 +132,7 @@ public class DocumentUS extends DatabaseObject {
     }
 
     /**
-     * Loads the chunks from UserUS Space database.
+     * Loads the chunks from USUser Space database.
      */
     public void loadChunksFromDb() {
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -142,21 +142,21 @@ public class DocumentUS extends DatabaseObject {
         List foundChunks = dbSession.createQuery("select c from Chunks where c.documentId = :did")
                 .setParameter("did", getDatabaseId()).list();
 
-        chunks = new ArrayList<ChunkUS>();
+        chunks = new ArrayList<USChunk>();
         for (Object o : foundChunks) {
-            chunks.add((ChunkUS)o);
+            chunks.add((USChunk)o);
         }
     
         dbSession.getTransaction().commit();
 
         // if the chunks have old translations, regenerate them
         if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
-            for (ChunkUS chunk : chunks) {
+            for (USChunk chunk : chunks) {
                 chunk.renewMTSuggestions(); // TODO: request separate DB transaction now, redo it
             }
         }
         else { // otherwise just load them from the database
-            for (ChunkUS chunk : chunks) {
+            for (USChunk chunk : chunks) {
                 chunk.loadMatchesFromDatabase(dbSession);
             }
         }
@@ -167,7 +167,7 @@ public class DocumentUS extends DatabaseObject {
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
 
-        for (ChunkUS chunk : chunks) {
+        for (USChunk chunk : chunks) {
             chunk.saveToDatabase(dbSession);
         }
     }

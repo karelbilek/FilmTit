@@ -20,12 +20,12 @@ import java.util.List;
  * Represents a user of the application
  * @author Jindřich Libovický
  */
-public class UserUS extends DatabaseObject {
+public class USUser extends DatabaseObject {
     private String name;
     private String passwordHash;
     private String fcbId;
-    private List<DocumentUS> ownedDocuments;
-    private DocumentUS activeDocument;
+    private List<USDocument> ownedDocuments;
+    private USDocument activeDocument;
     /**
      * Sign if the active document was created in the current session and therefore is not yet in the database.
      */
@@ -33,12 +33,12 @@ public class UserUS extends DatabaseObject {
 
     /**
      * Gets the list of documents owned by this user.
-     * @return List of DocumentUS objects
+     * @return List of USDocument objects
      */
-    public List<DocumentUS> getOwnedDocuments() {
+    public List<USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
         if (ownedDocuments == null) {
-            ownedDocuments = new ArrayList<DocumentUS>();
+            ownedDocuments = new ArrayList<USDocument>();
             org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
             session.beginTransaction();
 
@@ -47,7 +47,7 @@ public class UserUS extends DatabaseObject {
                     .setParameter("uid", getDatabaseId()).list();
 
             // store it to the variable
-            for (Object o : result) { ownedDocuments.add((DocumentUS)o); }
+            for (Object o : result) { ownedDocuments.add((USDocument)o); }
             
             session.getTransaction().commit();
         }
@@ -61,7 +61,7 @@ public class UserUS extends DatabaseObject {
 
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
-        for (DocumentUS document : ownedDocuments) {
+        for (USDocument document : ownedDocuments) {
             document.deleteFromDatabase(dbSession);
         }
     }

@@ -10,7 +10,7 @@ package cz.filmtit.userspace;
 import cz.filmtit.share.*;
 import org.hibernate.Session;
 
-public class TranslationUS extends DatabaseObject {
+public class USTranslation extends DatabaseObject {
 
     private Translation translation;
     /**
@@ -18,14 +18,14 @@ public class TranslationUS extends DatabaseObject {
      * to have a different connection to the predecessor because it's
      * never sent to the client without the whole chunk.
      */
-    private long matchDatabaseId = Long.MIN_VALUE;
+    private long matchDatabaseId = -1l ;
 
     /**
      * Creates the translation object of given score and text.
      * @param text Text of the translation.
      * @param score Rank of the translation from TM.
      */
-    public TranslationUS(String text, double score) {
+    public USTranslation(String text, double score) {
         translation = new Translation();
         translation.text = text;
         translation.score = score;
@@ -36,7 +36,7 @@ public class TranslationUS extends DatabaseObject {
      * object.
      * @param t
      */
-    public TranslationUS(Translation t) {
+    public USTranslation(Translation t) {
         translation = t;
     }
 
@@ -44,7 +44,7 @@ public class TranslationUS extends DatabaseObject {
      * Default constructor. Creates an uninitialized shared objects and expects
      * something (hibernate) to fill the fields using setters.
      */
-    public TranslationUS() {
+    public USTranslation() {
         translation = new Translation();
     }
 
@@ -71,7 +71,7 @@ public class TranslationUS extends DatabaseObject {
 
     public void setScore(double score) {
         if (translation.score == Double.MIN_VALUE) { translation.score = score; }
-        else { throw new UnsupportedOperationException("TranslationUS text can be set just once."); }
+        else { throw new UnsupportedOperationException("USTranslation text can be set just once."); }
     }
 
     public long getMatchDatabaseId() {
@@ -87,7 +87,7 @@ public class TranslationUS extends DatabaseObject {
     }
 
     public void saveToDatabase(Session session) {
-        if (matchDatabaseId == Long.MIN_VALUE) {
+        if (matchDatabaseId == -1l ) {
             throw(new IllegalStateException("The database ID of the parent match must be set" +
                     " before saving the object to database."));
         }

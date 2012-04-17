@@ -2,8 +2,8 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.userspace.DatabaseObject;
 import cz.filmtit.userspace.HibernateUtil;
-import cz.filmtit.userspace.MatchUS;
-import cz.filmtit.userspace.TranslationUS;
+import cz.filmtit.userspace.USMatch;
+import cz.filmtit.userspace.USTranslation;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,11 +15,10 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class TestMatchUS {
+public class TestUSMatch {
     @BeforeClass
-    public static void setDatabase() throws NoSuchFieldException, 
-        IllegalAccessException {
-        TestTranslationUS.setDatabase();
+    public static void setDatabase() throws NoSuchFieldException, IllegalAccessException {
+        DatabaseUtil.setDatabase();
     }
 
     /**
@@ -28,7 +27,7 @@ public class TestMatchUS {
     @Test
     public void testLoadFromDatabase() {
         // first create a sample match
-        MatchUS match = new MatchUS();
+        USMatch match = new USMatch();
         match.setChunkDatabaseId(1l);
         match.setText("This is a match.");
 
@@ -47,8 +46,8 @@ public class TestMatchUS {
         org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List<TranslationUS> sampleTranslations = generateSampleTranslations();
-        for (TranslationUS translation : sampleTranslations) {
+        List<USTranslation> sampleTranslations = generateSampleTranslations();
+        for (USTranslation translation : sampleTranslations) {
             translation.setMatchDatabaseId(match.getDatabaseId());
             translation.saveToDatabase(session);
         }
@@ -65,7 +64,7 @@ public class TestMatchUS {
         
         assertTrue(match.getTranslations().size() == 4);
         for (int i = 0; i < 4; ++i) {
-            TestTranslationUS.translationsEqual(match.getTranslations().get(i),
+            TestUSTranslation.translationsEqual(match.getTranslations().get(i),
                     sampleTranslations.get(i));
         }
     }
@@ -74,11 +73,11 @@ public class TestMatchUS {
      * Generates a list of sample translations for test.
      * @return List of sample translations.
      */
-    private List<TranslationUS> generateSampleTranslations() {
-        List<TranslationUS> sampleTranslations = new ArrayList<TranslationUS>();
+    private List<USTranslation> generateSampleTranslations() {
+        List<USTranslation> sampleTranslations = new ArrayList<USTranslation>();
 
         for (int i = 1; i < 5; ++i) {
-            TranslationUS translation = new TranslationUS();
+            USTranslation translation = new USTranslation();
             translation.setText("Sample translation no. " + Integer.toString(i));
             translation.setScore((double)i);
             sampleTranslations.add(translation);
@@ -94,10 +93,10 @@ public class TestMatchUS {
      * correctly.
      */
     @Test
-    public void testConstructorAndSaving() {
-        List<TranslationUS> sampleTranslations = generateSampleTranslations();
+    public void testDatabaseSaveAndLoad() {
+        List<USTranslation> sampleTranslations = generateSampleTranslations();
 
-        MatchUS match = new MatchUS("This is a sample match.",
+        USMatch match = new USMatch("This is a sample match.",
                 sampleTranslations);
 
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -109,8 +108,8 @@ public class TestMatchUS {
 
         // now test if database ID was assigned and if translations
         // got the match ID
-        assertTrue(match.getDatabaseId() != Long.MIN_VALUE);
-        for (TranslationUS t : sampleTranslations) {
+        assertTrue(match.getDatabaseId() != -1);
+        for (USTranslation t : sampleTranslations) {
             assertEquals(t.getMatchDatabaseId(), match.getDatabaseId());
         }
 
@@ -119,13 +118,17 @@ public class TestMatchUS {
         session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List result = session.createQuery("select m from MatchUS t where m.databaseId = :mid")
+        List result = session.createQuery("select m from USMatch m where m.databaseId = :mid")
                 .setParameter("mid", match.getDatabaseId()).list();
+
+        assertEquals(result.size(), 1);
+
+        USMatch foundMatch = (USMatch)(result.get(0));
+        foundMatch.loadTranslationsFromDatabase(session);
 
         session.getTransaction().commit();
 
-        assertEquals(result.size(), 1);
-        matchesEqual(match, (MatchUS)(result.get(0)));
+        matchesEqual(match, (USMatch)(result.get(0)));
     }
 
     /**
@@ -134,7 +137,7 @@ public class TestMatchUS {
      */
     @Test
     public void testDelete() {
-        MatchUS match = new MatchUS("This is a second sample match.",
+        USMatch match = new USMatch("This is a second sample match.",
                 generateSampleTranslations());
 
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -161,16 +164,16 @@ public class TestMatchUS {
 
     /**
      * Tests if two matches are equal.
-     * @param m1
-     * @param m2
+     * @param m1  Match 1
+     * @param m2  Match 2
      */
-    public static void matchesEqual(MatchUS m1, MatchUS m2) {
+    public static void matchesEqual(USMatch m1, USMatch m2) {
         assertEquals(m1.getDatabaseId(), m2.getDatabaseId());
         assertEquals(m1.getChunkDatabaseId(), m2.getChunkDatabaseId());
         assertEquals(m1.getText(), m2.getText());
         assertEquals(m1.getTranslations().size(), m2.getTranslations().size());
         for (int i = 0; i < m1.getTranslations().size(); ++i) {
-            TestTranslationUS.translationsEqual(m1.getTranslations().get(i),
+            TestUSTranslation.translationsEqual(m1.getTranslations().get(i),
                     m2.getTranslations().get(i));
         }
     }
@@ -181,13 +184,13 @@ public class TestMatchUS {
      * @param m The tested match.
      * @return  True if it is in database, false otherwise.
      */
-    public static boolean isInDatabase(MatchUS m) {
+    public static boolean isInDatabase(USMatch m) {
         // the database transaction
         org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List result = session.createQuery("select t from MatchUS t where m.databaseId = :mid")
-                .setParameter("tid", m.getDatabaseId()).list();
+        List result = session.createQuery("select m from USMatch m where m.databaseId = :mid")
+                .setParameter("mid", m.getDatabaseId()).list();
 
         session.getTransaction().commit();
 
@@ -197,16 +200,16 @@ public class TestMatchUS {
         // exactly one result...
         if (result.size() == 1) {
             // also all the translations should be in the database
-            for (TranslationUS t : m.getTranslations()) {
-                assertTrue(TestTranslationUS.isInDatabase(t));
+            for (USTranslation t : m.getTranslations()) {
+                assertTrue(TestUSTranslation.isInDatabase(t));
             }
             return true;
         }
         // zero occurrences
         else if (result.size() == 0) {
             // none of the depending translation should be in the database
-            for (TranslationUS t : m.getTranslations()) {
-                assertFalse(TestTranslationUS.isInDatabase(t));
+            for (USTranslation t : m.getTranslations()) {
+                assertFalse(TestUSTranslation.isInDatabase(t));
             }
             
             return false;

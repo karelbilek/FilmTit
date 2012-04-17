@@ -1,7 +1,7 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.userspace.HibernateUtil;
-import cz.filmtit.userspace.TranslationUS;
+import cz.filmtit.userspace.USTranslation;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -12,18 +12,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TestTranslationUS {
+public class TestUSTranslation {
     @BeforeClass
     public static void setDatabase() throws NoSuchFieldException, IllegalAccessException {
-        Field configFile = HibernateUtil.class.getDeclaredField("configurationFile");
-        configFile.setAccessible(true);
-        configFile.set(null, "cz/filmtit/userspace/tests/hibernate-test.cfg.xml");
+        DatabaseUtil.setDatabase();
     }
 
     @Test
     public void testDatabaseSaveAndLoad() {
         // create a sample translation object
-        TranslationUS testTranslation = new TranslationUS();
+        USTranslation testTranslation = new USTranslation();
         testTranslation.setText("This is an sample translation.");
         testTranslation.setScore(0.35f);
         testTranslation.setMatchDatabaseId(113);
@@ -45,16 +43,16 @@ public class TestTranslationUS {
         session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List result = session.createQuery("select t from TranslationUS t where t.databaseId = :tid")
+        List result = session.createQuery("select t from USTranslation t where t.databaseId = :tid")
                 .setParameter("tid", databaseId).list();
 
         session.getTransaction().commit();
 
         // exactly one result should be obtained
         assertEquals(result.size(), 1);
-        TranslationUS returnedTranslation = (TranslationUS)result.get(0);
+        USTranslation returnedTranslation = (USTranslation)result.get(0);
         
-        //  finally test if all the TranslationUS properties are equal...
+        //  finally test if all the USTranslation properties are equal...
         assertEquals(testTranslation.getDatabaseId(), returnedTranslation.getDatabaseId());
         assertEquals(testTranslation.getMatchDatabaseId(), returnedTranslation.getMatchDatabaseId());
         assertEquals(testTranslation.getScore(), returnedTranslation.getScore(), 0.0001d);
@@ -64,7 +62,7 @@ public class TestTranslationUS {
     @Test
     public void testDelete() {
         // create a sample translation object
-        TranslationUS testTranslation = new TranslationUS();
+        USTranslation testTranslation = new USTranslation();
         testTranslation.setText("This is an sample translation.");
         testTranslation.setScore(0.35f);
         testTranslation.setMatchDatabaseId(113);
@@ -96,7 +94,7 @@ public class TestTranslationUS {
      * @param t1 First translation.
      * @param t2 Second tranlsation.
      */
-    public static void translationsEqual(TranslationUS t1, TranslationUS t2) {
+    public static void translationsEqual(USTranslation t1, USTranslation t2) {
         assertEquals(t1.getDatabaseId(), t2.getDatabaseId());
         assertEquals(t1.getMatchDatabaseId(), t2.getMatchDatabaseId());
         assertEquals(t1.getText(), t2.getText());
@@ -108,12 +106,12 @@ public class TestTranslationUS {
      * @param t Tested translation.
      * @return True if it is in database, false otherwise.
      */
-    public static boolean isInDatabase(TranslationUS t) {
+    public static boolean isInDatabase(USTranslation t) {
         // the database transaction
         org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List result = session.createQuery("select t from TranslationUS t where t.databaseId = :tid")
+        List result = session.createQuery("select t from USTranslation t where t.databaseId = :tid")
                 .setParameter("tid", t.getDatabaseId()).list();
 
         session.getTransaction().commit();

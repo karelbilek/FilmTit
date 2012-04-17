@@ -13,6 +13,10 @@ public class Chunk implements Serializable {
     public boolean done;
     public ArrayList<Match> matches;
 
+    public Chunk() {
+        matches = new ArrayList<Match>();
+    }
+
     public String getKey() {
         return startTime + "#" + Integer.toString(partNumber);
     }

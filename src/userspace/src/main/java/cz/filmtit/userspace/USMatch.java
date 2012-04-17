@@ -14,27 +14,27 @@ import java.util.List;
  * @author Jindřich Libovický
 */
 
-public class MatchUS extends DatabaseObject {
+public class USMatch extends DatabaseObject {
 
     private Match match;
     /**
      * Collection of corresponding translations wrapped to the User Space
      * objects.
      */
-    private List<TranslationUS> translationsUS;
+    private List<USTranslation> translations;
     /**
      * Database ID of corresponding chunk in database. There's no need
      * to have a different connection to the predecessor because it's
      * never sent to the client without the whole chunk.
      */
-    private Long chunkDatabaseId = Long.MIN_VALUE;
+    private long chunkDatabaseId = -1;
 
     /**
      * Default constructor for Hibernate. Creates the empty shared Match
      * object and expects it to be initialized by setters
      * (typically hibernate).
      */
-    public MatchUS() {
+    public USMatch() {
         match = new Match();
     }
 
@@ -45,7 +45,7 @@ public class MatchUS extends DatabaseObject {
      * wrapping the contained translations are created when necessary.
      * @param m A match from the shared module.
      */
-    public MatchUS(Match m) {
+    public USMatch(Match m) {
         match = m;
     }
 
@@ -56,14 +56,14 @@ public class MatchUS extends DatabaseObject {
      * @param text
      * @param translations
      */
-    public MatchUS(String text, List<TranslationUS> translations) {
+    public USMatch(String text, List<USTranslation> translations) {
         match = new Match();
         match.text = text;
 
-        for (TranslationUS t : translations) {
+        for (USTranslation t : translations) {
             match.translations.add(t.getSharedTranslation());
         }
-        translationsUS = Collections.synchronizedList(translations);
+        this.translations = Collections.synchronizedList(translations);
     }
 
     public String getText() {
@@ -75,29 +75,31 @@ public class MatchUS extends DatabaseObject {
         else { throw new UnsupportedOperationException("The match text can be set just once."); }
     }
 
-    public List<TranslationUS> getTranslations() {
+    public List<USTranslation> getTranslations() {
         // create it if it does not exist
-        if (translationsUS == null) {
-            List<TranslationUS> newList = new ArrayList<TranslationUS>();
+        if (translations == null && match.translations != null) {
+            List<USTranslation> newList = new ArrayList<USTranslation>();
             for ( Translation t : match.translations ) {
-                newList.add(new TranslationUS(t));
+                USTranslation newTranslation = new USTranslation(t);
+                newTranslation.setMatchDatabaseId(getDatabaseId());
+                newList.add(new USTranslation(t));
             }
-            translationsUS = Collections.synchronizedList(newList);
+            translations = Collections.synchronizedList(newList);
         }
         // otherwise just return the value
-        return translationsUS;
+        return translations;
     }
 
-    public Long getChunkDatabaseId() {
+    public long getChunkDatabaseId() {
         return chunkDatabaseId;
     }
 
-    public void setChunkDatabaseId(Long chunkDatabaseID) {
-        if (chunkDatabaseID == Long.MIN_VALUE) {
+    public void setChunkDatabaseId(long chunkDatabaseID) {
+        if (this.chunkDatabaseId == -1) {
             this.chunkDatabaseId = chunkDatabaseID;
         }
         else {
-            throw new  UnsupportedOperationException("TranslationUS text can be set just once.");
+            throw new  UnsupportedOperationException("USTranslation text can be set just once.");
         }
     }
 
@@ -107,14 +109,14 @@ public class MatchUS extends DatabaseObject {
     
     public void loadTranslationsFromDatabase(Session session) {
         // query the matches from the database
-        List foundTranslations = session.createQuery("select t from TranslationUS t where t.matchDatabaseId = :tid")
+        List foundTranslations = session.createQuery("select t from USTranslation t where t.matchDatabaseId = :tid")
                 .setParameter("tid", getDatabaseId()).list();
 
-        List <TranslationUS> newTranslations = new ArrayList<TranslationUS>();
+        List <USTranslation> newTranslations = new ArrayList<USTranslation>();
         for (Object t : foundTranslations) {
-            newTranslations.add((TranslationUS)t);
+            newTranslations.add((USTranslation)t);
         }
-        translationsUS = Collections.synchronizedList(newTranslations);
+        translations = Collections.synchronizedList(newTranslations);
     }
 
     /**
@@ -123,7 +125,7 @@ public class MatchUS extends DatabaseObject {
     public void saveToDatabase(Session session) {
         saveJustObject(session);
 
-        for (TranslationUS t : translationsUS) {
+        for (USTranslation t : getTranslations()) {
             t.setMatchDatabaseId(getDatabaseId());
             t.saveToDatabase(session);
         }
@@ -131,7 +133,7 @@ public class MatchUS extends DatabaseObject {
 
     public void deleteFromDatabase(Session session) {
         deleteJustObject(session);
-        for (TranslationUS translation : translationsUS) {
+        for (USTranslation translation : getTranslations()) {
             translation.deleteFromDatabase(session);
         }
     }
