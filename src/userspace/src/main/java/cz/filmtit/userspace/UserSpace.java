@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A singleton class which represents the running UserUS Space
+ * A singleton class which represents the running USUser Space
  * @author Jindřich Libovický
  */
 public class UserSpace {
@@ -35,17 +35,13 @@ public class UserSpace {
      */
     static final long SESSION_TIME_OUT_LIMIT = 1000 * 60 * 20;
     /**
-     * Number of port where the UserUS Space service runs.
-      */
-    static final int PORT_NUMBER = 6789;
-    /**
      * The table of active sessions. Contains mapping fom session IDs to the Session objects.
      */
     private Map<Long, Session> runningSessions;
     /**
      * The set of currently logged-in users. Necessary because a user can be logged in just once.
      */
-    private Set<UserUS> loggedInUsers;
+    private Set<USUser> loggedInUsers;
 
     /**
      * A thread that checks out whether the sessions are timed out.
