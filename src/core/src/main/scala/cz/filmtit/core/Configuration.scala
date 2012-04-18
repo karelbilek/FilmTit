@@ -14,7 +14,7 @@ import collection.mutable.{HashMap, ListBuffer}
 
 object Configuration {
 
-  private val XMLFile = XML.loadFile("../configuration.xml")
+  private val XMLFile = XML.loadFile("configuration.xml")
 
   //Database:
   private val dbXML = XMLFile \ "database"

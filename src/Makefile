@@ -1,7 +1,10 @@
+install:
+	mvn clean install -Dmaven.test.skip=true
+
 import:
-	cd core; ./import.sh
+	LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 MAVEN_OPTS='-Xmx2500m -Xms2225m' mvn exec:java -Dexec.mainClass=cz.filmtit.core.io.Import -pl core
 
 reindex:
-	cd core; ./reindex.sh
+	LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 MAVEN_OPTS='-Xmx2500m -Xms2225m' mvn exec:java -Dexec.mainClass=cz.filmtit.core.io.Reindex -pl core
 
 .PHONY: import
