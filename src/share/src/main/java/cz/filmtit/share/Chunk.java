@@ -2,8 +2,9 @@ package cz.filmtit.share;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
-public class Chunk {
+public class Chunk implements Serializable {
     public String startTime;
     public String endTime;
     public String text;
