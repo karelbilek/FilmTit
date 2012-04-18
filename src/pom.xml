@@ -26,6 +26,7 @@
         <module>share</module>
         <module>eval</module>
         <module>core</module>
+        <module>gui</module>
   </modules>
 
     <build>
