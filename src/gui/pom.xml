@@ -23,6 +23,20 @@
   </properties>
 
   <dependencies>
+<!--
+   <dependency>
+      <groupId>org.vectomatic</groupId>
+      <artifactId>lib-gwt-file</artifactId>
+      <version>0.3</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+-->
+    <dependency>
+      <artifactId>lib-gwt-file</artifactId>
+      <groupId>org.vectomatic</groupId>
+      <version>0.3</version>
+    </dependency>
     <dependency>
       <artifactId>share</artifactId>
       <groupId>cz.filmtit</groupId>
@@ -45,6 +59,12 @@
       <version>${gwtVersion}</version>
       <scope>provided</scope>
     </dependency>
+<!--    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-dev</artifactId>
+      <version>${gwtVersion}</version>
+      <scope>compile</scope>
+    </dependency>-->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
