@@ -3,6 +3,12 @@ package cz.filmtit.client;
 
 import java.util.*;
 
+import cz.filmtit.share.Match;
+import cz.filmtit.share.Translation;
+
+
+
+
 /**
  * Represents a matching chunk,
  * along with the list of corresponding translations.
@@ -13,34 +19,41 @@ import java.util.*;
 
 public class GUIMatch {
 
-	private String text;
-    private List<GUITranslation> translations;
+	private Match match;
+	private List<GUITranslation> translations;
 
-    public GUIMatch(String text, List<GUITranslation> translations) {
-        this.text = text;
-        this.translations = translations;
+
+	public GUIMatch(Match sharedmatch) {
+		this.match = sharedmatch;
+		this.translations = new ArrayList<GUITranslation>();
+		ListIterator<Translation> sharedtranslationiterator = sharedmatch.translations.listIterator();
+		while (sharedtranslationiterator.hasNext()) {
+			this.translations.add( new GUITranslation(sharedtranslationiterator.next()) );
+		}
+	}
+	
+
+	public String getMatchText() {
+        return match.text;
     }
-
-    public String getMatchText() {
-        return text;
-    }
-
+    
     public void setMatchText(String match) {
-        if (match == null) { this.text = match; }
+        if (match == null) { this.match.text = match; }
         else { throw new UnsupportedOperationException("The match text can be set just once."); }
     }
-
+    
+    
     public List<GUITranslation> getTranslations() {
-        return translations;
+        return this.translations;
     }
     
     public List<String> getTranslationsAsStrings() {
     	List<String> translstrings = new ArrayList<String>();
-    	ListIterator<GUITranslation> li = translations.listIterator();
+    	ListIterator<GUITranslation> li = this.translations.listIterator();
     	while (li.hasNext()) {
     		translstrings.add(li.next().getTranslationText());
     	}
     	return translstrings;
     }
-
+    
 }
