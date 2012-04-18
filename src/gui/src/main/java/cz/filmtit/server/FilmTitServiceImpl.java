@@ -11,7 +11,7 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 
 	public Chunk suggestions(Chunk chunk) {
 		
-		ChunkUS uschunk = new ChunkUS(chunk);
+		USChunk uschunk = new USChunk(chunk);
 				
 		if(uschunk.getText().equals("hi")) {
 			uschunk.setUserTranslation("ahoj");
@@ -23,7 +23,7 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 			uschunk.setUserTranslation("no translation");
 		}
 
-		return uschunk.getChunk();
+		return uschunk.getSharedChunk();
 	}
 	
 }
