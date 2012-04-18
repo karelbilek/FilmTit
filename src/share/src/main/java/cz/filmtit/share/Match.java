@@ -1,13 +1,19 @@
 package cz.filmtit.share;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Match {
-    public Match() {
-        translations = new ArrayList<Translation>();
-    }
-
-    public String text;
+	public String text;
+	
     public List<Translation> translations;
+
+    public Match(String text) {
+    	this.text = text;
+    	translations = new ArrayList<Translation>();
+    }
+    
+    public Match() {
+    	translations = new ArrayList<Translation>();
+    }
 }
