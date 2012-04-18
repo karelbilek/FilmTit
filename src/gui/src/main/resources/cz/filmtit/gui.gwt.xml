@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module rename-to='gui'>
+<module rename-to='Gui'>
   <!-- Inherit the core Web Toolkit stuff.                        -->
   <inherits name='com.google.gwt.user.User' />
 
@@ -17,13 +17,14 @@
 
   <!-- Other module inherits                                      -->
 
+  <!-- Inherit the lib-gwt-file library (for local file reading)  -->
+  <inherits name='org.vectomatic.libgwtfile' />
+
   <!-- Specify the app entry point class.                         -->
-  <entry-point class='cz.filmtit.client.gui' />
+  <entry-point class='cz.filmtit.client.Gui' />
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client' />
-  <source path='shared' />
-  <!--source path='share' / -->
 
   <!-- TODO: do we need this now? -->
   <inherits name="com.google.gwt.json.JSON" />
