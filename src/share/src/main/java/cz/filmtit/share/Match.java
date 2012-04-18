@@ -8,12 +8,12 @@ public class Match {
 	
     public List<Translation> translations;
 
-    public Match(String text) {
-    	this.text = text;
+    public Match() {
     	translations = new ArrayList<Translation>();
     }
     
-    public Match() {
+    public Match(String text) {
+    	this.text = text;
     	translations = new ArrayList<Translation>();
     }
 }
