@@ -1,102 +1,129 @@
 package cz.filmtit.client;
 
-
 import java.util.*;
+
 import cz.filmtit.share.Chunk;
+import cz.filmtit.share.Match;
+
+
+
+
 
 /**
  * Represents a subtitle chunk,
  * along with the list of corresponding matches.
- * (vaguely based on class Chunk from Jindra)
+ * Serves as a "GUI-wrapper" for the shared class Chunk.
  * 
  * @author Honza Václ
  */
 
 public class GUIChunk {
 
-	private String startTime;
-    private String endTime;
-    private String text;
-    private String userTranslation;
-    private boolean done;
-    private int partNumber;
-    private List<GUIMatch> matches;
-    
-                private Chunk chunk;
-    
-    public static GUIChunk NoNextSubtitle = new GUIChunk("< no next subtitle >", null);
-    
-    public GUIChunk(String text, List<GUIMatch> matches) {
-    	this.text = text;
-    	this.matches = matches;
-    }
+	private Chunk chunk;
+	private List<GUIMatch> matches; 
+
+	public static GUIChunk NoNextSubtitle = new GUIChunk("< no next subtitle >");
 
 
-    public String getStartTime() {
-        return startTime;
-    }
+	public GUIChunk(Chunk sharedchunk) {
+		this.chunk = sharedchunk;
+		this.matches = new ArrayList<GUIMatch>();
+		ListIterator<Match> sharedchunkiterator = sharedchunk.matches.listIterator();
+		while (sharedchunkiterator.hasNext()) {
+			this.matches.add( new GUIMatch(sharedchunkiterator.next()) );
+		}
+	}
+	
+	public GUIChunk(String text) {
+		this.chunk = new Chunk(text);
+		this.chunk.text = text;
+		this.matches = new ArrayList<GUIMatch>();
+	}
+	
+	public GUIChunk(String text, String startTime, String endTime, int partNumber) {
+		this.chunk = new Chunk(text);
+		this.chunk.text = text;
+		this.chunk.startTime = startTime;
+		this.chunk.endTime = endTime;
+		this.chunk.partNumber = partNumber;
+		this.matches = new ArrayList<GUIMatch>();
+	}
 
-    public void setStartTime(String startTime) {
-        // TODO: check the timing format
-        this.startTime = startTime;
-    }
 
-    public String getEndTime() {
-        return endTime;
-    }
+	/**
+	 * Creates a string from the chunk text and its attributes,
+	 * visually delimiting them. 
+	 */
+	@Override
+	public String toString() {
+		return  ( this.chunk.startTime + " ::: "
+				+ this.chunk.endTime   + " ::: "
+				+ "(((" + this.chunk.partNumber + ")))" + " ::: "
+				+ this.chunk.text
+			    );
+	}
 
-    public void setEndTime(String endTime) {
-        // TODO: check the timing format
-        this.endTime = endTime;
-    }
+	public String getStartTime() {
+		return this.chunk.startTime;
+	}
 
-    public String getChunkText() {
-        return text;
-    }
+	public String getEndTime() {
+		return this.chunk.endTime;
+	}
 
-    public void setChunkText(String text) {
-        this.text = text;
-    }
+	public String getChunkText() {
+		return this.chunk.text;
+	}
 
-    public String getUserTranslation() {
-        return userTranslation;
-    }
+	public void setChunkText(String text) {
+		this.chunk.text = text;
+	}
 
-    public void setUserTranslation(String userTranslation) {
-        this.userTranslation = userTranslation;
-    }
+	public String getUserTranslation() {
+		return chunk.userTranslation;
+	}
 
-    public boolean isDone() {
-        return done;
-    }
+	public void setUserTranslation(String userTranslation) {
+		chunk.userTranslation = userTranslation;
+	}
 
-    public void setDone(boolean done) {
-        this.done = done;
-    }
+	public boolean isDone() {
+		return chunk.done;
+	}
 
-    public int getPartNumber() {
-        return partNumber;
-    }
+	public void setDone(boolean done) {
+		chunk.done = done;
+	}
 
-    public void setPartNumber(int partNumber) {
-        this.partNumber = partNumber;
-    }
-    
-    public GUIMatch getMatchAt(int index) {
-    	return matches.get(index);
-    }
+	public int getPartNumber() {
+		return chunk.partNumber;
+	}
+	
+	public void setTimes(String startTime, String endTime) {
+		chunk.startTime = startTime;
+		chunk.endTime = endTime;
+	}
 
-    public List<GUIMatch> getMatches() {
-    	return matches;
-    }
-    
-    public List<String> getMatchesAsStrings() {
-    	List<String> matchstrings = new ArrayList<String>();
-    	ListIterator<GUIMatch> li = matches.listIterator();
-    	while (li.hasNext()) {
-    		matchstrings.add(li.next().getMatchText());
-    	}
-    	return matchstrings;
-    }
+	public void setPartNumber(int partNumber) {
+		chunk.partNumber = partNumber;
+	}
 
+	public GUIMatch getMatchAt(int index) {
+		return this.matches.get(index);
+	}
+
+	public List<GUIMatch> getMatches() {
+		return this.matches;
+	}
+
+	/*
+	public List<String> getMatchesAsStrings() {
+		List<String> matchstrings = new ArrayList<String>();
+		ListIterator<Match> li = chunk.matches.listIterator();
+		while (li.hasNext()) {
+			matchstrings.add(li.next().text);
+		}
+		return matchstrings;
+	}
+	*/
 }

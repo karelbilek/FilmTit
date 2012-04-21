@@ -1,33 +1,40 @@
 package cz.filmtit.client;
 
+import cz.filmtit.share.Translation;
 
 /**
  * Represents a single translation chunk.
- * (vaguely based on class TranslationUS from Jindra)
+ * (vaguely based on class Translation from Jindra)
  * 
  * @author Honza Václ
 */
 
 public class GUITranslation {
-    /**
+    
+	private Translation translation;
+	
+    public GUITranslation(Translation sharedtranslation) {
+    	this.translation = sharedtranslation;
+    }
+    
+	/**
      * Creates the translation object of given score and text.
      * @param text Text of the translation.
      * @param score Rank of the translation from TM.
      */
-    public GUITranslation(String text) {
-        this.text = text;
+    public GUITranslation(String text, double score) {
+        this.translation.text = text;
+        this.translation.score = score;
     }
-    
-    private String text;
     
 
     public String getTranslationText() {
-        return text;
+        return translation.text;
     }
 
     public void setTranslationText(String text) {
-        if (text == null) { this.text = text; }
-        else { throw new UnsupportedOperationException("TranslationUS text can be set just once."); }
+        if (text == null) { this.translation.text = text; }
+        else { throw new UnsupportedOperationException("Translation text can be set just once."); }
     }
 
 }

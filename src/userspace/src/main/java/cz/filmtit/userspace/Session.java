@@ -11,7 +11,7 @@ package cz.filmtit.userspace;
  */
 public class Session {
     private int sessionId;
-    private UserUS user;
+    private USUser user;
     private long sessionStart;
     private long lastOperation;
     private SessionState state;
@@ -26,7 +26,7 @@ public class Session {
         this.lastOperation = lastOperation;
     }
 
-    public UserUS getUser() {
+    public USUser getUser() {
         return user;
     }
 

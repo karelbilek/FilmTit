@@ -193,6 +193,9 @@ with MediaStorage {
     }
   }
 
+    System.err.println("Clearing pair<->MS set.");
+    pairMediaSourceMappings.clear()
+
     //Commit the changes to the database:
     if (!autoCommit)
       connection.commit()
