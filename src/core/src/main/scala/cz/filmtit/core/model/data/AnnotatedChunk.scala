@@ -2,6 +2,8 @@ package cz.filmtit.core.model.data
 
 import collection.mutable.ListBuffer
 import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.share.Chunk
+
 
 /**
  * Wrapper class for chunks in the parallel data. In the most basic case,
@@ -11,7 +13,7 @@ import cz.filmtit.core.model.annotation.ChunkAnnotation
  * @author Joachim Daiber
  */
 
-class Chunk(val surfaceform: String) {
+class AnnotatedChunk(val surfaceform: String) extends Chunk(surfaceform) {
 
   /**
    * Annotations are stored in a list but are only instantiated
@@ -67,11 +69,7 @@ class Chunk(val surfaceform: String) {
 
 }
 
-
-object Chunk {
-
-  implicit def fromString(string: String): Chunk = new Chunk(string)
-  implicit def toString(chunk: Chunk): String = chunk.toString
-
+object AnnotatedChunk {
+  implicit def fromChunk(chunk: Chunk) = new AnnotatedChunk(chunk.getSurfaceform)
+  implicit def fromString(chunk: String) = new AnnotatedChunk(chunk)
 }
-

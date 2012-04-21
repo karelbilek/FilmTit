@@ -1,9 +1,9 @@
 package cz.filmtit.core.rank
 
-import cz.filmtit.core.model.data.{ScoredTranslationPair, Chunk, MediaSource, TranslationPair}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
 import collection.mutable.ListBuffer
-import cz.filmtit.core.model.data.Chunk._
+import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
+import cz.filmtit.core.model.data.AnnotatedChunk
 
 
 /**
@@ -26,8 +26,8 @@ class FuzzyNERanker extends BaseRanker {
    * @param pair the translation pair candidate
    * @return translation pair with score
    */
-  def rankOne(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair):
-  ScoredTranslationPair = {
+  def rankOne(chunk: AnnotatedChunk, mediaSource: MediaSource, pair: TranslationPair):
+  TranslationPair = {
 
     /* We know that the two strings have the same NE annotations and that
      * the rests of the strings are equal.
@@ -36,19 +36,18 @@ class FuzzyNERanker extends BaseRanker {
      * the same.
      */
 
-    val scoredPair = ScoredTranslationPair.fromTranslationPair(pair)
-    val matches: List[Int] = matchingSFs(pair.chunkL1, chunk)
+    val matches: List[Int] = matchingSFs(pair.getChunkL1, chunk)
 
     //Add all the non-matching annotations to the chunk so that it can be
     //post-edited
-    for ( i <- (0 until pair.chunkL1.annotations.size) ) {
+    for ( i <- (0 until pair.getChunkL1.asInstanceOf[AnnotatedChunk].annotations.size) ) {
       //if (!(matches contains i))
         //scoredPair.chunkL1.annotations += pair.chunkL1.annotations(i)
     }
-    val distanceScore = 1.0 - ( scoredPair.chunkL1.toAnnotatedString({(_, _) => "" }).length / chunk.length.toFloat )
-    scoredPair.score = (lambdas._1 * distanceScore) + (lambdas._2 * genreMatches(mediaSource, pair))
+    val distanceScore = 1.0 - ( pair.getChunkL1.asInstanceOf[AnnotatedChunk].toAnnotatedString({(_, _) => "" }).length / chunk.surfaceform.length.toFloat )
+    pair.setScore((lambdas._1 * distanceScore) + (lambdas._2 * genreMatches(mediaSource, pair)))
 
-    scoredPair
+    pair
   }
 
 
@@ -60,7 +59,7 @@ class FuzzyNERanker extends BaseRanker {
    * @param chunk2 second chunk
    * @return
    */
-  def matchingSFs(chunk1: Chunk, chunk2: Chunk): List[Int] = {
+  def matchingSFs(chunk1: AnnotatedChunk, chunk2: AnnotatedChunk): List[Int] = {
 
     val matches = ListBuffer[Int]()
 

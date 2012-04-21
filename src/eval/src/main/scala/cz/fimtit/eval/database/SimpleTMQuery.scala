@@ -2,13 +2,13 @@ package cz.fimtit.eval.database
 
 import cz.filmtit.core.Factory
 import java.net.ConnectException
-import cz.filmtit.core.model.{TranslationMemory, Language}
+import cz.filmtit.core.model.TranslationMemory
+import cz.filmtit.share.Language
+import cz.filmtit.core.Utils.chunkFromString
 
 
 /**
  * @author Joachim Daiber
- *
- *
  *
  */
 
@@ -30,12 +30,12 @@ object SimpleTMQuery {
 
     
     
-    println(tm.nBest("I love you!", Language.en, null))
+    println(tm.nBest("I love you!", Language.EN, null))
     println(tm.nBest("What did the minister tell you about his intentions?",
-      Language.en, null))
-    println(tm.nBest("Call the police, Peter", Language.en, null))
-    println(tm.nBest("Peter opened the door.", Language.en, null))
-    println(tm.nBest("Watch out!", Language.en, null))
+      Language.EN, null))
+    println(tm.nBest("Call the police, Peter", Language.EN, null))
+    println(tm.nBest("Peter opened the door.", Language.EN, null))
+    println(tm.nBest("Watch out!", Language.EN, null))
 
 
   }

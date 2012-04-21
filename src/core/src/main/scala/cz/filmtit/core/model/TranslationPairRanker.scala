@@ -1,7 +1,7 @@
 package cz.filmtit.core.model
 
-import data.{Chunk, MediaSource, ScoredTranslationPair, TranslationPair}
-
+import cz.filmtit.core.model.data.AnnotatedChunk
+import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
 
 /**
  * Assigns scores to translation pairs retrieved from the database or external
@@ -24,9 +24,8 @@ abstract class TranslationPairRanker {
    * @param pairs the translation pair candidates
    * @return sorted list of scored translation pairs with best first
    */
-  def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-  List[ScoredTranslationPair] =
-    pairs.map(pair => rankOne(chunk, mediaSource, pair)).sorted
+  def rank(chunk: AnnotatedChunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
+  List[TranslationPair] = pairs.map(pair => rankOne(chunk, mediaSource, pair)).sorted
 
 
   /**
@@ -39,10 +38,10 @@ abstract class TranslationPairRanker {
    * @return best-match translation pair with score
    */
   def best(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
-  Option[ScoredTranslationPair] =
+  Option[TranslationPair] =
     pairs.map(pair => rankOne(chunk, mediaSource, pair)) match {
-      case List()                                  => None
-      case x: List[Ordered[ScoredTranslationPair]] => Some(x.max.asInstanceOf[ScoredTranslationPair])
+      case List()                                    => None
+      case x: List[TranslationPair] => Some(x.max.asInstanceOf[TranslationPair])
     }
 
 
@@ -57,8 +56,7 @@ abstract class TranslationPairRanker {
    * @param pair the translation pair candidate
    * @return translation pair with score
    */
-  def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair):
-  ScoredTranslationPair
+  def rankOne(chunk: AnnotatedChunk, mediaSource: MediaSource,  pair: TranslationPair): TranslationPair
 
 
   /**

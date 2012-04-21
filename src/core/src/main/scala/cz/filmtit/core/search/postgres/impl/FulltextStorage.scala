@@ -1,21 +1,19 @@
 package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.search.postgres.BaseStorage
-import cz.filmtit.core.model.data.{Chunk, ScoredTranslationPair,
-TranslationPair}
-import cz.filmtit.core.model.{TranslationSource, Language}
+import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
 
 
 /**
  * Postgres-based storage using a full-text index.
  */
 class FulltextStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly = readOnly) {
+  extends BaseStorage(l1, l2, TranslationSource.INTERNAL_FUZZY, readOnly = readOnly) {
 
 
-  override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
+  override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(pairTable))
-    select.setString(1, chunk)
+    select.setString(1, chunk.getSurfaceform)
     val rs = select.executeQuery()
 
     while (rs.next) {

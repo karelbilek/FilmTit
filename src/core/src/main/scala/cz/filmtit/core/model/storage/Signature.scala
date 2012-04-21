@@ -33,7 +33,7 @@ object Signature {
    * @param chunk chunk to be indexed, including annotations
    * @return
    */
-  def fromChunk(chunk: Chunk) = {
+  def fromChunk(chunk: AnnotatedChunk) = {
     val s = new Signature(chunk.toAnnotatedString())
     s.annotations ++= chunk.annotations
     s

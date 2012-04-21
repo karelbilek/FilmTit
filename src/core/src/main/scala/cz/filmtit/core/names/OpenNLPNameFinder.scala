@@ -6,7 +6,7 @@ import opennlp.tools.util.Span
 import cz.filmtit.core.model.names.NERecognizer
 import opennlp.tools.tokenize.Tokenizer
 import cz.filmtit.core.model.annotation.ChunkAnnotation
-import cz.filmtit.core.model.data.Chunk
+import cz.filmtit.core.model.data.AnnotatedChunk
 
 
 /**
@@ -22,7 +22,7 @@ class OpenNLPNameFinder(
 ) extends NERecognizer(neType) {
 
 
-  override def detect(chunk: Chunk) {
+  override def detect(chunk: AnnotatedChunk) {
 
     val tokenized = tokenizer.tokenize(chunk.surfaceform)
     val tokenizedPos = tokenizer.tokenizePos(chunk.surfaceform)

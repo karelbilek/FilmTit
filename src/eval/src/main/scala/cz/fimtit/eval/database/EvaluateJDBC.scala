@@ -5,18 +5,20 @@ import collection.mutable.ListBuffer
 import cz.filmtit.core.search.postgres.impl.{FulltextStorage, FirstLetterStorage, TrigramStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
 import storage.TranslationPairStorage
+import cz.filmtit.share.Language
+import cz.filmtit.core.Utils.chunkFromString
 
 object EvaluateJDBC {
 
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
 
-  storages += new FulltextStorage(Language.en, Language.cs)
+  storages += new FulltextStorage(Language.EN, Language.CS)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_fulltext"
 
-  storages += new FirstLetterStorage(Language.en, Language.cs)
+  storages += new FirstLetterStorage(Language.EN, Language.CS)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_firstletter"
 
-  storages += new TrigramStorage(Language.en, Language.cs)
+  storages += new TrigramStorage(Language.EN, Language.CS)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_trigram"
 
 
@@ -35,7 +37,7 @@ object EvaluateJDBC {
     storages foreach (storage => {
       println("\n\nCandidates for storage " + storage.name)
       val start = System.currentTimeMillis()
-      storage.candidates(sentence, Language.en)
+      storage.candidates(sentence, Language.EN)
       val end = System.currentTimeMillis()
       val elapsedTime = end - start
       println("Retrieval took %d ms.".format(elapsedTime))

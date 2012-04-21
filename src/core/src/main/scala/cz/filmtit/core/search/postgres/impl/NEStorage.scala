@@ -6,7 +6,8 @@ import cz.filmtit.core.Factory
 import cz.filmtit.core.Utils.t2mapper
 import collection.mutable.ListBuffer
 import storage.Signature
-import cz.filmtit.core.model.data.Chunk
+import cz.filmtit.core.model.data.AnnotatedChunk
+import cz.filmtit.share.{Language, TranslationSource}
 
 /**
  * Translation pair storage using named entity types to identify names.
@@ -18,12 +19,12 @@ import cz.filmtit.core.model.data.Chunk
  */
 
 class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalNE, "sign_ne",
+  extends BaseSignatureStorage(l1, l2, TranslationSource.INTERNAL_NE, "sign_ne",
     reversible = true, readOnly = readOnly) {
 
   val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_) }
 
-  override def signature(chunk: Chunk, language: Language): Signature = {
+  override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
 
     //val chunk = sentence
 
@@ -42,7 +43,7 @@ class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   }
 
 
-  override def annotate(chunk: Chunk, signature: Signature) {
+  override def annotate(chunk: AnnotatedChunk, signature: Signature) {
     chunk.annotations ++= signature.annotations
     println()
   }
@@ -55,7 +56,7 @@ class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
    *
    * @param chunk annotated chunk
    */
-  def removeOverlap(chunk: Chunk) {
+  def removeOverlap(chunk: AnnotatedChunk) {
     if (chunk.annotations.size > 1) {
 
       //Sor the annotations by their start and end

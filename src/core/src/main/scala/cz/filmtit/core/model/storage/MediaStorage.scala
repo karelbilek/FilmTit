@@ -1,6 +1,7 @@
 package cz.filmtit.core.model.storage
 
-import cz.filmtit.core.model.data.MediaSource
+import cz.filmtit.share.MediaSource
+
 
 /**
  * Interface for retrieving information about the movie/TV show that contained

@@ -2,31 +2,10 @@ package cz.filmtit.core.model.data
 
 import org.json.JSONObject
 import cz.filmtit.core.io.data.IMDB
-import collection.mutable.{HashMap, HashSet}
+import collection.mutable.HashMap
+import cz.filmtit.share.MediaSource
 
-
-/**
- * The source of a subtitle chunk. This may be a movie, TV series etc.
- *
- * @author Joachim Daiber
- */
-
-class MediaSource(val title: String, val year: String, var genres: HashSet[String]) extends Serializable{
-
-  var id: Long = _
-
-  def this(title: String, year: String, genres: String) {
-    this(title, year, HashSet() ++ genres.split(",[ ]*"))
-  }
-
-  def this(title: String, year: String) {
-    this(title, year, "")
-  }
-
-}
-
-
-object MediaSource {
+object MediaSourceFactory {
 
   def fromIMDB(title: String, year: String): MediaSource = {
     try {

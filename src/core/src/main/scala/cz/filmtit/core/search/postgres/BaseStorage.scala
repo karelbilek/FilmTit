@@ -3,13 +3,12 @@ package cz.filmtit.core.search.postgres
 import cz.filmtit.core.Configuration
 import org.postgresql.util.PSQLException
 import com.weiglewilczek.slf4s.Logger
-import cz.filmtit.core.model.data.{TranslationPair, MediaSource}
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
-import cz.filmtit.core.model.{TranslationSource, Language}
 import java.sql.{SQLException, DriverManager}
-import com.google.common.hash.{Funnels, BloomFilter}
-import collection.mutable.{HashMap, HashSet}
+import collection.mutable.HashSet
 import gnu.trove.map.hash.TObjectLongHashMap
+import scala.collection.JavaConversions._
+import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 
 
 /**
@@ -92,7 +91,7 @@ with MediaStorage {
   private lazy val pairMediaSourceMappings: HashSet[Pair[Long, Long]] = HashSet[Pair[Long, Long]]()
 
   private lazy val msInsertStmt = connection.prepareStatement("INSERT INTO %s(pair_id, source_id) VALUES(?, ?);".format(chunkSourceMappingTable))
-
+  pairMediaSourceMappings.clear()
   /**
    * Add a media source <-> translation pair correspondence to
    * the database.
@@ -119,7 +118,7 @@ with MediaStorage {
    * @return
    */
   private def pairIDInDatabase(translationPair: TranslationPair): Option[Long] = {
-    val l: Long = pairIDCache.get("%s-%s".format(translationPair.chunkL1, translationPair.chunkL2))
+    val l: Long = pairIDCache.get("%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2))
     if (l == 0) {
       None
     }else{
@@ -153,8 +152,8 @@ with MediaStorage {
           //Normal case: there is no equivalent translation pair in the database
           case None => {
 
-            inStmt.setString(1, translationPair.chunkL1)
-            inStmt.setString(2, translationPair.chunkL2)
+            inStmt.setString(1, translationPair.getChunkL1.getSurfaceform)
+            inStmt.setString(2, translationPair.getChunkL2.getSurfaceform)
             inStmt.execute()
 
             //Get the pair_id of the new translation pair
@@ -162,7 +161,7 @@ with MediaStorage {
             val newPairID = inStmt.getResultSet.getLong("pair_id")
 
             //Remember that we already put it into the database
-            pairIDCache.put("%s-%s".format(translationPair.chunkL1, translationPair.chunkL2), newPairID)
+            pairIDCache.put("%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2), newPairID)
 
             newPairID
           }
@@ -177,12 +176,11 @@ with MediaStorage {
         }
 
         //Add the MediaSource as the source to the TP
-        addMediaSourceForChunk(pairID, translationPair.mediaSources(0).id)
+        addMediaSourceForChunk(pairID, translationPair.getMediaSource.getId)
       } catch {
         case e: SQLException => {
           if (!autoCommit) {
             System.err.println("Database error in current batch, switching to auto-commit mode. ");
-            connection.rollback()
             addVerbose(translationPairs, autoCommit=true)
             return;
           } else {
@@ -240,9 +238,9 @@ with MediaStorage {
   def addMediaSource(mediaSource: MediaSource): Long = {
     val stmt = connection.prepareStatement("INSERT INTO %s(title, year, genres) VALUES(?, ?, ?) RETURNING source_id;".format(mediasourceTable))
 
-    stmt.setString(1, mediaSource.title)
-    stmt.setString(2, mediaSource.year)
-    stmt.setString(3, mediaSource.genres mkString ",")
+    stmt.setString(1, mediaSource.getTitle)
+    stmt.setString(2, mediaSource.getYear)
+    stmt.setString(3, mediaSource.getGenres mkString ",")
     stmt.execute()
 
     stmt.getResultSet.next()

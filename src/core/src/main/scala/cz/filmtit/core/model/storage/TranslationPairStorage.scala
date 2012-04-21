@@ -1,8 +1,7 @@
 package cz.filmtit.core.model.storage
 
 import cz.filmtit.core.model._
-import cz.filmtit.core.model.data.TranslationPair
-import cz.filmtit.core.model.Language
+import cz.filmtit.share.{Language, TranslationPair}
 
 /**
  * Interface for retrieving translation pair candidates from a database.

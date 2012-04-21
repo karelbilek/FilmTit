@@ -3,10 +3,9 @@ package cz.fimtit.eval.database
 import io.Source
 import java.io.File
 import org.apache.commons.math.stat.StatUtils
-import cz.filmtit.core.model.storage.{TranslationPairStorage, SignatureTranslationPairStorage}
-import cz.filmtit.core.model.data.TranslationPair
-import cz.filmtit.core.model.Language
-import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
+import cz.filmtit.core.model.storage.SignatureTranslationPairStorage
+import cz.filmtit.core.search.postgres.impl.NEStorage
+import cz.filmtit.share.{Language, TranslationPair}
 
 /**
  * @author Joachim Daiber
@@ -83,9 +82,9 @@ object EvaluateSignature {
 
   def main(args: Array[String]) {
     evaluateSignatures(
-      new NEStorage(Language.en, Language.cs),
+      new NEStorage(Language.EN, Language.CS),
       new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"),
-      languages = Set(Language.en)
+      languages = Set(Language.EN)
     )
   }
 

@@ -4,8 +4,8 @@ import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import scala.collection.mutable.HashMap
 import scala.io.Source
 import cz.filmtit.core.model.storage.Signature
-import cz.filmtit.core.model.data.{Chunk}
-import cz.filmtit.core.model.{TranslationSource, Language}
+import cz.filmtit.core.model.data.AnnotatedChunk
+import cz.filmtit.share.{Language, TranslationSource}
 
 
 /**
@@ -14,7 +14,7 @@ import cz.filmtit.core.model.{TranslationSource, Language}
  */
 
 class ClusteredStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalFuzzy,
+  extends BaseSignatureStorage(l1, l2, TranslationSource.INTERNAL_FUZZY,
     "sign_clustered", readOnly = readOnly) {
 
   val cluster: HashMap[String, Int] = new HashMap[String, Int]()
@@ -33,8 +33,8 @@ class ClusteredStorage(l1: Language, l2: Language, readOnly: Boolean = true)
     }
   })
 
-  override def signature(chunk: Chunk, language: Language): Signature = {
-    new String(chunk.surfaceform.split(" ") flatMap {
+  override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
+    new String(chunk.getSurfaceform.split(" ") flatMap {
       token =>
         cluster.get(token) match {
           case Some(i) => "c%d,".format(i)

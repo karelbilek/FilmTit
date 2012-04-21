@@ -1,8 +1,7 @@
 package cz.filmtit.core.search.postgres.impl
 
-import cz.filmtit.core.model._
 import cz.filmtit.core.search.postgres.BaseStorage
-import data.{Chunk, ScoredTranslationPair, TranslationPair}
+import cz.filmtit.share.{Language, TranslationPair, Chunk, TranslationSource}
 
 
 /**
@@ -13,12 +12,12 @@ import data.{Chunk, ScoredTranslationPair, TranslationPair}
 
 
 class TrigramStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseStorage(l1, l2, TranslationSource.InternalFuzzy, readOnly = readOnly) {
+  extends BaseStorage(l1, l2, TranslationSource.INTERNAL_FUZZY, readOnly = readOnly) {
 
-  override def candidates(chunk: Chunk, language: Language): List[ScoredTranslationPair] = {
+  override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
       "" + pairTable + " WHERE sentence % ?;")
-    select.setString(1, chunk)
+    select.setString(1, chunk.getSurfaceform)
     val rs = select.executeQuery()
 
     while (rs.next) {

@@ -3,9 +3,10 @@ package cz.filmtit.core.search.postgres.impl
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 
+import data.AnnotatedChunk
 import storage.Signature
-import data.{Chunk}
 import java.lang.String
+import cz.filmtit.share.{Language, TranslationSource}
 
 
 /**
@@ -16,14 +17,14 @@ import java.lang.String
  */
 
 class FirstLetterStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.InternalExact,
+  extends BaseSignatureStorage(l1, l2, TranslationSource.INTERNAL_EXACT,
     "sign_firstletter", readOnly = readOnly) {
 
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
-  override def signature(chunk: Chunk, language: Language): Signature = {
-    val tokens: Array[String] = chunk.surfaceform.split("[ ,.?!-]") filter (_ != "")
+  override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
+    val tokens: Array[String] = chunk.getSurfaceform.split("[ ,.?!-]") filter (_ != "")
 
     tokens map {
       token =>

@@ -1,10 +1,10 @@
 package cz.filmtit.core
 
-import cz.filmtit.core.model.Language
-import cz.filmtit.core.model.annotation.{ChunkAnnotation, Name}
+import cz.filmtit.core.model.annotation.ChunkAnnotation
 import java.io.File
 import scala.xml._
-import collection.mutable.{HashMap, ListBuffer}
+import collection.mutable.HashMap
+import cz.filmtit.share.Language
 
 /**
  * Configuration file for the external files and databases required by the TM.

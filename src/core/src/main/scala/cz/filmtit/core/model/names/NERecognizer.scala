@@ -1,12 +1,12 @@
 package cz.filmtit.core.model.names
 
 import cz.filmtit.core.model.annotation.ChunkAnnotation
-import cz.filmtit.core.model.data.Chunk
+import cz.filmtit.core.model.data.AnnotatedChunk
 
 
 /**
  * Interface for named entity recognizers. NE should be added as annotations
- * to the [[cz.filmtit.core.model.data.Chunk]].
+ * to the [[cz.filmtit.core.model.data.AnnotatedChunk]].
  *
  * @author Joachim Daiber
  */
@@ -20,6 +20,6 @@ abstract class NERecognizer(val neClass: ChunkAnnotation) {
    * @param chunk chunk on which NER will be performed
    */
 
-  def detect(chunk: Chunk)
+  def detect(chunk: AnnotatedChunk)
 
 }

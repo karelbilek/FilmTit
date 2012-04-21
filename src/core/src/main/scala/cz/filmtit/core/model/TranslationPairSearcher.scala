@@ -1,6 +1,7 @@
 package cz.filmtit.core.model
 
-import cz.filmtit.core.model.data.{TranslationPair, Chunk}
+import cz.filmtit.share.{Language, TranslationPair, Chunk}
+
 
 /**
  * Interface for translation pair searchers, based on a local database,
@@ -20,9 +21,9 @@ abstract class TranslationPairSearcher(
    */
   def chunkForLanguage(pair: TranslationPair, language: Language): Chunk = {
     if (language equals l1)
-      pair.chunkL1
+      pair.getChunkL1
     else
-      pair.chunkL2
+      pair.getChunkL2
   }
 
 

@@ -3,7 +3,7 @@ package cz.filmtit.core
 import cz.filmtit.core.tm.BackoffTranslationMemory
 import cz.filmtit.core.model.names.NERecognizer
 
-import model.{TranslationSource, Language, TranslationMemory}
+import cz.filmtit.core.model.TranslationMemory
 import opennlp.tools.namefind.{TokenNameFinderModel, NameFinderME}
 
 import cz.filmtit.core.names.OpenNLPNameFinder
@@ -11,8 +11,9 @@ import java.io.FileInputStream
 import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
 import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
-import rank.{FuzzyNERanker, ExactRanker}
+import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import search.external.MyMemorySearcher
+import cz.filmtit.share.{Language, TranslationSource}
 
 /**
  * @author Joachim Daiber
@@ -31,16 +32,16 @@ object Factory {
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
       new MyMemorySearcher(
-        Language.en,
-        Language.cs,
-        allowedSources = Set(TranslationSource.ExternalMT)
+        Language.EN,
+        Language.CS,
+        allowedSources = Set(TranslationSource.EXTERNAL_MT)
       ),
       threshold = 0.7
     )
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.en, Language.cs, readOnly=readOnly),
+      new NEStorage(Language.EN, Language.CS, readOnly=readOnly),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -48,7 +49,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.en, Language.cs, readOnly=readOnly),
+      new FirstLetterStorage(Language.EN, Language.CS, readOnly=readOnly),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)

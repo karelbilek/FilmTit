@@ -6,8 +6,8 @@ import junit.framework.Assert._
 
 import org.scalatest.Spec
 import cz.filmtit.core.model.annotation.Name
-import cz.filmtit.core.model.data.Chunk
-
+import cz.filmtit.core.model.data.AnnotatedChunk
+import cz.filmtit.share.Chunk
 
 /**
  * Test specification for the data model classes.
@@ -22,10 +22,10 @@ class DataSpec extends Spec {
   describe("A Chunk") {
 
     it("can be created from a String") {
-      assert( Chunk.fromString("test") equals new Chunk("test") )
+      assert( new Chunk("test") equals new Chunk("test") )
     }
 
-    val chunk: Chunk = "I am Jo"
+    val chunk: AnnotatedChunk = "I am Jo"
 
     it("can have annotations") {
       chunk.addAnnotation(Name.Person, 5, 7)
@@ -50,7 +50,7 @@ class DataSpec extends Spec {
 
     it("can have many annotations") {
 
-      val chunk: Chunk = "Peter lives in New York with Gabi"
+      val chunk: AnnotatedChunk = "Peter lives in New York with Gabi"
       chunk.addAnnotation(Name.Person, 0, 5)
       chunk.addAnnotation(Name.Place, 15, 23)
       chunk.addAnnotation(Name.Person, 29, 33)

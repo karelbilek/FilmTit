@@ -3,13 +3,14 @@ package cz.filmtit.core.io
 
 import collection.mutable.HashMap
 import io.Source
-import collection.mutable.HashSet
-import cz.filmtit.core.model.data.{MediaSource, TranslationPair}
 import cz.filmtit.core.model.TranslationMemory
 import scala.util.Random
 import cz.filmtit.core.{Configuration, Factory}
 import java.io._
 import java.nio.charset.MalformedInputException
+import cz.filmtit.share.{MediaSource, TranslationPair}
+import java.lang.System
+import cz.filmtit.core.model.data.MediaSourceFactory
 
 
 /**
@@ -37,7 +38,7 @@ object Import {
             new MediaSource(
               data(7),
               data(8),
-              new HashSet[String]()
+              ""
             )
           )
       }
@@ -67,7 +68,7 @@ object Import {
    * @return
    */
   def loadMediaSource(id: String): MediaSource = subtitles.get(id) match {
-    case Some(mediaSource) => MediaSource.fromCachedIMDB(mediaSource.title, mediaSource.year, imdbCache)
+    case Some(mediaSource) => MediaSourceFactory.fromCachedIMDB(mediaSource.getTitle, mediaSource.getYear, imdbCache)
     case None => throw new IOException("No movie found in the DB!")
   }
 
@@ -92,12 +93,12 @@ object Import {
         files flatMap ( (sourceFile: File) => {
 
           val mediaSource = loadMediaSource(sourceFile.getName.replace(".txt", ""))
-          mediaSource.id = tm.mediaStorage.addMediaSource(mediaSource)
+          mediaSource.setId(tm.mediaStorage.addMediaSource(mediaSource))
 
           System.err.println( "- %s: %s, %s, %s"
-            .format(sourceFile.getName, mediaSource.title, mediaSource.year,
-            if (mediaSource.genres.size > 0)
-              mediaSource.genres.toString()
+            .format(sourceFile.getName, mediaSource.getTitle, mediaSource.getYear,
+            if (mediaSource.getGenres.size > 0)
+              mediaSource.getGenres.toString()
             else
               "Could not retrieve additional information")
           )
@@ -105,15 +106,15 @@ object Import {
           //Read all pairs from the file and convert them to translation pairs
           try {
             val pairs = Source.fromFile(sourceFile).getLines()
-              .map( TranslationPair.maybeFromString(_) )
-              .flatten
-              .map( { pair => pair.setMediaSource(mediaSource); pair } )
+              .map( (s: String) => TranslationPair.fromString(s) )
+              .filter(_ != null)
+              .map( (pair: TranslationPair) => { pair.addMediaSource(mediaSource); pair })
 
             //Exclude heldoutSize% of the data as heldout data
             val (training, heldout) =
-              pairs.toList.partition(_ => !(Random.nextFloat() < Configuration.heldoutSize) )
+              pairs.toList.partition({ _: TranslationPair => (Random.nextFloat >= Configuration.heldoutSize) })
 
-            heldout.foreach( pair => heldoutWriter.println(pair.toExternalString) )
+            heldout.foreach({ pair: TranslationPair => heldoutWriter.println(pair.toExternalString) })
 
             training
           } catch {
@@ -131,11 +132,11 @@ object Import {
           writeIMDBCache()
 
           val r = Runtime.getRuntime
-          System.err.println("Total memory is: %.2fMB".format(r.totalMemory() / 1024*1024))
-          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / 1024*1024))
+          System.err.println("Total memory is: %.2fMB".format(r.totalMemory() / 1024.0*1024))
+          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / 1024.0*1024))
           System.err.println("Running GC")
           System.gc(); System.gc(); System.gc(); System.gc()
-          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / 1024*1024))
+          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / 1024.0*1024))
         }
       }
       )

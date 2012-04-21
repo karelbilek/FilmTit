@@ -1,13 +1,12 @@
 package cz.filmtit.core.tm
 
 import com.weiglewilczek.slf4s.Logger
-import cz.filmtit.core.model.data._
 import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
 
-import cz.filmtit.core.model.Language
 import scala.Predef._
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
+import cz.filmtit.share.{Language, MediaSource, Chunk, TranslationPair}
 
 
 /**
@@ -52,7 +51,7 @@ class BackoffTranslationMemory(
 
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-    n: Int = 10, inner: Boolean = false): List[ScoredTranslationPair] = {
+    n: Int = 10, inner: Boolean = false): List[TranslationPair] = {
 
     //Only on first level:
     if (!inner)
@@ -64,37 +63,37 @@ class BackoffTranslationMemory(
 
     val ranked = ranker match {
       case Some(r) => r.rank(chunk, null, pairs)
-      case None => pairs.asInstanceOf[List[ScoredTranslationPair]]
+      case None => pairs.asInstanceOf[List[TranslationPair]]
     }
     val s3 = System.currentTimeMillis
 
     logger.info( "Retrieved %d candidates (%dms), ranking: %dms, total: %dms"
       .format(pairs.size, s2 - s1, s3 - s2, s3 - s1) )
 
-    if ( ranked.take(n).exists(pair => pair.score >= threshold) )
+    if ( ranked.take(n).exists(pair => pair.getScore >= threshold) )
       ranked.take(n)
     else
       backoff match {
         case Some(backoffTM) => 
           backoffTM.nBest(chunk, language, mediaSource, n, inner=true)
-        case None => List[ScoredTranslationPair]()
+        case None => List[TranslationPair]()
       }
   }
 
 
   def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
-  Option[ScoredTranslationPair] = {
+  Option[TranslationPair] = {
 
     logger.info( "first-best: (%s) %s".format(language, chunk) )
 
     val pairs: List[TranslationPair] = candidates(chunk, language, mediaSource)
     val best = ranker match {
       case Some(r) => r.best(chunk, null, pairs)
-      case None => pairs.headOption.asInstanceOf[Option[ScoredTranslationPair]]
+      case None => pairs.headOption.asInstanceOf[Option[TranslationPair]]
     }
 
     best match {
-      case Some(pair) if pair.score >= threshold => Some(pair)
+      case Some(pair) if pair.getScore >= threshold => Some(pair)
       case _ =>
         backoff match {
           case Some(backoffTM) => backoffTM.firstBest(chunk, language, mediaSource)
