@@ -1,7 +1,5 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.share.Match;
-import cz.filmtit.share.Translation;
 import org.hibernate.Session;
 
 import java.util.ArrayList;

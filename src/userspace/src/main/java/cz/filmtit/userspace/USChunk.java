@@ -4,10 +4,7 @@ import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.model.data.ScoredTranslationPair;
 import cz.filmtit.share.Chunk;
-import cz.filmtit.share.Match;
-import cz.filmtit.share.Translation;
 import org.hibernate.Session;
-import sun.nio.cs.ext.MacHebrew;
 
 import java.util.*;
 

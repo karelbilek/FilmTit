@@ -1,7 +1,5 @@
 package cz.filmtit.client;
 
-import cz.filmtit.share.Translation;
-
 /**
  * Represents a single translation chunk.
  * (vaguely based on class Translation from Jindra)

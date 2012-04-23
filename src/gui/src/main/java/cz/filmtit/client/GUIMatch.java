@@ -3,11 +3,6 @@ package cz.filmtit.client;
 
 import java.util.*;
 
-import cz.filmtit.share.Match;
-import cz.filmtit.share.Translation;
-
-
-
 
 /**
  * Represents a matching chunk,

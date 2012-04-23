@@ -7,7 +7,6 @@ package cz.filmtit.userspace;
  * @author Jindřich Libovický
 */
 
-import cz.filmtit.share.*;
 import org.hibernate.Session;
 
 public class USTranslation extends DatabaseObject {

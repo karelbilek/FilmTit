@@ -2,6 +2,7 @@ package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.Language;
 import cz.filmtit.core.model.data.MediaSource;
+import cz.filmtit.share.Document;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -27,13 +28,18 @@ public class USDocument extends DatabaseObject {
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
     
-    public USDocument(String movieTitle, int year, Language language) {
+ /*   public USDocument(String movieTitle, int year, Language language) {
         this.movieTitle = movieTitle;
         this.year = year;
         this.language = language;
         workStartTime = new Date().getTime();
         spentOnThisTime = 0;
         chunks = new ArrayList<USChunk>();
+    }*/
+
+    public USDocument(Document document) {
+        this.document = document;
+        workStartTime = new Date().getTime();
     }
 
     /**
@@ -42,11 +48,26 @@ public class USDocument extends DatabaseObject {
     public USDocument() {
     }
 
-    private String movieTitle;
-    private int year;
+    public long getUserDatabaseId() {
+        return userDatabaseId;
+    }
+
+    public void setUserDatabaseId(long userDatabaseId) {
+        this.userDatabaseId = userDatabaseId;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    private long userDatabaseId;
+    private Document document;
     private List<USChunk> chunks;
     private long workStartTime;
-    private long spentOnThisTime;
     private Language language;
     private long translationGenerationTime;
     /**
@@ -56,7 +77,7 @@ public class USDocument extends DatabaseObject {
     private boolean finished;
 
      public String getMovieTitle() {
-        return movieTitle;
+        return document.movieTitle;
     }
 
     /**
@@ -65,11 +86,11 @@ public class USDocument extends DatabaseObject {
      * @param movieTitle New movie title.
      */
     public void setMovieTitle(String movieTitle) {
-        this.movieTitle = movieTitle;
+        document.movieTitle = movieTitle;
     }
 
     public int getYear() {
-        return year;
+        return document.year;
     }
 
     /**
@@ -82,7 +103,8 @@ public class USDocument extends DatabaseObject {
         if (year < MINIMUM_MOVIE_YEAR || year > Calendar.getInstance().get(Calendar.YEAR + ALLOWED_FUTURE_FOR_YEARS) ) {
             throw new IllegalArgumentException("Value of year should from 1850 to the current year + 5.");
         }
-        this.year = year;
+
+        document.year = year;
     }
 
     /**
@@ -90,7 +112,7 @@ public class USDocument extends DatabaseObject {
      * @return The time spent on this subtitles in milliseconds.
      */
     public long getSpentOnThisTime() {
-        return spentOnThisTime + (new Date()).getTime() - workStartTime;
+        return document.spentOnThisTime + (new Date()).getTime() - workStartTime;
     }
 
     /**
@@ -99,7 +121,7 @@ public class USDocument extends DatabaseObject {
      * @param spentOnThisTime New value of time spent on this document.
      */
     public void setSpentOnThisTime(long spentOnThisTime) {
-        this.spentOnThisTime = spentOnThisTime;
+        document.spentOnThisTime = spentOnThisTime;
         workStartTime = new Date().getTime();
     }
 
@@ -118,7 +140,8 @@ public class USDocument extends DatabaseObject {
 
     public MediaSource getMediaSource() {
         if (mediaSource == null) {
-            mediaSource = cz.filmtit.core.model.data.MediaSource.fromIMDB(movieTitle, Integer.toString(year));
+            mediaSource = cz.filmtit.core.model.data.MediaSource.fromIMDB(document.movieTitle,
+                    Integer.toString(document.year));
         }
         return mediaSource;
     }

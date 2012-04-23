@@ -21,9 +21,9 @@
         <property name="current_session_context_class">thread</property>
 
         <!-- List of mapping files -->
-        <!-- <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
-        <mapping resource="cz/filmtit/userspace/user.hbm.xml"/>
+        <!-- <mapping resource="cz/filmtit/userspace/user.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/session.hbm.xml"/> -->
+        <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USChunk.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USMatch.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USTranslation.hbm.xml"/>
