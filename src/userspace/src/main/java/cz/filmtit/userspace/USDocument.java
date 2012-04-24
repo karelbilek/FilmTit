@@ -1,8 +1,7 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.core.model.Language;
-import cz.filmtit.core.model.data.MediaSource;
-import cz.filmtit.share.Document;
+import cz.filmtit.core.model.data.MediaSourceFactory;
+import cz.filmtit.share.*;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -27,15 +26,6 @@ public class USDocument extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
-    
- /*   public USDocument(String movieTitle, int year, Language language) {
-        this.movieTitle = movieTitle;
-        this.year = year;
-        this.language = language;
-        workStartTime = new Date().getTime();
-        spentOnThisTime = 0;
-        chunks = new ArrayList<USChunk>();
-    }*/
 
     public USDocument(Document document) {
         this.document = document;
@@ -66,7 +56,7 @@ public class USDocument extends DatabaseObject {
 
     private long userDatabaseId;
     private Document document;
-    private List<USChunk> chunks;
+    private List<USTranslationResult> translationResults;
     private long workStartTime;
     private Language language;
     private long translationGenerationTime;
@@ -135,12 +125,12 @@ public class USDocument extends DatabaseObject {
     
     public void setLanguageString(String languageCode) {
         // TODO: solve this so that the language will get both the name and code of the language
-        this.language = cz.filmtit.core.model.Language.apply("", languageCode);
+        this.language = Language.fromCode(languageCode);
     }
 
     public MediaSource getMediaSource() {
         if (mediaSource == null) {
-            mediaSource = cz.filmtit.core.model.data.MediaSource.fromIMDB(document.movieTitle,
+            cz.filmtit.core.model.data.MediaSourceFactory.fromIMDB(document.movieTitle,
                     Integer.toString(document.year));
         }
         return mediaSource;
@@ -155,34 +145,30 @@ public class USDocument extends DatabaseObject {
     }
 
     /**
-     * Loads the chunks from USUser Space database.
+     * Loads the translationResults from USUser Space database.
      */
     public void loadChunksFromDb() {
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
     
-        // query the database for the chunks
+        // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from Chunks where c.documentId = :did")
                 .setParameter("did", getDatabaseId()).list();
 
-        chunks = new ArrayList<USChunk>();
+        translationResults = new ArrayList<USTranslationResult>();
         for (Object o : foundChunks) {
-            chunks.add((USChunk)o);
+            translationResults.add((USTranslationResult)o);
         }
     
         dbSession.getTransaction().commit();
 
-        // if the chunks have old translations, regenerate them
+        // if the translationResults have old translations, regenerate them
         if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
-            for (USChunk chunk : chunks) {
-                chunk.renewMTSuggestions(); // TODO: request separate DB transaction now, redo it
+            for (USTranslationResult translationResult : translationResults) {
+                translationResult.generateMTSuggestions();
             }
         }
-        else { // otherwise just load them from the database
-            for (USChunk chunk : chunks) {
-                chunk.loadMatchesFromDatabase(dbSession);
-            }
-        }
+        // otherwise they're automatically loaded from the database
 
         dbSession.getTransaction().commit();
     }
@@ -190,13 +176,12 @@ public class USDocument extends DatabaseObject {
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
 
-        for (USChunk chunk : chunks) {
-            chunk.saveToDatabase(dbSession);
+        for (USTranslationResult translationResult : translationResults) {
+            translationResult.saveToDatabase(dbSession);
         }
     }
 
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
-
     }
 }

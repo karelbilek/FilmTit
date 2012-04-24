@@ -15,4 +15,11 @@ public class Chunk {
     public String getSurfaceform() {
         return surfaceform;
     }
+
+    public void setSurfaceform(String surfaceform) throws IllegalAccessException {
+        if (this.surfaceform == null) { this.surfaceform = surfaceform; }
+        else {
+            throw new IllegalAccessException("The chunk surface form can be set just once.");
+        }
+    }
 }

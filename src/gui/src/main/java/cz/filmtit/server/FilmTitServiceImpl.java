@@ -1,7 +1,7 @@
 package cz.filmtit.server;
 
 import cz.filmtit.client.FilmTitService;
-import cz.filmtit.share.Chunk;
+import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.*;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -9,9 +9,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		FilmTitService {
 
-	public Chunk suggestions(Chunk chunk) {
+	public TranslationResult suggestions(TranslationResult chunk) {
 		
-		USChunk uschunk = new USChunk(chunk);
+		USTranslationResult uschunk = new USTranslationResult(chunk);
 				
 		if(uschunk.getText().equals("hi")) {
 			uschunk.setUserTranslation("ahoj");
