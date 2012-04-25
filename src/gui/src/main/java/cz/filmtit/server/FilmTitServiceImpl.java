@@ -1,6 +1,7 @@
 package cz.filmtit.server;
 
 import cz.filmtit.client.FilmTitService;
+import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.*;
 
@@ -9,21 +10,21 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		FilmTitService {
 
-	public TranslationResult suggestions(TranslationResult chunk) {
+	public TranslationResult suggestions(TimedChunk chunk) {
 		
-		USTranslationResult uschunk = new USTranslationResult(chunk);
+		USTranslationResult usTranslationResult = new USTranslationResult(chunk);
 				
-		if(uschunk.getText().equals("hi")) {
-			uschunk.setUserTranslation("ahoj");
-		} else if (chunk.text.equals("bye")) {
-			uschunk.setUserTranslation("čau");
-		} else if (chunk.text.equals("platypus")) {
-			uschunk.setUserTranslation("ptakopysk");
+		if(usTranslationResult.getText().equals("hi")) {
+			usTranslationResult.setUserTranslation("ahoj");
+		} else if (usTranslationResult.getText().equals("bye")) {
+			usTranslationResult.setUserTranslation("čau");
+		} else if (usTranslationResult.getText().equals("platypus")) {
+			usTranslationResult.setUserTranslation("ptakopysk");
 		} else {
-			uschunk.setUserTranslation("no translation");
+			usTranslationResult.setUserTranslation("no translation");
 		}
 
-		return uschunk.getSharedChunk();
+		return usTranslationResult.getSharedChunk();
 	}
 
 	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {

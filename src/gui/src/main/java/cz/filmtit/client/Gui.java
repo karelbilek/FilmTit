@@ -262,10 +262,10 @@ public class Gui implements EntryPoint {
 					filmTitSvc = GWT.create(FilmTitService.class);
 				}
 				
-				AsyncCallback<Chunk> callback = new AsyncCallback<Chunk>() {
+				AsyncCallback<TranslationResult> callback = new AsyncCallback<TranslationResult>() {
 					
-					public void onSuccess(Chunk result) {
-						translation.setText(result.userTranslation);
+					public void onSuccess(TranslationResult result) {
+						translation.setText(result.getUserTranslation());
 					}
 					
 					public void onFailure(Throwable caught) {
@@ -273,7 +273,7 @@ public class Gui implements EntryPoint {
 					}
 				};
 				
-				Chunk chunk = new Chunk(txtbxText.getText());
+				TimedChunk chunk = new TimedChunk(txtbxText.getText());
 				filmTitSvc.suggestions(chunk, callback);
 				
 			}
