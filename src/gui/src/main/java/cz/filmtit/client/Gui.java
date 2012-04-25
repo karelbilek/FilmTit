@@ -46,7 +46,7 @@ import org.vectomatic.file.events.LoadEndHandler;
 public class Gui implements EntryPoint {
 
 	private GUISubtitleList sublist;
-	private GUITranslationResultList trlist;
+	GUITranslationResultList trlist;
 	
 	private TextArea txtDebug;
 	private RadioButton rdbFormatSrt;

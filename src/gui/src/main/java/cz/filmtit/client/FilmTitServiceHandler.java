@@ -16,11 +16,11 @@ public class FilmTitServiceHandler {
 	// FilmTitServiceAsync should be created automatically
 	// from FilmTitService during compilation...?
 	private FilmTitServiceAsync filmTitSvc;
-	private GUITranslationResultList trlist;
+	private Gui gui;
 	
-	public FilmTitServiceHandler(GUITranslationResultList trlist) {
+	public FilmTitServiceHandler(Gui gui) {
 		filmTitSvc = GWT.create(FilmTitService.class);
-		this.trlist = trlist;
+		this.gui = gui;
 	}
 	
 	public void suggestions(TimedChunk chunk) {
@@ -35,7 +35,7 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(TranslationResult result) {
 				// TODO
-				trlist.addTranslationResult(result);
+				gui.trlist.addTranslationResult(result);
 			}
 			
 			public void onFailure(Throwable caught) {
