@@ -56,7 +56,7 @@ public class Gui implements EntryPoint {
 
 	// FilmTitServiceAsync should be created automatically
 	// from FilmTitService during compilation...?
-	private FilmTitServiceAsync filmTitSvc = GWT.create(FilmTitService.class);
+	private FilmTitServiceHandler rpcHandler = new FilmTitServiceHandler();
 	
 	TextBox txtbxText;
 	Label translation;
@@ -255,29 +255,6 @@ public class Gui implements EntryPoint {
 		rootPanel.add(txtbxText, 17, 25);
 		
 		Button btnTranslate = new Button("Translate");
-		btnTranslate.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				// handling todleto
-				if (filmTitSvc == null) {
-					filmTitSvc = GWT.create(FilmTitService.class);
-				}
-				
-				AsyncCallback<TranslationResult> callback = new AsyncCallback<TranslationResult>() {
-					
-					public void onSuccess(TranslationResult result) {
-						translation.setText(result.getUserTranslation());
-					}
-					
-					public void onFailure(Throwable caught) {
-						Window.alert(caught.getLocalizedMessage());
-					}
-				};
-				
-				TimedChunk chunk = new TimedChunk(txtbxText.getText());
-				filmTitSvc.suggestions(chunk, callback);
-				
-			}
-		});
 		rootPanel.add(btnTranslate, 57, 73);
 		
 		translation = new Label("");
