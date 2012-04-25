@@ -7,4 +7,5 @@ import cz.filmtit.share.TranslationResult;
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
 	TranslationResult suggestions (TranslationResult chunk);
+	void feedback (long translationResultId, long chosenTranslationPair, String userTranslation);
 }

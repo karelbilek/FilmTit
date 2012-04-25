@@ -25,5 +25,9 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 
 		return uschunk.getSharedChunk();
 	}
+
+	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
+		
+	}
 	
 }
