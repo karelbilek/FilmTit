@@ -24,7 +24,7 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 			usTranslationResult.setUserTranslation("no translation");
 		}
 
-		return usTranslationResult.getSharedChunk();
+		return usTranslationResult.getTranslationResult();
 	}
 
 	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {

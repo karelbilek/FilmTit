@@ -5,12 +5,12 @@ import java.util.List;
 
 public class TranslationResult {
 
-    private Chunk sourceChunk;
+    private TimedChunk sourceChunk;
     private String userTranslation;
     private List<TranslationPair> translationPairs = new LinkedList<TranslationPair>();
     private int feedback;
 	
-    public Chunk getSourceChunk() {
+    public TimedChunk getSourceChunk() {
         return sourceChunk;
     }
 

@@ -9,9 +9,9 @@ public class Document {
     public long spentOnThisTime;
     public String language;
 
-    public List<TranslationResult> chunks;
+    public List<TranslationResult> translationResults;
     
     public Document() {
-    	this.chunks = new ArrayList<TranslationResult>();
+    	this.translationResults = new ArrayList<TranslationResult>();
     }
 }
