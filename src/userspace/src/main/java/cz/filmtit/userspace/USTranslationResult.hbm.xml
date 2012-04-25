@@ -5,7 +5,7 @@
 
 <hibernate-mapping package="cz.filmtit.userspace">
 
-    <class name="USTranlationResult" table="TranlsationResults">
+    <class name="USTranlationResult" table="TranslationResults">
         <id name="databaseId" type="long" column="Id">
             <generator class="native"/>
         </id>
