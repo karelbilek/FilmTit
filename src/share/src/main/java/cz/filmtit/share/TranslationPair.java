@@ -104,9 +104,9 @@ public class TranslationPair implements Comparable<TranslationPair> {
     @Override
     public String toString() {
         if (this.score != null) {
-            return String.format("TP[Score: %2f, %s, %s]", score, chunkL1.getSurfaceform(), chunkL1.getSurfaceform());
+            return String.format("TP[Score: %2f, %s, %s]", score, chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
         } else {
-            return String.format("TP[%s, %s]", chunkL1.getSurfaceform(), chunkL1.getSurfaceform());
+            return String.format("TP[%s, %s]", chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
         }
     }
 
