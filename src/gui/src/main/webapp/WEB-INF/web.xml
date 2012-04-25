@@ -6,7 +6,7 @@
 <web-app>
 
   <!-- Servlets -->
-  <servlet>
+<!--  <servlet>
     <servlet-name>greetServlet</servlet-name>
     <servlet-class>cz.filmtit.server.GreetingServiceImpl</servlet-class>
   </servlet>
@@ -14,7 +14,7 @@
   <servlet-mapping>
     <servlet-name>greetServlet</servlet-name>
     <url-pattern>/gui/greet</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping>-->
 
   <servlet>
     <servlet-name>FilmTitServiceImpl</servlet-name>
