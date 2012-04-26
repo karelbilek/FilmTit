@@ -1,5 +1,8 @@
 package cz.filmtit.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cz.filmtit.share.*;
 
 public final class SampleDocument extends Document {
@@ -7,6 +10,37 @@ public final class SampleDocument extends Document {
 	// filling a sample Document/SubtitleList by hand:
 	public SampleDocument() {
 		
+		TranslationResult tr1 = new TranslationResult();
+		tr1.setSourceChunk( new TimedChunk("001", "002", 1, "Hi, Bob!") );
+		List<TranslationPair> trpairs1 = new ArrayList<TranslationPair>();
+		trpairs1.add( new TranslationPair("Hi, Bob!", "Ahoj, Bobe!") );
+		trpairs1.add( new TranslationPair("Hi, Bob!", "ahoj, bobe!") );
+		trpairs1.add( new TranslationPair("Hi, Bob!", "nazdar, bobe!") );
+		trpairs1.add( new TranslationPair("Hi, Bob!", "Čau, Roberte!") );
+		trpairs1.add( new TranslationPair("Hi, Bob.", "ahoj, bobe.") );
+		trpairs1.add( new TranslationPair("Hi, Bob.", "ahoj, bobe") );
+		tr1.setTmSuggestions(trpairs1);
+		
+		TranslationResult tr2 = new TranslationResult();
+		tr2.setSourceChunk( new TimedChunk("002", "003", 1, "Hi Tom!") );
+		List<TranslationPair> trpairs2 = new ArrayList<TranslationPair>();
+		trpairs2.add( new TranslationPair("Hi, Tom!", "Ahoj Tome!") );
+		trpairs2.add( new TranslationPair("Hi, Tom!", "ahoj, tome!") );
+		tr2.setTmSuggestions(trpairs2);
+		
+		TranslationResult tr3 = new TranslationResult();
+		tr3.setSourceChunk( new TimedChunk("004", "005", 1, "Run, you fools!") );
+		List<TranslationPair> trpairs3 = new ArrayList<TranslationPair>();
+		trpairs3.add( new TranslationPair("Run, you fools...", "Utíkejte, hlupáci!") );
+		trpairs3.add( new TranslationPair("Run, you fools...", "Utíkejte, blbci!") );
+		trpairs3.add( new TranslationPair("Run, you bastards!", "utíkejte, plantážníci!") );
+		trpairs3.add( new TranslationPair("Run, run, run!", "Běžte, běžte, běžte!") );
+		trpairs3.add( new TranslationPair("Run, run, run!", "Makáme, makáme!") );
+		trpairs3.add( new TranslationPair("Run, run, run!", "Utíkejte!!!") );
+		tr3.setTmSuggestions(trpairs3);
+		
+		/*
+		 * old structure:
 		Chunk chunk1 = new Chunk("Hi, Bob!");
 		Match match1_1 = new Match("Hi, Bob!");
 		match1_1.translations.add( new Translation("Ahoj, Bobe!") );
@@ -38,7 +72,7 @@ public final class SampleDocument extends Document {
 		match4_1.translations.add( new Translation("Utíkejte, blbci!") );
 		chunk4.matches.add(match4_1);
 		Match match4_2 = new Match("Run, you bastards!");
-		//match4_2.translations.add( new Translation("Zdrhejte, hovada!") );
+		//match4_2.translations.add( new Translation("Run, you bastards!") );
 		//match4_2.translations.add( new Translation("utíkejte, plantážníci!") );
 		chunk4.matches.add(match4_2);
 		Match match4_3 = new Match("Run, run, run!");
@@ -47,7 +81,7 @@ public final class SampleDocument extends Document {
 		match4_3.translations.add( new Translation("Utíkejte!!!") );
 		chunk4.matches.add(match4_3);
 		this.chunks.add(chunk4);
-		
+		*/
 	}
 	
 }

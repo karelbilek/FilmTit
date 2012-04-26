@@ -1,7 +1,9 @@
 package cz.filmtit.client;
 
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 
@@ -32,6 +34,10 @@ import org.vectomatic.file.FileReader;
 import org.vectomatic.file.FileUploadExt;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.SuggestBox;
 
 
 
@@ -45,25 +51,26 @@ import org.vectomatic.file.events.LoadEndHandler;
 
 public class Gui implements EntryPoint {
 
-	private GUISubtitleList sublist;
-	GUITranslationResultList trlist;
+	//private GUISubtitleList sublist;
 	
+	private List<Label> sources = new ArrayList<Label>();
+	private List<TextBox> targets = new ArrayList<TextBox>();
+
 	private TextArea txtDebug;
 	private RadioButton rdbFormatSrt;
 	private RadioButton rdbFormatSub;
 
 	private RootPanel rootPanel; 
-	private CellBrowser cellBrowser;
 
 	private FilmTitServiceHandler rpcHandler;
+	protected Document currentDoc;
 	
 	
 	@Override
 	public void onModuleLoad() {
+
 		
-		Document sampleDoc = new SampleDocument();
-		sublist = new GUISubtitleList(sampleDoc); 
-		trlist = new GUITranslationResultList(sampleDoc); 
+		//sublist = new GUISubtitleList(new SampleDocument()); 
 		
 		// FilmTitServiceHandler has direct access
 		// to package-internal (and public) fields and methods
@@ -80,6 +87,7 @@ public class Gui implements EntryPoint {
 		// Send feedback via:
 		// rpcHandler.feedback(translationResultId, chosenTranslationPair, userTranslation);
 		
+		
 		// -------------------- //
 		// --- GUI creation --- //
 		// -------------------- //
@@ -95,95 +103,61 @@ public class Gui implements EntryPoint {
 		rootPanel.add(lblHeader, 10, 0);
 		lblHeader.setSize("436px", "0px");
 
+		
+		// --- main interface --- //
+		VerticalPanel panSources = new VerticalPanel();
+		rootPanel.add(panSources, 10, 80);
+		panSources.setSize("327px", "315px");
+		VerticalPanel panTargets = new VerticalPanel();
+		rootPanel.add(panTargets, 345, 80);
+		panTargets.setSize("327px", "315px");
+		
+		Label lblNeco = new Label("To je teda něco...");
+		panSources.add(lblNeco);
+		
+		TextBox textBox = new TextBox();
+		panTargets.add(textBox);
+		
+		SuggestBox suggestBox = new SuggestBox();
+		panTargets.add(suggestBox);
+		
+		// filling the interface with the source subtitles:
+		//ListIterator<GUIChunk> chunkiterator = sublist.getChunks().listIterator();
+		Iterator<TranslationResult> transresultiterator = (new SampleDocument()).translationResults.iterator();
+		while(transresultiterator.hasNext()) {
+			TranslationResult transresult = transresultiterator.next();
+			
+			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceform());
+			sources.add(sourcelabel);
+			panSources.add(sourcelabel);
+			
+		}
+		
+		
+		// --- end of main interface --- //
+		
+		
+		
 
 		// debug-area:
 		txtDebug = new TextArea();
-		rootPanel.add(txtDebug, 412, 188);
+		rootPanel.add(txtDebug, 412, 530);
 		txtDebug.setSize("460px", "176px");
 		txtDebug.setText("debugging outputs...\n");
-
-
-		// --- ListBox interface --- //
-		// adding ListBox for the source subtitles:
-		final ListBox sourceBox = new ListBox();
-		sourceBox.setVisibleItemCount(3);
-		rootPanel.add(sourceBox, 11, 419);
-		sourceBox.setSize("212px", "120px");
-		// filling the box with the source subtitles:
-		ListIterator<GUIChunk> chunkiterator = sublist.getChunks().listIterator();
-		while(chunkiterator.hasNext()) {
-			sourceBox.addItem(chunkiterator.next().getChunkText());
-		}
-		/*
-		ListIterator<Chunk> chunkiterator = document.chunks.listIterator();
-		while(chunkiterator.hasNext()) {
-			sourceBox.addItem(chunkiterator.next().text);
-		}
-		*/
 		
-		// adding ListBox for the matching sentences:
-		final ListBox matchBox = new ListBox();
-		matchBox.setVisibleItemCount(3);
-		rootPanel.add(matchBox, 234, 419);
-		matchBox.setSize("212px", "120px");
-		
-		sourceBox.addChangeHandler( new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				int sourceindex = sourceBox.getSelectedIndex();
-				matchBox.clear();
-				ListIterator<GUIMatch> matchiterator = sublist.getSubtitleChunkAt(sourceindex).getMatches().listIterator();
-				while (matchiterator.hasNext()) {
-					matchBox.addItem(matchiterator.next().getMatchText());	
-				}
-				matchBox.setVisible(true);
-			}
-		} );
-				
-		// adding ListBox for the translations:
-		final ListBox translationBox = new ListBox();
-		translationBox.setVisibleItemCount(3);
-		rootPanel.add(translationBox, 457, 419);
-		translationBox.setSize("212px", "120px");
-		
-		matchBox.addChangeHandler( new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				int sourceindex = sourceBox.getSelectedIndex();
-				int matchindex = matchBox.getSelectedIndex();
-				translationBox.clear();
-				ListIterator<GUITranslation> translationiterator
-					= sublist.getSubtitleChunkAt(sourceindex).getMatches().get(matchindex).getTranslations().listIterator();
-				while (translationiterator.hasNext()) {
-					translationBox.addItem(translationiterator.next().getTranslationText());	
-				}
-				translationBox.setVisible(true);
-			}
-		} );
-		// --- end of ListBox interface --- //		
-
-		
-
-		// --- CellBrowser interface --- //
-		cellBrowser = new CellBrowser(new SubtitleTreeModel(sublist), null);
-		cellBrowser.setMinimumColumnWidth(154);
-		cellBrowser.setDefaultColumnWidth(154);
-		cellBrowser.setSize("660px", "150px");
-		rootPanel.add(cellBrowser, 11, 566);
-		// --- end of CellBrowser interface --- //
 		
 		
 		// --- subfile format (srt/sub) options --- //
 		// (currently used by both textarea and file input)
 		Label lblChooseFileFormat = new Label("Choose file format: (both for file & txtarea)");
-		rootPanel.add(lblChooseFileFormat, 10, 134);
+		rootPanel.add(lblChooseFileFormat, 10, 476);
 		lblChooseFileFormat.setSize("160px", "42px");
 		
 		rdbFormatSrt = new RadioButton("file format", ".srt");
-		rootPanel.add(rdbFormatSrt, 175, 134);
+		rootPanel.add(rdbFormatSrt, 175, 476);
 		rdbFormatSrt.setSize("105px", "20px");
 		rdbFormatSub = new RadioButton("file format", ".sub");
-		rootPanel.add(rdbFormatSub, 175, 160);
+		rootPanel.add(rdbFormatSub, 175, 502);
 		rdbFormatSub.setSize("105px", "20px");
 		rdbFormatSrt.setValue(true);  // default - srt
 		// --- end of subfile format options --- //
@@ -192,14 +166,14 @@ public class Gui implements EntryPoint {
 		
 		// --- file reading interface via lib-gwt-file --- //
 		Label lblChooseEncoding = new Label("Choose encoding:");
-		rootPanel.add(lblChooseEncoding, 286, 134);
+		rootPanel.add(lblChooseEncoding, 286, 476);
 		lblChooseEncoding.setSize("121px", "42px");
 		
 		final RadioButton rdbEncodingUtf8 = new RadioButton("file encoding", "UTF-8");
-		rootPanel.add(rdbEncodingUtf8, 412, 134);
+		rootPanel.add(rdbEncodingUtf8, 412, 476);
 		rdbEncodingUtf8.setSize("105px", "20px");
 		final RadioButton rdbEncodingIso = new RadioButton("file encoding", "iso-8859-2");
-		rootPanel.add(rdbEncodingIso, 412, 160);
+		rootPanel.add(rdbEncodingIso, 412, 502);
 		rdbEncodingIso.setSize("105px", "20px");
 		rdbEncodingUtf8.setValue(true);  // default - UTF-8
 		
@@ -209,7 +183,7 @@ public class Gui implements EntryPoint {
 			public void onLoadEnd(LoadEndEvent event) {
 				String subtext = freader.getStringResult();
 				//txtDebug.setText(txtDebug.getText() + subtext);
-				processText(subtext);
+				//processText(subtext);
 			}
 		} );
 		
@@ -234,14 +208,14 @@ public class Gui implements EntryPoint {
 				}
 			}
 		} );
-		rootPanel.add(fileUpload, 10, 98);
+		rootPanel.add(fileUpload, 10, 440);
 		// --- end of file reading interface via lib-gwt-file --- //
 		
 		
 		
 		// --- textarea interface for loading whole subtitle file --- //
 		final TextArea txtFileContentArea = new TextArea();
-		rootPanel.add(txtFileContentArea, 10, 188);
+		rootPanel.add(txtFileContentArea, 10, 530);
 		txtFileContentArea.setSize("260px", "176px");
 		
 		Button btnSendToTm = new Button("Send to TM");
@@ -249,12 +223,14 @@ public class Gui implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				String subtext = txtFileContentArea.getText();
-				processText(subtext);
+				//processText(subtext);
 			}
 		} );
-		rootPanel.add(btnSendToTm, 286, 188);
+		rootPanel.add(btnSendToTm, 286, 530);
 		btnSendToTm.setSize("120px", "47px");
 		// --- end of textarea interface --- //		
+
+		
 
 	}	// onModuleLoad()
 	
@@ -269,6 +245,7 @@ public class Gui implements EntryPoint {
 	 * 
 	 * @param text Multi-line subtitle text to parse
 	 */
+	/*
 	private void processText(String text) {
 		// dump the input text into the debug-area:
 		txtDebug.setText(txtDebug.getText() + "processing the following input:\n" + text + "\n");
@@ -298,15 +275,13 @@ public class Gui implements EntryPoint {
 		}
 		
 		
-		// reload the CellBrowser interface:
-		rootPanel.remove(cellBrowser);
-		cellBrowser = new CellBrowser(new SubtitleTreeModel(mysublist), null);
-		cellBrowser.setMinimumColumnWidth(154);
-		cellBrowser.setDefaultColumnWidth(154);
-		cellBrowser.setSize("100%", "100px");
-		rootPanel.add(cellBrowser, 0, 502);
+		// TODO: reload the interface
 		
 		sublist = mysublist;
 	}	// processText(...)
+	*/
 	
+	public Document getCurrentDocument() {
+		return currentDoc;
+	}
 }

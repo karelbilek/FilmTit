@@ -1,12 +1,13 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
 
 */
 
-public class TranslationResult {
+public class TranslationResult implements Serializable {
     private long id;
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions;

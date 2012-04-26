@@ -1,6 +1,11 @@
 package cz.filmtit.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.regexp.shared.*;
+
+import cz.filmtit.share.TimedChunk;
 
 /**
  * Provides a simple parsing function for reading SRT subtitle format
@@ -21,8 +26,8 @@ public class ParserSrt implements Parser {
 	public static String TIMES_SEPARATOR = " --> ";
 	
 	
-	public GUISubtitleList parse(String text) {
-		GUISubtitleList sublist = new GUISubtitleList();
+	public List<TimedChunk> parse(String text) {
+		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
 		
@@ -60,7 +65,7 @@ public class ParserSrt implements Parser {
 						// "dialogue" lines - switching speakers
 						// -> splitting into two (or more) c-hunks
 						//    - 1st one is the chunkText so far, 2nd one (starts on) the current line
-						sublist.addSubtitleChunk( new GUIChunk(chunkText, startTime, endTime, partNumber) );
+						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
 						
 						chunkText = line;
 						partNumber++;
@@ -73,7 +78,7 @@ public class ParserSrt implements Parser {
 			}
 			else {  // empty line
 				// creating the chunk from what was gathered recently...
-				sublist.addSubtitleChunk( new GUIChunk(chunkText, startTime, endTime, partNumber) );
+				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
 				
 				// ...and resetting
 				chunkText = EMPTY_STRING;
@@ -82,7 +87,7 @@ public class ParserSrt implements Parser {
 		}  // for-loop over lines
 
 		// adding the last chunk (after it, there was no empty line from splitting):
-		sublist.addSubtitleChunk( new GUIChunk(chunkText, startTime, endTime, partNumber) );
+		sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
 
 		return sublist;
 	}
