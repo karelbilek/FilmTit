@@ -11,6 +11,8 @@ import java.util.HashSet;
  */
 public class MediaSource implements Serializable {
 
+    private static final long serialVersionUID = 5899275001958847885L;
+
     private String title;
     private String year;
 
@@ -49,6 +51,28 @@ public class MediaSource implements Serializable {
         this(title, year, "");
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MediaSource)) return false;
+
+        MediaSource that = (MediaSource) o;
+
+        return !(genres != null ? !genres.equals(that.genres) : that.genres != null)
+                && !(id != null ? !id.equals(that.id) : that.id != null)
+                && title.equals(that.title)
+                && !(year != null ? !year.equals(that.year) : that.year != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = title.hashCode();
+        result = 31 * result + (year != null ? year.hashCode() : 0);
+        result = 31 * result + (genres != null ? genres.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        return result;
+    }
 }
 
 
