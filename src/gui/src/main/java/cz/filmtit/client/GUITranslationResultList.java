@@ -11,7 +11,12 @@ import cz.filmtit.share.*;
 //import com.google.gwt.user.client.Window;
 
 public class GUITranslationResultList {
-	private ArrayList<TranslationResult> translationResults;
+	
+	// TODO: TranslationResults are added in a random order
+	// but have to be displayed in an order which follows
+	// their inner TimedChunks' properties accessible via
+	// getStartTime() and getPartNumber()
+	private ArrayList<TranslationResult> translationResults;	
 	private ListIterator<TranslationResult> _cursor;
 	
 	public GUITranslationResultList() {
