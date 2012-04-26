@@ -2,6 +2,7 @@ package cz.filmtit.userspace;
 
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.share.Chunk;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
@@ -44,10 +45,10 @@ public class USTranslationResult extends DatabaseObject {
         translationResult = c;
     }
     
-    public TranslationResult getSharedChunk() {
-        return translationResult;
-    }
-    
+    public TranslationResult getTranslationResult() {
+	    return translationResult;
+	}
+
     public int hashCode() {
         return translationResult.hashCode();
     }    

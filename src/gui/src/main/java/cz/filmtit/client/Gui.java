@@ -46,7 +46,8 @@ import org.vectomatic.file.events.LoadEndHandler;
 public class Gui implements EntryPoint {
 
 	private GUISubtitleList sublist;
-
+	GUITranslationResultList trlist;
+	
 	private TextArea txtDebug;
 	private RadioButton rdbFormatSrt;
 	private RadioButton rdbFormatSub;
@@ -54,21 +55,30 @@ public class Gui implements EntryPoint {
 	private RootPanel rootPanel; 
 	private CellBrowser cellBrowser;
 
-	// FilmTitServiceAsync should be created automatically
-	// from FilmTitService during compilation...?
-	private FilmTitServiceHandler rpcHandler = new FilmTitServiceHandler();
+	private FilmTitServiceHandler rpcHandler;
 	
-	TextBox txtbxText;
-	Label translation;
-
 	
 	@Override
 	public void onModuleLoad() {
-
 		
+		Document sampleDoc = new SampleDocument();
+		sublist = new GUISubtitleList(sampleDoc); 
+		trlist = new GUITranslationResultList(sampleDoc); 
 		
-		sublist = new GUISubtitleList(new SampleDocument()); 
+		// FilmTitServiceHandler has direct access
+		// to package-internal (and public) fields and methods
+		// of this Gui instance
+		// (because the RPC calls are asynchronous)
+		rpcHandler = new FilmTitServiceHandler(this);
 		
+		// Request translation suggestions for a TimedChunk via:
+		// rpcHandler.suggestions(chunk);
+		//
+		// Because the calls are asynchronous, the method returns void.
+		// The result will automatically appear in trlist once it arrives.
+		
+		// Send feedback via:
+		// rpcHandler.feedback(translationResultId, chosenTranslationPair, userTranslation);
 		
 		// -------------------- //
 		// --- GUI creation --- //
@@ -245,24 +255,6 @@ public class Gui implements EntryPoint {
 		rootPanel.add(btnSendToTm, 286, 188);
 		btnSendToTm.setSize("120px", "47px");
 		// --- end of textarea interface --- //		
-
-		
-
-		
-		
-		txtbxText = new TextBox();
-		txtbxText.setText("hi");
-		rootPanel.add(txtbxText, 17, 25);
-		
-		Button btnTranslate = new Button("Translate");
-		rootPanel.add(btnTranslate, 57, 73);
-		
-		translation = new Label("");
-		rootPanel.add(translation, 30, 129);
-		
-		
-		
-		
 
 	}	// onModuleLoad()
 	

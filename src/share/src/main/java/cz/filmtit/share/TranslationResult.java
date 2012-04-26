@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
 
- */
+*/
 
 public class TranslationResult {
     private long id;

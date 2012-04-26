@@ -4,12 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Wrapper class for chunks in the parallel data. In the most basic case,
- * a chunk only consists of the the surface form in a particular language.
- * Chunks can also have annotations, e.g. Named Entities.
- *
- * @author Joachim Daiber
- */
+* Wrapper class for chunks in the parallel data. In the most basic case,
+* a chunk only consists of the the surface form in a particular language.
+* Chunks can also have annotations, e.g. Named Entities.
+*
+* @author Joachim Daiber
+*/
 public class TranslationPair implements Comparable<TranslationPair> {
 
     private Chunk chunkL1;
@@ -96,7 +96,7 @@ public class TranslationPair implements Comparable<TranslationPair> {
         String[] split = string.trim().split("\t");
 
         switch(split.length) {
-            case 2:  return new TranslationPair(split[0], split[1]);
+            case 2: return new TranslationPair(split[0], split[1]);
             default: return null;
         }
     }
