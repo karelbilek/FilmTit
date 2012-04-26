@@ -99,16 +99,13 @@ with MediaStorage {
    * @param pairID pair identifier that will be linked to the media source
    * @param mediaSourceID media source DB identifier
    */
-  private def addMediaSourceForTP(pairID: Long, mediaSourceID: Long) {
-
+  private def addMediaSourceForTP(pairID: Long, mediaSourceID: Long) =
     if ( !(pairMediaSourceMappings.contains(Pair(pairID, mediaSourceID))) ) {
       msInsertStmt.setLong(1, pairID)
       msInsertStmt.setLong(2, mediaSourceID)
       msInsertStmt.execute()
       pairMediaSourceMappings.add(Pair(pairID, mediaSourceID))
     }
-
-  }
 
   /**
    * Search for the translation pair in the database and return its
@@ -140,8 +137,19 @@ with MediaStorage {
     val upStmt = connection.prepareStatement(("UPDATE %s SET count = count + 1 WHERE pair_id = ?;").format(pairTable))
 
     //Important for performance: Only commit after all INSERT statements are
-    //executed:
+    //executed unless we are in verbose auto-commit mode:
     connection.setAutoCommit(autoCommit)
+
+    if (autoCommit) {
+      System.err.println("Re-writing media sources to database after failed commit...")
+      translationPairs.map(_.getMediaSource).toList.distinct foreach( ms =>
+        try {
+          ms.setId(addMediaSource(ms))
+        } catch {
+          case e: SQLException =>
+        }
+      )
+    }
 
     System.err.println("Writing translation pairs to database...")
     translationPairs foreach { translationPair => {
@@ -180,7 +188,7 @@ with MediaStorage {
       } catch {
         case e: SQLException => {
           if (!autoCommit) {
-            System.err.println("Database error in current batch, switching to auto-commit mode. ");
+            System.err.println("Database error in current batch, switching to auto-commit mode.");
             addVerbose(translationPairs, autoCommit=true)
             return;
           } else {
@@ -236,7 +244,7 @@ with MediaStorage {
   /**
    * Add a media source to the database.
    * @param mediaSource filled media source object
-   * @return
+   * @return database identifier of the media source
    */
   def addMediaSource(mediaSource: MediaSource): Long = {
     val stmt = connection.prepareStatement("INSERT INTO %s(title, year, genres) VALUES(?, ?, ?) RETURNING source_id;".format(mediasourceTable))

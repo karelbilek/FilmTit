@@ -8,7 +8,6 @@ import scala.util.Random
 import cz.filmtit.core.{Configuration, Factory}
 import java.io._
 import java.nio.charset.MalformedInputException
-import cz.filmtit.share.{MediaSource, TranslationPair}
 
 import cz.filmtit.share.{MediaSource, TranslationPair}
 import java.lang.System
@@ -125,6 +124,7 @@ object Import {
             }
           }
         }))
+
         finishedFiles += files.size
         System.err.println("Processed %d of %d files...".format(finishedFiles, inputFiles.size))
 
@@ -134,10 +134,10 @@ object Import {
 
           val r = Runtime.getRuntime
           System.err.println("Total memory is: %.2fMB".format(r.totalMemory() / (1024.0*1024.0)))
-          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / (1024.0*1024.0)))
+          System.err.println("Free memory is:  %.2fMB".format(r.freeMemory() / (1024.0*1024.0)))
           System.err.println("Running GC")
           System.gc(); System.gc(); System.gc(); System.gc()
-          System.err.println("Free memory is: %.2fMB".format(r.freeMemory() / (1024.0*1024.0)))
+          System.err.println("Free memory is:  %.2fMB".format(r.freeMemory() / (1024.0*1024.0)))
         }
       }
       )
