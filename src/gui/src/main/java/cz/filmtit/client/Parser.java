@@ -1,6 +1,10 @@
 package cz.filmtit.client;
 
+import java.util.List;
+
 import com.google.gwt.regexp.shared.RegExp;
+
+import cz.filmtit.share.TimedChunk;
 
 /**
  * Interface for parsing a subtitle file,
@@ -19,5 +23,5 @@ public interface Parser {
 	
 	public static final RegExp reDialogSegment = RegExp.compile(" ?- ");
 	
-	public abstract GUISubtitleList parse(String text);
+	public abstract List<TimedChunk> parse(String text);
 }

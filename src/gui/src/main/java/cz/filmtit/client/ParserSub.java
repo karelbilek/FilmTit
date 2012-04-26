@@ -1,6 +1,11 @@
 package cz.filmtit.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.regexp.shared.*;
+
+import cz.filmtit.share.TimedChunk;
 
 /**
  * Provides a simple parsing function for reading SUB subtitle format
@@ -16,8 +21,8 @@ public class ParserSub implements Parser {
 	public static RegExp reSubtitleLine  = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
 
-	public GUISubtitleList parse(String text) {
-		GUISubtitleList sublist = new GUISubtitleList();
+	public List<TimedChunk> parse(String text) {
+		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
 		
@@ -37,7 +42,7 @@ public class ParserSub implements Parser {
 				for (int i = 1; i < segments.length; i++) {
 					if ( reDialogSegment.test(chunkText)
 							&& reDialogSegment.test(segments[i]) ) {
-						sublist.addSubtitleChunk(new GUIChunk(chunkText, startTime, endTime, partNumber));
+						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
 						chunkText = segments[i];
 						partNumber++;
 					}
@@ -45,7 +50,7 @@ public class ParserSub implements Parser {
 						chunkText += SUBLINE_SEPARATOR_OUT + segments[i];
 					}
 				}
-				sublist.addSubtitleChunk( new GUIChunk(chunkText, startTime, endTime, partNumber) );
+				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
 			}
 			else {
 				// wrong format of this line

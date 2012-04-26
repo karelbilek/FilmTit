@@ -1,5 +1,6 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 *
 * @author Joachim Daiber
 */
-public class TranslationPair implements Comparable<TranslationPair> {
+public class TranslationPair implements Comparable<TranslationPair>, Serializable {
 
     private Chunk chunkL1;
     private Chunk chunkL2;
@@ -18,6 +19,10 @@ public class TranslationPair implements Comparable<TranslationPair> {
     private List<MediaSource> mediaSources = new LinkedList<MediaSource>();
     private Double score;
 
+    public TranslationPair() {
+    	// nothing
+    }
+    
     public TranslationPair(String chunkL1, String chunkL2) {
         this(new Chunk(chunkL1), new Chunk(chunkL2), TranslationSource.UNKNOWN);
     }
@@ -104,10 +109,16 @@ public class TranslationPair implements Comparable<TranslationPair> {
     @Override
     public String toString() {
         if (this.score != null) {
-            return String.format("TP[Score: %2f, %s, %s]", score, chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
+            //return String.format("TP[Score: %2f, %s, %s]", score, chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
+        	// GWT does not know String.format - rewritten:
+        	return ("TP[Score: " + score + ", " + chunkL1.getSurfaceform() + ", " + chunkL2.getSurfaceform() + "]");
         } else {
-            return String.format("TP[%s, %s]", chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
+            //return String.format("TP[%s, %s]", chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
+        	// GWT does not know String.format - rewritten:
+        	return ("TP[" + chunkL1.getSurfaceform() + ", " + chunkL2.getSurfaceform() + "]");
         }
     }
+
+
 
 }

@@ -7,6 +7,10 @@ public class TimedChunk extends Chunk implements Serializable {
     private String endTime;
     private int partNumber;
 
+    public TimedChunk() {
+    	// nothing;
+    }
+    
     public TimedChunk(String startTime, String endTime, int partNumber, String text) {
         super(text);
         this.startTime = startTime;
