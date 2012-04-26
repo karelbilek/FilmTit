@@ -12,6 +12,8 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 
 	public TranslationResult suggestions(TimedChunk chunk) {
 		
+		// TODO: get TranslationPairs from core
+
 		USTranslationResult usTranslationResult = new USTranslationResult(chunk);
 				
 		if(usTranslationResult.getText().equals("hi")) {
@@ -27,8 +29,11 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		return usTranslationResult.getTranslationResult();
 	}
 
-	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
+	public Object feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
 		
+		// TODO: pass feedback to core
+		
+		return null;
 	}
 	
 }

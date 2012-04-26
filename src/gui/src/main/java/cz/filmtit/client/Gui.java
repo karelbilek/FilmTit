@@ -65,15 +65,20 @@ public class Gui implements EntryPoint {
 		sublist = new GUISubtitleList(sampleDoc); 
 		trlist = new GUITranslationResultList(sampleDoc); 
 		
-		// FilmTitServiceHandler directly modifies the contents of the sublist
+		// FilmTitServiceHandler has direct access
+		// to package-internal (and public) fields and methods
+		// of this Gui instance
 		// (because the RPC calls are asynchronous)
-		rpcHandler = new FilmTitServiceHandler(trlist);
+		rpcHandler = new FilmTitServiceHandler(this);
 		
 		// Request translation suggestions for a TimedChunk via:
 		// rpcHandler.suggestions(chunk);
+		//
 		// Because the calls are asynchronous, the method returns void.
 		// The result will automatically appear in trlist once it arrives.
 		
+		// Send feedback via:
+		// rpcHandler.feedback(translationResultId, chosenTranslationPair, userTranslation);
 		
 		// -------------------- //
 		// --- GUI creation --- //

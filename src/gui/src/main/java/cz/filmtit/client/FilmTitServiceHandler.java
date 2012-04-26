@@ -34,16 +34,34 @@ public class FilmTitServiceHandler {
 		AsyncCallback<TranslationResult> callback = new AsyncCallback<TranslationResult>() {
 			
 			public void onSuccess(TranslationResult result) {
-				// TODO
+				// TODO: add to trlist to the correct position
 				gui.trlist.addTranslationResult(result);
 			}
 			
 			public void onFailure(Throwable caught) {
+				// TODO: repeat sending a few times, then ask user
 				Window.alert(caught.getLocalizedMessage());
 			}
 		};
 		
 		filmTitSvc.suggestions(chunk, callback);
+	}
+	
+	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
+		
+		AsyncCallback<Object> callback = new AsyncCallback<Object>() {
+			
+			public void onSuccess(Object o) {
+				//TODO: do something?
+			}
+			
+			public void onFailure(Throwable caught) {
+				Window.alert(caught.getLocalizedMessage());
+				// TODO: repeat sending a few times, then ask user
+			}
+		};
+		
+		filmTitSvc.feedback(translationResultId, chosenTranslationPair, userTranslation, callback);
 	}
 		
 }
