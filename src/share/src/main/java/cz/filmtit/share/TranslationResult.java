@@ -6,7 +6,7 @@ import java.util.List;
 
 */
 
-public class TranslationResult {
+public class TranslationResult implements Comparable<TranslationResult> {
     private long id;
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions;
@@ -52,4 +52,28 @@ public class TranslationResult {
     public void setSourceChunk(TimedChunk sourceChunk) {
         this.sourceChunk = sourceChunk;
     }
+
+	public int compareTo(TranslationResult that) {
+		// TODO: compare differently for various subtitle formats, i.e.
+		// - lexicographically for srt
+		// - numerically for sub
+		// - ???
+		
+		// this.startTime < that.startTime ?
+		int result = this.getSourceChunk().getStartTime().compareTo(that.getSourceChunk().getStartTime());
+		
+		if (result == 0) {
+			// this.startTime == that.startTime
+			// this.endTime < that.endTime ?
+			result = this.getSourceChunk().getEndTime().compareTo(that.getSourceChunk().getEndTime());			
+			
+			if (result == 0) {
+				// this.endTime == that.endTime
+				// this.partNumber < that.partNumber ?
+				result = (int) Math.signum(that.getSourceChunk().getPartNumber() - this.sourceChunk.getPartNumber());
+			}
+		}
+		
+		return result;
+	}
 }
