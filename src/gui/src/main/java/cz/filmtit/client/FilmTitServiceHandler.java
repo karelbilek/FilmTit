@@ -9,12 +9,13 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
+import cz.filmtit.share.Feedback;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 
 public class FilmTitServiceHandler {
-	// FilmTitServiceAsync should be created automatically
-	// from FilmTitService during compilation...?
+	// FilmTitServiceAsync should be created automatically by Maven
+	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
 	private FilmTitServiceAsync filmTitSvc;
 	private Gui gui;
 	
@@ -35,7 +36,7 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(TranslationResult result) {
 				// TODO: add to trlist to the correct position
-				gui.trlist.addTranslationResult(result);
+				gui.doc.addTranslationResult(result);
 			}
 			
 			public void onFailure(Throwable caught) {
@@ -49,9 +50,9 @@ public class FilmTitServiceHandler {
 	
 	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
 		
-		AsyncCallback<Object> callback = new AsyncCallback<Object>() {
+		AsyncCallback<Feedback> callback = new AsyncCallback<Feedback>() {
 			
-			public void onSuccess(Object o) {
+			public void onSuccess(Feedback o) {
 				//TODO: do something?
 			}
 			
