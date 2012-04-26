@@ -5,10 +5,10 @@ import org.postgresql.util.PSQLException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import java.sql.{SQLException, DriverManager}
-import collection.mutable.HashSet
 import gnu.trove.map.hash.TObjectLongHashMap
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
+import collection.mutable.{ListBuffer, HashSet}
 
 
 /**
@@ -152,6 +152,7 @@ with MediaStorage {
     }
 
     System.err.println("Writing translation pairs to database...")
+    val addedPairs = ListBuffer[String]()
     translationPairs foreach { translationPair => {
       try {
 
@@ -169,8 +170,9 @@ with MediaStorage {
             val newPairID = inStmt.getResultSet.getLong("pair_id")
 
             //Remember that we already put it into the database
-            pairIDCache.put("%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2), newPairID)
-
+            val pair: String = "%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2)
+            pairIDCache.put(pair, newPairID)
+            addedPairs.add(pair)
             newPairID
           }
 
@@ -187,6 +189,10 @@ with MediaStorage {
         addMediaSourceForTP(pairID, translationPair.getMediaSource.getId)
       } catch {
         case e: SQLException => {
+          //Since the was an error, we need to remove all the pairs in the
+          //current transaction from the pair cache.
+          addedPairs.foreach( pair => pairIDCache.remove(pair) )
+
           if (!autoCommit) {
             System.err.println("Database error in current batch, switching to auto-commit mode.");
             addVerbose(translationPairs, autoCommit=true)
