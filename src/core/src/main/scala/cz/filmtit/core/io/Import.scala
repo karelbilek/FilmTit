@@ -89,7 +89,7 @@ object Import {
 
     System.err.println("Processing files:")
     val inputFiles = folder.listFiles filter(_.getName.endsWith(".txt"))
-    inputFiles grouped( Configuration.importBatchSize ) foreach(
+    inputFiles take(10) grouped( Configuration.importBatchSize ) foreach(
       (files: Array[File])=> { tm.add(
         files flatMap ( (sourceFile: File) => {
 

@@ -29,13 +29,12 @@ object SimpleTMQuery {
     println("Done.")
 
     
-    
+    println(tm.nBest("How many?", Language.EN, null))
     println(tm.nBest("I love you!", Language.EN, null))
     println(tm.nBest("What did the minister tell you about his intentions?",
       Language.EN, null))
     println(tm.nBest("Call the police, Peter", Language.EN, null))
     println(tm.nBest("Peter opened the door.", Language.EN, null))
-    println(tm.nBest("Watch out!", Language.EN, null))
 
 
   }

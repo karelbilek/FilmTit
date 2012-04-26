@@ -22,4 +22,24 @@ public class Chunk {
             throw new IllegalAccessException("The chunk surface form can be set just once.");
         }
     }
+
+    @Override
+    public String toString() {
+        return "Chunk[" + surfaceform + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Chunk)) return false;
+
+        Chunk chunk = (Chunk) o;
+
+        return surfaceform.equals(chunk.surfaceform);
+    }
+
+    @Override
+    public int hashCode() {
+        return surfaceform.hashCode();
+    }
 }
