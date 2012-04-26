@@ -48,8 +48,8 @@ with MediaStorage {
   if (readOnly == true)
     connection.setReadOnly(true)
 
-  var pairTable = "chunks"
-  var chunkSourceMappingTable = "chunk_mediasources"
+  var pairTable = "translationpairs"
+  var chunkSourceMappingTable = "translationpairs_mediasources"
   var mediasourceTable = "mediasources"
 
   var maxCandidates = 200
@@ -99,7 +99,7 @@ with MediaStorage {
    * @param pairID pair identifier that will be linked to the media source
    * @param mediaSourceID media source DB identifier
    */
-  private def addMediaSourceForChunk(pairID: Long, mediaSourceID: Long) {
+  private def addMediaSourceForTP(pairID: Long, mediaSourceID: Long) {
 
     if ( !(pairMediaSourceMappings.contains(Pair(pairID, mediaSourceID))) ) {
       msInsertStmt.setLong(1, pairID)
@@ -176,7 +176,7 @@ with MediaStorage {
         }
 
         //Add the MediaSource as the source to the TP
-        addMediaSourceForChunk(pairID, translationPair.getMediaSource.getId)
+        addMediaSourceForTP(pairID, translationPair.getMediaSource.getId)
       } catch {
         case e: SQLException => {
           if (!autoCommit) {

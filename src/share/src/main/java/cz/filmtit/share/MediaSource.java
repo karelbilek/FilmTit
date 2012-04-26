@@ -13,8 +13,10 @@ public class MediaSource implements Serializable {
 
     private static final long serialVersionUID = 5899275001958847885L;
 
+    private Long id;
     private String title;
     private String year;
+    private HashSet<String> genres;
 
     public void setId(Long id) {
         this.id = id;
@@ -36,9 +38,6 @@ public class MediaSource implements Serializable {
     public Long getId() {
         return id;
     }
-
-    private HashSet<String> genres;
-    private Long id;
 
     public MediaSource(String title, String year, String genres) {
         this.title = title;

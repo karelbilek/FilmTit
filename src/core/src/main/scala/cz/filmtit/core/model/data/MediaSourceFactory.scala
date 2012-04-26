@@ -19,7 +19,10 @@ object MediaSourceFactory {
   def fromCachedIMDB(title: String, year: String, cache: HashMap[String, MediaSource]): MediaSource = {
     if (cache != null) {
       cache.get( (title, year).toString() ) match {
-        case Some(ms) => ms
+        case Some(ms) => {
+          ms.setId(null)
+          ms
+        }
         case None => {
           val ms = fromIMDB(title, year)
           cache.put( (title, year).toString(), ms)
