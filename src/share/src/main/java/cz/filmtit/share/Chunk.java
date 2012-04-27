@@ -8,6 +8,10 @@ public class Chunk {
 
     private String surfaceform;
 
+    public Chunk() {
+        // nothing
+    }
+
     public Chunk(String surfaceform) {
         this.surfaceform = surfaceform;
     }
