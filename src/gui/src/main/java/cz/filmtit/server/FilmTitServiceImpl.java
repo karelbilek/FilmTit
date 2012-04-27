@@ -29,11 +29,10 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		return usTranslationResult.getTranslationResult();
 	}
 
-	public Object feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
-		
+	public Void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
 		// TODO: pass feedback to core
 		
-		return null;
+		return null;		
 	}
 	
 }

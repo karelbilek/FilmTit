@@ -50,9 +50,9 @@ public class FilmTitServiceHandler {
 	
 	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
 		
-		AsyncCallback<Feedback> callback = new AsyncCallback<Feedback>() {
+		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
-			public void onSuccess(Feedback o) {
+			public void onSuccess(Void o) {
 				//TODO: do something?
 			}
 			
