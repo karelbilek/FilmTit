@@ -1,6 +1,5 @@
 package cz.filmtit.core.search.postgres
 
-import cz.filmtit.core.Configuration
 import org.postgresql.util.PSQLException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
@@ -9,6 +8,7 @@ import gnu.trove.map.hash.TObjectLongHashMap
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 import collection.mutable.{ListBuffer, HashSet}
+import cz.filmtit.core.Configuration
 
 
 /**
@@ -33,9 +33,11 @@ with MediaStorage {
 
   //Initialize connection
   val connection = try {
-    DriverManager.getConnection(Configuration.dbConnector,
+    DriverManager.getConnection(
+      Configuration.dbConnector,
       Configuration.dbUser,
-      Configuration.dbPassword)
+      Configuration.dbPassword
+    )
   } catch {
     case e: PSQLException => {
       System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(Configuration.dbConnector))

@@ -5,13 +5,13 @@ import collection.mutable.HashMap
 import io.Source
 import cz.filmtit.core.model.TranslationMemory
 import scala.util.Random
-import cz.filmtit.core.{Configuration, Factory}
 import java.io._
 import java.nio.charset.MalformedInputException
 
 import cz.filmtit.share.{MediaSource, TranslationPair}
 import java.lang.System
 import cz.filmtit.core.model.data.MediaSourceFactory
+import cz.filmtit.core.{Configuration, Factory}
 
 /**
  * @author Joachim Daiber
