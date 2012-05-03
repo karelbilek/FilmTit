@@ -1,6 +1,6 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.client.FilmTitService;
+import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.*;

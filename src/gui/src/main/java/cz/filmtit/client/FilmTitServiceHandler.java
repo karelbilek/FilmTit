@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
+import cz.filmtit.share.FilmTitServiceAsync;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 

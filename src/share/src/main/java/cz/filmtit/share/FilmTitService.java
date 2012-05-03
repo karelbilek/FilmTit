@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.share;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
