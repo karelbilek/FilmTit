@@ -1,4 +1,4 @@
-package cz.filmtit.server;
+package cz.filmtit.userspace;
 
 import cz.filmtit.client.FilmTitService;
 import cz.filmtit.share.TimedChunk;
