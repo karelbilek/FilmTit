@@ -83,11 +83,11 @@ public class USTranslationResult extends DatabaseObject {
     }
 
     public String getText() {
-        return translationResult.getSourceChunk().getSurfaceform();
+        return translationResult.getSourceChunk().getSurfaceForm();
     }
 
     public void setText(String text) throws IllegalAccessException {
-        translationResult.getSourceChunk().setSurfaceform(text);
+        translationResult.getSourceChunk().setSurfaceForm(text);
     }
 
     public String getUserTranslation() {
