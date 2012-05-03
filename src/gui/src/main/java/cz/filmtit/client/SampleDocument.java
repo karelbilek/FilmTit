@@ -10,6 +10,8 @@ public final class SampleDocument extends Document {
 	// filling a sample Document/SubtitleList by hand:
 	public SampleDocument() {
 		
+		this.translationResults = new ArrayList<TranslationResult>();
+		
 		TranslationResult tr1 = new TranslationResult();
 		tr1.setSourceChunk( new TimedChunk("001", "002", 1, "Hi, Bob!") );
 		List<TranslationPair> trpairs1 = new ArrayList<TranslationPair>();
@@ -20,6 +22,7 @@ public final class SampleDocument extends Document {
 		trpairs1.add( new TranslationPair("Hi, Bob.", "ahoj, bobe.") );
 		trpairs1.add( new TranslationPair("Hi, Bob.", "ahoj, bobe") );
 		tr1.setTmSuggestions(trpairs1);
+		this.translationResults.add(tr1);
 		
 		TranslationResult tr2 = new TranslationResult();
 		tr2.setSourceChunk( new TimedChunk("002", "003", 1, "Hi Tom!") );
@@ -27,6 +30,7 @@ public final class SampleDocument extends Document {
 		trpairs2.add( new TranslationPair("Hi, Tom!", "Ahoj Tome!") );
 		trpairs2.add( new TranslationPair("Hi, Tom!", "ahoj, tome!") );
 		tr2.setTmSuggestions(trpairs2);
+		this.translationResults.add(tr2);
 		
 		TranslationResult tr3 = new TranslationResult();
 		tr3.setSourceChunk( new TimedChunk("004", "005", 1, "Run, you fools!") );
@@ -38,6 +42,8 @@ public final class SampleDocument extends Document {
 		trpairs3.add( new TranslationPair("Run, run, run!", "Makáme, makáme!") );
 		trpairs3.add( new TranslationPair("Run, run, run!", "Utíkejte!!!") );
 		tr3.setTmSuggestions(trpairs3);
+		this.translationResults.add(tr3);
+		
 		
 		/*
 		 * old structure:

@@ -7,20 +7,48 @@ import java.util.List;
 import java.util.ListIterator;
 
 
+import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.TextInputCell;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.cellview.client.CellBrowser;
+import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
+//import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -38,6 +66,15 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.SuggestOracle.Callback;
+import com.google.gwt.user.client.ui.SuggestOracle.Request;
+import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.gwt.view.client.DefaultSelectionModel;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.NoSelectionModel;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionModel;
+import com.google.gwt.view.client.SingleSelectionModel;
 
 
 
@@ -51,7 +88,7 @@ import com.google.gwt.user.client.ui.SuggestBox;
 
 public class Gui implements EntryPoint {
 
-	//private GUISubtitleList sublist;
+	private List<TimedChunk> chunklist;
 	
 	private List<Label> sources = new ArrayList<Label>();
 	private List<TextBox> targets = new ArrayList<TextBox>();
@@ -60,10 +97,14 @@ public class Gui implements EntryPoint {
 	private RadioButton rdbFormatSrt;
 	private RadioButton rdbFormatSub;
 
-	private RootPanel rootPanel; 
+	private RootPanel rootPanel;
+	private AbsolutePanel panSources, panTargets;
+	private int counter;
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDoc;
+	
+	protected Widget activeSuggestionWidget;
 	
 	
 	@Override
@@ -104,47 +145,170 @@ public class Gui implements EntryPoint {
 		lblHeader.setSize("436px", "0px");
 
 		
-		// --- main interface --- //
-		VerticalPanel panSources = new VerticalPanel();
-		rootPanel.add(panSources, 10, 80);
-		panSources.setSize("327px", "315px");
-		VerticalPanel panTargets = new VerticalPanel();
-		rootPanel.add(panTargets, 345, 80);
-		panTargets.setSize("327px", "315px");
-		
-		Label lblNeco = new Label("To je teda něco...");
-		panSources.add(lblNeco);
-		
-		TextBox textBox = new TextBox();
-		panTargets.add(textBox);
-		
-		SuggestBox suggestBox = new SuggestBox();
-		panTargets.add(suggestBox);
-		
-		// filling the interface with the source subtitles:
-		//ListIterator<GUIChunk> chunkiterator = sublist.getChunks().listIterator();
-		Iterator<TranslationResult> transresultiterator = (new SampleDocument()).translationResults.iterator();
-		while(transresultiterator.hasNext()) {
-			TranslationResult transresult = transresultiterator.next();
-			
-			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceform());
-			sources.add(sourcelabel);
-			panSources.add(sourcelabel);
-			
-		}
-		
-		
-		// --- end of main interface --- //
-		
-		
-		
-
 		// debug-area:
 		txtDebug = new TextArea();
 		rootPanel.add(txtDebug, 412, 530);
 		txtDebug.setSize("460px", "176px");
 		txtDebug.setText("debugging outputs...\n");
+
 		
+		/*
+		FlexTable table = new FlexTable();
+		rootPanel.add(table, 10, 80);
+		table.setWidth("315px");
+		*/
+		
+		// --- main interface --- //
+		//VerticalPanel panSources = new VerticalPanel();
+		panSources = new AbsolutePanel();
+		rootPanel.add(panSources, 10, 80);
+		panSources.setSize("327px", "315px");
+		panTargets = new AbsolutePanel();
+		rootPanel.add(panTargets, 345, 80);
+		panTargets.setSize("327px", "315px");
+		
+		// filling the interface with the source subtitles:
+		//ListIterator<GUIChunk> chunkiterator = sublist.getChunks().listIterator();
+		final List<TranslationResult> transresults = (new SampleDocument()).translationResults;
+		counter = 0;
+		for (TranslationResult transresult : transresults) {
+			
+			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
+			sources.add(sourcelabel);
+			panSources.add(sourcelabel);
+			//table.setWidget(counter, 0, sourcelabel);
+			
+			//AbsolutePanel targetpanel = new AbsolutePanel();
+			
+			SubgestBox targetbox = new SubgestBox(counter, transresult); // suggestions handling - see the constructor for details
+			targetbox.addFocusHandler( new FocusHandler() {
+				@Override
+				public void onFocus(FocusEvent event) {
+					SubgestBox subbox = (SubgestBox) event.getSource();
+					// hide the suggestion widget (currently Label) corresponding to the SubgestBox which previously lost focus
+					if (activeSuggestionWidget != null) {
+						((Panel)subbox.getParent()).remove(activeSuggestionWidget);
+						activeSuggestionWidget = null;
+					}
+					subbox.showSuggestions();
+					activeSuggestionWidget = subbox.getSuggestionWidget();
+				}
+			});
+			targetbox.addKeyDownHandler( new KeyDownHandler() {
+				@Override
+				public void onKeyDown(KeyDownEvent event) {
+					SubgestBox subbox = (SubgestBox) event.getSource();
+					// pressing Esc
+					if (event.getNativeEvent().getCharCode() == KeyCodes.KEY_ESCAPE) {
+						// hide the suggestion widget (currently Label) corresponding to the SubgestBox
+						//   which previously had focus
+						if (activeSuggestionWidget != null) {
+							((Panel)subbox.getParent()).remove(activeSuggestionWidget);
+							activeSuggestionWidget = null;
+						}
+					}
+				}
+			} );
+			targetbox.addValueChangeHandler( new ValueChangeHandler<String>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<String> event) {
+					log("valuechange handled: " + event.getValue());
+				}
+			} );
+			//targetpanel.add(targetbox);
+			
+			//table.setWidget(counter, 1, targetbox);
+			panTargets.add(targetbox);
+			targetbox.setWidth("80%");
+			
+			counter++;
+		}
+		// --- end of main interface --- //
+		
+		/*
+		// --- celltable interface --- //
+		// creating the table
+		final CellTable<TranslationResult> subTable = new CellTable<TranslationResult>();
+		subTable.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+		// creating columns
+		// times (separately?):
+		Column<TranslationResult, String> timesColumn = new Column<TranslationResult, String>( new TextCell() ) {
+			@Override
+			public String getValue(TranslationResult transresult) {
+				String startTime = transresult.getSourceChunk().getStartTime();
+				String endTime   = transresult.getSourceChunk().getEndTime();
+				return startTime + " -> " + endTime;
+			}
+		};
+		subTable.addColumn(timesColumn);
+		// source-language chunks:
+		Column<TranslationResult, String> sourceChunkColumn = new Column<TranslationResult, String>( new TextCell() ) {
+			@Override
+			public String getValue(TranslationResult transresult) {
+				return transresult.getSourceChunk().getSurfaceform();
+			}
+		};
+		subTable.addColumn(sourceChunkColumn);
+		// target-language edit boxes (with suggestions):
+//		ClickableTextInputCell targetcell = new ClickableTextInputCell();
+//		{
+//			@Override
+//			public void render(Context context,
+//		            String value, SafeHtmlBuilder sb) {
+//		        if (value != null) {
+//		             MyWidget widget = new MyWidget(value);
+//		             sb.appendEscaped(widget.getElement.getInnerHTML()); 
+//		        }
+//			}
+//		};
+		Column<TranslationResult, TranslationResult> targetColumn = new Column<TranslationResult, TranslationResult>(targetcell) {
+			@Override
+			public TranslationResult getValue(TranslationResult transresult) {
+				return transresult;
+			}
+		};
+		targetColumn.setFieldUpdater( new FieldUpdater<TranslationResult, TranslationResult>() {
+			@Override
+			public void update(int index, TranslationResult transresult, TranslationResult value) {
+				Window.alert("You clicked " + transresult.getSourceChunk());
+			}
+		});
+		subTable.addColumn(targetColumn);
+		
+		// filling with data
+		//List<TranslationResult> transresults = (new SampleDocument()).translationResults;
+		subTable.setRowCount(transresults.size(), true);
+		subTable.setRowData(transresults);
+
+		final int ROW_HEIGHT = 20;
+		final SingleSelectionModel<TranslationResult> selectionModel = new SingleSelectionModel<TranslationResult>();
+		selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+			public void onSelectionChange(SelectionChangeEvent event) {
+				int rownumber = 5;
+				TranslationResult transresult = selectionModel.getSelectedObject();
+				if (transresult != null) {
+					Label lblSuggestions = new Label("asdfasdf");
+					for (TranslationPair transpair : transresult.getTmSuggestions()) {
+						lblSuggestions.setText(lblSuggestions.getText() + transpair.getStringL2() + "\n");
+					}
+					rootPanel.add(lblSuggestions,
+							subTable.getAbsoluteLeft() + 120,
+							subTable.getAbsoluteTop() + rownumber*ROW_HEIGHT + 50);
+				}
+			}
+		});
+		subTable.setSelectionModel(selectionModel);
+		
+		// setting widths of table and columns
+		subTable.setWidth("800px");
+		subTable.setColumnWidth(timesColumn, "20%");
+		subTable.setColumnWidth(sourceChunkColumn, "40%");
+		subTable.setColumnWidth(targetColumn, "40%");
+		
+		rootPanel.add(subTable, 10, 350);
+		// --- end of celltable interface --- //
+		*/
+
 		
 		
 		// --- subfile format (srt/sub) options --- //
@@ -183,7 +347,7 @@ public class Gui implements EntryPoint {
 			public void onLoadEnd(LoadEndEvent event) {
 				String subtext = freader.getStringResult();
 				//txtDebug.setText(txtDebug.getText() + subtext);
-				//processText(subtext);
+				processText(subtext);
 			}
 		} );
 		
@@ -191,6 +355,7 @@ public class Gui implements EntryPoint {
 		fileUpload.addChangeHandler( new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
+				//log(fileUpload.getFilename());
 				FileList fl = fileUpload.getFiles();
 				Iterator<File> fit = fl.iterator();
 				if (fit.hasNext()) {
@@ -204,7 +369,7 @@ public class Gui implements EntryPoint {
 					freader.readAsText(fit.next(), encoding);
 				}
 				else {
-					txtDebug.setText(txtDebug.getText() + "No file chosen.\n");
+					error("No file chosen.\n");
 				}
 			}
 		} );
@@ -223,7 +388,7 @@ public class Gui implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				String subtext = txtFileContentArea.getText();
-				//processText(subtext);
+				processText(subtext);
 			}
 		} );
 		rootPanel.add(btnSendToTm, 286, 530);
@@ -238,14 +403,13 @@ public class Gui implements EntryPoint {
 	
 	/**
 	 * Parse the given text in the subtitle format of choice (by the radiobuttons)
-	 * into this.sublist (GUISubtitleList).
+	 * into this.chunklist (List<TimedChunk>).
 	 * Currently verbosely outputting both input text, format
 	 * and output chunks into the debug-area,
 	 * also "reloads" the CellBrowser interface accordingly.
 	 * 
 	 * @param text Multi-line subtitle text to parse
 	 */
-	/*
 	private void processText(String text) {
 		// dump the input text into the debug-area:
 		txtDebug.setText(txtDebug.getText() + "processing the following input:\n" + text + "\n");
@@ -264,24 +428,87 @@ public class Gui implements EntryPoint {
 		txtDebug.setText(txtDebug.getText() + "subtitle format chosen: " + subformat + "\n");
 		
 		// parse:
-		GUISubtitleList mysublist = subtextparser.parse(text);
+		List<TimedChunk> mysublist = subtextparser.parse(text);
 		
 		// output the parsed chunks:
 		//txtDebug.setText( Integer.toString( sublist2.getChunks().size()) + "\n");
-		txtDebug.setText(txtDebug.getText() + "\nparsed chunks:\n");
-		ListIterator<GUIChunk> chunkit = mysublist.getChunks().listIterator();
-		while (chunkit.hasNext()) {
-			txtDebug.setText(txtDebug.getText() + chunkit.next().toString() + "\n");
+		log("\nparsed chunks:");
+		for (TimedChunk timedchunk : mysublist) {
+			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
+
+			log("sending timed chunk: " + timedchunk.getSurfaceForm());
+			rpcHandler.getTranslationResults(timedchunk);
 		}
 		
 		
-		// TODO: reload the interface
-		
-		sublist = mysublist;
+		chunklist = mysublist;
 	}	// processText(...)
-	*/
 	
 	public Document getCurrentDocument() {
 		return currentDoc;
 	}
+	
+	public void showResult(TranslationResult transresult) {
+		
+		log("received result of chunk: " + transresult.getSourceChunk().getSurfaceForm());
+
+		Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
+		sources.add(sourcelabel);
+		panSources.add(sourcelabel);
+		//table.setWidget(counter, 0, sourcelabel);
+		
+		//AbsolutePanel targetpanel = new AbsolutePanel();
+		
+		SubgestBox targetbox = new SubgestBox(counter, transresult); // suggestions handling - see the constructor for details
+		targetbox.addFocusHandler( new FocusHandler() {
+			@Override
+			public void onFocus(FocusEvent event) {
+				SubgestBox subbox = (SubgestBox) event.getSource();
+				// hide the suggestion widget (currently Label) corresponding to the SubgestBox which previously lost focus
+				if (activeSuggestionWidget != null) {
+					((Panel)subbox.getParent()).remove(activeSuggestionWidget);
+					activeSuggestionWidget = null;
+				}
+				subbox.showSuggestions();
+				activeSuggestionWidget = subbox.getSuggestionWidget();
+			}
+		});
+		targetbox.addKeyDownHandler( new KeyDownHandler() {
+			@Override
+			public void onKeyDown(KeyDownEvent event) {
+				SubgestBox subbox = (SubgestBox) event.getSource();
+				// pressing Esc
+				if (event.getNativeEvent().getCharCode() == KeyCodes.KEY_ESCAPE) {
+					// hide the suggestion widget (currently Label) corresponding to the SubgestBox
+					//   which previously had focus
+					if (activeSuggestionWidget != null) {
+						((Panel)subbox.getParent()).remove(activeSuggestionWidget);
+						activeSuggestionWidget = null;
+					}
+				}
+			}
+		} );
+		targetbox.addValueChangeHandler( new ValueChangeHandler<String>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				log("valuechange handled: " + event.getValue());
+			}
+		} );
+		//targetpanel.add(targetbox);
+		
+		//table.setWidget(counter, 1, targetbox);
+		panTargets.add(targetbox);
+		targetbox.setWidth("80%");
+		
+		counter++;
+	}
+	
+	public void log(String logtext) {
+		txtDebug.setText(txtDebug.getText() + logtext + "\n");
+	}
+	
+	private void error(String errtext) {
+		log(errtext);
+	}
+	
 }

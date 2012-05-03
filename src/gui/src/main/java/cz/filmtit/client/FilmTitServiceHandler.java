@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
-import cz.filmtit.share.Feedback;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 
@@ -24,7 +23,7 @@ public class FilmTitServiceHandler {
 		this.gui = gui;
 	}
 	
-	public void suggestions(TimedChunk chunk) {
+	public void getTranslationResults(TimedChunk chunk) {
 		
 		// assert(filmTitSvc != null);
 		// most probably not necessary
@@ -36,23 +35,25 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(TranslationResult result) {
 				// TODO: add to trlist to the correct position
-				gui.doc.addTranslationResult(result);
+				gui.getCurrentDocument().translationResults.add(result);
+				gui.log( "succesfully received result of chunk: " + result.getSourceChunk().getSurfaceForm());
 			}
 			
 			public void onFailure(Throwable caught) {
 				// TODO: repeat sending a few times, then ask user
 				Window.alert(caught.getLocalizedMessage());
+				gui.log("failure on receiving some chunk!");
 			}
 		};
 		
-		filmTitSvc.suggestions(chunk, callback);
+		filmTitSvc.getTranslationResults(chunk, callback);
 	}
 	
-	public void feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
+	public void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair) {
 		
-		AsyncCallback<Feedback> callback = new AsyncCallback<Feedback>() {
+		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
-			public void onSuccess(Feedback o) {
+			public void onSuccess(Void o) {
 				//TODO: do something?
 			}
 			
@@ -62,7 +63,7 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.feedback(translationResultId, chosenTranslationPair, userTranslation, callback);
+		filmTitSvc.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair, callback);
 	}
 		
 }

@@ -7,19 +7,25 @@ package cz.filmtit.share;
 public class Chunk {
 
     private String surfaceform;
+    
+    public Chunk() {
+    	// nothing
+    }
 
     public Chunk(String surfaceform) {
         this.surfaceform = surfaceform;
     }
 
-    public String getSurfaceform() {
+    public String getSurfaceForm() {
         return surfaceform;
     }
 
-    public void setSurfaceform(String surfaceform) throws IllegalAccessException {
+    public void setSurfaceForm(String surfaceform) throws /*IllegalAccessException*/ IllegalArgumentException {
         if (this.surfaceform == null) { this.surfaceform = surfaceform; }
         else {
-            throw new IllegalAccessException("The chunk surface form can be set just once.");
+            //throw new IllegalAccessException("The chunk surface form can be set just once.");
+        	// GWT does not know IllegalAccessException - rewritten:
+        	throw new IllegalArgumentException("The chunk surface form can be set just once.");
         }
     }
 

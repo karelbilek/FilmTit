@@ -1,4 +1,4 @@
-package cz.filmtit.server;
+package cz.filmtit.userspace;
 
 import cz.filmtit.client.FilmTitService;
 import cz.filmtit.share.TimedChunk;
@@ -10,7 +10,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		FilmTitService {
 
-	public TranslationResult suggestions(TimedChunk chunk) {
+	public TranslationResult getTranslationResults(TimedChunk chunk) {
 		
 		// TODO: get TranslationPairs from core
 
@@ -29,11 +29,10 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		return usTranslationResult.getTranslationResult();
 	}
 
-	public Object feedback (long translationResultId, long chosenTranslationPair, String userTranslation) {
-		
+	public Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair) {
 		// TODO: pass feedback to core
 		
-		return null;
+		return null;		
 	}
 	
 }
