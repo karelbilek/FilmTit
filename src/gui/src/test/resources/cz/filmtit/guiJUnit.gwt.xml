@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
   <!-- Inherit our applications main module.                      -->
-  <inherits name='cz.filmtit.gui' />
+  <inherits name='cz.filmtit.client' />
 
   <!-- Specify the path to any remote services.                   -->
-  <servlet path="/gui/greet" class="cz.filmtit.server.GreetingServiceImpl" />
+  <servlet path="/gui/filmtit" class="cz.filmtit.userspace.FilmTitServiceImpl" />
 
 </module>
