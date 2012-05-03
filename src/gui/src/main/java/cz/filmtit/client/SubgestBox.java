@@ -1,49 +1,77 @@
 package cz.filmtit.client;
 
+import java.util.List;
+
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
-import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.TranslationPair;
 
-public class SubgestBox extends Widget {
 
-	public SubgestBox(int counter, TranslationResult transresult) {
-		// TODO Auto-generated constructor stub
-	}
+/**
+ * Variant of a TextBox with pop-up suggestions
+ * taken from the given TranslationResult.
+ * 
+ * @author omikronn
+ *
+ */
 
-	public void addFocusHandler(FocusHandler focusHandler) {
-		// TODO Auto-generated method stub
+public class SubgestBox extends TextBox {
+	private int id;
+	private TranslationResult translationResult;
+	private Widget suggestionWidget;
+	private RootPanel rootPanel;
+	
+	public SubgestBox(int id, TranslationResult translationResult, RootPanel rootPanel) {
+		this.id = id;
+		this.translationResult = translationResult;
 		
 	}
-
-	public Panel getParent() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public int getId() {
+		return id;
 	}
-
-	public void showSuggestions() {
-		// TODO Auto-generated method stub
-		
+	
+	public List<TranslationPair> getSuggestions() {
+		return this.translationResult.getTmSuggestions();
 	}
-
+	
+	public void setSuggestionWidget(Widget suggestionWidget) {
+		this.suggestionWidget = suggestionWidget;
+	}
+	
 	public Widget getSuggestionWidget() {
-		// TODO Auto-generated method stub
-		return null;
+		return suggestionWidget;
 	}
-
-	public void addKeyDownHandler(KeyDownHandler keyDownHandler) {
-		// TODO Auto-generated method stub
+	
+	public void showSuggestions() {
+		AbsolutePanel parentPanel = (AbsolutePanel)this.getParent();
+		List<TranslationPair> suggestions = this.getSuggestions();
+		String suggestion = "";
+		for (TranslationPair suggestiontp : suggestions) {
+			suggestion += suggestiontp.getStringL2() + "\n(\"" + suggestiontp.getStringL1() + "\")" + "\n";
+		}
 		
+		Label lblSuggestions = new HTML(new SafeHtmlBuilder().appendEscapedLines(suggestion).toSafeHtml());
+		lblSuggestions.setStylePrimaryName("suggestionsPopup");
+		int sugleft = parentPanel.getAbsoluteLeft() + parentPanel.getWidgetLeft(this) + 8;
+		int sugtop  = parentPanel.getAbsoluteTop()  + parentPanel.getWidgetTop(this) + 25;
+		parentPanel.add(lblSuggestions, sugleft, sugtop);
+		this.setSuggestionWidget(lblSuggestions);
 	}
-
-	public void addValueChangeHandler(
-			ValueChangeHandler<String> valueChangeHandler) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
