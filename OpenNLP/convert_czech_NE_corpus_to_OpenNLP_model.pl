@@ -64,7 +64,7 @@ binmode STDOUT, ":utf8";
 $x =~s/<\?xml[^>]*>\n//;
 $x =~s/<\/?sentence>//g;
 $x =~s/<\/?doc>\n?//g;
-$x =~ s/<$target>/<START:$target>/g;
-$x =~ s/<\/$target>/<END>/g;
+$x =~ s/<$target>/<START:$target> /g;
+$x =~ s/<\/$target>/ <END>/g;
 
 print $x;
