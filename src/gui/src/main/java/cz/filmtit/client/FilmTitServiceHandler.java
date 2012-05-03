@@ -37,11 +37,13 @@ public class FilmTitServiceHandler {
 			public void onSuccess(TranslationResult result) {
 				// TODO: add to trlist to the correct position
 				gui.getCurrentDocument().translationResults.add(result);
+				gui.log( "succesfully received result of chunk: " + result.getSourceChunk().getSurfaceForm());
 			}
 			
 			public void onFailure(Throwable caught) {
 				// TODO: repeat sending a few times, then ask user
 				Window.alert(caught.getLocalizedMessage());
+				gui.log("failure on receiving some chunk!");
 			}
 		};
 		

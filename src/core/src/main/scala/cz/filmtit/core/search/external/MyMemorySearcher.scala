@@ -36,7 +36,7 @@ class MyMemorySearcher(
 
     val apiResponse = new JSONObject(
       Source.fromURL(
-        apiURL(language.getCode, {if (language == l1) l2.getCode else l1.getCode}, chunk.getSurfaceform)
+        apiURL(language.getCode, {if (language == l1) l2.getCode else l1.getCode}, chunk.getSurfaceForm)
       ).getLines().next()
     )
 

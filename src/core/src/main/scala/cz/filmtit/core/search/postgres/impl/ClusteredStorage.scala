@@ -34,7 +34,7 @@ class ClusteredStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   })
 
   override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
-    new String(chunk.getSurfaceform.split(" ") flatMap {
+    new String(chunk.getSurfaceForm.split(" ") flatMap {
       token =>
         cluster.get(token) match {
           case Some(i) => "c%d,".format(i)

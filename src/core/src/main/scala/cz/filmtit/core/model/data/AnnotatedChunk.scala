@@ -70,6 +70,6 @@ class AnnotatedChunk(val surfaceform: String) extends Chunk(surfaceform) {
 }
 
 object AnnotatedChunk {
-  implicit def fromChunk(chunk: Chunk) = new AnnotatedChunk(chunk.getSurfaceform)
+  implicit def fromChunk(chunk: Chunk) = new AnnotatedChunk(chunk.getSurfaceForm)
   implicit def fromString(chunk: String) = new AnnotatedChunk(chunk)
 }
