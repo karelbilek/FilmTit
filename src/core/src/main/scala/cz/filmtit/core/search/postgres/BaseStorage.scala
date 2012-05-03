@@ -163,8 +163,8 @@ with MediaStorage {
           //Normal case: there is no equivalent translation pair in the database
           case None => {
 
-            inStmt.setString(1, translationPair.getChunkL1.getSurfaceform)
-            inStmt.setString(2, translationPair.getChunkL2.getSurfaceform)
+            inStmt.setString(1, translationPair.getChunkL1.getSurfaceForm)
+            inStmt.setString(2, translationPair.getChunkL2.getSurfaceForm)
             inStmt.execute()
 
             //Get the pair_id of the new translation pair

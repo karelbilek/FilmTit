@@ -24,7 +24,7 @@ class FirstLetterStorage(l1: Language, l2: Language, readOnly: Boolean = true)
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
   override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
-    val tokens: Array[String] = chunk.getSurfaceform.split("[ ,.?!-]") filter (_ != "")
+    val tokens: Array[String] = chunk.getSurfaceForm.split("[ ,.?!-]") filter (_ != "")
 
     tokens map {
       token =>

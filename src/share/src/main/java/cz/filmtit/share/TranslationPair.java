@@ -90,11 +90,11 @@ public class TranslationPair implements Comparable<TranslationPair>, Serializabl
     }
 
     public String getStringL1() {
-        return chunkL1.getSurfaceform();
+        return chunkL1.getSurfaceForm();
     }
 
     public String getStringL2() {
-        return chunkL2.getSurfaceform();
+        return chunkL2.getSurfaceForm();
     }
 
     public static TranslationPair fromString(String string) {
@@ -111,11 +111,11 @@ public class TranslationPair implements Comparable<TranslationPair>, Serializabl
         if (this.score != null) {
             //return String.format("TP[Score: %2f, %s, %s]", score, chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
         	// GWT does not know String.format - rewritten:
-        	return ("TP[Score: " + score + ", " + chunkL1.getSurfaceform() + ", " + chunkL2.getSurfaceform() + "]");
+        	return ("TP[Score: " + score + ", " + chunkL1.getSurfaceForm() + ", " + chunkL2.getSurfaceForm() + "]");
         } else {
             //return String.format("TP[%s, %s]", chunkL1.getSurfaceform(), chunkL2.getSurfaceform());
         	// GWT does not know String.format - rewritten:
-        	return ("TP[" + chunkL1.getSurfaceform() + ", " + chunkL2.getSurfaceform() + "]");
+        	return ("TP[" + chunkL1.getSurfaceForm() + ", " + chunkL2.getSurfaceForm() + "]");
         }
     }
 

@@ -17,7 +17,7 @@ class TrigramStorage(l1: Language, l2: Language, readOnly: Boolean = true)
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
       "" + pairTable + " WHERE sentence % ?;")
-    select.setString(1, chunk.getSurfaceform)
+    select.setString(1, chunk.getSurfaceForm)
     val rs = select.executeQuery()
 
     while (rs.next) {
