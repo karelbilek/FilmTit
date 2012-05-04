@@ -1,10 +1,14 @@
 package cz.filmtit.userspace;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import cz.filmtit.share.Document;
 import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.TimedChunk;
+import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.*;
 import cz.filmtit.core.Configuration;
@@ -31,7 +35,11 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		// TODO: get TranslationPairs from core
 
 		USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+		
+		// TODO: use this:
+		// generateMTSuggestions(TranslationMemory TM)
 				
+		// TODO: remove this:
 		if(usTranslationResult.getText().equals("hi")) {
 			usTranslationResult.setUserTranslation("ahoj");
 		} else if (usTranslationResult.getText().equals("bye")) {
@@ -42,7 +50,7 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 			usTranslationResult.setUserTranslation("no translation");
 		}
 
-		return usTranslationResult.getTranslationResult();
+        return usTranslationResult.getTranslationResult();
 	}
 
 	public Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair) {
