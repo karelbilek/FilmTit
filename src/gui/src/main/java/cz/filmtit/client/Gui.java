@@ -265,8 +265,11 @@ public class Gui implements EntryPoint {
 		}
 		txtDebug.setText(txtDebug.getText() + "subtitle format chosen: " + subformat + "\n");
 		
+		// TODO: get documentId from Userspace
+		long documentId = 123456;
+		
 		// parse:
-		List<TimedChunk> mysublist = subtextparser.parse(text);
+		List<TimedChunk> mysublist = subtextparser.parse(text, documentId);
 		
 		// output the parsed chunks:
 		//txtDebug.setText( Integer.toString( sublist2.getChunks().size()) + "\n");

@@ -21,10 +21,11 @@ public class ParserSub implements Parser {
 	public static RegExp reSubtitleLine  = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
 
-	public List<TimedChunk> parse(String text) {
+	public List<TimedChunk> parse(String text, long documentId) {
 		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
+		int chunkId = 0;
 		
 		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
 			String line = lines[linenumber];
@@ -42,7 +43,7 @@ public class ParserSub implements Parser {
 				for (int i = 1; i < segments.length; i++) {
 					if ( reDialogSegment.test(chunkText)
 							&& reDialogSegment.test(segments[i]) ) {
-						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
+						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
 						chunkText = segments[i];
 						partNumber++;
 					}
@@ -50,7 +51,7 @@ public class ParserSub implements Parser {
 						chunkText += SUBLINE_SEPARATOR_OUT + segments[i];
 					}
 				}
-				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
+				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
 			}
 			else {
 				// wrong format of this line

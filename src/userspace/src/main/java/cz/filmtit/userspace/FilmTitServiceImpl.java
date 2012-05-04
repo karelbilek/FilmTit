@@ -2,6 +2,7 @@ package cz.filmtit.userspace;
 
 import java.io.File;
 
+import cz.filmtit.share.Document;
 import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
@@ -48,6 +49,11 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		// TODO: pass feedback to core
 		
 		return null;		
+	}
+
+	public Document createDocument(String movieTitle, int year, String language) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

@@ -23,5 +23,5 @@ public interface Parser {
 	
 	public static final RegExp reDialogSegment = RegExp.compile(" ?- ");
 	
-	public abstract List<TimedChunk> parse(String text);
+	public abstract List<TimedChunk> parse(String text, long documentId);
 }

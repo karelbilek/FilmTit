@@ -26,7 +26,7 @@ public class ParserSrt implements Parser {
 	public static String TIMES_SEPARATOR = " --> ";
 	
 	
-	public List<TimedChunk> parse(String text) {
+	public List<TimedChunk> parse(String text, long documentId) {
 		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
@@ -36,6 +36,7 @@ public class ParserSrt implements Parser {
 		String endTime = EMPTY_STRING;
 		int partNumber = 1;
 		String chunkText = EMPTY_STRING;		
+		int chunkId = 0;
 
 		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
 			String line = lines[linenumber];
@@ -65,7 +66,7 @@ public class ParserSrt implements Parser {
 						// "dialogue" lines - switching speakers
 						// -> splitting into two (or more) c-hunks
 						//    - 1st one is the chunkText so far, 2nd one (starts on) the current line
-						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
+						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
 						
 						chunkText = line;
 						partNumber++;
@@ -78,7 +79,7 @@ public class ParserSrt implements Parser {
 			}
 			else {  // empty line
 				// creating the chunk from what was gathered recently...
-				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
+				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
 				
 				// ...and resetting
 				chunkText = EMPTY_STRING;
@@ -87,7 +88,7 @@ public class ParserSrt implements Parser {
 		}  // for-loop over lines
 
 		// adding the last chunk (after it, there was no empty line from splitting):
-		sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText) );
+		sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
 
 		return sublist;
 	}

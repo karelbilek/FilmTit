@@ -2,10 +2,10 @@ package cz.filmtit.share;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
-
 public interface FilmTitServiceAsync {
+
+	void createDocument(String movieTitle, int year, String language,
+			AsyncCallback<Document> callback);
 
 	void getTranslationResults(TimedChunk chunk,
 			AsyncCallback<TranslationResult> callback);
