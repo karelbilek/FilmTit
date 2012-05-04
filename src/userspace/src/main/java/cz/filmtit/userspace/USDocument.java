@@ -56,7 +56,12 @@ public class USDocument extends DatabaseObject {
 
     private long userDatabaseId;
     private Document document;
-    private List<USTranslationResult> translationResults;
+
+    public Document getDocument() {
+		return document;
+	}
+
+	private List<USTranslationResult> translationResults;
     private long workStartTime;
     private Language language;
     private long translationGenerationTime;

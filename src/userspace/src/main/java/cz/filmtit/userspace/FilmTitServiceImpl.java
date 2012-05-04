@@ -46,14 +46,16 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 	}
 
 	public Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair) {
+		// TODO: store TranslationResult to DB
 		// TODO: pass feedback to core
 		
 		return null;		
 	}
 
 	public Document createDocument(String movieTitle, int year, String language) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO: check with Jindra what to actually do in this method
+		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );		
+		return usDocument.getDocument();
 	}
 	
 }
