@@ -18,7 +18,7 @@
 
   <servlet>
     <servlet-name>FilmTitServiceImpl</servlet-name>
-    <servlet-class>cz.filmtit.server.FilmTitServiceImpl</servlet-class>
+    <servlet-class>cz.filmtit.userspace.FilmTitServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>

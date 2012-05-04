@@ -13,7 +13,7 @@ class FulltextStorage(l1: Language, l2: Language, readOnly: Boolean = true)
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(pairTable))
-    select.setString(1, chunk.getSurfaceform)
+    select.setString(1, chunk.getSurfaceForm)
     val rs = select.executeQuery()
 
     while (rs.next) {

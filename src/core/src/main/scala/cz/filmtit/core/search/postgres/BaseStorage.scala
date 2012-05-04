@@ -1,14 +1,14 @@
 package cz.filmtit.core.search.postgres
 
-import cz.filmtit.core.Configuration
 import org.postgresql.util.PSQLException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import java.sql.{SQLException, DriverManager}
-import collection.mutable.HashSet
 import gnu.trove.map.hash.TObjectLongHashMap
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
+import collection.mutable.{ListBuffer, HashSet}
+import cz.filmtit.core.Configuration
 
 
 /**
@@ -33,9 +33,11 @@ with MediaStorage {
 
   //Initialize connection
   val connection = try {
-    DriverManager.getConnection(Configuration.dbConnector,
+    DriverManager.getConnection(
+      Configuration.dbConnector,
       Configuration.dbUser,
-      Configuration.dbPassword)
+      Configuration.dbPassword
+    )
   } catch {
     case e: PSQLException => {
       System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(Configuration.dbConnector))
@@ -99,16 +101,13 @@ with MediaStorage {
    * @param pairID pair identifier that will be linked to the media source
    * @param mediaSourceID media source DB identifier
    */
-  private def addMediaSourceForTP(pairID: Long, mediaSourceID: Long) {
-
+  private def addMediaSourceForTP(pairID: Long, mediaSourceID: Long) =
     if ( !(pairMediaSourceMappings.contains(Pair(pairID, mediaSourceID))) ) {
       msInsertStmt.setLong(1, pairID)
       msInsertStmt.setLong(2, mediaSourceID)
       msInsertStmt.execute()
       pairMediaSourceMappings.add(Pair(pairID, mediaSourceID))
     }
-
-  }
 
   /**
    * Search for the translation pair in the database and return its
@@ -140,10 +139,22 @@ with MediaStorage {
     val upStmt = connection.prepareStatement(("UPDATE %s SET count = count + 1 WHERE pair_id = ?;").format(pairTable))
 
     //Important for performance: Only commit after all INSERT statements are
-    //executed:
+    //executed unless we are in verbose auto-commit mode:
     connection.setAutoCommit(autoCommit)
 
+    if (autoCommit) {
+      System.err.println("Re-writing media sources to database after failed commit...")
+      translationPairs.map(_.getMediaSource).toList.distinct foreach( ms =>
+        try {
+          ms.setId(addMediaSource(ms))
+        } catch {
+          case e: SQLException =>
+        }
+      )
+    }
+
     System.err.println("Writing translation pairs to database...")
+    val addedPairs = ListBuffer[String]()
     translationPairs foreach { translationPair => {
       try {
 
@@ -152,8 +163,8 @@ with MediaStorage {
           //Normal case: there is no equivalent translation pair in the database
           case None => {
 
-            inStmt.setString(1, translationPair.getChunkL1.getSurfaceform)
-            inStmt.setString(2, translationPair.getChunkL2.getSurfaceform)
+            inStmt.setString(1, translationPair.getChunkL1.getSurfaceForm)
+            inStmt.setString(2, translationPair.getChunkL2.getSurfaceForm)
             inStmt.execute()
 
             //Get the pair_id of the new translation pair
@@ -161,8 +172,9 @@ with MediaStorage {
             val newPairID = inStmt.getResultSet.getLong("pair_id")
 
             //Remember that we already put it into the database
-            pairIDCache.put("%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2), newPairID)
-
+            val pair: String = "%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2)
+            pairIDCache.put(pair, newPairID)
+            addedPairs.add(pair)
             newPairID
           }
 
@@ -179,8 +191,12 @@ with MediaStorage {
         addMediaSourceForTP(pairID, translationPair.getMediaSource.getId)
       } catch {
         case e: SQLException => {
+          //Since the was an error, we need to remove all the pairs in the
+          //current transaction from the pair cache.
+          addedPairs.foreach( pair => pairIDCache.remove(pair) )
+
           if (!autoCommit) {
-            System.err.println("Database error in current batch, switching to auto-commit mode. ");
+            System.err.println("Database error in current batch, switching to auto-commit mode.");
             addVerbose(translationPairs, autoCommit=true)
             return;
           } else {
@@ -236,7 +252,7 @@ with MediaStorage {
   /**
    * Add a media source to the database.
    * @param mediaSource filled media source object
-   * @return
+   * @return database identifier of the media source
    */
   def addMediaSource(mediaSource: MediaSource): Long = {
     val stmt = connection.prepareStatement("INSERT INTO %s(title, year, genres) VALUES(?, ?, ?) RETURNING source_id;".format(mediasourceTable))

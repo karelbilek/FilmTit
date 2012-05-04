@@ -72,8 +72,8 @@ public class GwtTestgui extends GWTTestCase {
         // asynchronous test finishes successfully, or the test will time out.
         finishTest();
       }
-    });
-  }*/
+    });*/
+  }
 
 
 }
