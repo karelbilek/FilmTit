@@ -24,7 +24,6 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Widget;
-//import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -54,7 +53,7 @@ public class Gui implements EntryPoint {
 	private List<TimedChunk> chunklist;
 	
 	//private List<Label> sources = new ArrayList<Label>();
-	//private List<TextBox> targets = new ArrayList<TextBox>();
+	private List<SubgestBox> targetBoxes = new ArrayList<SubgestBox>();
 
 	private TextArea txtDebug;
 	private RadioButton rdbFormatSrt;
@@ -68,7 +67,7 @@ public class Gui implements EntryPoint {
 	protected Document currentDoc;
 	
 	protected Widget activeSuggestionWidget = null;
-	private SubgestHandler subgestHandler = new SubgestHandler(this);
+	protected SubgestHandler subgestHandler = new SubgestHandler(this);
 	
 	
 	@Override
@@ -109,7 +108,7 @@ public class Gui implements EntryPoint {
 		lblHeader.setSize("436px", "0px");
 
 		
-		// debug-area:
+		// debug-area (for logging output, dumps etc.):
 		txtDebug = new TextArea();
 		rootPanel.add(txtDebug, 412, 530);
 		txtDebug.setSize("460px", "176px");
@@ -123,21 +122,15 @@ public class Gui implements EntryPoint {
 		rootPanel.add(table, 10, 80);
 		table.setWidth("640px");
 		
-		// filling the interface with the source subtitles:
+		// filling the interface with the sample subtitles:
 		final List<TranslationResult> transresults = (new SampleDocument()).translationResults;
 		counter = 0;
 		for (TranslationResult transresult : transresults) {
-			
 			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
 			table.setWidget(counter, 0, sourcelabel);
 			
-			//AbsolutePanel targetpanel = new AbsolutePanel();
-			
 			SubgestBox targetbox = new SubgestBox(counter, transresult, this); // suggestions handling - see the constructor for details
-			targetbox.addFocusHandler(this.subgestHandler);
-			targetbox.addKeyDownHandler(this.subgestHandler);
-			targetbox.addValueChangeHandler(this.subgestHandler);
-			//targetpanel.add(targetbox);
+			targetBoxes.add(targetbox);
 			
 			table.setWidget(counter, 1, targetbox);
 			targetbox.setWidth("80%");
@@ -266,7 +259,7 @@ public class Gui implements EntryPoint {
 		txtDebug.setText(txtDebug.getText() + "subtitle format chosen: " + subformat + "\n");
 		
 		// TODO: get documentId from Userspace
-		long documentId = 123456;
+	   	long documentId = 123456;
 		
 		// parse:
 		List<TimedChunk> mysublist = subtextparser.parse(text, documentId);
@@ -277,13 +270,14 @@ public class Gui implements EntryPoint {
 		for (TimedChunk timedchunk : mysublist) {
 			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
 
-			log("sending timed chunk: " + timedchunk.getSurfaceForm());
-			rpcHandler.getTranslationResults(timedchunk);
+			log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
+			// TODO: uncomment the sending when it is ready
+			//rpcHandler.getTranslationResults(timedchunk);
 		}
 		
-		
 		chunklist = mysublist;
-	}	// processText(...)
+	}
+	
 	
 	public Document getCurrentDocument() {
 		return currentDoc;
@@ -300,12 +294,8 @@ public class Gui implements EntryPoint {
 		Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
 		table.setWidget(counter, 0, sourcelabel);
 		
-		//AbsolutePanel targetpanel = new AbsolutePanel();
-		
 		SubgestBox targetbox = new SubgestBox(counter, transresult, this); // suggestions handling - see the constructor for details
-		targetbox.addFocusHandler(this.subgestHandler);
-		targetbox.addKeyDownHandler(this.subgestHandler);
-		targetbox.addValueChangeHandler(this.subgestHandler);
+		targetBoxes.add(targetbox);
 		
 		table.setWidget(counter, 1, targetbox);
 		targetbox.setWidth("80%");
@@ -322,7 +312,19 @@ public class Gui implements EntryPoint {
 	}
 	
 	public void submitUserTranslation(TranslationResult transresult) {
-		rpcHandler.setUserTranslation(transresult.getId(), transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+		log("sending user feedback with values: " + transresult.getId() + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
+		// TODO: uncomment the sending when it is ready
+		//rpcHandler.setUserTranslation(transresult.getId(), transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+	}
+	
+	public void goToNextBox(SubgestBox currentBox) {
+		int nextIndex = targetBoxes.indexOf(currentBox) + 1;
+		if (nextIndex <= targetBoxes.size()) {
+			targetBoxes.get(nextIndex).setFocus(true);
+		}
+		else {
+			// do nothing - stay where you are...
+		}
 	}
 	
 	public void log(String logtext) {

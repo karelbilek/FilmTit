@@ -43,3 +43,24 @@ h1 {
 	font-size: 2em;
 	font-weight: bold;
 }
+.suggestionsPopup {
+	background: white;
+	padding: 5px;
+	border: 1px dotted;
+	background-color: #ffffcc;
+}
+.suggestion {
+	background-color: #ccff99;
+}
+.cellListEvenItem {
+	border: 1px solid;
+	padding: 5px;
+	cursor: pointer;
+	zoom: 1;
+}
+.cellListOddItem {
+	border: 1px solid;
+	padding: 5px;
+	cursor: pointer;
+	zoom: 1;
+}

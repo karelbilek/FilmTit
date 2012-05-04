@@ -16,6 +16,7 @@ public final class SampleDocument extends Document {
 		int chunkId = 0;
 		
 		TranslationResult tr1 = new TranslationResult();
+		tr1.setId(11);
 		tr1.setSourceChunk( new TimedChunk("001", "002", 1, "Hi, Bob!", chunkId++, documentId) );
 		List<TranslationPair> trpairs1 = new ArrayList<TranslationPair>();
 		trpairs1.add( new TranslationPair("Hi, Bob!", "Ahoj, Bobe!") );
@@ -28,6 +29,7 @@ public final class SampleDocument extends Document {
 		this.translationResults.add(tr1);
 		
 		TranslationResult tr2 = new TranslationResult();
+		tr2.setId(12);
 		tr2.setSourceChunk( new TimedChunk("002", "003", 1, "Hi Tom!", chunkId++, documentId) );
 		List<TranslationPair> trpairs2 = new ArrayList<TranslationPair>();
 		trpairs2.add( new TranslationPair("Hi, Tom!", "Ahoj Tome!") );
@@ -36,6 +38,7 @@ public final class SampleDocument extends Document {
 		this.translationResults.add(tr2);
 		
 		TranslationResult tr3 = new TranslationResult();
+		tr3.setId(13);
 		tr3.setSourceChunk( new TimedChunk("004", "005", 1, "Run, you fools!", chunkId++, documentId) );
 		List<TranslationPair> trpairs3 = new ArrayList<TranslationPair>();
 		trpairs3.add( new TranslationPair("Run, you fools...", "Utíkejte, hlupáci!") );
