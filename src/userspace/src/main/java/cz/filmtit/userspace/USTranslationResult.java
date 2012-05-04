@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.Factory;
+import cz.filmtit.core.Configuration;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.Chunk;
 import cz.filmtit.share.TimedChunk;
@@ -8,6 +9,7 @@ import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -106,14 +108,17 @@ public class USTranslationResult extends DatabaseObject {
         translationResult.getSourceChunk().setPartNumber(partNumber);
     }
 
+    // public void generateMTSuggestions(TranslationMemory TM) {
     public void generateMTSuggestions() {
         // TODO: Make this method parallel
+
+		// TODO: remove
+    	Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
+        TranslationMemory TM = Factory.createTM(configuration, true);
 
         // dereference of current suggestion will force hibernate to
         translationResult.setTmSuggestions(null);
 
-        TranslationMemory TM = Factory.createTM(true);
-        
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), parent.getLanguage(), parent.getMediaSource(), 10, false);
 

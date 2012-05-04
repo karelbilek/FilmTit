@@ -1,14 +1,29 @@
 package cz.filmtit.userspace;
 
+import java.io.File;
+
 import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.*;
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.Factory;
+import cz.filmtit.core.model.TranslationMemory;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class FilmTitServiceImpl extends RemoteServiceServlet implements
 		FilmTitService {
+	
+	private static final long serialVersionUID = 3546115L;
+	
+	private TranslationMemory TM;
+	
+	public FilmTitServiceImpl() {
+		// TODO Auto-generated constructor stub
+		Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
+        TranslationMemory TM = Factory.createTM(configuration, true);
+	}
 
 	public TranslationResult getTranslationResults(TimedChunk chunk) {
 		
