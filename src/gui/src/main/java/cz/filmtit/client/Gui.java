@@ -180,7 +180,7 @@ public class Gui implements EntryPoint {
 			
 			//AbsolutePanel targetpanel = new AbsolutePanel();
 			
-			SubgestBox targetbox = new SubgestBox(counter, transresult); // suggestions handling - see the constructor for details
+			SubgestBox targetbox = new SubgestBox(counter, transresult, rootPanel); // suggestions handling - see the constructor for details
 			targetbox.addFocusHandler( new FocusHandler() {
 				@Override
 				public void onFocus(FocusEvent event) {
@@ -459,7 +459,7 @@ public class Gui implements EntryPoint {
 		
 		//AbsolutePanel targetpanel = new AbsolutePanel();
 		
-		SubgestBox targetbox = new SubgestBox(counter, transresult); // suggestions handling - see the constructor for details
+		SubgestBox targetbox = new SubgestBox(counter, transresult, rootPanel); // suggestions handling - see the constructor for details
 		targetbox.addFocusHandler( new FocusHandler() {
 			@Override
 			public void onFocus(FocusEvent event) {
