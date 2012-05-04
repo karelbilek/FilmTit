@@ -1,9 +1,10 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Document {
+public class Document implements Serializable {
     public String movieTitle;
     public int year;
     public long spentOnThisTime;
