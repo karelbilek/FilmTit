@@ -6,6 +6,7 @@ import org.apache.commons.math.stat.StatUtils
 import cz.filmtit.core.model.storage.SignatureTranslationPairStorage
 import cz.filmtit.core.search.postgres.impl.NEStorage
 import cz.filmtit.share.{Language, TranslationPair}
+import cz.filmtit.core.Configuration
 
 /**
  * @author Joachim Daiber
@@ -81,8 +82,10 @@ object EvaluateSignature {
 
 
   def main(args: Array[String]) {
+    val configuration = new Configuration(new File("configuration.xml"))
+
     evaluateSignatures(
-      new NEStorage(Language.EN, Language.CS),
+      new NEStorage(Language.EN, Language.CS, configuration),
       new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"),
       languages = Set(Language.EN)
     )

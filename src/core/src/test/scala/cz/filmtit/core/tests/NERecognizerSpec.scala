@@ -6,10 +6,11 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Spec
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.model.annotation.Name
-import cz.filmtit.core.Factory
 
 import junit.framework.Assert.assertEquals
 import cz.filmtit.share.Language
+import cz.filmtit.core.{Configuration, Factory}
+import java.io.File
 
 
 /**
@@ -21,11 +22,12 @@ import cz.filmtit.share.Language
 
 @RunWith(classOf[JUnitRunner])
 class NERecognizerSpec extends Spec {
+  val configuration = new Configuration(new File("configuration.xml"))
 
   describe("A NER") {
 
-    val personNER = Factory.createNERecognizer(Language.EN, Name.Person)
-    val placeNER =  Factory.createNERecognizer(Language.EN, Name.Place)
+    val personNER = Factory.createNERecognizer(Language.EN, Name.Person, configuration)
+    val placeNER =  Factory.createNERecognizer(Language.EN, Name.Place, configuration)
 
 
     it("should add annotations") {

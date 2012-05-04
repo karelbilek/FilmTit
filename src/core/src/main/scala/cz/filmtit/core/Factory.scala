@@ -27,7 +27,7 @@ object Factory {
    *
    * @return the TM
    */
-  def createTM(readOnly: Boolean = true): TranslationMemory = {
+  def createTM(configuration: Configuration, readOnly: Boolean = true): TranslationMemory = {
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
@@ -41,7 +41,7 @@ object Factory {
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.EN, Language.CS, readOnly=readOnly),
+      new NEStorage(Language.EN, Language.CS, configuration, readOnly=readOnly),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -49,7 +49,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, readOnly=readOnly),
+      new FirstLetterStorage(Language.EN, Language.CS, configuration, readOnly=readOnly),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)
@@ -70,7 +70,8 @@ object Factory {
   def createNERecognizer(
     neType: ChunkAnnotation,
     language: Language,
-    modelFile: String
+    modelFile: String,
+    configuration: Configuration
   ): NERecognizer = {
 
     val tokenNameFinderModel = new TokenNameFinderModel(
@@ -91,12 +92,12 @@ object Factory {
    * @param language the language the NE recognizers work on
    * @return
    */
-  def createNERecognizers(language: Language): List[NERecognizer] = {
-    Configuration.neRecognizers.get(language) match {
+  def createNERecognizers(language: Language, configuration: Configuration): List[NERecognizer] = {
+    configuration.neRecognizers.get(language) match {
       case Some(recognizers) => recognizers map {
         pair => {
           val (neType, modelFile) = pair
-          Factory.createNERecognizer(neType, language, modelFile)
+          Factory.createNERecognizer(neType, language, modelFile, configuration)
         }
       }
       case None => List()
@@ -111,8 +112,8 @@ object Factory {
    * @param neType the type of NE, the recognizer detects
    * @return
    */
-  def createNERecognizer(language: Language, neType: ChunkAnnotation): NERecognizer =
-    createNERecognizers(language).filter( _.neClass == neType ).head
+  def createNERecognizer(language: Language, neType: ChunkAnnotation, configuration: Configuration): NERecognizer =
+    createNERecognizers(language, configuration).filter( _.neClass == neType ).head
 
 
   /**

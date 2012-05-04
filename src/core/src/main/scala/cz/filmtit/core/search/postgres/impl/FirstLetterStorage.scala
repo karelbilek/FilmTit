@@ -7,6 +7,7 @@ import data.AnnotatedChunk
 import storage.Signature
 import java.lang.String
 import cz.filmtit.share.{Language, TranslationSource}
+import cz.filmtit.core.Configuration
 
 
 /**
@@ -16,9 +17,19 @@ import cz.filmtit.share.{Language, TranslationSource}
  * @author Joachim Daiber
  */
 
-class FirstLetterStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.INTERNAL_EXACT,
-    "sign_firstletter", readOnly = readOnly) {
+class FirstLetterStorage(
+  l1: Language,
+  l2: Language,
+  configuration: Configuration,
+  readOnly: Boolean = true
+) extends BaseSignatureStorage(
+  l1,
+  l2,
+  TranslationSource.INTERNAL_EXACT,
+  "sign_firstletter",
+  configuration,
+  readOnly = readOnly
+) {
 
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.

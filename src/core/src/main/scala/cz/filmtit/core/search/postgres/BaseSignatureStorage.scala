@@ -7,7 +7,8 @@ import storage.{Signature, SignatureTranslationPairStorage}
 import org.postgresql.util.PSQLException
 import cz.filmtit.share.exceptions.DatabaseException
 import scala.collection.JavaConversions._
-import cz.filmtit.share.{Language, TranslationPair, Chunk, TranslationSource}
+import cz.filmtit.core.Configuration
+import cz.filmtit.share._
 
 /**
  * Base class for all signature based translation pair storages
@@ -21,9 +22,10 @@ abstract class BaseSignatureStorage(
   l2: Language,
   source: TranslationSource,
   signatureTable: String,
+  configuration: Configuration,
   reversible: Boolean = false,
   readOnly: Boolean = true
-) extends BaseStorage(l1, l2, source, readOnly=readOnly)
+) extends BaseStorage(l1, l2, source, configuration, readOnly=readOnly)
 with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */

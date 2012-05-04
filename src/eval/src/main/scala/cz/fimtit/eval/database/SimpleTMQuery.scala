@@ -1,10 +1,11 @@
 package cz.fimtit.eval.database
 
-import cz.filmtit.core.Factory
 import java.net.ConnectException
 import cz.filmtit.core.model.TranslationMemory
 import cz.filmtit.share.Language
 import cz.filmtit.core.Utils.chunkFromString
+import cz.filmtit.core.{Configuration, Factory}
+import java.io.File
 
 
 /**
@@ -16,9 +17,11 @@ object SimpleTMQuery {
   def main(args: Array[String]) {
 
     println("Starting translation memory...")
-    
+
+    val configuration = new Configuration(new File("configuration.xml"))
+
     val tm: TranslationMemory = try {
-      Factory.createTM()
+      Factory.createTM(configuration)
     } catch {
       case e: ConnectException => {
         println("Error: " + e.getMessage)

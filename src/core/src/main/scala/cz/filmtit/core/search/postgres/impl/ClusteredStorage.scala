@@ -6,6 +6,7 @@ import scala.io.Source
 import cz.filmtit.core.model.storage.Signature
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.share.{Language, TranslationSource}
+import cz.filmtit.core.Configuration
 
 
 /**
@@ -13,9 +14,20 @@ import cz.filmtit.share.{Language, TranslationSource}
  *
  */
 
-class ClusteredStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.INTERNAL_FUZZY,
-    "sign_clustered", readOnly = readOnly) {
+class ClusteredStorage(
+  l1: Language,
+  l2: Language,
+  configuration: Configuration,
+  readOnly: Boolean = true
+) extends
+BaseSignatureStorage(
+  l1,
+  l2,
+  TranslationSource.INTERNAL_FUZZY,
+  "sign_clustered",
+  configuration,
+  readOnly = readOnly
+) {
 
   val cluster: HashMap[String, Int] = new HashMap[String, Int]()
 

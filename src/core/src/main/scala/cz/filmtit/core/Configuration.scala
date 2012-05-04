@@ -1,10 +1,10 @@
 package cz.filmtit.core
 
 import cz.filmtit.core.model.annotation.ChunkAnnotation
-import java.io.File
 import scala.xml._
 import collection.mutable.HashMap
 import cz.filmtit.share.Language
+import java.io.{FileInputStream, InputStream, File}
 
 /**
  * Configuration file for the external files and databases required by the TM.
@@ -12,9 +12,13 @@ import cz.filmtit.share.Language
  * @author Joachim Daiber
  */
 
-object Configuration {
+class Configuration(configurationFile: InputStream) {
 
-  private val XMLFile = XML.loadFile("configuration.xml")
+  def this(configurationFile: File) {
+    this(new FileInputStream(configurationFile))
+  }
+
+  private val XMLFile = XML.load(configurationFile)
 
   //Database:
   private val dbXML = XMLFile \ "database"
@@ -37,7 +41,6 @@ object Configuration {
 
   //Indexing:
   private val importXML = XMLFile \ "import"
-
 
   val dataFolder = new File((importXML \ "data_folder").text)
   val importBatchSize = (importXML \ "batch_size").text.toInt

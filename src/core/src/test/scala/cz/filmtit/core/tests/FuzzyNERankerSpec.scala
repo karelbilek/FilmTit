@@ -2,13 +2,14 @@ package cz.filmtit.core.tests
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Spec
-import cz.filmtit.core.Factory
 import cz.filmtit.core.model.annotation.Name
 import cz.filmtit.core.model.names.NERecognizer
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.rank.FuzzyNERanker
 import org.junit.Assert.assertEquals
 import cz.filmtit.share.Language
+import cz.filmtit.core.{Configuration, Factory}
+import java.io.File
 
 
 /**
@@ -20,7 +21,9 @@ import cz.filmtit.share.Language
 @RunWith(classOf[JUnitRunner])
 class FuzzyNERankerSpec extends Spec {
 
-  val recognizer: NERecognizer = Factory.createNERecognizer(Language.EN, Name.Person)
+  val configuration = new Configuration(new File("configuration.xml"))
+
+  val recognizer: NERecognizer = Factory.createNERecognizer(Language.EN, Name.Person, configuration)
   val ranker: FuzzyNERanker = new FuzzyNERanker()
 
 

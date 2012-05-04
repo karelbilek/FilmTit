@@ -2,12 +2,12 @@ package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
-import cz.filmtit.core.Factory
 import cz.filmtit.core.Utils.t2mapper
 import collection.mutable.ListBuffer
 import storage.Signature
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.share.{Language, TranslationSource}
+import cz.filmtit.core.{Configuration, Factory}
 
 /**
  * Translation pair storage using named entity types to identify names.
@@ -18,11 +18,18 @@ import cz.filmtit.share.{Language, TranslationSource}
  * @author Joachim Daiber
  */
 
-class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseSignatureStorage(l1, l2, TranslationSource.INTERNAL_NE, "sign_ne",
-    reversible = true, readOnly = readOnly) {
+class NEStorage(l1: Language, l2: Language, configuration: Configuration, readOnly: Boolean = true)
+  extends BaseSignatureStorage(
+    l1,
+    l2,
+    TranslationSource.INTERNAL_NE,
+    "sign_ne",
+    configuration,
+    reversible = true,
+    readOnly = readOnly
+  ) {
 
-  val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_) }
+  val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_, configuration) }
 
   override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
 
@@ -73,7 +80,7 @@ class NEStorage(l1: Language, l2: Language, readOnly: Boolean = true)
           chunk.annotations(i)._3,
           chunk.annotations(i + 1)._2,
           chunk.annotations(i + 1)._3
-        )
+          )
 
 
         /* Matches for exactly the same areas:

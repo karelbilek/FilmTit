@@ -17,7 +17,7 @@ import cz.filmtit.core.{Configuration, Factory}
  * @author Joachim Daiber
  */
 
-object Import {
+class Import(val configuration: Configuration) {
 
   /** Contains the subtitle file <-> media source mapping */
   var subtitles = HashMap[String, MediaSource]()
@@ -49,12 +49,12 @@ object Import {
 
   def writeIMDBCache() {
     System.err.println("Writing cached IMDB database to file...")
-    new ObjectOutputStream(new FileOutputStream(Configuration.importIMDBCache)).writeObject(imdbCache)
+    new ObjectOutputStream(new FileOutputStream(configuration.importIMDBCache)).writeObject(imdbCache)
   }
 
-  var imdbCache = if( Configuration.importIMDBCache.exists() ) {
+  var imdbCache = if( configuration.importIMDBCache.exists() ) {
     System.err.println("Reading cached IMDB database from file...")
-    new ObjectInputStream(new FileInputStream(Configuration.importIMDBCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
+    new ObjectInputStream(new FileInputStream(configuration.importIMDBCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
   } else {
     HashMap[String, MediaSource]()
   }
@@ -82,13 +82,13 @@ object Import {
   def loadChunks(tm: TranslationMemory, folder: File) {
 
     tm.reset()
-    val heldoutWriter = new PrintWriter(Configuration.heldoutFile)
+    val heldoutWriter = new PrintWriter(configuration.heldoutFile)
 
     var finishedFiles = 0
 
     System.err.println("Processing files:")
     val inputFiles = folder.listFiles filter(_.getName.endsWith(".txt"))
-    inputFiles grouped( Configuration.importBatchSize ) foreach(
+    inputFiles grouped( configuration.importBatchSize ) foreach(
       (files: Array[File])=> { tm.add(
         files flatMap ( (sourceFile: File) => {
 
@@ -112,7 +112,7 @@ object Import {
 
             //Exclude heldoutSize% of the data as heldout data
             val (training, heldout) =
-              pairs.toList.partition({ _: TranslationPair => (Random.nextFloat >= Configuration.heldoutSize) })
+              pairs.toList.partition({ _: TranslationPair => (Random.nextFloat >= configuration.heldoutSize) })
 
             heldout.foreach({ pair: TranslationPair => heldoutWriter.println(pair.toExternalString) })
 
@@ -128,7 +128,7 @@ object Import {
         finishedFiles += files.size
         System.err.println("Processed %d of %d files...".format(finishedFiles, inputFiles.size))
 
-        if ( finishedFiles % (Configuration.importBatchSize * 5) == 0 ) {
+        if ( finishedFiles % (configuration.importBatchSize * 5) == 0 ) {
           System.err.println("Doing some cleanup...")
           writeIMDBCache()
 
@@ -149,11 +149,14 @@ object Import {
 
 
   def main(args: Array[String]) {
-    loadSubtitleMapping(Configuration.fileMediasourceMapping)
+    val configuration = new Configuration(new File(args(0)))
+    val imp = new Import(configuration)
+
+    imp.loadSubtitleMapping(configuration.fileMediasourceMapping)
     System.err.println("Loaded subtitle -> movie mapping")
 
-    val tm = Factory.createTM(readOnly = false)
-    loadChunks(tm, Configuration.dataFolder)
+    val tm = Factory.createTM(configuration, readOnly = false)
+    imp.loadChunks(tm, configuration.dataFolder)
 
   }
 

@@ -2,13 +2,24 @@ package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
+import cz.filmtit.core.Configuration
 
 
 /**
  * Postgres-based storage using a full-text index.
  */
-class FulltextStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseStorage(l1, l2, TranslationSource.INTERNAL_FUZZY, readOnly = readOnly) {
+class FulltextStorage(
+  l1: Language,
+  l2: Language,
+  configuration: Configuration,
+  readOnly: Boolean = true
+) extends BaseStorage(
+  l1,
+  l2,
+  TranslationSource.INTERNAL_FUZZY,
+  configuration,
+  readOnly = readOnly
+) {
 
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {

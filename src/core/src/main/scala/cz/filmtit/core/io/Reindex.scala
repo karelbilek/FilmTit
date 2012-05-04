@@ -1,6 +1,8 @@
 package cz.filmtit.core.io
 
-import cz.filmtit.core.Factory
+import cz.filmtit.core.{Configuration, Factory}
+import java.io.File
+
 
 /**
  * @author Joachim Daiber
@@ -8,6 +10,7 @@ import cz.filmtit.core.Factory
 
 object Reindex {
   def main(args: Array[String]) {
-    Factory.createTM(readOnly = false).reindex()
+    val configuration = new Configuration(new File(args(0)))
+    Factory.createTM(configuration, readOnly = false).reindex()
   }
 }

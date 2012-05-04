@@ -22,8 +22,9 @@ abstract class BaseStorage(
   l1: Language,
   l2: Language,
   source: TranslationSource,
+  configuration: Configuration,
   readOnly: Boolean = true
-  ) extends TranslationPairStorage(l1, l2)
+) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
 
   val log = Logger(this.getClass.getSimpleName)
@@ -34,13 +35,13 @@ with MediaStorage {
   //Initialize connection
   val connection = try {
     DriverManager.getConnection(
-      Configuration.dbConnector,
-      Configuration.dbUser,
-      Configuration.dbPassword
+      configuration.dbConnector,
+      configuration.dbUser,
+      configuration.dbPassword
     )
   } catch {
     case e: PSQLException => {
-      System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(Configuration.dbConnector))
+      System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
       System.exit(1)
       null
     }

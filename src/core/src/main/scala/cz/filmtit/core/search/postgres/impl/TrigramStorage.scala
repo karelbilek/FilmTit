@@ -2,6 +2,7 @@ package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.share.{Language, TranslationPair, Chunk, TranslationSource}
+import cz.filmtit.core.Configuration
 
 
 /**
@@ -11,8 +12,18 @@ import cz.filmtit.share.{Language, TranslationPair, Chunk, TranslationSource}
  */
 
 
-class TrigramStorage(l1: Language, l2: Language, readOnly: Boolean = true)
-  extends BaseStorage(l1, l2, TranslationSource.INTERNAL_FUZZY, readOnly = readOnly) {
+class TrigramStorage(
+  l1: Language,
+  l2: Language,
+  configuration: Configuration,
+  readOnly: Boolean = true
+) extends BaseStorage(
+  l1,
+  l2,
+  TranslationSource.INTERNAL_FUZZY,
+  configuration,
+  readOnly = readOnly
+) {
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
