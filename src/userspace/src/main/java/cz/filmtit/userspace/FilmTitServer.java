@@ -63,7 +63,7 @@ public class FilmTitServer extends RemoteServiceServlet implements
 		// TODO: check with Jindra what to actually do in this method
 		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );		
 		// TODO: DatabaseId should be generated automatically upon new USDocument()
-		// usDocument.setDatabaseId(1234);
+		usDocument.setDatabaseId(1234);
 		return usDocument.getDocument();
 	}
 	
