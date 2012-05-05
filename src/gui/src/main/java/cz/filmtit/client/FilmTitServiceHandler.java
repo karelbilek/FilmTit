@@ -79,10 +79,12 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(Void o) {
 				//TODO: do something?
+				gui.log("setUserTranslation() succeeded");
 			}
 			
 			public void onFailure(Throwable caught) {
 				Window.alert(caught.getLocalizedMessage());
+				gui.log("setUserTranslation() didn't succeed");
 				// TODO: repeat sending a few times, then ask user
 			}
 		};
