@@ -24,6 +24,7 @@ public class USTranslationResult extends DatabaseObject {
 
     public USTranslationResult(TimedChunk chunk) {
         translationResult = new TranslationResult();
+        translationResult.setSourceChunk(chunk);
         generateMTSuggestions();
         // TODO: and save to the database as soon as possible to have the ID
     }
