@@ -112,6 +112,9 @@ public class USTranslationResult extends DatabaseObject {
     public void generateMTSuggestions() {
         // TODO: Make this method parallel
 
+    	// TODO: currently bypassed
+    	return;
+    	
 		// TODO: remove
     	Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
         TranslationMemory TM = Factory.createTM(configuration, true);
