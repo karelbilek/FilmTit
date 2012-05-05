@@ -52,7 +52,9 @@ public class FilmTitServer extends RemoteServiceServlet implements
 		*/
 		
 		// TODO: remove this:
-		usTranslationResult.getTranslationResult().getTmSuggestions().add(new TranslationPair("platypus", "ptakopysk"));
+		ArrayList<TranslationPair> tms = new ArrayList<TranslationPair>();
+		tms.add(new TranslationPair("platypus", "ptakopysk"));
+		usTranslationResult.getTranslationResult().setTmSuggestions(tms);
 
         return usTranslationResult.getTranslationResult();
 	}
