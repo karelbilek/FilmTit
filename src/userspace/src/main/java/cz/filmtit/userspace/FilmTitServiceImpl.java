@@ -63,6 +63,8 @@ public class FilmTitServiceImpl extends RemoteServiceServlet implements
 	public Document createDocument(String movieTitle, int year, String language) {
 		// TODO: check with Jindra what to actually do in this method
 		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );		
+		// TODO: DatabaseId should be generated automatically upon new USDocument()
+		// usDocument.setDatabaseId(1234);
 		return usDocument.getDocument();
 	}
 	

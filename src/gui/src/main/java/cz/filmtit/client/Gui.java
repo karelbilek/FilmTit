@@ -64,10 +64,15 @@ public class Gui implements EntryPoint {
 	private int counter;
 
 	private FilmTitServiceHandler rpcHandler;
-	protected Document currentDoc;
+	protected Document currentDocument;
 	
 	protected Widget activeSuggestionWidget = null;
 	protected SubgestHandler subgestHandler = new SubgestHandler(this);
+
+	/**
+	 * Multi-line subtitle text to parse
+	 */
+	protected String subtext;
 	
 	
 	@Override
@@ -176,9 +181,12 @@ public class Gui implements EntryPoint {
 		freader.addLoadEndHandler( new LoadEndHandler() {
 			@Override
 			public void onLoadEnd(LoadEndEvent event) {
-				String subtext = freader.getStringResult();
+				subtext = freader.getStringResult();
 				//txtDebug.setText(txtDebug.getText() + subtext);
-				processText(subtext);
+				
+				// TODO: movieTitle, year, language
+				rpcHandler.createDocument("My Movie", 2012, "en");
+				// sets currentDocument and calls processText() on success
 			}
 		} );
 		
@@ -218,8 +226,10 @@ public class Gui implements EntryPoint {
 		btnSendToTm.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				String subtext = txtFileContentArea.getText();
-				processText(subtext);
+				subtext = txtFileContentArea.getText();
+				// TODO: movieTitle, year, language
+				rpcHandler.createDocument("My Movie", 2012, "en");
+				// sets currentDocument and calls processText() on success
 			}
 		} );
 		rootPanel.add(btnSendToTm, 286, 530);
@@ -238,12 +248,10 @@ public class Gui implements EntryPoint {
 	 * Currently verbosely outputting both input text, format
 	 * and output chunks into the debug-area,
 	 * also "reloads" the CellBrowser interface accordingly.
-	 * 
-	 * @param text Multi-line subtitle text to parse
 	 */
-	private void processText(String text) {
+	protected void processText() {
 		// dump the input text into the debug-area:
-		txtDebug.setText(txtDebug.getText() + "processing the following input:\n" + text + "\n");
+		txtDebug.setText(txtDebug.getText() + "processing the following input:\n" + this.subtext + "\n");
 		
 		// determine format (from corresponding radiobuttons) and choose parser:
 		String subformat;
@@ -257,12 +265,9 @@ public class Gui implements EntryPoint {
 			subtextparser = new ParserSrt();
 		}
 		txtDebug.setText(txtDebug.getText() + "subtitle format chosen: " + subformat + "\n");
-		
-		// TODO: get documentId from Userspace
-	   	long documentId = 123456;
-		
+				
 		// parse:
-		List<TimedChunk> mysublist = subtextparser.parse(text, documentId);
+		List<TimedChunk> mysublist = subtextparser.parse(this.subtext, this.currentDocument.getId());
 		
 		// output the parsed chunks:
 		//txtDebug.setText( Integer.toString( sublist2.getChunks().size()) + "\n");
@@ -280,10 +285,13 @@ public class Gui implements EntryPoint {
 	
 	
 	public Document getCurrentDocument() {
-		return currentDoc;
+		return currentDocument;
 	}
-	
-	
+		
+	protected void setCurrentDocument(Document currentDocument) {
+		this.currentDocument = currentDocument;
+	}
+
 	/**
 	 * Adds the given TranslationResult to the current listing interface.
 	 * @param transresult - the TranslationResult to be shown

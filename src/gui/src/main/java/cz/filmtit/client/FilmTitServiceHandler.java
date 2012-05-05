@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
+import cz.filmtit.share.Document;
 import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.FilmTitServiceAsync;
 import cz.filmtit.share.TimedChunk;
@@ -23,6 +24,27 @@ public class FilmTitServiceHandler {
 	public FilmTitServiceHandler(Gui gui) {
 		filmTitSvc = GWT.create(FilmTitService.class);
 		this.gui = gui;
+	}
+	
+	public void createDocument(String movieTitle, int year, String language) {
+		
+		AsyncCallback<Document> callback = new AsyncCallback<Document>() {
+			
+			public void onSuccess(Document result) {
+				gui.setCurrentDocument(result);
+				gui.log( "succesfully created document: " + result.getId());
+				gui.processText();
+			}
+			
+			public void onFailure(Throwable caught) {
+				// TODO: repeat sending a few times, then ask user
+				Window.alert(caught.getLocalizedMessage());
+				gui.log("failure on creating document!");
+			}
+
+		};
+		
+		filmTitSvc.createDocument(movieTitle, year, language, callback);
 	}
 	
 	public void getTranslationResults(TimedChunk chunk) {
