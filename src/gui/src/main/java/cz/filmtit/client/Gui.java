@@ -185,16 +185,8 @@ public class Gui implements EntryPoint {
 				//txtDebug.setText(txtDebug.getText() + subtext);
 				
 				// TODO: movieTitle, year, language
-				// TODO: uncomment the sending when it is ready
-				// rpcHandler.createDocument("My Movie", 2012, "en");
+				rpcHandler.createDocument("My Movie", 2012, "en");
 				// sets currentDocument and calls processText() on success
-				
-				// TODO: delete when sending is ready
-				Document result = new Document("My Movie", 2012, "en");
-				result.setId(1234);
-				setCurrentDocument(result);
-				log( "succesfully created local document: " + result.getId());
-				processText();				
 			}
 		} );
 		
@@ -236,16 +228,8 @@ public class Gui implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				subtext = txtFileContentArea.getText();
 				// TODO: movieTitle, year, language
-				// TODO: uncomment the sending when it is ready
-				// rpcHandler.createDocument("My Movie", 2012, "en");
+				rpcHandler.createDocument("My Movie", 2012, "en");
 				// sets currentDocument and calls processText() on success
-				
-				// TODO: delete when sending is ready
-				Document result = new Document("My Movie", 2012, "en");
-				result.setId(1234);
-				setCurrentDocument(result);
-				log( "succesfully created local document: " + result.getId());
-				processText();				
 			}
 		} );
 		rootPanel.add(btnSendToTm, 286, 530);
@@ -292,8 +276,7 @@ public class Gui implements EntryPoint {
 			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
 
 			log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
-			// TODO: uncomment the sending when it is ready
-			//rpcHandler.getTranslationResults(timedchunk);
+			rpcHandler.getTranslationResults(timedchunk);
 		}
 		
 		chunklist = mysublist;
@@ -337,8 +320,7 @@ public class Gui implements EntryPoint {
 	
 	public void submitUserTranslation(TranslationResult transresult) {
 		log("sending user feedback with values: " + transresult.getId() + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
-		// TODO: uncomment the sending when it is ready
-		//rpcHandler.setUserTranslation(transresult.getId(), transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+		rpcHandler.setUserTranslation(transresult.getId(), transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
 	}
 	
 	public void goToNextBox(SubgestBox currentBox) {
