@@ -115,6 +115,7 @@ public class USTranslationResult extends DatabaseObject {
     	// TODO: currently bypassed
     	return;
     	
+    	/*
 		// TODO: remove
     	Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
         TranslationMemory TM = Factory.createTM(configuration, true);
@@ -132,6 +133,7 @@ public class USTranslationResult extends DatabaseObject {
 
         // the list of suggestions will be stored as a synchronized list
         translationResult.setTmSuggestions(Collections.synchronizedList(new ArrayList<TranslationPair>(javaList)));
+        */
     }
 
     public void saveToDatabase(Session dbSession) {
