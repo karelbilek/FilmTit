@@ -185,8 +185,16 @@ public class Gui implements EntryPoint {
 				//txtDebug.setText(txtDebug.getText() + subtext);
 				
 				// TODO: movieTitle, year, language
-				rpcHandler.createDocument("My Movie", 2012, "en");
+				// TODO: uncomment the sending when it is ready
+				// rpcHandler.createDocument("My Movie", 2012, "en");
 				// sets currentDocument and calls processText() on success
+				
+				// TODO: delete when sending is ready
+				Document result = new Document("My Movie", 2012, "en");
+				result.setId(1234);
+				setCurrentDocument(result);
+				log( "succesfully created local document: " + result.getId());
+				processText();				
 			}
 		} );
 		
@@ -228,8 +236,16 @@ public class Gui implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				subtext = txtFileContentArea.getText();
 				// TODO: movieTitle, year, language
-				rpcHandler.createDocument("My Movie", 2012, "en");
+				// TODO: uncomment the sending when it is ready
+				// rpcHandler.createDocument("My Movie", 2012, "en");
 				// sets currentDocument and calls processText() on success
+				
+				// TODO: delete when sending is ready
+				Document result = new Document("My Movie", 2012, "en");
+				result.setId(1234);
+				setCurrentDocument(result);
+				log( "succesfully created local document: " + result.getId());
+				processText();				
 			}
 		} );
 		rootPanel.add(btnSendToTm, 286, 530);
