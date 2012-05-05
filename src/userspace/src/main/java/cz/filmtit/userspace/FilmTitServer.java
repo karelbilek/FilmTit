@@ -26,7 +26,7 @@ public class FilmTitServer extends RemoteServiceServlet implements
 	
 	public FilmTitServer() {
 		Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
-        TranslationMemory TM = Factory.createTM(configuration, true);
+        // TranslationMemory TM = Factory.createTM(configuration, true);
 	}
 
 	public TranslationResult getTranslationResults(TimedChunk chunk) {
