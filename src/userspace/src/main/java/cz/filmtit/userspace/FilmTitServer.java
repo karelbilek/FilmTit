@@ -37,7 +37,8 @@ public class FilmTitServer extends RemoteServiceServlet implements
 		
 		// TODO: use this:
 		// generateMTSuggestions(TranslationMemory TM)
-				
+		
+		/*
 		// TODO: remove this:
 		if(usTranslationResult.getText().equals("hi")) {
 			usTranslationResult.setUserTranslation("ahoj");
@@ -48,6 +49,10 @@ public class FilmTitServer extends RemoteServiceServlet implements
 		} else {
 			usTranslationResult.setUserTranslation("no translation");
 		}
+		*/
+		
+		// TODO: remove this:
+		usTranslationResult.getTranslationResult().getTmSuggestions().add(new TranslationPair("platypus", "ptakopysk"));
 
         return usTranslationResult.getTranslationResult();
 	}
