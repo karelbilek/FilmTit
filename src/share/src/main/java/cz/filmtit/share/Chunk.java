@@ -1,10 +1,12 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
+
 
 /**
  * @author Joachim Daiber
  */
-public class Chunk {
+public class Chunk implements Serializable {
 
     private String surfaceform;
     
