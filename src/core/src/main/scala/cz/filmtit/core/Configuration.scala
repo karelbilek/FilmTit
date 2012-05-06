@@ -13,9 +13,13 @@ import java.io.{FileInputStream, InputStream, File}
  */
 
 class Configuration(configurationFile: InputStream) {
-
+  
   def this(configurationFile: File) {
     this(new FileInputStream(configurationFile))
+  }
+
+  def this(fileAddress: String) {
+    this(new File(fileAddress))
   }
 
   private val XMLFile = XML.load(configurationFile)
