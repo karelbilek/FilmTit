@@ -22,7 +22,6 @@ abstract class BaseStorage(
   l1: Language,
   l2: Language,
   source: TranslationSource,
-  configuration: Configuration,
   connection: Connection
 ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {

@@ -5,6 +5,7 @@ import cz.filmtit.core.model.names.NERecognizer
 
 import cz.filmtit.core.model.TranslationMemory
 import opennlp.tools.namefind.{TokenNameFinderModel, NameFinderME}
+import cz.filmtit.core.Utils.t2mapper
 
 import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
@@ -55,6 +56,9 @@ object Factory {
 
     //Initialize connection
     val connection = createConnection(configuration, readOnly) 
+    
+    //Initialize NE Recognizers
+    val (neEN, neCS) = (Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
@@ -68,7 +72,7 @@ object Factory {
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.EN, Language.CS, configuration, connection ),
+      new NEStorage(Language.EN, Language.CS, connection, neEN, neCS ),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -76,7 +80,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, configuration, connection),
+      new FirstLetterStorage(Language.EN, Language.CS, connection),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)

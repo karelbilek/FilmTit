@@ -19,13 +19,13 @@ object EvaluateJDBC {
   val connection = Factory.createConnection(configuration)
 
 
-  storages += new FulltextStorage(Language.EN, Language.CS, configuration, connection)
+  storages += new FulltextStorage(Language.EN, Language.CS,  connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_fulltext"
 
-  storages += new FirstLetterStorage(Language.EN, Language.CS, configuration, connection)
+  storages += new FirstLetterStorage(Language.EN, Language.CS,  connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_firstletter"
 
-  storages += new TrigramStorage(Language.EN, Language.CS, configuration, connection)
+  storages += new TrigramStorage(Language.EN, Language.CS,  connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_trigram"
 
 

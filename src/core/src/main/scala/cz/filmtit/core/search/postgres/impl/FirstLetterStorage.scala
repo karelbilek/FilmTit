@@ -21,14 +21,12 @@ import cz.filmtit.core.Configuration
 class FirstLetterStorage(
   l1: Language,
   l2: Language,
-  configuration: Configuration,
   connection: Connection
 ) extends BaseSignatureStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_EXACT,
   "sign_firstletter",
-  configuration,
   connection
 ) {
 

@@ -18,7 +18,6 @@ import cz.filmtit.core.Configuration
 class ClusteredStorage(
   l1: Language,
   l2: Language,
-  configuration: Configuration,
   connection: Connection
 ) extends
 BaseSignatureStorage(
@@ -26,7 +25,6 @@ BaseSignatureStorage(
   l2,
   TranslationSource.INTERNAL_FUZZY,
   "sign_clustered",
-  configuration,
   connection
 ) {
 

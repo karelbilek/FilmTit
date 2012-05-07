@@ -23,10 +23,9 @@ abstract class BaseSignatureStorage(
   l2: Language,
   source: TranslationSource,
   signatureTable: String,
-  configuration: Configuration,
   connection: Connection,
   reversible: Boolean = false
-) extends BaseStorage(l1, l2, source, configuration, connection)
+) extends BaseStorage(l1, l2, source, connection)
 with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */

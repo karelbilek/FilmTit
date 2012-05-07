@@ -1,6 +1,7 @@
 package cz.filmtit.eval.database
 
 import io.Source
+import cz.filmtit.core.Utils.t2mapper
 import java.io.File
 import org.apache.commons.math.stat.StatUtils
 import cz.filmtit.core.model.storage.SignatureTranslationPairStorage
@@ -85,8 +86,10 @@ object EvaluateSignature {
     val configuration = new Configuration(new File("configuration.xml"))
     val connection = Factory.createConnection(configuration)
     
+    val (neEN, neCS) = (Language.EN, Language.CS) map { Factory.createNERecognizers(_, configuration) }
+    
     evaluateSignatures(
-      new NEStorage(Language.EN, Language.CS, configuration, connection),
+      new NEStorage(Language.EN, Language.CS, connection, neEN, neCS),
       new File("/Users/jodaiber/Desktop/LCT/LCT W11:12/FilmTit/data/parallel/utf8"),
       languages = Set(Language.EN)
     )

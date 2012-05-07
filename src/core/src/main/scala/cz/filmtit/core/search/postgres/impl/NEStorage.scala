@@ -9,6 +9,7 @@ import storage.Signature
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.share.{Language, TranslationSource}
 import cz.filmtit.core.{Configuration, Factory}
+import cz.filmtit.core.model.names.NERecognizer
 
 /**
  * Translation pair storage using named entity types to identify names.
@@ -19,18 +20,21 @@ import cz.filmtit.core.{Configuration, Factory}
  * @author Joachim Daiber
  */
 
-class NEStorage(l1: Language, l2: Language, configuration: Configuration, connection:Connection)
-  extends BaseSignatureStorage(
+class NEStorage(
+  l1: Language, 
+  l2: Language, 
+  connection:Connection,
+  neL1: List[NERecognizer],
+  neL2: List[NERecognizer]
+) extends BaseSignatureStorage(
     l1,
     l2,
     TranslationSource.INTERNAL_NE,
     "sign_ne",
-    configuration,
     connection,
     reversible = true
   ) {
 
-  val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_, configuration) }
 
   override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
 

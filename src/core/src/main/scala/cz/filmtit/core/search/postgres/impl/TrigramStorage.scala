@@ -16,13 +16,11 @@ import java.sql.Connection
 class TrigramStorage(
   l1: Language,
   l2: Language,
-  configuration: Configuration,
   connection: Connection
 ) extends BaseStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_FUZZY,
-  configuration,
   connection
 ) {
 
