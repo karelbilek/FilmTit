@@ -1,4 +1,4 @@
-package cz.fimtit.eval.database
+package cz.filmtit.eval.database
 
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer

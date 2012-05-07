@@ -1,4 +1,4 @@
-package cz.fimtit.eval.database
+package cz.filmtit.eval.database
 
 import java.net.ConnectException
 import cz.filmtit.core.model.TranslationMemory

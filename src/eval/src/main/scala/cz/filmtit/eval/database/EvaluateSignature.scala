@@ -1,4 +1,4 @@
-package cz.fimtit.eval.database
+package cz.filmtit.eval.database
 
 import io.Source
 import java.io.File
