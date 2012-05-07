@@ -16,6 +16,8 @@ import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
 
 /**
+ * Factories for default implementations of various classes
+ *
  * @author Joachim Daiber
  *
  */
