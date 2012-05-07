@@ -1,9 +1,7 @@
 package cz.filmtit.userspace;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import cz.filmtit.share.Document;
 import cz.filmtit.share.FilmTitService;
@@ -21,57 +19,50 @@ public class FilmTitServer extends RemoteServiceServlet implements
 		FilmTitService {
 	
 	private static final long serialVersionUID = 3546115L;
+    private static FilmTitServer instance;
 	
 	private TranslationMemory TM;
+    private Map<Long, USDocument> activeDocuments;
+    private Map<Long, USTranslationResult> activeTranslationResults;
 	
-	public FilmTitServer() {
+	private FilmTitServer() {
 		Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
-        // TranslationMemory TM = Factory.createTM(configuration, true);
+        TranslationMemory TM = Factory.createTM(configuration, true);
+
+        activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
+        activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
 	}
 
-	public TranslationResult getTranslationResults(TimedChunk chunk) {
-		
-		// TODO: get TranslationPairs from core
+    public static FilmTitServer getInstance() {
+        if (instance == null) { instance = new FilmTitServer(); }
+        return instance;
+    }
 
+    public TranslationMemory getTM() {
+        return TM;
+    }
+
+	public TranslationResult getTranslationResults(TimedChunk chunk) {
 		USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-		
-		// TODO: use this:
-		// generateMTSuggestions(TranslationMemory TM)
-		
-		/*
-		// TODO: remove this:
-		if(usTranslationResult.getText().equals("hi")) {
-			usTranslationResult.setUserTranslation("ahoj");
-		} else if (usTranslationResult.getText().equals("bye")) {
-			usTranslationResult.setUserTranslation("čau");
-		} else if (usTranslationResult.getText().equals("platypus")) {
-			usTranslationResult.setUserTranslation("ptakopysk");
-		} else {
-			usTranslationResult.setUserTranslation("no translation");
-		}
-		*/
-		
-		// TODO: remove this:
-		ArrayList<TranslationPair> tms = new ArrayList<TranslationPair>();
-		tms.add(new TranslationPair("platypus", "ptakopysk"));
-		usTranslationResult.getTranslationResult().setTmSuggestions(tms);
+
+        usTranslationResult.generateMTSuggestions(TM);
+        activeTranslationResults.put(usTranslationResult.getDatabaseId(), usTranslationResult);
 
         return usTranslationResult.getTranslationResult();
 	}
 
-	public Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair) {
-		// TODO: store TranslationResult to DB
-		// TODO: pass feedback to core
-		
-		return null;		
+	public Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPairID) {
+	    USTranslationResult tr = activeTranslationResults.get(translationResultId);
+        tr.setUserTranslation(userTranslation);
+        tr.setSelectedTranslationPairID(chosenTranslationPairID);
+
+        return null;
 	}
 
-	public Document createDocument(String movieTitle, int year, String language) {
-		// TODO: check with Jindra what to actually do in this method
-		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );		
-		// TODO: DatabaseId should be generated automatically upon new USDocument()
-		usDocument.setDatabaseId(1234);
-		return usDocument.getDocument();
+	public Document createDocument(String movieTitle, String year, String language) {
+		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
+		activeDocuments.put(usDocument.getDatabaseId(), usDocument);
+        return usDocument.getDocument();
 	}
 	
 }

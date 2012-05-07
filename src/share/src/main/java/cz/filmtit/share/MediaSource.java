@@ -23,7 +23,6 @@ public class MediaSource implements Serializable {
     }
 
     public String getTitle() {
-
         return title;
     }
 
