@@ -1,1 +1,1 @@
-mvn -pl userspace,share,eval,core compile
+mvn -pl userspace,share,eval,core clean compile
