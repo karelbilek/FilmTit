@@ -3,6 +3,7 @@ package cz.filmtit.core.search.postgres
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
 import data.AnnotatedChunk
+import java.sql.Connection
 import storage.{Signature, SignatureTranslationPairStorage}
 import org.postgresql.util.PSQLException
 import cz.filmtit.share.exceptions.DatabaseException
@@ -23,9 +24,9 @@ abstract class BaseSignatureStorage(
   source: TranslationSource,
   signatureTable: String,
   configuration: Configuration,
-  reversible: Boolean = false,
-  readOnly: Boolean = true
-) extends BaseStorage(l1, l2, source, configuration, readOnly=readOnly)
+  connection: Connection,
+  reversible: Boolean = false
+) extends BaseStorage(l1, l2, source, configuration, connection)
 with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */

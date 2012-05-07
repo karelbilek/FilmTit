@@ -1,5 +1,6 @@
 package cz.filmtit.core.search.postgres.impl
 
+import java.sql.Connection
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import scala.collection.mutable.HashMap
 import scala.io.Source
@@ -18,7 +19,7 @@ class ClusteredStorage(
   l1: Language,
   l2: Language,
   configuration: Configuration,
-  readOnly: Boolean = true
+  connection: Connection
 ) extends
 BaseSignatureStorage(
   l1,
@@ -26,7 +27,7 @@ BaseSignatureStorage(
   TranslationSource.INTERNAL_FUZZY,
   "sign_clustered",
   configuration,
-  readOnly = readOnly
+  connection
 ) {
 
   val cluster: HashMap[String, Int] = new HashMap[String, Int]()

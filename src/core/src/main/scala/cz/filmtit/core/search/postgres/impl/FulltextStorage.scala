@@ -1,6 +1,7 @@
 package cz.filmtit.core.search.postgres.impl
 
 import cz.filmtit.core.search.postgres.BaseStorage
+import java.sql.Connection
 import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
 import cz.filmtit.core.Configuration
 
@@ -12,13 +13,13 @@ class FulltextStorage(
   l1: Language,
   l2: Language,
   configuration: Configuration,
-  readOnly: Boolean = true
+  connection: Connection
 ) extends BaseStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_FUZZY,
   configuration,
-  readOnly = readOnly
+  connection
 ) {
 
 

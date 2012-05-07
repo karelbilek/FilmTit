@@ -4,6 +4,7 @@ import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.share.{Language, TranslationPair, Chunk, TranslationSource}
 import cz.filmtit.core.Configuration
 
+import java.sql.Connection
 
 /**
  * Postgres-based retrieval via vector-based full text search.
@@ -16,13 +17,13 @@ class TrigramStorage(
   l1: Language,
   l2: Language,
   configuration: Configuration,
-  readOnly: Boolean = true
+  connection: Connection
 ) extends BaseStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_FUZZY,
   configuration,
-  readOnly = readOnly
+  connection
 ) {
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {

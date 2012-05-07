@@ -7,21 +7,25 @@ import cz.filmtit.core.search.postgres.BaseStorage
 import storage.TranslationPairStorage
 import cz.filmtit.share.Language
 import cz.filmtit.core.Utils.chunkFromString
-import cz.filmtit.core.Configuration
+import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
+import java.sql.{SQLException, DriverManager, Connection}
 
 object EvaluateJDBC {
 
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
   val configuration = new Configuration(new File("configuration.xml"))
+  
+  val connection = Factory.createConnection(configuration)
 
-  storages += new FulltextStorage(Language.EN, Language.CS, configuration)
+
+  storages += new FulltextStorage(Language.EN, Language.CS, configuration, connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_fulltext"
 
-  storages += new FirstLetterStorage(Language.EN, Language.CS, configuration)
+  storages += new FirstLetterStorage(Language.EN, Language.CS, configuration, connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_firstletter"
 
-  storages += new TrigramStorage(Language.EN, Language.CS, configuration)
+  storages += new TrigramStorage(Language.EN, Language.CS, configuration, connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_trigram"
 
 

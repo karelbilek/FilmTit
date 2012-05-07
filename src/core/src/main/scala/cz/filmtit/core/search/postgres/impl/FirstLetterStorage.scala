@@ -3,6 +3,7 @@ package cz.filmtit.core.search.postgres.impl
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 
+import java.sql.Connection
 import data.AnnotatedChunk
 import storage.Signature
 import java.lang.String
@@ -21,14 +22,14 @@ class FirstLetterStorage(
   l1: Language,
   l2: Language,
   configuration: Configuration,
-  readOnly: Boolean = true
+  connection: Connection
 ) extends BaseSignatureStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_EXACT,
   "sign_firstletter",
   configuration,
-  readOnly = readOnly
+  connection
 ) {
 
   /**

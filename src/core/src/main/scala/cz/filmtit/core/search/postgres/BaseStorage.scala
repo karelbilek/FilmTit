@@ -3,7 +3,7 @@ package cz.filmtit.core.search.postgres
 import org.postgresql.util.PSQLException
 import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
-import java.sql.{SQLException, DriverManager}
+import java.sql.{SQLException, DriverManager, Connection}
 import gnu.trove.map.hash.TObjectLongHashMap
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
@@ -23,7 +23,7 @@ abstract class BaseStorage(
   l2: Language,
   source: TranslationSource,
   configuration: Configuration,
-  readOnly: Boolean = true
+  connection: Connection
 ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
 
@@ -32,25 +32,7 @@ with MediaStorage {
   //Load the driver:
   classOf[org.postgresql.Driver]
 
-  //Initialize connection
-  val connection = try {
-    DriverManager.getConnection(
-      configuration.dbConnector,
-      configuration.dbUser,
-      configuration.dbPassword
-    )
-  } catch {
-    case e: PSQLException => {
-      System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
-      System.exit(1)
-      null
-    }
-  }
-
-  //Assure the database is in read-only mode if required.
-  if (readOnly == true)
-    connection.setReadOnly(true)
-
+ 
   var pairTable = "translationpairs"
   var chunkSourceMappingTable = "translationpairs_mediasources"
   var mediasourceTable = "mediasources"

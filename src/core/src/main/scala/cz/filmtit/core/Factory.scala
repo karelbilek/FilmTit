@@ -6,6 +6,7 @@ import cz.filmtit.core.model.names.NERecognizer
 import cz.filmtit.core.model.TranslationMemory
 import opennlp.tools.namefind.{TokenNameFinderModel, NameFinderME}
 
+import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
 import java.io.FileInputStream
 import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
@@ -24,12 +25,36 @@ import cz.filmtit.share.{Language, TranslationSource}
 
 object Factory {
 
+  def createConnection(configuration: Configuration, readOnly:Boolean = true): Connection = {
+    val connection:Connection = try {
+      DriverManager.getConnection(
+      configuration.dbConnector,
+      configuration.dbUser,
+      configuration.dbPassword)
+    } catch {
+      case e: SQLException => {
+      System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
+      System.exit(1)
+      null
+      }
+    }
+    
+    //Assure the database is in read-only mode if required.
+    if (readOnly == true)
+      connection.setReadOnly(true)
+
+    connection
+  }
+
   /**
    * Create the default implementation of a TranslationMemory.
    *
    * @return the TM
    */
   def createTM(configuration: Configuration, readOnly: Boolean = true): TranslationMemory = {
+
+    //Initialize connection
+    val connection = createConnection(configuration, readOnly) 
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
@@ -43,7 +68,7 @@ object Factory {
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.EN, Language.CS, configuration, readOnly=readOnly),
+      new NEStorage(Language.EN, Language.CS, configuration, connection ),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -51,7 +76,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, configuration, readOnly=readOnly),
+      new FirstLetterStorage(Language.EN, Language.CS, configuration, connection),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)

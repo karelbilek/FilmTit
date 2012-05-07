@@ -1,5 +1,6 @@
 package cz.filmtit.core.search.postgres.impl
 
+import java.sql.Connection
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 import cz.filmtit.core.Utils.t2mapper
@@ -18,15 +19,15 @@ import cz.filmtit.core.{Configuration, Factory}
  * @author Joachim Daiber
  */
 
-class NEStorage(l1: Language, l2: Language, configuration: Configuration, readOnly: Boolean = true)
+class NEStorage(l1: Language, l2: Language, configuration: Configuration, connection:Connection)
   extends BaseSignatureStorage(
     l1,
     l2,
     TranslationSource.INTERNAL_NE,
     "sign_ne",
     configuration,
-    reversible = true,
-    readOnly = readOnly
+    connection,
+    reversible = true
   ) {
 
   val (neL1, neL2) = (l1, l2) map { Factory.createNERecognizers(_, configuration) }
