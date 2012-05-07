@@ -6,8 +6,9 @@ import cz.filmtit.share.Language
 import cz.filmtit.core.search.postgres.impl.NEStorage
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.Utils.chunkFromString
-import cz.filmtit.core.Configuration
 import java.io.File
+import cz.filmtit.core.{Factory, Configuration}
+import cz.filmtit.core.Factory._
 
 /**
  * Test specification for [[cz.filmtit.core.model.TranslationPairSearcher]].
@@ -19,8 +20,15 @@ import java.io.File
 class NESearcherSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
+  val List(neEN, neCS) = List(Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
 
-  val searcher = new NEStorage(Language.EN, Language.CS, configuration)
+  val searcher = new NEStorage(
+    Language.EN,
+    Language.CS,
+    Factory.createConnection(configuration),
+    neEN,
+    neCS
+  )
 
   describe("A NE searcher") {
     it("should be able to restore the NE in the chunk") {
