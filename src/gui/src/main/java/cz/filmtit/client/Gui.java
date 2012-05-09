@@ -228,7 +228,7 @@ public class Gui implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				subtext = txtFileContentArea.getText();
 				// TODO: movieTitle, year, language
-				rpcHandler.createDocument("My Movie", 2012, "en");
+				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
 		} );
