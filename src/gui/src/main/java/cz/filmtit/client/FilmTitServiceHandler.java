@@ -26,7 +26,7 @@ public class FilmTitServiceHandler {
 		this.gui = gui;
 	}
 	
-	public void createDocument(String movieTitle, int year, String language) {
+	public void createDocument(String movieTitle, String year, String language) {
 		
 		AsyncCallback<Document> callback = new AsyncCallback<Document>() {
 			

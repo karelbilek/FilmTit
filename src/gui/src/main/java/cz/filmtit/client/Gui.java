@@ -185,7 +185,7 @@ public class Gui implements EntryPoint {
 				//txtDebug.setText(txtDebug.getText() + subtext);
 				
 				// TODO: movieTitle, year, language
-				rpcHandler.createDocument("My Movie", 2012, "en");
+				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
 		} );

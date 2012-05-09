@@ -4,7 +4,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface FilmTitServiceAsync {
 
-	void createDocument(String movieTitle, int year, String language,
+	void createDocument(String movieTitle, String year, String language,
 			AsyncCallback<Document> callback);
 
 	void getTranslationResults(TimedChunk chunk,
