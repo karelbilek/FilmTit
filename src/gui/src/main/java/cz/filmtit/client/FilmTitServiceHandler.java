@@ -60,6 +60,7 @@ public class FilmTitServiceHandler {
 			public void onSuccess(TranslationResult result) {
 				// TODO: add to trlist to the correct position
 				gui.getCurrentDocument().translationResults.add(result);
+				gui.showResult(result);
 				gui.log( "succesfully received result of chunk: " + result.getSourceChunk().getSurfaceForm());
 			}
 			
