@@ -11,12 +11,16 @@ import java.util.HashSet;
  */
 public class MediaSource implements Serializable {
 
-    private static final long serialVersionUID = 5899275001958847885L;
+	private static final long serialVersionUID = 5899275001958847885L;
 
     private Long id;
     private String title;
     private String year;
     private HashSet<String> genres;
+
+    public MediaSource() {
+		// nothing
+	}
 
     public void setId(Long id) {
         this.id = id;
