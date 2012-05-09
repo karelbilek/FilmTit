@@ -13,20 +13,16 @@
             jdbc:postgresql://localhost/filmtit
         </property>
         <property name="hibernate.connection.username">postgres</property>
-        <property name="hibernate.connection.password">postgres</property>
+        <property name="hibernate.connection.password">j8ai64e56d5s</property>
         <property name="hibernate.connection.pool_size">10</property>
         <property name="show_sql">true</property>
-        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="current_session_context_class">thread</property>
 
         <!-- List of mapping files -->
-        <!-- <mapping resource="cz/filmtit/userspace/USUser.hbm.xml"/>
-        <mapping resource="cz/filmtit/userspace/session.hbm.xml"/> -->
         <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
-        <mapping resource="cz/filmtit/userspace/USChunk.hbm.xml"/>
-        <mapping resource="cz/filmtit/userspace/USMatch.hbm.xml"/>
-        <mapping resource="cz/filmtit/userspace/USTranslation.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/USTranslationResult.hbm.xml"/>
 
 
     </session-factory>

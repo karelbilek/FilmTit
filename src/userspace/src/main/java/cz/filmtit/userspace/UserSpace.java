@@ -6,9 +6,14 @@ package cz.filmtit.userspace;
     - be able to start new sessions
  */
 
+import cz.filmtit.core.Factory;
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.model.TranslationMemory;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.io.File;
 
 /**
  * A singleton class which represents the running USUser Space
@@ -17,7 +22,9 @@ import java.util.Set;
 public class UserSpace {
     private static UserSpace instance = null;
 
-    private UserSpace() { }
+    private TranslationMemory TM;
+
+    private UserSpace() {   }
 
     public static UserSpace getInstance() {
         if (instance == null) {

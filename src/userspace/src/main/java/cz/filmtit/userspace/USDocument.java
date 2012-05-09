@@ -1,7 +1,7 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.core.model.data.MediaSourceFactory;
 import cz.filmtit.share.*;
+import cz.filmtit.core.model.data.*;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -27,9 +27,23 @@ public class USDocument extends DatabaseObject {
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
 
+    private long ownerDatabaseId;
+    private Document document;
+    private List<USTranslationResult> translationResults;
+    private long workStartTime;
+    private long translationGenerationTime;
+    private boolean finished;
+
+    private String cachedMovieTitle;
+    private String cachedMovieYear;
+    
     public USDocument(Document document) {
         this.document = document;
         workStartTime = new Date().getTime();
+
+        Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        saveToDatabase(dbSession);
+        dbSession.getTransaction().commit();
     }
 
     /**
@@ -38,12 +52,12 @@ public class USDocument extends DatabaseObject {
     public USDocument() {
     }
 
-    public long getUserDatabaseId() {
-        return userDatabaseId;
+    public long getOwnerDatabaseId() {
+        return ownerDatabaseId;
     }
 
-    public void setUserDatabaseId(long userDatabaseId) {
-        this.userDatabaseId = userDatabaseId;
+    public void setOwnerDatabaseId(long ownerDatabaseId) {
+        this.ownerDatabaseId = ownerDatabaseId;
     }
 
     public boolean isFinished() {
@@ -54,25 +68,12 @@ public class USDocument extends DatabaseObject {
         this.finished = finished;
     }
 
-    private long userDatabaseId;
-    private Document document;
-
     public Document getDocument() {
 		return document;
 	}
 
-	private List<USTranslationResult> translationResults;
-    private long workStartTime;
-    private Language language;
-    private long translationGenerationTime;
-    /**
-     * More complex movie annotation required by the TM.
-     */
-    private MediaSource mediaSource;
-    private boolean finished;
-
      public String getMovieTitle() {
-        return document.movieTitle;
+        return document.getMovie().getTitle();
     }
 
     /**
@@ -81,11 +82,16 @@ public class USDocument extends DatabaseObject {
      * @param movieTitle New movie title.
      */
     public void setMovieTitle(String movieTitle) {
-        document.movieTitle = movieTitle;
+        cachedMovieTitle = movieTitle;
+        if (cachedMovieYear != null) { generateMediaSource(); }
     }
 
-    public int getYear() {
-        return document.year;
+    public String getYear() {
+        return document.getMovie().getYear();
+    }
+
+    private void generateMediaSource() {
+        document.SetMovie(MediaSourceFactory.fromIMDB(cachedMovieTitle, cachedMovieYear));
     }
 
     /**
@@ -93,13 +99,16 @@ public class USDocument extends DatabaseObject {
      * @param year New value of year.
      * @throws IllegalArgumentException
      */
-    public void setYear(int year) {
+    public void setYear(String year) {
+        int yearInt = Integer.parseInt(year);
         // the movie should be from a reasonable time period
-        if (year < MINIMUM_MOVIE_YEAR || year > Calendar.getInstance().get(Calendar.YEAR + ALLOWED_FUTURE_FOR_YEARS) ) {
-            throw new IllegalArgumentException("Value of year should from 1850 to the current year + 5.");
+        if (yearInt < MINIMUM_MOVIE_YEAR ||
+                yearInt > Calendar.getInstance().get(Calendar.YEAR + ALLOWED_FUTURE_FOR_YEARS) ) {
+            throw new IllegalArgumentException("Value of year should from 1850 to the current year + "
+                    + ALLOWED_FUTURE_FOR_YEARS + ".");
         }
-
-        document.year = year;
+        cachedMovieYear = year;
+        if (cachedMovieTitle != null) { generateMediaSource(); }
     }
 
     /**
@@ -121,24 +130,19 @@ public class USDocument extends DatabaseObject {
     }
 
     public Language getLanguage() {
-        return language;
+        return document.getLanguage();
     }
 
-    public String getLanguageString() {
-        return language.toString();
+    public String getLanguageCode() {
+        return document.getLanguage().getCode();
     }
     
-    public void setLanguageString(String languageCode) {
-        // TODO: solve this so that the language will get both the name and code of the language
-        this.language = Language.fromCode(languageCode);
+    public void setLanguageCode(String languageCode) {
+        document.setLanguageCode(languageCode);
     }
 
     public MediaSource getMediaSource() {
-        if (mediaSource == null) {
-            cz.filmtit.core.model.data.MediaSourceFactory.fromIMDB(document.movieTitle,
-                    Integer.toString(document.year));
-        }
-        return mediaSource;
+        return document.getMovie();
     }
 
     public long getTranslationGenerationTime() {
@@ -153,6 +157,7 @@ public class USDocument extends DatabaseObject {
      * Loads the translationResults from USUser Space database.
      */
     public void loadChunksFromDb() {
+        // TODO: it won't be necessary if we wrap it in just one hibernate mapping
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
     
@@ -170,12 +175,10 @@ public class USDocument extends DatabaseObject {
         // if the translationResults have old translations, regenerate them
         if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
             for (USTranslationResult translationResult : translationResults) {
-                translationResult.generateMTSuggestions();
+                translationResult.generateMTSuggestions(FilmTitServer.getInstance().getTM());
             }
         }
         // otherwise they're automatically loaded from the database
-
-        dbSession.getTransaction().commit();
     }
 
     public void saveToDatabase(Session dbSession) {

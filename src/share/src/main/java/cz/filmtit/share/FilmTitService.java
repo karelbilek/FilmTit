@@ -11,5 +11,5 @@ import cz.filmtit.share.TranslationResult;
 public interface FilmTitService extends RemoteService {
 	TranslationResult getTranslationResults(TimedChunk chunk);
 	Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair);
-	Document createDocument(String movieTitle, int year, String language);
+	Document createDocument(String movieTitle, String year, String language);
 }

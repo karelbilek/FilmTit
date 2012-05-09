@@ -18,23 +18,24 @@ import java.util.*;
  * @author Jindřich Libovický
  */
 public class USTranslationResult extends DatabaseObject {
-    private long documentDatabaseId;
     private TranslationResult translationResult;
-    private USDocument parent;
+    private long documentDatabaseId;
+    private USDocument parent; // is set if and only if it's created from the docoument side
 
     public USTranslationResult(TimedChunk chunk) {
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
-        generateMTSuggestions();
-        // TODO: and save to the database as soon as possible to have the ID
+
+        Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        saveToDatabase(dbSession);
+        dbSession.getTransaction().commit();
     }
 
     /**
      * Default constructor for Hibernate.
      */
     public USTranslationResult() {
-        // TODO: do the constructor
-        throw new UnsupportedOperationException("Not implemented yet.");
+        translationResult = new TranslationResult();
     }
 
     /**
@@ -109,19 +110,18 @@ public class USTranslationResult extends DatabaseObject {
         translationResult.getSourceChunk().setPartNumber(partNumber);
     }
 
-    // public void generateMTSuggestions(TranslationMemory TM) {
-    public void generateMTSuggestions() {
-        // TODO: Make this method parallel
+    public long getSelectedTranslationPairID() {
+        return translationResult.getSelectedTranslationPairID();
+    }
 
-    	// TODO: currently bypassed
-    	return;
-    	
-    	/*
-		// TODO: remove
-    	Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
-        TranslationMemory TM = Factory.createTM(configuration, true);
+    public void setSelectedTranslationPairID(long selectedTranslationPairID) {
+        translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
+    }
 
-        // dereference of current suggestion will force hibernate to
+    public void generateMTSuggestions(TranslationMemory TM) {
+        // TODO: ensure none of the potential previous suggestions is in the server cache collection
+
+        // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
 
         scala.collection.immutable.List<TranslationPair> TMResults =
@@ -134,7 +134,6 @@ public class USTranslationResult extends DatabaseObject {
 
         // the list of suggestions will be stored as a synchronized list
         translationResult.setTmSuggestions(Collections.synchronizedList(new ArrayList<TranslationPair>(javaList)));
-        */
     }
 
     public void saveToDatabase(Session dbSession) {

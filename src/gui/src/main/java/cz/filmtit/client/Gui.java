@@ -62,6 +62,10 @@ public class Gui implements EntryPoint {
 	protected RootPanel rootPanel;
 	private FlexTable table;
 	private int counter;
+	// column numbers in 
+	private static int TIMES_COLNUMBER      = 0;
+	private static int SOURCETEXT_COLNUMBER = 1;
+	private static int TARGETBOX_COLNUMBER  = 2;
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
@@ -123,7 +127,7 @@ public class Gui implements EntryPoint {
 		
 		
 		// --- main interface --- //
-		FlexTable table = new FlexTable();
+		table = new FlexTable();
 		rootPanel.add(table, 10, 80);
 		table.setWidth("640px");
 		
@@ -131,16 +135,7 @@ public class Gui implements EntryPoint {
 		final List<TranslationResult> transresults = (new SampleDocument()).translationResults;
 		counter = 0;
 		for (TranslationResult transresult : transresults) {
-			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
-			table.setWidget(counter, 0, sourcelabel);
-			
-			SubgestBox targetbox = new SubgestBox(counter, transresult, this); // suggestions handling - see the constructor for details
-			targetBoxes.add(targetbox);
-			
-			table.setWidget(counter, 1, targetbox);
-			targetbox.setWidth("80%");
-			
-			counter++;
+			showResult(transresult);
 		}
 		// --- end of main interface --- //
 		
@@ -185,7 +180,7 @@ public class Gui implements EntryPoint {
 				//txtDebug.setText(txtDebug.getText() + subtext);
 				
 				// TODO: movieTitle, year, language
-				rpcHandler.createDocument("My Movie", 2012, "en");
+				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
 		} );
@@ -228,7 +223,7 @@ public class Gui implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				subtext = txtFileContentArea.getText();
 				// TODO: movieTitle, year, language
-				rpcHandler.createDocument("My Movie", 2012, "en");
+				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
 		} );
@@ -297,14 +292,16 @@ public class Gui implements EntryPoint {
 	 */
 	public void showResult(TranslationResult transresult) {
 		//log("showing result of chunk: " + transresult.getSourceChunk().getSurfaceForm());
-
+		Label timeslabel = new Label(transresult.getSourceChunk().getStartTime() + " -> " + transresult.getSourceChunk().getEndTime());
+		table.setWidget(counter, TIMES_COLNUMBER, timeslabel);
+		
 		Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
-		table.setWidget(counter, 0, sourcelabel);
+		table.setWidget(counter, SOURCETEXT_COLNUMBER, sourcelabel);
 		
 		SubgestBox targetbox = new SubgestBox(counter, transresult, this); // suggestions handling - see the constructor for details
 		targetBoxes.add(targetbox);
 		
-		table.setWidget(counter, 1, targetbox);
+		table.setWidget(counter, TARGETBOX_COLNUMBER, targetbox);
 		targetbox.setWidth("80%");
 		
 		counter++;

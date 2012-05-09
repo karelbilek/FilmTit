@@ -42,7 +42,7 @@ public class TranslationResult implements Serializable, Comparable<TranslationRe
         return selectedTranslationPairID;
     }
 
-    public void setSelectedTranslationPairID(int selectedTranslationPairID) {
+    public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         this.selectedTranslationPairID = selectedTranslationPairID;
     }
 
