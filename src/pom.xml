@@ -4,6 +4,7 @@
 
     <properties>
         <filmtit.version>0.1</filmtit.version>
+    <jettyVersion>7.2.0.v20101020</jettyVersion>
 
         <heapspace.Xmx.compiler>-Xmx200m</heapspace.Xmx.compiler>
 
@@ -37,7 +38,6 @@
    </resource>
  </resources>
         <plugins>
-
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
@@ -87,7 +87,27 @@
                     <skipTests>false</skipTests>
                 </configuration>
             </plugin>
+ 
 
+
+
+                <!--Karel's comment: this is for smashing everything into a single .jar.
+                    It fails miserably.-->       
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.6</version>
+                
+                <!--if you uncomment this, it will run on "mvn package" or "install"-->
+                <!--executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                        <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions-->
+            </plugin>
         </plugins>
     </build>
 
@@ -121,6 +141,28 @@
 
     <dependencies>
 
+        
+        <!--Karel's comment: this is POSSIBLY needed for jetty and somehow screws up GWT-->
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jsp-2.1-glassfish</artifactId>
+            <version>2.1.v20100127</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jettyVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jsp-2.1</artifactId>
+            <version>${jettyVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jettyVersion}</version>
+        </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>
