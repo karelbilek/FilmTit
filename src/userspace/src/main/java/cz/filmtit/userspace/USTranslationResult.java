@@ -25,6 +25,7 @@ public class USTranslationResult extends DatabaseObject {
     public USTranslationResult(TimedChunk chunk) {
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
+        translationResult.setId(chunk.getId());
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         saveToDatabase(dbSession);
@@ -117,6 +118,18 @@ public class USTranslationResult extends DatabaseObject {
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
     }
+
+    public int getSharedId() {
+        return translationResult.getId();
+    }
+
+    public void setSharedId(int sharedId) {
+        // TODO: Make the property immutable
+        translationResult.setId(sharedId);
+    }
+
+    protected long getSharedDatabaseId() { return databaseId; }
+    protected void setSharedDatabaseId(long setSharedDatabaseId) { }
 
     public void generateMTSuggestions(TranslationMemory TM) {
         // TODO: ensure none of the potential previous suggestions is in the server cache collection

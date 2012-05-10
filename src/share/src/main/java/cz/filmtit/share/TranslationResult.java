@@ -8,18 +8,17 @@ import java.util.List;
 */
 
 public class TranslationResult implements Serializable, Comparable<TranslationResult> {
-    private long id;
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions;
     private String userTranslation;
     private long selectedTranslationPairID;
 
-    public long getId() {
-        return id;
+    public int getId() {
+        return sourceChunk.getId();
     }
 
     public void setId(int id) {
-        this.id = id;
+        sourceChunk.setId(id);
     }
 
     public List<TranslationPair> getTmSuggestions() {
