@@ -47,6 +47,10 @@ object Factory {
     connection
   }
 
+  def defaultNERecognizers(configuration:Configuration): Tuple2[List[NERecognizer], List[NERecognizer]] = {
+        (Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
+  }
+
   /**
    * Create the default implementation of a TranslationMemory.
    *
@@ -58,7 +62,7 @@ object Factory {
     val connection = createConnection(configuration, readOnly) 
     
     //Initialize NE Recognizers
-    val (neEN, neCS) = (Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
+    val (neEN, neCS) = defaultNERecognizers(configuration)
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
