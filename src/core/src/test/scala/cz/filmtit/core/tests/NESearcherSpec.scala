@@ -2,7 +2,7 @@ package cz.filmtit.core.tests
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Spec
-import cz.filmtit.share.Language
+import cz.filmtit.share.{Language, TranslationPair}
 import cz.filmtit.core.search.postgres.impl.NEStorage
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.Utils.chunkFromString
@@ -21,7 +21,12 @@ class NESearcherSpec extends Spec {
   val configuration = new Configuration(new File("configuration.xml"))
 
   val recognizers = Factory.defaultNERecognizers(configuration)
-  val connection = Factory.createConnection(configuration)
+  val connection = Factory.createInMemoryConnection()
+
+  val memory = Factory.createTM(connection, recognizers)
+
+  memory.reset()
+  memory.addOne("Peter rode to Alabama", "Petr jel do Alabamy")
 
   val searcher = new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2)
 
