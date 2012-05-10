@@ -54,6 +54,12 @@ public class TimedChunk extends Chunk implements Serializable {
 		return id;
 	}
 
+    public void setId(int id) {
+        // TODO: make it immutable
+        this.id = id;
+    }
+
+
 	public long getDocumentId() {
 		return documentId;
 	}

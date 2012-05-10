@@ -21,6 +21,9 @@ trait TranslationMemory {
    */
   def add(pairs: Array[TranslationPair])
 
+  def addOne(first: String, second:String) = {
+    add(Array[TranslationPair](new TranslationPair(first, second)))
+  }
 
   /**
    * Recreate the non-content tables and indexes for retrieving the translation

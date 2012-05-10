@@ -2,13 +2,12 @@ package cz.filmtit.core.tests
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Spec
-import cz.filmtit.share.Language
+import cz.filmtit.share.{Language, TranslationPair}
 import cz.filmtit.core.search.postgres.impl.NEStorage
 import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.Utils.chunkFromString
+import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
-import cz.filmtit.core.{Factory, Configuration}
-import cz.filmtit.core.Factory._
 
 /**
  * Test specification for [[cz.filmtit.core.model.TranslationPairSearcher]].
@@ -20,15 +19,16 @@ import cz.filmtit.core.Factory._
 class NESearcherSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
-  val List(neEN, neCS) = List(Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
 
-  val searcher = new NEStorage(
-    Language.EN,
-    Language.CS,
-    Factory.createConnection(configuration),
-    neEN,
-    neCS
-  )
+  val recognizers = Factory.defaultNERecognizers(configuration)
+  val connection = Factory.createInMemoryConnection()
+
+  val memory = Factory.createTM(connection, recognizers)
+
+  memory.reset()
+  memory.addOne("Peter rode to Alabama", "Petr jel do Alabamy")
+
+  val searcher = new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2)
 
   describe("A NE searcher") {
     it("should be able to restore the NE in the chunk") {

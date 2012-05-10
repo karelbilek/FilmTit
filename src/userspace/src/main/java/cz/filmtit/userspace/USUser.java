@@ -54,6 +54,9 @@ public class USUser extends DatabaseObject {
         return ownedDocuments;
     }
 
+    protected void setSharedDatabaseId(long id) { }
+    protected long getSharedDatabaseId() { return databaseId; }
+
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
         activeDocument.saveToDatabase(dbSession);

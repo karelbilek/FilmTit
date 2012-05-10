@@ -153,6 +153,14 @@ public class USDocument extends DatabaseObject {
         this.translationGenerationTime = translationGenerationTime;
     }
 
+    protected long getSharedDatabaseId() {
+        return document.getId();
+    }
+
+    protected void setSharedDatabaseId(long databaseId) {
+        document.setId(databaseId);
+    }
+
     /**
      * Loads the translationResults from USUser Space database.
      */
@@ -173,11 +181,11 @@ public class USDocument extends DatabaseObject {
         dbSession.getTransaction().commit();
 
         // if the translationResults have old translations, regenerate them
-        if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
+        /*if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
             for (USTranslationResult translationResult : translationResults) {
                 translationResult.generateMTSuggestions(FilmTitServer.getInstance().getTM());
             }
-        }
+        } */
         // otherwise they're automatically loaded from the database
     }
 

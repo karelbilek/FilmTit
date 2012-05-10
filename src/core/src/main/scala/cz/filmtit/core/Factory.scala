@@ -16,6 +16,7 @@ import cz.filmtit.core.model.annotation.ChunkAnnotation
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
+import java.io.File
 
 /**
  * Factories for default implementations of various classes
@@ -25,6 +26,11 @@ import cz.filmtit.share.{Language, TranslationSource}
  */
 
 object Factory {
+
+  def createInMemoryConnection(): Connection = {
+    Class.forName("org.hsqldb.jdbcDriver")
+    DriverManager.getConnection("jdbc:hsqldb:mem:filmtitdb", "sa", "")
+  }
 
   def createConnection(configuration: Configuration, readOnly:Boolean = true): Connection = {
     val connection:Connection = try {
@@ -47,6 +53,17 @@ object Factory {
     connection
   }
 
+  def defaultNERecognizers(configuration:Configuration): Tuple2[List[NERecognizer], List[NERecognizer]] = {
+        (Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
+  }
+
+
+  def createInMemoryTM(configuration: Configuration): TranslationMemory = {
+    val connection = createInMemoryConnection()
+    val recognizers = defaultNERecognizers(configuration)
+    createTM(connection, recognizers)
+  }
+
   /**
    * Create the default implementation of a TranslationMemory.
    *
@@ -55,10 +72,18 @@ object Factory {
   def createTM(configuration: Configuration, readOnly: Boolean = true): TranslationMemory = {
 
     //Initialize connection
-    val connection = createConnection(configuration, readOnly) 
+    val connection = createConnection(configuration, readOnly)  
+    val recognizers = defaultNERecognizers(configuration)
+    createTM(connection, recognizers)
+
+  }
+
+  def createTM(
+        connection: Connection,
+        recognizers: Tuple2[List[NERecognizer], List[NERecognizer]]) : TranslationMemory = {
     
     //Initialize NE Recognizers
-    val (neEN, neCS) = (Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
+    //val (neEN, neCS) = defaultNERecognizers(configuration)
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
@@ -72,7 +97,7 @@ object Factory {
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.EN, Language.CS, connection, neEN, neCS ),
+      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2 ),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -85,7 +110,6 @@ object Factory {
       threshold = 0.8,
       backoff = Some(neTM)
     )
-
   }
 
 
@@ -106,7 +130,7 @@ object Factory {
   ): NERecognizer = {
 
     val tokenNameFinderModel = new TokenNameFinderModel(
-      new FileInputStream(modelFile)
+      new FileInputStream(modelFile) 
     )
 
     new OpenNLPNameFinder(

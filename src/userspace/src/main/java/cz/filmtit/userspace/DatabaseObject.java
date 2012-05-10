@@ -7,20 +7,35 @@ import org.hibernate.Session;
  * @author Jindřich Libovický
  */
 public abstract class DatabaseObject {
-    private long databaseId = Long.MIN_VALUE;
+    protected long databaseId = Long.MIN_VALUE;
     /**
      * Sign if the object was load from the database (true) or is just in memory (false).
      */
-    private boolean gotFromDb = false;
+    protected boolean gotFromDb = false;
+
+    /**
+     * Method that gets the database ID in case its also used in the shared class. If the database ID is not
+     * shared, it should just return the inner database ID.
+      * @return Database ID.
+     */
+    protected abstract long getSharedDatabaseId();
+
+    /**
+     * Sets the database ID which is in the shared class. If the database ID is not shared and is used for the
+     * User Space purposes, it should have an empty body.
+     * @param databaseId
+     */
+    protected abstract void setSharedDatabaseId(long databaseId);
 
     public long getDatabaseId() {
-        return databaseId;
+        return getSharedDatabaseId();
     }
 
     public void setDatabaseId(long databaseId) {
         if (this.databaseId == databaseId) { return; }
         if (this.databaseId == Long.MIN_VALUE) {
             this.databaseId = databaseId;
+            setSharedDatabaseId(databaseId);
             gotFromDb = true;
         }
         else {
