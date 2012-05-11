@@ -13,6 +13,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -23,6 +24,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
@@ -60,12 +62,15 @@ public class Gui implements EntryPoint {
 	private RadioButton rdbFormatSub;
 
 	protected RootPanel rootPanel;
+	protected AbsolutePanel mainPanel;
+	protected AbsolutePanel suggestArea;
+	
 	private FlexTable table;
 	private int counter;
 	// column numbers in 
-	private static int TIMES_COLNUMBER      = 0;
-	private static int SOURCETEXT_COLNUMBER = 1;
-	private static int TARGETBOX_COLNUMBER  = 2;
+	private static final int TIMES_COLNUMBER      = 0;
+	private static final int SOURCETEXT_COLNUMBER = 1;
+	private static final int TARGETBOX_COLNUMBER  = 2;  
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
@@ -127,15 +132,33 @@ public class Gui implements EntryPoint {
 		
 		
 		// --- main interface --- //
+		/*
+		// area where the suggestion widget can appear
+		// (to have the possibility to partly "overflow" from the scrollPanel) 
+		suggestArea = new AbsolutePanel();
+		rootPanel.add(suggestArea, 10, 80);
+		suggestArea.setSize("700px", "600px");
+		*/
+
+		ScrollPanel scrollPanel = new ScrollPanel();
+		rootPanel.add(scrollPanel, 10, 80);
+		scrollPanel.setSize("720px", "340px");
+		mainPanel = new AbsolutePanel();
+		mainPanel.setStylePrimaryName("mainPanel");
+		scrollPanel.add(mainPanel);
+		scrollPanel.setStylePrimaryName("scrollPanel");
+		
 		table = new FlexTable();
-		rootPanel.add(table, 10, 80);
-		table.setWidth("640px");
+		mainPanel.add(table);
+		table.setWidth("100%");		
 		
 		// filling the interface with the sample subtitles:
-		final List<TranslationResult> transresults = (new SampleDocument()).translationResults;
+		List<TranslationResult> transresults = (new SampleDocument()).translationResults;
 		counter = 0;
-		for (TranslationResult transresult : transresults) {
-			showResult(transresult);
+		for (int i = 0; i < 5; i++) {
+			for (TranslationResult transresult : transresults) {
+				showResult(transresult);
+			}
 		}
 		// --- end of main interface --- //
 		
