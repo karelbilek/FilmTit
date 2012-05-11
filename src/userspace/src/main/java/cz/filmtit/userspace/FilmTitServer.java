@@ -19,8 +19,7 @@ public class FilmTitServer extends RemoteServiceServlet implements
 		FilmTitService {
 	
 	private static final long serialVersionUID = 3546115L;
-    private static FilmTitServer instance;
-	
+
 	private TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;
     private Map<Long, USTranslationResult> activeTranslationResults;
@@ -32,11 +31,6 @@ public class FilmTitServer extends RemoteServiceServlet implements
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
 	}
-
-    public static FilmTitServer getInstance() {
-        if (instance == null) { instance = new FilmTitServer(); }
-        return instance;
-    }
 
     public TranslationMemory getTM() {
         return TM;

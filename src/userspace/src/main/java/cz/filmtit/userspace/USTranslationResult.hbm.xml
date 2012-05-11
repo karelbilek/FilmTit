@@ -17,16 +17,15 @@
         <property name="endTime" type="java.lang.String" column="endTime" />
         <property name="partNumber" type="int" column="partNumber" />
         <property name="userTranslation" type="java.lang.String" column="userTranslation" />
-        <property name="selectedTranslationPairID" type="long" column="selectedTranlsationPairID" />
+        <property name="selectedTranslationPairID" type="long" column="selectedTranslationPairID" />
+        <property name="sharedId" type="int" column="sharedId" />
 
         <list name="tmSuggestions" table="TranslationPairs">
             <key column="TranslationResultId"/>
             <index column="listIndex"/>
             <composite-element class="cz.filmtit.share.TranslationPair">
                 <property name="stringL1" type="java.lang.String" column="form1" />
-                <property name="lang1" type="java.lang.String" column="lang1" />
                 <property name="stringL2" type="java.lang.String" column="form2" />
-                <property name="lang2" type="java.lang.String" column="lang2" />
                 <property name="score" type="java.lang.Double" column="score" />
             </composite-element>
         </list>

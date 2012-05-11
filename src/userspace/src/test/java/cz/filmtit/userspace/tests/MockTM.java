@@ -10,10 +10,15 @@ import cz.filmtit.share.TranslationPair;
 import scala.Option;
 import scala.collection.immutable.List;
 
-public class MockTM implements TranslationMemory {
+public class MockTM {} /* implements TranslationMemory {
 
     @Override
     public void add(TranslationPair[] pairs) { }
+
+    @Override
+    public void addOne(String first, String second) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 
     @Override
     public void reindex() { }
@@ -35,4 +40,4 @@ public class MockTM implements TranslationMemory {
     public MediaStorage mediaStorage() {
         return null;
     }
-}
+}         */
