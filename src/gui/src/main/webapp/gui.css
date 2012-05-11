@@ -44,23 +44,24 @@ h1 {
 	font-weight: bold;
 }
 .suggestionsPopup {
-	background: white;
-	padding: 5px;
-	border: 1px dotted;
-	background-color: #ffffcc;
+	background-color: #eeeeee;
 }
-.suggestion {
-	background-color: #ccff99;
-}
-.cellListEvenItem {
-	border: 1px solid;
-	padding: 5px;
+.suggestionItem {
+	width: 100%;
+	border: 2px outset Silver;
 	cursor: pointer;
-	zoom: 1;
 }
-.cellListOddItem {
-	border: 1px solid;
-	padding: 5px;
-	cursor: pointer;
-	zoom: 1;
+.suggestionItemText {
+}
+.suggestionItemMatch {
+	font-size: 80%;
+}
+.suggestionItemScore {
+	width: 30px;
+}
+.scrollPanel {
+	border: groove;
+}
+.mainPanel {
+	padding-bottom: 260px;
 }
