@@ -29,6 +29,7 @@
         <module>eval</module>
         <module>core</module>
         <module>gui</module>
+        <module>starteverything</module>
   </modules>
 
     <build>
@@ -91,23 +92,6 @@
 
 
 
-                <!--Karel's comment: this is for smashing everything into a single .jar.
-                    It fails miserably.-->       
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.6</version>
-                
-                <!--if you uncomment this, it will run on "mvn package" or "install"-->
-                <!--executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                        <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions-->
-            </plugin>
         </plugins>
     </build>
 
@@ -140,14 +124,57 @@
     </repositories>
 
     <dependencies>
-
-        
-        <!--Karel's comment: this is POSSIBLY needed for jetty and somehow screws up GWT-->
         <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.1-glassfish</artifactId>
-            <version>2.1.v20100127</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
         </dependency>
+
+	<!-- for RPC -->
+       <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+            <scope>test</scope>
+        </dependency>
+       
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <dependency>
+        	<groupId>org.apache.commons</groupId>
+        	<artifactId>commons-math</artifactId>
+        	<version>2.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>opennlp</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.2.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+   
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
@@ -212,24 +239,25 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-        	<groupId>junit</groupId>
-        	<artifactId>junit</artifactId>
-        	<version>4.10</version>
-        </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>4.1.0.Final</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.0.0</version>
-            <scope>test</scope>
+	<dependency>
+	  <groupId>com.google.gwt</groupId>
+	  <artifactId>gwt-user</artifactId>
+	  <version>${gwtVersion}</version>
+	  <scope>provided</scope>
+	</dependency>
+<dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-servlet</artifactId>
+            <version>${gwtVersion}</version>
+            <scope>runtime</scope>
         </dependency>
+
     </dependencies>
 
 

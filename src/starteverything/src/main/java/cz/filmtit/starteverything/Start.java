@@ -1,4 +1,4 @@
-package cz.filmtit.userspace;
+package cz.filmtit.starteverything;
 
 import java.net.URL;
 import java.security.ProtectionDomain;
@@ -29,8 +29,13 @@ public class Start {
     ProtectionDomain protectionDomain = Start.class.getProtectionDomain();
 
     //this will NOT work on the server! (of course)
-    URL location = new File("/afs/ms.mff.cuni.cz/u/b/bilek7am/filmtit/FilmTit/src/gui/target/gui-0.1").toURL();
+    //URL location = new File("/afs/ms.mff.cuni.cz/u/b/bilek7am/filmtit/FilmTit/src/gui/target/gui-0.1").toURL();
     
+    //this could, though
+    URL location = protectionDomain.getCodeSource().getLocation();
+    context.setWar(location.toExternalForm());
+ 
+
     context.setDescriptor(location.toExternalForm() + "/WEB-INF/web.xml");
 
     context.setWar(location.toExternalForm());
