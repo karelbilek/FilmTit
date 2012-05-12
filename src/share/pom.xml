@@ -16,12 +16,6 @@
     </parent>
 
     <dependencies>
-      <dependency>
-	<groupId>com.google.gwt</groupId>
-	<artifactId>gwt-user</artifactId>
-	<version>${gwtVersion}</version>
-	<scope>provided</scope>
-      </dependency>
     </dependencies>
 
 
