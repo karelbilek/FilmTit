@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>starteverything</artifactId>
-    <name>Jetty-based module for kickstarting server</name>
+    <name>Jetty-based module for starting server</name>
 
     <build>
         <testSourceDirectory>src/test/java</testSourceDirectory>

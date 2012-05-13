@@ -1,4 +1,4 @@
-package cz.filmtit.starteverything;
+package cz.filmtit.server;
 
 import java.net.URL;
 import java.security.ProtectionDomain;
@@ -17,7 +17,7 @@ public class Start {
     // Set some timeout options to make debugging easier.
     connector.setMaxIdleTime(1000 * 60 * 60);
     connector.setSoLingerTime(-1);
-    connector.setPort(8880);
+    connector.setPort(80);
     server.setConnectors(new Connector[] { connector });
  
     WebAppContext context = new WebAppContext();

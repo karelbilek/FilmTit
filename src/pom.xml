@@ -29,7 +29,7 @@
         <module>eval</module>
         <module>core</module>
         <module>gui</module>
-        <module>starteverything</module>
+        <module>server</module>
   </modules>
 
     <build>
