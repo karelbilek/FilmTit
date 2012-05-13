@@ -17,12 +17,12 @@
   </servlet-mapping>-->
 
   <servlet>
-    <servlet-name>FilmTitServer</servlet-name>
-    <servlet-class>cz.filmtit.userspace.FilmTitServer</servlet-class>
+    <servlet-name>FilmTitBackendServer</servlet-name>
+    <servlet-class>cz.filmtit.userspace.FilmTitBackendServer</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>FilmTitServer</servlet-name>
+    <servlet-name>FilmTitBackendServer</servlet-name>
     <url-pattern>/gui/filmtit</url-pattern>
   </servlet-mapping>
 

@@ -8,16 +8,20 @@ import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
 import java.io.File;
 
-public class Start {
+//Class mainly copied from web
+public class FilmTitFrontendServer {
  
-  public static void main(String[] args) throws Exception {
-    Server server = new Server();
+  public FilmTitFrontendServer(int port) {
+
+    //using long version so it doesn't conflict with something
+    //else potentially named Server
+    org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
     SocketConnector connector = new SocketConnector();
  
     // Set some timeout options to make debugging easier.
     connector.setMaxIdleTime(1000 * 60 * 60);
     connector.setSoLingerTime(-1);
-    connector.setPort(80);
+    connector.setPort(port);
     server.setConnectors(new Connector[] { connector });
  
     WebAppContext context = new WebAppContext();
@@ -26,16 +30,11 @@ public class Start {
     context.setContextPath("/");
 
  
-    ProtectionDomain protectionDomain = Start.class.getProtectionDomain();
-
-    //this will NOT work on the server! (of course)
-    //URL location = new File("/afs/ms.mff.cuni.cz/u/b/bilek7am/filmtit/FilmTit/src/gui/target/gui-0.1").toURL();
-    
-    //this could, though
+    //a little hack
+    ProtectionDomain protectionDomain = FilmTitFrontendServer.class.getProtectionDomain();
     URL location = protectionDomain.getCodeSource().getLocation();
-    context.setWar(location.toExternalForm());
- 
 
+    context.setWar(location.toExternalForm());
     context.setDescriptor(location.toExternalForm() + "/WEB-INF/web.xml");
 
     context.setWar(location.toExternalForm());

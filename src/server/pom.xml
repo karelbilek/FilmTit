@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>starteverything</artifactId>
+    <artifactId>server</artifactId>
     <name>Jetty-based module for starting server</name>
 
     <build>
@@ -32,7 +32,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>cz.filmtit.starteverything.Start</mainClass>
+                                    <mainClass>cz.filmtit.server.StartServer</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -58,6 +58,12 @@
             <type>war</type>
             <scope>runtime</scope>
        </dependency>
+        <dependency>
+            <artifactId>userspace</artifactId>
+            <groupId>cz.filmtit</groupId>
+            <version>${filmtit.version}</version>
+        </dependency>
+
 
         <dependency>
             <artifactId>core</artifactId>

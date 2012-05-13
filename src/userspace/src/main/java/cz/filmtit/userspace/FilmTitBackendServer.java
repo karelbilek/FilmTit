@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FilmTitServer extends RemoteServiceServlet implements
+public class FilmTitBackendServer extends RemoteServiceServlet implements
 		FilmTitService {
 	
 	private static final long serialVersionUID = 3546115L;
@@ -23,14 +23,15 @@ public class FilmTitServer extends RemoteServiceServlet implements
     private Map<Long, USDocument> activeDocuments;
     private Map<Long, USTranslationResult> activeTranslationResults;
 
-    public FilmTitServer(Configuration configuration) {
+    public FilmTitBackendServer(Configuration configuration) {
         TM = Factory.createTM(configuration, true);
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
+        System.err.println("FilmTitBackendServer started fine!");
     }
 
-	public FilmTitServer() {
+	public FilmTitBackendServer() {
 		this(new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")));
 	}
 

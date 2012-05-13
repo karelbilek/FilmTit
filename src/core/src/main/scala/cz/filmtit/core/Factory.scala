@@ -40,7 +40,8 @@ object Factory {
       configuration.dbPassword)
     } catch {
       case e: SQLException => {
-      System.err.println("Could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
+      System.err.println("I could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
+      println(e);
       System.exit(1)
       null
       }
