@@ -3,11 +3,9 @@ package cz.filmtit.client;
 import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,22 +56,56 @@ public class SubgestBox extends TextBox {
 	}
 	
 	
-	private class SuggestionCell extends AbstractCell<TranslationPair> {
+	
+	/**
+	 * The Cell used to render a {@link ContactInfo}.
+	 */
+	static class SuggestionCell extends AbstractCell<TranslationPair> {
+
+		//private TranslationResult transresult;
+
+		/*
+		public SuggestionCell(TranslationResult transresult) {
+			this.transresult = transresult;
+		}
+		*/
+
 		@Override
-		public void render(com.google.gwt.cell.client.Cell.Context context,
-				TranslationPair value, SafeHtmlBuilder sb) {
+		public void render(Context context, TranslationPair value, SafeHtmlBuilder sb) {
+			// Value can be null, so do a null check:
 			if (value == null) {
 				return;
 			}
-			sb.appendEscapedLines(value.getStringL2() + "\n(\"" + value.getStringL1() + "\")" + "\n");
-		}		
+
+			sb.appendHtmlConstant("<table class='suggestionItem'>");
+			
+			// show the suggestion:
+			sb.appendHtmlConstant("<tr><td class='suggestionItemText'>");
+			sb.appendEscaped(value.getStringL2());
+			sb.appendHtmlConstant("</td></tr>");
+			
+			// show the corresponding match:
+			sb.appendHtmlConstant("<tr><td class='suggestionItemMatch'>(\"");
+			sb.appendEscaped(value.getStringL1());
+			sb.appendHtmlConstant("\")</td>");
+			
+			// show their (combined) score:
+			sb.appendHtmlConstant("<td class='suggestionItemScore'>(");
+			//sb.appendEscaped( Double.toString(value.getScore()) );
+			sb.appendHtmlConstant(")</td>");
+			
+			sb.appendHtmlConstant("</tr>");
+			sb.appendHtmlConstant("</table>");
+		}
 	}
+	
 	
 	public void showSuggestions() {
 		// creating the suggestions pop-up panel:
 		FlowPanel suggestPanel = new FlowPanel();
 		
-		CellList<TranslationPair> cellList = new CellList<TranslationPair>(new SuggestionCell());
+		CellList<TranslationPair> cellList = new CellList<TranslationPair>( new SuggestionCell() );
+		cellList.setWidth( Integer.toString(this.getOffsetWidth()) + "px" );
 		cellList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 		final SingleSelectionModel<TranslationPair> selectionModel = new SingleSelectionModel<TranslationPair>();
 		cellList.setSelectionModel(selectionModel);
@@ -106,9 +138,16 @@ public class SubgestBox extends TextBox {
 		//AbsolutePanel parentPanel = (AbsolutePanel) this.getParent();
 		//int sugleft = parentPanel.getAbsoluteLeft() + parentPanel.getWidgetLeft(this) + 8;
 		//int sugtop  = parentPanel.getAbsoluteTop()  + parentPanel.getWidgetTop(this) + 25;
-		int sugleft = this.getAbsoluteLeft() - this.gui.rootPanel.getAbsoluteLeft() + 8;
-		int sugtop  = this.getAbsoluteTop()  - this.gui.rootPanel.getAbsoluteTop() + 35;
-		this.gui.rootPanel.add(suggestPanel, sugleft, sugtop);
+
+		//int sugleft = this.getAbsoluteLeft() - this.gui.rootPanel.getAbsoluteLeft() + 8;
+		//int sugtop  = this.getAbsoluteTop()  - this.gui.rootPanel.getAbsoluteTop() + 35;
+		//this.gui.rootPanel.add(suggestPanel, sugleft, sugtop);
+		
+		int sugleft = this.getAbsoluteLeft() - this.gui.mainPanel.getAbsoluteLeft() +  8;
+		int sugtop  = this.getAbsoluteTop()  - this.gui.mainPanel.getAbsoluteTop()  + 35;
+		//gui.log("suggestion coordinates: " + Integer.toString(sugleft) + ", " + Integer.toString(sugtop));
+		this.gui.mainPanel.add(suggestPanel, sugleft, sugtop);
+				
 		this.setSuggestionWidget(suggestPanel);
 	}
 	

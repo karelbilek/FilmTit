@@ -93,8 +93,16 @@ public class TranslationPair implements Comparable<TranslationPair>, Serializabl
         return chunkL1.getSurfaceForm();
     }
 
+    public void setStringL1(String stringL1) {
+        chunkL1.setSurfaceForm(stringL1); // TODO: create chunk is necessary and make it immutable
+    }
+
     public String getStringL2() {
         return chunkL2.getSurfaceForm();
+    }
+
+    public void setStringL2(String stringL2) {
+        chunkL2.setSurfaceForm(stringL2); // TODO: create chunk is necessary and make it immutable
     }
 
     public static TranslationPair fromString(String string) {
