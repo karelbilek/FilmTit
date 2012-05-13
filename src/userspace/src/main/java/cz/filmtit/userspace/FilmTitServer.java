@@ -1,19 +1,18 @@
 package cz.filmtit.userspace;
 
-import java.io.File;
-import java.util.*;
-
-import cz.filmtit.share.Document;
-import cz.filmtit.share.FilmTitService;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationPair;
-import cz.filmtit.share.TranslationResult;
-import cz.filmtit.userspace.*;
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.share.Document;
+import cz.filmtit.share.FilmTitService;
+import cz.filmtit.share.TimedChunk;
+import cz.filmtit.share.TranslationResult;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FilmTitServer extends RemoteServiceServlet implements
 		FilmTitService {
@@ -23,13 +22,16 @@ public class FilmTitServer extends RemoteServiceServlet implements
 	private TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;
     private Map<Long, USTranslationResult> activeTranslationResults;
-	
-	private FilmTitServer() {
-		Configuration configuration = new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")); 
-        TranslationMemory TM = Factory.createTM(configuration, true);
+
+    public FilmTitServer(Configuration configuration) {
+        TM = Factory.createTM(configuration, true);
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
+    }
+
+	public FilmTitServer() {
+		this(new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")));
 	}
 
     public TranslationMemory getTM() {
