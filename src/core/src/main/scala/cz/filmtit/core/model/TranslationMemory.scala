@@ -21,7 +21,7 @@ trait TranslationMemory {
    */
   def add(pairs: Array[TranslationPair])
 
-  def addOne(first: String, second:String) = {
+  def addOne(first: String, second: String) = {
     add(Array[TranslationPair](new TranslationPair(first, second)))
   }
 

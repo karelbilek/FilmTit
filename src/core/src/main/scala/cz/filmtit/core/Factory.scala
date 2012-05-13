@@ -16,7 +16,6 @@ import cz.filmtit.core.model.annotation.ChunkAnnotation
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
-import java.io.File
 
 /**
  * Factories for default implementations of various classes
@@ -33,6 +32,8 @@ object Factory {
   }
 
   def createConnection(configuration: Configuration, readOnly:Boolean = true): Connection = {
+    Class.forName("org.postgresql.Driver")
+
     val connection:Connection = try {
       DriverManager.getConnection(
       configuration.dbConnector,
