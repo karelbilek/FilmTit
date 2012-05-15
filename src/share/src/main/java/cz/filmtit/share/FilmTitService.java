@@ -10,6 +10,6 @@ import cz.filmtit.share.TranslationResult;
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
 	TranslationResult getTranslationResults(TimedChunk chunk);
-	Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair);
+	Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair);
 	Document createDocument(String movieTitle, String year, String language);
 }

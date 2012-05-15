@@ -18,8 +18,6 @@ public final class SampleDocument extends Document {
 
 		TranslationResult tr1 = new TranslationResult();
         tr1.setSourceChunk( new TimedChunk("001", "002", 1, "Hi, Bob!", chunkId++, documentId) );
-		//this caused exceptions so I commented it out entirely
-        //tr1.setId(11);
 		List<TranslationPair> trpairs1 = new ArrayList<TranslationPair>();
 		trpairs1.add( new TranslationPair("Hi, Bob!", "Ahoj, Bobe!") );
 		trpairs1.add( new TranslationPair("Hi, Bob!", "ahoj, bobe!") );
@@ -32,7 +30,6 @@ public final class SampleDocument extends Document {
 		
 		TranslationResult tr2 = new TranslationResult();
 		tr2.setSourceChunk( new TimedChunk("002", "003", 1, "Hi Tom!", chunkId++, documentId) );
-		//tr2.setId(12);
 		List<TranslationPair> trpairs2 = new ArrayList<TranslationPair>();
 		trpairs2.add( new TranslationPair("Hi, Tom!", "Ahoj Tome!") );
 		trpairs2.add( new TranslationPair("Hi, Tom!", "ahoj, tome!") );
@@ -41,7 +38,6 @@ public final class SampleDocument extends Document {
 		
 		TranslationResult tr3 = new TranslationResult();
 		tr3.setSourceChunk( new TimedChunk("004", "005", 1, "Run, you fools!", chunkId++, documentId) );
-		//tr3.setId(13);
 		List<TranslationPair> trpairs3 = new ArrayList<TranslationPair>();
 		trpairs3.add( new TranslationPair("Run, you fools...", "Utíkejte, hlupáci!") );
 		trpairs3.add( new TranslationPair("Run, you fools...", "Utíkejte, blbci!") );

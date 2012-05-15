@@ -339,8 +339,10 @@ public class Gui implements EntryPoint {
 	}
 	
 	public void submitUserTranslation(TranslationResult transresult) {
-		log("sending user feedback with values: " + transresult.getId() + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
-		rpcHandler.setUserTranslation(transresult.getId(), transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+		String combinedTRId = Integer.toString(transresult.getChunkId()) + ":" + transresult.getDocumentId();
+		log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
+		rpcHandler.setUserTranslation(transresult.getChunkId(), transresult.getDocumentId(),
+				                      transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
 	}
 	
 	public void goToNextBox(SubgestBox currentBox) {

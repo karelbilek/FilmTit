@@ -74,7 +74,7 @@ public class FilmTitServiceHandler {
 		filmTitSvc.getTranslationResults(chunk, callback);
 	}
 	
-	public void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPair) {
+	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
 		
 		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
@@ -90,7 +90,7 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair, callback);
+		filmTitSvc.setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPair, callback);
 	}
 		
 }

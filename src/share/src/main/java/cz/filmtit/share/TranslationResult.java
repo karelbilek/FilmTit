@@ -13,14 +13,14 @@ public class TranslationResult implements Serializable, Comparable<TranslationRe
     private String userTranslation;
     private long selectedTranslationPairID;
 
-    public int getId() {
+    public int getChunkId() {
         return sourceChunk.getId();
     }
 
-    public void setId(int id) {
-        sourceChunk.setId(id);
+    public long getDocumentId() {
+    	return sourceChunk.getDocumentId();
     }
-
+    
     public List<TranslationPair> getTmSuggestions() {
         return tmSuggestions;
     }
