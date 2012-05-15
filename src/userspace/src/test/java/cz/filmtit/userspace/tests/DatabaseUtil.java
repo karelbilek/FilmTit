@@ -22,7 +22,7 @@ public class DatabaseUtil {
      * @throws NoSuchFieldException
      * @throws IllegalAccessException
      */
-    public static void setDatabase() throws NoSuchFieldException, IllegalAccessException {
+    public static void setDatabase() {
         HibernateUtil.buildSessionFactoryFromHbmFile("cz/filmtit/userspace/tests/hibernate-test.cfg.xml");
     }
 }

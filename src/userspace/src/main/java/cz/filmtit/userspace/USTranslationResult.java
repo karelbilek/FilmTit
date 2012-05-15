@@ -25,9 +25,10 @@ public class USTranslationResult extends DatabaseObject {
     public USTranslationResult(TimedChunk chunk) {
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
-        translationResult.setId(chunk.getId());
+        //translationResult.setId(chunk.getId());
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();
         saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
     }
@@ -120,20 +121,29 @@ public class USTranslationResult extends DatabaseObject {
     }
 
     public int getSharedId() {
-        return translationResult.getId();
+        return translationResult.getChunkId();
     }
 
     public void setSharedId(int sharedId) {
         // TODO: Make the property immutable
-        translationResult.setId(sharedId);
+        translationResult.setChunkId(sharedId);
+    }
+
+    private List<TranslationPair> getTmSuggestions() {
+        return translationResult.getTmSuggestions();
+    }
+
+    private void setTmSuggestions(List<TranslationPair> tmSuggestions) {
+        translationResult.setTmSuggestions(tmSuggestions);
     }
 
     protected long getSharedDatabaseId() { return databaseId; }
     protected void setSharedDatabaseId(long setSharedDatabaseId) { }
 
     public void generateMTSuggestions(TranslationMemory TM) {
-        // TODO: ensure none of the potential previous suggestions is in the server cache collection
+        if (TM == null) { return; } // TODO: remove this when the it will possible to create the TM in tests
 
+        // TODO: ensure none of the potential previous suggestions is in the server cache collection
         // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
 

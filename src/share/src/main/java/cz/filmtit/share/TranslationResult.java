@@ -17,6 +17,10 @@ public class TranslationResult implements Serializable, Comparable<TranslationRe
         return sourceChunk.getId();
     }
 
+    public void setChunkId(int id) {
+        sourceChunk.setId(id);
+    }
+
     public long getDocumentId() {
     	return sourceChunk.getDocumentId();
     }

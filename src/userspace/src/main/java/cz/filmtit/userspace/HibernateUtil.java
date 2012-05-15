@@ -43,9 +43,13 @@ public class HibernateUtil {
         }
     }
 
-    public static void buildSessionFactoryFromHbmFile(String hmbFileName) {
+    public static void buildSessionFactoryFromHbmFile(String hbmFileName) {
+        //java.net.URL configurationFile = HibernateUtil.class.getResource(hbmFileName);
+
         Configuration configuration = new Configuration();
-        configuration.configure(configurationFile);
+        //configuration.configure(configurationFile);
+        configuration.configure(hbmFileName);
+
 
         serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);

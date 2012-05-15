@@ -22,7 +22,7 @@
 
 
         <!--commenting this out mainly for testing, sorry-->
-        <!--list name="tmSuggestions" table="TranslationPairs">
+        <list name="tmSuggestions" table="TranslationPairs">
             <key column="TranslationResultId"/>
             <index column="listIndex"/>
             <composite-element class="cz.filmtit.share.TranslationPair">
@@ -30,7 +30,7 @@
                 <property name="stringL2" type="java.lang.String" column="form2" />
                 <property name="score" type="java.lang.Double" column="score" />
             </composite-element>
-        </list-->
+        </list>
 
     </class>
 

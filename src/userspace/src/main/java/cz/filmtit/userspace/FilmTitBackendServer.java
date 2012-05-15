@@ -46,18 +46,22 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 		USTranslationResult usTranslationResult = new USTranslationResult(chunk);
 
         usTranslationResult.generateMTSuggestions(TM);
+
+        // TODO: make maps of maps to deal with the two ID policy
         activeTranslationResults.put(usTranslationResult.getDatabaseId(), usTranslationResult);
 
         return usTranslationResult.getTranslationResult();
 	}
 
-	public Void setUserTranslation(long translationResultId, String userTranslation, long chosenTranslationPairID) {
-	    USTranslationResult tr = activeTranslationResults.get(translationResultId);
-        tr.setUserTranslation(userTranslation);
-        tr.setSelectedTranslationPairID(chosenTranslationPairID);
+    @Override
+    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
+        //USTranslationResult tr = activeTranslationResults.get(translationResultId);
+        //tr.setUserTranslation(userTranslation);
+        //tr.setSelectedTranslationPairID(chosenTranslationPairID);
 
         return null;
-	}
+    }
+
 
 	public Document createDocument(String movieTitle, String year, String language) {
 		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );

@@ -42,6 +42,7 @@ public class USDocument extends DatabaseObject {
         workStartTime = new Date().getTime();
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();  // thows an exception
         saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
     }
@@ -50,6 +51,7 @@ public class USDocument extends DatabaseObject {
      * Default constructor (for Hibernate).
      */
     public USDocument() {
+        document = new Document();
     }
 
     public long getOwnerDatabaseId() {
@@ -153,11 +155,7 @@ public class USDocument extends DatabaseObject {
         this.translationGenerationTime = translationGenerationTime;
     }
 
-    //KB - no clue what this does, it produces nullpointerexception, so I edit it
     protected long getSharedDatabaseId() {
-        if (document==null) {
-            return 0L;
-        }
         return document.getId();
     }
 
@@ -196,8 +194,10 @@ public class USDocument extends DatabaseObject {
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
 
-        for (USTranslationResult translationResult : translationResults) {
-            translationResult.saveToDatabase(dbSession);
+        if (translationResults != null) {
+            for (USTranslationResult translationResult : translationResults) {
+                translationResult.saveToDatabase(dbSession);
+            }
         }
     }
 
