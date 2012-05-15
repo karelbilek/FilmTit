@@ -14,7 +14,7 @@
         <property name="movieTitle" type="java.lang.String" column="title" />
         <property name="year" type="int" column="year" />
         <property name="spentOnThisTime" type="long" column="spentOnThisTime" />
-        <property name="languageString" type="java.lang.String" column="language" />
+        <property name="languageCode" type="java.lang.String" column="language" />
         <property name="translationGenerationTime" type="long" column="translationGenerationTime" />
         <property name="finished" type="boolean" column="finished" />
 

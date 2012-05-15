@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
@@ -19,21 +20,23 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 	
 	private static final long serialVersionUID = 3546115L;
 
+
+    
 	private TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;
     private Map<Long, USTranslationResult> activeTranslationResults;
 
-    public FilmTitBackendServer(Configuration configuration) {
-        TM = Factory.createTM(configuration, true);
+    public FilmTitBackendServer(/*Configuration configuration*/) {
+        TM = Factory.createTM(ConfigurationSingleton.getConf(), true);
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
         System.err.println("FilmTitBackendServer started fine!");
     }
 
-	public FilmTitBackendServer() {
-		this(new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")));
-	}
+	/*public FilmTitBackendServer() throws Exception {
+        this(new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")));
+    }*/
 
     public TranslationMemory getTM() {
         return TM;

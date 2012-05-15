@@ -153,7 +153,11 @@ public class USDocument extends DatabaseObject {
         this.translationGenerationTime = translationGenerationTime;
     }
 
+    //KB - no clue what this does, it produces nullpointerexception, so I edit it
     protected long getSharedDatabaseId() {
+        if (document==null) {
+            return 0L;
+        }
         return document.getId();
     }
 
