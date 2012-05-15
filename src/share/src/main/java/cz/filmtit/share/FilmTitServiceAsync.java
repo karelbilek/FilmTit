@@ -10,7 +10,7 @@ public interface FilmTitServiceAsync {
 	void getTranslationResults(TimedChunk chunk,
 			AsyncCallback<TranslationResult> callback);
 
-	void setUserTranslation(long translationResultId, String userTranslation,
+	void setUserTranslation(int chunkId, long documentId, String userTranslation,
 			long chosenTranslationPair, AsyncCallback<Void> callback);
 
 }
