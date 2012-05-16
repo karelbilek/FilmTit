@@ -43,7 +43,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 	public TranslationResult getTranslationResults(TimedChunk chunk) {
-		USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+		//this looks terribly unsafe, nothing is checked here
+        USDocument docu = activeDocuments.get(chunk.getDocumentId());
+        USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+        usTranslationResult.setParent(docu);
 
         usTranslationResult.generateMTSuggestions(TM);
 

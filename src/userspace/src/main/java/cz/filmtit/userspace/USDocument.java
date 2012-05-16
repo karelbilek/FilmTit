@@ -177,7 +177,9 @@ public class USDocument extends DatabaseObject {
 
         translationResults = new ArrayList<USTranslationResult>();
         for (Object o : foundChunks) {
-            translationResults.add((USTranslationResult)o);
+            USTranslationResult result = (USTranslationResult)o;
+            result.setParent(this);
+            translationResults.add(result);
         }
     
         dbSession.getTransaction().commit();

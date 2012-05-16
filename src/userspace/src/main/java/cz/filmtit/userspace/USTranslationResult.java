@@ -21,6 +21,10 @@ public class USTranslationResult extends DatabaseObject {
     private TranslationResult translationResult;
     private long documentDatabaseId;
     private USDocument parent; // is set if and only if it's created from the docoument side
+    
+    public void setParent(USDocument parent) {
+        this.parent = parent;
+    }
 
     public USTranslationResult(TimedChunk chunk) {
         translationResult = new TranslationResult();
