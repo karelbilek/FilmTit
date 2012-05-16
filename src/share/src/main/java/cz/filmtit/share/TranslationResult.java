@@ -1,13 +1,12 @@
 package cz.filmtit.share;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
 
 */
 
-public class TranslationResult implements Serializable, Comparable<TranslationResult> {
+public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult> {
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions;
     private String userTranslation;

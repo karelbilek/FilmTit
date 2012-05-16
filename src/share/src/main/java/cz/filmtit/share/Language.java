@@ -3,7 +3,7 @@ package cz.filmtit.share;
 /**
  * @author Joachim Daiber
  */
-public enum Language {
+public enum Language implements com.google.gwt.user.client.rpc.IsSerializable {
 
     EN      ("en", "English"),
     CS      ("cs", "Czech"),

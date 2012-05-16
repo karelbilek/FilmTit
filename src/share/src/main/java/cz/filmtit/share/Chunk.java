@@ -1,12 +1,11 @@
 package cz.filmtit.share;
 
-import java.io.Serializable;
 
 
 /**
  * @author Joachim Daiber
  */
-public class Chunk implements Serializable {
+public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable {
 
     private String surfaceform;
     

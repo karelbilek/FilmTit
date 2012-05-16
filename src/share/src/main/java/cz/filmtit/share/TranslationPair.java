@@ -1,6 +1,5 @@
 package cz.filmtit.share;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import java.util.List;
 *
 * @author Joachim Daiber
 */
-public class TranslationPair implements Comparable<TranslationPair>, Serializable {
+public class TranslationPair implements Comparable<TranslationPair>, com.google.gwt.user.client.rpc.IsSerializable {
 
     private Chunk chunkL1;
     private Chunk chunkL2;
