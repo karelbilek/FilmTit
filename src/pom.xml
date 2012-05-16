@@ -4,7 +4,7 @@
 
     <properties>
         <filmtit.version>0.1</filmtit.version>
-    <jettyVersion>7.2.0.v20101020</jettyVersion>
+        <jettyVersion>7.2.0.v20101020</jettyVersion>
 
         <heapspace.Xmx.compiler>-Xmx200m</heapspace.Xmx.compiler>
 
@@ -14,7 +14,7 @@
         <maven.install.plugin.version>2.3.1</maven.install.plugin.version>
         <maven.assembly.plugin.version>2.2-beta-5</maven.assembly.plugin.version>
         <scala.compiler.version>2.9.1</scala.compiler.version>
-	<gwtVersion>2.4.0</gwtVersion>
+        <gwtVersion>2.4.0</gwtVersion>
     </properties>
 
     <groupId>cz.filmtit</groupId>
@@ -30,14 +30,14 @@
         <module>core</module>
         <module>gui</module>
         <module>server</module>
-  </modules>
+    </modules>
 
     <build>
         <resources>
- <resource>
-         <directory>resources</directory>
-   </resource>
- </resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
@@ -88,11 +88,45 @@
                     <skipTests>false</skipTests>
                 </configuration>
             </plugin>
- 
 
-
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                    <execution>
+                        <id>upload-jar</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>upload</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <fromDir>server/target/</fromDir>
+                    <includes>server-*.jar</includes>
+                    <excludes>pom.xml</excludes>
+                    <url>scp://daiber@ufallab.ms.mff.cuni.cz:12422</url>
+                    <toDir>/filmtit/deployed</toDir>
+                </configuration>
+            </plugin>
         </plugins>
+
+
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>1.0-beta-3</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>1.0-beta-3</version>
+            </extension>
+        </extensions>
+
+
     </build>
 
     <repositories>
@@ -130,14 +164,14 @@
             <version>4.10</version>
         </dependency>
 
-	<!-- for RPC -->
-       <!--<dependency>
+        <!-- for RPC -->
+        <!--<dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
             <version>1.0.0.GA</version>
             <scope>test</scope>
         </dependency>-->
-       
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -145,9 +179,9 @@
         </dependency>
 
         <dependency>
-        	<groupId>org.apache.commons</groupId>
-        	<artifactId>commons-math</artifactId>
-        	<version>2.0</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+            <version>2.0</version>
         </dependency>
 
 
@@ -162,7 +196,7 @@
             <artifactId>guava</artifactId>
             <version>11.0.2</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
@@ -174,7 +208,7 @@
             <artifactId>trove4j</artifactId>
             <version>3.0.2</version>
         </dependency>
-   
+
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
@@ -248,12 +282,12 @@
             <version>4.1.0.Final</version>
         </dependency>
 
-    	<dependency>
-	        <groupId>com.google.gwt</groupId>
-	        <artifactId>gwt-user</artifactId>
-	        <version>${gwtVersion}</version>
-	        <scope>provided</scope>
-    	</dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+            <version>${gwtVersion}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.google.gwt</groupId>
