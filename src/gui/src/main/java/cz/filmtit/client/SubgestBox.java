@@ -1,12 +1,19 @@
 package cz.filmtit.client;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -28,6 +35,8 @@ public class SubgestBox extends TextBox {
 	private TranslationResult translationResult;
 	private Widget suggestionWidget;
 	private Gui gui;
+	private PopupPanel suggestPanel;
+	
 	
 	public SubgestBox(int id, TranslationResult translationResult, Gui gui) {
 		this.id = id;
@@ -37,6 +46,8 @@ public class SubgestBox extends TextBox {
 		this.addFocusHandler(this.gui.subgestHandler);
 		this.addKeyDownHandler(this.gui.subgestHandler);
 		this.addValueChangeHandler(this.gui.subgestHandler);
+		
+		this.loadSuggestions();
 	}
 	
 	public int getId() {
@@ -55,10 +66,9 @@ public class SubgestBox extends TextBox {
 		return suggestionWidget;
 	}
 	
-	
-	
+
 	/**
-	 * The Cell used to render a {@link ContactInfo}.
+	 * The Cell used to render the list of suggestions from the current TranslationPair.
 	 */
 	static class SuggestionCell extends AbstractCell<TranslationPair> {
 
@@ -69,6 +79,9 @@ public class SubgestBox extends TextBox {
 			this.transresult = transresult;
 		}
 		*/
+		public SuggestionCell() {
+			super("keydown");
+		}
 
 		@Override
 		public void render(Context context, TranslationPair value, SafeHtmlBuilder sb) {
@@ -97,22 +110,33 @@ public class SubgestBox extends TextBox {
 			sb.appendHtmlConstant("</tr>");
 			sb.appendHtmlConstant("</table>");
 		}
+		
+		@Override
+		protected void onEnterKeyDown(Context context, Element parent, TranslationPair value,
+				NativeEvent event, ValueUpdater<TranslationPair> valueUpdater) {
+			//Window.alert("onEnterKeyDown on a cell");
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
 	}
+
 	
-	
-	public void showSuggestions() {
+	private void loadSuggestions() {
 		// creating the suggestions pop-up panel:
-		FlowPanel suggestPanel = new FlowPanel();
+		//FlowPanel suggestPanel = new FlowPanel();
+		suggestPanel = new PopupPanel(true);
+		suggestPanel.setStylePrimaryName("suggestionsPopup");
 		
 		CellList<TranslationPair> cellList = new CellList<TranslationPair>( new SuggestionCell() );
 		cellList.setWidth( Integer.toString(this.getOffsetWidth()) + "px" );
 		cellList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+		
 		final SingleSelectionModel<TranslationPair> selectionModel = new SingleSelectionModel<TranslationPair>();
 		cellList.setSelectionModel(selectionModel);
 		selectionModel.addSelectionChangeHandler( new SelectionChangeEvent.Handler() {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
+					gui.log("selection changed...");
 					// TODO: rewrite the TPair's "id" acquisition in some reasonable way...
 					int i = 0;
 					for (TranslationPair transpair : translationResult.getTmSuggestions()) {
@@ -130,31 +154,23 @@ public class SubgestBox extends TextBox {
 			}
 		} );
 		cellList.setRowData(this.getSuggestions());
-		suggestPanel.add(cellList);
-		suggestPanel.setStylePrimaryName("suggestionsPopup");
+		//suggestPanel.add(cellList);
+		suggestPanel.setWidget(cellList);
+		//suggestPanel.setAutoHideEnabled(true);
 		
-		
-		// positioning the pop-up panel:
-		//AbsolutePanel parentPanel = (AbsolutePanel) this.getParent();
-		//int sugleft = parentPanel.getAbsoluteLeft() + parentPanel.getWidgetLeft(this) + 8;
-		//int sugtop  = parentPanel.getAbsoluteTop()  + parentPanel.getWidgetTop(this) + 25;
-
-		//int sugleft = this.getAbsoluteLeft() - this.gui.rootPanel.getAbsoluteLeft() + 8;
-		//int sugtop  = this.getAbsoluteTop()  - this.gui.rootPanel.getAbsoluteTop() + 35;
-		//this.gui.rootPanel.add(suggestPanel, sugleft, sugtop);
-		
-		int sugleft = this.getAbsoluteLeft() - this.gui.mainPanel.getAbsoluteLeft() +  8;
-		int sugtop  = this.getAbsoluteTop()  - this.gui.mainPanel.getAbsoluteTop()  + 35;
-		//gui.log("suggestion coordinates: " + Integer.toString(sugleft) + ", " + Integer.toString(sugtop));
-		this.gui.mainPanel.add(suggestPanel, sugleft, sugtop);
-				
 		this.setSuggestionWidget(suggestPanel);
 	}
 	
 	
+	public void showSuggestions() {
+		suggestPanel.showRelativeTo(this);
+		suggestionWidget.setWidth(this.getOffsetWidth() + "px");
+	}
+		
+	
 	/**
 	 * Returns the underlying TranslationResult.
-	 * @return
+	 * @return the TranslationResult upon which this SubgestBox is built
 	 */
 	public TranslationResult getTranslationResult() {
 		return this.translationResult;

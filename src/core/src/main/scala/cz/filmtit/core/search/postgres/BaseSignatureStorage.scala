@@ -152,6 +152,7 @@ with SignatureTranslationPairStorage {
       select.executeQuery()
     } catch {
       case e: PSQLException => {
+        e.printStackTrace()
         throw new DatabaseException("Could not use database indexes, please make sure the TM is properly indexed. To reindex, run $ make index in the main directory.")
       }
     }

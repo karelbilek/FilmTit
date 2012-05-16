@@ -13,6 +13,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Window;
@@ -21,10 +23,14 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SuggestBox;
+import com.google.gwt.user.client.ui.SuggestOracle;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
@@ -81,7 +87,7 @@ public class Gui implements EntryPoint {
 	/**
 	 * Multi-line subtitle text to parse
 	 */
-	protected String subtext;
+	private String subtext;
 	
 	
 	@Override
@@ -124,25 +130,17 @@ public class Gui implements EntryPoint {
 		
 		// debug-area (for logging output, dumps etc.):
 		txtDebug = new TextArea();
-		rootPanel.add(txtDebug, 412, 530);
-		txtDebug.setSize("460px", "176px");
+		rootPanel.add(txtDebug, 412, 584);
+		txtDebug.setSize("368px", "176px");
 		txtDebug.setText("debugging outputs...\n");
 
 		
 		
 		
 		// --- main interface --- //
-		/*
-		// area where the suggestion widget can appear
-		// (to have the possibility to partly "overflow" from the scrollPanel) 
-		suggestArea = new AbsolutePanel();
-		rootPanel.add(suggestArea, 10, 80);
-		suggestArea.setSize("700px", "600px");
-		*/
-
 		ScrollPanel scrollPanel = new ScrollPanel();
 		rootPanel.add(scrollPanel, 10, 80);
-		scrollPanel.setSize("720px", "340px");
+		scrollPanel.setSize("774px", "402px");
 		mainPanel = new AbsolutePanel();
 		mainPanel.setStylePrimaryName("mainPanel");
 		scrollPanel.add(mainPanel);
@@ -155,6 +153,28 @@ public class Gui implements EntryPoint {
 		// filling the interface with the sample subtitles:
 		List<TranslationResult> transresults = (new SampleDocument()).translationResults;
 		counter = 0;
+		
+		/*
+		for (TranslationResult transresult : transresults) {
+
+			//log("showing result of chunk: " + transresult.getSourceChunk().getSurfaceForm());
+			Label timeslabel = new Label(transresult.getSourceChunk().getStartTime() + " -> " + transresult.getSourceChunk().getEndTime());
+			table.setWidget(counter, TIMES_COLNUMBER, timeslabel);
+
+			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
+			table.setWidget(counter, SOURCETEXT_COLNUMBER, sourcelabel);
+
+			MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+			oracle.setDefaultSuggestions(transresult.getTmSuggestions());
+			SuggestBox targetbox = new SuggestBox();
+			
+			table.setWidget(counter, TARGETBOX_COLNUMBER, targetbox);
+			targetbox.setWidth("80%");
+
+			counter++;
+		}
+		*/
+		
 		for (int i = 0; i < 5; i++) {
 			for (TranslationResult transresult : transresults) {
 				showResult(transresult);
@@ -168,14 +188,14 @@ public class Gui implements EntryPoint {
 		// --- subfile format (srt/sub) options --- //
 		// (currently used by both textarea and file input)
 		Label lblChooseFileFormat = new Label("Choose file format: (both for file & txtarea)");
-		rootPanel.add(lblChooseFileFormat, 10, 476);
+		rootPanel.add(lblChooseFileFormat, 10, 530);
 		lblChooseFileFormat.setSize("160px", "42px");
 		
 		rdbFormatSrt = new RadioButton("file format", ".srt");
-		rootPanel.add(rdbFormatSrt, 175, 476);
+		rootPanel.add(rdbFormatSrt, 175, 530);
 		rdbFormatSrt.setSize("105px", "20px");
 		rdbFormatSub = new RadioButton("file format", ".sub");
-		rootPanel.add(rdbFormatSub, 175, 502);
+		rootPanel.add(rdbFormatSub, 175, 556);
 		rdbFormatSub.setSize("105px", "20px");
 		rdbFormatSrt.setValue(true);  // default - srt
 		// --- end of subfile format options --- //
@@ -184,14 +204,14 @@ public class Gui implements EntryPoint {
 		
 		// --- file reading interface via lib-gwt-file --- //
 		Label lblChooseEncoding = new Label("Choose encoding:");
-		rootPanel.add(lblChooseEncoding, 286, 476);
+		rootPanel.add(lblChooseEncoding, 286, 530);
 		lblChooseEncoding.setSize("121px", "42px");
 		
 		final RadioButton rdbEncodingUtf8 = new RadioButton("file encoding", "UTF-8");
-		rootPanel.add(rdbEncodingUtf8, 412, 476);
+		rootPanel.add(rdbEncodingUtf8, 412, 530);
 		rdbEncodingUtf8.setSize("105px", "20px");
 		final RadioButton rdbEncodingIso = new RadioButton("file encoding", "iso-8859-2");
-		rootPanel.add(rdbEncodingIso, 412, 502);
+		rootPanel.add(rdbEncodingIso, 412, 556);
 		rdbEncodingIso.setSize("105px", "20px");
 		rdbEncodingUtf8.setValue(true);  // default - UTF-8
 		
@@ -230,14 +250,14 @@ public class Gui implements EntryPoint {
 				}
 			}
 		} );
-		rootPanel.add(fileUpload, 10, 440);
+		rootPanel.add(fileUpload, 10, 494);
 		// --- end of file reading interface via lib-gwt-file --- //
 		
 		
 		
 		// --- textarea interface for loading whole subtitle file --- //
 		final TextArea txtFileContentArea = new TextArea();
-		rootPanel.add(txtFileContentArea, 10, 530);
+		rootPanel.add(txtFileContentArea, 10, 584);
 		txtFileContentArea.setSize("260px", "176px");
 		
 		Button btnSendToTm = new Button("Send to TM");
@@ -250,7 +270,7 @@ public class Gui implements EntryPoint {
 				// sets currentDocument and calls processText() on success
 			}
 		} );
-		rootPanel.add(btnSendToTm, 286, 530);
+		rootPanel.add(btnSendToTm, 286, 584);
 		btnSendToTm.setSize("120px", "47px");
 		// --- end of textarea interface --- //		
 
@@ -339,7 +359,7 @@ public class Gui implements EntryPoint {
 	}
 	
 	public void submitUserTranslation(TranslationResult transresult) {
-		String combinedTRId = Integer.toString(transresult.getChunkId()) + ":" + transresult.getDocumentId();
+		String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
 		log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 		rpcHandler.setUserTranslation(transresult.getChunkId(), transresult.getDocumentId(),
 				                      transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
