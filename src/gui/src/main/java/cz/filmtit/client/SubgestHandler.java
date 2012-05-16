@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -37,40 +38,48 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 		if (event.getSource() instanceof SubgestBox) { // should be
 			// hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus
-			deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+			//deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
 			// and show a new one for the current SubgestBox
 			SubgestBox subbox = (SubgestBox) event.getSource();
 			subbox.showSuggestions();
 			gui.setActiveSuggestionWidget(subbox.getSuggestionWidget());
-			
-			/*
-			// TODO: if the textbox is empty yet, direct the user to the suggestions:
-			// - not working right now (why?)
-			if (subbox.getText().isEmpty()) {
-				gui.log("setting focus to the suggestions...");
-				((Focusable)subbox.getSuggestionWidget()).setFocus(true);
-			}
-			*/
 		}
 	}
 	
 	
 	@Override
 	public void onKeyDown(KeyDownEvent event) {
-		// pressing Esc:
-		if ( (event.getNativeEvent().getCharCode() == KeyCodes.KEY_ESCAPE)
-				||       (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) ) {
-			// hide the suggestion widget corresponding to the SubgestBox
-			//   which previously had focus
-			deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+		if (event.getSource() instanceof SubgestBox) { // should be
+			// pressing the Down arrow - setting focus to the suggestions:
+			if ( isThisKeyEvent(event, KeyCodes.KEY_DOWN) ) {
+				SubgestBox subbox = (SubgestBox) event.getSource();
+				((Focusable) ((SimplePanel)subbox.getSuggestionWidget()).getWidget()).setFocus(true);
+				event.preventDefault(); // default is to scroll down the page
+			}
+			// pressing Esc or Tab:
+			if (     isThisKeyEvent(event, KeyCodes.KEY_ESCAPE)
+				||   isThisKeyEvent(event, KeyCodes.KEY_TAB)   ) {
+				// hide the suggestion widget corresponding to the SubgestBox
+				//   which previously had focus (popup panel does not hide on keyboard events)
+				deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+			}
+			// pressing Enter:
+			if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER)
+				||	event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+				gui.log("enter pressed...");
+				SubgestBox subbox = (SubgestBox) event.getSource();
+				subbox.getTranslationResult().setUserTranslation(subbox.getText());
+				gui.submitUserTranslation(subbox.getTranslationResult());
+				
+				deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+				gui.goToNextBox(subbox);
+			}
 		}
-		// pressing Enter:
-		if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-			SubgestBox subbox = (SubgestBox) event.getSource();
-			subbox.getTranslationResult().setUserTranslation(subbox.getText());
-			gui.submitUserTranslation(subbox.getTranslationResult());
-			gui.goToNextBox(subbox);
-		}
+	}
+	
+	private boolean isThisKeyEvent(KeyDownEvent event, int keycode) {
+		return ( (event.getNativeEvent().getCharCode() == keycode)
+			||   (event.getNativeKeyCode() == keycode) );
 	}
 	
 	
