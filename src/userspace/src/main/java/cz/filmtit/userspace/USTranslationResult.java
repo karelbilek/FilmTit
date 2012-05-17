@@ -160,7 +160,7 @@ public class USTranslationResult extends DatabaseObject {
                 scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
 
         // the list of suggestions will be stored as a synchronized list
-        translationResult.setTmSuggestions(Collections.synchronizedList(new ArrayList<TranslationPair>(javaList)));
+        translationResult.setTmSuggestions(new ArrayList<TranslationPair>(javaList));
     }
 
     public void saveToDatabase(Session dbSession) {
