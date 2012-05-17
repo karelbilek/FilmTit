@@ -8,7 +8,7 @@ import java.util.HashSet;
  *
  * @author Joachim Daiber
  */
-public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializable {
+public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
 	private static final long serialVersionUID = 5899275001958847885L;
 
