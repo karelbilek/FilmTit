@@ -20,7 +20,7 @@
     </ner_models>
 
     <import>
-        <data_folder>/filmtit/data/utf8</data_folder>
+        <data_folder>/filmtit/data/utf8_aligned</data_folder>
         <file_mediasource_mapping>/filmtit/data/export_final.txt</file_mediasource_mapping>
         <batch_size>100</batch_size>
         <imdb_cache>/filmtit/data/imdb_cache</imdb_cache>
