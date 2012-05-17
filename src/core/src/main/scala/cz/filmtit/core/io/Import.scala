@@ -146,8 +146,9 @@ class Import(val configuration: Configuration) {
 
     writeIMDBCache()
   }
+ }
 
-
+ object Import {
   def main(args: Array[String]) {
     val configuration = new Configuration(new File(args(0)))
     val imp = new Import(configuration)
