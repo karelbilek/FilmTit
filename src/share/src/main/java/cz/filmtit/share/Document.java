@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
+import java.io.Serializable;
 public class Document implements IsSerializable, Serializable {
     public long spentOnThisTime;
 

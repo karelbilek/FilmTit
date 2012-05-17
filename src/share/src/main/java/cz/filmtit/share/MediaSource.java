@@ -2,6 +2,7 @@ package cz.filmtit.share;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.io.Serializable;
 
 /**
  * The source of a subtitle chunk. This may be a movie, TV series etc.

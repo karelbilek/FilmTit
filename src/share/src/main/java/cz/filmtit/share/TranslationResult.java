@@ -1,6 +1,7 @@
 package cz.filmtit.share;
 
 import java.util.List;
+import java.io.Serializable;
 
 /**
 
