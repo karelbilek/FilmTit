@@ -19,7 +19,7 @@ import cz.filmtit.share.TimedChunk;
  * @author Honza Václ
  *
  */
-public class ParserSrt implements Parser {
+public class ParserSrt extends Parser {
 	
 	public static RegExp reNumberLine    = RegExp.compile("^[0-9]+$");
 	public static RegExp reTimesLine     = RegExp.compile("^[0-9][0-9]:[0-9][0-9]");
@@ -34,8 +34,7 @@ public class ParserSrt implements Parser {
 		//int number = 0;  // in-file numbering of the subtitle - not used at the moment
 		String startTime = EMPTY_STRING;
 		String endTime = EMPTY_STRING;
-		int partNumber = 1;
-		String chunkText = EMPTY_STRING;		
+		String titText = EMPTY_STRING;		
 		int chunkId = 0;
 
 		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
@@ -54,42 +53,24 @@ public class ParserSrt implements Parser {
 				endTime = times[1];
 			}
 			else if ( ! line.isEmpty() ) {
-				if (chunkText.isEmpty()) {
-					chunkText = line;
-					partNumber = 1;
-				}
-				else {  // chunkText is not empty
-					//if (  chunkText.matches("^ ?- .*")
-					//		&& line.matches("^ ?- .*") ) {
-					if (  reDialogSegment.test(chunkText)
-							&& reDialogSegment.test(line) ) {
-						// "dialogue" lines - switching speakers
-						// -> splitting into two (or more) c-hunks
-						//    - 1st one is the chunkText so far, 2nd one (starts on) the current line
-						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
-						
-						chunkText = line;
-						partNumber++;
-					}
-					else {
-						// continuation of one subtitle (one speaker) only divided into more lines
-						chunkText += SUBLINE_SEPARATOR_OUT + line;
-					}
-				}
-			}
-			else {  // empty line
+			    titText += SUBLINE_SEPARATOR_OUT + line;
+           	}
+			else {
+                // empty line
 				// creating the chunk from what was gathered recently...
-				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
+
+                addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 				
-				// ...and resetting
-				chunkText = EMPTY_STRING;
-				partNumber = 1;
+		    	// ...and resetting
+				titText = EMPTY_STRING;
 			}
 		}  // for-loop over lines
-
+        
+        
 		// adding the last chunk (after it, there was no empty line from splitting):
-		sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
+        addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 
+	
 		return sublist;
 	}
 	

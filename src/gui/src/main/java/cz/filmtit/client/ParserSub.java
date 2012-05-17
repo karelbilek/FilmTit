@@ -16,7 +16,7 @@ import cz.filmtit.share.TimedChunk;
  * @author Honza Václ
  *
  */
-public class ParserSub implements Parser {
+public class ParserSub extends Parser {
 	
 	public static RegExp reSubtitleLine  = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
@@ -36,22 +36,15 @@ public class ParserSub implements Parser {
 				String startTime = matcher.getGroup(1);
 				String endTime   = matcher.getGroup(2);
 				String lineText  = matcher.getGroup(3);
-				int partNumber = 1;
 				
+                //this can probably be just regexp replace
 				String[] segments = lineText.split(SUBLINE_SEPARATOR_IN);
-				String chunkText = segments[0];
-				for (int i = 1; i < segments.length; i++) {
-					if ( reDialogSegment.test(chunkText)
-							&& reDialogSegment.test(segments[i]) ) {
-						sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
-						chunkText = segments[i];
-						partNumber++;
-					}
-					else {
-						chunkText += SUBLINE_SEPARATOR_OUT + segments[i];
-					}
+				String titText = segments[0];
+                for (int i = 1; i < segments.length; i++) {
+					titText += SUBLINE_SEPARATOR_OUT + segments[i];
 				}
-				sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId++, documentId) );
+
+                addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 			}
 			else {
 				// wrong format of this line
