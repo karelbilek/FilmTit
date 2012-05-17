@@ -6,7 +6,7 @@ import java.util.List;
 
 */
 
-public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult> {
+public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult>, Serializable {
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions;
     private String userTranslation;

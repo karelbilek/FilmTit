@@ -5,7 +5,7 @@ package cz.filmtit.share;
 /**
  * @author Joachim Daiber
  */
-public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable {
+public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
     private String surfaceform;
     

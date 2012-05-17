@@ -1,7 +1,7 @@
 package cz.filmtit.share;
 
 
-public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable {
+public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 	private String startTime;
     private String endTime;
     private int partNumber;

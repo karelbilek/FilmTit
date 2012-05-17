@@ -3,7 +3,7 @@ package cz.filmtit.share;
 /**
  * @author Joachim Daiber
  */
-public enum TranslationSource implements com.google.gwt.user.client.rpc.IsSerializable {
+public enum TranslationSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
     //Internal:
     INTERNAL_EXACT ("Exact TM match"),

@@ -10,7 +10,7 @@ import java.util.List;
 *
 * @author Joachim Daiber
 */
-public class TranslationPair implements Comparable<TranslationPair>, com.google.gwt.user.client.rpc.IsSerializable {
+public class TranslationPair implements Comparable<TranslationPair>, com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
     private Chunk chunkL1;
     private Chunk chunkL2;
