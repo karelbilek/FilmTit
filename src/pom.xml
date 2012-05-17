@@ -106,7 +106,7 @@
                     <fromDir>server/target/</fromDir>
                     <includes>server-*.jar</includes>
                     <excludes>pom.xml</excludes>
-                    <url>scp://daiber@ufallab.ms.mff.cuni.cz:12422</url>
+                    <url>scp://filmtitdeployer@ufallab.ms.mff.cuni.cz:12422</url>
                     <toDir>/filmtit/deployed</toDir>
                 </configuration>
             </plugin>
