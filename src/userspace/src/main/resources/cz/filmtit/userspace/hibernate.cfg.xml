@@ -13,7 +13,7 @@
             jdbc:postgresql://localhost/filmtit_userspace
         </property>
         <property name="hibernate.connection.username">postgres</property>
-        <property name="hibernate.connection.password">j8ai64e56d5s</property>
+        <property name="hibernate.connection.password">postgres</property>
         <property name="hibernate.connection.pool_size">10</property>
         <property name="show_sql">true</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
