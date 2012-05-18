@@ -107,7 +107,7 @@
                     <includes>server-*.jar</includes>
                     <excludes>pom.xml</excludes>
                     <url>scp://filmtitdeployer@ufallab.ms.mff.cuni.cz:12422</url>
-                    <toDir>/filmtit/deployed</toDir>
+                    <toDir>/deployed</toDir>
                 </configuration>
             </plugin>
         </plugins>
