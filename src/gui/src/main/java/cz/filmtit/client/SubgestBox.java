@@ -7,13 +7,19 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -47,6 +53,8 @@ public class SubgestBox extends TextBox {
 		this.addKeyDownHandler(this.gui.subgestHandler);
 		this.addValueChangeHandler(this.gui.subgestHandler);
 		
+		this.setTabIndex(gui.counter + 1);
+		
 		this.loadSuggestions();
 	}
 	
@@ -72,15 +80,14 @@ public class SubgestBox extends TextBox {
 	 */
 	static class SuggestionCell extends AbstractCell<TranslationPair> {
 
-		//private TranslationResult transresult;
+		// for explicitly setting the selection after Enter key press
+		private SingleSelectionModel<TranslationPair> selectionModel;
+		private PopupPanel parentPopup;
 
-		/*
-		public SuggestionCell(TranslationResult transresult) {
-			this.transresult = transresult;
-		}
-		*/
-		public SuggestionCell() {
+		public SuggestionCell(SingleSelectionModel<TranslationPair> selectionModel, PopupPanel parentPopup) {
 			super("keydown");
+			this.selectionModel = selectionModel;
+			this.parentPopup = parentPopup;
 		}
 
 		@Override
@@ -114,8 +121,25 @@ public class SubgestBox extends TextBox {
 		@Override
 		protected void onEnterKeyDown(Context context, Element parent, TranslationPair value,
 				NativeEvent event, ValueUpdater<TranslationPair> valueUpdater) {
-			//Window.alert("onEnterKeyDown on a cell");
 			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+			// selecting also by Enter is automatic in Opera only, others use only Spacebar
+			// (and we want also Enter everywhere)
+			selectionModel.setSelected(value, true);
+		}
+		
+		@Override
+		public void onBrowserEvent(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, TranslationPair value, NativeEvent event,
+				ValueUpdater<TranslationPair> valueUpdater) {
+			super.onBrowserEvent(context, parent, value, event, valueUpdater);
+			// handle the tabbing out - hiding the popup:
+			if ("keydown".equals(event.getType())) {
+				if (event.getKeyCode() == KeyCodes.KEY_TAB) {
+					parentPopup.setVisible(false);
+					// (we cannot hide it because the list would lose its proper TabIndex)
+				}
+			}
 		}
 	}
 
@@ -123,14 +147,17 @@ public class SubgestBox extends TextBox {
 	private void loadSuggestions() {
 		// creating the suggestions pop-up panel:
 		//FlowPanel suggestPanel = new FlowPanel();
-		suggestPanel = new PopupPanel(true);
+		suggestPanel = new PopupPanel();
 		suggestPanel.setStylePrimaryName("suggestionsPopup");
 		
-		CellList<TranslationPair> cellList = new CellList<TranslationPair>( new SuggestionCell() );
+		final SingleSelectionModel<TranslationPair> selectionModel = new SingleSelectionModel<TranslationPair>();
+		CellList<TranslationPair> cellList = new CellList<TranslationPair>( new SuggestionCell(selectionModel, suggestPanel) );
 		cellList.setWidth( Integer.toString(this.getOffsetWidth()) + "px" );
 		cellList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 		
-		final SingleSelectionModel<TranslationPair> selectionModel = new SingleSelectionModel<TranslationPair>();
+		// setting tabindex so that the suggestions are focused between this box and the next one
+		cellList.setTabIndex(this.getTabIndex());
+		
 		cellList.setSelectionModel(selectionModel);
 		selectionModel.addSelectionChangeHandler( new SelectionChangeEvent.Handler() {
 			public void onSelectionChange(SelectionChangeEvent event) {
@@ -154,9 +181,7 @@ public class SubgestBox extends TextBox {
 			}
 		} );
 		cellList.setRowData(this.getSuggestions());
-		//suggestPanel.add(cellList);
 		suggestPanel.setWidget(cellList);
-		//suggestPanel.setAutoHideEnabled(true);
 		
 		this.setSuggestionWidget(suggestPanel);
 	}

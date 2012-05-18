@@ -12,6 +12,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -53,15 +54,16 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			// pressing the Down arrow - setting focus to the suggestions:
 			if ( isThisKeyEvent(event, KeyCodes.KEY_DOWN) ) {
 				SubgestBox subbox = (SubgestBox) event.getSource();
-				((Focusable) ((SimplePanel)subbox.getSuggestionWidget()).getWidget()).setFocus(true);
+				Focusable suggestionsList = ((Focusable) ((SimplePanel)subbox.getSuggestionWidget()).getWidget());
+				suggestionsList.setFocus(true);
 				event.preventDefault(); // default is to scroll down the page
 			}
 			// pressing Esc or Tab:
 			if (     isThisKeyEvent(event, KeyCodes.KEY_ESCAPE)
 				||   isThisKeyEvent(event, KeyCodes.KEY_TAB)   ) {
 				// hide the suggestion widget corresponding to the SubgestBox
-				//   which previously had focus (popup panel does not hide on keyboard events)
-				deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+				//   which previously had focus (PopupPanel does not hide on keyboard events)
+				deactivateSuggestionWidget();
 			}
 			// pressing Enter:
 			if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER)
@@ -71,7 +73,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 				subbox.getTranslationResult().setUserTranslation(subbox.getText());
 				gui.submitUserTranslation(subbox.getTranslationResult());
 				
-				deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+				deactivateSuggestionWidget();
 				gui.goToNextBox(subbox);
 			}
 		}
@@ -96,10 +98,16 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	}
 	
 	
-	private void deactivateSuggestionWidget(Widget w) {
+	private void deactivateSuggestionWidget() {
+		Widget w = gui.getActiveSuggestionWidget();
 		if (w != null) {
-			((Panel)(w.getParent())).remove(w);
-			w = null;
+			if (w instanceof PopupPanel) {
+				((PopupPanel)w).hide();
+			}
+			else {
+				((Panel)(w.getParent())).remove(w);
+			}
+			gui.setActiveSuggestionWidget(null);
 		}
 	}
 
