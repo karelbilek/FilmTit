@@ -72,7 +72,7 @@ public class Gui implements EntryPoint {
 	protected AbsolutePanel suggestArea;
 	
 	private FlexTable table;
-	private int counter;
+	protected int counter;
 	// column numbers in 
 	private static final int TIMES_COLNUMBER      = 0;
 	private static final int SOURCETEXT_COLNUMBER = 1;

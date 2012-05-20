@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+import java.io.Serializable;
 /**
 * Wrapper class for chunks in the parallel data. In the most basic case,
 * a chunk only consists of the the surface form in a particular language.

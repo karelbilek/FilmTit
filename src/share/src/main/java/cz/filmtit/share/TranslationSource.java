@@ -1,4 +1,5 @@
 package cz.filmtit.share;
+import java.io.Serializable;
 
 /**
  * @author Joachim Daiber
