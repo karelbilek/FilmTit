@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/src/core/core.iml" filepath="$PROJECT_DIR$/src/core/core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/eval/eval.iml" filepath="$PROJECT_DIR$/src/eval/eval.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/filmtit.iml" filepath="$PROJECT_DIR$/src/filmtit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/gui/gui.iml" filepath="$PROJECT_DIR$/src/gui/gui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/server/server.iml" filepath="$PROJECT_DIR$/src/server/server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/share/share.iml" filepath="$PROJECT_DIR$/src/share/share.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/userspace/userspace.iml" filepath="$PROJECT_DIR$/src/userspace/userspace.iml" />
+    </modules>
+  </component>
+</project>
+

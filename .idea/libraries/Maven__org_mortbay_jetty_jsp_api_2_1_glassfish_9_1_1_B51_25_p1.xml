@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.mortbay.jetty:jsp-api-2.1-glassfish:9.1.1.B51.25.p1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jsp-api-2.1-glassfish/9.1.1.B51.25.p1/jsp-api-2.1-glassfish-9.1.1.B51.25.p1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jsp-api-2.1-glassfish/9.1.1.B51.25.p1/jsp-api-2.1-glassfish-9.1.1.B51.25.p1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jsp-api-2.1-glassfish/9.1.1.B51.25.p1/jsp-api-2.1-glassfish-9.1.1.B51.25.p1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

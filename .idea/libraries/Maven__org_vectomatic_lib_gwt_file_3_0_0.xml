@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Maven: org.vectomatic:lib-gwt-file:3.0.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/gui/../lib/lib-gwt-file-0.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

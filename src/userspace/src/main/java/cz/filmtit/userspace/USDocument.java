@@ -42,7 +42,7 @@ public class USDocument extends DatabaseObject {
         workStartTime = new Date().getTime();
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();  // thows an exception
+        dbSession.beginTransaction();  // throws an exception
         saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
     }

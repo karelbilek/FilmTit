@@ -1,5 +1,6 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -8,6 +9,7 @@ import java.util.HashSet;
  *
  * @author Joachim Daiber
  */
+
 public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
 	private static final long serialVersionUID = 5899275001958847885L;
