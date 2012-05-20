@@ -33,7 +33,7 @@ sub all_subtitles_of_movie {
     Readonly my $language_mark => $czech ? "cze" : "eng";
     
     open my $pipe, qq{grep "^$movie_id\\s[0-9]*\\s$language_mark" }.
-                   qq{export_final_sorted_and_uniq.txt |}.
+                   qq{export/export_final_sorted_and_uniq.txt |}.
                    qq{ cut -f2 |};
 
     my @filenames = (<$pipe>);
@@ -46,7 +46,7 @@ sub read_first_subtitles {
     Readonly my $titname => shift;
     Readonly my $count => shift;
 
-    open my $tit_file, "gunzip files/$titname.gz --stdout |".
+    open my $tit_file, "gunzip export/files/$titname.gz --stdout |".
                         "iconv -f 'cp1250' -t 'utf8' |";
     binmode($tit_file, ":utf8");
     

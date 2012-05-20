@@ -1,0 +1,42 @@
+This is a directory with scripts for database
+
+The export file (from OpenSubtitles.org) have to be unzipped into export
+folder - so all the files are in "export/files/something.gz".
+
+Also, there has to be "export_final_sorted_and_uniq.txt" in files (I forgot
+how I made it, though, sorry :/ it was some basic sorting + then some other
+deletions)
+
+[the file from opensubtitles SHOULD be on filmtit server in /filmtit/data/
+right now]
+
+----
+view_movie.pl [movie ID] [lines]
+will read the movie with a given ID and all his subtitles
+---
+view_subtitle.pl [subtitle ID]
+will just unzip and print the subtitle (without any editing)
+----
+Pairing.pm is helping moduele
+----
+pairing_file2file.pl tries to find the best pair of files for each movie
+
+(you can limit the number of movies by constants at the beginning)
+
+it prints the movie id \t english_file \t czech \t distance on stdout
+
+the result is in "vysledky", then I sorted it by distance to "vysledky_sorted"
+and then I took the top 6k (by random viewing it seemed the best number, 7k is
+too much - too much of misaligned stuff)
+
+it is possible to review it later of course 
+-----
+pairing_text2text.pl tries to find the best pairs of chunks for a given pair
+of files
+
+it prints it on stdout, in a weird encoding (since it comes from gunzip
+directly by pipe, I was not converting it and just print it as it is)
+---
+do_all_pairings_text2text.pl goes through all the movies and print the pairs
+out to pairs_wrong_encoding/[filenumber]
+
