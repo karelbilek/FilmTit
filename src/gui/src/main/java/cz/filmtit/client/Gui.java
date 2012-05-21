@@ -72,7 +72,7 @@ public class Gui implements EntryPoint {
 	protected AbsolutePanel suggestArea;
 	
 	private FlexTable table;
-	protected int counter;
+	protected int counter = 0;
 	// column numbers in 
 	private static final int TIMES_COLNUMBER      = 0;
 	private static final int SOURCETEXT_COLNUMBER = 1;
@@ -148,37 +148,16 @@ public class Gui implements EntryPoint {
 		
 		table = new FlexTable();
 		mainPanel.add(table);
-		table.setWidth("100%");		
+		table.setWidth("100%");
+		table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "15%");
+		table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "40%");
+		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "50%");
+		// TODO: header row?
 		
 		// filling the interface with the sample subtitles:
 		List<TranslationResult> transresults = (new SampleDocument()).translationResults;
-		counter = 0;
-		
-		/*
 		for (TranslationResult transresult : transresults) {
-
-			//log("showing result of chunk: " + transresult.getSourceChunk().getSurfaceForm());
-			Label timeslabel = new Label(transresult.getSourceChunk().getStartTime() + " -> " + transresult.getSourceChunk().getEndTime());
-			table.setWidget(counter, TIMES_COLNUMBER, timeslabel);
-
-			Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
-			table.setWidget(counter, SOURCETEXT_COLNUMBER, sourcelabel);
-
-			MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-			oracle.setDefaultSuggestions(transresult.getTmSuggestions());
-			SuggestBox targetbox = new SuggestBox();
-			
-			table.setWidget(counter, TARGETBOX_COLNUMBER, targetbox);
-			targetbox.setWidth("80%");
-
-			counter++;
-		}
-		*/
-		
-		for (int i = 0; i < 5; i++) {
-			for (TranslationResult transresult : transresults) {
-				showResult(transresult);
-			}
+			showResult(transresult);
 		}
 		// --- end of main interface --- //
 		
@@ -298,7 +277,8 @@ public class Gui implements EntryPoint {
 			subformat = "sub";
 			subtextparser = new ParserSub();
 		}
-		else {  // i.e. ".srt" is checked (or something else - probably weird)
+		else {  // i.e. ".srt" is checked
+			assert rdbFormatSrt.getValue() : "One of the subtitle formats must be chosen.";
 			subformat = "srt";
 			subtextparser = new ParserSrt();
 		}
@@ -343,9 +323,8 @@ public class Gui implements EntryPoint {
 		
 		SubgestBox targetbox = new SubgestBox(counter, transresult, this); // suggestions handling - see the constructor for details
 		targetBoxes.add(targetbox);
-		
 		table.setWidget(counter, TARGETBOX_COLNUMBER, targetbox);
-		targetbox.setWidth("80%");
+		targetbox.setWidth("97%");
 		
 		counter++;
 	}

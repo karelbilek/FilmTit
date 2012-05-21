@@ -21,8 +21,8 @@ import cz.filmtit.share.TimedChunk;
  */
 public class ParserSrt extends Parser {
 	
-	public static RegExp reNumberLine    = RegExp.compile("^[0-9]+$");
-	public static RegExp reTimesLine     = RegExp.compile("^[0-9][0-9]:[0-9][0-9]");
+	public static RegExp reNumberLine = RegExp.compile("^[0-9]+$");
+	public static RegExp reTimesLine  = RegExp.compile("^[0-9][0-9]:[0-9][0-9]");
 	public static String TIMES_SEPARATOR = " --> ";
 	
 	
@@ -53,11 +53,14 @@ public class ParserSrt extends Parser {
 				endTime = times[1];
 			}
 			else if ( ! line.isEmpty() ) {
-			    titText += SUBLINE_SEPARATOR_OUT + line;
+				if (! titText.isEmpty()) {
+					titText += SUBLINE_SEPARATOR_OUT;
+				}
+			    titText += line;
            	}
 			else {
                 // empty line
-				// creating the chunk from what was gathered recently...
+				// creating the chunk(s) from what was gathered recently...
 
                 addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 				
@@ -67,7 +70,7 @@ public class ParserSrt extends Parser {
 		}  // for-loop over lines
         
         
-		// adding the last chunk (after it, there was no empty line from splitting):
+		// adding the last tit (after it, there was no empty line from splitting):
         addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 
 	
