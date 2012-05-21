@@ -1,51 +1,45 @@
 package cz.filmtit.share;
 
 import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.SplitResult;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
 
 public class TitChunkSeparator {
-    
-	public static final String sentenceSplitter = "([^!\"\\(\\)\\.:;\\?]+)([!\"\\(\\),\\.:;\\?]+|$)";
+
+	public static final String SUBLINE_SEPARATOR_OUT = " | ";
 	
-        //this will also get ordinary " - " , but I cannot use beginnings of lines
-        //since the data are not available since I don't know which files Jindra used originally
-    public static final RegExp indirectSplitter = RegExp.compile("( +-|- +)");
-    public static final RegExp beginPad = RegExp.compile("^ *-?");
-    public static final RegExp endingPad = RegExp.compile("\"? *$");
+	public static final RegExp indirectSplitter = RegExp.compile(" *\\| *");
+	public static final RegExp dialogSegmenter = RegExp.compile("^ ?- ?[a-zA-Z0-9]");
+	
+	// formatting tags - in srt e.g. "<i>", in sub e.g. "{Y:i}"
+	public static final RegExp formatTag = RegExp.compile("(<[^>]*>)|({[^}]*})", "g");  // the "{}" are here as literals
 
 
-    public static final RegExp italic = RegExp.compile(" *<[^>]*> *", "g");
-    
-	//public static final RegExp sentenceSplitter = RegExp.compile("([!\"\\(\\),\\.:;\\?]| ?- )+");
-    
-    public static List<String> separate(String tit) {
-        String tit_nonitalic = italic.replace(tit,"");
+	public static List<String> separate(String tit) {
+		// remove formatting tags
+		tit = formatTag.replace(tit, "");
 
-        SplitResult lines = indirectSplitter.split(tit_nonitalic);
-        
-        LinkedList<String> res = new LinkedList<String>();
-        
-        for (int i=0; i<lines.length(); i++) {
-            String line = lines.get(i);
+		SplitResult lines = indirectSplitter.split(tit);
 
-            RegExp sentenceSplitterR = RegExp.compile(sentenceSplitter, "g");
-            
-            MatchResult sentenceR = sentenceSplitterR.exec(line);
+		List<String> resultChunks = new ArrayList<String>();
+		String intermediateChunk = lines.get(0);
+		for (int i = 1; i < lines.length(); i++) {
+			String line = lines.get(i);
 
-            while (sentenceR!=null) {
-                String sentenceS = sentenceR.getGroup(1)+sentenceR.getGroup(2);
-                sentenceS = beginPad.replace(sentenceS, "");
-                sentenceS = endingPad.replace(sentenceS, "");
-                if (sentenceS.length() > 0 ) {
-                    res.add(sentenceS);
-                }
-                sentenceR = sentenceSplitterR.exec(line);
-            }
-        }
-        return res;
-    }
+			if (dialogSegmenter.test(line)) {
+				// is a dialog line -> splitting
+				resultChunks.add(intermediateChunk);
+				intermediateChunk = line;
+			}
+			else {
+				intermediateChunk += SUBLINE_SEPARATOR_OUT + line;
+			}
+		}
+		resultChunks.add(intermediateChunk);
+		
+		return resultChunks;
+	}
 
 }
