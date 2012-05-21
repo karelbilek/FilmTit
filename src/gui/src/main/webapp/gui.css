@@ -45,6 +45,7 @@ h1 {
 }
 .suggestionsPopup {
 	background-color: #eeeeee;
+	box-shadow: black 2px 3px 3px;
 }
 .suggestionItem {
 	width: 100%;
@@ -63,5 +64,5 @@ h1 {
 	border: groove;
 }
 .mainPanel {
-	padding-bottom: 260px;
+	padding-bottom: 20px;
 }
