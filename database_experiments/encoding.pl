@@ -14,8 +14,8 @@ sub recognize_encoding {
     }
 }
 
-mkdir "export/pairs_utf8";
-for my $fn (<export/pairs_wrong_encoding/*>) {
+mkdir "/tmp/database_experiments/pairs_utf8";
+for my $fn (</tmp/database_experiments/pairs_wrong_encoding/*>) {
     my $w = recognize_encoding($fn);
     my $new_fn = $fn;
     $new_fn =~ s/pairs_wrong_encoding/pairs_utf8/;

@@ -97,7 +97,7 @@ sub read_subs_from_file :Export(:DEFAULT){
     Readonly my $titname => shift;
     Readonly my $count => shift // 99**99**99;
 
-    open my $tit_file, "gunzip export/files/$titname.gz --stdout |";
+    open my $tit_file, "gunzip /tmp/database_experiments/files/$titname.gz --stdout |";
     
     #warn "Ctu $titname.\n";
     my @res;
