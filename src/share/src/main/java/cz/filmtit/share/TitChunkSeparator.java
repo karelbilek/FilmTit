@@ -41,14 +41,8 @@ public class TitChunkSeparator {
                 resultChunks.add(sentenceSplitByDialogue);
             }
 		}
-/*
-        System.err.println("Vstup : "+tit);
-        System.err.println("Vystup:");
-        for (String t:resultChunks) {
-            System.err.println("["+t+"]");
-        }
-*/		
-		return resultChunks;
+
+		return clean(resultChunks);
 	}
 
     //these are for splitting on diacritics
@@ -90,5 +84,18 @@ public class TitChunkSeparator {
         return resultChunks;
     
     }
+    
+    static final RegExp endClean = RegExp.compile("\\s*$");
+    static final RegExp startClean = RegExp.compile("^\\s*");
+    public static ArrayList<String> clean(ArrayList<String> chunks) {
+        ArrayList<String> resultChunks = new ArrayList<String>();
+        for (String chunk: chunks) {
+            chunk = endClean.replace(startClean.replace(chunk,""), "");
+            if (chunk.length() > 0) {
+                resultChunks.add(chunk);
+            }
+        }
 
+        return resultChunks;
+    }
 }

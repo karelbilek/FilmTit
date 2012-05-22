@@ -3,7 +3,7 @@
 import cz.filmtit.share.TitChunkSeparator
 
 def remove_pipes (k: String) = {
-        k.replaceAll("\\|", " ")
+        k.replaceAll("\\s*\\|\\s*", " ")
 }
 
 
