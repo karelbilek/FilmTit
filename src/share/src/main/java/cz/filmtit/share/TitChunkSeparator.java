@@ -2,6 +2,7 @@ package cz.filmtit.share;
 
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.regexp.shared.SplitResult;
+import com.google.gwt.regexp.shared.MatchResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,36 +11,84 @@ public class TitChunkSeparator {
 
 	public static final String SUBLINE_SEPARATOR_OUT = " | ";
 	
-	public static final RegExp indirectSplitter = RegExp.compile(" *\\| *");
-	public static final RegExp dialogSegmenter = RegExp.compile("^ ?- ?[a-zA-Z0-9]");
+   //splitting on dialogues
+    static final RegExp dialogSegmenter = RegExp.compile("(^|\\|) ?- ?");
 	
 	// formatting tags - in srt e.g. "<i>", in sub e.g. "{Y:i}"
-	public static final RegExp formatTag = RegExp.compile("(<[^>]*>)|({[^}]*})", "g");  // the "{}" are here as literals
+	static final RegExp formatTag = RegExp.compile("(<[^>]*>)|(\\{[^}]*\\})", "g");  // the "{}" are here as literals
 
+    public static List<String> separate(String tit) {
+        return separate(tit, false);
+    }
 
-	public static List<String> separate(String tit) {
+	public static List<String> separate(String tit, boolean splitBySentences) {
 		// remove formatting tags
 		tit = formatTag.replace(tit, "");
 
-		SplitResult lines = indirectSplitter.split(tit);
+        
+		SplitResult sentencesSplitByDialogue = dialogSegmenter.split(tit);
 
-		List<String> resultChunks = new ArrayList<String>();
-		String intermediateChunk = lines.get(0);
-		for (int i = 1; i < lines.length(); i++) {
-			String line = lines.get(i);
+		ArrayList<String> resultChunks = new ArrayList<String>();
+		for (int i = 0; i < sentencesSplitByDialogue.length(); i++) {
+			String sentenceSplitByDialogue = sentencesSplitByDialogue.get(i);
 
-			if (dialogSegmenter.test(line)) {
-				// is a dialog line -> splitting
-				resultChunks.add(intermediateChunk);
-				intermediateChunk = line;
-			}
-			else {
-				intermediateChunk += SUBLINE_SEPARATOR_OUT + line;
-			}
+            if (splitBySentences) {
+                //more advanced splitting by sentences
+                resultChunks.addAll(splitBySentences(sentenceSplitByDialogue));
+                
+
+            } else {
+                resultChunks.add(sentenceSplitByDialogue);
+            }
 		}
-		resultChunks.add(intermediateChunk);
-		
+/*
+        System.err.println("Vstup : "+tit);
+        System.err.println("Vystup:");
+        for (String t:resultChunks) {
+            System.err.println("["+t+"]");
+        }
+*/		
 		return resultChunks;
 	}
+
+    //these are for splitting on diacritics
+    //only if splitBySentences==true
+	static final String diacriticsExceptDot = "\"!\\?";
+    static final String diacriticsExceptDotSegmenter = "([^"+diacriticsExceptDot+"]+)(["+diacriticsExceptDot+"]+|$)";
+    static final RegExp dotOnEndSegmenter = RegExp.compile("\\.\\|");
+
+    public static ArrayList<String> splitBySentences(String tit) {
+        RegExp diacriticsExceptDotR = RegExp.compile(diacriticsExceptDotSegmenter, "g");
+		
+        ArrayList<String> resultChunks = new ArrayList<String>();
+        
+        //separating by non-dot punctuation
+        for (
+            MatchResult sentenceMatchResult = diacriticsExceptDotR.exec(tit);
+            sentenceMatchResult != null;
+            sentenceMatchResult = diacriticsExceptDotR.exec(tit)) {
+            
+
+            String sentence = sentenceMatchResult.getGroup(1)
+                                    +sentenceMatchResult.getGroup(2);
+        
+            //separating by dot at the end
+            SplitResult sentenceDotSplitResult = 
+                dotOnEndSegmenter.split(sentence);
+            
+            for (int i = 0; i < sentenceDotSplitResult.length(); i++) {
+                
+                String sentenceFinal = sentenceDotSplitResult.get(i);
+                
+                if (i != sentenceDotSplitResult.length()-1) {
+                    sentenceFinal = sentenceFinal + ".";
+                }
+                resultChunks.add(sentenceFinal);
+            }
+        }
+
+        return resultChunks;
+    
+    }
 
 }

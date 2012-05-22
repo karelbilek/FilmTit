@@ -39,4 +39,6 @@ directly by pipe, I was not converting it and just print it as it is)
 ---
 do_all_pairings_text2text.pl goes through all the movies and print the pairs
 out to pairs_wrong_encoding/[filenumber]
-
+---
+split_lines.scala [path/to/files]
+splits the lines and saves them in path/to/files_aligned (path therefor cant end with / because I am lazy)
