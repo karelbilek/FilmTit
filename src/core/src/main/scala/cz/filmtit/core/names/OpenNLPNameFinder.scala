@@ -1,7 +1,9 @@
 package cz.filmtit.core.names
 
-import opennlp.tools.namefind.TokenNameFinder
+import opennlp.tools.namefind.{TokenNameFinderModel, NameFinderME}
 import opennlp.tools.util.Span
+
+
 
 import cz.filmtit.core.model.names.NERecognizer
 import opennlp.tools.tokenize.Tokenizer
@@ -17,7 +19,8 @@ import cz.filmtit.core.model.data.AnnotatedChunk
 
 class OpenNLPNameFinder(
   val neType: ChunkAnnotation,
-  val nameFinder: TokenNameFinder,
+  val model:TokenNameFinderModel,
+  //val nameFinder: TokenNameFinder,
   val tokenizer: Tokenizer
 ) extends NERecognizer(neType) {
 
@@ -27,17 +30,16 @@ class OpenNLPNameFinder(
     val tokenized = tokenizer.tokenize(chunk.surfaceform)
     val tokenizedPos = tokenizer.tokenizePos(chunk.surfaceform)
     
-
+    val nameFinder = new NameFinderME(model)
     
-    nameFinder.synchronized {
-        nameFinder.find(tokenized) foreach {
-        name: Span => chunk.addAnnotation(
-            neType,
-            tokenizedPos(name.getStart).getStart,
-            tokenizedPos(name.getEnd - 1).getEnd
-        )
-        }
+    nameFinder.find(tokenized) foreach {
+    name: Span => chunk.addAnnotation(
+        neType,
+        tokenizedPos(name.getStart).getStart,
+        tokenizedPos(name.getEnd - 1).getEnd
+    )
     }
+   
   }
 
 
