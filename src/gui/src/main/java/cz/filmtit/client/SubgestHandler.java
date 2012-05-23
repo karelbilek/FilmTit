@@ -5,15 +5,11 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.dom.client.ScrollEvent;
-import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -68,7 +64,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			// pressing Enter:
 			if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER)
 				||	event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-				gui.log("enter pressed...");
+				//gui.log("enter pressed...");
 				SubgestBox subbox = (SubgestBox) event.getSource();
 				subbox.getTranslationResult().setUserTranslation(subbox.getText());
 				gui.submitUserTranslation(subbox.getTranslationResult());
@@ -88,12 +84,14 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	@Override
 	public void onValueChange(ValueChangeEvent<String> event) {
 		/*
-		gui.log("valuechange handled: " + event.getValue());
-		
-		// all this should probably proceed only when explicitly submitted - e.g. by hitting Enter
-		SubgestBox subbox = (SubgestBox) event.getSource();
-		subbox.getTranslationResult().setUserTranslation(event.getValue());
-		gui.submitUserTranslation(subbox.getTranslationResult());
+		if (event.getSource() instanceof SubgestBox) { // should be
+			gui.log("valuechange handled: " + event.getValue());
+			
+			// all this should probably proceed only when explicitly submitted - e.g. by hitting Enter (or Tab)
+			SubgestBox subbox = (SubgestBox) event.getSource();
+			subbox.getTranslationResult().setUserTranslation(event.getValue());
+			gui.submitUserTranslation(subbox.getTranslationResult());
+		}
 		*/
 	}
 	

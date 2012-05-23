@@ -43,7 +43,11 @@ class MyMemorySearcher(
     //TODO: add exception handling!
 
     val candidates = ListBuffer[TranslationPair]()
-    val matches: JSONArray = apiResponse.getJSONArray("matches")
+    val matches: JSONArray = try {
+        apiResponse.getJSONArray("matches")
+    } catch {
+        case e:org.json.JSONException => new JSONArray()
+    }
 
     //Retrieve all matches:
     for (i <- 0 to math.min(matches.length() - 1, limit)) {

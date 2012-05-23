@@ -1,25 +1,15 @@
 package cz.filmtit.client;
 
 import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Focusable;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -141,6 +131,7 @@ public class SubgestBox extends TextBox {
 				}
 			}
 		}
+		
 	}
 
 	
@@ -148,6 +139,7 @@ public class SubgestBox extends TextBox {
 		// creating the suggestions pop-up panel:
 		//FlowPanel suggestPanel = new FlowPanel();
 		suggestPanel = new PopupPanel();
+		suggestPanel.setAutoHideEnabled(true);
 		suggestPanel.setStylePrimaryName("suggestionsPopup");
 		
 		final SingleSelectionModel<TranslationPair> selectionModel = new SingleSelectionModel<TranslationPair>();
@@ -163,7 +155,7 @@ public class SubgestBox extends TextBox {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
-					gui.log("selection changed...");
+					//gui.log("selection changed...");
 					// TODO: rewrite the TPair's "id" acquisition in some reasonable way...
 					int i = 0;
 					for (TranslationPair transpair : translationResult.getTmSuggestions()) {
