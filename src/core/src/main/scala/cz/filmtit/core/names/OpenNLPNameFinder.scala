@@ -24,34 +24,19 @@ class OpenNLPNameFinder(
 
   override def detect(chunk: AnnotatedChunk) {
 
-    if (chunk == null) {
-        System.err.println("chunk==null")
-    }
-    val sform = chunk.surfaceform
-    if (sform == null) {
-        System.err.println("sform==null")
-    }
- 
-    
     val tokenized = tokenizer.tokenize(chunk.surfaceform)
     val tokenizedPos = tokenizer.tokenizePos(chunk.surfaceform)
     
-    if (tokenized == null) {
-        System.err.println("tokenized==null")
-    } else {
-        System.out.print("tokenized == ")
-        tokenized.foreach(t => print( t + " "))
-        println(" .")
-    }
- 
-    
 
-    nameFinder.find(tokenized) foreach {
-      name: Span => chunk.addAnnotation(
-        neType,
-        tokenizedPos(name.getStart).getStart,
-        tokenizedPos(name.getEnd - 1).getEnd
-      )
+    
+    nameFinder.synchronized {
+        nameFinder.find(tokenized) foreach {
+        name: Span => chunk.addAnnotation(
+            neType,
+            tokenizedPos(name.getStart).getStart,
+            tokenizedPos(name.getEnd - 1).getEnd
+        )
+        }
     }
   }
 
