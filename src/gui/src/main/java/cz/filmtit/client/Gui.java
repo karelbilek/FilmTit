@@ -20,6 +20,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -28,11 +29,8 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.RadioButton;
 
@@ -58,7 +56,7 @@ import org.vectomatic.file.events.LoadEndHandler;
 
 public class Gui implements EntryPoint {
 
-	private List<TimedChunk> chunklist;
+	protected List<TimedChunk> chunklist;
 	
 	//private List<Label> sources = new ArrayList<Label>();
 	private List<SubgestBox> targetBoxes = new ArrayList<SubgestBox>();
@@ -130,7 +128,7 @@ public class Gui implements EntryPoint {
 		
 		// debug-area (for logging output, dumps etc.):
 		txtDebug = new TextArea();
-		rootPanel.add(txtDebug, 412, 584);
+		rootPanel.add(txtDebug, 412, 624);
 		txtDebug.setSize("368px", "176px");
 		txtDebug.setText("debugging outputs...\n");
 
@@ -154,11 +152,13 @@ public class Gui implements EntryPoint {
 		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "50%");
 		// TODO: header row?
 		
+		/*
 		// filling the interface with the sample subtitles:
 		List<TranslationResult> transresults = (new SampleDocument()).translationResults;
 		for (TranslationResult transresult : transresults) {
 			showResult(transresult);
 		}
+		*/
 		// --- end of main interface --- //
 		
 		
@@ -189,8 +189,11 @@ public class Gui implements EntryPoint {
 		final RadioButton rdbEncodingUtf8 = new RadioButton("file encoding", "UTF-8");
 		rootPanel.add(rdbEncodingUtf8, 412, 530);
 		rdbEncodingUtf8.setSize("105px", "20px");
-		final RadioButton rdbEncodingIso = new RadioButton("file encoding", "iso-8859-2");
-		rootPanel.add(rdbEncodingIso, 412, 556);
+		final RadioButton rdbEncodingWin  = new RadioButton("file encoding", "windows-1250");
+		rootPanel.add(rdbEncodingWin, 412, 556);
+		rdbEncodingWin.setSize("105px", "20px");
+		final RadioButton rdbEncodingIso  = new RadioButton("file encoding", "iso-8859-2");
+		rootPanel.add(rdbEncodingIso, 412, 582);
 		rdbEncodingIso.setSize("105px", "20px");
 		rdbEncodingUtf8.setValue(true);  // default - UTF-8
 		
@@ -219,6 +222,9 @@ public class Gui implements EntryPoint {
 					if (rdbEncodingUtf8.getValue()) {
 						encoding = "utf-8";
 					}
+					else if (rdbEncodingWin.getValue()) {
+						encoding = "windows-1250";
+					}
 					else if (rdbEncodingIso.getValue()) {
 						encoding = "iso-8859-2";
 					}
@@ -236,7 +242,7 @@ public class Gui implements EntryPoint {
 		
 		// --- textarea interface for loading whole subtitle file --- //
 		final TextArea txtFileContentArea = new TextArea();
-		rootPanel.add(txtFileContentArea, 10, 584);
+		rootPanel.add(txtFileContentArea, 10, 624);
 		txtFileContentArea.setSize("260px", "176px");
 		
 		Button btnSendToTm = new Button("Send to TM");
@@ -249,9 +255,10 @@ public class Gui implements EntryPoint {
 				// sets currentDocument and calls processText() on success
 			}
 		} );
-		rootPanel.add(btnSendToTm, 286, 584);
+		rootPanel.add(btnSendToTm, 286, 624);
 		btnSendToTm.setSize("120px", "47px");
-		// --- end of textarea interface --- //		
+		// --- end of textarea interface --- //
+		
 
 		
 
@@ -268,7 +275,7 @@ public class Gui implements EntryPoint {
 	 */
 	protected void processText() {
 		// dump the input text into the debug-area:
-		txtDebug.setText(txtDebug.getText() + "processing the following input:\n" + this.subtext + "\n");
+		log("processing the following input:\n" + this.subtext + "\n");
 		
 		// determine format (from corresponding radiobuttons) and choose parser:
 		String subformat;
@@ -282,22 +289,25 @@ public class Gui implements EntryPoint {
 			subformat = "srt";
 			subtextparser = new ParserSrt();
 		}
-		txtDebug.setText(txtDebug.getText() + "subtitle format chosen: " + subformat + "\n");
+		log("subtitle format chosen: " + subformat);
 				
 		// parse:
-		List<TimedChunk> mysublist = subtextparser.parse(this.subtext, this.currentDocument.getId());
+		this.chunklist = subtextparser.parse(this.subtext, this.currentDocument.getId());
+		for (TimedChunk chunk : chunklist) {
+			TranslationResult tr = new TranslationResult();
+			tr.setSourceChunk(chunk);
+			this.currentDocument.translationResults.add(tr);
+		}
 		
 		// output the parsed chunks:
-		//txtDebug.setText( Integer.toString( sublist2.getChunks().size()) + "\n");
 		log("\nparsed chunks:");
-		for (TimedChunk timedchunk : mysublist) {
+		for (TimedChunk timedchunk : chunklist) {
 			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
 
 			log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
 			rpcHandler.getTranslationResults(timedchunk);
 		}
 		
-		chunklist = mysublist;
 	}
 	
 	
@@ -313,17 +323,17 @@ public class Gui implements EntryPoint {
 	 * Adds the given TranslationResult to the current listing interface.
 	 * @param transresult - the TranslationResult to be shown
 	 */
-	public void showResult(TranslationResult transresult) {
+	public void showResult(TranslationResult transresult, int index) {
 		//log("showing result of chunk: " + transresult.getSourceChunk().getSurfaceForm());
 		Label timeslabel = new Label(transresult.getSourceChunk().getStartTime() + " -> " + transresult.getSourceChunk().getEndTime());
-		table.setWidget(counter, TIMES_COLNUMBER, timeslabel);
+		table.setWidget(index, TIMES_COLNUMBER, timeslabel);
 		
 		Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
-		table.setWidget(counter, SOURCETEXT_COLNUMBER, sourcelabel);
+		table.setWidget(index, SOURCETEXT_COLNUMBER, sourcelabel);
 		
-		SubgestBox targetbox = new SubgestBox(counter, transresult, this); // suggestions handling - see the constructor for details
+		SubgestBox targetbox = new SubgestBox(index, transresult, this); // suggestions handling - see the constructor for details
 		targetBoxes.add(targetbox);
-		table.setWidget(counter, TARGETBOX_COLNUMBER, targetbox);
+		table.setWidget(index, TARGETBOX_COLNUMBER, targetbox);
 		targetbox.setWidth("97%");
 		
 		counter++;
@@ -356,6 +366,7 @@ public class Gui implements EntryPoint {
 	
 	public void log(String logtext) {
 		txtDebug.setText(txtDebug.getText() + logtext + "\n");
+		txtDebug.setCursorPos(txtDebug.getText().length());
 	}
 	
 	private void error(String errtext) {
