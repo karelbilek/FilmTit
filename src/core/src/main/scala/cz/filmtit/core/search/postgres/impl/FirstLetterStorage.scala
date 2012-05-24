@@ -22,14 +22,14 @@ class FirstLetterStorage(
   l1: Language,
   l2: Language,
   connection: Connection,
-  hssql: Boolean = false
+  useInMemoryDB: Boolean = false
 ) extends BaseSignatureStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_EXACT,
   "sign_firstletter",
   connection,
-  hssql
+  useInMemoryDB
 ) {
 
   /**

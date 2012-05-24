@@ -51,7 +51,15 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         this.score = score;
     }
 
+    public boolean hasMediaSource() {
+        return !(mediaSources.isEmpty());
+    }
+
     public MediaSource getMediaSource() {
+        if (mediaSources.isEmpty()) {
+            return null;
+
+        }
         return mediaSources.get(0);
     }
 

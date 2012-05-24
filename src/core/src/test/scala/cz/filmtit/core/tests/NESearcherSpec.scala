@@ -8,6 +8,7 @@ import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.Utils.chunkFromString
 import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
+import TestUtil.createTMWithDummyContent
 
 /**
  * Test specification for [[cz.filmtit.core.model.TranslationPairSearcher]].
@@ -19,15 +20,7 @@ import java.io.File
 class NESearcherSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
-  val memory = Factory.createTMFromConfiguration(
-    configuration,
-    readOnly=false,
-    useInMemoryDB=true
-  )
-
-  memory.reset()
-  memory.addOne("Peter rode to Alabama", "Petr jel do Alabamy")
-  memory.reindex()
+  val memory = createTMWithDummyContent(configuration)
 
   describe("A NE searcher") {
     it("should be able to restore the NE in the chunk") {

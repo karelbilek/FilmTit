@@ -27,7 +27,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Map<String, Session> activeSessions;
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
-        TM = Factory.createTM(ConfigurationSingleton.getConf(), true);
+        TM = Factory.createTMFromConfiguration(ConfigurationSingleton.getConf(), false, true);
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());

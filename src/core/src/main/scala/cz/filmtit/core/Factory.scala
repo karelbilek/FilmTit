@@ -58,13 +58,13 @@ object Factory {
   }
 
   def createNERecognizersFromConfiguration(configuration: Configuration) = {
-    (configuration.l1, configuration.l2) map { createNERecognizers(_, configuration) }
+    (configuration.l1, configuration.l2) map { l:Language=> createNERecognizers(l, configuration) }
   }
 
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
     val connection = createInMemoryConnection()
     val recognizers = createNERecognizersFromConfiguration(configuration)
-    createTM(configuration.l1, configuration.l2, connection, recognizers, hssql=true, maxNumberOfConcurrentSearchers=configuration.maxNumberOfConcurrentSearchers)
+    createTM(configuration.l1, configuration.l2, connection, recognizers, useInMemoryDB=true, maxNumberOfConcurrentSearchers=configuration.maxNumberOfConcurrentSearchers)
   }
 
   def createTMFromConfiguration(
@@ -75,8 +75,8 @@ object Factory {
     createTM(
       configuration.l1, configuration.l2,
       { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
-      (configuration.l1, configuration.l2) map { createNERecognizers(_, configuration) },
-      false,
+      createNERecognizersFromConfiguration(configuration),
+      useInMemoryDB,
       configuration.maxNumberOfConcurrentSearchers
     )
   }
@@ -85,7 +85,7 @@ object Factory {
     l1: Language, l2: Language,
     connection: Connection,
     recognizers: Tuple2[List[NERecognizer], List[NERecognizer]],
-    hssql: Boolean = false,
+    useInMemoryDB: Boolean = false,
     maxNumberOfConcurrentSearchers: Int
   ): TranslationMemory = {
 
@@ -100,7 +100,7 @@ object Factory {
     )
 
     val neSearchers = (0 to maxNumberOfConcurrentSearchers).map { _ =>
-      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2)
+      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2, useInMemoryDB)
     }.toList
 
     //Second level fuzzy matching with NER:
@@ -113,7 +113,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection, hssql),
+      new FirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)

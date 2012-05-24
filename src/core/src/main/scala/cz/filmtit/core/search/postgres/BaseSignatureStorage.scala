@@ -24,9 +24,9 @@ abstract class BaseSignatureStorage(
   source: TranslationSource,
   signatureTable: String,
   connection: Connection,
-  hssql: Boolean = false,
+  useInMemoryDB: Boolean = false,
   reversible: Boolean = false
-) extends BaseStorage(l1, l2, source, connection, hssql)
+) extends BaseStorage(l1, l2, source, connection, useInMemoryDB)
 with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */
@@ -35,16 +35,21 @@ with SignatureTranslationPairStorage {
       "DROP TABLE IF EXISTS %s;".format(signatureTable)
     )
     connection.createStatement().execute(
-      ( if (!reversible)
-        "CREATE TABLE %s (pair_id INTEGER PRIMARY KEY references %s(pair_id), signature_l1 TEXT, signature_l2 TEXT);"
-      else
-        "CREATE TABLE %s (pair_id INTEGER PRIMARY KEY references %s" +
-          "(pair_id), signature_l1 TEXT, annotations_l1 TEXT, " +
-          "signature_l2 TEXT, annotations_l2 TEXT);"
-        ).format(signatureTable, pairTable)
+       if (!reversible)
+        (("CREATE TABLE %s (pair_id INTEGER PRIMARY KEY , signature_l1 %s, signature_l2 %s, " +
+            "FOREIGN KEY (pair_id) REFERENCES %s (pair_id));")
+          .format(signatureTable, textDataType, textDataType, pairTable)     )
+       else
+        ("CREATE TABLE %s (pair_id INTEGER PRIMARY KEY, " +
+          "signature_l1 %s, annotations_l1 %s, " +
+          "signature_l2 %s, annotations_l2 %s, FOREIGN KEY (pair_id) REFERENCES %s (pair_id));")
+        .format(signatureTable,textDataType, textDataType, textDataType, textDataType, pairTable)
     )
 
-    connection.setAutoCommit(false);
+
+
+    if (!useInMemoryDB)
+      connection.setAutoCommit(false)
 
     log.info("Reading chunks...")
     val selStmt = connection.createStatement(
@@ -52,7 +57,7 @@ with SignatureTranslationPairStorage {
       java.sql.ResultSet.CONCUR_READ_ONLY
     )
 
-    selStmt.setFetchSize(1000);
+    //selStmt.setFetchSize(1000)
     selStmt.execute("SELECT * FROM %s;".format(pairTable))
 
     log.info("Creating chunk signatures...")
@@ -69,38 +74,47 @@ with SignatureTranslationPairStorage {
     //inStmt.setFetchSize(500)
 
     var i = 0
-    while (selStmt.getResultSet.next()) {
-      val row = selStmt.getResultSet
 
-      val sigL1 = signature(row.getString("chunk_l1"), l1)
-      val sigL2 = signature(row.getString("chunk_l2"), l2)
+    val resultSet = selStmt.getResultSet
+
+    while (resultSet.next()) {
+
+      val row = resultSet
+
+      if (row != null) {
+
+        val sigL1 = signature(row.getString("chunk_l1"), l1)
+        val sigL2 = signature(row.getString("chunk_l2"), l2)
 
 
-      if (reversible) {
-        inStmt.setInt(1, row.getInt("pair_id"))
+        if (reversible) {
+          inStmt.setInt(1, row.getInt("pair_id"))
 
-        //Signature, annotations for L1
-        inStmt.setString(2, sigL1.surfaceform)
-        inStmt.setString(3, sigL1.listAnnotations())
+          //Signature, annotations for L1
+          inStmt.setString(2, sigL1.surfaceform)
+          inStmt.setString(3, sigL1.listAnnotations())
 
-        //Signature, annotations for L2
-        inStmt.setString(4, sigL2.surfaceform)
-        inStmt.setString(5, sigL2.listAnnotations())
+          //Signature, annotations for L2
+          inStmt.setString(4, sigL2.surfaceform)
+          inStmt.setString(5, sigL2.listAnnotations())
 
-      }else{
-        inStmt.setInt(1, row.getInt("pair_id"))
-        inStmt.setString(2, sigL1.surfaceform)
-        inStmt.setString(3, sigL2.surfaceform)
+        }else{
+          inStmt.setInt(1, row.getInt("pair_id"))
+          inStmt.setString(2, sigL1.surfaceform)
+          inStmt.setString(3, sigL2.surfaceform)
+        }
+
+        inStmt.execute()
+
+        i += 1
+        if(i % 50000 == 0)
+          log.info("Wrote %d signatures...".format(i))
       }
-
-      inStmt.execute()
-
-      i += 1
-      if(i % 50000 == 0)
-        log.info("Wrote %d signatures...".format(i))
     }
 
-    connection.commit()
+    if (!useInMemoryDB)
+      connection.commit()
+
     inStmt.close()
     selStmt.close()
 

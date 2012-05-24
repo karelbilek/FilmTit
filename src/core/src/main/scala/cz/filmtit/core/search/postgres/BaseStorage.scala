@@ -23,7 +23,7 @@ abstract class BaseStorage(
   l2: Language,
   source: TranslationSource,
   connection: Connection,
-  hssql: Boolean = false
+  useInMemoryDB: Boolean = false
 ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
 
@@ -37,8 +37,8 @@ with MediaStorage {
   var chunkSourceMappingTable = "translationpairs_mediasources"
   var mediasourceTable = "mediasources"
 
-  var serial = if (hssql) {"IDENTITY"} else {"SERIAL"}  
-  var text = if (hssql) {"LONGVARCHAR"} else {"TEXT"}  
+  var serialDataType = if (useInMemoryDB) {"IDENTITY"} else {"SERIAL"}
+  var textDataType = if (useInMemoryDB) {"LONGVARCHAR"} else {"TEXT"}
   
   var maxCandidates = 200
 
@@ -54,14 +54,12 @@ with MediaStorage {
 
     connection.createStatement().execute(
       "CREATE TABLE %s (source_id %s PRIMARY KEY, title %s, year VARCHAR(4), genres %s);"
-        .format(mediasourceTable, serial, text, text))
+        .format(mediasourceTable, serialDataType, textDataType, textDataType))
 
-    println(("CREATE TABLE %s (pair_id %s PRIMARY KEY, chunk_l1 %s, chunk_l2 %s, pair_count INTEGER);")
-        .format(pairTable, serial, text, text));
 
     connection.createStatement().execute(
       ("CREATE TABLE %s (pair_id %s PRIMARY KEY, chunk_l1 %s, chunk_l2 %s, pair_count INTEGER);")
-        .format(pairTable, serial, text, text))
+        .format(pairTable, serialDataType, textDataType, textDataType))
 
     connection.createStatement().execute(
       ("CREATE TABLE %s (" +
@@ -124,31 +122,29 @@ with MediaStorage {
    */
   def addVerbose(translationPairs: TraversableOnce[TranslationPair], autoCommit: Boolean = false) {
 
-    val _autoCommit = hssql || autoCommit
+    //val _autoCommit = if (useInMemoryDB) {true} else { autoCommit}
 
-    //postgres has RETURNING clause, hssql doesn't have one
-    val inStmt = if (hssql) {
 
-      connection.prepareStatement(("INSERT INTO %s (chunk_l1, chunk_l2, pair_count) VALUES ('d', 'd', 1);").format(pairTable))
+    //postgres has RETURNING clause, useInMemoryDB doesn't have one
+    val inStmt = if (useInMemoryDB) {
+
+      connection.prepareStatement(("INSERT INTO %s (chunk_l1, chunk_l2, pair_count) VALUES (?, ?, 1);").format(pairTable))
     
     } else {
       connection.prepareStatement(("INSERT INTO %s (chunk_l1, chunk_l2, pair_count) VALUES (?, ?, 1) RETURNING pair_id;").format(pairTable))
     
     }
 
-    val selStmt = if (hssql) {
-      connection.prepareStatement(("SELECT * FROM %s;").format(pairTable))
-    } else {
-      null
-    }
+    val getInsertedStmt = connection.prepareStatement(("SELECT pair_id FROM %s WHERE chunk_l1=? AND chunk_l2=?;").format(pairTable))
 
     val upStmt = connection.prepareStatement(("UPDATE %s SET pair_count = pair_count + 1 WHERE pair_id = ?;").format(pairTable))
 
     //Important for performance: Only commit after all INSERT statements are
     //executed unless we are in verbose auto-commit mode:
-    connection.setAutoCommit(_autoCommit)
 
-    if (_autoCommit) {
+    if (useInMemoryDB || autoCommit) {
+      connection.setAutoCommit(true)
+
       System.err.println("Re-writing media sources to database after failed commit...")
       translationPairs.map(_.getMediaSource).toList.filter(_ != null).distinct foreach( ms =>
           try {
@@ -169,25 +165,25 @@ with MediaStorage {
           //Normal case: there is no equivalent translation pair in the database
           case None => {
 
-//            inStmt.setString(1, translationPair.getChunkL1.getSurfaceForm)
-  //          inStmt.setString(2, translationPair.getChunkL2.getSurfaceForm)
+            inStmt.setString(1, translationPair.getChunkL1.getSurfaceForm)
+            inStmt.setString(2, translationPair.getChunkL2.getSurfaceForm)
             inStmt.execute()
             
-            if (hssql) {
-//              selStmt.setString(1, translationPair.getChunkL1.getSurfaceForm)
-  //            selStmt.setString(2, translationPair.getChunkL2.getSurfaceForm)
-              println(selStmt)
-              selStmt.execute()
+            if (useInMemoryDB) {
+              getInsertedStmt.setString(1, translationPair.getChunkL1.getSurfaceForm)
+              getInsertedStmt.setString(2, translationPair.getChunkL2.getSurfaceForm)
+              getInsertedStmt.execute()
             }
 
             //Get the pair_id of the new translation pair
-            val resultStmt = if (hssql) {selStmt} else {inStmt}
+            val resultStmt = if (useInMemoryDB) {getInsertedStmt} else {inStmt}
             
             val resultSet = resultStmt.getResultSet()
            
             resultSet.next()
 
             val newPairID = resultSet.getLong("pair_id")
+
 
             //Remember that we already put it into the database
             val pair: String = "%s-%s".format(translationPair.getChunkL1, translationPair.getChunkL2)
@@ -206,17 +202,19 @@ with MediaStorage {
         }
 
         //Add the MediaSource as the source to the TP
-        addMediaSourceForTP(pairID, translationPair.getMediaSource.getId)
+        if (translationPair.hasMediaSource) {
+          addMediaSourceForTP(pairID, translationPair.getMediaSource.getId)
+        }
       } catch {
         case e: SQLException => {
           //Since the was an error, we need to remove all the pairs in the
           //current transaction from the pair cache.
-          
-          println(e)
+
+          e.printStackTrace()
 
           addedPairs.foreach( pair => pairIDCache.remove(pair) )
 
-          if (!_autoCommit) {
+          if (!(autoCommit)) {
             System.err.println("Database error in current batch, switching to auto-commit mode.");
             addVerbose(translationPairs, autoCommit=true)
             return;
@@ -234,9 +232,14 @@ with MediaStorage {
     pairMediaSourceMappings.clear()
 
     //Commit the changes to the database:
-    if (!_autoCommit)
+
+    if ( !autoCommit)
       connection.commit()
-  }
+
+
+
+
+    }
 
  /**
    * This is the only place where {TranslationPair}s are actually
