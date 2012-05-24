@@ -12,6 +12,8 @@ public interface FilmTitService extends RemoteService {
 
     // Method signatures prepared for the moment we'll have users and session:
 
+    //Void logout(String sessionId) throws InvalidSessionIdException;
     //Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException;
     //TranslationResult getTranslationResult(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
+
 }

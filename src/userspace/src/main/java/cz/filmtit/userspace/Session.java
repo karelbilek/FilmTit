@@ -1,14 +1,10 @@
 package cz.filmtit.userspace;
 
-/*
-    - whenever a JSON message comes, update the lastOperation
-    - pass further all the JSON messages except logging out
- */
-
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,36 +17,51 @@ public class Session {
     private int sessionId;
     private USUser user;
     private long sessionStart;
-    private long lastOperation;
+    private long lastOperationTime;
     private SessionState state;
 
     enum SessionState {active, loggedOut, terminated, kill}
 
+    /**
+     * Cache hash table for active documents owned by current user, to make them quickly available using their IDs.
+     */
     private Map<Long, USDocument> activeDocuments;
+    /**
+     * Cache hash table for translation results belonging to active documents of the current user
+     */
     private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;
 
-    public long getLastOperation() {
-        return lastOperation;
+    public long getLastOperationTime() {
+        return lastOperationTime;
     }
 
-    public void setLastOperation(long lastOperation) {
-        this.lastOperation = lastOperation;
+    public void setLastOperationTime(long lastOperationTime) {
+        this.lastOperationTime = lastOperationTime;
     }
 
     public USUser getUser() {
         return user;
     }
 
-    public void Logout() {
+    public void logout() {
         state = SessionState.loggedOut;
-        // ...
+        terminate();
     }
 
     /**
      * Terminates the session. Usually in the situation when the user open a new one.
      */
-    public void Terminate() {
-        // save everything to database and write a log of this session
+    private void terminate() {
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.save(this);
+
+        user.saveToDatabase(session);
+        for (USDocument activeDoc : activeDocuments.values()) {
+            activeDoc.saveToDatabase(session);
+        }
+
+        session.getTransaction().commit();
     }
 
     /**
@@ -60,15 +71,6 @@ public class Session {
         // save everything to database and write a log of this session
     }
 
-    /**
-     * Writes log of this session to the database.
-     */
-    public void saveToDatabase() {
-        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.save(this);
-        session.getTransaction().commit();
-    }
 
     public Document createDocument(String movieTitle, String year, String language) {
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
@@ -81,17 +83,21 @@ public class Session {
         return usDocument.getDocument();
     }
 
-    public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) {
-        //this looks terribly unsafe, nothing is checked here
+    public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
+        if (!activeDocuments.containsKey(chunk.getDocumentId())) {
+            throw new InvalidDocumentIdException("Sent time chunk is refering to a document using an invalid ID.");
+        }
+
         USDocument document = activeDocuments.get(chunk.getDocumentId());
+
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
         usTranslationResult.setParent(document);
 
+        // TODO: STORE THE CHUNK IN THE DOCUMENT
+
         usTranslationResult.generateMTSuggestions(TM);
 
-        // TODO: make maps of maps to deal with the two ID policy
-        activeTranslationResults.put(usTranslationResult.getDatabaseId(), usTranslationResult);
-
+        activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 }
