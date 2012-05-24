@@ -23,7 +23,7 @@ class NESearcherSpec extends Spec {
   val recognizers = Factory.defaultNERecognizers(configuration)
   val connection = Factory.createInMemoryConnection()
 
-  val memory = Factory.createTM(connection, recognizers)
+  val memory = Factory.createTM(connection, recognizers, true)
 
   memory.reset()
   memory.addOne("Peter rode to Alabama", "Petr jel do Alabamy")

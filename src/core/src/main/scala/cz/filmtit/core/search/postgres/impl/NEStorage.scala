@@ -25,13 +25,15 @@ class NEStorage(
   l2: Language, 
   connection:Connection,
   neL1: List[NERecognizer],
-  neL2: List[NERecognizer]
+  neL2: List[NERecognizer],
+  hssql: Boolean = false
 ) extends BaseSignatureStorage(
     l1,
     l2,
     TranslationSource.INTERNAL_NE,
     "sign_ne",
     connection,
+    hssql,
     reversible = true
   ) {
 

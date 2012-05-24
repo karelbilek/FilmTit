@@ -63,7 +63,7 @@ object Factory {
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
     val connection = createInMemoryConnection()
     val recognizers = defaultNERecognizers(configuration)
-    createTM(connection, recognizers)
+    createTM(connection, recognizers, true)
   }
 
   /**
@@ -79,10 +79,18 @@ object Factory {
     createTM(connection, recognizers)
 
   }
+ 
+ 
+  //scala can't mix overloading and default parameters, thats why this exists
+  def createTM(
+        connection: Connection,
+        recognizers: Tuple2[List[NERecognizer], List[NERecognizer]]
+  ):TranslationMemory = createTM(connection,recognizers,false)
 
   def createTM(
         connection: Connection,
-        recognizers: Tuple2[List[NERecognizer], List[NERecognizer]]) : TranslationMemory = {
+        recognizers: Tuple2[List[NERecognizer], List[NERecognizer]],
+        hssql: Boolean) : TranslationMemory = {
     
     //Initialize NE Recognizers
     //val (neEN, neCS) = defaultNERecognizers(configuration)
@@ -99,7 +107,7 @@ object Factory {
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2 ),
+      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2,hssql ),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -107,7 +115,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection),
+      new FirstLetterStorage(Language.EN, Language.CS, connection, hssql),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)
