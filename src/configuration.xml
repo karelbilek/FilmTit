@@ -32,4 +32,8 @@
         </heldout>
     </import>
 
+    <userspace>
+        <session_timeout_limit>3600000</session_timeout_limit>
+    </userspace>
+
 </configuration>
