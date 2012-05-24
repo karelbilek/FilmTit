@@ -8,6 +8,7 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
+import org.hibernate.annotations.Type;
 
 import java.io.File;
 import java.util.*;
@@ -92,18 +93,22 @@ public class USTranslationResult extends DatabaseObject {
         translationResult.getSourceChunk().setEndTime(endTime);
     }
 
+    @Type(type="text")
     public String getText() {
         return translationResult.getSourceChunk().getSurfaceForm();
     }
 
+    @Type(type="text")
     public void setText(String text) throws IllegalAccessException {
         translationResult.getSourceChunk().setSurfaceForm(text);
     }
 
+    @Type(type="text")
     public String getUserTranslation() {
         return translationResult.getUserTranslation();
     }
 
+    @Type(type="text")
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
     }

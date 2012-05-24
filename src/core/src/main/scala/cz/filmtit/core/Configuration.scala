@@ -58,4 +58,8 @@ class Configuration(configurationFile: InputStream) {
   val heldoutSize = (heldoutXML \ "size").text.toDouble //percentage of all data
   val heldoutFile = new File((heldoutXML \ "path").text)
 
+  //Userspace:
+  private val userspaceXML = XMLFile \ "userspace";
+  val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
+
 }
