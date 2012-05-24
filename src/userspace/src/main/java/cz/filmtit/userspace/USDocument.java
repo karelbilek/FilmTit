@@ -23,8 +23,8 @@ import java.util.List;
  * @author Jindřich Libovický
  */
 public class USDocument extends DatabaseObject {
-    private static final int MINIMUM_MOVIE_YEAR = 1850;
-    private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
+    private static int MINIMUM_MOVIE_YEAR = 1850;
+    private static int MAXIMUM_MOVIE_YEAR = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
 
     private long ownerDatabaseId;
@@ -104,10 +104,9 @@ public class USDocument extends DatabaseObject {
     public void setYear(String year) {
         int yearInt = Integer.parseInt(year);
         // the movie should be from a reasonable time period
-        if (yearInt < MINIMUM_MOVIE_YEAR ||
-                yearInt > Calendar.getInstance().get(Calendar.YEAR + ALLOWED_FUTURE_FOR_YEARS) ) {
-            throw new IllegalArgumentException("Value of year should from 1850 to the current year + "
-                    + ALLOWED_FUTURE_FOR_YEARS + ".");
+        if (yearInt < MINIMUM_MOVIE_YEAR || yearInt > MAXIMUM_MOVIE_YEAR) {
+            throw new IllegalArgumentException("Value of year should be " + MINIMUM_MOVIE_YEAR + " and " +
+                MAXIMUM_MOVIE_YEAR + ".");
         }
         cachedMovieYear = year;
         if (cachedMovieTitle != null) { generateMediaSource(); }

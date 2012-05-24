@@ -137,7 +137,8 @@ object Factory {
 
     new OpenNLPNameFinder(
       neType,
-      new NameFinderME(tokenNameFinderModel),
+      tokenNameFinderModel,
+      //new NameFinderME(tokenNameFinderModel),
       createTokenizer(language)
     )
   }

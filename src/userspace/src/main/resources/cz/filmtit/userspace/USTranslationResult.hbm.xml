@@ -16,7 +16,7 @@
         <property name="startTime" type="java.lang.String" column="startTime" />
         <property name="endTime" type="java.lang.String" column="endTime" />
         <property name="partNumber" type="int" column="partNumber" />
-        <property name="userTranslation" type="java.lang.String" column="userTranslation" />
+        <property name="userTranslation" type="java.lang.String"  column="userTranslation" />
         <property name="selectedTranslationPairID" type="long" column="selectedTranslationPairID" />
         <property name="sharedId" type="int" column="sharedId" />
 

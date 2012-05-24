@@ -3,7 +3,7 @@
 import cz.filmtit.share.TitChunkSeparator
 
 def remove_pipes (k: String) = {
-        k.replaceAll("\\|", " ")
+        k.replaceAll("\\s*\\|\\s*", " ")
 }
 
 
@@ -29,7 +29,7 @@ for(filenm <- new java.io.File(args(0)).listFiles.map{_.getAbsolutePath()}.filte
                     if (czech_chunks.size == english_chunks.size) {
                             (0 to (czech_chunks.size - 1)).foreach {
                                 i=>
-                                newfile.println(czech_chunks.get(i) + "\t"+ english_chunks.get(i))
+                                newfile.println(remove_pipes(czech_chunks.get(i) + "\t"+ english_chunks.get(i)))
                             }
                     } else {
                         newfile.println(remove_pipes(czech + "\t"+ english))
