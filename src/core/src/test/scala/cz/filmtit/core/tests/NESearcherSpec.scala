@@ -19,21 +19,20 @@ import java.io.File
 class NESearcherSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
-
-  val recognizers = Factory.defaultNERecognizers(configuration)
-  val connection = Factory.createInMemoryConnection()
-
-  val memory = Factory.createTM(connection, recognizers, true)
+  val memory = Factory.createTMFromConfiguration(
+    configuration,
+    readOnly=false,
+    useInMemoryDB=true
+  )
 
   memory.reset()
   memory.addOne("Peter rode to Alabama", "Petr jel do Alabamy")
-
-  val searcher = new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2)
+  memory.reindex()
 
   describe("A NE searcher") {
     it("should be able to restore the NE in the chunk") {
 
-      val candidates = searcher.candidates("Peter", Language.EN)
+      val candidates = memory.firstBest("Thomas rode to Alabama", Language.EN, null)
 
       /* Since we found the results via NE matches, the corresponding NE
          annotations must be restorable from the database. */

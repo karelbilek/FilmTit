@@ -1,5 +1,6 @@
 package cz.filmtit.core
 
+import concurrency.TranslationPairSearcherWrapper
 import cz.filmtit.core.tm.BackoffTranslationMemory
 import cz.filmtit.core.model.names.NERecognizer
 
@@ -16,6 +17,7 @@ import cz.filmtit.core.model.annotation.ChunkAnnotation
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
+import cz.filmtit.core.Factory._
 
 /**
  * Factories for default implementations of various classes
@@ -31,7 +33,7 @@ object Factory {
     DriverManager.getConnection("jdbc:hsqldb:mem:filmtitdb", "sa", "")
   }
 
-  def createConnection(configuration: Configuration, readOnly:Boolean = true): Connection = {
+  def createConnection(configuration: Configuration, readOnly: Boolean = true): Connection = {
     Class.forName("org.postgresql.Driver")
 
     val connection:Connection = try {
@@ -55,45 +57,37 @@ object Factory {
     connection
   }
 
-  def defaultNERecognizers(configuration:Configuration): Tuple2[List[NERecognizer], List[NERecognizer]] = {
-        (Language.EN, Language.CS) map { createNERecognizers(_, configuration) }
+  def createNERecognizersFromConfiguration(configuration: Configuration) = {
+    (configuration.l1, configuration.l2) map { createNERecognizers(_, configuration) }
   }
-
 
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
     val connection = createInMemoryConnection()
-    val recognizers = defaultNERecognizers(configuration)
-    createTM(connection, recognizers, true)
+    val recognizers = createNERecognizersFromConfiguration(configuration)
+    createTM(configuration.l1, configuration.l2, connection, recognizers, hssql=true, maxNumberOfConcurrentSearchers=configuration.maxNumberOfConcurrentSearchers)
   }
 
-  /**
-   * Create the default implementation of a TranslationMemory.
-   *
-   * @return the TM
-   */
-  def createTM(configuration: Configuration, readOnly: Boolean = true): TranslationMemory = {
-
-    //Initialize connection
-    val connection = createConnection(configuration, readOnly)  
-    val recognizers = defaultNERecognizers(configuration)
-    createTM(connection, recognizers)
-
+  def createTMFromConfiguration(
+    configuration: Configuration,
+    readOnly: Boolean = true,
+    useInMemoryDB: Boolean = false
+  ): TranslationMemory = {
+    createTM(
+      configuration.l1, configuration.l2,
+      { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
+      (configuration.l1, configuration.l2) map { createNERecognizers(_, configuration) },
+      false,
+      configuration.maxNumberOfConcurrentSearchers
+    )
   }
- 
- 
-  //scala can't mix overloading and default parameters, thats why this exists
-  def createTM(
-        connection: Connection,
-        recognizers: Tuple2[List[NERecognizer], List[NERecognizer]]
-  ):TranslationMemory = createTM(connection,recognizers,false)
 
   def createTM(
-        connection: Connection,
-        recognizers: Tuple2[List[NERecognizer], List[NERecognizer]],
-        hssql: Boolean) : TranslationMemory = {
-    
-    //Initialize NE Recognizers
-    //val (neEN, neCS) = defaultNERecognizers(configuration)
+    l1: Language, l2: Language,
+    connection: Connection,
+    recognizers: Tuple2[List[NERecognizer], List[NERecognizer]],
+    hssql: Boolean = false,
+    maxNumberOfConcurrentSearchers: Int
+  ): TranslationMemory = {
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
@@ -105,9 +99,13 @@ object Factory {
       threshold = 0.7
     )
 
+    val neSearchers = (0 to maxNumberOfConcurrentSearchers).map { _ =>
+      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2)
+    }.toList
+
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2,hssql ),
+      new TranslationPairSearcherWrapper(neSearchers),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
@@ -146,7 +144,7 @@ object Factory {
     new OpenNLPNameFinder(
       neType,
       tokenNameFinderModel,
-      //new NameFinderME(tokenNameFinderModel),
+      new NameFinderME(tokenNameFinderModel),
       createTokenizer(language)
     )
   }

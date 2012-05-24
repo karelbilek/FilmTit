@@ -1,5 +1,8 @@
 <configuration>
 
+    <l1>en</l1>
+    <l2>cs</l2>
+
     <database>
         <connector>jdbc:postgresql://localhost/filmtit</connector>
         <user>postgres</user>
@@ -35,5 +38,10 @@
     <userspace>
         <session_timeout_limit>3600000</session_timeout_limit>
     </userspace>
+
+    <core>
+        <max_number_of_concurrent_searchers>5</max_number_of_concurrent_searchers>
+
+    </core>
 
 </configuration>

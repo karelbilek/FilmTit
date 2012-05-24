@@ -22,16 +22,16 @@ class ConcurrentSearcherSpec extends Spec {
   describe("A concurrent searcher") {
 
     val configuration = new Configuration(new File("configuration.xml"))
-    val recognizers = Factory.defaultNERecognizers(configuration)
+    val recognizers = Factory.createNERecognizersFromConfiguration(configuration)
     val connection = Factory.createConnection(configuration)
 
-    it("is created with a list of normal searchers") {
+    it("is created with a list of normal searchers (e.g. 4 searchers)") {
       val searcher = new TranslationPairSearcherWrapper(
         (0 to 4).map { _ => new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2 ) }.toList
       )
 
-      val candidates: List[TranslationPair] = searcher.candidates(new Chunk("My name is Peter"), Language.EN)
-      searcher.candidates(new Chunk("My name is Peter"), Language.EN)
+      val candidates: List[TranslationPair] = searcher.candidates(new Chunk("Peter"), Language.EN)
+      searcher.candidates(new Chunk("Peter"), Language.EN)
     }
 
   }

@@ -11,6 +11,6 @@ import java.io.File
 object Reindex {
   def main(args: Array[String]) {
     val configuration = new Configuration(new File(args(0)))
-    Factory.createTM(configuration, readOnly = false).reindex()
+    Factory.createTMFromConfiguration(configuration, readOnly = false).reindex()
   }
 }

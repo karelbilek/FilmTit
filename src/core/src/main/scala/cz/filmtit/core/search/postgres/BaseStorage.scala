@@ -33,7 +33,7 @@ with MediaStorage {
   classOf[org.postgresql.Driver]
 
  
-  var pairTable = "chunks"
+  var pairTable = "translationpairs"
   var chunkSourceMappingTable = "translationpairs_mediasources"
   var mediasourceTable = "mediasources"
 
