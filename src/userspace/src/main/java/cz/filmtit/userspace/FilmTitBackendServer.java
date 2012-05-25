@@ -24,7 +24,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 	private TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                  // delete ASAP sessions introduced
     private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
-    private Map<String, Session> activeSessions;
+    private Map<String, Session> activeSessions = new HashMap<String,Session>();
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
         TM = Factory.createTMFromConfiguration(ConfigurationSingleton.getConf(), false, true);
@@ -32,7 +32,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
 
-        new WatchSessionTimeOut().run(); // runs deleting timed out sessions
+        new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
         System.err.println("FilmTitBackendServer started fine!");
     }
