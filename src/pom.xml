@@ -78,7 +78,12 @@
                 <configuration>
                     <argLine>-Xmx2G -Xms512m</argLine>
                     <useFile>true</useFile>
-                    <disableXmlReport>true</disableXmlReport>
+
+                    <!-- Please note that Jenkins needs Surefire
+                         XML reports in order for detection to work.
+                         Keep this property set to false. -->
+                    <disableXmlReport>false</disableXmlReport>
+
                     <includes>
                         <include>**/*Test.*</include>
                         <include>**/*Suite.*</include>
