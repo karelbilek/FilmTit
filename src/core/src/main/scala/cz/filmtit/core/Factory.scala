@@ -64,7 +64,14 @@ object Factory {
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
     val connection = createInMemoryConnection()
     val recognizers = createNERecognizersFromConfiguration(configuration)
-    createTM(configuration.l1, configuration.l2, connection, recognizers, useInMemoryDB=true, maxNumberOfConcurrentSearchers=configuration.maxNumberOfConcurrentSearchers)
+    createTM(
+        configuration.l1, 
+        configuration.l2, 
+        connection, 
+        recognizers, 
+        useInMemoryDB = true, 
+        maxNumberOfConcurrentSearchers = configuration.maxNumberOfConcurrentSearchers,
+        searcherTimeout = configuration.searcherTimeout)
   }
 
   def createTMFromConfiguration(
@@ -77,7 +84,8 @@ object Factory {
       { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
       createNERecognizersFromConfiguration(configuration),
       useInMemoryDB,
-      configuration.maxNumberOfConcurrentSearchers
+      configuration.maxNumberOfConcurrentSearchers,
+      configuration.searcherTimeout
     )
   }
 
@@ -86,7 +94,8 @@ object Factory {
     connection: Connection,
     recognizers: Tuple2[List[NERecognizer], List[NERecognizer]],
     useInMemoryDB: Boolean = false,
-    maxNumberOfConcurrentSearchers: Int
+    maxNumberOfConcurrentSearchers: Int,
+    searcherTimeout: Int
   ): TranslationMemory = {
 
     //Third level: Google translate
@@ -105,7 +114,7 @@ object Factory {
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
-      new TranslationPairSearcherWrapper(neSearchers),
+      new TranslationPairSearcherWrapper(neSearchers, searcherTimeout),
       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)

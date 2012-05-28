@@ -70,4 +70,5 @@ class Configuration(configurationFile: InputStream) {
   //Core
   private val coreXML = XMLFile \ "core";
   val maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
+  val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
 }

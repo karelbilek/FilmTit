@@ -41,7 +41,7 @@
 
     <core>
         <max_number_of_concurrent_searchers>5</max_number_of_concurrent_searchers>
-
+        <searcher_timeout>60</searcher_timeout> <!--in seconds-->
     </core>
 
 </configuration>

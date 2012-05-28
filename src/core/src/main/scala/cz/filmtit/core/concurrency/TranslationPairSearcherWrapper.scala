@@ -1,5 +1,6 @@
 package cz.filmtit.core.concurrency
 
+import cz.filmtit.core.Configuration
 import cz.filmtit.core.model.TranslationPairSearcher
 import cz.filmtit.share.{Chunk, TranslationPair, Language}
 import akka.actor.{ActorSystem, Props}
@@ -17,7 +18,7 @@ import akka.util.duration._
  *
  */
 
-class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher])
+class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher], val searcherTimeout: Int)
   extends TranslationPairSearcher(searchers.head.l1, searchers.head.l2, readOnly = true) {
 
   val system = ActorSystem()
@@ -28,7 +29,9 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
   val router = system.actorOf(Props[TranslationPairSearcherActor].withRouter(
     RoundRobinRouter(routees = workers)
   ))
-  implicit val timeout = Timeout(30 seconds)
+
+                                //some heavy scala magic
+  implicit val timeout = Timeout(searcherTimeout seconds)
 
   /**
    * Retrieve a list of candidate translation pairs from a database or
