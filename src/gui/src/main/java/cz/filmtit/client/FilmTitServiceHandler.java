@@ -14,6 +14,8 @@ import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.FilmTitServiceAsync;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
 public class FilmTitServiceHandler {
 	// FilmTitServiceAsync should be created automatically by Maven
@@ -33,7 +35,11 @@ public class FilmTitServiceHandler {
 			public void onSuccess(Document result) {
 				gui.setCurrentDocument(result);
 				gui.log( "succesfully created document: " + result.getId());
-				gui.processText();
+				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+					public void execute() {
+						gui.processText();
+					}
+				});
 			}
 			
 			public void onFailure(Throwable caught) {
