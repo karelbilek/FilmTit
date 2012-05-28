@@ -4,6 +4,8 @@ import collection.mutable.ListBuffer
 import cz.filmtit.core.model.annotation.ChunkAnnotation
 import cz.filmtit.share.Chunk
 
+import scala.transient
+
 
 /**
  * Wrapper class for chunks in the parallel data. In the most basic case,
@@ -19,6 +21,7 @@ class AnnotatedChunk(val surfaceform: String) extends Chunk(surfaceform) {
    * Annotations are stored in a list but are only instantiated
    * if they are required (lazy).
    */
+  @transient //transient because of GWT I guess
   lazy val annotations = ListBuffer[Triple[ChunkAnnotation, Int, Int]]()
 
   /**
