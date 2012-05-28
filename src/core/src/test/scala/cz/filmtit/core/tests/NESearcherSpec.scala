@@ -20,7 +20,7 @@ import TestUtil.createTMWithDummyContent
 class NESearcherSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
-  configuration.maxNumberOfConcurrentSearchers = 2
+  configuration.maxNumberOfConcurrentSearchers = 10
   val memory = createTMWithDummyContent(configuration)
 
   describe("A NE searcher") {
@@ -38,7 +38,7 @@ class NESearcherSpec extends Spec {
     it("should be queryable by multiple threads at the same time") {
 
       //Query the same TM from n threads in parallel:
-      (1 to 50).par foreach { _ =>
+      (1 to 500).par foreach { _ =>
         memory.firstBest("Thomas rode to Alabama", Language.EN, null)
       }
     }

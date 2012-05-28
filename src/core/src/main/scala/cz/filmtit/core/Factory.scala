@@ -10,7 +10,6 @@ import cz.filmtit.core.Utils.t2mapper
 
 import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
-import java.io.FileInputStream
 import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
 import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 import cz.filmtit.core.model.annotation.ChunkAnnotation
@@ -18,6 +17,8 @@ import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
 import cz.filmtit.core.Factory._
+import collection.mutable.HashMap
+import java.io.{File, FileInputStream}
 
 /**
  * Factories for default implementations of various classes
@@ -38,18 +39,18 @@ object Factory {
 
     val connection:Connection = try {
       DriverManager.getConnection(
-      configuration.dbConnector,
-      configuration.dbUser,
-      configuration.dbPassword)
+        configuration.dbConnector,
+        configuration.dbUser,
+        configuration.dbPassword)
     } catch {
       case e: SQLException => {
-      System.err.println("I could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
-      println(e);
-      System.exit(1)
-      null
+        System.err.println("I could not connect to database %s. Please check if the DBMS is running and database exists.".format(configuration.dbConnector))
+        println(e);
+        System.exit(1)
+        null
       }
     }
-    
+
     //Assure the database is in read-only mode if required.
     if (readOnly == true)
       connection.setReadOnly(true)
@@ -65,27 +66,27 @@ object Factory {
     val connection = createInMemoryConnection()
 
     createTM(
-        configuration.l1, 
-        configuration.l2, 
-        connection, 
-        configuration,
-        useInMemoryDB = true, 
-        maxNumberOfConcurrentSearchers = configuration.maxNumberOfConcurrentSearchers,
-        searcherTimeout = configuration.searcherTimeout)
+      configuration.l1,
+      configuration.l2,
+      connection,
+      configuration,
+      useInMemoryDB = true,
+      maxNumberOfConcurrentSearchers = configuration.maxNumberOfConcurrentSearchers,
+      searcherTimeout = configuration.searcherTimeout)
   }
 
   def createTMFromConfiguration(
     configuration: Configuration,
     readOnly: Boolean = true,
     useInMemoryDB: Boolean = false
-  ): TranslationMemory = {
+    ): TranslationMemory = {
     createTM(
-      configuration.l1, configuration.l2,
-      { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
-      configuration,
-      useInMemoryDB,
-      configuration.maxNumberOfConcurrentSearchers,
-      configuration.searcherTimeout
+    configuration.l1, configuration.l2,
+    { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
+    configuration,
+    useInMemoryDB,
+    configuration.maxNumberOfConcurrentSearchers,
+    configuration.searcherTimeout
     )
   }
 
@@ -96,7 +97,7 @@ object Factory {
     useInMemoryDB: Boolean = false,
     maxNumberOfConcurrentSearchers: Int,
     searcherTimeout: Int
-  ): TranslationMemory = {
+    ): TranslationMemory = {
 
     //Third level: Google translate
     val mtTM = new BackoffTranslationMemory(
@@ -131,32 +132,7 @@ object Factory {
   }
 
 
-  /**
-   * Build a NE recognizer for NE type #neType and language #language with the
-   * model specified in #modelFile .
-   *
-   * @param neType the type of NE, the recognizer detects
-   * @param language the language that is recognized
-   * @param modelFile the external model file for the NE recognizer
-   * @return
-   */
-  def createNERecognizer(
-    neType: ChunkAnnotation,
-    language: Language,
-    modelFile: String
-  ): NERecognizer = {
-
-    val tokenNameFinderModel = new TokenNameFinderModel(
-      new FileInputStream(modelFile) 
-    )
-
-    new OpenNLPNameFinder(
-      neType,
-      tokenNameFinderModel,
-      new NameFinderME(tokenNameFinderModel),
-      createTokenizer(language)
-    )
-  }
+  val neModels = HashMap[String, TokenNameFinderModel]()
 
   /**
    * Build all NE recognizers specified for the language in
@@ -170,7 +146,17 @@ object Factory {
       case Some(recognizers) => recognizers map {
         pair => {
           val (neType, modelFile) = pair
-          Factory.createNERecognizer(neType, language, modelFile)
+
+          val model: TokenNameFinderModel = neModels.getOrElseUpdate(
+            modelFile,
+            new TokenNameFinderModel(new FileInputStream(modelFile))
+          )
+
+          new OpenNLPNameFinder(
+            neType,
+            new NameFinderME(model),
+            createTokenizer(language)
+          )
         }
       }
       case None => List()

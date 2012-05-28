@@ -16,7 +16,6 @@ import opennlp.tools.namefind.{TokenNameFinder, TokenNameFinderModel}
 
 class OpenNLPNameFinder(
   val neType: ChunkAnnotation,
-  val model:TokenNameFinderModel,
   val nameFinder: TokenNameFinder,
   val tokenizer: Tokenizer
 ) extends NERecognizer(neType) {
