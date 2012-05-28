@@ -1,9 +1,6 @@
 package cz.filmtit.core.names
 
 import opennlp.tools.util.Span
-
-
-
 import cz.filmtit.core.model.names.NERecognizer
 import opennlp.tools.tokenize.Tokenizer
 import cz.filmtit.core.model.annotation.ChunkAnnotation
@@ -37,6 +34,8 @@ class OpenNLPNameFinder(
         tokenizedPos(name.getEnd - 1).getEnd
     )
     }
+
+    nameFinder.clearAdaptiveData()
    
   }
 
