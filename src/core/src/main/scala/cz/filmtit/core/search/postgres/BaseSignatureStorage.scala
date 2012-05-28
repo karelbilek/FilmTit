@@ -213,7 +213,7 @@ with SignatureTranslationPairStorage {
           chunkL1,
           chunkL2,
           source,
-          mediaSourceIDs.map(getMediaSource).toList
+          new java.util.ArrayList(mediaSourceIDs.map(getMediaSource).toList)
         )
     }
 
