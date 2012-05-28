@@ -63,12 +63,12 @@ object Factory {
 
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
     val connection = createInMemoryConnection()
-    val recognizers = createNERecognizersFromConfiguration(configuration)
+
     createTM(
         configuration.l1, 
         configuration.l2, 
         connection, 
-        recognizers, 
+        configuration,
         useInMemoryDB = true, 
         maxNumberOfConcurrentSearchers = configuration.maxNumberOfConcurrentSearchers,
         searcherTimeout = configuration.searcherTimeout)
@@ -82,7 +82,7 @@ object Factory {
     createTM(
       configuration.l1, configuration.l2,
       { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
-      createNERecognizersFromConfiguration(configuration),
+      configuration,
       useInMemoryDB,
       configuration.maxNumberOfConcurrentSearchers,
       configuration.searcherTimeout
@@ -92,7 +92,7 @@ object Factory {
   def createTM(
     l1: Language, l2: Language,
     connection: Connection,
-    recognizers: Tuple2[List[NERecognizer], List[NERecognizer]],
+    configuration: Configuration,
     useInMemoryDB: Boolean = false,
     maxNumberOfConcurrentSearchers: Int,
     searcherTimeout: Int
@@ -108,7 +108,8 @@ object Factory {
       threshold = 0.7
     )
 
-    val neSearchers = (0 to maxNumberOfConcurrentSearchers).map { _ =>
+    val neSearchers = (1 to maxNumberOfConcurrentSearchers).map { _ =>
+      val recognizers = createNERecognizersFromConfiguration(configuration)
       new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2, useInMemoryDB)
     }.toList
 
@@ -142,8 +143,7 @@ object Factory {
   def createNERecognizer(
     neType: ChunkAnnotation,
     language: Language,
-    modelFile: String,
-    configuration: Configuration
+    modelFile: String
   ): NERecognizer = {
 
     val tokenNameFinderModel = new TokenNameFinderModel(
@@ -170,7 +170,7 @@ object Factory {
       case Some(recognizers) => recognizers map {
         pair => {
           val (neType, modelFile) = pair
-          Factory.createNERecognizer(neType, language, modelFile, configuration)
+          Factory.createNERecognizer(neType, language, modelFile)
         }
       }
       case None => List()

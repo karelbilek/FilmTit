@@ -2,7 +2,7 @@ package cz.filmtit.core.concurrency
 
 import cz.filmtit.core.model.TranslationPairSearcher
 import akka.actor.Actor
-import cz.filmtit.share.{Chunk, Language}
+import java.io.IOException
 
 /**
  * @author Joachim Daiber
@@ -11,7 +11,17 @@ import cz.filmtit.share.{Chunk, Language}
 class TranslationPairSearcherActor(val searcher: TranslationPairSearcher) extends Actor {
 
   def receive = {
-    case SearcherRequest(chunk, language) => sender tell searcher.candidates(chunk, language)
+    case SearcherRequest(chunk, language) => {
+      try {
+        sender ! searcher.candidates(chunk, language)
+      } catch {
+        case e: NullPointerException => throw new IOException("Could not run NER.")
+      }
+    }
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    message foreach { self forward _ }
   }
 
 }

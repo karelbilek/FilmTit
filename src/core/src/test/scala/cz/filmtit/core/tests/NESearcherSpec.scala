@@ -34,10 +34,10 @@ class NESearcherSpec extends Spec {
       )
     }
 
-    it("should queryable by multiple threads at the same time") {
+    it("should be queryable by multiple threads at the same time") {
 
       //Query the same TM from 100 threads in parallel:
-      (1 to 100).par foreach { _ =>
+      (1 to 50).par foreach { _ =>
         memory.firstBest("Thomas rode to Alabama", Language.EN, null)
       }
     }

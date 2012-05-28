@@ -5,7 +5,7 @@ import cz.filmtit.core.model.names.NERecognizer
 import opennlp.tools.tokenize.Tokenizer
 import cz.filmtit.core.model.annotation.ChunkAnnotation
 import cz.filmtit.core.model.data.AnnotatedChunk
-import opennlp.tools.namefind.{TokenNameFinder, TokenNameFinderModel, NameFinderME}
+import opennlp.tools.namefind.{TokenNameFinder, TokenNameFinderModel}
 
 
 /**
@@ -28,11 +28,11 @@ class OpenNLPNameFinder(
     val tokenizedPos = tokenizer.tokenizePos(chunk.surfaceform)
 
     nameFinder.find(tokenized) foreach {
-    name: Span => chunk.addAnnotation(
-        neType,
-        tokenizedPos(name.getStart).getStart,
-        tokenizedPos(name.getEnd - 1).getEnd
-    )
+      name: Span => chunk.addAnnotation(
+          neType,
+          tokenizedPos(name.getStart).getStart,
+          tokenizedPos(name.getEnd - 1).getEnd
+      )
     }
 
     nameFinder.clearAdaptiveData()

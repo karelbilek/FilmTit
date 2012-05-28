@@ -1,14 +1,15 @@
 package cz.filmtit.core.concurrency
 
-import cz.filmtit.core.Configuration
 import cz.filmtit.core.model.TranslationPairSearcher
 import cz.filmtit.share.{Chunk, TranslationPair, Language}
-import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
-import akka.routing.RoundRobinRouter
 import akka.dispatch.Await
 import akka.util.Timeout
 import akka.util.duration._
+import akka.routing.SmallestMailboxRouter
+import java.io.IOException
+import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{OneForOneStrategy, ActorSystem, Props}
 
 
 /**
@@ -29,10 +30,14 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
   def size: Int = searchers.size
 
   val router = system.actorOf(Props[TranslationPairSearcherActor].withRouter(
-    RoundRobinRouter(routees = workers)
-  ))
+    SmallestMailboxRouter(routees = workers).withSupervisorStrategy(
+      OneForOneStrategy(maxNrOfRetries = 10) {
+        case _: IOException => Restart
+      })
+     )
+  )
 
-                                //some heavy scala magic
+  //some heavy scala magic
   implicit val timeout = Timeout(searcherTimeout seconds)
 
   /**
