@@ -43,7 +43,7 @@ public class SubgestBox extends TextBox {
 		this.addKeyDownHandler(this.gui.subgestHandler);
 		this.addValueChangeHandler(this.gui.subgestHandler);
 		
-		this.setTabIndex(gui.counter + 1);
+		this.setTabIndex(id + 1);
 		
 		this.loadSuggestions();
 	}

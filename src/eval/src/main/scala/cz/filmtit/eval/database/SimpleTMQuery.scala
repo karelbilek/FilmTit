@@ -21,7 +21,7 @@ object SimpleTMQuery {
     val configuration = new Configuration(new File("configuration.xml"))
 
     val tm: TranslationMemory = try {
-      Factory.createTM(configuration)
+      Factory.createTMFromConfiguration(configuration)
     } catch {
       case e: ConnectException => {
         println("Error: " + e.getMessage)

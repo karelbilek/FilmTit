@@ -1,5 +1,7 @@
 package cz.filmtit.client;
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -63,11 +65,24 @@ public class FilmTitServiceHandler {
 		
 		AsyncCallback<TranslationResult> callback = new AsyncCallback<TranslationResult>() {
 			
-			public void onSuccess(TranslationResult result) {
-				// TODO: add to trlist to the correct position
-				gui.getCurrentDocument().translationResults.add(result);
-				gui.showResult(result);
-				gui.log( "succesfully received result of chunk: " + result.getSourceChunk().getSurfaceForm());
+			public void onSuccess(TranslationResult newresult) {
+				//gui.getCurrentDocument().translationResults.add(result);
+				// add to trlist to the correct position:
+				List<TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				/*
+				int index;
+				for (index = 0; index < translist.size(); index++) {
+					if (newresult.compareTo(translist.get(index)) < 0) {
+						break;
+					}
+				}
+				*/
+				int index = gui.chunklist.indexOf(newresult.getSourceChunk());
+				gui.log("inserting chunk on position " + index);
+				translist.set(index, newresult);
+				
+				gui.showResult(newresult, index);
+				gui.log("succesfully received result of chunk: " + newresult.getSourceChunk().getSurfaceForm());
 			}
 			
 			public void onFailure(Throwable caught) {

@@ -18,14 +18,16 @@ import cz.filmtit.core.Configuration
 class ClusteredStorage(
   l1: Language,
   l2: Language,
-  connection: Connection
+  connection: Connection,
+  hssql: Boolean = false
 ) extends
 BaseSignatureStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_FUZZY,
   "sign_clustered",
-  connection
+  connection,
+  hssql
 ) {
 
   val cluster: HashMap[String, Int] = new HashMap[String, Int]()
