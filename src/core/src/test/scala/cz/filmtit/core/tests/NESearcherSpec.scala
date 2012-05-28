@@ -33,6 +33,15 @@ class NESearcherSpec extends Spec {
         candidates.exists(_.getChunkL1.asInstanceOf[AnnotatedChunk].toAnnotatedString() contains "<Person>" )
       )
     }
+
+    it("should queryable by multiple threads at the same time") {
+
+      //Query the same TM from 100 threads in parallel:
+      (1 to 100).par foreach { _ =>
+        memory.firstBest("Thomas rode to Alabama", Language.EN, null)
+      }
+    }
+
   }
 
 
