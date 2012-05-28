@@ -26,6 +26,8 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
     system.actorOf(Props(new TranslationPairSearcherActor(searcher)))
   }
 
+  def size: Int = searchers.size
+
   val router = system.actorOf(Props[TranslationPairSearcherActor].withRouter(
     RoundRobinRouter(routees = workers)
   ))

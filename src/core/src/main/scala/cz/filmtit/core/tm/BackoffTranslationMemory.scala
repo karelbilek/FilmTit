@@ -27,7 +27,10 @@ class BackoffTranslationMemory(
   ) extends TranslationMemory {
 
   val logger = Logger("BackoffTM[%s, %s]".format(
-    searcher.getClass.getSimpleName,
+    searcher match {
+      case s: TranslationPairSearcherWrapper => { "%s (%d concurrent instances)".format(s.searchers.head.getClass.getSimpleName, s.size) }
+      case s: TranslationPairSearcher => s.getClass.getSimpleName
+    },
     ranker match {
       case Some(r) => r.getClass.getSimpleName
       case None => "no ranker"
