@@ -7,6 +7,7 @@ import scala.Predef._
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.share.{Language, MediaSource, Chunk, TranslationPair}
+import cz.filmtit.core.concurrency.TranslationPairSearcherWrapper
 
 
 /**
@@ -26,7 +27,10 @@ class BackoffTranslationMemory(
   ) extends TranslationMemory {
 
   val logger = Logger("BackoffTM[%s, %s]".format(
-    searcher.getClass.getSimpleName,
+    searcher match {
+      case s: TranslationPairSearcherWrapper => { "%s (%d concurrent instances)".format(s.searchers.head.getClass.getSimpleName, s.size) }
+      case s: TranslationPairSearcher => s.getClass.getSimpleName
+    },
     ranker match {
       case Some(r) => r.getClass.getSimpleName
       case None => "no ranker"
@@ -108,6 +112,12 @@ class BackoffTranslationMemory(
     //If the searcher can be initialized with translation pairs, do it:
     searcher match {
       case s: TranslationPairStorage => s.add(pairs)
+      case s: TranslationPairSearcherWrapper => {
+        s.searchers.head match {
+          case s: TranslationPairStorage => s.add(pairs)
+          case _ =>
+        }
+      }
       case _ =>
     }
 
@@ -118,6 +128,12 @@ class BackoffTranslationMemory(
     //If the searcher can reindexed, do it:
     searcher match {
       case s: TranslationPairStorage => s.reindex()
+      case s: TranslationPairSearcherWrapper => {
+        s.searchers.head match {
+          case s: TranslationPairStorage => s.reindex()
+          case _ =>
+        }
+      }
       case _ =>
     }
 
@@ -130,6 +146,12 @@ class BackoffTranslationMemory(
     //If the searcher can be reset, do it:
     searcher match {
       case s: TranslationPairStorage => s.reset()
+      case s: TranslationPairSearcherWrapper => {
+        s.searchers.head match {
+          case s: TranslationPairStorage => s.reset()
+          case _ =>
+        }
+      }
       case _ =>
     }
 

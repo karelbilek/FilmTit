@@ -1,6 +1,7 @@
 package cz.filmtit.share;
 
-import java.io.Serializable;
+import org.hibernate.annotations.Type;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,7 +51,15 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         this.score = score;
     }
 
+    public boolean hasMediaSource() {
+        return !(mediaSources.isEmpty());
+    }
+
     public MediaSource getMediaSource() {
+        if (mediaSources.isEmpty()) {
+            return null;
+
+        }
         return mediaSources.get(0);
     }
 
@@ -90,18 +99,22 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         return chunkL1 + "\t" + chunkL2;
     }
 
+    @Type(type="text")
     public String getStringL1() {
         return chunkL1.getSurfaceForm();
     }
 
+    @Type(type="text")
     public void setStringL1(String stringL1) {
         chunkL1.setSurfaceForm(stringL1); // TODO: create chunk is necessary and make it immutable
     }
 
+    @Type(type="text")
     public String getStringL2() {
         return chunkL2.getSurfaceForm();
     }
 
+    @Type(type="text")
     public void setStringL2(String stringL2) {
         chunkL2.setSurfaceForm(stringL2); // TODO: create chunk is necessary and make it immutable
     }
@@ -127,7 +140,6 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         	return ("TP[" + chunkL1.getSurfaceForm() + ", " + chunkL2.getSurfaceForm() + "]");
         }
     }
-
 
 
 }

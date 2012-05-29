@@ -8,6 +8,7 @@ import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.Utils.chunkFromString
 import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
+import TestUtil.createTMWithDummyContent
 
 /**
  * Test specification for [[cz.filmtit.core.model.TranslationPairSearcher]].
@@ -19,21 +20,13 @@ import java.io.File
 class NESearcherSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
-
-  val recognizers = Factory.defaultNERecognizers(configuration)
-  val connection = Factory.createInMemoryConnection()
-
-  val memory = Factory.createTM(connection, recognizers)
-
-  memory.reset()
-  memory.addOne("Peter rode to Alabama", "Petr jel do Alabamy")
-
-  val searcher = new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2)
+  configuration.maxNumberOfConcurrentSearchers = 10
+  val memory = createTMWithDummyContent(configuration)
 
   describe("A NE searcher") {
     it("should be able to restore the NE in the chunk") {
 
-      val candidates = searcher.candidates("Peter", Language.EN)
+      val candidates = memory.firstBest("Thomas rode to Alabama", Language.EN, null)
 
       /* Since we found the results via NE matches, the corresponding NE
          annotations must be restorable from the database. */
@@ -41,6 +34,15 @@ class NESearcherSpec extends Spec {
         candidates.exists(_.getChunkL1.asInstanceOf[AnnotatedChunk].toAnnotatedString() contains "<Person>" )
       )
     }
+
+    it("should be queryable by multiple threads at the same time") {
+
+      //Query the same TM from n threads in parallel:
+      (1 to 500).par foreach { _ =>
+        memory.firstBest("Thomas rode to Alabama", Language.EN, null)
+      }
+    }
+
   }
 
 

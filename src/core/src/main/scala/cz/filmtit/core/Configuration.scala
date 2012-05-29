@@ -24,6 +24,10 @@ class Configuration(configurationFile: InputStream) {
 
   private val XMLFile = XML.load(configurationFile)
 
+  //Languages:
+  val l1 = Language.fromCode((XMLFile \ "l1").text)
+  val l2 = Language.fromCode((XMLFile \ "l1").text)
+
   //Database:
   private val dbXML = XMLFile \ "database"
   val dbConnector: String = (dbXML \ "connector").text
@@ -58,4 +62,13 @@ class Configuration(configurationFile: InputStream) {
   val heldoutSize = (heldoutXML \ "size").text.toDouble //percentage of all data
   val heldoutFile = new File((heldoutXML \ "path").text)
 
+  //Userspace:
+  private val userspaceXML = XMLFile \ "userspace";
+  val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
+
+
+  //Core
+  private val coreXML = XMLFile \ "core";
+  var maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
+  val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
 }

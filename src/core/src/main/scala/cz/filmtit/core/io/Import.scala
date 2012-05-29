@@ -156,7 +156,7 @@ class Import(val configuration: Configuration) {
     imp.loadSubtitleMapping(configuration.fileMediasourceMapping)
     System.err.println("Loaded subtitle -> movie mapping")
 
-    val tm = Factory.createTM(configuration, readOnly = false)
+    val tm = Factory.createTMFromConfiguration(configuration, readOnly = false)
     imp.loadChunks(tm, configuration.dataFolder)
 
   }

@@ -12,12 +12,14 @@ import cz.filmtit.core.Configuration
 class FulltextStorage(
   l1: Language,
   l2: Language,
-  connection: Connection
+  connection: Connection,
+  hssql: Boolean = false
 ) extends BaseStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_FUZZY,
-  connection
+  connection,
+  hssql
 ) {
 
 
