@@ -4,7 +4,10 @@ import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.FilmTitBackendServer;
+import cz.filmtit.userspace.HibernateUtil;
 import  cz.filmtit.userspace.USDocument;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,24 +34,53 @@ public class TestUSDocument implements Test {
         assertTrue(resultDocument.getId() != Long.MIN_VALUE);
     }
 
+    @Test
     public  void  TestUSDocumentConstructor()
     {
-        FilmTitBackendServer server = new FilmTitBackendServer();
-        Document resultDocument = server.createDocument("Movie title", "2012", "cs");
-        USDocument resultUSDocument = new USDocument(resultDocument);
 
-        assertEquals(resultUSDocument.getMovieTitle(), resultDocument.getMovie().getTitle());
-        assertEquals(resultUSDocument.getYear(), resultDocument.getMovie().getYear());
-        assertEquals(resultUSDocument.getLanguageCode(), resultDocument.getLanguage().getCode());
-        assertEquals(resultUSDocument.getLanguage().getName(), resultDocument.getLanguage().getName());
+        Document doc = new Document("Movie title", "2012", "cs");
+        USDocument resultUSDocument = new USDocument(doc);
+
+        assertEquals(resultUSDocument.getMovieTitle(), doc.getMovie().getTitle());
+        assertEquals(resultUSDocument.getYear(), doc.getMovie().getYear());
+        assertEquals(resultUSDocument.getLanguageCode(), doc.getLanguage().getCode());
 
         assertEquals(false,resultUSDocument.isFinished());
 
 
     }
     @Test
-    public void TestSaveAndLoad() { }
+    public void TestSave() {
+        Session session = DatabaseUtil.getSession();
+        Document doc = new Document("Movie title", "2012", "cs");
+        USDocument resultUSDocument = new USDocument(doc);
+        resultUSDocument.setFinished(false);
+        resultUSDocument.setDatabaseId(2001);
+        resultUSDocument.setSpentOnThisTime(120);
+        resultUSDocument.setTranslationGenerationTime(50);
+        session.beginTransaction();
+        if (session.isOpen())
+        {
+         resultUSDocument.saveToDatabase(session);
+        }
+        session.getTransaction().commit();
 
+
+    }
+
+    @Test
+    public void TestLoad() {
+        FilmTitBackendServer server = new FilmTitBackendServer();
+        Document resultDocument = server.createDocument("Movie title", "2012", "cs");
+        USDocument doc = USDocument.Load(resultDocument.getId());
+
+        assertEquals(doc.getLanguageCode(), "cs");
+        assertEquals(doc.getMovieTitle(),"Movie title");
+        assertEquals(doc.getYear(),"2012");
+
+
+
+    }
 
     @Override
     public Class<? extends Throwable> expected() {

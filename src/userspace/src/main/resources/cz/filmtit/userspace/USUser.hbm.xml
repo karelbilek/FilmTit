@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="cz.filmtit.userspace">
+
+    <class name="USUser" table="Users">
+        <id name="databaseId" type="long" column="Id">
+            <generator class="native"/>
+        </id>
+
+        <property name="UserName" type="java.lang.String" column="userName" />
+        <property name="Login" type="java.lang.String" column="login" />
+        <property name="Email" type="java.lang.String" column="email" />
+        <property name="Password" type="java.lang.String" column="pass" />
+        <property name="Raiting" type="long" column="raiting" />
+        <property name="OpenID" type="java.lang.String" column="openId" />
+        <property name="Fbid" type="long" column="fbId" />
+        <property name="Active" type="boolean" column="active" />
+        <property name="LastSession" type="java.util.Date" column="lastSession" />
+
+    </class>
+
+</hibernate-mapping>

@@ -1,6 +1,7 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.userspace.HibernateUtil;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -24,5 +25,12 @@ public class DatabaseUtil {
      */
     public static void setDatabase() {
         HibernateUtil.buildSessionFactoryFromHbmFile("cz/filmtit/userspace/tests/hibernate-test.cfg.xml");
+    }
+
+    public static Session getSession()
+    {
+        HibernateUtil.buildSessionFactoryFromHbmFile("cz/filmtit/userspace/tests/hibernate-test.cfg.xml");
+        return HibernateUtil.getSessionFactory().openSession();
+
     }
 }

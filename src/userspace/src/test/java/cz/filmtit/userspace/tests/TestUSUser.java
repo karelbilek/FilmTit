@@ -27,7 +27,12 @@ public class TestUSUser {
    }
 
     @Test
-    public void TestSaveAndLoad() { }
+    public TestSaveUser()
+    {
+        USUser user  = new USUser();
+
+    }
+
 }
 
 

@@ -13,6 +13,7 @@ import cz.filmtit.share.TranslationResult;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -27,7 +28,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Map<Long, USTranslationResult> activeTranslationResults;
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
-        TM = Factory.createTM(ConfigurationSingleton.getConf(), true);
+
+        //TM = Factory.createTM(ConfigurationSingleton.getConf(), true);
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
@@ -71,5 +73,22 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 		activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         return usDocument.getDocument();
 	}
+
+    public void saveDocument(Document doc)
+    {
+      USDocument usdoc = activeDocuments.get(doc.getId());
+
+        usdoc.setLanguageCode(doc.getLanguage().getCode());
+        usdoc.setMovieTitle(doc.getMovie().getTitle());
+        usdoc.setYear(doc.getMovie().getYear());
+
+
+    }
+
+    public void createUser(String login , String username , String hashpass)
+    {
+        USUser user = new USUser(
+
+    }
 	
 }

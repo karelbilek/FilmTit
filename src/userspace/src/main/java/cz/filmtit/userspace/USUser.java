@@ -67,6 +67,9 @@ public class USUser extends DatabaseObject {
         for (USDocument document : ownedDocuments) {
             document.deleteFromDatabase(dbSession);
         }
+
+
+
     }
-    
+
 }
