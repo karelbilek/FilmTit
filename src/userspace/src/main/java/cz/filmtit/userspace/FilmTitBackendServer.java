@@ -87,7 +87,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public void createUser(String login , String username , String hashpass)
     {
-        USUser user = new USUser(
+        USUser user = new USUser();
 
     }
 	
