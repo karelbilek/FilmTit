@@ -16,10 +16,10 @@ class ChunkUtils(chunk:Chunk) {
 
     var lastOffset = 0
     (chunk.getAnnotations map {
-      _annotation => {
-        val anType = _annotation.getType
-        val from = _annotation.getBegin
-        val to = _annotation.getEnd
+      annotation => {
+        val anType = annotation.getType
+        val from = annotation.getBegin
+        val to = annotation.getEnd
         
         "%s%s".format(
         surfaceform.substring(lastOffset, from),
