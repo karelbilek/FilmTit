@@ -1,22 +1,18 @@
 package cz.filmtit.userspace.tests;
 
-import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.FilmTitBackendServer;
-import junit.framework.*;
-import org.junit.*;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
 public class TestUSTranslationResult {
     @BeforeClass
     public static void InitializeDatabase() {
         DatabaseUtil.setDatabase();
     }
-
 
     @Test
     public void TestServerCall() {

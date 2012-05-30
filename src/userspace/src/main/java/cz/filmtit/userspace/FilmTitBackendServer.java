@@ -1,8 +1,6 @@
 package cz.filmtit.userspace;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.FilmTitService;
@@ -16,23 +14,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
-		FilmTitService {
-	
-	private static final long serialVersionUID = 3546115L;
-    private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.getConf().sessionTimeout();
+        FilmTitService {
 
-	private TranslationMemory TM;
+    private static final long serialVersionUID = 3546115L;
+    private static long SESSION_TIME_OUT_LIMIT = 100000;
+            //ConfigurationSingleton.getConf().sessionTimeout();
+
+    private TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                  // delete ASAP sessions introduced
     private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
     private Map<String, Session> activeSessions = new HashMap<String,Session>();
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
-                                                                
-        TM = Factory.createTMFromConfiguration(
-            ConfigurationSingleton.getConf(), 
-            false, //readonly 
-            false //inmemory
-        );
+
+        //TM = Factory.createTMFromConfiguration(
+        //        ConfigurationSingleton.getConf(),
+        //        false, //readonly
+        //        false //inmemory
+        //);
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
@@ -42,7 +41,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         System.err.println("FilmTitBackendServer started fine!");
     }
 
-	/*public FilmTitBackendServer() throws Exception {
+    /*public FilmTitBackendServer() throws Exception {
         this(new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")));
     }*/
 
@@ -50,8 +49,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return TM;
     }
 
-	public TranslationResult getTranslationResults(TimedChunk chunk) {
-		//this looks terribly unsafe, nothing is checked here
+    public TranslationResult getTranslationResults(TimedChunk chunk) {
+        //this looks terribly unsafe, nothing is checked here
         USDocument docu = activeDocuments.get(chunk.getDocumentId());
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
         usTranslationResult.setParent(docu);
@@ -61,7 +60,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         activeTranslationResults.put(usTranslationResult.getDatabaseId(), usTranslationResult);
 
         return usTranslationResult.getTranslationResult();
-	}
+    }
 
     public TranslationResult getTranslationResult(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
@@ -79,11 +78,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
-	public Document createDocument(String movieTitle, String year, String language) {
-		USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
-		activeDocuments.put(usDocument.getDatabaseId(), usDocument);
+    public Document createDocument(String movieTitle, String year, String language) {
+        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
+        activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         return usDocument.getDocument();
-	}
+    }
 
     public Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
