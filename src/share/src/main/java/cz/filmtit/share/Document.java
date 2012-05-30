@@ -1,12 +1,10 @@
 package cz.filmtit.share;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.ArrayList;
 import com.google.gwt.user.client.rpc.IsSerializable;
-import java.io.Serializable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 public class Document implements IsSerializable, Serializable {
     public long spentOnThisTime;
 
@@ -14,6 +12,8 @@ public class Document implements IsSerializable, Serializable {
     private long id = Long.MIN_VALUE;
     private MediaSource movie;
     private Language language;
+
+    private long userId = Long.MIN_VALUE;
 
     public List<TranslationResult> translationResults = new ArrayList<TranslationResult>();
     
@@ -51,6 +51,18 @@ public class Document implements IsSerializable, Serializable {
 
     public void setLanguageCode(String languageCode) {
         language = Language.fromCode(languageCode);
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        if (this.userId != Long.MIN_VALUE) {
+            throw  new UnsupportedOperationException("Once the owner ID is set, it cannot be changed.");
+        }
+
+        this.userId = userId;
     }
 
 }

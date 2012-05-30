@@ -10,15 +10,15 @@
             <generator class="native"/>
         </id>
 
-        <property name="UserName" type="java.lang.String" column="userName" />
-        <property name="Login" type="java.lang.String" column="login" />
-        <property name="Email" type="java.lang.String" column="email" />
-        <property name="Password" type="java.lang.String" column="pass" />
-        <property name="Raiting" type="long" column="raiting" />
-        <property name="OpenID" type="java.lang.String" column="openId" />
-        <property name="Fbid" type="long" column="fbId" />
-        <property name="Active" type="boolean" column="active" />
-        <property name="LastSession" type="java.util.Date" column="lastSession" />
+        <property name="userName" type="java.lang.String" column="userName" />
+        <property name="login" type="java.lang.String" column="login" />
+        <property name="email" type="java.lang.String" column="email" />
+        <property name="password" type="java.lang.String" column="pass" />
+        <!-- <property name="rating" type="long" column="rating" />
+        <property name="openID" type="java.lang.String" column="openId" />
+        <property name="fbid" type="long" column="fbId" />
+        <property name="active" type="boolean" column="active" />   -->
+        <property name="lastSession" type="java.util.Date" column="lastSession" />
 
     </class>
 

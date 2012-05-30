@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 /**
- * Represents a user of the application
+ * Represents a user of the application in the user space
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
@@ -43,7 +43,7 @@ public class USUser extends DatabaseObject {
             session.beginTransaction();
 
             // query the documents owned by the user
-            List result = session.createQuery("select d from Documents where d.UserId = :uid")
+            List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid")
                     .setParameter("uid", getDatabaseId()).list();
 
             // store it to the variable
@@ -67,9 +67,5 @@ public class USUser extends DatabaseObject {
         for (USDocument document : ownedDocuments) {
             document.deleteFromDatabase(dbSession);
         }
-
-
-
     }
-
 }

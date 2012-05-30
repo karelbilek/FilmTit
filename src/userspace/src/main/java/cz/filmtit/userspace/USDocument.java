@@ -206,15 +206,19 @@ public class USDocument extends DatabaseObject {
         deleteJustObject(dbSession);
     }
 
-   public  static USDocument Load(long id)
-    {
+    /**
+     * Static method that loads
+     * @param id
+     * @return
+     */
+    public static USDocument load(long id) {
+        // TODO: Should be later in the USUser
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
         List docs = dbSession.createQuery("select d from USDocument d where d.id = :did")
                 .setParameter("did", id).list();
-        if (docs.size() == 1)
-        {
-             USDocument doc = (USDocument)(docs.get(0));
+        if (docs.size() == 1) {
+            USDocument doc = (USDocument)(docs.get(0));
             return doc;
         }
         return null;

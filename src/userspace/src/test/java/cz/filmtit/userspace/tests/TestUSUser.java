@@ -1,17 +1,9 @@
 package cz.filmtit.userspace.tests;
 
-import cz.filmtit.share.Document;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
-import cz.filmtit.userspace.FilmTitBackendServer;
-import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USUser;
-import junit.framework.*;
-import org.junit.*;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static junit.framework.Assert.assertEquals;
 
 public class TestUSUser {
     @BeforeClass
@@ -30,7 +22,6 @@ public class TestUSUser {
     public void TestSaveUser()
     {
         USUser user  = new USUser();
-
     }
 
 }

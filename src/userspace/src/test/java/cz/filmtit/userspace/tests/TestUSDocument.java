@@ -1,13 +1,9 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.share.Document;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.FilmTitBackendServer;
-import cz.filmtit.userspace.HibernateUtil;
-import  cz.filmtit.userspace.USDocument;
+import cz.filmtit.userspace.USDocument;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,7 +33,6 @@ public class TestUSDocument implements Test {
     @Test
     public  void  TestUSDocumentConstructor()
     {
-
         Document doc = new Document("Movie title", "2012", "cs");
         USDocument resultUSDocument = new USDocument(doc);
 
@@ -55,7 +50,7 @@ public class TestUSDocument implements Test {
         Document doc = new Document("Movie title", "2012", "cs");
         USDocument resultUSDocument = new USDocument(doc);
         resultUSDocument.setFinished(false);
-        resultUSDocument.setDatabaseId(2001);
+
         resultUSDocument.setSpentOnThisTime(120);
         resultUSDocument.setTranslationGenerationTime(50);
         session.beginTransaction();
@@ -68,18 +63,24 @@ public class TestUSDocument implements Test {
 
     }
 
+    @Test(expected=UnsupportedOperationException.class)
+    public void TestDatabaseImmutability() {
+        Session session = DatabaseUtil.getSession();
+        Document doc = new Document("Movie title", "2012", "cs");
+        USDocument resultUSDocument = new USDocument(doc);
+
+        resultUSDocument.setDatabaseId(2001);
+    }
+
     @Test
     public void TestLoad() {
         FilmTitBackendServer server = new FilmTitBackendServer();
         Document resultDocument = server.createDocument("Movie title", "2012", "cs");
-        USDocument doc = USDocument.Load(resultDocument.getId());
+        USDocument doc = USDocument.load(resultDocument.getId());
 
         assertEquals(doc.getLanguageCode(), "cs");
         assertEquals(doc.getMovieTitle(),"Movie title");
         assertEquals(doc.getYear(),"2012");
-
-
-
     }
 
     @Override
