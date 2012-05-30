@@ -5,7 +5,6 @@ import java.net.URLEncoder
 import org.json.{JSONArray, JSONObject}
 import cz.filmtit.core.model.TranslationPairSearcher
 import collection.mutable.ListBuffer
-import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
 
 /**

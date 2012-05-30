@@ -1,6 +1,5 @@
 package cz.filmtit.core.model
 
-import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
 
 /**
@@ -24,7 +23,7 @@ abstract class TranslationPairRanker {
    * @param pairs the translation pair candidates
    * @return sorted list of scored translation pairs with best first
    */
-  def rank(chunk: AnnotatedChunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
+  def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]):
   List[TranslationPair] = pairs.map(pair => rankOne(chunk, mediaSource, pair)).sorted
 
 
@@ -56,7 +55,7 @@ abstract class TranslationPairRanker {
    * @param pair the translation pair candidate
    * @return translation pair with score
    */
-  def rankOne(chunk: AnnotatedChunk, mediaSource: MediaSource,  pair: TranslationPair): TranslationPair
+  def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair): TranslationPair
 
 
   /**
@@ -65,3 +64,4 @@ abstract class TranslationPairRanker {
   def name: String
 
 }
+

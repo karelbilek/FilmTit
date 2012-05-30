@@ -2,13 +2,14 @@ package cz.filmtit.core.tests
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Spec
-import cz.filmtit.share.{Language, TranslationPair}
+import cz.filmtit.share._
 import cz.filmtit.core.search.postgres.impl.NEStorage
-import cz.filmtit.core.model.data.AnnotatedChunk
 import cz.filmtit.core.Utils.chunkFromString
 import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
 import TestUtil.createTMWithDummyContent
+import cz.filmtit.core.model.data.ChunkUtils._
+import cz.filmtit.core.Utils.chunkFromString
 
 /**
  * Test specification for [[cz.filmtit.core.model.TranslationPairSearcher]].
@@ -31,7 +32,7 @@ class NESearcherSpec extends Spec {
       /* Since we found the results via NE matches, the corresponding NE
          annotations must be restorable from the database. */
       assert(
-        candidates.exists(_.getChunkL1.asInstanceOf[AnnotatedChunk].toAnnotatedString() contains "<Person>" )
+        candidates.exists(_.getChunkL1.toAnnotatedString() contains "<Person>" )
       )
     }
 

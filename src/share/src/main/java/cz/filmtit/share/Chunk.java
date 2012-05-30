@@ -1,18 +1,27 @@
 package cz.filmtit.share;
 
+import cz.filmtit.share.annotations.*;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Joachim Daiber
  */
 public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-    private String surfaceform;
+    private String surfaceform="";
     
+    //I do NOT want to create a constructor with list so scala doesn't add 
+    //its own implementation of java lists
+    private List<Annotation> annotations=new ArrayList<Annotation>();
+
     public Chunk() {
     	// nothing
     }
 
+    
     public Chunk(String surfaceform) {
         this.surfaceform = surfaceform;
     }
@@ -48,5 +57,25 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     @Override
     public int hashCode() {
         return surfaceform.hashCode();
+    }
+
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    public void clearAnnotations() {
+        this.annotations.clear();
+    }
+
+    public void addAnnotation(Annotation annotation) {
+        this.annotations.add(annotation);
+    }
+
+    public void addAnnotations(Collection<Annotation> annotations) {
+        this.annotations.addAll(annotations);
+    }
+
+    public void removeAnnotation(int index) {
+        this.annotations.remove(index);
     }
 }

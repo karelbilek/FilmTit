@@ -2,7 +2,6 @@ package cz.filmtit.core.search.postgres
 
 import cz.filmtit.core.model._
 import collection.mutable.ListBuffer
-import data.AnnotatedChunk
 import java.sql.Connection
 import storage.{Signature, SignatureTranslationPairStorage}
 import org.postgresql.util.PSQLException
@@ -83,8 +82,8 @@ with SignatureTranslationPairStorage {
 
       if (row != null) {
 
-        val sigL1 = signature(row.getString("chunk_l1"), l1)
-        val sigL2 = signature(row.getString("chunk_l2"), l2)
+        val sigL1 = signature(new Chunk(row.getString("chunk_l1")), l1)
+        val sigL2 = signature(new Chunk(row.getString("chunk_l2")), l2)
 
 
         if (reversible) {
@@ -139,7 +138,7 @@ with SignatureTranslationPairStorage {
    * If the storage is reversible, add annotations to the chunk that represent
    * parts of the chunk that are special, e.g. named entities to be post-edited.
    */
-  def annotate(chunk: AnnotatedChunk, signature: Signature) {
+  def annotate(chunk: Chunk, signature: Signature) {
     //do nothing, must be overridden
   }
 
@@ -175,8 +174,8 @@ with SignatureTranslationPairStorage {
     val candidates = new ListBuffer[TranslationPair]()
     while (rs.next()) {
 
-      val chunkL1: AnnotatedChunk = rs.getString("chunk_l1")
-      val chunkL2: AnnotatedChunk = rs.getString("chunk_l2")
+      val chunkL1: Chunk = new Chunk(rs.getString("chunk_l1"))
+      val chunkL2: Chunk = new Chunk(rs.getString("chunk_l2"))
       val pairID: Long = rs.getLong("pair_id")
 
       //Restore the signature for both chunks if possible
