@@ -2,7 +2,7 @@ package cz.filmtit.core.model.storage
 
 import cz.filmtit.share.annotations._
 import cz.filmtit.core.model.data._
-import cz.filmtit.core.model.data.ChunkUtils._
+import cz.filmtit.core.model.data.ChunkUtils.toAnnotatedString
 import cz.filmtit.share.Chunk
 import scala.collection.JavaConversions._
 
@@ -39,7 +39,7 @@ object Signature {
 
    //implicit conversion to ChunkUtils
   def fromChunk(chunk: Chunk) = {
-    val s = new Signature(chunk.toAnnotatedString())
+    val s = new Signature(toAnnotatedString(chunk))
     s.annotations ++= chunk.getAnnotations
     s
   }

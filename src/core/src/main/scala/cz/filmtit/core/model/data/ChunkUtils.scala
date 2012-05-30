@@ -4,15 +4,17 @@ import scala.collection.JavaConversions._
 import cz.filmtit.share.annotations.AnnotationType
 import cz.filmtit.share.Chunk
 
-class ChunkUtils(chunk:Chunk) {
+object ChunkUtils {
     
 
- val surfaceform = chunk.getSurfaceForm
  
  def toAnnotatedString(
+    chunk: Chunk,
     format: (AnnotationType, String) => String = 
         { (t, _) => "<" + t.getDescription + ">" }
   ): String = {
+ 
+    val surfaceform = chunk.getSurfaceForm
 
     var lastOffset = 0
     (chunk.getAnnotations map {
@@ -34,8 +36,4 @@ class ChunkUtils(chunk:Chunk) {
   }
 
 
-}
-
-object ChunkUtils { 
-    implicit def utilWrapper(chunk:Chunk) = new ChunkUtils(chunk)
 }
