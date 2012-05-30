@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 
-import com.google.appengine.repackaged.com.google.protobuf.RepeatedFieldBuilder;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -338,7 +337,7 @@ public class Gui implements EntryPoint {
 			if (chunks.isEmpty()) {
 				return false;
 			} else {
-				TimedChunk timedchunk = chunks.pop();
+				TimedChunk timedchunk = chunks.removeFirst();
 				sendChunk(timedchunk);
 				return true;
 			}
