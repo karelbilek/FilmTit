@@ -5,8 +5,7 @@ import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import scala.collection.mutable.HashMap
 import scala.io.Source
 import cz.filmtit.core.model.storage.Signature
-import cz.filmtit.core.model.data.AnnotatedChunk
-import cz.filmtit.share.{Language, TranslationSource}
+import cz.filmtit.share._
 import cz.filmtit.core.Configuration
 
 
@@ -46,7 +45,7 @@ BaseSignatureStorage(
     }
   })
 
-  override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
+  override def signature(chunk: Chunk, language: Language): Signature = {
     new String(chunk.getSurfaceForm.split(" ") flatMap {
       token =>
         cluster.get(token) match {

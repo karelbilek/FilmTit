@@ -1,7 +1,10 @@
 package cz.filmtit.core.model.storage
 
-import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.share.annotations._
 import cz.filmtit.core.model.data._
+import cz.filmtit.core.model.data.ChunkUtils._
+import cz.filmtit.share.Chunk
+import scala.collection.JavaConversions._
 
 import collection.mutable.ListBuffer
 
@@ -18,9 +21,9 @@ import collection.mutable.ListBuffer
 
 class Signature(val surfaceform: String) {
 
-  lazy val annotations = ListBuffer[Triple[ChunkAnnotation, Int, Int]]()
+  lazy val annotations = ListBuffer[Annotation]()
 
-  def listAnnotations(): String = annotations.map(t => ("%s,%d,%d").format(t._1.id, t._2, t._3)).mkString(",")
+  def listAnnotations(): String = annotations.map(t => ("%s,%d,%d").format(t.getType.getDescription, t.getBegin, t.getEnd)).mkString(",")
 
 }
 
@@ -33,9 +36,11 @@ object Signature {
    * @param chunk chunk to be indexed, including annotations
    * @return
    */
-  def fromChunk(chunk: AnnotatedChunk) = {
+
+   //implicit conversion to ChunkUtils
+  def fromChunk(chunk: Chunk) = {
     val s = new Signature(chunk.toAnnotatedString())
-    s.annotations ++= chunk.annotations
+    s.annotations ++= chunk.getAnnotations
     s
   }
 
@@ -51,7 +56,7 @@ object Signature {
     val sig = new Signature(signature)
     if (!annotations.equals(""))
       sig.annotations ++= annotations.split(",").sliding(3) map {
-        (a => (ChunkAnnotation.fromID(a(0)), a(1).toInt, a(2).toInt))
+        (a => new Annotation(AnnotationType.fromDescription(a(0)), a(1).toInt, a(2).toInt))
       }
 
     sig

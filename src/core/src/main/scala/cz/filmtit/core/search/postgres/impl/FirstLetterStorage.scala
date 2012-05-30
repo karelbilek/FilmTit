@@ -4,10 +4,9 @@ import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
 
 import java.sql.Connection
-import data.AnnotatedChunk
 import storage.Signature
 import java.lang.String
-import cz.filmtit.share.{Language, TranslationSource}
+import cz.filmtit.share._
 import cz.filmtit.core.Configuration
 
 
@@ -35,7 +34,7 @@ class FirstLetterStorage(
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
-  override def signature(chunk: AnnotatedChunk, language: Language): Signature = {
+  override def signature(chunk: Chunk, language: Language): Signature = {
     val tokens: Array[String] = chunk.getSurfaceForm.split("[ ,.?!-]") filter (_ != "")
 
     tokens map {

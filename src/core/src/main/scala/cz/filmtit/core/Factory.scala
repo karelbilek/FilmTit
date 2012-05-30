@@ -12,7 +12,7 @@ import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
 import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
 import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
-import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.share.annotations.AnnotationType
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
@@ -171,7 +171,7 @@ object Factory {
    * @param neType the type of NE, the recognizer detects
    * @return
    */
-  def createNERecognizer(language: Language, neType: ChunkAnnotation, configuration: Configuration): NERecognizer =
+  def createNERecognizer(language: Language, neType: AnnotationType, configuration: Configuration): NERecognizer =
     createNERecognizers(language, configuration).filter( _.neClass == neType ).head
 
 

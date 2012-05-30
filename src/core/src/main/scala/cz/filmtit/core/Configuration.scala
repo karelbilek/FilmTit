@@ -1,6 +1,6 @@
 package cz.filmtit.core
 
-import cz.filmtit.core.model.annotation.ChunkAnnotation
+import cz.filmtit.share.annotations.AnnotationType
 import scala.xml._
 import collection.mutable.HashMap
 import cz.filmtit.share.Language
@@ -36,14 +36,14 @@ class Configuration(configurationFile: InputStream) {
 
   //Named entity recognition:
   val modelPath: String = (XMLFile \ "model_path").text
-  val neRecognizers = HashMap[Language, List[Pair[ChunkAnnotation, String]]]()
+  val neRecognizers = HashMap[Language, List[Pair[AnnotationType, String]]]()
 
   //Read the NER models and them by their language
   (XMLFile \ "ner_models" \ "ner_model") foreach( ner_model => {
     val language_code = Language.fromCode( (ner_model \ "@language").text )
     val updated_models = neRecognizers.getOrElse(
-      language_code, List[Pair[ChunkAnnotation, String]]()
-    ) ++ List(Pair(ChunkAnnotation.fromName( (ner_model \ "@type").text ), modelPath + ner_model.text))
+      language_code, List[Pair[AnnotationType, String]]()
+    ) ++ List(Pair(AnnotationType.fromDescription( (ner_model \ "@type").text ), modelPath + ner_model.text))
     neRecognizers.update(language_code, updated_models)
   })
 

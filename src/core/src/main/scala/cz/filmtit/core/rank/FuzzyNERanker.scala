@@ -1,10 +1,8 @@
 package cz.filmtit.core.rank
 
-import cz.filmtit.core.model.annotation.ChunkAnnotation
 import collection.mutable.ListBuffer
 import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
-import cz.filmtit.core.model.data.AnnotatedChunk
-
+import cz.filmtit.core.model.data.ChunkUtils._
 
 /**
  * @author Joachim Daiber
@@ -26,7 +24,7 @@ class FuzzyNERanker extends BaseRanker {
    * @param pair the translation pair candidate
    * @return translation pair with score
    */
-  def rankOne(chunk: AnnotatedChunk, mediaSource: MediaSource, pair: TranslationPair):
+  def rankOne(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair):
   TranslationPair = {
 
     /* We know that the two strings have the same NE annotations and that
@@ -40,11 +38,12 @@ class FuzzyNERanker extends BaseRanker {
 
     //Add all the non-matching annotations to the chunk so that it can be
     //post-edited
-    for ( i <- (0 until pair.getChunkL1.asInstanceOf[AnnotatedChunk].annotations.size) ) {
+    for ( i <- (0 until pair.getChunkL1.getAnnotations.size) ) {
       //if (!(matches contains i))
         //scoredPair.chunkL1.annotations += pair.chunkL1.annotations(i)
     }
-    val distanceScore = 1.0 - ( pair.getChunkL1.asInstanceOf[AnnotatedChunk].toAnnotatedString({(_, _) => "" }).length / chunk.surfaceform.length.toFloat )
+
+    val distanceScore = 1.0 - ( pair.getChunkL1.toAnnotatedString({(_, _) => "" }).length / chunk.surfaceform.length.toFloat )
     pair.setScore((lambdas._1 * distanceScore) + (lambdas._2 * genreMatches(mediaSource, pair)))
 
     pair
@@ -59,13 +58,16 @@ class FuzzyNERanker extends BaseRanker {
    * @param chunk2 second chunk
    * @return
    */
-  def matchingSFs(chunk1: AnnotatedChunk, chunk2: AnnotatedChunk): List[Int] = {
+  def matchingSFs(chunk1: Chunk, chunk2: Chunk): List[Int] = {
 
     val matches = ListBuffer[Int]()
 
-    for (i <- (0 until chunk1.annotations.size)) {
-      val (_, neFrom1, neTo1): (ChunkAnnotation, Int, Int) = chunk1.annotations(i)
-      val (_, neFrom2, neTo2): (ChunkAnnotation, Int, Int) = chunk2.annotations(i)
+    for (i <- (0 until chunk1.getAnnotations.size)) {
+      val neFrom1 = chunk1.getAnnotations.get(i).getBegin
+      val neTo1 = chunk1.getAnnotations.get(i).getEnd
+
+      val neFrom2 = chunk2.getAnnotations.get(i).getBegin
+      val neTo2 = chunk2.getAnnotations.get(i).getEnd
 
       if (chunk1.surfaceform.substring(neFrom1, neTo1)
            equals chunk2.surfaceform.substring(neFrom2, neTo2)) {

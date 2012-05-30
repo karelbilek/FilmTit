@@ -1,7 +1,7 @@
 package cz.filmtit.core.model.names
 
-import cz.filmtit.core.model.annotation.ChunkAnnotation
-import cz.filmtit.core.model.data.AnnotatedChunk
+import cz.filmtit.share.Chunk
+import cz.filmtit.share.annotations.AnnotationType
 
 
 /**
@@ -11,7 +11,7 @@ import cz.filmtit.core.model.data.AnnotatedChunk
  * @author Joachim Daiber
  */
 
-abstract class NERecognizer(val neClass: ChunkAnnotation) {
+abstract class NERecognizer(val neClass: AnnotationType) {
 
 
   /**
@@ -20,6 +20,6 @@ abstract class NERecognizer(val neClass: ChunkAnnotation) {
    * @param chunk chunk on which NER will be performed
    */
 
-  def detect(chunk: AnnotatedChunk)
+  def detect(chunk: Chunk)
 
 }
