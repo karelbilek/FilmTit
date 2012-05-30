@@ -34,6 +34,14 @@
         </dependency>
 
         <dependency>
+            <artifactId>core</artifactId>
+            <groupId>cz.filmtit</groupId>
+            <version>${filmtit.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <artifactId>share</artifactId>
             <groupId>cz.filmtit</groupId>
             <version>${filmtit.version}</version>

@@ -20,7 +20,7 @@ public class TestUSDocument implements Test {
 
     @Test
     public void TestServerCall() {
-        FilmTitBackendServer server = new FilmTitBackendServer();
+        FilmTitBackendServer server = new MockFilmTitBackendServer();
         Document resultDocument = server.createDocument("Movie title", "2012", "cs");
 
         assertEquals("Movie title", resultDocument.getMovie().getTitle());
@@ -74,7 +74,7 @@ public class TestUSDocument implements Test {
 
     @Test
     public void TestLoad() {
-        FilmTitBackendServer server = new FilmTitBackendServer();
+        FilmTitBackendServer server = new MockFilmTitBackendServer();
         Document resultDocument = server.createDocument("Movie title", "2012", "cs");
         USDocument doc = USDocument.load(resultDocument.getId());
 

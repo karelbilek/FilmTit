@@ -2,6 +2,8 @@ package cz.filmtit.userspace;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.core.Factory;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.FilmTitService;
 import cz.filmtit.share.TimedChunk;
@@ -20,18 +22,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long SESSION_TIME_OUT_LIMIT = 100000;
             //ConfigurationSingleton.getConf().sessionTimeout();
 
-    private TranslationMemory TM;
+    protected TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                  // delete ASAP sessions introduced
     private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
     private Map<String, Session> activeSessions = new HashMap<String,Session>();
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
 
-        //TM = Factory.createTMFromConfiguration(
-        //        ConfigurationSingleton.getConf(),
-        //        false, //readonly
-        //        false //inmemory
-        //);
+
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
@@ -41,9 +39,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         System.err.println("FilmTitBackendServer started fine!");
     }
 
-    /*public FilmTitBackendServer() throws Exception {
-        this(new Configuration(new File("/filmtit/git/FilmTit/src/configuration.xml")));
-    }*/
+    protected void loadTranslationMemory() {
+        TM = Factory.createTMFromConfiguration(
+                ConfigurationSingleton.getConf(),
+                false, // readonly
+                false  // in memory
+        );
+    }
 
     public TranslationMemory getTM() {
         return TM;
