@@ -23,8 +23,8 @@ import java.util.List;
  * @author Jindřich Libovický
  */
 public class USDocument extends DatabaseObject {
-    private static int MINIMUM_MOVIE_YEAR = 1850;
-    private static int MAXIMUM_MOVIE_YEAR = 5;
+    private static final int MINIMUM_MOVIE_YEAR = 1850;
+    private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
     private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
 
     private long ownerDatabaseId;
@@ -42,7 +42,7 @@ public class USDocument extends DatabaseObject {
         workStartTime = new Date().getTime();
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();  // thows an exception
+        dbSession.beginTransaction();  // throws an exception
         saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
     }
@@ -104,9 +104,9 @@ public class USDocument extends DatabaseObject {
     public void setYear(String year) {
         int yearInt = Integer.parseInt(year);
         // the movie should be from a reasonable time period
-        if (yearInt < MINIMUM_MOVIE_YEAR || yearInt > MAXIMUM_MOVIE_YEAR) {
-            throw new IllegalArgumentException("Value of year should be " + MINIMUM_MOVIE_YEAR + " and " +
-                MAXIMUM_MOVIE_YEAR + ".");
+        if (yearInt < MINIMUM_MOVIE_YEAR  ) {
+            throw new IllegalArgumentException("Value of year should from 1850 to the current year + "  +
+                    Calendar.YEAR + "" + ALLOWED_FUTURE_FOR_YEARS + ".");
         }
         cachedMovieYear = year;
         if (cachedMovieTitle != null) { generateMediaSource(); }
@@ -204,5 +204,19 @@ public class USDocument extends DatabaseObject {
 
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
+    }
+
+   public  static USDocument Load(long id)
+    {
+        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();
+        List docs = dbSession.createQuery("select d from USDocument d where d.id = :did")
+                .setParameter("did", id).list();
+        if (docs.size() == 1)
+        {
+             USDocument doc = (USDocument)(docs.get(0));
+            return doc;
+        }
+        return null;
     }
 }
