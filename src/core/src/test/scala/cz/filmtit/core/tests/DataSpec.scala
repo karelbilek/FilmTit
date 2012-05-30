@@ -7,7 +7,7 @@ import junit.framework.Assert._
 import org.scalatest.Spec
 import cz.filmtit.share.Chunk
 import cz.filmtit.share.annotations._
-import cz.filmtit.core.model.data.ChunkUtils._
+import cz.filmtit.core.model.data.ChunkUtils.toAnnotatedString
 import cz.filmtit.core.Utils.chunkFromString
 
 
@@ -40,13 +40,13 @@ class DataSpec extends Spec {
       //Show only type:
       assertEquals(
         "I am <Person>",
-        chunk.toAnnotatedString()
+        toAnnotatedString(chunk)
       )
 
       //Show type and surface form:
       assertEquals(
         "I am <Person:Jo>",
-        chunk.toAnnotatedString((tag, surface) => "<%s:%s>".format(tag.getDescription, surface))
+        toAnnotatedString(chunk, {(tag, surface) => "<%s:%s>".format(tag.getDescription, surface)})
       )
 
     }
@@ -60,7 +60,7 @@ class DataSpec extends Spec {
 
       assertEquals(
         "<Person> lives in <Place> with <Person>",
-        chunk.toAnnotatedString((ann, string) => "<%s>".format(ann.getDescription))
+        toAnnotatedString(chunk, {(ann, string) => "<%s>".format(ann.getDescription)})
       )
 
     }

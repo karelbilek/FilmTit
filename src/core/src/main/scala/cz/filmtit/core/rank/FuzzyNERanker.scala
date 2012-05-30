@@ -2,7 +2,7 @@ package cz.filmtit.core.rank
 
 import collection.mutable.ListBuffer
 import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
-import cz.filmtit.core.model.data.ChunkUtils._
+import cz.filmtit.core.model.data.ChunkUtils.toAnnotatedString
 
 /**
  * @author Joachim Daiber
@@ -42,8 +42,12 @@ class FuzzyNERanker extends BaseRanker {
       //if (!(matches contains i))
         //scoredPair.chunkL1.annotations += pair.chunkL1.annotations(i)
     }
+    
 
-    val distanceScore = 1.0 - ( pair.getChunkL1.toAnnotatedString({(_, _) => "" }).length / chunk.surfaceform.length.toFloat )
+    val l1annotatedString = toAnnotatedString(pair.getChunkL1, {(_, _) => "" })
+    
+    val distanceScore = 1.0 - ( l1annotatedString.length / chunk.getSurfaceForm.length.toFloat )
+
     pair.setScore((lambdas._1 * distanceScore) + (lambdas._2 * genreMatches(mediaSource, pair)))
 
     pair
@@ -69,8 +73,8 @@ class FuzzyNERanker extends BaseRanker {
       val neFrom2 = chunk2.getAnnotations.get(i).getBegin
       val neTo2 = chunk2.getAnnotations.get(i).getEnd
 
-      if (chunk1.surfaceform.substring(neFrom1, neTo1)
-           equals chunk2.surfaceform.substring(neFrom2, neTo2)) {
+      if (chunk1.getSurfaceForm.substring(neFrom1, neTo1)
+           equals chunk2.getSurfaceForm.substring(neFrom2, neTo2)) {
         matches += i
       }
     }

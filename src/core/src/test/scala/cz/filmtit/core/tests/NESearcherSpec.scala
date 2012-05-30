@@ -8,7 +8,7 @@ import cz.filmtit.core.Utils.chunkFromString
 import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
 import TestUtil.createTMWithDummyContent
-import cz.filmtit.core.model.data.ChunkUtils._
+import cz.filmtit.core.model.data.ChunkUtils.toAnnotatedString
 import cz.filmtit.core.Utils.chunkFromString
 
 /**
@@ -32,7 +32,7 @@ class NESearcherSpec extends Spec {
       /* Since we found the results via NE matches, the corresponding NE
          annotations must be restorable from the database. */
       assert(
-        candidates.exists(_.getChunkL1.toAnnotatedString() contains "<Person>" )
+        candidates.exists(pair => toAnnotatedString(pair.getChunkL1) contains "<Person>" )
       )
     }
 
