@@ -3,6 +3,7 @@ package cz.filmtit.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -33,6 +34,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
 import cz.filmtit.share.*;
 
@@ -292,24 +296,59 @@ public class Gui implements EntryPoint {
 		log("subtitle format chosen: " + subformat);
 				
 		// parse:
+		log("starting parsing");
+		long startTime = System.currentTimeMillis();
 		this.chunklist = subtextparser.parse(this.subtext, this.currentDocument.getId());
+		long endTime = System.currentTimeMillis();
+		long parsingTime = endTime - startTime;
+		log("parsing finished in " + parsingTime + "ms");
+
 		for (TimedChunk chunk : chunklist) {
-			TranslationResult tr = new TranslationResult();
-			tr.setSourceChunk(chunk);
-			this.currentDocument.translationResults.add(tr);
+		    TranslationResult tr = new TranslationResult();
+		    tr.setSourceChunk(chunk);
+		    this.currentDocument.translationResults.add(tr);
 		}
-		
+
 		// output the parsed chunks:
 		log("\nparsed chunks:");
-		for (TimedChunk timedchunk : chunklist) {
-			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
 
-			log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
-			rpcHandler.getTranslationResults(timedchunk);
-		}
+		// TODO: use this
+		// Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
+
+		// TODO: remove this
+		for (TimedChunk timedchunk : chunklist) {
+		    log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
+
+		    log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
+		    rpcHandler.getTranslationResults(timedchunk);
+		}		
 		
 	}
 	
+	class SendChunksRepeatingCommand implements RepeatingCommand {
+
+		LinkedList<TimedChunk> chunks;
+		
+		public SendChunksRepeatingCommand(List<TimedChunk> chunks) {
+			this.chunks = new LinkedList<TimedChunk>(chunks);
+		}
+
+		public boolean execute() {
+			if (chunks.isEmpty()) {
+				return false;
+			} else {
+				TimedChunk timedchunk = chunks.removeFirst();
+				sendChunk(timedchunk);
+				return true;
+			}
+		}
+		
+		private void sendChunk(TimedChunk timedchunk) {
+			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
+			log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
+			rpcHandler.getTranslationResults(timedchunk);
+		}
+	}
 	
 	public Document getCurrentDocument() {
 		return currentDocument;
