@@ -6,6 +6,9 @@ import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import org.expressme.openid.Association;
+import org.expressme.openid.Endpoint;
+import org.expressme.openid.OpenIdManager;
 
 import java.util.Collections;
 import java.util.Date;
@@ -16,12 +19,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         FilmTitService {
 
     private static final long serialVersionUID = 3546115L;
-    private static long SESSION_TIME_OUT_LIMIT = 100000;
-            //ConfigurationSingleton.getConf().sessionTimeout();
+    private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.getConf().sessionTimeout();
+    private static int SESSION_ID_LENGHT = 47;
 
     protected TranslationMemory TM;
-    private Map<Long, USDocument> activeDocuments;                  // delete ASAP sessions introduced
+    private Map<Long, USDocument> activeDocuments;                   // delete ASAP sessions introduced
     private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
+
+    private Map<Long, Session> authenticatingSessions = new HashMap<Long, Session>();
     private Map<String, Session> activeSessions = new HashMap<String,Session>();
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
@@ -85,17 +90,45 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-        return null;
+        OpenIdManager manager = new OpenIdManager();
+
+        String serverAddress = ConfigurationSingleton.getConf().serverAddress();
+        manager.setReturnTo(serverAddress + "/openId");
+        manager.setRealm(serverAddress);
+        // TODO: the manager should be stored for further use in  validateAuthentication method
+
+        authenticatingSessions.put(authID, null);
+
+        // TODO: Add the service type resolving
+        Endpoint endpoint = manager.lookupEndpoint("Google");
+        Association association = manager.lookupAssociation(endpoint);
+
+        return association.toString();
     }
 
     @Override
     public Boolean validateAuthentication(long authID, String responseURL) {
+
+        //HttpServletRequest request = createRequest(responseURL);
+        //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
+        //authentication.getIdentity() <- this will be as user identification
+
         return null;
     }
 
     @Override
     public String getSessionID(long authID) {
-        return null;    }
+        if (authenticatingSessions.containsKey(authID) && authenticatingSessions.get(authID) != null) {
+            Session session = authenticatingSessions.get(authID);
+            authenticatingSessions.remove(authID);
+
+            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+            activeSessions.put(newSessionID, session);
+
+            return newSessionID;
+        }
+        return null;
+    }
 
     public Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
