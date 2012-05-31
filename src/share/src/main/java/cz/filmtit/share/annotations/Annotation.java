@@ -1,6 +1,8 @@
 package cz.filmtit.share.annotations;
 
-public class Annotation {
+import java.io.Serializable;
+
+public class Annotation implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
     private AnnotationType type;
     private int begin;
     private int end;
