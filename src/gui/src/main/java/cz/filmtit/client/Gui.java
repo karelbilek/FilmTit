@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 
 import com.google.gwt.core.client.EntryPoint;
@@ -63,8 +65,8 @@ public class Gui implements EntryPoint {
 	protected List<TimedChunk> chunklist;
 	
 	//private List<Label> sources = new ArrayList<Label>();
-	private List<SubgestBox> targetBoxes = new ArrayList<SubgestBox>();
-
+	private SortedSet<SubgestBox> targetBoxes = new TreeSet<SubgestBox>();
+	
 	private TextArea txtDebug;
 	private RadioButton rdbFormatSrt;
 	private RadioButton rdbFormatSub;
@@ -394,9 +396,12 @@ public class Gui implements EntryPoint {
 	}
 	
 	public void goToNextBox(SubgestBox currentBox) {
-		int nextIndex = targetBoxes.indexOf(currentBox) + 1;
-		if (nextIndex <= targetBoxes.size()) {
-			targetBoxes.get(nextIndex).setFocus(true);
+		//Iterator<SubgestBox> boxit = targetBoxes.tailSet(currentBox).iterator();
+		SortedSet<SubgestBox> tailset = targetBoxes.tailSet(currentBox);
+		Iterator<SubgestBox> boxit = tailset.iterator();
+		boxit.next(); // skipping the first element of tailSet
+		if (boxit.hasNext()) {
+			boxit.next().setFocus(true);
 		}
 		else {
 			// do nothing - stay where you are...

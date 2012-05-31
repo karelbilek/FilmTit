@@ -40,6 +40,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			SubgestBox subbox = (SubgestBox) event.getSource();
 			subbox.showSuggestions();
 			gui.setActiveSuggestionWidget(subbox.getSuggestionWidget());
+			//gui.log("tabindex of this: " + subbox.getTabIndex());
 		}
 	}
 	
