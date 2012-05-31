@@ -238,5 +238,4 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         public Endpoint endpoint;
 
     }
-
 }

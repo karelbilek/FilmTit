@@ -7,6 +7,9 @@ public class Annotation implements com.google.gwt.user.client.rpc.IsSerializable
     private int begin;
     private int end;
 
+    public Annotation() {
+    }
+    
     public Annotation(AnnotationType type, int begin, int end) {
         
         this.type = type;
