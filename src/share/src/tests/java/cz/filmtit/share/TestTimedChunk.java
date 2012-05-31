@@ -17,16 +17,14 @@ import static junit.framework.Assert.assertEquals;
 public class TestTimedChunk {
     private static TimedChunk chunk;
     @BeforeClass
-    public static void InitTimedChunk()
-    {
+    public static void initTimedChunk()  {
      chunk = new TimedChunk("0001","0020",1,"ahoj",2001,3001);
     }
 
 
 
     @Test
-    public void TestChunkGetters()
-    {
+    public void testChunkGetters(){
         assertEquals(3001,chunk.getDocumentId());
         assertEquals(2001,chunk.getId());
         assertEquals(1,chunk.getPartNumber());

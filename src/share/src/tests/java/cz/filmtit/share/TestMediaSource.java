@@ -17,16 +17,14 @@ import static junit.framework.Assert.assertEquals;
 public class TestMediaSource {
     private static MediaSource source;
     @BeforeClass
-    public static void InitTimedChunk()
-    {
+    public static void initTimedChunk(){
      source = new MediaSource("TestMovie","2012","akční, komedie, thriller");
     }
 
 
 
     @Test
-    public void TestChunkGetters()
-    {
+    public void testChunkGetters(){
         assertEquals("TestMovie",source.getTitle());
         assertEquals("2012",source.getYear());
         assertEquals(3,source.getGenres().size());

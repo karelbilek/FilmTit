@@ -21,9 +21,16 @@ import java.util.List;
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
-    private String name;
-    private String passwordHash;
+
+    private int databaseId;
+    private String userName;
+    private String login;
+    private String openId;
     private String fcbId;
+    private Boolean active;
+    private String lastSession;
+    private String email;
+
     private List<USDocument> ownedDocuments;
     private USDocument activeDocument;
     /**
@@ -68,4 +75,12 @@ public class USUser extends DatabaseObject {
             document.deleteFromDatabase(dbSession);
         }
     }
+
+    public static int CreateUser(String name, String email,String openId , String fbId )
+    {
+        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        return -1;
+    }
+
+
 }

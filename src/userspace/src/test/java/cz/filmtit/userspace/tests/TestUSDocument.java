@@ -14,12 +14,12 @@ import static junit.framework.Assert.assertTrue;
 
 public class TestUSDocument implements Test {
     @BeforeClass
-    public static void InitializeDatabase() {
+    public static void initializeDatabase() {
         DatabaseUtil.setDatabase();
     }
 
     @Test
-    public void TestServerCall() {
+    public void testServerCall() {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Document resultDocument = server.createDocument("Movie title", "2012", "cs");
 
@@ -31,7 +31,7 @@ public class TestUSDocument implements Test {
     }
 
     @Test
-    public  void  TestUSDocumentConstructor()
+    public  void testUSDocumentConstructor()
     {
         Document doc = new Document("Movie title", "2012", "cs");
         USDocument resultUSDocument = new USDocument(doc);
@@ -45,7 +45,7 @@ public class TestUSDocument implements Test {
 
     }
     @Test
-    public void TestSave() {
+    public void testSave() {
         Session session = DatabaseUtil.getSession();
         Document doc = new Document("Movie title", "2012", "cs");
         USDocument resultUSDocument = new USDocument(doc);
@@ -54,8 +54,7 @@ public class TestUSDocument implements Test {
         resultUSDocument.setSpentOnThisTime(120);
         resultUSDocument.setTranslationGenerationTime(50);
         session.beginTransaction();
-        if (session.isOpen())
-        {
+        if (session.isOpen()) {
          resultUSDocument.saveToDatabase(session);
         }
         session.getTransaction().commit();
@@ -64,7 +63,7 @@ public class TestUSDocument implements Test {
     }
 
     @Test(expected=UnsupportedOperationException.class)
-    public void TestDatabaseImmutability() {
+    public void testDatabaseImmutability() {
         Session session = DatabaseUtil.getSession();
         Document doc = new Document("Movie title", "2012", "cs");
         USDocument resultUSDocument = new USDocument(doc);
@@ -73,7 +72,7 @@ public class TestUSDocument implements Test {
     }
 
     @Test
-    public void TestLoad() {
+    public void testLoad() {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Document resultDocument = server.createDocument("Movie title", "2012", "cs");
         USDocument doc = USDocument.load(resultDocument.getId());

@@ -13,15 +13,16 @@ public class TestUSUser {
 
 
     @Test
-    public void TestOwnedDocument() {
+    public void testOwnedDocument() {
         USUser user  = new USUser();
         Assert.assertEquals(0,user.getOwnedDocuments().size());
    }
 
     @Test
-    public void TestSaveUser()
+    public void testSaveUser()
     {
         USUser user  = new USUser();
+
     }
 
 }

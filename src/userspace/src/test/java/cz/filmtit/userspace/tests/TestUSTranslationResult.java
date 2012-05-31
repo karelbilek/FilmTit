@@ -15,7 +15,7 @@ public class TestUSTranslationResult {
     }
 
     @Test
-    public void TestServerCall() {
+    public void testServerCall() {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         TranslationResult sampleResult =
                 server.getTranslationResults(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
@@ -29,7 +29,7 @@ public class TestUSTranslationResult {
     }
 
     @Test
-    public void TestSaveAndLoad() { }
+    public void testSaveAndLoad() { }
 }
 
 

@@ -22,7 +22,7 @@ public class TestChunk {
     }
 
     @Test
-    public void TestChunkToString() {
+    public void testChunkToString() {
         Chunk test = new Chunk("ahoj");
         assertEquals("ahoj",test.getSurfaceForm());
         assertEquals("Chunk[ahoj]",test.toString());
@@ -30,7 +30,7 @@ public class TestChunk {
     }
 
     @Test
-    public void TestChunkEquals()
+    public void testChunkEquals()
     {
         Chunk test = new Chunk("ahoj");
         Chunk test2 = new Chunk("ahoj2");

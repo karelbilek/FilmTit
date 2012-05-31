@@ -17,13 +17,13 @@ import static junit.framework.Assert.assertEquals;
 public class TestDocument {
     private static Document doc;
     @BeforeClass
-    public static void InitializeDoc() {
+    public static void initializeDoc() {
         doc = new Document("TestMovie","2012","cs");
         doc.setId(2012);
     }
 
     @Test
-    public void TestSetId() {
+    public void testSetId() {
 
         try{
           doc.setId(2013);
@@ -36,8 +36,7 @@ public class TestDocument {
     }
 
     @Test
-    public void TestGetters()
-    {
+    public void testGetters() {
        assertEquals("TestMovie",doc.getMovie().getTitle());
        assertEquals("2012",doc.getMovie().getYear());
        assertEquals("Czech",doc.getLanguage().getName());
