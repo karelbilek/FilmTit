@@ -26,7 +26,7 @@ class Configuration(configurationFile: InputStream) {
 
   //Languages:
   val l1 = Language.fromCode((XMLFile \ "l1").text)
-  val l2 = Language.fromCode((XMLFile \ "l1").text)
+  val l2 = Language.fromCode((XMLFile \ "l2").text)
 
   //Database:
   private val dbXML = XMLFile \ "database"
