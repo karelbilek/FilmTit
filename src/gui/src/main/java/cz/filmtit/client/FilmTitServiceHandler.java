@@ -1,5 +1,7 @@
 package cz.filmtit.client;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -89,6 +91,11 @@ public class FilmTitServiceHandler {
 				// TODO: repeat sending a few times, then ask user
 				Window.alert(caught.getLocalizedMessage());
 				gui.log("failure on receiving some chunk!");
+				gui.log(caught.toString());				
+				StackTraceElement[] st = caught.getStackTrace();
+				for (StackTraceElement stackTraceElement : st) {
+					gui.log(stackTraceElement.toString());
+				}
 			}
 		};
 		
