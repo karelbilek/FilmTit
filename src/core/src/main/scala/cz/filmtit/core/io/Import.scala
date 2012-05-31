@@ -88,6 +88,10 @@ class Import(val configuration: Configuration) {
 
     System.err.println("Processing files:")
     val inputFiles = folder.listFiles filter(_.getName.endsWith(".txt"))
+
+    if (!folder.exists() || inputFiles.size == 0)
+      throw new IOException("Couldn't find or read data folder.")
+
     inputFiles grouped( configuration.importBatchSize ) foreach(
       (files: Array[File])=> { tm.add(
         files flatMap ( (sourceFile: File) => {

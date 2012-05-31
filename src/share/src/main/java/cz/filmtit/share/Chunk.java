@@ -62,7 +62,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     }
 
     public List<Annotation> getAnnotations() {
-        return annotations == null ? (List<Annotation>) Collections.emptyList() : annotations;
+        return annotations == null ? Collections.<Annotation>emptyList() : annotations;
     }
 
     public void clearAnnotations() {
