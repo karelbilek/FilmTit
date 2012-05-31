@@ -1,5 +1,7 @@
 package cz.filmtit.share;
 
-public enum AuthenticationServiceType {
+import java.io.Serializable;
+
+public enum AuthenticationServiceType implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
     GOOGLE
 }
