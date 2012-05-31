@@ -6,6 +6,7 @@ import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import org.expressme.openid.OpenIdManager;
 
 import java.util.Collections;
 import java.util.Date;
@@ -17,7 +18,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = 100000;
-            //ConfigurationSingleton.getConf().sessionTimeout();
+
+    static final long ONE_HOUR = 3600000L;
+    static final long TWO_HOUR = ONE_HOUR * 2L;
+    static final String ATTR_MAC = "openid_mac";
+    static final String ATTR_ALIAS = "openid_alias";
+
+    OpenIdManager manager;
+
+    //ConfigurationSingleton.getConf().sessionTimeout();
 
     protected TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                  // delete ASAP sessions introduced
@@ -136,5 +145,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             }
         }
     }
+
+    @Override
+    protected  void doGet()
 
 }
