@@ -7,9 +7,16 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import org.expressme.openid.Association;
+import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
 import org.expressme.openid.OpenIdManager;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,20 +29,28 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.getConf().sessionTimeout();
     private static int SESSION_ID_LENGHT = 47;
 
+
     protected TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                   // delete ASAP sessions introduced
     private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
 
-    private Map<Long, Session> authenticatingSessions = new HashMap<Long, Session>();
+    // AuthId which are in process
+    private Map<Long, AuthData> authenticatingSessions = new HashMap<Long, AuthData>();
+    // AuthId which are authenticated but not activated
+    private Map<Long,Authentication> authenticatedSessions = new HashMap<Long, Authentication>();
+    // Activated User
     private Map<String, Session> activeSessions = new HashMap<String,Session>();
 
+    protected OpenIdManager  manager;
     public FilmTitBackendServer(/*Configuration configuration*/) {
 
 
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
-
+        String serverAddress = ConfigurationSingleton.getConf().serverAddress();
+        manager.setReturnTo(serverAddress + "/openId");
+        manager.setRealm(serverAddress);
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
         System.err.println("FilmTitBackendServer started fine!");
@@ -90,39 +105,58 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-        OpenIdManager manager = new OpenIdManager();
 
-        String serverAddress = ConfigurationSingleton.getConf().serverAddress();
-        manager.setReturnTo(serverAddress + "/openId");
-        manager.setRealm(serverAddress);
+        // Manager is field in class it seem  quite non useful copy 1 object 1000x
+        // add setting in constructor
         // TODO: the manager should be stored for further use in  validateAuthentication method
+        // TODO: Add the service type resolving   -  is enough send  name of service like enum
+        // lib is open source and we can added for example seznam or myid
 
-        authenticatingSessions.put(authID, null);
-
-        // TODO: Add the service type resolving
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
-
-        return association.toString();
+         // create url for authentication
+        // need to raw data for getting authentication
+        AuthData authData = new AuthData();
+        authData.Mac_key = association.getRawMacKey();
+        authData.endpoint = endpoint;
+        authenticatingSessions.put(authID, authData);
+        return manager.getAuthenticationUrl(endpoint,association);
     }
 
     @Override
     public Boolean validateAuthentication(long authID, String responseURL) {
-
+        //  response url - one if you succesfull with login
+        //                  sec if you are not
+        // if you are you can create authentication object which contains  information
+        // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
         //HttpServletRequest request = createRequest(responseURL);
         //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
         //authentication.getIdentity() <- this will be as user identification
+
+        try {
+            AuthData authData = authenticatingSessions.get(authID);
+            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
+            Authentication authentication;
+            authentication = manager.getAuthentication(request,authData.Mac_key, authData.endpoint.getAlias());
+            authenticatedSessions.put(authID,authentication);
+
+
+        } catch (UnsupportedEncodingException e) {
+           return false;
+        }
+
 
         return null;
     }
 
     @Override
     public String getSessionID(long authID) {
-        if (authenticatingSessions.containsKey(authID) && authenticatingSessions.get(authID) != null) {
-            Session session = authenticatingSessions.get(authID);
+        if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
+            Authentication authentication = authenticatedSessions.get(authID);
             authenticatingSessions.remove(authID);
-
+            // USUser user = createUser(authentication);          create user from auth information (select or create in db)
             String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+            Session session = new Session(); //= createSession(newSessionID,user)      create session with user
             activeSessions.put(newSessionID, session);
 
             return newSessionID;
@@ -149,6 +183,34 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
+    static HttpServletRequest createRequest(String url) throws UnsupportedEncodingException {
+        int pos = url.indexOf('?');
+        if (pos==(-1))
+            throw new IllegalArgumentException("Bad url.");
+        String query = url.substring(pos + 1);
+        String[] params = query.split("[\\&]+");
+        final Map<String, String> map = new HashMap<String, String>();
+        for (String param : params) {
+            pos = param.indexOf('=');
+            if (pos==(-1))
+                throw new IllegalArgumentException("Bad url.");
+            String key = param.substring(0, pos);
+            String value = param.substring(pos + 1);
+            map.put(key, URLDecoder.decode(value, "UTF-8"));
+        }
+        return (HttpServletRequest) Proxy.newProxyInstance(
+               FilmTitBackendServer.class.getClassLoader(),
+                new Class[]{HttpServletRequest.class},
+                new InvocationHandler() {
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        if (method.getName().equals("getParameter"))
+                            return map.get((String) args[0]);
+                        throw new UnsupportedOperationException(method.getName());
+                    }
+                }
+        );
+    }
+
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
@@ -168,6 +230,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 catch (Exception e) {}
             }
         }
+    }
+
+    class AuthData
+    {
+        public byte[] Mac_key;
+        public Endpoint endpoint;
+
     }
 
 }
