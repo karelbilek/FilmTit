@@ -1,13 +1,10 @@
 package cz.filmtit.userspace;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.core.Factory;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.share.Document;
-import cz.filmtit.share.FilmTitService;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.core.Factory;
+import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
 import java.util.Collections;
@@ -64,7 +61,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return usTranslationResult.getTranslationResult();
     }
 
-    public TranslationResult getTranslationResult(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {
+    public TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
@@ -85,6 +82,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         return usDocument.getDocument();
     }
+
+    @Override
+    public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
+        return null;
+    }
+
+    @Override
+    public Boolean validateAuthentication(long authID, String responseURL) {
+        return null;
+    }
+
+    @Override
+    public String getSessionID(long authID) {
+        return null;    }
 
     public Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {

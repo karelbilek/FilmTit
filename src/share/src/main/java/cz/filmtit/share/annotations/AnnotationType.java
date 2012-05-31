@@ -1,12 +1,14 @@
 package cz.filmtit.share.annotations;
 
+import java.io.Serializable;
+
 //There is only one class for all types of annotations
 //basically because Java doesn't have enum inheritance
 //And I thought using enums is easier for everyone
 //
 //downside: less general
 //upside: all annotations are defined on one place
-public enum AnnotationType {
+public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
     PLACE("Place"),
     ORGANIZATION("Organization"),
