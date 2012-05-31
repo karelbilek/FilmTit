@@ -1,9 +1,9 @@
 package cz.filmtit.userspace;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.core.Factory;
 import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.core.Factory;
+import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
@@ -85,18 +85,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public Boolean validateAuthentication(long authID, String responseURL) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public String getSessionID(long authID) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+        return null;    }
 
     public Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
