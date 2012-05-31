@@ -31,7 +31,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public FilmTitBackendServer(/*Configuration configuration*/) {
 
-
+        loadTranslationMemory();
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
@@ -44,7 +44,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected void loadTranslationMemory() {
         TM = Factory.createTMFromConfiguration(
                 ConfigurationSingleton.getConf(),
-                false, // readonly
+                true, // readonly
                 false  // in memory
         );
     }
