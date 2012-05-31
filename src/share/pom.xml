@@ -20,19 +20,21 @@
 
 
     <build>
-    <plugins> 
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <plugins>
     <!--this is needed for GWT-->
-    <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>gwt-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>resources</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+              </plugin>
+        </plugins>
     </build>
 </project>
