@@ -75,7 +75,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 			if (result == 0) {
 				// this.endTime == that.endTime
 				// this.partNumber < that.partNumber ?
-				result = (int) Math.signum(that.getSourceChunk().getPartNumber() - this.sourceChunk.getPartNumber());
+				result = (int) Math.signum(this.getSourceChunk().getPartNumber() - that.sourceChunk.getPartNumber());
 			}
 		}
 		
