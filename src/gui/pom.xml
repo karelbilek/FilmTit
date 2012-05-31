@@ -65,6 +65,7 @@
                 <!-- Plugin configuration. There are many available options, see
             gwt-maven-plugin documentation at codehaus.org -->
                 <configuration>
+                    <style>DETAILED</style>
                     <runTarget>gui.html</runTarget>
                     <hostedWebapp>${webappDirectory}</hostedWebapp>
                     <i18nMessagesBundle>cz.filmtit.client.Messages</i18nMessagesBundle>

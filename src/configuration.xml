@@ -37,6 +37,7 @@
 
     <userspace>
         <session_timeout_limit>3600000</session_timeout_limit>
+        <server_address>http://ufallab.ms.mff.cuni.cz:12480</server_address>
     </userspace>
 
     <core>
