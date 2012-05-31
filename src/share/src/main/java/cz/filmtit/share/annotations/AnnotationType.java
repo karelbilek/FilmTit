@@ -16,6 +16,9 @@ public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializa
 
     private String description;
 
+    AnnotationType() {
+    }
+
     AnnotationType(String description) {
         this.description=description;
     }
