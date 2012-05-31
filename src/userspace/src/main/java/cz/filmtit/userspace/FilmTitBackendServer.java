@@ -4,10 +4,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.share.Document;
-import cz.filmtit.share.FilmTitService;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
 import java.util.Collections;
@@ -64,7 +61,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return usTranslationResult.getTranslationResult();
     }
 
-    public TranslationResult getTranslationResult(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {
+    public TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
@@ -84,6 +81,21 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         return usDocument.getDocument();
+    }
+
+    @Override
+    public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Boolean validateAuthentication(long authID, String responseURL) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public String getSessionID(long authID) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {

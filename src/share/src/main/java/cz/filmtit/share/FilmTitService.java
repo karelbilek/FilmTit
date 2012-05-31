@@ -10,10 +10,14 @@ public interface FilmTitService extends RemoteService {
 	Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair);
 	Document createDocument(String movieTitle, String year, String language);
 
+    String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
+    Boolean validateAuthentication(long authID, String responseURL);
+    String getSessionID(long authID);
+
     // Method signatures prepared for the moment we'll have users and session:
 
     //Void logout(String sessionId) throws InvalidSessionIdException;
     //Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException;
-    //TranslationResult getTranslationResult(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
+    //TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
 
 }
