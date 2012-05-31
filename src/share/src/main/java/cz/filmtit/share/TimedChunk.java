@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.io.Serializable;
 
 public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
+	// TODO: should be long - probably number of milliseconds 
 	private String startTime;
     private String endTime;
     private int partNumber;

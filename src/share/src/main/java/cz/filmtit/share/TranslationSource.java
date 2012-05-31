@@ -31,4 +31,8 @@ public enum TranslationSource implements com.google.gwt.user.client.rpc.IsSerial
     public String toString() {
         return "TranslationSource[" + description + "]";
     }
+    
+    public String getDescription() {
+    	return description;
+    }
 }

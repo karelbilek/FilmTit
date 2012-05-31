@@ -26,7 +26,7 @@ import cz.filmtit.share.TranslationPair;
  * @author Honza Václ
  *
  */
-public class SubgestBox extends TextBox {
+public class SubgestBox extends TextBox implements Comparable {
 	private int id;
 	private TranslationResult translationResult;
 	private Widget suggestionWidget;
@@ -103,7 +103,13 @@ public class SubgestBox extends TextBox {
 			sb.appendHtmlConstant("<td class='suggestionItemScore'>(");
 			//sb.appendEscaped( Double.toString(value.getScore()) );
 			sb.appendHtmlConstant(")</td>");
+			sb.appendHtmlConstant("</tr>");
 			
+			// show the corresponding match:
+			sb.appendHtmlConstant("<tr><td class='suggestionItemSource'>(source: ");
+			sb.appendEscaped(value.getSource().getDescription());
+			sb.appendHtmlConstant(")</td>");
+
 			sb.appendHtmlConstant("</tr>");
 			sb.appendHtmlConstant("</table>");
 		}
@@ -191,6 +197,16 @@ public class SubgestBox extends TextBox {
 	 */
 	public TranslationResult getTranslationResult() {
 		return this.translationResult;
+	}
+
+	@Override
+	public int compareTo(Object that) {
+		if (that instanceof SubgestBox) {
+			return this.getTranslationResult().compareTo( ((SubgestBox)that).getTranslationResult() );
+		}
+		else {
+			throw new ClassCastException();
+		}
 	}
 	
 }
