@@ -122,8 +122,7 @@ with MediaStorage {
    */
   def addVerbose(translationPairs: TraversableOnce[TranslationPair], autoCommit: Boolean = false) {
 
-    //val _autoCommit = if (useInMemoryDB) {true} else { autoCommit}
-
+    connection.setAutoCommit(autoCommit || useInMemoryDB)
 
     //postgres has RETURNING clause, useInMemoryDB doesn't have one
     val inStmt = if (useInMemoryDB) {
@@ -136,15 +135,12 @@ with MediaStorage {
     }
 
     val getInsertedStmt = connection.prepareStatement(("SELECT pair_id FROM %s WHERE chunk_l1=? AND chunk_l2=?;").format(pairTable))
-
     val upStmt = connection.prepareStatement(("UPDATE %s SET pair_count = pair_count + 1 WHERE pair_id = ?;").format(pairTable))
 
     //Important for performance: Only commit after all INSERT statements are
     //executed unless we are in verbose auto-commit mode:
 
     if (useInMemoryDB || autoCommit) {
-      connection.setAutoCommit(true)
-
       System.err.println("Re-writing media sources to database after failed commit...")
       translationPairs.map(_.getMediaSource).toList.filter(_ != null).distinct foreach( ms =>
           try {
@@ -176,7 +172,7 @@ with MediaStorage {
             }
 
             //Get the pair_id of the new translation pair
-            val resultStmt = if (useInMemoryDB) {getInsertedStmt} else {inStmt}
+            val resultStmt = if (useInMemoryDB) { getInsertedStmt } else { inStmt }
             
             val resultSet = resultStmt.getResultSet()
            
@@ -233,7 +229,7 @@ with MediaStorage {
 
     //Commit the changes to the database:
 
-    if ( !autoCommit)
+    if ( !autoCommit )
       connection.commit()
 
 
