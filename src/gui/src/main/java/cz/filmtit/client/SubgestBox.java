@@ -101,7 +101,9 @@ public class SubgestBox extends TextBox implements Comparable {
 			
 			// show their (combined) score:
 			sb.appendHtmlConstant("<td class='suggestionItemScore'>(");
-			//sb.appendEscaped( Double.toString(value.getScore()) );
+			if (value.getScore() != null) {
+				sb.appendEscaped( Double.toString(value.getScore()) );
+			}
 			sb.appendHtmlConstant(")</td>");
 			sb.appendHtmlConstant("</tr>");
 			
