@@ -1,10 +1,12 @@
 package cz.filmtit.share;
 
-import cz.filmtit.share.annotations.*;
+import cz.filmtit.share.annotations.Annotation;
+
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Joachim Daiber
@@ -15,7 +17,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     
     //I do NOT want to create a constructor with list so scala doesn't add 
     //its own implementation of java lists
-    private List<Annotation> annotations=new ArrayList<Annotation>();
+    private List<Annotation> annotations;
 
     public Chunk() {
     	// nothing
@@ -60,7 +62,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     }
 
     public List<Annotation> getAnnotations() {
-        return annotations;
+        return annotations == null ? (List<Annotation>) Collections.emptyList() : annotations;
     }
 
     public void clearAnnotations() {
@@ -68,14 +70,21 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     }
 
     public void addAnnotation(Annotation annotation) {
+        if (this.annotations == null)
+            this.annotations = new ArrayList<Annotation>();
+
         this.annotations.add(annotation);
     }
 
     public void addAnnotations(Collection<Annotation> annotations) {
+        if (this.annotations == null)
+            this.annotations = new ArrayList<Annotation>();
+
         this.annotations.addAll(annotations);
     }
 
     public void removeAnnotation(int index) {
-        this.annotations.remove(index);
+        if (this.annotations != null)
+            this.annotations.remove(index);
     }
 }
