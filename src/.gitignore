@@ -1,16 +1,30 @@
 #eclipse stuff
+
 .classpath
+
 .project
+
 .settings
 
+
+
 #targets
+
+
 */target*
 
+
+
 #IntelliJ stuff
+
 .idea
+
 */*.iml
 *.iml
 
 
+
+
 #vim stuff
+
 *.swp
