@@ -38,7 +38,7 @@
             <artifactId>core</artifactId>
             <groupId>cz.filmtit</groupId>
             <version>${filmtit.version}</version>
-            <type>tests</type>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 
