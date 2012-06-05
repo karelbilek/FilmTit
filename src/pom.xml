@@ -161,9 +161,15 @@
         </repository>
 
         <repository>
-          <id>typesafe</id>
-          <name>Typesafe Repository</name>
-          <url>http://repo.typesafe.com/typesafe/releases/</url>
+            <id>typesafe</id>
+            <name>Typesafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases/</url>
+        </repository>
+
+        <repository>
+            <id>gwt-bootstrap</id>
+            <name>GWT-Bootstrap SNAPSHOTS</name>
+            <url>http://gwtbootstrap.github.com/maven/snapshots</url>
         </repository>
 
     </repositories>
