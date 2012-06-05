@@ -20,6 +20,10 @@
   <!-- Inherit the lib-gwt-file library (for local file reading)  -->
   <inherits name='org.vectomatic.libgwtfile' />
 
+  <!-- Inherit the twitter-bootstrap design                       -->
+  <inherits name='com.github.gwtbootstrap.Bootstrap' />
+
+
   <!-- Specify the app entry point class.                         -->
   <entry-point class='cz.filmtit.client.Gui' />
 

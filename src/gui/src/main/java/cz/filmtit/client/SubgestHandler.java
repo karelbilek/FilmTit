@@ -1,5 +1,7 @@
 package cz.filmtit.client;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -8,10 +10,7 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Focusable;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Universal event-handler for SubgestBoxes.
@@ -19,7 +18,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author Honza Václ
  *
  */
-public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChangeHandler<String> {
+public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChangeHandler<String>, BlurHandler {
 	Gui gui;
 	
 	/**
@@ -35,7 +34,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 		if (event.getSource() instanceof SubgestBox) { // should be
 			// hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus
-			//deactivateSuggestionWidget(gui.getActiveSuggestionWidget());
+			gui.deactivateSuggestionWidget();
 			// and show a new one for the current SubgestBox
 			SubgestBox subbox = (SubgestBox) event.getSource();
 			subbox.showSuggestions();
@@ -49,36 +48,64 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	public void onKeyDown(KeyDownEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
 			// pressing the Down arrow - setting focus to the suggestions:
-			if ( isThisKeyEvent(event, KeyCodes.KEY_DOWN) ) {
+			if     ( isThisKeyEvent(event, KeyCodes.KEY_DOWN) ) {
+				event.preventDefault(); // default is to scroll down the page or to move to the next line in the textarea
 				SubgestBox subbox = (SubgestBox) event.getSource();
 				Focusable suggestionsList = ((Focusable) ((SimplePanel)subbox.getSuggestionWidget()).getWidget());
+				gui.log("setting focus to suggestions");
 				suggestionsList.setFocus(true);
-				event.preventDefault(); // default is to scroll down the page
 			}
-			// pressing Esc or Tab:
-			if (     isThisKeyEvent(event, KeyCodes.KEY_ESCAPE)
-				||   isThisKeyEvent(event, KeyCodes.KEY_TAB)   ) {
+			// pressing Esc:
+			else if ( isThisKeyEvent(event, KeyCodes.KEY_ESCAPE) ) {
 				// hide the suggestion widget corresponding to the SubgestBox
 				//   which previously had focus (PopupPanel does not hide on keyboard events)
-				deactivateSuggestionWidget();
+				gui.deactivateSuggestionWidget();
+			}
+			// pressing Tab:
+			else if ( isThisKeyEvent(event, KeyCodes.KEY_TAB) ) {
+				event.preventDefault(); // e.g. in Chrome, default is to insert TAB character in the textarea
+				gui.deactivateSuggestionWidget();
+				SubgestBox subbox = (SubgestBox) event.getSource();
+				boolean moved;
+				if (event.isShiftKeyDown()) {
+					moved = gui.goToPreviousBox(subbox);
+				}
+				else {
+					moved = gui.goToNextBox(subbox);
+				}
+				if (!moved) {
+					subbox.showSuggestions();
+				}
 			}
 			// pressing Enter:
-			if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER)
-				||	event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+			else if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER) ) {
 				//gui.log("enter pressed...");
+				/*
+				 * all this should happen on Blur (or something like that):
 				SubgestBox subbox = (SubgestBox) event.getSource();
 				subbox.getTranslationResult().setUserTranslation(subbox.getText());
 				gui.submitUserTranslation(subbox.getTranslationResult());
 				
-				deactivateSuggestionWidget();
+				gui.deactivateSuggestionWidget();
 				gui.goToNextBox(subbox);
+				*/
 			}
+			
 		}
 	}
 	
+	
+	/**
+	 * Tell if the given event's key corresponds to the given keycode - in a various ways, hopefully
+	 * compliant with all the major browsers...
+	 * @param event
+	 * @param keycode
+	 * @return true if this KeyDownEvent's key has the given keycode, false otherwise
+	 */
 	private boolean isThisKeyEvent(KeyDownEvent event, int keycode) {
 		return ( (event.getNativeEvent().getCharCode() == keycode)
-			||   (event.getNativeKeyCode() == keycode) );
+			||   (event.getNativeKeyCode() == keycode)
+			||   (event.getNativeEvent().getKeyCode() == keycode) );
 	}
 	
 	
@@ -97,17 +124,18 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	}
 	
 	
-	private void deactivateSuggestionWidget() {
-		Widget w = gui.getActiveSuggestionWidget();
-		if (w != null) {
-			if (w instanceof PopupPanel) {
-				((PopupPanel)w).hide();
-			}
-			else {
-				((Panel)(w.getParent())).remove(w);
-			}
-			gui.setActiveSuggestionWidget(null);
+	@Override
+	public void onBlur(BlurEvent event) {
+		if (event.getSource() instanceof SubgestBox) { // should be
+			SubgestBox subbox = (SubgestBox) event.getSource();
+			//gui.log("pseudo-valuechange handled - new value:" + subbox.getText());
+			subbox.getTranslationResult().setUserTranslation(subbox.getText());
+			gui.submitUserTranslation(subbox.getTranslationResult());
+			
+			//gui.deactivateSuggestionWidget();
 		}
 	}
+	
+	
 
 }

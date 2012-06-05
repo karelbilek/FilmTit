@@ -1,0 +1,69 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
+	xmlns:lgf="urn:import:org.vectomatic.file">
+
+	
+	<g:HTMLPanel>
+
+		<b:Heading size="2" subtext="translate your subtits!">
+			FilmTit
+		</b:Heading>
+		
+		<b:FluidRow>
+				<g:ScrollPanel ui:field="scrollPanel"
+					stylePrimaryName="scrollPanel" width="720px" />
+		</b:FluidRow>
+
+		<b:FluidRow>
+			<b:Column size="6">
+				<b:Paragraph>Select a file to load the subtitles from:</b:Paragraph>
+				<b:Form type="HORIZONTAL" ui:field="fileUploadForm">
+					<b:Fieldset>
+
+						<lgf:FileUploadExt ui:field="fileUpload" />
+
+						<b:ControlGroup>
+							<b:ControlLabel>Choose file format:</b:ControlLabel>
+							<b:Controls>
+								<b:RadioButton ui:field="rdbFormatSrt" name="file format"
+									value="true">.srt</b:RadioButton>
+								<b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
+							</b:Controls>
+						</b:ControlGroup>
+
+						<b:ControlGroup>
+							<b:ControlLabel>Choose file encoding:</b:ControlLabel>
+							<b:Controls>
+								<b:RadioButton ui:field="rdbEncodingUtf8" name="file encoding"
+									value="true">UTF-8</b:RadioButton>
+								<b:RadioButton ui:field="rdbEncodingWin" name="file encoding">windows-1250</b:RadioButton>
+								<b:RadioButton ui:field="rdbEncodingIso" name="file encoding">iso-8859-2</b:RadioButton>
+							</b:Controls>
+						</b:ControlGroup>
+
+					</b:Fieldset>
+				</b:Form>
+			</b:Column>
+
+			<b:Column size="6">
+				<b:Paragraph>...or paste the subtitles here and click "Load":</b:Paragraph>
+				<b:TextArea ui:field="txtFileContentArea" width="100%" />
+				<b:SubmitButton ui:field="btnSendToTm">Load</b:SubmitButton>
+			</b:Column>
+		</b:FluidRow>
+
+		<b:FluidRow>
+			<b:FluidRow>
+					<b:Label>Debug outputs:</b:Label>
+			</b:FluidRow>
+			<b:FluidRow>
+					<b:TextArea ui:field="txtDebug" width="400px" height="300px" />
+			</b:FluidRow>
+		</b:FluidRow>
+		
+	
+	</g:HTMLPanel>
+
+</ui:UiBinder>

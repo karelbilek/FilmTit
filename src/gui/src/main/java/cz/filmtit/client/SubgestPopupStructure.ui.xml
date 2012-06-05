@@ -1,0 +1,27 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+	
+	
+	<g:HTMLPanel stylePrimaryName="suggestionItem">
+		
+		<b:FluidRow>
+			<b:Paragraph ui:field="suggestionItemText" stylePrimaryName="suggestionItemText" />
+		</b:FluidRow>
+		
+		<b:FluidRow>
+			<b:Column size="8">
+				<b:Paragraph ui:field="suggestionItemMatch" stylePrimaryName="suggestionItemMatch"/>
+			</b:Column>
+			<b:Column size="4">
+				<b:Paragraph ui:field="suggestionItemScore" stylePrimaryName="suggestionItemScore"/>
+			</b:Column>
+		</b:FluidRow>
+		
+		<b:FluidRow>
+			<b:Paragraph ui:field="suggestionItemSource" stylePrimaryName="suggestionItemSource"/>
+		</b:FluidRow>
+		
+	</g:HTMLPanel>
+</ui:UiBinder> 

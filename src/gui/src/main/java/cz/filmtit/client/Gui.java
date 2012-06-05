@@ -1,44 +1,28 @@
 package cz.filmtit.client;
 
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
 import cz.filmtit.share.*;
 
@@ -46,7 +30,6 @@ import cz.filmtit.share.*;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
-import org.vectomatic.file.FileUploadExt;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 
@@ -62,17 +45,19 @@ import org.vectomatic.file.events.LoadEndHandler;
 
 public class Gui implements EntryPoint {
 
+	GuiStructure guiStructure;
+	
 	protected List<TimedChunk> chunklist;
 	
 	//private List<Label> sources = new ArrayList<Label>();
 	private SortedSet<SubgestBox> targetBoxes = new TreeSet<SubgestBox>();
 	
-	private TextArea txtDebug;
-	private RadioButton rdbFormatSrt;
-	private RadioButton rdbFormatSub;
+	//private TextArea txtDebug;
+	//private RadioButton rdbFormatSrt;
+	//private RadioButton rdbFormatSub;
 
 	protected RootPanel rootPanel;
-	protected AbsolutePanel mainPanel;
+	//protected AbsolutePanel mainPanel;
 	protected AbsolutePanel suggestArea;
 	
 	private FlexTable table;
@@ -92,6 +77,7 @@ public class Gui implements EntryPoint {
 	 * Multi-line subtitle text to parse
 	 */
 	private String subtext;
+	
 	
 	
 	@Override
@@ -121,37 +107,18 @@ public class Gui implements EntryPoint {
 		// -------------------- //
 		
 		rootPanel = RootPanel.get();
-		rootPanel.setSize("800", "600");
+		//rootPanel.setSize("800", "600");
 
-		
-		// adding header:
-		Label lblHeader = new Label("FilmTit - translate your subtits!");
-		lblHeader.setStyleName("gwt-Header");
-		lblHeader.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		rootPanel.add(lblHeader, 10, 0);
-		lblHeader.setSize("436px", "0px");
 
+		// --- loading of the uibinder-defined structure --- //
+		guiStructure = new GuiStructure();
+		rootPanel.add(guiStructure, 20, 20);
+		// --- end of loading of uibinder --- //
 		
-		// debug-area (for logging output, dumps etc.):
-		txtDebug = new TextArea();
-		rootPanel.add(txtDebug, 412, 624);
-		txtDebug.setSize("368px", "176px");
-		txtDebug.setText("debugging outputs...\n");
 
-		
-		
-		
 		// --- main interface --- //
-		ScrollPanel scrollPanel = new ScrollPanel();
-		rootPanel.add(scrollPanel, 10, 80);
-		scrollPanel.setSize("774px", "402px");
-		mainPanel = new AbsolutePanel();
-		mainPanel.setStylePrimaryName("mainPanel");
-		scrollPanel.add(mainPanel);
-		scrollPanel.setStylePrimaryName("scrollPanel");
-		
 		table = new FlexTable();
-		mainPanel.add(table);
+		guiStructure.scrollPanel.add(table);
 		table.setWidth("100%");
 		table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "15%");
 		table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "40%");
@@ -166,49 +133,15 @@ public class Gui implements EntryPoint {
 		}
 		*/
 		// --- end of main interface --- //
-		
-		
-		
-		
-		// --- subfile format (srt/sub) options --- //
-		// (currently used by both textarea and file input)
-		Label lblChooseFileFormat = new Label("Choose file format: (both for file & txtarea)");
-		rootPanel.add(lblChooseFileFormat, 10, 530);
-		lblChooseFileFormat.setSize("160px", "42px");
-		
-		rdbFormatSrt = new RadioButton("file format", ".srt");
-		rootPanel.add(rdbFormatSrt, 175, 530);
-		rdbFormatSrt.setSize("105px", "20px");
-		rdbFormatSub = new RadioButton("file format", ".sub");
-		rootPanel.add(rdbFormatSub, 175, 556);
-		rdbFormatSub.setSize("105px", "20px");
-		rdbFormatSrt.setValue(true);  // default - srt
-		// --- end of subfile format options --- //
-
 
 		
 		// --- file reading interface via lib-gwt-file --- //
-		Label lblChooseEncoding = new Label("Choose encoding:");
-		rootPanel.add(lblChooseEncoding, 286, 530);
-		lblChooseEncoding.setSize("121px", "42px");
-		
-		final RadioButton rdbEncodingUtf8 = new RadioButton("file encoding", "UTF-8");
-		rootPanel.add(rdbEncodingUtf8, 412, 530);
-		rdbEncodingUtf8.setSize("105px", "20px");
-		final RadioButton rdbEncodingWin  = new RadioButton("file encoding", "windows-1250");
-		rootPanel.add(rdbEncodingWin, 412, 556);
-		rdbEncodingWin.setSize("105px", "20px");
-		final RadioButton rdbEncodingIso  = new RadioButton("file encoding", "iso-8859-2");
-		rootPanel.add(rdbEncodingIso, 412, 582);
-		rdbEncodingIso.setSize("105px", "20px");
-		rdbEncodingUtf8.setValue(true);  // default - UTF-8
-		
 		final FileReader freader = new FileReader();
 		freader.addLoadEndHandler( new LoadEndHandler() {
 			@Override
 			public void onLoadEnd(LoadEndEvent event) {
 				subtext = freader.getStringResult();
-				//txtDebug.setText(txtDebug.getText() + subtext);
+				//log(subtext);
 				
 				// TODO: movieTitle, year, language
 				rpcHandler.createDocument("My Movie", "2012", "en");
@@ -216,22 +149,22 @@ public class Gui implements EntryPoint {
 			}
 		} );
 		
-		final FileUploadExt fileUpload = new FileUploadExt();
-		fileUpload.addChangeHandler( new ChangeHandler() {
+
+		guiStructure.fileUpload.addChangeHandler( new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
 				//log(fileUpload.getFilename());
-				FileList fl = fileUpload.getFiles();
+				FileList fl = guiStructure.fileUpload.getFiles();
 				Iterator<File> fit = fl.iterator();
 				if (fit.hasNext()) {
 					String encoding = "utf-8";  // default value
-					if (rdbEncodingUtf8.getValue()) {
+					if (guiStructure.rdbEncodingUtf8.getValue()) {
 						encoding = "utf-8";
 					}
-					else if (rdbEncodingWin.getValue()) {
+					else if (guiStructure.rdbEncodingWin.getValue()) {
 						encoding = "windows-1250";
 					}
-					else if (rdbEncodingIso.getValue()) {
+					else if (guiStructure.rdbEncodingIso.getValue()) {
 						encoding = "iso-8859-2";
 					}
 					freader.readAsText(fit.next(), encoding);
@@ -241,31 +174,29 @@ public class Gui implements EntryPoint {
 				}
 			}
 		} );
-		rootPanel.add(fileUpload, 10, 494);
 		// --- end of file reading interface via lib-gwt-file --- //
 		
 		
-		
 		// --- textarea interface for loading whole subtitle file --- //
-		final TextArea txtFileContentArea = new TextArea();
-		rootPanel.add(txtFileContentArea, 10, 624);
-		txtFileContentArea.setSize("260px", "176px");
-		
-		Button btnSendToTm = new Button("Send to TM");
-		btnSendToTm.addClickHandler( new ClickHandler() {
+		guiStructure.btnSendToTm.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				subtext = txtFileContentArea.getText();
+				subtext = guiStructure.txtFileContentArea.getText();
 				// TODO: movieTitle, year, language
 				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
 		} );
-		rootPanel.add(btnSendToTm, 286, 624);
-		btnSendToTm.setSize("120px", "47px");
 		// --- end of textarea interface --- //
 		
-
+		
+		// hiding the suggestion popup when scrolling the subtitle panel
+		guiStructure.scrollPanel.addScrollHandler( new ScrollHandler() {
+			@Override
+			public void onScroll(ScrollEvent event) {
+				deactivateSuggestionWidget();
+			}
+		} );
 		
 
 	}	// onModuleLoad()
@@ -286,12 +217,12 @@ public class Gui implements EntryPoint {
 		// determine format (from corresponding radiobuttons) and choose parser:
 		String subformat;
 		Parser subtextparser;
-		if (rdbFormatSub.getValue()) {  // i.e. ".sub" is checked
+		if (guiStructure.rdbFormatSub.getValue()) {  // i.e. ".sub" is checked
 			subformat = "sub";
 			subtextparser = new ParserSub();
 		}
 		else {  // i.e. ".srt" is checked
-			assert rdbFormatSrt.getValue() : "One of the subtitle formats must be chosen.";
+			assert guiStructure.rdbFormatSrt.getValue() : "One of the subtitle formats must be chosen.";
 			subformat = "srt";
 			subtextparser = new ParserSrt();
 		}
@@ -327,6 +258,8 @@ public class Gui implements EntryPoint {
 		
 	}
 	
+	
+	
 	class SendChunksRepeatingCommand implements RepeatingCommand {
 
 		LinkedList<TimedChunk> chunks;
@@ -351,6 +284,7 @@ public class Gui implements EntryPoint {
 			rpcHandler.getTranslationResults(timedchunk);
 		}
 	}
+	
 	
 	public Document getCurrentDocument() {
 		return currentDocument;
@@ -380,14 +314,35 @@ public class Gui implements EntryPoint {
 		counter++;
 	}
 	
-	public Widget getActiveSuggestionWidget() {
+	private Widget getActiveSuggestionWidget() {
 		return activeSuggestionWidget;
 	}
 	
-	public void setActiveSuggestionWidget(Widget w) {
+	protected void setActiveSuggestionWidget(Widget w) {
 		activeSuggestionWidget = w;
 	}
 	
+	/**
+	 * Hide the currently active (visible) popup with suggestions
+	 */
+	protected void deactivateSuggestionWidget() {
+		Widget w = getActiveSuggestionWidget();
+		if (w != null) {
+			if (w instanceof PopupPanel) {
+				//((PopupPanel)w).hide();
+				((PopupPanel)w).setVisible(false);
+			}
+			else {
+				((Panel)(w.getParent())).remove(w);
+			}
+			setActiveSuggestionWidget(null);
+		}
+	}
+
+	/**
+	 * Send the given translation result as a "user-feedback" to the userspace
+	 * @param transresult
+	 */
 	public void submitUserTranslation(TranslationResult transresult) {
 		String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
 		log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
@@ -395,22 +350,55 @@ public class Gui implements EntryPoint {
 				                      transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
 	}
 	
-	public void goToNextBox(SubgestBox currentBox) {
-		//Iterator<SubgestBox> boxit = targetBoxes.tailSet(currentBox).iterator();
+	/**
+	 * Set the focus to the next SubgestBox in order.
+	 * If there is not any, stay in the current one and return false.
+	 * @param currentBox - the SubgestBox relative to which is the "next" determined
+	 * @return false if the currentBox is the last one (and therefore nothing has changed),
+	 *         true otherwise
+	 */
+	public boolean goToNextBox(SubgestBox currentBox) {
+		// the next box is the second element of the tailSet determined by the currentBox
 		SortedSet<SubgestBox> tailset = targetBoxes.tailSet(currentBox);
 		Iterator<SubgestBox> boxit = tailset.iterator();
 		boxit.next(); // skipping the first element of tailSet
 		if (boxit.hasNext()) {
 			boxit.next().setFocus(true);
+			return true;
 		}
 		else {
-			// do nothing - stay where you are...
+			// do nothing - stay where you are
+			return false;
 		}
 	}
 	
+	/**
+	 * Set the focus to the previous SubgestBox in order.
+	 * If there is not any, stay in the current one and return false.
+	 * @param currentBox - the SubgestBox relative to which is the "previous" determined
+	 * @return false if the currentBox is the first one (and therefore nothing has changed),
+	 *         true otherwise
+	 */
+	public boolean goToPreviousBox(SubgestBox currentBox) {
+		// the previous box is the last element of the headSet determined by the currentBox
+		SortedSet<SubgestBox> headset = targetBoxes.headSet(currentBox);
+		if (!headset.isEmpty()) {
+			headset.last().setFocus(true);
+			return true;
+		}
+		else {
+			// do nothing - stay where you are
+			return false;
+		}
+	}
+	
+	/**
+	 * Output the given text in the debug textarea
+	 * @param logtext
+	 */
 	public void log(String logtext) {
-		txtDebug.setText(txtDebug.getText() + logtext + "\n");
-		txtDebug.setCursorPos(txtDebug.getText().length());
+		guiStructure.txtDebug.setText(guiStructure.txtDebug.getText() + logtext + "\n");
+		guiStructure.txtDebug.setCursorPos(guiStructure.txtDebug.getText().length());
 	}
 	
 	private void error(String errtext) {

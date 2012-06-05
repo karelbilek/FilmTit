@@ -62,7 +62,11 @@ h1 {
 }
 .scrollPanel {
 	border: groove;
+	height: 402px;
 }
 .mainPanel {
 	padding-bottom: 20px;
+}
+.suggestionItemSource {
+	font-size: 80%;
 }
