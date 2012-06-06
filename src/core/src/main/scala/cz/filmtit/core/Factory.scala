@@ -124,7 +124,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB),
+      new FirstLetterStorage(Language.EN, Language.CS, connection, createTokenizer(Language.EN), createTokenizer(Language.CS), useInMemoryDB),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)

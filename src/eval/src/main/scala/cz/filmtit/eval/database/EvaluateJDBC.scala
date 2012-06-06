@@ -22,7 +22,7 @@ object EvaluateJDBC {
   storages += new FulltextStorage(Language.EN, Language.CS,  connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_fulltext"
 
-  storages += new FirstLetterStorage(Language.EN, Language.CS,  connection)
+  storages += new FirstLetterStorage(Language.EN, Language.CS, connection, Factory.createTokenizer(Language.EN), Factory.createTokenizer(Language.CS))
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_firstletter"
 
   storages += new TrigramStorage(Language.EN, Language.CS,  connection)

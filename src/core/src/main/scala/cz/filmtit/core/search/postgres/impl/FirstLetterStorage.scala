@@ -7,7 +7,7 @@ import java.sql.Connection
 import storage.Signature
 import java.lang.String
 import cz.filmtit.share._
-import cz.filmtit.core.Configuration
+import opennlp.tools.tokenize.Tokenizer
 
 
 /**
@@ -21,6 +21,8 @@ class FirstLetterStorage(
   l1: Language,
   l2: Language,
   connection: Connection,
+  tokenizerL1: Tokenizer,
+  tokenizerL2: Tokenizer,
   useInMemoryDB: Boolean = false
 ) extends BaseSignatureStorage(
   l1,
@@ -31,11 +33,14 @@ class FirstLetterStorage(
   useInMemoryDB
 ) {
 
+  def tokenizer(language: Language): Tokenizer =
+    if(language == l1) tokenizerL1 else tokenizerL2
+
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
   override def signature(chunk: Chunk, language: Language): Signature = {
-    val tokens: Array[String] = chunk.getSurfaceForm.split("[ ,.?!-]") filter (_ != "")
+    val tokens: Array[String] = tokenizer(language).tokenize(chunk.getSurfaceForm)
 
     tokens map {
       token =>

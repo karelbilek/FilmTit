@@ -1,8 +1,8 @@
 package cz.filmtit.core.tm
 
-import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
 
+import org.apache.commons.logging.LogFactory
 import scala.Predef._
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
@@ -26,7 +26,7 @@ class BackoffTranslationMemory(
   val threshold: Double = 0.90
   ) extends TranslationMemory {
 
-  val logger = Logger("BackoffTM[%s, %s]".format(
+  val logger = LogFactory.getLog("BackoffTM[%s, %s]".format(
     searcher match {
       case s: TranslationPairSearcherWrapper => { "%s (%d concurrent instances)".format(s.searchers.head.getClass.getSimpleName, s.size) }
       case s: TranslationPairSearcher => s.getClass.getSimpleName
@@ -37,6 +37,7 @@ class BackoffTranslationMemory(
     }
   ))
 
+  logger.info("Starting up...")
 
   /**
    * TODO: this is a bit confusing

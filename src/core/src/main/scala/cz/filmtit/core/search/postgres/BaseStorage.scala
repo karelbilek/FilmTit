@@ -1,10 +1,11 @@
 package cz.filmtit.core.search.postgres
 
+import org.apache.commons.logging.LogFactory
 import org.postgresql.util.PSQLException
-import com.weiglewilczek.slf4s.Logger
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import java.sql.{SQLException, DriverManager, Connection}
 import gnu.trove.map.hash.TObjectLongHashMap
+import org.slf4j.Logger
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 import collection.mutable.{ListBuffer, HashSet}
@@ -27,7 +28,7 @@ abstract class BaseStorage(
 ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
 
-  val log = Logger(this.getClass.getSimpleName)
+  val log = LogFactory.getLog(this.getClass.getSimpleName)
 
   //Load the driver:
   classOf[org.postgresql.Driver]
