@@ -5,7 +5,7 @@
 	
 	
 	<g:HTMLPanel stylePrimaryName="suggestionItem">
-		
+
 		<b:FluidRow>
 			<b:Paragraph ui:field="suggestionItemText" stylePrimaryName="suggestionItemText" />
 		</b:FluidRow>
