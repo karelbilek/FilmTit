@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>share</artifactId>
-    <name>Shared classes by GUI and User Space</name>
+    <name>Shared Classes</name>
     <groupId>cz.filmtit</groupId>
     <!--version>1.0</version-->
     

@@ -1,16 +1,18 @@
 package cz.filmtit.server;
 
-import cz.filmtit.core.Configuration;
-import java.net.URL;
 import cz.filmtit.userspace.FilmTitBackendServer;
-import java.security.ProtectionDomain;
-import org.eclipse.jetty.servlet.*;
-import org.eclipse.jetty.server.handler.*;
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.ProtectionDomain;
 
 //Class mainly copied from web
 public class FilmTitFrontendServer {
@@ -28,12 +30,18 @@ public class FilmTitFrontendServer {
 
 //a little hack
     ProtectionDomain protectionDomain = FilmTitFrontendServer.class.getProtectionDomain();
-    URL location = protectionDomain.getCodeSource().getLocation(); 
+    URL location = protectionDomain.getCodeSource().getLocation();
 
-    WebAppContext front_context = new WebAppContext();
+      try {
+          location = new File("gui/target/gui-0.1").toURL();
+      } catch (MalformedURLException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates
+      }
+
+      WebAppContext front_context = new WebAppContext();
     front_context.setServer(server);
     front_context.setContextPath("/");
-    front_context.setDescriptor(location.toExternalForm() + "/WEB-INF/web.xml");
+    front_context.setDescriptor(location.toExternalForm() + "WEB-INF/web.xml");
     
     //It is still setWar, but it's OK, the classes are not in the WEB-INF so they are not run
     front_context.setWar(location.toExternalForm());

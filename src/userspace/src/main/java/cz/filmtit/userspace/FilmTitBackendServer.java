@@ -44,13 +44,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected OpenIdManager  manager;
     public FilmTitBackendServer(/*Configuration configuration*/) {
 
-
+        loadTranslationMemory();
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
         String serverAddress = ConfigurationSingleton.getConf().serverAddress();
-        manager.setReturnTo(serverAddress + "/openId");
-        manager.setRealm(serverAddress);
+        //manager.setReturnTo(serverAddress + "/openId");
+        //manager.setRealm(serverAddress);
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
         System.err.println("FilmTitBackendServer started fine!");

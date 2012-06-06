@@ -65,6 +65,5 @@
             <version>${filmtit.version}</version>
         </dependency>
 
-
     </dependencies>
 </project>

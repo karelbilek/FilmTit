@@ -11,23 +11,30 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>server</artifactId>
-    <name>Jetty-based module for starting server</name>
+    <name>Webserver</name>
 
     <build>
-        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
 
-<plugins>
-  
+        <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.6</version>
-                
+
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                        <goal>shade</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
                             <transformers>
@@ -40,10 +47,10 @@
                 </executions>
             </plugin>
 
-</plugins>
+        </plugins>
     </build>
     <dependencies>
-    
+
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jsp-2.1-glassfish</artifactId>
@@ -57,13 +64,13 @@
             <version>${filmtit.version}</version>
             <type>war</type>
             <scope>runtime</scope>
-       </dependency>
+        </dependency>
+
         <dependency>
             <artifactId>userspace</artifactId>
             <groupId>cz.filmtit</groupId>
             <version>${filmtit.version}</version>
         </dependency>
-
 
         <dependency>
             <artifactId>core</artifactId>
@@ -76,7 +83,6 @@
             <groupId>cz.filmtit</groupId>
             <version>${filmtit.version}</version>
         </dependency>
-
 
     </dependencies>
 </project>
