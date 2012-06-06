@@ -5,8 +5,8 @@
 
     <database>
         <connector>jdbc:postgresql://localhost/filmtitdb</connector>
-        <user>bilek7am</user>
-        <password></password>
+        <user>postgres</user>
+        <password>postgres</password>
     </database>
 
     <model_path>NE_models/</model_path>
