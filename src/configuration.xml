@@ -4,7 +4,7 @@
     <l2>cs</l2>
 
     <database>
-        <connector>jdbc:postgresql://localhost/filmtitdb</connector>
+        <connector>jdbc:postgresql://localhost/filmtit</connector>
         <user>postgres</user>
         <password>postgres</password>
     </database>
