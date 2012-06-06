@@ -9,17 +9,17 @@
         <password>postgres</password>
     </database>
 
-    <model_path>NE_models/</model_path>
+    <model_path>/filmtit/models/</model_path>
     <ner_models>
         <!-- English -->
-        <ner_model language="en" type="Person">en/person.bin</ner_model>
-        <ner_model language="en" type="Place">en/place.bin</ner_model>
-        <ner_model language="en" type="Organization">en/organization.bin</ner_model>
+        <ner_model language="en" type="Person">en/ner-person.bin</ner_model>
+        <ner_model language="en" type="Place">en/ner-place.bin</ner_model>
+        <ner_model language="en" type="Organization">en/ner-organization.bin</ner_model>
 
         <!-- Czech -->
-        <ner_model language="cs" type="Person">cs/person.bin</ner_model>
-        <ner_model language="cs" type="Place">cs/place.bin</ner_model>
-        <ner_model language="cs" type="Organization">cs/organization.bin</ner_model>
+        <ner_model language="cs" type="Person">cs/ner-person.bin</ner_model>
+        <ner_model language="cs" type="Place">cs/ner-place.bin</ner_model>
+        <ner_model language="cs" type="Organization">cs/ner-organization.bin</ner_model>
     </ner_models>
 
     <import>
