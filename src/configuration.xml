@@ -9,7 +9,7 @@
         <password>postgres</password>
     </database>
 
-    <model_path>../models/</model_path>
+    <model_path>NE_models/</model_path>
     <ner_models>
         <!-- English -->
         <ner_model language="en" type="Person">en/person.bin</ner_model>
