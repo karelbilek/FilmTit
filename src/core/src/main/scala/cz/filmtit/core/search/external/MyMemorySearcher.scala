@@ -2,6 +2,7 @@ package cz.filmtit.core.search.external
 
 import io.Source
 import java.net.URLEncoder
+import org.apache.commons.logging.LogFactory
 import org.json.{JSONArray, JSONObject}
 import cz.filmtit.core.model.TranslationPairSearcher
 import collection.mutable.ListBuffer
@@ -26,6 +27,8 @@ class MyMemorySearcher(
   )
 ) extends TranslationPairSearcher(l1, l2) {
 
+  val logger = LogFactory.getLog(this.getClass.getSimpleName)
+
   val limit = 5
   val apiURL = (l1: String, l2: String, text: String) =>
     "http://mymemory.translated.net/api/get?langpair=%s|%s&q=%s"
@@ -40,6 +43,8 @@ class MyMemorySearcher(
     )
 
     //TODO: add exception handling!
+    if (apiResponse.getInt("responseStatus") equals 403)
+      logger.info("Daily quota exceeded.")
 
     val candidates = ListBuffer[TranslationPair]()
     val matches: JSONArray = try {
