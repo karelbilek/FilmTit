@@ -41,6 +41,11 @@ public class USDocument extends DatabaseObject {
         this.document = document;
         workStartTime = new Date().getTime();
 
+        MediaSource oldMediaSource = document.getMovie();
+        MediaSource newMediaSource = MediaSourceFactory
+                .fromIMDB(oldMediaSource.getTitle(), oldMediaSource.getYear());
+        document.setMovie(newMediaSource);
+
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();  // throws an exception
         saveToDatabase(dbSession);
@@ -93,7 +98,7 @@ public class USDocument extends DatabaseObject {
     }
 
     private void generateMediaSource() {
-        document.SetMovie(MediaSourceFactory.fromIMDB(cachedMovieTitle, cachedMovieYear));
+        document.setMovie(MediaSourceFactory.fromIMDB(cachedMovieTitle, cachedMovieYear));
     }
 
     /**

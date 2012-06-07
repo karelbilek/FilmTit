@@ -41,7 +41,7 @@ public class Document implements IsSerializable, Serializable {
         return movie;
     }
 
-    public void SetMovie(MediaSource movie) {
+    public void setMovie(MediaSource movie) {
         this.movie = movie;
     }
 
