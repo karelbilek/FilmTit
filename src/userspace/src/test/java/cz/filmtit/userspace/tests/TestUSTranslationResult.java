@@ -3,8 +3,11 @@ package cz.filmtit.userspace.tests;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.FilmTitBackendServer;
+import cz.filmtit.userspace.USTranslationResult;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -30,6 +33,25 @@ public class TestUSTranslationResult {
 
     @Test
     public void testSaveAndLoad() { }
+
+    @Test
+    public void testFeedBackNotCrash() {
+        USTranslationResult testRes = new USTranslationResult(
+                new TimedChunk("0:00", "0:00",0, "Sample text", 0, 0l));
+
+        //Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        //dbSession.beginTransaction();
+
+        //testRes.setUserTranslation("User translation");
+        //testRes.saveToDatabase(dbSession);
+
+        //testRes.saveToDatabase(dbSession);
+
+        //dbSession.getTransaction().commit();
+
+        List<TranslationResult> res = USTranslationResult.getUncheckedResults();
+        assertEquals(0, res.size());
+    }
 }
 
 

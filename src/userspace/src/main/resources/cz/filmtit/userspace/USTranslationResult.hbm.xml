@@ -19,6 +19,7 @@
         <property name="userTranslation" type="java.lang.String"  column="userTranslation" />
         <property name="selectedTranslationPairID" type="long" column="selectedTranslationPairID" />
         <property name="sharedId" type="int" column="sharedId" />
+        <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
 
         <!--commenting this out mainly for testing, sorry-->

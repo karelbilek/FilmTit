@@ -1,17 +1,15 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.core.Factory;
-import cz.filmtit.core.Configuration;
 import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.share.Chunk;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
@@ -21,6 +19,7 @@ import java.util.*;
 public class USTranslationResult extends DatabaseObject {
     private TranslationResult translationResult;
     private long documentDatabaseId;
+    private boolean feedbackSent = false;
     private USDocument parent; // is set if and only if it's created from the docoument side
     
     public void setParent(USDocument parent) {
@@ -174,5 +173,34 @@ public class USTranslationResult extends DatabaseObject {
 
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
+    }
+
+    private boolean isFeedbackSent() {
+        return feedbackSent;
+    }
+
+    private void setFeedbackSent(boolean feedbackSent) {
+        this.feedbackSent = feedbackSent;
+    }
+
+    public static List<TranslationResult> getUncheckedResults() {
+        Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        dbSession.beginTransaction();
+
+        List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
+                "where t.feedbackSent = false and t.userTranslation != null").list();
+
+        List<TranslationResult> results = new ArrayList<TranslationResult>();
+
+        for (Object tr : queryResult) {
+            USTranslationResult usResult = (USTranslationResult)tr;
+            usResult.setFeedbackSent(true);
+            usResult.saveToDatabase(dbSession);
+            results.add(usResult.getTranslationResult());
+        }
+
+        dbSession.getTransaction().commit();
+        return results;
     }
 }
