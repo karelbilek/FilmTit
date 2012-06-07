@@ -41,11 +41,6 @@ public class USDocument extends DatabaseObject {
         this.document = document;
         workStartTime = new Date().getTime();
 
-        MediaSource oldMediaSource = document.getMovie();
-        MediaSource newMediaSource = MediaSourceFactory
-                .fromIMDB(oldMediaSource.getTitle(), oldMediaSource.getYear());
-        document.setMovie(newMediaSource);
-
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();  // throws an exception
         saveToDatabase(dbSession);
@@ -165,6 +160,14 @@ public class USDocument extends DatabaseObject {
 
     protected void setSharedDatabaseId(long databaseId) {
         document.setId(databaseId);
+    }
+
+    protected void setMovie(MediaSource movie) {
+        document.setMovie(movie);
+    }
+
+    protected MediaSource getMovie() {
+        return document.getMovie();
     }
 
     /**

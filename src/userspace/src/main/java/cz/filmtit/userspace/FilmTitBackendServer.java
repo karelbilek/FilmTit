@@ -17,10 +17,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
         FilmTitService {
@@ -33,6 +30,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                   // delete ASAP sessions introduced
     private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
+    private Map<USDocument, List<MediaSource>> mediaSourceSuggestion; // delete ASAP session introduced
 
     // AuthId which are in process
     private Map<Long, AuthData> authenticatingSessions = new HashMap<Long, AuthData>();
@@ -103,6 +101,21 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return usDocument.getDocument();
     }
 
+    public DocumentResponse createNewDocument(String movieTitle, String year, String language) {
+        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
+        List<MediaSource> suggestions = scala.collection
+                .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
+        mediaSourceSuggestion.put(usDocument, suggestions);
+        return new DocumentResponse(usDocument.getDocument(), suggestions);
+    }
+
+    public Void selectSource(long documentID, int selectedMediaSourceIndex) {
+        USDocument usDocument = activeDocuments.get(documentID);
+        usDocument.setMovie(mediaSourceSuggestion.get(usDocument).get(selectedMediaSourceIndex));
+        mediaSourceSuggestion.remove(usDocument);
+        return null;
+    }
+
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
 
@@ -162,14 +175,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return newSessionID;
         }
         return null;
-    }
-
-    public Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionId)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-
-        return activeSessions.get(sessionId).createDocument(year, year, language);
     }
 
     public Void logout(String sessionId) throws InvalidSessionIdException {

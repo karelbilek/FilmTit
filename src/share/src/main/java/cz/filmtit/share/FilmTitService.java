@@ -9,6 +9,8 @@ public interface FilmTitService extends RemoteService {
 	TranslationResult getTranslationResults(TimedChunk chunk);
 	Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair);
 	Document createDocument(String movieTitle, String year, String language);
+    DocumentResponse createNewDocument(String movieTitle, String year, String language);
+    Void selectSource(long documentID, int selectedMediaSourceIndex);
 
     String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
     Boolean validateAuthentication(long authID, String responseURL);
