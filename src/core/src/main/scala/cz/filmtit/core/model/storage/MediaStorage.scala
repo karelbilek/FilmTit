@@ -32,4 +32,14 @@ trait MediaStorage {
    */
   def getMediaSource(id: Int): MediaSource
 
+  /**
+   * Get possible MediaSources for an uploaded subtitle file.
+   *
+   * @param title title of the movie/TV show
+   * @param year year it was released
+   * @return
+   */
+  def getSuggestions(title: String, year: String): List[MediaSource]
+
+
 }

@@ -3,6 +3,7 @@ package cz.filmtit.core.io.data
 import org.json.JSONObject
 import io.Source
 import java.net.URLEncoder
+import collection.mutable.ListBuffer
 
 
 /**
@@ -13,7 +14,22 @@ import java.net.URLEncoder
 
 object IMDB {
 
-  def query(title: String, year: String): JSONObject = {
+  def queryFirstBest(title: String, year: String): JSONObject = {
+    new JSONObject(queryAll(title, year).next())
+  }
+
+  def queryNBest(title: String, year: String, n: Int = 10): List[JSONObject] = {
+    val nbest = ListBuffer[JSONObject]()
+    val all = queryAll(title, year)
+
+    var i = 0
+    while( all.hasNext && i < n )
+      nbest += new JSONObject(all.next())
+
+    nbest.toList
+  }
+
+  def queryAll(title: String, year: String): Iterator[String] = {
     val tvShowPattern = "\"(.+)\" .+".r
 
     val response = title match {
@@ -26,8 +42,7 @@ object IMDB {
           URLEncoder.encode(title, "utf-8"), year)).getLines()
       }
     }
-
-    new JSONObject(response.next())
+    response
   }
 
 }
