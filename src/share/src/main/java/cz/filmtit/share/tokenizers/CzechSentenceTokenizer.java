@@ -30,7 +30,7 @@ public class CzechSentenceTokenizer extends SentenceTokenizer {
    
     @Override
     protected String[] getAbbrevList() {
-        String[] abbrevList = {"oh"};/*{
+        String[] abbrevList = {
                 //TITLES (seriously, I doubt we will have ONE in the subs)
                 "Bc","BcA","Ing","Ing.arch","MUDr","MVDr","MgA","Mgr",
                 "JUDr","PhDr","RNDr","PharmDr", "ThLic", "ThDr", "Ph.D", "Th.D", "prof", "doc", "CSc", "DrSc", "dr. h. c", "PaedDr", "Dr" , "PhMr" , "DiS",
