@@ -26,6 +26,19 @@ public class FilmTitServiceHandler {
 	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
 	private FilmTitServiceAsync filmTitSvc;
 	private Gui gui;
+
+    int windowsDisplayed = 0;
+    public  void displayWindow(String message) {
+        if (windowsDisplayed < 10) {
+            windowsDisplayed++;
+            Window.alert(message);
+            if (windowsDisplayed==10) {
+                Window.alert("Last window displayed.");
+            }
+        } else {
+      //      gui.log("ERROR - message");
+        }
+    }
 	
 	public FilmTitServiceHandler(Gui gui) {
 		filmTitSvc = GWT.create(FilmTitService.class);
@@ -48,7 +61,7 @@ public class FilmTitServiceHandler {
 			
 			public void onFailure(Throwable caught) {
 				// TODO: repeat sending a few times, then ask user
-				Window.alert(caught.getLocalizedMessage());
+				displayWindow(caught.getLocalizedMessage());
 				gui.log("failure on creating document!");
 			}
 
@@ -89,7 +102,7 @@ public class FilmTitServiceHandler {
 			
 			public void onFailure(Throwable caught) {
 				// TODO: repeat sending a few times, then ask user
-				Window.alert(caught.getLocalizedMessage());
+				displayWindow(caught.getLocalizedMessage());
 				gui.log("failure on receiving some chunk!");
 				gui.log(caught.toString());				
 				StackTraceElement[] st = caught.getStackTrace();
@@ -112,7 +125,7 @@ public class FilmTitServiceHandler {
 			}
 			
 			public void onFailure(Throwable caught) {
-				Window.alert(caught.getLocalizedMessage());
+				displayWindow(caught.getLocalizedMessage());
 				gui.log("setUserTranslation() didn't succeed");
 				// TODO: repeat sending a few times, then ask user
 			}
