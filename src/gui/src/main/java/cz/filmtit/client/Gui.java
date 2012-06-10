@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
 import cz.filmtit.share.*;
@@ -246,15 +247,15 @@ public class Gui implements EntryPoint {
 		log("\nparsed chunks: "+chunklist.size());
 
 		// TODO: use this
-		// Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
+		Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
 
 		// TODO: remove this
-		for (TimedChunk timedchunk : chunklist) {
+		/*for (TimedChunk timedchunk : chunklist) {
 		    log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
 
 		    log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
 		    rpcHandler.getTranslationResults(timedchunk);
-		}		
+		}*/		
 		
 	}
 	
@@ -268,7 +269,8 @@ public class Gui implements EntryPoint {
 			this.chunks = new LinkedList<TimedChunk>(chunks);
 		}
 
-		public boolean execute() {
+		@Override
+        public boolean execute() {
 			if (chunks.isEmpty()) {
 				return false;
 			} else {
@@ -293,6 +295,7 @@ public class Gui implements EntryPoint {
 	protected void setCurrentDocument(Document currentDocument) {
 		this.currentDocument = currentDocument;
 	}
+
 
 	/**
 	 * Adds the given TranslationResult to the current listing interface.
