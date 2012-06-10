@@ -32,13 +32,14 @@ public class FilmTitFrontendServer {
     connector.setPort(port);
     server.setConnectors(new Connector[] { connector });
 
+   URL location;
 
 //a little hack, this will have to be deleted in actual code
-    if (FilmTitFrontendServer.class.getResource("FilmTitFrontendServer.class").startsWith("jar:") {
+    if (FilmTitFrontendServer.class.getResource("FilmTitFrontendServer.class").toString().startsWith("jar:")) {
 
         //running from shaded jar
         ProtectionDomain protectionDomain = FilmTitFrontendServer.class.getProtectionDomain();
-        URL location = protectionDomain.getCodeSource().getLocation();
+        location = protectionDomain.getCodeSource().getLocation();
     } else {
 
         //running from class
@@ -46,7 +47,8 @@ public class FilmTitFrontendServer {
             location = new File("gui/target/gui-0.1").toURL();
         } catch (MalformedURLException e) {
             System.err.println("File does not exist.");
-            System.exit(0);
+            return;
+            //System.exit(0);
         }
     }
 
