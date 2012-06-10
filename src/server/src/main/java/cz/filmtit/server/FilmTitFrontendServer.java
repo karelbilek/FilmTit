@@ -39,7 +39,7 @@ public class FilmTitFrontendServer {
         //running from shaded jar
         ProtectionDomain protectionDomain = FilmTitFrontendServer.class.getProtectionDomain();
         URL location = protectionDomain.getCodeSource().getLocation();
-    else {
+    } else {
 
         //running from class
         try {
