@@ -31,6 +31,7 @@
                     <execution>
                         <goals>
                             <goal>resources</goal>
+                            <!--goal>generateAsync</goal-->
                         </goals>
                     </execution>
                 </executions>
