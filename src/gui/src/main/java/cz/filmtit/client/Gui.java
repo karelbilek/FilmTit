@@ -243,7 +243,7 @@ public class Gui implements EntryPoint {
 		}
 
 		// output the parsed chunks:
-		log("\nparsed chunks:");
+		log("\nparsed chunks: "+chunklist.size());
 
 		// TODO: use this
 		// Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
@@ -396,8 +396,14 @@ public class Gui implements EntryPoint {
 	 * Output the given text in the debug textarea
 	 * @param logtext
 	 */
+
+    long start=0;
 	public void log(String logtext) {
-		guiStructure.txtDebug.setText(guiStructure.txtDebug.getText() + logtext + "\n");
+		if (start == 0) {
+            start = System.currentTimeMillis();
+        }
+        long diff = (System.currentTimeMillis() - start);
+        guiStructure.txtDebug.setText(guiStructure.txtDebug.getText() + diff+" : " + logtext + "\n");
 		guiStructure.txtDebug.setCursorPos(guiStructure.txtDebug.getText().length());
 	}
 	
