@@ -4,6 +4,7 @@ import java.util.List;
 
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TitChunkSeparator;
+import cz.filmtit.share.Language;
 
 /**
  * Interface for parsing a subtitle file,
@@ -23,7 +24,7 @@ public abstract class Parser {
 	public abstract List<TimedChunk> parse(String text, long documentId);
 
     public static void addToSublist(List<TimedChunk> sublist, String titText, String startTime, String endTime, int chunkId, long documentId) {
-        List<String> separatedText = TitChunkSeparator.separate(titText);
+        List<String> separatedText = TitChunkSeparator.separate(titText, Language.EN);
     	int partNumber = 1;
         for (String chunkText : separatedText) {
             sublist.add( new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId, documentId) );
