@@ -1,5 +1,9 @@
 package cz.filmtit.server;
 
+import cz.filmtit.core.Configuration;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import cz.filmtit.userspace.FilmTitBackendServer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -28,22 +32,32 @@ public class FilmTitFrontendServer {
     connector.setPort(port);
     server.setConnectors(new Connector[] { connector });
 
-//a little hack
-    ProtectionDomain protectionDomain = FilmTitFrontendServer.class.getProtectionDomain();
-    URL location = protectionDomain.getCodeSource().getLocation();
 
-      try {
-          location = new File("gui/target/gui-0.1").toURL();
-      } catch (MalformedURLException e) {
-          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates
-      }
+//a little hack, this will have to be deleted in actual code
+    if (FilmTitFrontendServer.class.getResource("FilmTitFrontendServer.class").startsWith("jar:") {
+
+        //running from shaded jar
+        ProtectionDomain protectionDomain = FilmTitFrontendServer.class.getProtectionDomain();
+        URL location = protectionDomain.getCodeSource().getLocation();
+    else {
+
+        //running from class
+        try {
+            location = new File("gui/target/gui-0.1").toURL();
+        } catch (MalformedURLException e) {
+            System.err.println("File does not exist.");
+            System.exit(0);
+        }
+    }
 
       WebAppContext front_context = new WebAppContext();
     front_context.setServer(server);
     front_context.setContextPath("/");
     front_context.setDescriptor(location.toExternalForm() + "WEB-INF/web.xml");
+
+
     
-    //It is still setWar, but it's OK, the classes are not in the WEB-INF so they are not run
+
     front_context.setWar(location.toExternalForm());
 
 

@@ -25,9 +25,9 @@ public class ParserSrt extends Parser {
 	public static RegExp reTimesLine  = RegExp.compile("^[0-9][0-9]:[0-9][0-9]");
 	public static String TIMES_SEPARATOR = " --> ";
 	
-	
-	public List<TimedChunk> parse(String text, long documentId) {
-		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
+    @Override
+	protected List<TimedChunk> breakToChunks(String text) {
+		List<TimedChunk> result = new ArrayList<TimedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
 		
@@ -62,7 +62,9 @@ public class ParserSrt extends Parser {
                 // empty line
 				// creating the chunk(s) from what was gathered recently...
 
-                addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+//    public TimedChunk(String startTime, String endTime, int partNumber, String text, int id, long documentId) {
+                 result.add(new TimedChunk(startTime, endTime,0, titText, chunkId++, 0));
+                //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 				
 		    	// ...and resetting
 				titText = EMPTY_STRING;
@@ -71,10 +73,11 @@ public class ParserSrt extends Parser {
         
         
 		// adding the last tit (after it, there was no empty line from splitting):
-        addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+        //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+        result.add(new TimedChunk(startTime, endTime,0, titText, chunkId++, 0));
 
-	
-		return sublist;
+        	
+		return result;
 	}
 	
 }

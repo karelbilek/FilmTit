@@ -47,8 +47,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
         String serverAddress = ConfigurationSingleton.getConf().serverAddress();
-        //manager.setReturnTo(serverAddress + "/openId");
-        //manager.setRealm(serverAddress);
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
         System.err.println("FilmTitBackendServer started fine!");
