@@ -29,7 +29,7 @@ public class EnglishSentenceTokenizer extends SentenceTokenizer {
    
     @Override
     protected String[] getAbbrevList() {
-        String[] abbrevList = {"oh"};/*{
+        String[] abbrevList = {
                 
                 "Mr", "Mrs", "No", "pp", "St", "no",
             "Sr", "Jr", "Bros", "etc", "vs", "esp", "Fig", "fig", "Jan", "Feb", "Mar", "Apr", "Jun", "Jul",
