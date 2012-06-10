@@ -2,6 +2,13 @@
 
 
 /** Example rules used by the template application (remove for your app) */
+.chunk_timing {
+	font-size: 11px;
+	font-weight: normal;
+	color: #777;
+}
+
+
 h1 {
 	color: Black;
 	margin: 40px 0px 70px;
@@ -88,10 +95,14 @@ body {
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	
-	padding: 5px;
+	padding: 10px 20px;
 	border: 1px solid #ccc;
 	height: 402px;
 }
+.scrollPanel td {
+	height: 45px;
+}
+
 .mainPanel {
 	padding-bottom: 20px;
 }

@@ -121,9 +121,11 @@ public class Gui implements EntryPoint {
 		table = new FlexTable();
 		guiStructure.scrollPanel.add(table);
 		table.setWidth("100%");
-		table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "15%");
-		table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "40%");
-		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "50%");
+
+        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "17%");
+        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "40%");
+		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "43%");
+
 		// TODO: header row?
 		
 		/*
@@ -302,10 +304,12 @@ public class Gui implements EntryPoint {
 	}
 
     public void showSource(TimedChunk chunk, int index) {
-		Label timeslabel = new Label(chunk.getStartTime() + " -> " + chunk.getEndTime());
+		Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
+        timeslabel.setStyleName("chunk_timing");
 		table.setWidget(index, TIMES_COLNUMBER, timeslabel);
 		
         Label sourcelabel = new Label(chunk.getSurfaceForm());
+        sourcelabel.setStyleName("chunk_l1");
 		table.setWidget(index, SOURCETEXT_COLNUMBER, sourcelabel);
         
     }

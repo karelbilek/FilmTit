@@ -32,7 +32,7 @@
 
                 <b:FluidRow>
                     <g:ScrollPanel ui:field="scrollPanel"
-                                   stylePrimaryName="scrollPanel" width="850px" />
+                                   stylePrimaryName="scrollPanel" width="984px" />
                 </b:FluidRow>
 
                 <b:FluidRow>
