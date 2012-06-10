@@ -246,6 +246,11 @@ public class Gui implements EntryPoint {
 		// output the parsed chunks:
 		log("\nparsed chunks: "+chunklist.size());
 
+        int i=0;
+        for (TimedChunk timedchunk : chunklist) {
+            this.showSource(timedchunk, i++);
+		}
+
 		// TODO: use this
 		Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
 
@@ -296,18 +301,22 @@ public class Gui implements EntryPoint {
 		this.currentDocument = currentDocument;
 	}
 
+    public void showSource(TimedChunk chunk, int index) {
+		Label timeslabel = new Label(chunk.getStartTime() + " -> " + chunk.getEndTime());
+		table.setWidget(index, TIMES_COLNUMBER, timeslabel);
+		
+        Label sourcelabel = new Label(chunk.getSurfaceForm());
+		table.setWidget(index, SOURCETEXT_COLNUMBER, sourcelabel);
+        
+    }
+
 
 	/**
 	 * Adds the given TranslationResult to the current listing interface.
 	 * @param transresult - the TranslationResult to be shown
 	 */
 	public void showResult(TranslationResult transresult, int index) {
-		//log("showing result of chunk: " + transresult.getSourceChunk().getSurfaceForm());
-		Label timeslabel = new Label(transresult.getSourceChunk().getStartTime() + " -> " + transresult.getSourceChunk().getEndTime());
-		table.setWidget(index, TIMES_COLNUMBER, timeslabel);
 		
-		Label sourcelabel = new Label(transresult.getSourceChunk().getSurfaceForm());
-		table.setWidget(index, SOURCETEXT_COLNUMBER, sourcelabel);
 		
 		SubgestBox targetbox = new SubgestBox(index, transresult, this); // suggestions handling - see the constructor for details
 		targetBoxes.add(targetbox);
