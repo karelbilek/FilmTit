@@ -21,9 +21,8 @@ public class ParserSub extends Parser {
 	public static RegExp reSubtitleLine  = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
 
-	@Override
-    public List<TimedChunk> breakToChunks(String text) {
-		List<TimedChunk> result = new ArrayList<TimedChunk>();
+	public List<TimedChunk> parse(String text, long documentId) {
+		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
 		int chunkId = 0;
@@ -44,18 +43,16 @@ public class ParserSub extends Parser {
                 for (int i = 1; i < segments.length; i++) {
 					titText += SUBLINE_SEPARATOR_OUT + segments[i];
 				}
-                result.add(new TimedChunk(startTime, endTime,0, titText, chunkId++, 0));
-                //result.add(new TimedChunk(startTime, endTime, 0, 0));
 
-                //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+                addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 			}
 			else {
 				// wrong format of this line
 				//throw new TODO SubFileFormatException(linenumber);
 			}
 		}
-		return result;
 
+		return sublist;
 	}
 	
 }
