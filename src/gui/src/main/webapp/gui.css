@@ -8,6 +8,10 @@
 	color: #777;
 }
 
+.chunk_l1 {
+	padding-right: 10px;
+}
+
 tr.header td {
 	height: 35px;
 }
