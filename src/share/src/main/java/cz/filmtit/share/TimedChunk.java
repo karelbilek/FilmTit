@@ -1,10 +1,10 @@
 package cz.filmtit.share;
-import java.io.Serializable;
-
 
 import java.io.Serializable;
 
-public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
+
+public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable,
+Comparable<TimedChunk> {
 	// TODO: should be long - probably number of milliseconds 
 	private String startTime;
     private String endTime;
@@ -74,4 +74,43 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         }
         this.documentId = documentId;
     }
+
+    
+    /**
+     * Comparing according to their order in the file/movie
+     * - by startTime, endTime and partNumber, respectively.
+     * (returns 0 iff all these three are the same)
+     */
+	@Override
+	public int compareTo(TimedChunk that) {
+		// TODO: compare differently for various subtitle formats, i.e.
+		// - lexicographically for srt
+		// - numerically for sub
+		// - ???
+		
+		// ? this.startTime < that.startTime ?
+		int result = this.startTime.compareTo(that.startTime);
+		
+		if (result == 0) {	// this.startTime == that.startTime
+			// ? this.endTime < that.endTime ?
+			result = this.endTime.compareTo(that.endTime);			
+			
+			if (result == 0) {	// this.endTime == that.endTime
+				// ? this.partNumber < that.partNumber ?
+				result = this.partNumber - that.partNumber;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * When comparing two TimedChunks, equal iff their proper compareTo returns 0.
+	 */
+	@Override
+	public boolean equals(Object that) {
+		if (that instanceof TimedChunk) {
+			return (this.compareTo((TimedChunk)that) == 0) ? true : false;
+		}
+		else return super.equals(that);
+	}
 }

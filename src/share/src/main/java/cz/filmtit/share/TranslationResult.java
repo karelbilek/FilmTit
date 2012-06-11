@@ -2,12 +2,12 @@ package cz.filmtit.share;
 
 import java.io.Serializable;
 import java.util.List;
-import java.io.Serializable;
 
 /**
-
-*/
-
+ * Class representing the result sent from the core corresponding to the request by a source-chunk,
+ * packaging the given source-chunk and the translation-suggestions from the core.
+ * Additionaly, the translation from the user is present, for its storage and feedback.
+ */
 public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult>, Serializable {
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions;
@@ -58,27 +58,21 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
         this.sourceChunk = sourceChunk;
     }
 
-	public int compareTo(TranslationResult that) {
-		// TODO: compare differently for various subtitle formats, i.e.
-		// - lexicographically for srt
-		// - numerically for sub
-		// - ???
-		
-		// this.startTime < that.startTime ?
-		int result = this.getSourceChunk().getStartTime().compareTo(that.getSourceChunk().getStartTime());
-		
-		if (result == 0) {
-			// this.startTime == that.startTime
-			// this.endTime < that.endTime ?
-			result = this.getSourceChunk().getEndTime().compareTo(that.getSourceChunk().getEndTime());			
-			
-			if (result == 0) {
-				// this.endTime == that.endTime
-				// this.partNumber < that.partNumber ?
-				result = (int) Math.signum(this.getSourceChunk().getPartNumber() - that.sourceChunk.getPartNumber());
-			}
+    /**
+     * Compares the two TranslationResults according to their source chunks.
+     */
+	public int compareTo(TranslationResult that) {		
+		return this.sourceChunk.compareTo(that.sourceChunk);
+	}
+	
+	/**
+	 * If comparing two TranslationResults, they are equal iff their proper compareTo returns 0.
+	 */
+	@Override
+	public boolean equals(Object that) {
+		if (that instanceof TranslationResult) {
+			return (this.compareTo((TranslationResult) that) == 0) ? true : false;
 		}
-		
-		return result;
+		else return super.equals(that);
 	}
 }
