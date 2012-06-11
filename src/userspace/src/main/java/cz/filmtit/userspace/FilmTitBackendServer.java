@@ -29,7 +29,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     protected TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                   // delete ASAP sessions introduced
-    private Map<Long, USTranslationResult> activeTranslationResults; // delete ASAP sessions introduced
+    private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;  // delete ASAP sessions introduced
     private Map<USDocument, List<MediaSource>> mediaSourceSuggestion; // delete ASAP session introduced
 
     // AuthId which are in process
@@ -45,7 +45,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         loadTranslationMemory();
 
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
-        activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, USTranslationResult>());
+        activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, Map<Integer, USTranslationResult>>());
         String serverAddress = ConfigurationSingleton.getConf().serverAddress();
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
@@ -72,8 +72,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         usTranslationResult.generateMTSuggestions(TM);
 
-        activeTranslationResults.put(usTranslationResult.getDatabaseId(), usTranslationResult);
-
+        activeTranslationResults.get(docu.getDatabaseId()).put(chunk.getId(), usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 
@@ -86,30 +85,37 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
-        //USTranslationResult tr = activeTranslationResults.get(translationResultId);
-        //tr.setUserTranslation(userTranslation);
-        //tr.setSelectedTranslationPairID(chosenTranslationPairID);
-
+        USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
+        tr.setUserTranslation(userTranslation);
+        tr.setSelectedTranslationPairID(chosenTranslationPairID);
         return null;
     }
 
+    @Override
     public Document createDocument(String movieTitle, String year, String language) {
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
+        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
         return usDocument.getDocument();
     }
 
+    @Override
     public DocumentResponse createNewDocument(String movieTitle, String year, String language) {
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
         List<MediaSource> suggestions = scala.collection
                 .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
         mediaSourceSuggestion.put(usDocument, suggestions);
+
+        activeDocuments.put(usDocument.getDatabaseId(), usDocument);
+        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
+
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
-    public Void selectSource(long documentID, int selectedMediaSourceIndex) {
+    @Override
+    public Void selectSource(long documentID, MediaSource selectedMediaSource) {
         USDocument usDocument = activeDocuments.get(documentID);
-        usDocument.setMovie(mediaSourceSuggestion.get(usDocument).get(selectedMediaSourceIndex));
+        usDocument.setMovie(selectedMediaSource);
         mediaSourceSuggestion.remove(usDocument);
         return null;
     }
