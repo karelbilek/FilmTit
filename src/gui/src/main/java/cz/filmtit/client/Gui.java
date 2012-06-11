@@ -122,12 +122,16 @@ public class Gui implements EntryPoint {
 		guiStructure.scrollPanel.add(table);
 		table.setWidth("100%");
 
-        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "17%");
-        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "40%");
-		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "43%");
+        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
+        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
+		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "410px");
 
-		// TODO: header row?
-		
+        table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
+        table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
+        table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
+        table.getRowFormatter().setStyleName(0, "header");
+
+
 		/*
 		// filling the interface with the sample subtitles:
 		List<TranslationResult> transresults = (new SampleDocument()).translationResults;
@@ -306,14 +310,13 @@ public class Gui implements EntryPoint {
     public void showSource(TimedChunk chunk, int index) {
 		Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
         timeslabel.setStyleName("chunk_timing");
-		table.setWidget(index, TIMES_COLNUMBER, timeslabel);
+		table.setWidget(index+1, TIMES_COLNUMBER, timeslabel);
 		
         Label sourcelabel = new Label(chunk.getSurfaceForm());
         sourcelabel.setStyleName("chunk_l1");
-		table.setWidget(index, SOURCETEXT_COLNUMBER, sourcelabel);
-        
-    }
+		table.setWidget(index+1, SOURCETEXT_COLNUMBER, sourcelabel);
 
+    }
 
 	/**
 	 * Adds the given TranslationResult to the current listing interface.
@@ -324,7 +327,7 @@ public class Gui implements EntryPoint {
 		
 		SubgestBox targetbox = new SubgestBox(index, transresult, this); // suggestions handling - see the constructor for details
 		targetBoxes.add(targetbox);
-		table.setWidget(index, TARGETBOX_COLNUMBER, targetbox);
+		table.setWidget(index + 1, TARGETBOX_COLNUMBER, targetbox);
 		targetbox.setWidth("97%");
 		
 		counter++;

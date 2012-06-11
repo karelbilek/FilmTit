@@ -8,6 +8,17 @@
 	color: #777;
 }
 
+tr.header td {
+	height: 35px;
+}
+tr.header .gwt-Label {
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 90%;
+	color: #999;
+	
+}
 
 h1 {
 	color: Black;
