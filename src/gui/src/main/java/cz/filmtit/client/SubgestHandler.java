@@ -1,5 +1,7 @@
 package cz.filmtit.client;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
@@ -9,6 +11,7 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -32,14 +35,22 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	@Override
 	public void onFocus(FocusEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
+			final SubgestBox subbox = (SubgestBox) event.getSource();
 			// hide the suggestion widget corresponding to the SubgestBox
-			//   which previously had focus
+			//   which previously had focus (if any)
 			gui.deactivateSuggestionWidget();
+			//gui.scrolledAutomatically = true;
+			gui.guiStructure.scrollPanel.ensureVisible(subbox);
+			//gui.scrolledAutomatically = false;
 			// and show a new one for the current SubgestBox
-			SubgestBox subbox = (SubgestBox) event.getSource();
-			subbox.showSuggestions();
-			gui.setActiveSuggestionWidget(subbox.getSuggestionWidget());
-			//gui.log("tabindex of this: " + subbox.getTabIndex());
+			Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+				@Override
+				public void execute() {
+					subbox.showSuggestions();
+					gui.setActiveSuggestionWidget(subbox.getSuggestionWidget());
+				}
+			} );
+			gui.log("tabindex of this: " + subbox.getTabIndex());
 		}
 	}
 	
@@ -73,9 +84,13 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 				else {
 					moved = gui.goToNextBox(subbox);
 				}
+				/*
 				if (!moved) {
-					subbox.showSuggestions();
+					//gui.log("just setting visible");
+					//subbox.getSuggestionWidget().setVisible(true);
+					//subbox.showSuggestions();
 				}
+				*/
 			}
 			// pressing Enter:
 			else if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER) ) {
@@ -135,7 +150,6 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			//gui.deactivateSuggestionWidget();
 		}
 	}
-	
 	
 
 }
