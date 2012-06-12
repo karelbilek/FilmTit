@@ -51,6 +51,7 @@ public class ParserSub extends Parser {
 				//throw new TODO SubFileFormatException(linenumber);
 			}
 		}
+        renumber(sublist);	
 
 		return sublist;
 	}

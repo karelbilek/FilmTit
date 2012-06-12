@@ -63,7 +63,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public TranslationMemory getTM() {
         return TM;
     }
-
     public TranslationResult getTranslationResults(TimedChunk chunk) {
         //this looks terribly unsafe, nothing is checked here
         USDocument docu = activeDocuments.get(chunk.getDocumentId());
@@ -74,6 +73,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         activeTranslationResults.get(docu.getDatabaseId()).put(chunk.getId(), usTranslationResult);
         return usTranslationResult.getTranslationResult();
+    }
+
+
+    public List<TranslationResult> getTranslationResults(List<TimedChunk> chunks) {
+        List<TranslationResult> res = new ArrayList<TranslationResult>(chunks.size());
+        
+        for (TimedChunk timedchunk:chunks) {
+            res.add(getTranslationResults(timedchunk));
+        }
+        return res;   
     }
 
     public TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {

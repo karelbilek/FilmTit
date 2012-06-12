@@ -70,35 +70,21 @@ public class FilmTitServiceHandler {
 		filmTitSvc.createDocument(movieTitle, year, language, callback);
 	}
 	
-	public void getTranslationResults(TimedChunk chunk) {
+	public void getTranslationResults(List<TimedChunk> chunks) {
 		
-		// assert(filmTitSvc != null);
-		// most probably not necessary
-		// if (filmTitSvc == null) {
-		//	filmTitSvc = GWT.create(FilmTitService.class);
-		// }
-		
-		AsyncCallback<TranslationResult> callback = new AsyncCallback<TranslationResult>() {
+		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
 			
-			public void onSuccess(TranslationResult newresult) {
-				//gui.getCurrentDocument().translationResults.add(result);
+			public void onSuccess(List<TranslationResult> newresults) {
 				// add to trlist to the correct position:
 				List<TranslationResult> translist = gui.getCurrentDocument().translationResults;
-				/*
-				int index;
-				for (index = 0; index < translist.size(); index++) {
-					if (newresult.compareTo(translist.get(index)) < 0) {
-						break;
-					}
-				}
-				*/
-				
-				int index = newresult.getSourceChunk().getId();
-				//gui.log("inserting chunk on position " + index);
-				translist.set(index, newresult);
-				
-				gui.showResult(newresult, index);
-				//gui.log("succesfully received result of chunk: " + newresult.getSourceChunk().getSurfaceForm());
+			
+                for (TranslationResult newresult:newresults){
+
+                    int index = newresult.getSourceChunk().getIndex();
+                    translist.set(index, newresult);
+                    
+                    gui.showResult(newresult, index);
+                }
 			}
 			
 			public void onFailure(Throwable caught) {
@@ -113,7 +99,7 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.getTranslationResults(chunk, callback);
+		filmTitSvc.getTranslationResults(chunks, callback);
 	}
 	
 	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {

@@ -3,6 +3,7 @@ package cz.filmtit.share;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import java.util.List;
 
 public interface FilmTitServiceAsync
 {
@@ -11,7 +12,7 @@ public interface FilmTitServiceAsync
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void getTranslationResults( cz.filmtit.share.TimedChunk p0, AsyncCallback<cz.filmtit.share.TranslationResult> callback );
+    void getTranslationResults( List<cz.filmtit.share.TimedChunk> p0, AsyncCallback<List<cz.filmtit.share.TranslationResult>> callback );
 
 
     /**

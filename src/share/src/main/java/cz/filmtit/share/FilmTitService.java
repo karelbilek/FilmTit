@@ -1,12 +1,13 @@
 package cz.filmtit.share;
 
+import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 //import cz.filmtit.share.Feedback;
 
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
-	TranslationResult getTranslationResults(TimedChunk chunk);
+	List<TranslationResult> getTranslationResults(List<TimedChunk> chunk);
 	Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair);
 	Document createDocument(String movieTitle, String year, String language);
     DocumentResponse createNewDocument(String movieTitle, String year, String language);

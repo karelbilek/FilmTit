@@ -21,6 +21,13 @@ public abstract class Parser {
 	public static final String EMPTY_STRING = "";
 	public static final String LINE_SEPARATOR  = "\r?\n";
 
+    public static void renumber (List<TimedChunk> what) {
+        int i = 0;
+        for (TimedChunk chunk:what) {
+            chunk.setIndex(i);
+            i++;
+        }
+    }
 	public abstract List<TimedChunk> parse(String text, long documentId);
 
     public static void addToSublist(List<TimedChunk> sublist, String titText, String startTime, String endTime, int chunkId, long documentId) {

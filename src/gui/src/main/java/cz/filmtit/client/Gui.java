@@ -261,17 +261,8 @@ public class Gui implements EntryPoint {
             this.showSource(timedchunk, i++);
 		}
 
-		// TODO: use this
 		Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
 
-		// TODO: remove this
-		/*for (TimedChunk timedchunk : chunklist) {
-		    log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
-
-		    log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
-		    rpcHandler.getTranslationResults(timedchunk);
-		}*/		
-		
 	}
 	
 	
@@ -284,21 +275,38 @@ public class Gui implements EntryPoint {
 			this.chunks = new LinkedList<TimedChunk>(chunks);
 		}
 
+
+        //exponential window
+        //
+        //a "trick" - first subtitle goes in a single request so it's here soonest without wait
+        //then the next two
+        //then the next four
+        //then next eight
+        //so the first 15 subtitles arrive as quickly as possible
+        //but we also want as little requests as possible -> the "window" is
+        //exponentially growing
+        int exponential = 1;
+
 		@Override
         public boolean execute() {
 			if (chunks.isEmpty()) {
 				return false;
 			} else {
-				TimedChunk timedchunk = chunks.removeFirst();
-				sendChunk(timedchunk);
-				return true;
+                List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
+				for (int i = 0; i< exponential; i++) {
+                    if (!chunks.isEmpty()){
+                        TimedChunk timedchunk = chunks.removeFirst();
+				        sentTimedchunks.add(timedchunk);
+                    }
+                }
+                sendChunks(sentTimedchunks);
+			    exponential = exponential*2;	
+                return true;
 			}
 		}
 		
-		private void sendChunk(TimedChunk timedchunk) {
-			log(timedchunk.getStartTime() + " --> " + timedchunk.getEndTime() + " ::: " + timedchunk.getSurfaceForm() + "\n");
-			log("sending timed chunk to get some translation result: " + timedchunk.getSurfaceForm());
-			rpcHandler.getTranslationResults(timedchunk);
+		private void sendChunks(List<TimedChunk> timedchunks) {
+			rpcHandler.getTranslationResults(timedchunks);
 		}
 	}
 	

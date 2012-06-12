@@ -73,7 +73,7 @@ public class ParserSrt extends Parser {
 		// adding the last tit (after it, there was no empty line from splitting):
         addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 
-	
+        renumber(sublist);	
 		return sublist;
 	}
 	
