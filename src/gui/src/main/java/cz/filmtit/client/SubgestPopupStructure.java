@@ -2,6 +2,7 @@ package cz.filmtit.client;
 
 import com.github.gwtbootstrap.client.ui.Paragraph;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -22,7 +23,7 @@ public class SubgestPopupStructure extends Composite {
 		suggestionItemText.setText(value.getStringL2());
 		suggestionItemMatch.setText(value.getStringL1());
 		if (value.getScore() != null) {
-			suggestionItemScore.setText( "(" + value.getScore() + ")" );
+			suggestionItemScore.setText( "(" + NumberFormat.getPercentFormat().format(value.getScore()) + "%)" );
 		}
 		else {
 			suggestionItemScore.setText("(score unknown)");

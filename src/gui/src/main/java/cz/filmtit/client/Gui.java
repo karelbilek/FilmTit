@@ -58,8 +58,8 @@ public class Gui implements EntryPoint {
 	protected List<TimedChunk> chunklist;
 	
 	//private List<Label> sources = new ArrayList<Label>();
-	private List<SubgestBox> targetBoxes = new ArrayList<SubgestBox>();
-	
+	private List<FakeSubgestBox> targetBoxes = new ArrayList<FakeSubgestBox>();
+
 	//private TextArea txtDebug;
 	//private RadioButton rdbFormatSrt;
 	//private RadioButton rdbFormatSub;
@@ -122,7 +122,7 @@ public class Gui implements EntryPoint {
 
 		// --- loading of the uibinder-defined structure --- //
 		guiStructure = new GuiStructure();
-		rootPanel.add(guiStructure, 20, 20);
+		rootPanel.add(guiStructure, 0, 0);
 		// --- end of loading of uibinder --- //
 		
 
@@ -343,7 +343,7 @@ public class Gui implements EntryPoint {
 
         SubgestBox targetbox = new SubgestBox(index, this); // suggestions handling - see the constructor for details
 		SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
-        targetBoxes.add(targetbox);
+        targetBoxes.add(fake);
 		table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
 		fake.setWidth("97%");
 		
@@ -363,7 +363,7 @@ public class Gui implements EntryPoint {
 	 * @param transresult - the TranslationResult to be shown
 	 */
 	public void showResult(TranslationResult transresult, int index) {
-	    targetBoxes.get(index).setTranslationResult(transresult);	
+	    targetBoxes.get(index).getFather().setTranslationResult(transresult);
 		
 		counter++;
 	}
@@ -421,8 +421,7 @@ public class Gui implements EntryPoint {
         Scheduler.get().scheduleDeferred( new ScheduledCommand() {
 			@Override
 			public void execute() {
-		        //TODO: sort out FakeSubgestBox
-		        targetBoxes.get(nextIndex).setFocus(true);				
+		        targetBoxes.get(nextIndex).setFocus(true);
 			}
 		} );
         return true;
@@ -445,7 +444,6 @@ public class Gui implements EntryPoint {
         Scheduler.get().scheduleDeferred( new ScheduledCommand() {
 			@Override
 			public void execute() {
-		        //TODO: sort out FakeSubgestBox
 		        targetBoxes.get(prevIndex).setFocus(true);
 			}
 		} );

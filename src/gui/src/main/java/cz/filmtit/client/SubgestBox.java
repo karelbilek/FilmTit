@@ -51,21 +51,21 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox() {
-            this.addClickHandler(new ClickHandler(){
+            this.addFocusHandler(new FocusHandler() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onFocus(FocusEvent event) {
                     if (event.getSource() instanceof FakeSubgestBox) { // should be
-                        Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+                        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             @Override
                             public void execute() {
                                 gui.replaceFake(id, SubgestBox.FakeSubgestBox.this, SubgestBox.this);
                             }
-                        } );
+                        });
                     }
                 }
             });
         }
-       
+
         public SubgestBox getFather(){
             return SubgestBox.this;
         }
