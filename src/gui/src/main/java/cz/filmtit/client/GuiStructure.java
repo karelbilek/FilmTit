@@ -1,6 +1,5 @@
 package cz.filmtit.client;
 
-import org.vectomatic.file.FileUploadExt;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -23,33 +22,11 @@ public class GuiStructure extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 	
-	
+	@UiField
+	NavLink loginlink;
 
 	@UiField
 	ScrollPanel scrollPanel;
-	
-	@UiField
-	RadioButton rdbEncodingUtf8;
-	@UiField
-	RadioButton rdbEncodingWin;
-	@UiField
-	RadioButton rdbEncodingIso;
-
-	@UiField
-	RadioButton rdbFormatSrt;
-	@UiField
-	RadioButton rdbFormatSub;
-	
-	
-	@UiField
-	FileUploadExt fileUpload;
-	
-	
-	@UiField
-	TextArea txtFileContentArea;
-	
-	@UiField
-	SubmitButton btnSendToTm;
 	
 	@UiField
 	TextArea txtDebug;

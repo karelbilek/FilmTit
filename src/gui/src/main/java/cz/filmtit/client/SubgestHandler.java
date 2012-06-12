@@ -40,9 +40,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			// hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus (if any)
 			gui.deactivateSuggestionWidget();
-			//gui.scrolledAutomatically = true;
 			gui.guiStructure.scrollPanel.ensureVisible(subbox);
-			//gui.scrolledAutomatically = false;
 			// and show a new one for the current SubgestBox
 			Scheduler.get().scheduleDeferred( new ScheduledCommand() {
 				@Override
@@ -87,9 +85,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 				}
 				/*
 				if (!moved) {
-					//gui.log("just setting visible");
-					//subbox.getSuggestionWidget().setVisible(true);
-					//subbox.showSuggestions();
+					subbox.showSuggestions();
 				}
 				*/
 			}

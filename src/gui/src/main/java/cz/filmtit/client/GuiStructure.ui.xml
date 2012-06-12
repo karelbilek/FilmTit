@@ -11,13 +11,12 @@
         <b:ResponsiveNavbar>
             <b:Brand>Filmtit</b:Brand>
             <b:Nav>
-                <b:NavLink>Test</b:NavLink>
+                <b:NavLink ui:field="loginlink">Test</b:NavLink>
                 <b:NavLink href="http://www.google.com">Another Test</b:NavLink>
             </b:Nav>
             <b:Nav alignment="RIGHT">
                 <b:NavLink>Test</b:NavLink>
             </b:Nav>
-
 
             <b:NavSearch size="2" placeholder="Search" alignment="RIGHT"/>
         </b:ResponsiveNavbar>
@@ -31,48 +30,9 @@
                 </b:Heading>
 
                 <b:FluidRow>
-                    <g:ScrollPanel ui:field="scrollPanel"
-                                   stylePrimaryName="scrollPanel" width="984px" />
+                    <g:ScrollPanel ui:field="scrollPanel" stylePrimaryName="scrollPanel" width="984px" />
                 </b:FluidRow>
-
-                <b:FluidRow>
-                    <b:Column size="6">
-                        <b:Paragraph>Select a file to load the subtitles from:</b:Paragraph>
-                        <b:Form type="HORIZONTAL" ui:field="fileUploadForm">
-                            <b:Fieldset>
-
-                                <lgf:FileUploadExt ui:field="fileUpload" />
-
-                                <b:ControlGroup>
-                                    <b:ControlLabel>Choose file format:</b:ControlLabel>
-                                    <b:Controls>
-                                        <b:RadioButton ui:field="rdbFormatSrt" name="file format"
-                                                       value="true">.srt</b:RadioButton>
-                                        <b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
-                                    </b:Controls>
-                                </b:ControlGroup>
-
-                                <b:ControlGroup>
-                                    <b:ControlLabel>Choose file encoding:</b:ControlLabel>
-                                    <b:Controls>
-                                        <b:RadioButton ui:field="rdbEncodingUtf8" name="file encoding"
-                                                       value="true">UTF-8</b:RadioButton>
-                                        <b:RadioButton ui:field="rdbEncodingWin" name="file encoding">windows-1250</b:RadioButton>
-                                        <b:RadioButton ui:field="rdbEncodingIso" name="file encoding">iso-8859-2</b:RadioButton>
-                                    </b:Controls>
-                                </b:ControlGroup>
-
-                            </b:Fieldset>
-                        </b:Form>
-                    </b:Column>
-
-                    <b:Column size="6">
-                        <b:Paragraph>...or paste the subtitles here and click "Load":</b:Paragraph>
-                        <b:TextArea ui:field="txtFileContentArea" width="100%" />
-                        <b:SubmitButton ui:field="btnSendToTm">Load</b:SubmitButton>
-                    </b:Column>
-                </b:FluidRow>
-
+                
                 <b:FluidRow>
                     <b:FluidRow>
                         <b:Label>Debug outputs:</b:Label>
