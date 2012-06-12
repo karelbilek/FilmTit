@@ -11,56 +11,56 @@ public interface FilmTitServiceAsync
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void getTranslationResults( cz.filmtit.share.TimedChunk chunk, AsyncCallback<cz.filmtit.share.TranslationResult> callback );
+    void getTranslationResults( cz.filmtit.share.TimedChunk p0, AsyncCallback<cz.filmtit.share.TranslationResult> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void setUserTranslation( int chunkId, long documentId, java.lang.String userTranslation, long chosenTranslationPair, AsyncCallback<java.lang.Void> callback );
+    void setUserTranslation( int p0, long p1, java.lang.String p2, long p3, AsyncCallback<java.lang.Void> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void createDocument( java.lang.String movieTitle, java.lang.String year, java.lang.String language, AsyncCallback<cz.filmtit.share.Document> callback );
+    void createDocument( java.lang.String p0, java.lang.String p1, java.lang.String p2, AsyncCallback<cz.filmtit.share.Document> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void createNewDocument( java.lang.String movieTitle, java.lang.String year, java.lang.String language, AsyncCallback<cz.filmtit.share.DocumentResponse> callback );
+    void createNewDocument( java.lang.String p0, java.lang.String p1, java.lang.String p2, AsyncCallback<cz.filmtit.share.DocumentResponse> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void selectSource( long documentID, int selectedMediaSourceIndex, AsyncCallback<java.lang.Void> callback );
+    void selectSource( long p0, cz.filmtit.share.MediaSource p1, AsyncCallback<java.lang.Void> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void getAuthenticationURL( long authID, cz.filmtit.share.AuthenticationServiceType serviceType, AsyncCallback<java.lang.String> callback );
+    void getAuthenticationURL( long p0, cz.filmtit.share.AuthenticationServiceType p1, AsyncCallback<java.lang.String> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void validateAuthentication( long authID, java.lang.String responseURL, AsyncCallback<java.lang.Boolean> callback );
+    void validateAuthentication( long p0, java.lang.String p1, AsyncCallback<java.lang.Boolean> callback );
 
 
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void getSessionID( long authID, AsyncCallback<java.lang.String> callback );
+    void getSessionID( long p0, AsyncCallback<java.lang.String> callback );
 
 
     /**
@@ -76,7 +76,7 @@ public interface FilmTitServiceAsync
             {
                 instance = (FilmTitServiceAsync) GWT.create( FilmTitService.class );
                 ServiceDefTarget target = (ServiceDefTarget) instance;
-                target.setServiceEntryPoint( GWT.getModuleBaseURL() + "filmtit" );
+                target.setServiceEntryPoint( GWT.getModuleBaseURL() + "FilmTitService" );
             }
             return instance;
         }
