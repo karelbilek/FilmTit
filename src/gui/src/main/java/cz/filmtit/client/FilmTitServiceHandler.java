@@ -92,12 +92,13 @@ public class FilmTitServiceHandler {
 					}
 				}
 				*/
-				int index = gui.chunklist.indexOf(newresult.getSourceChunk());
-				gui.log("inserting chunk on position " + index);
+				
+				int index = newresult.getSourceChunk().getId();
+				//gui.log("inserting chunk on position " + index);
 				translist.set(index, newresult);
 				
 				gui.showResult(newresult, index);
-				gui.log("succesfully received result of chunk: " + newresult.getSourceChunk().getSurfaceForm());
+				//gui.log("succesfully received result of chunk: " + newresult.getSourceChunk().getSurfaceForm());
 			}
 			
 			public void onFailure(Throwable caught) {
