@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.incubator.Table;
 import com.google.gwt.user.client.Window;
 
 import java.util.Iterator;
@@ -27,6 +28,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
 
 import cz.filmtit.share.*;
@@ -83,6 +86,8 @@ public class Gui implements EntryPoint {
 	 */
 	private String subtext;
 	
+	private DocumentCreator docCreator;
+	
 	
 	
 	@Override
@@ -122,8 +127,8 @@ public class Gui implements EntryPoint {
 		
 
 		// --- main interface --- //
+		// only preparing the table - not showing it yet
 		table = new FlexTable();
-		guiStructure.scrollPanel.add(table);
 		table.setWidth("100%");
 
         table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
@@ -146,6 +151,12 @@ public class Gui implements EntryPoint {
 		// --- end of main interface --- //
 
 		
+        
+        docCreator = new DocumentCreator();
+        guiStructure.scrollPanel.setWidget(docCreator);
+        
+        
+        
 		// --- file reading interface via lib-gwt-file --- //
 		final FileReader freader = new FileReader();
 		freader.addLoadEndHandler( new LoadEndHandler() {
@@ -155,27 +166,28 @@ public class Gui implements EntryPoint {
 				//log(subtext);
 				
 				// TODO: movieTitle, year, language
+				guiStructure.scrollPanel.setWidget(table);
 				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
 		} );
 		
 
-		guiStructure.fileUpload.addChangeHandler( new ChangeHandler() {
+		docCreator.fileUpload.addChangeHandler( new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
 				//log(fileUpload.getFilename());
-				FileList fl = guiStructure.fileUpload.getFiles();
+				FileList fl = docCreator.fileUpload.getFiles();
 				Iterator<File> fit = fl.iterator();
 				if (fit.hasNext()) {
 					String encoding = "utf-8";  // default value
-					if (guiStructure.rdbEncodingUtf8.getValue()) {
+					if (docCreator.rdbEncodingUtf8.getValue()) {
 						encoding = "utf-8";
 					}
-					else if (guiStructure.rdbEncodingWin.getValue()) {
+					else if (docCreator.rdbEncodingWin.getValue()) {
 						encoding = "windows-1250";
 					}
-					else if (guiStructure.rdbEncodingIso.getValue()) {
+					else if (docCreator.rdbEncodingIso.getValue()) {
 						encoding = "iso-8859-2";
 					}
 					freader.readAsText(fit.next(), encoding);
@@ -189,11 +201,12 @@ public class Gui implements EntryPoint {
 		
 		
 		// --- textarea interface for loading whole subtitle file --- //
-		guiStructure.btnSendToTm.addClickHandler( new ClickHandler() {
+		docCreator.btnSendToTm.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				subtext = guiStructure.txtFileContentArea.getText();
+				subtext = docCreator.txtFileContentArea.getText();
 				// TODO: movieTitle, year, language
+				guiStructure.scrollPanel.setWidget(table);
 				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}
@@ -228,12 +241,12 @@ public class Gui implements EntryPoint {
 		// determine format (from corresponding radiobuttons) and choose parser:
 		String subformat;
 		Parser subtextparser;
-		if (guiStructure.rdbFormatSub.getValue()) {  // i.e. ".sub" is checked
+		if (docCreator.rdbFormatSub.getValue()) {  // i.e. ".sub" is checked
 			subformat = "sub";
 			subtextparser = new ParserSub();
 		}
 		else {  // i.e. ".srt" is checked
-			assert guiStructure.rdbFormatSrt.getValue() : "One of the subtitle formats must be chosen.";
+			assert docCreator.rdbFormatSrt.getValue() : "One of the subtitle formats must be chosen.";
 			subformat = "srt";
 			subtextparser = new ParserSrt();
 		}
@@ -399,13 +412,19 @@ public class Gui implements EntryPoint {
 	 *         true otherwise
 	 */
 	public boolean goToNextBox(SubgestBox currentBox) {
-		// the next box is the second element of the tailSet determined by the currentBox
-		int nextIndex = currentBox.getId()+1;
-        if (nextIndex >= targetBoxes.size()) {
+		int currentIndex = currentBox.getId();
+		//final int nextIndex = (currentIndex < targetBoxes.size()-1) ? (currentIndex + 1) : currentIndex;
+        final int nextIndex = currentIndex + 1;
+		if (nextIndex >= targetBoxes.size()) {
             return false;
         }
-        //TODO: sort out FakeSubgestBox
-        targetBoxes.get(nextIndex).setFocus(true);
+        Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+			@Override
+			public void execute() {
+		        //TODO: sort out FakeSubgestBox
+		        targetBoxes.get(nextIndex).setFocus(true);				
+			}
+		} );
         return true;
 	}
 	
@@ -417,13 +436,19 @@ public class Gui implements EntryPoint {
 	 *         true otherwise
 	 */
 	public boolean goToPreviousBox(SubgestBox currentBox) {
-		// the previous box is the last element of the headSet determined by the currentBox
-		int lastIndex = currentBox.getId()-1;
-        if (lastIndex <0) {
-            return false;
+		int currentIndex = currentBox.getId();
+		//final int prevIndex = (currentIndex > 0) ? (currentIndex - 1) : currentIndex;
+		final int prevIndex = currentIndex - 1;
+		if (prevIndex <0) {
+        	return false;
         }
-        //TODO: sort out FakeSubgestBox
-        targetBoxes.get(lastIndex).setFocus(true);
+        Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+			@Override
+			public void execute() {
+		        //TODO: sort out FakeSubgestBox
+		        targetBoxes.get(prevIndex).setFocus(true);
+			}
+		} );
 	    return true;
     }
 	
