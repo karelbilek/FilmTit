@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.google.gwt.user.client.Window;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -24,6 +26,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import cz.filmtit.client.SubgestBox.FakeSubgestBox;
 
 import cz.filmtit.share.*;
 
@@ -318,6 +321,12 @@ public class Gui implements EntryPoint {
 
     }
 
+    public void replaceFake(int id, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
+        table.remove(fake);
+        table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
+        real.setFocus(true);
+    }
+
 	/**
 	 * Adds the given TranslationResult to the current listing interface.
 	 * @param transresult - the TranslationResult to be shown
@@ -326,9 +335,10 @@ public class Gui implements EntryPoint {
 		
 		
 		SubgestBox targetbox = new SubgestBox(index, transresult, this); // suggestions handling - see the constructor for details
-		targetBoxes.add(targetbox);
-		table.setWidget(index + 1, TARGETBOX_COLNUMBER, targetbox);
-		targetbox.setWidth("97%");
+		SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
+        targetBoxes.add(targetbox);
+		table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
+		fake.setWidth("97%");
 		
 		counter++;
 	}

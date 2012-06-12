@@ -9,6 +9,8 @@ import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
@@ -16,8 +18,13 @@ import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSe
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 
 import cz.filmtit.share.Chunk;
 import cz.filmtit.share.TranslationResult;
@@ -39,7 +46,35 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private Widget suggestionWidget;
 	private Gui gui;
 	private PopupPanel suggestPanel;
-	
+    private boolean loadedSuggestions = false;
+    
+    public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
+       
+        public FakeSubgestBox() {
+            this.addClickHandler(new ClickHandler(){
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (event.getSource() instanceof FakeSubgestBox) { // should be
+                        Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                gui.replaceFake(id, SubgestBox.FakeSubgestBox.this, SubgestBox.this);
+                            }
+                        } );
+                    }
+                }
+            });
+        }
+       
+        public SubgestBox getFather(){
+            return SubgestBox.this;
+        }
+        @Override
+	    public int compareTo(FakeSubgestBox that) {
+	        return getFather().compareTo(that.getFather());
+        }
+    }
+
 	private static final Map<AnnotationType, String> annotationColor = new HashMap<AnnotationType, String>();
 	static {
 		// setting the colors for annotations:
