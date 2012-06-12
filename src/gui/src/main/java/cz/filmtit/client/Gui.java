@@ -3,6 +3,7 @@ package cz.filmtit.client;
 import com.google.gwt.user.client.Window;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -54,7 +55,7 @@ public class Gui implements EntryPoint {
 	protected List<TimedChunk> chunklist;
 	
 	//private List<Label> sources = new ArrayList<Label>();
-	private SortedSet<SubgestBox> targetBoxes = new TreeSet<SubgestBox>();
+	private List<SubgestBox> targetBoxes = new ArrayList<SubgestBox>();
 	
 	//private TextArea txtDebug;
 	//private RadioButton rdbFormatSrt;
@@ -319,11 +320,20 @@ public class Gui implements EntryPoint {
         sourcelabel.setStyleName("chunk_l1");
 		table.setWidget(index+1, SOURCETEXT_COLNUMBER, sourcelabel);
 
+        SubgestBox targetbox = new SubgestBox(index, this); // suggestions handling - see the constructor for details
+		SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
+        targetBoxes.add(targetbox);
+		table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
+		fake.setWidth("97%");
+		
+
     }
 
     public void replaceFake(int id, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
+		
+        real.setWidth("97%");
         real.setFocus(true);
     }
 
@@ -332,13 +342,7 @@ public class Gui implements EntryPoint {
 	 * @param transresult - the TranslationResult to be shown
 	 */
 	public void showResult(TranslationResult transresult, int index) {
-		
-		
-		SubgestBox targetbox = new SubgestBox(index, transresult, this); // suggestions handling - see the constructor for details
-		SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
-        targetBoxes.add(targetbox);
-		table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
-		fake.setWidth("97%");
+	    targetBoxes.get(index).setTranslationResult(transresult);	
 		
 		counter++;
 	}
@@ -388,17 +392,13 @@ public class Gui implements EntryPoint {
 	 */
 	public boolean goToNextBox(SubgestBox currentBox) {
 		// the next box is the second element of the tailSet determined by the currentBox
-		SortedSet<SubgestBox> tailset = targetBoxes.tailSet(currentBox);
-		Iterator<SubgestBox> boxit = tailset.iterator();
-		boxit.next(); // skipping the first element of tailSet
-		if (boxit.hasNext()) {
-			boxit.next().setFocus(true);
-			return true;
-		}
-		else {
-			// do nothing - stay where you are
-			return false;
-		}
+		int nextIndex = currentBox.getId()+1;
+        if (nextIndex >= targetBoxes.size()) {
+            return false;
+        }
+        //TODO: sort out FakeSubgestBox
+        targetBoxes.get(nextIndex).setFocus(true);
+        return true;
 	}
 	
 	/**
@@ -410,16 +410,14 @@ public class Gui implements EntryPoint {
 	 */
 	public boolean goToPreviousBox(SubgestBox currentBox) {
 		// the previous box is the last element of the headSet determined by the currentBox
-		SortedSet<SubgestBox> headset = targetBoxes.headSet(currentBox);
-		if (!headset.isEmpty()) {
-			headset.last().setFocus(true);
-			return true;
-		}
-		else {
-			// do nothing - stay where you are
-			return false;
-		}
-	}
+		int lastIndex = currentBox.getId()-1;
+        if (lastIndex <0) {
+            return false;
+        }
+        //TODO: sort out FakeSubgestBox
+        targetBoxes.get(lastIndex).setFocus(true);
+	    return true;
+    }
 	
 	/**
 	 * Output the given text in the debug textarea

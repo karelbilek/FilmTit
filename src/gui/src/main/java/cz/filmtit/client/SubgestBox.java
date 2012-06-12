@@ -84,9 +84,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	};
 	
 	
-	public SubgestBox(int id, TranslationResult translationResult, Gui gui) {
+	public SubgestBox(int id/*, TranslationResult translationResult*/, Gui gui) {
 		this.id = id;
-		this.translationResult = translationResult;
+		this.translationResult = new TranslationResult();
 		this.gui = gui;
 		
 		this.setHeight("36px");
@@ -98,10 +98,17 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		
 		this.setTabIndex(id + 1);
 		
-		this.loadSuggestions();
+        //delaying loadSuggestions() for focus
+		//this.loadSuggestions();
 		
 	}
 	
+    public void setTranslationResult(TranslationResult translationResult) {
+        this.translationResult = translationResult;
+        loadedSuggestions = false;
+        //TODO - reload suggestions, if they are currently displayed
+    }
+
 	public int getId() {
 		return id;
 	}
@@ -205,8 +212,13 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	}
 
 	
-	private void loadSuggestions() {
-		// creating the suggestions pop-up panel:
+	public void loadSuggestions() {
+		if (loadedSuggestions == true) {
+            return;
+        }
+
+        loadedSuggestions=true;
+        // creating the suggestions pop-up panel:
 		//FlowPanel suggestPanel = new FlowPanel();
 		suggestPanel = new PopupPanel();
 		suggestPanel.setAutoHideEnabled(true);

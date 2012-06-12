@@ -2,6 +2,7 @@ package cz.filmtit.share;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Class representing the result sent from the core corresponding to the request by a source-chunk,
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult>, Serializable {
     private TimedChunk sourceChunk;
-    private List<TranslationPair> tmSuggestions;
+    private List<TranslationPair> tmSuggestions=new LinkedList<TranslationPair>();
     private String userTranslation;
     private long selectedTranslationPairID;
 

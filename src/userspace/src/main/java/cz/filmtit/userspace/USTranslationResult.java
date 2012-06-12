@@ -31,10 +31,12 @@ public class USTranslationResult extends DatabaseObject {
         translationResult.setSourceChunk(chunk);
         //translationResult.setId(chunk.getId());
 
+        //TODO: solve this!
+        /*
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
         saveToDatabase(dbSession);
-        dbSession.getTransaction().commit();
+        dbSession.getTransaction().commit();*/
     }
 
     /**

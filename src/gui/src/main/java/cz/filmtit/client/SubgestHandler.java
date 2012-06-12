@@ -36,6 +36,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	public void onFocus(FocusEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
 			final SubgestBox subbox = (SubgestBox) event.getSource();
+            subbox.loadSuggestions();
 			// hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus (if any)
 			gui.deactivateSuggestionWidget();
