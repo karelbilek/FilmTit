@@ -7,13 +7,17 @@ import java.util.LinkedList;
 /**
  * Class representing the result sent from the core corresponding to the request by a source-chunk,
  * packaging the given source-chunk and the translation-suggestions from the core.
- * Additionaly, the translation from the user is present, for its storage and feedback.
+ * Additionally, the translation from the user is present, for its storage and feedback.
  */
 public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult>, Serializable {
     private TimedChunk sourceChunk;
     private List<TranslationPair> tmSuggestions=new LinkedList<TranslationPair>();
     private String userTranslation;
     private long selectedTranslationPairID;
+
+    public TranslationResult() {
+        sourceChunk = new TimedChunk();
+    }
 
     public int getChunkId() {
         return sourceChunk.getId();

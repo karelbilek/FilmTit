@@ -174,7 +174,6 @@ public class USDocument extends DatabaseObject {
      * Loads the translationResults from USUser Space database.
      */
     public void loadChunksFromDb() {
-        // TODO: it won't be necessary if we wrap it in just one hibernate mapping
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
     
@@ -223,7 +222,7 @@ public class USDocument extends DatabaseObject {
         // TODO: Should be later in the USUser
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
-        List docs = dbSession.createQuery("select d from USDocument d where d.id = :did")
+        List docs = dbSession.createQuery("select d from USDocument d where d.databaseId = :did")
                 .setParameter("did", id).list();
         if (docs.size() == 1) {
             USDocument doc = (USDocument)(docs.get(0));

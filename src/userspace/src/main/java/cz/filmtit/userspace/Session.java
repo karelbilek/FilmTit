@@ -1,13 +1,10 @@
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.share.Document;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a running session.
@@ -30,6 +27,12 @@ public class Session {
      * Cache hash table for translation results belonging to active documents of the current user
      */
     private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;
+
+    public Session() {
+        activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
+        activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, Map<Integer, USTranslationResult>>());
+        lastOperationTime = new Date().getTime();
+    }
 
     public long getLastOperationTime() {
         return lastOperationTime;
@@ -71,16 +74,26 @@ public class Session {
         // save everything to database and write a log of this session
     }
 
-
     public Document createDocument(String movieTitle, String year, String language) {
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
-        activeTranslationResults.put(usDocument.getDatabaseId(), new HashMap<Integer, USTranslationResult>());
+        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
         //user TODO: add the document to the correct user
 
 
         return usDocument.getDocument();
+    }
+
+    public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
+        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
+        List<MediaSource> suggestions = scala.collection
+                .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
+
+        activeDocuments.put(usDocument.getDatabaseId(), usDocument);
+        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
+
+        return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
@@ -99,5 +112,12 @@ public class Session {
 
         activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
         return usTranslationResult.getTranslationResult();
+    }
+
+    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
+        USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
+        tr.setUserTranslation(userTranslation);
+        tr.setSelectedTranslationPairID(chosenTranslationPairID);
+        return null;
     }
 }

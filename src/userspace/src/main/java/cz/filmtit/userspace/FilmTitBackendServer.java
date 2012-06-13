@@ -97,7 +97,24 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
+
+        // a Session free temporary saving solution
+        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();
+
+        tr.saveToDatabase(dbSession);
+
+        dbSession.getTransaction().commit();
+
         return null;
+    }
+
+    public Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+            throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPairID);
     }
 
     @Override
@@ -120,6 +137,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
+
+    public DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).createNewDocument(movieTitle, year, language, TM);
+    }
+
 
     @Override
     public Void selectSource(long documentID, MediaSource selectedMediaSource) {

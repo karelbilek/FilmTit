@@ -31,7 +31,8 @@ public class Document implements IsSerializable, Serializable {
 	}
 
 	public void setId(long id) {
-		if (this.id != Long.MIN_VALUE) {
+        if (this.id == id) { return; }
+        if (this.id != Long.MIN_VALUE) {
             throw new UnsupportedOperationException("Once the document ID is set, it cannot be changed.");
         }
         this.id = id;
@@ -58,10 +59,10 @@ public class Document implements IsSerializable, Serializable {
     }
 
     public void setUserId(long userId) {
+        if (this.userId == userId) { return; }
         if (this.userId != Long.MIN_VALUE) {
             throw  new UnsupportedOperationException("Once the owner ID is set, it cannot be changed.");
         }
-
         this.userId = userId;
     }
 

@@ -1,8 +1,9 @@
 package cz.filmtit.share;
 
-import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+
+import java.util.List;
 //import cz.filmtit.share.Feedback;
 
 @RemoteServiceRelativePath("filmtit")
@@ -13,6 +14,7 @@ public interface FilmTitService extends RemoteService {
     DocumentResponse createNewDocument(String movieTitle, String year, String language);
     Void selectSource(long documentID, MediaSource selectedMediaSource);
 
+    // Logging in methods prepared for using JOpenID
     String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
     Boolean validateAuthentication(long authID, String responseURL);
     String getSessionID(long authID);
@@ -21,6 +23,8 @@ public interface FilmTitService extends RemoteService {
 
     //Void logout(String sessionId) throws InvalidSessionIdException;
     //Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException;
+    //DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language);
     //TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
+    //public Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) throws InvalidSessionIdException
 
 }

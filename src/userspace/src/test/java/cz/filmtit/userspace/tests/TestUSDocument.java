@@ -7,12 +7,10 @@ import org.hibernate.Session;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-public class TestUSDocument implements Test {
+public class TestUSDocument {
     @BeforeClass
     public static void initializeDatabase() {
         DatabaseUtil.setDatabase();
@@ -82,34 +80,9 @@ public class TestUSDocument implements Test {
         assertEquals(doc.getYear(),"2012");
     }
 
-    @Override
-    public Class<? extends Throwable> expected() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public long timeout() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public String toString() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    @Test
+    public void testLoadingTranslationResults() {
+        // TODO: write it
     }
 }
 
