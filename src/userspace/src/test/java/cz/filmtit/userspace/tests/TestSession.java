@@ -1,4 +1,5 @@
 package cz.filmtit.userspace.tests;
+import org.junit.Test;
 
 /**
  * Test of the Session class functionality.
@@ -7,6 +8,10 @@ package cz.filmtit.userspace.tests;
  */
 public class TestSession {
 
+    @Test
+    public void deleteMe() {
+        //not a real test
+    }
     // methods to be tested
     //public void logout()
 

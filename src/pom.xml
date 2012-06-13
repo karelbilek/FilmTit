@@ -172,10 +172,21 @@
             <name>GWT-Bootstrap SNAPSHOTS</name>
             <url>http://gwtbootstrap.github.com/maven/snapshots</url>
         </repository>
+        <repository>
+            <id>JBoss Repository</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+            <name>JBoss Repository</name>
+        </repository> 
 
     </repositories>
 
     <dependencies>
+    <dependency>
+        <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator-annotation-processor</artifactId>
+            <version>4.1.0.Final</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
