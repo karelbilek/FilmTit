@@ -30,6 +30,10 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
     public long getDocumentId() {
     	return sourceChunk.getDocumentId();
     }
+
+    public void setDocumentId(long documentId) {
+        sourceChunk.setDocumentId(documentId);
+    }
     
     public List<TranslationPair> getTmSuggestions() {
         return tmSuggestions;

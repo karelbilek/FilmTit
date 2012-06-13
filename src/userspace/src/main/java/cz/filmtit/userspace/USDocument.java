@@ -4,10 +4,7 @@ import cz.filmtit.share.*;
 import cz.filmtit.core.model.data.*;
 import org.hibernate.Session;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /* Functionality ... what may happen
     - changing the title / year or even language of the document => regenerate no finished translations
@@ -40,6 +37,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document) {
         this.document = document;
         workStartTime = new Date().getTime();
+        translationResults = new ArrayList<USTranslationResult>();
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();  // throws an exception
@@ -52,6 +50,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
+        translationResults = new ArrayList<USTranslationResult>();
     }
 
     public long getOwnerDatabaseId() {
@@ -170,6 +169,11 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
+    public List<USTranslationResult> getTranslationsResults() {
+        Collections.sort(translationResults);
+        return translationResults;
+    }
+
     /**
      * Loads the translationResults from User Space database if there are some
      */
@@ -178,7 +182,7 @@ public class USDocument extends DatabaseObject {
         dbSession.beginTransaction();
     
         // query the database for the translationResults
-        List foundChunks = dbSession.createQuery("select c from Chunks where c.documentId = :did")
+        List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :did")
                 .setParameter("did", getDatabaseId()).list();
 
         translationResults = new ArrayList<USTranslationResult>();
@@ -189,6 +193,12 @@ public class USDocument extends DatabaseObject {
         }
     
         dbSession.getTransaction().commit();
+
+        Collections.sort(translationResults);
+        // add the translation results to the inner document
+        for (USTranslationResult usResult : translationResults) {
+            document.getTranslationResults().add(usResult.getTranslationResult());
+        }
 
         // if the translationResults have old translations, regenerate them
         /*if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
@@ -216,6 +226,12 @@ public class USDocument extends DatabaseObject {
 
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
+    }
+
+    public void addTranslationResult(USTranslationResult translationResult) {
+        translationResults.add(translationResult);
+        document.getTranslationResults().add(translationResult.getTranslationResult());
+        //Collections.sort(document.getTranslationResults());
     }
 
     /**

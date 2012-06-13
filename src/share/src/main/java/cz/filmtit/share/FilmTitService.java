@@ -28,5 +28,6 @@ public interface FilmTitService extends RemoteService {
     //Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) throws InvalidSessionIdException
     //Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException
     //List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException
+    //Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException
 
 }

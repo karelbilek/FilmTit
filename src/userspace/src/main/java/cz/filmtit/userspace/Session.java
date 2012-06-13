@@ -78,6 +78,7 @@ public class Session {
     }
 
     public Document createDocument(String movieTitle, String year, String language) {
+        lastOperationTime = new Date().getTime();
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
@@ -89,6 +90,7 @@ public class Session {
     }
 
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
+        lastOperationTime = new Date().getTime();
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
         List<MediaSource> suggestions = scala.collection
                 .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
@@ -102,6 +104,7 @@ public class Session {
     }
 
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
+        lastOperationTime = new Date().getTime();
         if (!activeDocuments.containsKey(chunk.getDocumentId())) {
             throw new InvalidDocumentIdException("Sent time chunk is refering to a document using an invalid ID.");
         }
@@ -111,7 +114,7 @@ public class Session {
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
         usTranslationResult.setParent(document);
 
-        // TODO: STORE THE CHUNK IN THE DOCUMENT
+
 
         usTranslationResult.generateMTSuggestions(TM);
 
@@ -120,6 +123,7 @@ public class Session {
     }
 
     public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
+        lastOperationTime = new Date().getTime();
         USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
@@ -127,12 +131,14 @@ public class Session {
     }
 
     public Void selectSource(long documentID, MediaSource selectedMediaSource) {
+        lastOperationTime = new Date().getTime();
         USDocument usDocument = activeDocuments.get(documentID);
         usDocument.setMovie(selectedMediaSource);
         return null;
     }
 
     public List<Document> getListOfDocuments() {
+        lastOperationTime = new Date().getTime();
         List<Document> result = new ArrayList<Document>();
 
         for(USDocument usDocument : user.getOwnedDocuments()) {
@@ -143,6 +149,7 @@ public class Session {
     }
 
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
+        lastOperationTime = new Date().getTime();
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
                   return  usDocument.getDocument();

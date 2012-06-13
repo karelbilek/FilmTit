@@ -5,6 +5,7 @@ import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
@@ -161,10 +162,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         if (!activeSessions.containsKey(sessionId)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return  activeSessions.get(sessionId).getListOfDocuments();
+        return activeSessions.get(sessionId).getListOfDocuments();
     }
 
-    //public Document loadDocument(long documentID) throws InvalidDocumentIdException
+    public Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).loadDocument(documentID);
+    }
 
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {

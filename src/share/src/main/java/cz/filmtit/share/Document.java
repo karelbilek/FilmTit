@@ -66,4 +66,8 @@ public class Document implements IsSerializable, Serializable {
         this.userId = userId;
     }
 
+    public List<TranslationResult> getTranslationResults() {
+        return translationResults;
+    }
+
 }

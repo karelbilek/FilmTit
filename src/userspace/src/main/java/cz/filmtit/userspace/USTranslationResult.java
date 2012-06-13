@@ -16,14 +16,14 @@ import java.util.List;
  * and also the user translation.
  * @author Jindřich Libovický
  */
-public class USTranslationResult extends DatabaseObject {
+public class USTranslationResult extends DatabaseObject implements Comparable<USTranslationResult> {
     private TranslationResult translationResult;
-    private long documentDatabaseId;
     private boolean feedbackSent = false;
-    private USDocument parent; // is set if and only if it's created from the docoument side
+    private USDocument parent; // is set if and only if it's created from the document side
     
     public void setParent(USDocument parent) {
         this.parent = parent;
+
     }
 
     public USTranslationResult(TimedChunk chunk) {
@@ -71,11 +71,11 @@ public class USTranslationResult extends DatabaseObject {
     }
 
     public long getDocumentDatabaseId() {
-        return documentDatabaseId;
+        return translationResult.getDocumentId();
     }
 
     public void setDocumentDatabaseId(long documentDatabaseId) {
-        this.documentDatabaseId = documentDatabaseId;
+        translationResult.setDocumentId(documentDatabaseId);
     }
 
     public String getStartTime() {
@@ -210,5 +210,10 @@ public class USTranslationResult extends DatabaseObject {
 
         dbSession.getTransaction().commit();
         return results;
+    }
+
+    @Override
+    public int compareTo(USTranslationResult other) {
+        return translationResult.compareTo(other.getTranslationResult());
     }
 }
