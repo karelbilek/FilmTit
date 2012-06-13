@@ -1,10 +1,13 @@
 package cz.filmtit.userspace.tests;
 
-import cz.filmtit.share.DocumentResponse;
+import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.core.tests.TestUtil;
+import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
-import cz.filmtit.userspace.FilmTitBackendServer;
 import cz.filmtit.userspace.HibernateUtil;
+import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USTranslationResult;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
@@ -13,27 +16,12 @@ import org.junit.Test;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 public class TestUSTranslationResult {
     @BeforeClass
     public static void InitializeDatabase() {
         DatabaseUtil.setDatabase();
-    }
-
-    @Test
-    public void testSimpleServerCall() {
-        FilmTitBackendServer server = new MockFilmTitBackendServer();
-        TranslationResult sampleResult =
-                server.getTranslationResults(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
-
-        // TODO: some false logging in has to be added
-
-        assertEquals("001", sampleResult.getSourceChunk().getStartTime());
-        assertEquals("002", sampleResult.getSourceChunk().getEndTime());
-        assertEquals(1, sampleResult.getSourceChunk().getPartNumber());
-        assertEquals("Sample chunk", sampleResult.getSourceChunk().getSurfaceForm());
-        assertEquals(5, sampleResult.getChunkId());
-        assertEquals(0, sampleResult.getDocumentId());
     }
 
     @Test
@@ -84,8 +72,6 @@ public class TestUSTranslationResult {
 
         loadedResult = (USTranslationResult)(queryResult.get(0));
 
-
-
         // test if the loaded object reflected the change correctly
         assertEquals("001", loadedResult.getStartTime());
         assertEquals("002", loadedResult.getEndTime());
@@ -95,7 +81,7 @@ public class TestUSTranslationResult {
         assertEquals(0, loadedResult.getDocumentDatabaseId());
         assertEquals("A translation a user has added.", loadedResult.getUserTranslation());
 
-        // delete the tested TranlsationResults
+        // delete the tested TranslationResults
 
         dbSession.createQuery("delete from USTranslationResult t where t.databaseId = "
                 + Long.toString(savedID));
@@ -104,24 +90,16 @@ public class TestUSTranslationResult {
     }
 
     @Test
-    public void testServerCallWithUserEditing() {
-        FilmTitBackendServer server = new MockFilmTitBackendServer();
+    public void testGenerateMTSuggestions() {
+        TranslationMemory TM = TestUtil.createTMWithDummyContent(ConfigurationSingleton.getConf());
 
-        // TODO: some false logging in has to be added
+        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "1986", "en"));
 
-        DocumentResponse response = server.createNewDocument("Movie title", "2008", "cs");
-        long usedDocumentID = response.document.getId();
+        USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
+        usTranslationResult.setParent(document);
 
-        TranslationResult sampleResult =
-                server.getTranslationResults(new TimedChunk("001", "002", 1, "Sample chunk", 5, usedDocumentID));
-
-        sampleResult.setUserTranslation("The translation the user provided.");
-        sampleResult.setSelectedTranslationPairID(0);
-
-        server.setUserTranslation(sampleResult.getChunkId(), usedDocumentID, sampleResult.getUserTranslation(),
-                sampleResult.getSelectedTranslationPairID());
-
-        // TODO: attempt to save it to the database
+        usTranslationResult.generateMTSuggestions(TM);
+        assertNotNull(usTranslationResult.getTranslationResult().getTmSuggestions());
     }
 
     @Test
@@ -140,6 +118,47 @@ public class TestUSTranslationResult {
         List<TranslationResult> res = USTranslationResult.getUncheckedResults();
         assertEquals(2, res.size());
     }
+
+    // THE TEST BELOW SHOULD BE UPDATED AND MOVED TO DIFFERENT TEST CLASS
+
+    @Test
+    public void testServerCallWithUserEditing() {
+        /*FilmTitBackendServer server = new MockFilmTitBackendServer();
+
+        // TODO: some false logging in has to be added
+
+        DocumentResponse response = server.createNewDocument("Movie title", "2008", "cs");
+        long usedDocumentID = response.document.getId();
+
+        TranslationResult sampleResult =
+                server.getTranslationResults(new TimedChunk("001", "002", 1, "Sample chunk", 5, usedDocumentID));
+
+        sampleResult.setUserTranslation("The translation the user provided.");
+        sampleResult.setSelectedTranslationPairID(0);
+
+        server.setUserTranslation(sampleResult.getChunkId(), usedDocumentID, sampleResult.getUserTranslation(),
+                sampleResult.getSelectedTranslationPairID());
+
+        // TODO: attempt to save it to the database   */
+    }
+
+    @Test
+    public void testSimpleServerCall() {
+        /*FilmTitBackendServer server = new MockFilmTitBackendServer();
+        TranslationResult sampleResult =
+                server.getTranslationResults(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
+
+        // TODO: some false logging in has to be added
+
+        assertEquals("001", sampleResult.getSourceChunk().getStartTime());
+        assertEquals("002", sampleResult.getSourceChunk().getEndTime());
+        assertEquals(1, sampleResult.getSourceChunk().getPartNumber());
+        assertEquals("Sample chunk", sampleResult.getSourceChunk().getSurfaceForm());
+        assertEquals(5, sampleResult.getChunkId());
+        assertEquals(0, sampleResult.getDocumentId());   */
+    }
+
+
 }
 
 
