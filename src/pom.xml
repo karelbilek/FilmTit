@@ -85,6 +85,7 @@
                     <disableXmlReport>false</disableXmlReport>
 
                     <includes>
+                        <include>**/Test*.*</include>
                         <include>**/*Test.*</include>
                         <include>**/*Suite.*</include>
                         <include>**/*Spec.*</include>
