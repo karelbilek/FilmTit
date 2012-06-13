@@ -17,7 +17,7 @@ public class Session {
     private long lastOperationTime;
     private SessionState state;
 
-    enum SessionState {active, loggedOut, terminated, kill}
+    enum SessionState {active, loggedOut, terminated, killed}
 
     /**
      * Cache hash table for active documents owned by current user, to make them quickly available using their IDs.
@@ -32,6 +32,7 @@ public class Session {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, Map<Integer, USTranslationResult>>());
         lastOperationTime = new Date().getTime();
+        state = SessionState.active;
     }
 
     public long getLastOperationTime() {
@@ -57,6 +58,7 @@ public class Session {
     private void terminate() {
         org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
+
         session.save(this);
 
         user.saveToDatabase(session);
@@ -70,8 +72,9 @@ public class Session {
     /**
      * Kills the session when it times out.
      */
-    public void Kill() {
-        // save everything to database and write a log of this session
+    public void kill() {
+        state = SessionState.killed;
+        terminate();
     }
 
     public Document createDocument(String movieTitle, String year, String language) {
@@ -92,6 +95,8 @@ public class Session {
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
+
+        // TODO: add the document to the user !
 
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
@@ -119,5 +124,30 @@ public class Session {
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
         return null;
+    }
+
+    public Void selectSource(long documentID, MediaSource selectedMediaSource) {
+        USDocument usDocument = activeDocuments.get(documentID);
+        usDocument.setMovie(selectedMediaSource);
+        return null;
+    }
+
+    public List<Document> getListOfDocuments() {
+        List<Document> result = new ArrayList<Document>();
+
+        for(USDocument usDocument : user.getOwnedDocuments()) {
+            result.add(usDocument.getDocument());
+        }
+
+        return result;
+    }
+
+    public Document loadDocument(long documentID) throws InvalidDocumentIdException {
+        for (USDocument usDocument : user.getOwnedDocuments()) {
+              if (usDocument.getDatabaseId() == documentID) {
+                  return  usDocument.getDocument();
+              }
+        }
+        throw new InvalidDocumentIdException("The user does not own a document with such ID.");
     }
 }

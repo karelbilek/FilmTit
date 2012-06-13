@@ -171,7 +171,7 @@ public class USDocument extends DatabaseObject {
     }
 
     /**
-     * Loads the translationResults from USUser Space database.
+     * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -199,6 +199,11 @@ public class USDocument extends DatabaseObject {
         // otherwise they're automatically loaded from the database
     }
 
+    /**
+     * Saves the document to the database including the Translation Results in the case they were loaded
+     * or created.
+     * @param dbSession  Opened database session.
+     */
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
 
@@ -214,9 +219,9 @@ public class USDocument extends DatabaseObject {
     }
 
     /**
-     * Static method that loads
-     * @param id
-     * @return
+     * Static method that loads the document given its ID.
+     * @param id   The ID od the document (both communication and database)
+     * @return     The loaded document
      */
     public static USDocument load(long id) {
         // TODO: Should be later in the USUser

@@ -25,6 +25,8 @@ public interface FilmTitService extends RemoteService {
     //Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException;
     //DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language);
     //TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
-    //public Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) throws InvalidSessionIdException
+    //Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) throws InvalidSessionIdException
+    //Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException
+    //List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException
 
 }
