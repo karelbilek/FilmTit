@@ -5,6 +5,7 @@ import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
@@ -30,7 +31,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected TranslationMemory TM;
     private Map<Long, USDocument> activeDocuments;                   // delete ASAP sessions introduced
     private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;  // delete ASAP sessions introduced
-    private Map<USDocument, List<MediaSource>> mediaSourceSuggestion; // delete ASAP session introduced
 
     // AuthId which are in process
     private Map<Long, AuthData> authenticatingSessions = new HashMap<Long, AuthData>();
@@ -97,7 +97,24 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
+
+        // a Session free temporary saving solution
+        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();
+
+        tr.saveToDatabase(dbSession);
+
+        dbSession.getTransaction().commit();
+
         return null;
+    }
+
+    public Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+            throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPairID);
     }
 
     @Override
@@ -113,7 +130,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
         List<MediaSource> suggestions = scala.collection
                 .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
-        mediaSourceSuggestion.put(usDocument, suggestions);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
@@ -121,12 +137,39 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
+    public DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).createNewDocument(movieTitle, year, language, TM);
+    }
+
     @Override
     public Void selectSource(long documentID, MediaSource selectedMediaSource) {
         USDocument usDocument = activeDocuments.get(documentID);
         usDocument.setMovie(selectedMediaSource);
-        mediaSourceSuggestion.remove(usDocument);
         return null;
+    }
+
+    public Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).selectSource(documentID, selectedMediaSource);
+    }
+
+    public List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).getListOfDocuments();
+    }
+
+    public Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).loadDocument(documentID);
     }
 
     @Override
@@ -240,7 +283,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                     Session thisSession = activeSessions.get(sessionId);
                     if (thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
                         activeSessions.remove(thisSession.getUser());
-                        thisSession.Kill();
+                        thisSession.kill();
                         activeSessions.remove(sessionId);
                     }
                 }

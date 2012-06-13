@@ -16,14 +16,14 @@ import java.util.List;
  * and also the user translation.
  * @author Jindřich Libovický
  */
-public class USTranslationResult extends DatabaseObject {
+public class USTranslationResult extends DatabaseObject implements Comparable<USTranslationResult> {
     private TranslationResult translationResult;
-    private long documentDatabaseId;
     private boolean feedbackSent = false;
-    private USDocument parent; // is set if and only if it's created from the docoument side
+    private USDocument parent; // is set if and only if it's created from the document side
     
     public void setParent(USDocument parent) {
         this.parent = parent;
+
     }
 
     public USTranslationResult(TimedChunk chunk) {
@@ -42,7 +42,7 @@ public class USTranslationResult extends DatabaseObject {
     /**
      * Default constructor for Hibernate.
      */
-    public USTranslationResult() {
+    private USTranslationResult() {
         translationResult = new TranslationResult();
     }
 
@@ -71,11 +71,11 @@ public class USTranslationResult extends DatabaseObject {
     }
 
     public long getDocumentDatabaseId() {
-        return documentDatabaseId;
+        return translationResult.getDocumentId();
     }
 
     public void setDocumentDatabaseId(long documentDatabaseId) {
-        this.documentDatabaseId = documentDatabaseId;
+        translationResult.setDocumentId(documentDatabaseId);
     }
 
     public String getStartTime() {
@@ -151,7 +151,7 @@ public class USTranslationResult extends DatabaseObject {
     protected void setSharedDatabaseId(long setSharedDatabaseId) { }
 
     public void generateMTSuggestions(TranslationMemory TM) {
-        if (TM == null) { return; } // TODO: remove this when the it will possible to create the TM in tests
+        if (TM == null) { return; }
 
         // TODO: ensure none of the potential previous suggestions is in the server cache collection
         // dereference of current suggestion will force hibernate to remove them from the db as well
@@ -185,6 +185,12 @@ public class USTranslationResult extends DatabaseObject {
         this.feedbackSent = feedbackSent;
     }
 
+    /**
+     * Queries the database for a list of translation results which were not marked as checked
+     * and mark them as checked. This is then interpreted as that a feedback has been provided
+     *
+     * @return  A list of unchecked translation results.
+     */
     public static List<TranslationResult> getUncheckedResults() {
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
 
@@ -204,5 +210,10 @@ public class USTranslationResult extends DatabaseObject {
 
         dbSession.getTransaction().commit();
         return results;
+    }
+
+    @Override
+    public int compareTo(USTranslationResult other) {
+        return translationResult.compareTo(other.getTranslationResult());
     }
 }

@@ -4,10 +4,7 @@ import cz.filmtit.share.*;
 import cz.filmtit.core.model.data.*;
 import org.hibernate.Session;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /* Functionality ... what may happen
     - changing the title / year or even language of the document => regenerate no finished translations
@@ -40,6 +37,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document) {
         this.document = document;
         workStartTime = new Date().getTime();
+        translationResults = new ArrayList<USTranslationResult>();
 
         Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();  // throws an exception
@@ -52,6 +50,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
+        translationResults = new ArrayList<USTranslationResult>();
     }
 
     public long getOwnerDatabaseId() {
@@ -170,16 +169,20 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
+    public List<USTranslationResult> getTranslationsResults() {
+        Collections.sort(translationResults);
+        return translationResults;
+    }
+
     /**
-     * Loads the translationResults from USUser Space database.
+     * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        // TODO: it won't be necessary if we wrap it in just one hibernate mapping
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
     
         // query the database for the translationResults
-        List foundChunks = dbSession.createQuery("select c from Chunks where c.documentId = :did")
+        List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :did")
                 .setParameter("did", getDatabaseId()).list();
 
         translationResults = new ArrayList<USTranslationResult>();
@@ -191,6 +194,12 @@ public class USDocument extends DatabaseObject {
     
         dbSession.getTransaction().commit();
 
+        Collections.sort(translationResults);
+        // add the translation results to the inner document
+        for (USTranslationResult usResult : translationResults) {
+            document.getTranslationResults().add(usResult.getTranslationResult());
+        }
+
         // if the translationResults have old translations, regenerate them
         /*if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
             for (USTranslationResult translationResult : translationResults) {
@@ -200,6 +209,11 @@ public class USDocument extends DatabaseObject {
         // otherwise they're automatically loaded from the database
     }
 
+    /**
+     * Saves the document to the database including the Translation Results in the case they were loaded
+     * or created.
+     * @param dbSession  Opened database session.
+     */
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
 
@@ -214,16 +228,22 @@ public class USDocument extends DatabaseObject {
         deleteJustObject(dbSession);
     }
 
+    public void addTranslationResult(USTranslationResult translationResult) {
+        translationResults.add(translationResult);
+        document.getTranslationResults().add(translationResult.getTranslationResult());
+        //Collections.sort(document.getTranslationResults());
+    }
+
     /**
-     * Static method that loads
-     * @param id
-     * @return
+     * Static method that loads the document given its ID.
+     * @param id   The ID od the document (both communication and database)
+     * @return     The loaded document
      */
     public static USDocument load(long id) {
         // TODO: Should be later in the USUser
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
-        List docs = dbSession.createQuery("select d from USDocument d where d.id = :did")
+        List docs = dbSession.createQuery("select d from USDocument d where d.databaseId = :did")
                 .setParameter("did", id).list();
         if (docs.size() == 1) {
             USDocument doc = (USDocument)(docs.get(0));

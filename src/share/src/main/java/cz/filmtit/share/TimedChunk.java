@@ -68,6 +68,7 @@ Comparable<TimedChunk> {
 	}
 
     public void setId(int id) {
+        if (this.id == id) { return; }
         if (this.id != Integer.MIN_VALUE) {
             throw new UnsupportedOperationException("Once the timed chunk ID is set, it cannot be changed.");
         }
@@ -79,6 +80,7 @@ Comparable<TimedChunk> {
 	}
 
     public void setDocumentId(long documentId) {
+        if (this.documentId == documentId) { return; }
         if (this.documentId != Long.MIN_VALUE) {
             throw new UnsupportedOperationException("Once the parent document ID is set, it cannot be changed.");
         }
