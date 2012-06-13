@@ -1,6 +1,7 @@
 package cz.filmtit.userspace.tests;
 
-import cz.filmtit.core.ConfigurationSingleton;
+import java.io.File;
+import cz.filmtit.core.Configuration;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.tests.TestUtil;
 import cz.filmtit.share.Document;
@@ -91,7 +92,8 @@ public class TestUSTranslationResult {
 
     @Test
     public void testGenerateMTSuggestions() {
-        TranslationMemory TM = TestUtil.createTMWithDummyContent(ConfigurationSingleton.getConf());
+  
+        TranslationMemory TM = TestUtil.createTMWithDummyContent(new Configuration(new File("configuration.xml")));
 
         USDocument document = new USDocument(new Document("Hannah and Her Sisters", "1986", "en"));
 
