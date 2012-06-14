@@ -98,16 +98,25 @@ abstract public class SentenceTokenizer{
                 } else {
                     regexpBuilder += "|"+element;
                 }
-                if (howmuch!=50) {
+                //20 was ideal when I experimented
+                //not many regexes, not too long ones
+                if (howmuch!=20) {
                     howmuch++;
                 } else {
-                    
-                    
+                   
+                    RegExp newRegExp = RegExp.compile("(\\b(" + regexpBuilder + ")" + PAP + "\\s)" + EOS); 
+                    abbreviationRegExps.add(newRegExp);
+
                     howmuch=0;
                     regexpBuilder=null;
                 }
                 
-            } 
+            }
+            if (regexpBuilder != null) {
+                RegExp newRegExp = RegExp.compile("(\\b(" + regexpBuilder + ")" + PAP + "\\s)" + EOS); 
+                abbreviationRegExps.add(newRegExp);
+ 
+            }
           
     }
 
