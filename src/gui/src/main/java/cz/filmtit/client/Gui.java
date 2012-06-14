@@ -21,6 +21,7 @@ import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -337,7 +338,8 @@ public class Gui implements EntryPoint {
         timeslabel.setStyleName("chunk_timing");
 		table.setWidget(index+1, TIMES_COLNUMBER, timeslabel);
 		
-        Label sourcelabel = new Label(chunk.getSurfaceForm());
+                            //html because of <br />
+        Label sourcelabel = new HTML(chunk.getGUIForm());
         sourcelabel.setStyleName("chunk_l1");
 		table.setWidget(index+1, SOURCETEXT_COLNUMBER, sourcelabel);
 

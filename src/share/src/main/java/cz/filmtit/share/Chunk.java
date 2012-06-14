@@ -1,5 +1,6 @@
 package cz.filmtit.share;
 
+import cz.filmtit.share.annotations.AnnotationType;
 import cz.filmtit.share.annotations.Annotation;
 
 import java.io.Serializable;
@@ -79,6 +80,22 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.annotations.add(annotation);
     }
 
+    public String getGUIForm(){
+        String result = this.getSurfaceForm();
+        for (Annotation an:this.getAnnotations()) {
+            if (an.getType().equals(AnnotationType.LINEBREAK)){
+                int index = an.getBegin();
+                result = result.substring(0, index)+"<br />"+result.substring(index, result.length());
+            }
+        }
+        for (Annotation an:this.getAnnotations()) {
+            if (an.getType().equals(AnnotationType.DIALOGUE)){
+                result = "- "+result;
+            }
+        }
+        return result;     
+    }
+    
     public void addAnnotations(Collection<Annotation> annotations) {
         if (this.annotations == null)
             this.annotations = new ArrayList<Annotation>();

@@ -12,7 +12,9 @@ public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializa
 
     PLACE("Place"),
     ORGANIZATION("Organization"),
-    PERSON("Person");
+    PERSON("Person"),
+    LINEBREAK("LineBreak"),
+    DIALOGUE("Dialogue");
 
     private String description;
 
@@ -38,7 +40,12 @@ public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializa
             return ORGANIZATION;
         } else if (description.equals("Person")) {
             return PERSON;
+        } else if (description.equals("LineBreak")) {
+            return LINEBREAK;
+        } else if (description.equals("Dialogue")) {
+            return DIALOGUE;
         }
+
         return null;
     }
 
