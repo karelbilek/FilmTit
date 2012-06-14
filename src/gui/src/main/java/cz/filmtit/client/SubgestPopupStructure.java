@@ -23,7 +23,8 @@ public class SubgestPopupStructure extends Composite {
 		suggestionItemText.setText(value.getStringL2());
 		suggestionItemMatch.setText(value.getStringL1());
 		if (value.getScore() != null) {
-			suggestionItemScore.setText( "(" + NumberFormat.getPercentFormat().format(value.getScore()) + "%)" );
+            suggestionItemScore.setStyleName("score_" + Math.round(value.getScore() * 10));
+			suggestionItemScore.setText( "(" + NumberFormat.getPercentFormat().format(value.getScore()) + ")" );
 		}
 		else {
 			suggestionItemScore.setText("(score unknown)");
