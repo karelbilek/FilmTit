@@ -1,6 +1,7 @@
 package cz.filmtit.dataimport.database
 
 
+import cz.filmtit.dataimport.SubtitleMapping
 import collection.mutable.HashMap
 import io.Source
 import cz.filmtit.core.model.TranslationMemory
@@ -19,30 +20,9 @@ import cz.filmtit.core.{Configuration, Factory}
 
 class Import(val configuration: Configuration) {
 
-  /** Contains the subtitle file <-> media source mapping */
-  var subtitles = HashMap[String, MediaSource]()
-
-  /**
-   * Loads the index file that contains the
-   * mapping from subtitle files to movies.
-   *
-   * @param mappingFile index file
-   */
-  def loadSubtitleMapping(mappingFile: File) {
-    Source.fromFile(mappingFile).getLines() foreach
-      { line =>
-        val data = line.split("\t")
-
-        if (!subtitles.contains(data(0)))
-          subtitles.put(data(0),
-            new MediaSource(
-              data(7),
-              data(8),
-              ""
-            )
-          )
-      }
-  }
+  var subtitles = new SubtitleMapping(configuration)
+//  subtitles.load()
+  
 
   var hit = 0
   var miss = 0
@@ -67,7 +47,7 @@ class Import(val configuration: Configuration) {
    * @param id id of the mediasource from the index file
    * @return
    */
-  def loadMediaSource(id: String): MediaSource = subtitles.get(id) match {
+  def loadMediaSource(id: String): MediaSource = subtitles.getMediaSource(id) match {
     case Some(mediaSource) => MediaSourceFactory.fromCachedIMDB(mediaSource.getTitle, mediaSource.getYear, imdbCache)
     case None => throw new IOException("No movie found in the DB!")
   }
@@ -157,7 +137,7 @@ class Import(val configuration: Configuration) {
     val configuration = new Configuration(new File(args(0)))
     val imp = new Import(configuration)
 
-    imp.loadSubtitleMapping(configuration.fileMediasourceMapping)
+//    imp.loadSubtitleMapping(configuration.fileMediasourceMapping)
     System.err.println("Loaded subtitle -> movie mapping")
 
     val tm = Factory.createTMFromConfiguration(configuration, readOnly = false)

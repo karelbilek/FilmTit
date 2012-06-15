@@ -50,6 +50,7 @@ class Configuration(configurationFile: InputStream) {
   //Indexing:
   private val importXML = XMLFile \ "import"
 
+  val subtitlesFolder = new File((importXML \ "subtitles_folder").text)
   val dataFolder = new File((importXML \ "data_folder").text)
   val importBatchSize = (importXML \ "batch_size").text.toInt
   val importIMDBCache = new File((importXML \ "imdb_cache").text)
@@ -58,6 +59,8 @@ class Configuration(configurationFile: InputStream) {
 
   val expectedNumberOfTranslationPairs = (importXML \ "expected_number_of_translationpairs").text.toInt
 
+  def getSubtitleName(s:String) = subtitlesFolder+"/"+s+".gz" 
+  
   private val heldoutXML = importXML \ "heldout"
   val heldoutSize = (heldoutXML \ "size").text.toDouble //percentage of all data
   val heldoutFile = new File((heldoutXML \ "path").text)
