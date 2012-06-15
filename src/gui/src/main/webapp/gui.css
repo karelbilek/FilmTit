@@ -25,6 +25,7 @@
 	
 }
 
+
 .chunk_timing {
 	font-size: 11px;
 	font-weight: normal;
@@ -171,10 +172,21 @@ body {
 	font-size: 80%;
 }
 
-iframe.gwt-RichTextArea {
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+.pre_subgestbox {
+	height: 20px;
+	padding: 8px;
+	margin: 0;
+    -webkit-box-shadow:  0px 0px 0px 0px rgba(255, 255, 255, 0.0);
+    box-shadow:  0px 0px 0px 0px rgba(255, 255, 255, 0.0);
+	display: block;
+	outline: none;
+
+}
+
+iframe.gwt-RichTextArea, .pre_subgestbox {
+	-webkit-border-radius: 2px !important;
+	-moz-border-radius: 2px !important;
+	border-radius: 2px !important;
 	border: 1px solid #eee !important;
 /*	border-bottom: 1px solid #aaa !important;*/
 }
