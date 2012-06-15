@@ -155,6 +155,7 @@ public class Gui implements EntryPoint {
         
         docCreator = new DocumentCreator();
         guiStructure.scrollPanel.setWidget(docCreator);
+        guiStructure.scrollPanel.addStyleName("creating_document");
         
         
         
@@ -167,7 +168,10 @@ public class Gui implements EntryPoint {
 				//log(subtext);
 				
 				// TODO: movieTitle, year, language
+                guiStructure.scrollPanel.removeStyleName("creating_document");
+                guiStructure.scrollPanel.addStyleName("translating");
 				guiStructure.scrollPanel.setWidget(table);
+
 				rpcHandler.createDocument("My Movie", "2012", "en");
 				// sets currentDocument and calls processText() on success
 			}

@@ -1,25 +1,13 @@
 package cz.filmtit.client;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-
-import cz.filmtit.share.Document;
-import cz.filmtit.share.FilmTitService;
-import cz.filmtit.share.FilmTitServiceAsync;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import cz.filmtit.share.*;
+
+import java.util.List;
 
 public class FilmTitServiceHandler {
 	// FilmTitServiceAsync should be created automatically by Maven

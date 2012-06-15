@@ -2,6 +2,27 @@
 
 
 /** Example rules used by the template application (remove for your app) */
+.new_document {
+	background: white;
+	border: 1px solid #ccc;
+	padding: 15px;
+	width: 600px;
+	
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	
+	margin: 10px auto 0 auto;
+	
+}
+.scrollPanel.creating_document {
+	background: #fcfcfc;
+}
+
+.scrollPanel.translating {
+	
+}
+
 .chunk_timing {
 	font-size: 11px;
 	font-weight: normal;
@@ -35,6 +56,7 @@ h1 {
 
 .filmtit_container {
 	width: 100%;
+	padding-top: 15px;
 }
 
 #content {
@@ -112,7 +134,7 @@ body {
 	
 	padding: 10px 20px;
 	border: 1px solid #ccc;
-	height: 402px;
+	height: 452px;
 }
 .scrollPanel td {
 	height: 45px;

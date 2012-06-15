@@ -4,7 +4,8 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
              xmlns:lgf="urn:import:org.vectomatic.file">
 
-	<g:HTMLPanel>
+
+	<g:HTMLPanel styleName="new_document">
 	
 		<b:Heading size="3">Start a new subtitle document</b:Heading>
 
