@@ -28,6 +28,7 @@
         <module>share</module>
         <module>eval</module>
         <module>core</module>
+        <module>dataimport</module>
         <module>gui</module>
         <module>server</module>
     </modules>

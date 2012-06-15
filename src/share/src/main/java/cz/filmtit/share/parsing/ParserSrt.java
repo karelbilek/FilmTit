@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.share.parsing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,8 @@ public class ParserSrt extends Parser {
 	public static String TIMES_SEPARATOR = " --> ";
 	
 	
-	public List<TimedChunk> parse(String text, long documentId) {
-		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
+	public List<UnprocessedChunk> parseUnprocessed(String text) {
+		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
 		
@@ -35,7 +35,7 @@ public class ParserSrt extends Parser {
 		String startTime = EMPTY_STRING;
 		String endTime = EMPTY_STRING;
 		String titText = EMPTY_STRING;		
-		int chunkId = 0;
+		//int chunkId = 0;
 
 		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
 			String line = lines[linenumber];
@@ -62,7 +62,8 @@ public class ParserSrt extends Parser {
                 // empty line
 				// creating the chunk(s) from what was gathered recently...
 
-                addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+                sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+                //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 				
 		    	// ...and resetting
 				titText = EMPTY_STRING;
@@ -71,9 +72,10 @@ public class ParserSrt extends Parser {
         
         
 		// adding the last tit (after it, there was no empty line from splitting):
-        addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+        sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+        //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 
-        renumber(sublist);	
+        //renumber(sublist);	
 		return sublist;
 	}
 	

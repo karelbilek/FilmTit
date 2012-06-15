@@ -34,6 +34,7 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
 
 import cz.filmtit.share.*;
+import cz.filmtit.share.parsing.*;
 
 //lib-gwt-file imports:
 import org.vectomatic.file.File;

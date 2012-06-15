@@ -1,4 +1,4 @@
-package cz.filmtit.core.io
+package cz.filmtit.dataimport.database
 
 
 import collection.mutable.HashMap

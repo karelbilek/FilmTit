@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.share.parsing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,11 @@ public class ParserSub extends Parser {
 	public static RegExp reSubtitleLine  = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
 
-	public List<TimedChunk> parse(String text, long documentId) {
-		List<TimedChunk> sublist = new ArrayList<TimedChunk>();
+	public List<UnprocessedChunk> parseUnprocessed(String text) {
+		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
-		int chunkId = 0;
+		//int chunkId = 0;
 		
 		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
 			String line = lines[linenumber];
@@ -44,14 +44,15 @@ public class ParserSub extends Parser {
 					titText += SUBLINE_SEPARATOR_OUT + segments[i];
 				}
 
-                addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
+                sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+                //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 			}
 			else {
 				// wrong format of this line
 				//throw new TODO SubFileFormatException(linenumber);
 			}
 		}
-        renumber(sublist);	
+        //renumber(sublist);	
 
 		return sublist;
 	}

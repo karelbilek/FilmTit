@@ -1,5 +1,6 @@
-package cz.filmtit.client;
+package cz.filmtit.share.parsing;
 
+import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,24 @@ public abstract class Parser {
 	
 	public static final String SUBLINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
 	public static final RegExp dialogueMatch = RegExp.compile("^ ?- ");
+	
+    public abstract List<UnprocessedChunk> parseUnprocessed(String text);
 
+	public List<TimedChunk> parse(String text, long documentId) {
+        return processChunks(parseUnprocessed(text), documentId);
+    }
+
+    public static List<TimedChunk> processChunks(List<UnprocessedChunk> chunks, long documentId) {
+        LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
+        int chunkId = 0;
+        for (UnprocessedChunk chunk: chunks){
+            result.addAll(processChunk(chunk, chunkId, documentId));
+            chunkId++;
+        }
+        renumber(result);
+        return result;
+    }
+    
     public static void renumber (List<TimedChunk> what) {
         int i = 0;
         for (TimedChunk chunk:what) {
@@ -38,27 +56,29 @@ public abstract class Parser {
             i++;
         }
     }
-	public abstract List<TimedChunk> parse(String text, long documentId);
-
-    public static void addToSublist(List<TimedChunk> sublist, String titText, String startTime, String endTime, int chunkId, long documentId) {
-        List<String> separatedText = TitChunkSeparator.separate(titText, Language.EN);
+    
+    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId) {
+        LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
+        
+        //separate into sentences
+        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), Language.EN);
     	int partNumber = 1;
+
         for (String chunkText : separatedText) {
             List<Annotation> annotations = new ArrayList<Annotation>();
             
+            //if it is a dialogue, mark it as such in annotations
             if (dialogueMatch.test(chunkText)) {
                    chunkText = dialogueMatch.replace(chunkText, "");
                    annotations.add(new Annotation(AnnotationType.DIALOGUE, 0, 0));
             }
 
-
+            //add linebreaks as annotations
             RegExp sublineRegexp = RegExp.compile(SUBLINE_SEPARATOR_OUT_REGEXP, "g");
-            
-            MatchResult sublineResult = sublineRegexp.exec(chunkText);
-            
+            MatchResult sublineResult = sublineRegexp.exec(chunkText);            
             while (sublineResult != null) {
                 int index = sublineResult.getIndex();
-                
+            
                 //not sure about off-by-one errors
                 chunkText = chunkText.substring(0, index) + chunkText.substring(index+3, chunkText.length());
                 if (index != 0) { 
@@ -67,11 +87,13 @@ public abstract class Parser {
                 sublineResult = sublineRegexp.exec(chunkText);
             }
 
-            TimedChunk newChunk = new TimedChunk(startTime, endTime, partNumber, chunkText, chunkId, documentId); 
+            //create a new timedchunk
+            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, chunkText, chunkId, documentId); 
             newChunk.addAnnotations(annotations);            
             
-            sublist.add( newChunk);
+            result.add( newChunk);
             partNumber++;
         }
+        return result;
     }
 }
