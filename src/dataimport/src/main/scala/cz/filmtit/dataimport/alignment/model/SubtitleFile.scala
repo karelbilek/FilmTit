@@ -11,16 +11,32 @@ import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
 import cz.filmtit.share.Language
 import scala.io.Codec
+import java.nio.charset._
 
 class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
     def readText():String = {
        val fin = new FileInputStream(file)
        val gzis = new GZIPInputStream(fin)
-       val source = scala.io.Source.fromInputStream(gzis)(new Codec(java.nio.charset.Charset.forName("windows-1250")))
-       val lines = source.mkString
+       
+       try {
+         return readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
+       } catch {
+         case e: UnmappableCharacterException => return readWithCodec(gzis, Codec.UTF8)
+       }
+   }
+
+    private def readWithCodec(stream:GZIPInputStream, codec:Codec):String = {
+       val source = scala.io.Source.fromInputStream(stream)(codec)
+       val buf = new StringBuilder
+       for (line <- source.getLines()) {
+          buf.append( line)
+          buf.append( "\n")
+       }
+       
+       
        source.close()
-       lines
-    }
+       buf.toString
+     }
 
     def readChunks():Seq[UnprocessedChunk] = {
         //public List<UnprocessedChunk> parseUnprocessed(String text)

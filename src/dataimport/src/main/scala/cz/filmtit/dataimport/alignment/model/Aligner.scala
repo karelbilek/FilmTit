@@ -23,7 +23,7 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
        val goodPairs = goodFilePairChooser.choosePairs(pairs)
        goodPairs.foreach {
         pair=>
-           val chunks = chunkAlignment.alignChunks(pair._1, pair._2)
+           val chunks = chunkAlignment.alignChunks(pair._1.readChunks, pair._2.readChunks)
            chunks.foreach {
              chunkPair=>
                 val processedChunk1:Seq[TimedChunk] = processChunk(chunkPair._1, 0, 0L)

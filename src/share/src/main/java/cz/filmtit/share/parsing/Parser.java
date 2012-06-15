@@ -31,6 +31,11 @@ public abstract class Parser {
 	
 	public static final String SUBLINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
 	public static final RegExp dialogueMatch = RegExp.compile("^ ?- ");
+
+    //TODO - better solution
+    //(will need to rewrite the AnnotationType from scratch I am afraid)
+    //temporary solution - ignore all HTML-like tags
+	public static final RegExp formatMatch = RegExp.compile("<[^>]*>", "g");
 	
     public abstract List<UnprocessedChunk> parseUnprocessed(String text);
 
@@ -58,6 +63,8 @@ public abstract class Parser {
     }
     
     public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId) {
+        
+
         LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
         
         //separate into sentences
@@ -65,6 +72,8 @@ public abstract class Parser {
     	int partNumber = 1;
 
         for (String chunkText : separatedText) {
+            chunkText = formatMatch.replace(chunkText, "");
+        
             List<Annotation> annotations = new ArrayList<Annotation>();
             
             //if it is a dialogue, mark it as such in annotations
@@ -78,9 +87,16 @@ public abstract class Parser {
             MatchResult sublineResult = sublineRegexp.exec(chunkText);            
             while (sublineResult != null) {
                 int index = sublineResult.getIndex();
-            
+                 
                 //not sure about off-by-one errors
-                chunkText = chunkText.substring(0, index) + chunkText.substring(index+3, chunkText.length());
+                String newChunkText = chunkText.substring(0, index);
+                
+                if (index+3 < chunkText.length()) {
+                    newChunkText = newChunkText + " "+chunkText.substring(index+3, chunkText.length());
+                }
+
+                chunkText = newChunkText;
+                
                 if (index != 0) { 
                     annotations.add(new Annotation(AnnotationType.LINEBREAK, index, index));
                 }

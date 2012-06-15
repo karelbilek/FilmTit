@@ -22,8 +22,9 @@ import cz.filmtit.share.TimedChunk;
 public class ParserSrt extends Parser {
 	
 	public static RegExp reNumberLine = RegExp.compile("^[0-9]+$");
-	public static RegExp reTimesLine  = RegExp.compile("^[0-9][0-9]:[0-9][0-9]");
-	public static String TIMES_SEPARATOR = " --> ";
+	public static RegExp reTimesLine  = RegExp.compile("^(.*)\\s*-- ?>\\s*(.*)$");
+	
+    public static String TIMES_SEPARATOR = " --> ";
 	
 	
 	public List<UnprocessedChunk> parseUnprocessed(String text) {
@@ -48,9 +49,9 @@ public class ParserSrt extends Parser {
 			//else if ( line.matches("[0-9][0-9]:[0-9][0-9].*")) {
 			else if ( reTimesLine.test(line)) {
 				// line with times
-				String[] times = line.split(TIMES_SEPARATOR);
-				startTime = times[0];
-				endTime = times[1];
+                MatchResult mr = reTimesLine.exec(line);
+                startTime = mr.getGroup(1);
+                endTime = mr.getGroup(2);
 			}
 			else if ( ! line.isEmpty() ) {
 				if (! titText.isEmpty()) {

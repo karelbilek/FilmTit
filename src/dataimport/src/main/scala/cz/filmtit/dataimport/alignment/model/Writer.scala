@@ -12,8 +12,16 @@ class Writer(conf:Configuration) {
     var lastName:Option[String]=None;
     var printWriter:PrintWriter=null;
 
+    def quickClean(what:String):String ={
+        return what.replaceAll("\\s*\\|\\s*"," ").replaceAll("(^|\\|)\\s*-\\s*","").replaceAll("<[>]*>","") 
+    }
+
     def write(name:String, chunk1:UnprocessedChunk, chunk2:UnprocessedChunk) {
-        write(name, chunk1.getText, chunk2.getText)
+        //in the case of different sentence split, I still want to have the chunks there
+        
+        write(name, 
+            quickClean(chunk1.getText),
+            quickClean(chunk2.getText));
     }    
 
     def write(name:String, chunk1:TimedChunk, chunk2:TimedChunk) {
@@ -21,6 +29,8 @@ class Writer(conf:Configuration) {
     }
 
     def write(name:String, chunk1:String, chunk2:String) {
+        
+
         if (lastName!= None && lastName!=Some(name)) {
             throw new Exception("Did not flush");
         }

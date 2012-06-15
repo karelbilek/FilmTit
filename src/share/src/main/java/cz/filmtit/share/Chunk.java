@@ -79,7 +79,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
         this.annotations.add(annotation);
     }
-
+ 
     public String getGUIForm(){
         String result = this.getSurfaceForm();
         for (Annotation an:this.getAnnotations()) {
