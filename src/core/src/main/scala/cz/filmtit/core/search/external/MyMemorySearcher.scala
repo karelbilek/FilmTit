@@ -1,7 +1,7 @@
 package cz.filmtit.core.search.external
 
+import java.net.{UnknownHostException, URLEncoder}
 import io.Source
-import java.net.URLEncoder
 import org.apache.commons.logging.LogFactory
 import org.json.{JSONArray, JSONObject}
 import cz.filmtit.core.model.TranslationPairSearcher
@@ -36,11 +36,18 @@ class MyMemorySearcher(
 
   def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val apiResponse = new JSONObject(
-      Source.fromURL(
-        apiURL(language.getCode, {if (language == l1) l2.getCode else l1.getCode}, chunk.getSurfaceForm)
-      ).getLines().next()
-    )
+    val apiResponse = try {
+      new JSONObject(
+        Source.fromURL(
+          apiURL(language.getCode, {if (language == l1) l2.getCode else l1.getCode}, chunk.getSurfaceForm)
+        ).getLines().next()
+      )
+    } catch {
+      case e: UnknownHostException => {
+        logger.warn("Could not reach MyTranslate server.")
+        return List[TranslationPair]()
+      }
+    }
 
     //TODO: add exception handling!
     if (apiResponse.getInt("responseStatus") equals 403)

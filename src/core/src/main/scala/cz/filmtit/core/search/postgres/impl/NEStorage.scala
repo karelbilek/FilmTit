@@ -61,7 +61,6 @@ class NEStorage(
   override def annotate(chunk: Chunk, signature: Signature) {
     //chunk.annotations ++= signature.annotations
     chunk.addAnnotations(signature.annotations)
-    println()
   }
 
 

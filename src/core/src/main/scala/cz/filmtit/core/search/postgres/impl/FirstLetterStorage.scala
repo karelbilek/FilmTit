@@ -49,7 +49,7 @@ class FirstLetterStorage(
           case _ => {
             token.take(
               tokens.size match {
-                case 1 => 4
+                case 1 => token.length
                 case 2 => 3
                 case 3 => 2
                 case _ => 1

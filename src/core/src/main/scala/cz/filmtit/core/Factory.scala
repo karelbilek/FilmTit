@@ -10,15 +10,16 @@ import cz.filmtit.core.Utils.t2mapper
 
 import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
-import opennlp.tools.tokenize.{WhitespaceTokenizer, Tokenizer}
 import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 import cz.filmtit.share.annotations.AnnotationType
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
+import org.apache.commons.logging.LogFactory
 import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
 import cz.filmtit.core.Factory._
 import collection.mutable.HashMap
 import java.io.{File, FileInputStream}
+import opennlp.tools.tokenize.{TokenizerModel, TokenizerME, WhitespaceTokenizer, Tokenizer}
 
 /**
  * Factories for default implementations of various classes
@@ -28,6 +29,8 @@ import java.io.{File, FileInputStream}
  */
 
 object Factory {
+
+  val logger = LogFactory.getLog("Factory")
 
   def createInMemoryConnection(): Connection = {
     Class.forName("org.hsqldb.jdbcDriver")
@@ -124,7 +127,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection, createTokenizer(Language.EN), createTokenizer(Language.CS), useInMemoryDB),
+      new FirstLetterStorage(Language.EN, Language.CS, connection, createTokenizer(Language.EN, configuration), createTokenizer(Language.CS, configuration), useInMemoryDB),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)
@@ -152,10 +155,11 @@ object Factory {
             new TokenNameFinderModel(new FileInputStream(modelFile))
           )
 
+          logger.debug("Creating NE recognizer (%s, %s)".format(neType, language))
           new OpenNLPNameFinder(
             neType,
             new NameFinderME(model),
-            createTokenizer(language)
+            createTokenizer(language, configuration)
           )
         }
       }
@@ -183,5 +187,22 @@ object Factory {
    */
   def createTokenizer(language: Language): Tokenizer = {
     WhitespaceTokenizer.INSTANCE
+  }
+
+  /**
+   * Build a Tokenizer for the language with a model
+   * specified in the Configuration.
+   *
+   * @param language language to be tokenized
+   * @return
+   */
+  def createTokenizer(language: Language, configuration: Configuration): Tokenizer = {
+    if (configuration.tokenizers contains language) {
+      logger.debug("Creating ME tokenizer (%s)".format(language))
+      new TokenizerME(configuration.tokenizers(language))
+    } else {
+      logger.debug("Creating default tokenizer (%s)".format(language))
+      createTokenizer(language)
+    }
   }
 }

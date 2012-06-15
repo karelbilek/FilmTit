@@ -5,6 +5,7 @@ import scala.xml._
 import collection.mutable.HashMap
 import cz.filmtit.share.Language
 import java.io.{FileInputStream, InputStream, File}
+import opennlp.tools.tokenize.{TokenizerModel, Tokenizer}
 
 /**
  * Configuration file for the external files and databases required by the TM.
@@ -47,6 +48,14 @@ class Configuration(configurationFile: InputStream) {
     neRecognizers.update(language_code, updated_models)
   })
 
+  //Read Tokenizers from the configuration
+  var tokenizers = HashMap[Language, TokenizerModel]()
+  (XMLFile \ "tokenizers" \ "tokenizer") foreach( tokenizer => {
+    val language = Language.fromCode( (tokenizer \ "@language").text )
+    tokenizers(language) = new TokenizerModel(new FileInputStream(new File(modelPath, tokenizer.text)))
+  })
+
+
   //Indexing:
   private val importXML = XMLFile \ "import"
 
@@ -63,13 +72,13 @@ class Configuration(configurationFile: InputStream) {
   val heldoutFile = new File((heldoutXML \ "path").text)
 
   //Userspace:
-  private val userspaceXML = XMLFile \ "userspace";
+  private val userspaceXML = XMLFile \ "userspace"
   val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
   val serverAddress = (userspaceXML \ "server_address").text
 
 
   //Core
-  private val coreXML = XMLFile \ "core";
+  private val coreXML = XMLFile \ "core"
   var maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
   val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
 }

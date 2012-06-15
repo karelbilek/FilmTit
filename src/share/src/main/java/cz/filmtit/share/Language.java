@@ -28,7 +28,7 @@ public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, S
 
     public static Language fromCode(String code) {
         for (Language language : values()) {
-            if (language.getCode().equals(code))
+            if (language.getCode().equalsIgnoreCase(code))
                 return language;
         }
         return Language.UNKNOWN;
