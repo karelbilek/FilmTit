@@ -40,7 +40,7 @@
 
 		<b:Heading size="4">Load subtitles:</b:Heading>
 		<b:TabPanel tabPosition="left" ui:field="tbpLoadFrom">
-			<b:TabPane ui:field="tabLoadFromFile" heading="from file" href="fromfile">
+			<b:TabPane ui:field="tabLoadFromFile" heading="from file" href="fromfile" active="true">
 				<b:Paragraph>From a file:</b:Paragraph>
 				<b:Form type="HORIZONTAL" ui:field="fileUploadForm">
 					<b:Fieldset>
