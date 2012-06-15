@@ -6,6 +6,6 @@ import cz.filmtit.share.parsing.UnprocessedChunk
 
 abstract class GoodFilePairChooser {
 
-    def choosePairs(pairs:List[Tuple3[SubtitleFile, SubtitleFile, List[Pair[UnprocessedChunk, UnprocessedChunk]]]]):List[Tuple3[SubtitleFile, SubtitleFile, List[Pair[UnprocessedChunk, UnprocessedChunk]]]];
+    def choosePairs(pairs:Iterable[Pair[SubtitleFile, SubtitleFile]]):List[Pair[SubtitleFile, SubtitleFile]];
 
 }

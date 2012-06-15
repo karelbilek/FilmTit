@@ -23,22 +23,23 @@ class SubtitleMapping(val conf:Configuration) {
     Source.fromFile(mappingFile).getLines() foreach
       { line =>
         val data = line.split("\t")
-        
+        val filmID = data(0)
+
         val mediasource = new MediaSource(
               data(7),
               data(8),
               "");
         val language = if (data(2) == "eng") {Language.EN} else {Language.CS}
 
-        val subtitlefile = SubtitleFile.maybeNew(conf, mediasource, data(1), language)
+        val subtitlefile = SubtitleFile.maybeNew(conf, filmID, data(1), language)
 
-        if (!subtitles.contains(data(0))) {
+        if (!subtitles.contains(filmID)) {
          if (subtitlefile.isDefined) {
-             subtitles.put(data(0),(mediasource, ListBuffer(subtitlefile.get)))
+             subtitles.put(filmID,(mediasource, ListBuffer(subtitlefile.get)))
           }
         } else {
           if (subtitlefile.isDefined) {
-             subtitles.get(data(0)).get._2 += subtitlefile.get
+             subtitles.get(filmID).get._2 += subtitlefile.get
           }
  
         }

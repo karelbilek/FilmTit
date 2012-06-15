@@ -10,13 +10,13 @@ import scala.collection.JavaConversions._
 import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
 import cz.filmtit.share.Language
+import scala.io.Codec
 
-
-class SubtitleFile(val source:MediaSource, val file:File, val language:Language)  {
+class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
     def readText():String = {
        val fin = new FileInputStream(file)
        val gzis = new GZIPInputStream(fin)
-       val source = scala.io.Source.fromInputStream(gzis)
+       val source = scala.io.Source.fromInputStream(gzis)(new Codec(java.nio.charset.Charset.forName("windows-1250")))
        val lines = source.mkString
        source.close()
        lines
@@ -31,9 +31,9 @@ class SubtitleFile(val source:MediaSource, val file:File, val language:Language)
 
 object SubtitleFile {
     
-    def maybeNew(conf:Configuration, media: MediaSource, subname:String, language:Language):Option[SubtitleFile] = {
+    def maybeNew(conf:Configuration, filmID:String, subname:String, language:Language):Option[SubtitleFile] = {
         if (new File(conf.getSubtitleName(subname)).exists()) {
-            Some(new SubtitleFile(media, new File(conf.getSubtitleName(subname)), language))
+            Some(new SubtitleFile(filmID, new File(conf.getSubtitleName(subname)), language))
         } else {
             None
         }
