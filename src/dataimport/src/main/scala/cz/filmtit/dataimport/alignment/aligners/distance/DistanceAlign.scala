@@ -7,7 +7,6 @@ import  cz.filmtit.dataimport.alignment.model.Aligner
 
 /**
  * Object with main class for making a distance-based alignment
- * (for baseline, say)
  */
 object DistanceAlign {
 
