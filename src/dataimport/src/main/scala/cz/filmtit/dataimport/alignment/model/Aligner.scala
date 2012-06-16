@@ -11,15 +11,19 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
     val writer = new Writer(conf)
 
     def align(mapping:SubtitleMapping) {
+       
+       println("start")
        val pairs = mapping.subtitles.keys.flatMap{
          filmname=>
            val files = mapping.getSubtitles(filmname);
            if (filmname==None){
              None
            } else {
+             println("aligning file<->file")
              subtitleFileAlignment.alignFiles(files.get)
            }
        }
+       println("done")
        val goodPairs = goodFilePairChooser.choosePairs(pairs)
        goodPairs.foreach {
         pair=>

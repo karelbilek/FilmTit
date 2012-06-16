@@ -1,4 +1,4 @@
-package cz.filmtit.dataimport.alignment.trivial
+package cz.filmtit.dataimport.alignment.aligners.trivial
 
 import cz.filmtit.dataimport.alignment.model._
 import scala.collection.immutable.List

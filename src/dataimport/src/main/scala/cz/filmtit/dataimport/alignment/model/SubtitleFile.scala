@@ -12,6 +12,7 @@ import java.util.zip.GZIPInputStream
 import cz.filmtit.share.Language
 import scala.io.Codec
 import java.nio.charset._
+import java.io.IOException
 
 class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
     def readText():String = {
@@ -19,9 +20,14 @@ class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
        val gzis = new GZIPInputStream(fin)
        
        try {
-         return readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
-       } catch {
+        try {
+             return readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
+        } catch {
          case e: UnmappableCharacterException => return readWithCodec(gzis, Codec.UTF8)
+        }
+       } catch {
+        case e:IOException => return ""; 
+        
        }
    }
 

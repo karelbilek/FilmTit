@@ -1,18 +1,20 @@
-package cz.filmtit.dataimport.alignment.trivial
+package cz.filmtit.dataimport.alignment.aligners.distance
 
 import cz.filmtit.core.Configuration
 import cz.filmtit.share.Language
 import cz.filmtit.dataimport.SubtitleMapping
 import  cz.filmtit.dataimport.alignment.model.Aligner
 
-object TrivialAlign {
+object DistanceAlign {
     
     def main(args: Array[String]) ={
         val config = new Configuration("configuration.xml")
+        val counter = new LinearFilePairCounter
+
         val aligner = new Aligner(
-            new TrivialSubtitleFileAlignment(Language.EN, Language.CS),
-            new TrivialChunkAlignment(Language.EN, Language.CS),
-            new TrivialGoodFilePairChooser,
+            new DistanceSubtitleFileAlignment(Language.EN, Language.CS, counter),
+            new DistanceChunkAlignment(Language.EN, Language.CS, counter),
+            new DistanceGoodFilePairChooser(counter),
             config
         )
 
