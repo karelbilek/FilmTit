@@ -5,6 +5,7 @@ import scala.xml._
 import collection.mutable.HashMap
 import cz.filmtit.share.Language
 import java.io.{FileInputStream, InputStream, File}
+import opennlp.tools.tokenize.{TokenizerModel, Tokenizer}
 
 /**
  * Configuration file for the external files and databases required by the TM.
@@ -47,33 +48,41 @@ class Configuration(configurationFile: InputStream) {
     neRecognizers.update(language_code, updated_models)
   })
 
+  //Read Tokenizers from the configuration
+  var tokenizers = HashMap[Language, TokenizerModel]()
+  (XMLFile \ "tokenizers" \ "tokenizer") foreach( tokenizer => {
+    val language = Language.fromCode( (tokenizer \ "@language").text )
+    tokenizers(language) = new TokenizerModel(new FileInputStream(new File(modelPath, tokenizer.text)))
+  })
+
+
   //Indexing:
   private val importXML = XMLFile \ "import"
 
-  val subtitlesFolder = new File((importXML \ "subtitles_folder").text)
   val dataFolder = new File((importXML \ "data_folder").text)
   val importBatchSize = (importXML \ "batch_size").text.toInt
   val importIMDBCache = new File((importXML \ "imdb_cache").text)
+  val subtitlesFolder = new File((importXML \ "subtitles_folder").text)
+
+  def getSubtitleName(s:String) = subtitlesFolder+"/"+s+".gz"
+  def getDataFileName(s:String) = dataFolder+"/"+s+".txt"
 
   val fileMediasourceMapping = new File((importXML \ "file_mediasource_mapping").text)
 
   val expectedNumberOfTranslationPairs = (importXML \ "expected_number_of_translationpairs").text.toInt
-
-  def getSubtitleName(s:String) = subtitlesFolder+"/"+s+".gz" 
-  def getDataFileName(s:String) = dataFolder+"/"+s+".txt"
 
   private val heldoutXML = importXML \ "heldout"
   val heldoutSize = (heldoutXML \ "size").text.toDouble //percentage of all data
   val heldoutFile = new File((heldoutXML \ "path").text)
 
   //Userspace:
-  private val userspaceXML = XMLFile \ "userspace";
+  private val userspaceXML = XMLFile \ "userspace"
   val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
   val serverAddress = (userspaceXML \ "server_address").text
 
 
   //Core
-  private val coreXML = XMLFile \ "core";
+  private val coreXML = XMLFile \ "core"
   var maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
   val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
 }

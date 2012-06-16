@@ -16,11 +16,10 @@ object TestUtil {
 
     tm.reset()
     tm.add(Array(
-      new TranslationPair("Peter rode to Alabama", "Petr jel do Alabamy"),
-      new TranslationPair("Peter rode to Alaska", "Petr jel do Aljašky")
+      new TranslationPair("Peter rode to Alabama.", "Petr jel do Alabamy."),
+      new TranslationPair("Peter rode to Alaska.", "Petr jel do Aljašky.")
     ))
     tm.reindex()
-
     tm
   }
 

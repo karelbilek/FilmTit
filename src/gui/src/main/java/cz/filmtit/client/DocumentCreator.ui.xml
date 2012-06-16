@@ -4,7 +4,8 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
              xmlns:lgf="urn:import:org.vectomatic.file">
 
-	<g:HTMLPanel>
+
+	<g:HTMLPanel styleName="new_document">
 	
 		<b:Heading size="3">Start a new subtitle document</b:Heading>
 
@@ -39,7 +40,7 @@
 
 		<b:Heading size="4">Load subtitles:</b:Heading>
 		<b:TabPanel tabPosition="left" ui:field="tbpLoadFrom">
-			<b:TabPane ui:field="tabLoadFromFile" heading="from file" href="fromfile">
+			<b:TabPane ui:field="tabLoadFromFile" heading="from file" href="fromfile" active="true">
 				<b:Paragraph>From a file:</b:Paragraph>
 				<b:Form type="HORIZONTAL" ui:field="fileUploadForm">
 					<b:Fieldset>
@@ -65,7 +66,7 @@
 			
 			<b:TabPane ui:field="tabLoadFromPaste" heading="from text - paste" href="frompaste">
 				<b:Paragraph>...or paste the subtitles here and click "Load":</b:Paragraph>
-	            <b:TextArea ui:field="txtFileContentArea" />
+	            <b:TextArea styleName="subtitle_paste_box" ui:field="txtFileContentArea" />
 	            <b:SubmitButton ui:field="btnSendToTm">Load</b:SubmitButton>
 			</b:TabPane>
 		</b:TabPanel>

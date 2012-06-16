@@ -27,7 +27,7 @@ class NESearcherSpec extends Spec {
   describe("A NE searcher") {
     it("should be able to restore the NE in the chunk") {
 
-      val candidates = memory.firstBest("Thomas rode to Alabama", Language.EN, null)
+      val candidates = memory.firstBest("Thomas rode to Alabama.", Language.EN, null)
 
       /* Since we found the results via NE matches, the corresponding NE
          annotations must be restorable from the database. */
@@ -40,7 +40,7 @@ class NESearcherSpec extends Spec {
 
       //Query the same TM from n threads in parallel:
       (1 to 500).par foreach { _ =>
-        memory.firstBest("Thomas rode to Alabama", Language.EN, null)
+        memory.firstBest("Thomas rode to Alabama.", Language.EN, null)
       }
     }
 

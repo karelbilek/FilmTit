@@ -2,10 +2,56 @@
 
 
 /** Example rules used by the template application (remove for your app) */
+.new_document {
+	background: white;
+	border: 1px solid #ccc;
+	padding: 15px;
+	width: 600px;
+	
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	
+	margin: 5px auto 0 auto;
+	
+	-webkit-box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, 0.1);
+	box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, 0.1);
+}
+.scrollPanel.creating_document {
+	background: #fcfcfc;
+}
+
+.scrollPanel.translating {
+	
+}
+
+
 .chunk_timing {
 	font-size: 11px;
 	font-weight: normal;
 	color: #777;
+}
+
+.nav li.active {
+	margin-right: -1px;
+	border-right: 0px;
+}
+
+div.tab-content {
+	padding: 10px;
+	padding-left: 20px;
+
+	border: 1px solid #DDD;
+}
+.tabs-left > .nav-tabs {
+	margin-right: 0px !important;
+	border-right: 0 !important;
+}
+
+textarea .subtitle_pastebox {
+	width: 400px;
+	height: 100px;
+	margin-bottom: 5px;
 }
 
 .chunk_l1 {
@@ -35,6 +81,7 @@ h1 {
 
 .filmtit_container {
 	width: 100%;
+	padding-top: 15px;
 }
 
 #content {
@@ -112,7 +159,7 @@ body {
 	
 	padding: 10px 20px;
 	border: 1px solid #ccc;
-	height: 402px;
+	height: 452px;
 }
 .scrollPanel td {
 	height: 45px;
@@ -125,10 +172,21 @@ body {
 	font-size: 80%;
 }
 
-iframe.gwt-RichTextArea {
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+.pre_subgestbox {
+	height: 20px;
+	padding: 8px;
+	margin: 0;
+    -webkit-box-shadow:  0px 0px 0px 0px rgba(255, 255, 255, 0.0);
+    box-shadow:  0px 0px 0px 0px rgba(255, 255, 255, 0.0);
+	display: block;
+	outline: none;
+
+}
+
+iframe.gwt-RichTextArea, .pre_subgestbox {
+	-webkit-border-radius: 2px !important;
+	-moz-border-radius: 2px !important;
+	border-radius: 2px !important;
 	border: 1px solid #eee !important;
 /*	border-bottom: 1px solid #aaa !important;*/
 }
