@@ -9,6 +9,13 @@ import java.io.File
 import cz.filmtit.share.Language
 import cz.filmtit.core.Configuration
 
+/**
+ * Object that holds all the information from export.txt file
+ * basically mapping both from movie ID to movie as mediasource
+ * but also mapping from movie ID to list of subtitle files
+ *
+ * @param conf configuration, determining where is the file
+ */
 class SubtitleMapping(val conf:Configuration) {
    var subtitles = HashMap[String, Pair[MediaSource, ListBuffer[SubtitleFile]]]()
 

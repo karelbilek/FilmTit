@@ -14,8 +14,22 @@ import scala.io.Codec
 import java.nio.charset._
 import java.io.IOException
 
+/**
+ * A representation of .srt subtitle file
+ *
+ * @constructor create a new SubtitleFile (don't call the constructor though, call
+ *             SubtitleFile.maybeNew)
+ * @param filmID ID of film
+ * @param file the file itself
+ * @param language language of file
+ */
 class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
-    def readText():String = {
+
+  /**
+   * Read the text from the .gz subtitle file
+   * @return The raw string of the file
+   */
+   def readText():String = {
        val fin = new FileInputStream(file)
        val gzis = new GZIPInputStream(fin)
        
@@ -44,6 +58,10 @@ class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
        buf.toString
      }
 
+  /**
+   * Read the chunks from the file, parse it
+   * @return "raw" chunks from srt
+   */
     def readChunks():Seq[UnprocessedChunk] = {
         //public List<UnprocessedChunk> parseUnprocessed(String text)
         val parser = new ParserSrt
@@ -52,7 +70,15 @@ class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
 }
 
 object SubtitleFile {
-    
+
+  /**
+   * Creates a file, if it exists
+   * @param conf configuration determining location of file
+   * @param filmID movie ID
+   * @param subname name of subtitle file (without .gz, just number)
+   * @param language language of subtitle
+   * @return None if file doesn't exist, otherwise the subtitle file
+   */
     def maybeNew(conf:Configuration, filmID:String, subname:String, language:Language):Option[SubtitleFile] = {
         if (new File(conf.getSubtitleName(subname)).exists()) {
             Some(new SubtitleFile(filmID, new File(conf.getSubtitleName(subname)), language))

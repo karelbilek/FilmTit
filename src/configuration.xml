@@ -23,8 +23,12 @@
     </ner_models>
 
     <import>
-        <data_folder>/afs/ms.mff.cuni.cz/u/b/bilek7am/filmtit/data</data_folder>
-        <file_mediasource_mapping>/afs/ms.mff.cuni.cz/u/b/bilek7am/filmtit/export_final.txt</file_mediasource_mapping>
+        <!--folder with the .gz files from export - not on server at the moment-->
+        <subtitles_folder> files/</subtitles_folder>
+
+        <!--folder with the already aligned chunks, have to be created if you want to run align-->
+        <data_folder>/filmtit/data/aligned/</data_folder>
+        <file_mediasource_mapping>/filmtit/data/files/export_final.txt</file_mediasource_mapping>
         <batch_size>100</batch_size>
         <imdb_cache>/tmp/imdb_cache</imdb_cache>
 

@@ -8,8 +8,22 @@ import scala.collection.Seq
 import cz.filmtit.share.parsing.UnprocessedChunk
 
 
+/**
+ * Class for trivial chunk<->chunk alignment
+ * (just take first with first, second with second etc)
+ *
+ * @constructor create a new aligner.
+ * @param l1 first language
+ * @param l2 second language
+ */
 class TrivialChunkAlignment(l1:Language, l2:Language) extends ChunkAlignment(l1, l2) {
-    
+
+  /**
+   * Trivial chunk aligning
+   * @param chunksL1 chunks of one file
+   * @param chunksL2 chunks of second file
+   * @return pairs of aligned chunks with no real aligning (0 with 0, 1 with 1 and so on)
+   */
     def alignChunks(chunksL1: Seq[UnprocessedChunk], chunksL2:Seq[UnprocessedChunk]):List[Pair[UnprocessedChunk, UnprocessedChunk]] = {
         val result:ListBuffer[Pair[UnprocessedChunk, UnprocessedChunk]] = new ListBuffer[Pair[UnprocessedChunk, UnprocessedChunk]] ()
         val min = Math.min(chunksL1.size, chunksL2.size);

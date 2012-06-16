@@ -5,8 +5,17 @@ import cz.filmtit.share.Language
 import cz.filmtit.dataimport.SubtitleMapping
 import  cz.filmtit.dataimport.alignment.model.Aligner
 
+/**
+ * Object with main class for making a distance-based alignment
+ * (for baseline, say)
+ */
 object DistanceAlign {
-    
+
+
+  /**
+   * Run the distance-based linear aligning
+   * @param args
+   */
     def main(args: Array[String]) ={
         val config = new Configuration("configuration.xml")
         val counter = new LinearFilePairCounter

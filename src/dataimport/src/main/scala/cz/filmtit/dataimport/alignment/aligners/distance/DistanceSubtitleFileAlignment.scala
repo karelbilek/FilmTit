@@ -5,9 +5,25 @@ import cz.filmtit.share.Language
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
 
-
+/**
+ * A class for aligning file<->file, based on the distances of the chunks
+ * For saving time, only every left chunk in each file is aligned with the best one on right
+ * but there are unsolved duplicities.
+ * It saves time because we need to try each file from l1 with each file from l2
+ *
+ * @constructor create a new DistanceSubtitleFileAlignment.
+ * @param l1 first language
+ * @param l2 second language
+ * @param counter  how to count the distances
+ */
 class DistanceSubtitleFileAlignment(l1:Language, l2:Language, val counter:FilePairCounter) extends SubtitleFileAlignment(l1,l2){
 
+  /**
+   * Takes the best pair of files based on sum of distances of chunks
+   * @param filesL1 list of files of first language
+   * @param filesL2 list of files of second language
+   * @return Pair of best subtitle files
+   */
     def alignFiles(filesL1:List[SubtitleFile], filesL2:List[SubtitleFile]):Pair[SubtitleFile, SubtitleFile] = {
         val scores= new ListBuffer[Pair[Long, Pair[SubtitleFile, SubtitleFile]]];
 

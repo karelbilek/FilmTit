@@ -6,15 +6,28 @@ import scala.collection.JavaConversions._
 import cz.filmtit.share.parsing.Parser.processChunk
 import cz.filmtit.dataimport.SubtitleMapping
 
+/** An object for general alignmenr.
+  *
+  * @constructor create a new aligner.
+  * @param subtitleFileAlignment how to decide which file goes to which file?
+  * @param chunkAlignment how to decide, which chunk goes which what chunk in a file?
+  * @param goodFilePairChooser how to decide, which file pairs are good enough
+  * @param conf Configuration that tells me where to write files
+  */
 class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkAlignment, goodFilePairChooser:GoodFilePairChooser, conf:Configuration) {
     
     val writer = new Writer(conf)
 
-    def align(mapping:SubtitleMapping) {
+  /**
+   * Dose the aligning itself and write it to files
+   *
+   * @param mapping mapping of movie ID to subtitle files
+   */
+   def align(mapping:SubtitleMapping) {
        
        println("start")
        val pairs = mapping.subtitles.keys.flatMap{
-         filmname=>
+         filmname =>
            val files = mapping.getSubtitles(filmname);
            if (filmname==None){
              None
