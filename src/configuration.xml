@@ -30,7 +30,7 @@
 
     <import>
         <!--folder with the .gz files from export - not on server at the moment-->
-        <subtitles_folder> files/</subtitles_folder>
+        <subtitles_folder>/filmtit/data/export/files/</subtitles_folder>
 
         <!--folder with the already aligned chunks, have to be created if you want to run align-->
         <data_folder>/filmtit/data/aligned/</data_folder>
