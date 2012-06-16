@@ -59,14 +59,10 @@ abstract class FilePairCounter {
    * Counts the two subtitle files
    * @param file1 one subtitle file
    * @param file2 second subtitle file
-   * @param cleanRight Should I try to clean multiple alignings of left-side to right-side?
-   *                   (it's faster if I don't, but it's not entirely correct)
-   * @param stopAt If non-zero, tells me at which distance sum should I stop with counting
-   *               (saves time if I sant the file pair with smallest total sum and I am already past that)
    * @return pair of total sum of distances and pairs of aligned chunks
    */
-    def countFiles(file1:SubtitleFile, file2:SubtitleFile, cleanRight:Boolean,stopAt:Long=0):Pair[Long, Seq[Pair[UnprocessedChunk, UnprocessedChunk]]] = {
-        countChunks(file1.readChunks, file2.readChunks,cleanRight,stopAt);
+    def countFiles(file1:SubtitleFile, file2:SubtitleFile):Pair[Long, Seq[Pair[UnprocessedChunk, UnprocessedChunk]]] = {
+        countChunks(file1.readChunks, file2.readChunks);
 
     }
 
@@ -74,18 +70,11 @@ abstract class FilePairCounter {
    * Counts the sequences of chunks from two files
    * @param chunksLeft sequence of chunks from one subtitle file
    * @param chunksRight sequence of chunks from second subtitle file
-   * @param cleanRight Should I try to clean multiple alignings of left-side to right-side?
-   *                   (it's faster if I don't, but it's not entirely correct)
-   * @param stopAt If non-zero, tells me at which distance sum should I stop with counting
-   *               (saves time if I sant the file pair with smallest total sum and I am already past that)
    * @return pair of total sum of distances and pairs of aligned chunks
    */
-    def countChunks(chunksLeft:Seq[UnprocessedChunk], chunksRight:Seq[UnprocessedChunk],cleanRight:Boolean, stopAt:Long=0):Pair[Long, Seq[Pair[UnprocessedChunk, UnprocessedChunk]]] = {
-        val tuples = if (cleanRight) {
-            removeDuplicateRightAlingment(getBestForEachLeft(chunksLeft, chunksRight));        
-        } else {
-            getBestForEachLeft(chunksLeft,chunksRight,stopAt);
-        }
+    def countChunks(chunksLeft:Seq[UnprocessedChunk], chunksRight:Seq[UnprocessedChunk]):Pair[Long, Seq[Pair[UnprocessedChunk, UnprocessedChunk]]] = {
+        val tuples = removeDuplicateRightAlingment(getBestForEachLeft(chunksLeft, chunksRight));        
+        
         var sum = 0L;
 
         val resultSeq = tuples.map {
@@ -105,28 +94,22 @@ abstract class FilePairCounter {
    * with the same chunk on the right
    * @param chunksLeft  sequence of chunks from one subtitle file
    * @param chunksRight  sequence of chunks from second subtitle file
-   * @param stopAt  If non-zero, tells me at which distance sum should I stop with counting
-   *               (saves time if I sant the file pair with smallest total sum and I am already past that)
    * @return  sequence of distances and pairs of chunks
    */
-    def getBestForEachLeft(chunksLeft:Seq[UnprocessedChunk], chunksRight:Seq[UnprocessedChunk],stopAt:Long=0): Seq[Tuple3[Long,UnprocessedChunk, UnprocessedChunk]] = {
+    def getBestForEachLeft(chunksLeft:Seq[UnprocessedChunk], chunksRight:Seq[UnprocessedChunk]): Seq[Tuple3[Long,UnprocessedChunk, UnprocessedChunk]] = {
 
        
         var counter = 0L;
         var rightPointer = 0;
-        return chunksLeft.flatMap {
+        return chunksLeft.map {
             chunkLeft=>
-             if (stopAt==0 || counter < stopAt) {
                 val distance = linesDistance(chunkLeft, chunksRight(rightPointer));
                 while (rightPointer < chunksRight.size-1 && distance > linesDistance(chunkLeft, chunksRight(rightPointer+1))) {
                     rightPointer= rightPointer+1
                 }
                 val newDistance = linesDistance(chunkLeft, chunksRight(rightPointer))
                 counter = counter + newDistance
-                Some((newDistance, chunkLeft, chunksRight(rightPointer)))
-             } else {
-                None
-             }
+                (newDistance, chunkLeft, chunksRight(rightPointer))
         }
     }
 

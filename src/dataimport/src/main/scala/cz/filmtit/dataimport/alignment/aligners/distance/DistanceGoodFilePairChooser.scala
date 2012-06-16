@@ -26,7 +26,7 @@ class DistanceGoodFilePairChooser(val counter:FilePairCounter) extends GoodFileP
     //in memory
         val distances:Iterable[Tuple3[Long, SubtitleFile, SubtitleFile]] = pairs.map {
             pair =>
-                (counter.countFiles(pair._1, pair._1, true)._1, pair._1, pair._2)
+                (counter.countFiles(pair._1, pair._1)._1, pair._1, pair._2)
         }
 
       //THIS WHOLE PART IS OVERCOMPLICATED, I am just confused by all the scala list-like stuff

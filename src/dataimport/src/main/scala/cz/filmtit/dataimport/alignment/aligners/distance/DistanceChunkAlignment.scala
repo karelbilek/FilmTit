@@ -25,7 +25,7 @@ class DistanceChunkAlignment(l1:Language, l2:Language, val counter: FilePairCoun
    */
     def alignChunks(chunksL1: Seq[UnprocessedChunk], chunksL2:Seq[UnprocessedChunk]):List[Pair[UnprocessedChunk, UnprocessedChunk]] = {
         
-        return counter.countChunks(chunksL1, chunksL2,true)._2.toList; 
+        return counter.countChunks(chunksL1, chunksL2)._2.toList; 
     }
     
 

@@ -7,8 +7,6 @@ import scala.collection.mutable.ListBuffer
 
 /**
  * A class for aligning file<->file, based on the distances of the chunks
- * For saving time, only every left chunk in each file is aligned with the best one on right
- * but there are unsolved duplicities.
  * It saves time because we need to try each file from l1 with each file from l2
  *
  * @constructor create a new DistanceSubtitleFileAlignment.
@@ -32,7 +30,7 @@ class DistanceSubtitleFileAlignment(l1:Language, l2:Language, val counter:FilePa
             file1=>
                 filesL2.foreach{
                     file2=>
-                        val score:Long = counter.countFiles(file1, file2, false, bestPair._1)._1
+                        val score:Long = counter.countFiles(file1, file2)._1
                         if (score < bestPair._1) {
                             bestPair=((score, (file1, file2)))
                         }
