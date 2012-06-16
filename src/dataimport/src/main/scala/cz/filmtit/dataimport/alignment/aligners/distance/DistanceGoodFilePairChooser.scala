@@ -37,8 +37,6 @@ class DistanceGoodFilePairChooser(val counter:FilePairCounter) extends GoodFileP
         
         quickSort(distArray) (Ordering.by[(Long,SubtitleFile, SubtitleFile), Long](_._1))
 
-        val reverse = distArray.reverse
-
         //let's take first 6000
         //...I am not sure how to do it efficiently is scala :/
         val buf = new ListBuffer[Pair[SubtitleFile, SubtitleFile]]()
