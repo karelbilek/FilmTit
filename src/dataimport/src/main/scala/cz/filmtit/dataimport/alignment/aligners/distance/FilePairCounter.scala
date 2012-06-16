@@ -3,6 +3,7 @@ package cz.filmtit.dataimport.alignment.aligners.distance
 import scala.collection.mutable.ListBuffer
 import cz.filmtit.share.parsing.UnprocessedChunk
 import cz.filmtit.dataimport.alignment.model.SubtitleFile
+import cz.filmtit.dataimport.alignment.SubHelper.timeToNumber
 
 /**
  * Abstract class for counting the chunks with best distances in a file
@@ -23,23 +24,7 @@ abstract class FilePairCounter {
    */
     def timeDistance(start1:Long, start2:Long, end1:Long, end2:Long):Long
 
-  /**
-   * Converts time to milliseconds
-   * @param time time information as string
-   * @return milliseconds
-   */
-    def timeToNumber(time:String):Long = {
-      try {
-        val Array(hour, minute, second, mili) = time.split("[,:.]");
-        hour.replaceAll(" ","").toLong*3600*1000+
-          minute.replaceAll(" ","").toLong*60*1000+
-          second.replaceAll(" ","").toLong*1000+
-          mili.replaceAll(" ","").toLong
-      } catch {
-        case e:Exception=> 0L
-      }
-    }
-
+  
   /**
    * Counts distance of two subtitles
    * @param line1 first chunk

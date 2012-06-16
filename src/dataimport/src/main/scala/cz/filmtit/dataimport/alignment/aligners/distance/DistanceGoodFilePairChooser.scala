@@ -13,7 +13,7 @@ import cz.filmtit.dataimport.alignment.model.SubtitleFile
  * @constructor create a new DistanceGoodFilePairChooser.
  * @param counter  how to count the distances
  */
-class DistanceGoodFilePairChooser(val counter:FilePairCounter) extends GoodFilePairChooser {
+class DistanceGoodFilePairChooser(val counter:FilePairCounter, val count:Int) extends GoodFilePairChooser {
 
   /**
    * Chose the 6000 files with the best sum of distances
@@ -41,7 +41,7 @@ class DistanceGoodFilePairChooser(val counter:FilePairCounter) extends GoodFileP
         //...I am not sure how to do it efficiently is scala :/
         val buf = new ListBuffer[Pair[SubtitleFile, SubtitleFile]]()
 
-        (0 to 5999).foreach {
+        (0 to count-1).foreach {
             i=>
             buf.append((distArray(i)._2, distArray(i)._3))
         }

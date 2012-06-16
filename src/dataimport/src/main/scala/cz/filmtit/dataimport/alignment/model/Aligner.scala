@@ -23,23 +23,33 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
    *
    * @param mapping mapping of movie ID to subtitle files
    */
-   def align(mapping:SubtitleMapping) {
+   def align(mapping:SubtitleMapping, maxFiles:Int=0) {
        
        println("start")
+       var counter = 0
+       
        val pairs = mapping.subtitles.keys.flatMap{
          filmname =>
            val files = mapping.getSubtitles(filmname);
            if (filmname==None){
              None
            } else {
-             println("aligning file<->file")
-             subtitleFileAlignment.alignFiles(files.get)
+             if (maxFiles ==0 || maxFiles < counter) {
+                counter+=1
+                println("aligning file<->file")
+                println("size je : "+files.get.size)
+                subtitleFileAlignment.alignFiles(files.get)
+             } else {
+                None
+             }
            }
        }
        println("done")
        val goodPairs = goodFilePairChooser.choosePairs(pairs)
+       println("Goodpairs bude "+goodPairs.size())
        goodPairs.foreach {
         pair=>
+           println("another : "+pair._1.filmID)
            val chunks = chunkAlignment.alignChunks(pair._1.readChunks, pair._2.readChunks)
            chunks.foreach {
              chunkPair=>

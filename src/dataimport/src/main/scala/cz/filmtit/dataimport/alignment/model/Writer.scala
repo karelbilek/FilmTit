@@ -24,7 +24,7 @@ class Writer(conf:Configuration) {
    * @return cleaned string
    */
     def quickClean(what:String):String ={
-        return what.replaceAll("\\s*\\|\\s*"," ").replaceAll("(^|\\|)\\s*-\\s*","").replaceAll("<[>]*>","") 
+        return what.replaceAll("\\s*\\|\\s*"," ").replaceAll("(^|\\|)\\s*-\\s*","").replaceAll("<[^>]*>","") 
     }
 
   /**
