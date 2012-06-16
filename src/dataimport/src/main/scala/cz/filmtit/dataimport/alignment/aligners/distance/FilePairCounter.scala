@@ -122,7 +122,7 @@ abstract class FilePairCounter {
     def removeDuplicateRightAlingment(pairs:Seq[Tuple3[Long, UnprocessedChunk, UnprocessedChunk]]):Seq[Tuple3[Long,UnprocessedChunk, UnprocessedChunk]] = {
         val res = new ListBuffer[Tuple3[Long, UnprocessedChunk, UnprocessedChunk]]()
         val buf = new ListBuffer[Pair[Long, UnprocessedChunk]]()
-        var lastRightChunk = pairs(0)._2
+        var lastRightChunk = pairs(0)._3
         pairs.foreach {
            pair =>
             val distance = pair._1
