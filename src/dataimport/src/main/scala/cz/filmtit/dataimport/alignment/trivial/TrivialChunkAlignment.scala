@@ -13,9 +13,12 @@ class TrivialChunkAlignment(l1:Language, l2:Language) extends ChunkAlignment(l1,
     def alignChunks(chunksL1: Seq[UnprocessedChunk], chunksL2:Seq[UnprocessedChunk]):List[Pair[UnprocessedChunk, UnprocessedChunk]] = {
         val result:ListBuffer[Pair[UnprocessedChunk, UnprocessedChunk]] = new ListBuffer[Pair[UnprocessedChunk, UnprocessedChunk]] ()
         val min = Math.min(chunksL1.size, chunksL2.size);
+        
+
         (0 to min-1).foreach {
             i=>result.append((chunksL1(i), chunksL2(i)))
         }
+
         return result.toList
     }
     

@@ -40,6 +40,7 @@ class Writer(conf:Configuration) {
         }
 
         printWriter.println(chunk1.replaceAll("\t"," ") +"\t"+ chunk2.replaceAll("\t"," "))
+        lastName = Some(name)
     }
 
     def flush(name:String) {
