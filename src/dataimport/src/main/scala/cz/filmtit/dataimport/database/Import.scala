@@ -49,7 +49,7 @@ class Import(val configuration: Configuration) {
    */
   def loadMediaSource(id: String): MediaSource = subtitles.getMediaSource(id) match {
     case Some(mediaSource) => MediaSourceFactory.fromCachedIMDB(mediaSource.getTitle, mediaSource.getYear, imdbCache)
-    case None => throw new IOException("No movie found in the DB!")
+    case None => throw new IOException("No movie found in the DB for id "+id)
   }
 
 

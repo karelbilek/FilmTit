@@ -43,7 +43,7 @@ public class TitChunkSeparator {
         for (int i = 0; i < lines.length(); i++) {
 			String line = lines.get(i);
 
-			if (dialogSegmenter.test(line)) {
+			if (dialogSegmenter.test(line) && !intermediateChunk.equals("")) {
 				// is a dialog line -> splitting
 				resultChunks.addAll(tokenizeByTokenizers(intermediateChunk, l));
 				intermediateChunk = line;

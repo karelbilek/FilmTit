@@ -17,7 +17,7 @@ import cz.filmtit.core.Configuration
  * @param conf configuration, determining where is the file
  */
 class SubtitleMapping(val conf:Configuration) {
-   var subtitles = HashMap[String, Pair[MediaSource, ListBuffer[SubtitleFile]]]()
+   val subtitles = HashMap[String, Pair[MediaSource, ListBuffer[SubtitleFile]]]()
 
   /**
    * Loads the index file that contains the
@@ -27,6 +27,7 @@ class SubtitleMapping(val conf:Configuration) {
    */
   /*def load() =*/ {
     val mappingFile = conf.fileMediasourceMapping
+    println("mapping file: "+mappingFile);
     Source.fromFile(mappingFile).getLines() foreach
       { line =>
         val data = line.split("\t")
@@ -43,6 +44,8 @@ class SubtitleMapping(val conf:Configuration) {
         if (!subtitles.contains(filmID)) {
          if (subtitlefile.isDefined) {
              subtitles.put(filmID,(mediasource, ListBuffer(subtitlefile.get)))
+          } else {
+             subtitles.put(filmID,(mediasource, ListBuffer[SubtitleFile]()))
           }
         } else {
           if (subtitlefile.isDefined) {
@@ -51,6 +54,7 @@ class SubtitleMapping(val conf:Configuration) {
  
         }
       }
+     System.out.println("Loaded files: "+subtitles.keys.size)
   }
 
   def getMediaSource(name:String):Option[MediaSource] = {
