@@ -39,8 +39,8 @@ public class TitChunkSeparator {
 		SplitResult lines = indirectSplitter.split(tit);
 
 		List<String> resultChunks = new ArrayList<String>();
-		String intermediateChunk = lines.get(0);
-		for (int i = 1; i < lines.length(); i++) {
+		String intermediateChunk = "";
+        for (int i = 0; i < lines.length(); i++) {
 			String line = lines.get(i);
 
 			if (dialogSegmenter.test(line)) {
@@ -49,8 +49,12 @@ public class TitChunkSeparator {
 				intermediateChunk = line;
 			}
 			else {
-				intermediateChunk += SUBLINE_SEPARATOR_OUT + line;
-		        
+                if (intermediateChunk.equals("")) {
+                    intermediateChunk = line;
+				} else {
+                    intermediateChunk += SUBLINE_SEPARATOR_OUT + line;
+		        }
+
                 //is punct at EOL -> splitting
                 if (endOfLinePunct.test(intermediateChunk)) {
                     resultChunks.addAll(tokenizeByTokenizers(intermediateChunk,l));

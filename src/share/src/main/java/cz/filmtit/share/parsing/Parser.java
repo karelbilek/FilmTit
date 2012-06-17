@@ -31,6 +31,7 @@ public abstract class Parser {
 	
 	public static final String SUBLINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
 	public static final RegExp dialogueMatch = RegExp.compile("^ ?- ?");
+    public static final RegExp sublineAtBeginMatch = RegExp.compile("^\\|");
 
     //TODO - better solution
     //(will need to rewrite the AnnotationType from scratch I am afraid)
@@ -92,7 +93,8 @@ public abstract class Parser {
                 String newChunkText = chunkText.substring(0, index);
                 
                 if (index+3 < chunkText.length()) {
-                    newChunkText = newChunkText + " "+chunkText.substring(index+2, chunkText.length());
+                    int biggerIndex = sublineAtBeginMatch.test(chunkText) ? 2 : (index+3);
+                    newChunkText = newChunkText + " "+chunkText.substring(biggerIndex, chunkText.length());
                 }
 
                 chunkText = newChunkText;
