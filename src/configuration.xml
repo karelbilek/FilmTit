@@ -9,7 +9,7 @@
         <password>postgres</password>
     </database>
 
-    <model_path>/filmtit/models/</model_path>
+    <model_path>models/</model_path>
 
     <tokenizers>
         <tokenizer language="en">en/token.bin</tokenizer>
