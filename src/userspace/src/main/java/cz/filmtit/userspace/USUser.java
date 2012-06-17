@@ -46,8 +46,8 @@ public class USUser extends DatabaseObject {
         //  if the list of owned documents is empty...
         if (ownedDocuments == null) {
             ownedDocuments = new ArrayList<USDocument>();
-            org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-            session.beginTransaction();
+            org.hibernate.Session session = HibernateUtil.getCurrentSession();
+            
 
             // query the documents owned by the user
             List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid")
@@ -56,7 +56,7 @@ public class USUser extends DatabaseObject {
             // store it to the variable
             for (Object o : result) { ownedDocuments.add((USDocument)o); }
             
-            session.getTransaction().commit();
+            HibernateUtil.closeAndCommitSession(session);
         }
         return ownedDocuments;
     }
@@ -78,7 +78,7 @@ public class USUser extends DatabaseObject {
 
     public static int CreateUser(String name, String email,String openId , String fbId )
     {
-        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+//        org.hibernate.Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         return -1;
     }
 

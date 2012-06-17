@@ -99,12 +99,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
 
         // a Session free temporary saving solution
-        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();
+        org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
 
         tr.saveToDatabase(dbSession);
 
-        dbSession.getTransaction().commit();
+        
+        HibernateUtil.closeAndCommitSession(dbSession);
 
         return null;
     }

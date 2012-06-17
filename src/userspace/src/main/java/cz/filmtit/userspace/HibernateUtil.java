@@ -55,7 +55,41 @@ public class HibernateUtil {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
     }
 
-    public static SessionFactory getSessionFactory() {
+    //TODO : free the lock after some time
+    //TODO : isn't there some already done solution?
+    private static boolean blocking = false;
+    private static synchronized boolean lock(boolean opening) {
+        if (opening) {
+            if(blocking == true) {
+                return true;
+            } else {
+                blocking = true;
+                return false;
+            }
+        } else {
+            blocking = false;
+            return true; //return here does not matter
+        }
+    }
+    public static org.hibernate.Session getCurrentSession() {
+        while(lock(true)) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                System.err.println("Interrupted exception "+e);
+            }
+        }
+        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession.beginTransaction();
+        return dbSession;
+    }
+
+    public static void closeAndCommitSession(org.hibernate.Session dbSession){
+       dbSession.getTransaction().commit();
+       lock(false);
+    }
+
+    private static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             sessionFactory = buildSessionFactory();
         }

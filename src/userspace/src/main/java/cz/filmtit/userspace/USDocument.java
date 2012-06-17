@@ -39,10 +39,9 @@ public class USDocument extends DatabaseObject {
         workStartTime = new Date().getTime();
         translationResults = new ArrayList<USTranslationResult>();
 
-        Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();  // throws an exception
+        Session dbSession = HibernateUtil.getCurrentSession();
         saveToDatabase(dbSession);
-        dbSession.getTransaction().commit();
+        HibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -178,8 +177,7 @@ public class USDocument extends DatabaseObject {
      * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();
+        org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
     
         // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :did")
@@ -192,7 +190,7 @@ public class USDocument extends DatabaseObject {
             translationResults.add(result);
         }
     
-        dbSession.getTransaction().commit();
+        HibernateUtil.closeAndCommitSession(dbSession);
 
         Collections.sort(translationResults);
         // add the translation results to the inner document
@@ -241,10 +239,12 @@ public class USDocument extends DatabaseObject {
      */
     public static USDocument load(long id) {
         // TODO: Should be later in the USUser
-        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();
+        org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
+        
         List docs = dbSession.createQuery("select d from USDocument d where d.databaseId = :did")
                 .setParameter("did", id).list();
+        HibernateUtil.closeAndCommitSession(dbSession);
+        
         if (docs.size() == 1) {
             USDocument doc = (USDocument)(docs.get(0));
             return doc;
