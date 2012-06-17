@@ -92,7 +92,7 @@ public abstract class Parser {
                 String newChunkText = chunkText.substring(0, index);
                 
                 if (index+3 < chunkText.length()) {
-                    newChunkText = newChunkText + " "+chunkText.substring(index+3, chunkText.length());
+                    newChunkText = newChunkText + " "+chunkText.substring(index+2, chunkText.length());
                 }
 
                 chunkText = newChunkText;
