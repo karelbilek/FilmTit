@@ -82,9 +82,12 @@ class Writer(conf:Configuration) {
             throw new Exception("Did not flush");
         }
         
+        if (lastName!=None) {
+            printWriter.close;
+            printWriter=null;
+        }
+
         lastName=None;
-        printWriter.close;
-        printWriter=null;
 
     }
 
