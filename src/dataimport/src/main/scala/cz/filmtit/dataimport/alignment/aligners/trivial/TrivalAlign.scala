@@ -21,7 +21,8 @@ object TrivialAlign {
             new TrivialSubtitleFileAlignment(Language.EN, Language.CS),
             new TrivialChunkAlignment(Language.EN, Language.CS),
             new TrivialGoodFilePairChooser,
-            config
+            config,
+            Language.EN, Language.CS
         )
 
         aligner.align(new SubtitleMapping(config));

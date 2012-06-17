@@ -24,7 +24,8 @@ object DistanceAlign {
             new DistanceSubtitleFileAlignment(Language.EN, Language.CS, counter),
             new DistanceChunkAlignment(Language.EN, Language.CS, counter),
             new DistanceGoodFilePairChooser(counter, count),
-            config
+            config,
+            Language.EN, Language.CS
         )
 
         aligner.align(new SubtitleMapping(config));

@@ -261,7 +261,7 @@ public class Gui implements EntryPoint {
 		// parse:
 		log("starting parsing");
 		long startTime = System.currentTimeMillis();
-		this.chunklist = subtextparser.parse(this.subtext, this.currentDocument.getId());
+		this.chunklist = subtextparser.parse(this.subtext, this.currentDocument.getId(), Language.EN);
 		long endTime = System.currentTimeMillis();
 		long parsingTime = endTime - startTime;
 		log("parsing finished in " + parsingTime + "ms");

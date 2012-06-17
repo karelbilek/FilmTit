@@ -26,7 +26,8 @@ object LevenstheinAlign {
             new LevenstheinSubtitleFileAlignment(Language.EN, Language.CS, counter),
             new LevenstheinChunkAlignment(Language.EN, Language.CS, tolerance),
             new LevenstheinGoodFilePairChooser(counter),
-            config
+            config,
+            Language.EN, Language.CS
         )
 
         aligner.align(new SubtitleMapping(config));

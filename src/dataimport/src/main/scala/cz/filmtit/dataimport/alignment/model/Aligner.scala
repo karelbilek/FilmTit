@@ -1,5 +1,6 @@
 package cz.filmtit.dataimport.alignment.model
 
+import cz.filmtit.share.Language
 import cz.filmtit.share.TimedChunk
 import cz.filmtit.core.Configuration
 import scala.collection.JavaConversions._
@@ -14,7 +15,7 @@ import cz.filmtit.dataimport.SubtitleMapping
   * @param goodFilePairChooser how to decide, which file pairs are good enough
   * @param conf Configuration that tells me where to write files
   */
-class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkAlignment, goodFilePairChooser:GoodFilePairChooser, conf:Configuration) {
+class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkAlignment, goodFilePairChooser:GoodFilePairChooser, conf:Configuration, l1:Language, l2:Language) {
     
     val writer = new Writer(conf)
 
@@ -53,8 +54,8 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
            val chunks = chunkAlignment.alignChunks(pair._1.readChunks, pair._2.readChunks)
            chunks.foreach {
              chunkPair=>
-                val processedChunk1:Seq[TimedChunk] = processChunk(chunkPair._1, 0, 0L)
-                val processedChunk2:Seq[TimedChunk] = processChunk(chunkPair._2, 0, 0L)
+                val processedChunk1:Seq[TimedChunk] = processChunk(chunkPair._1, 0, 0L, l1)
+                val processedChunk2:Seq[TimedChunk] = processChunk(chunkPair._2, 0, 0L, l2)
                 if (processedChunk1.length == processedChunk2.length) {
                    (0 to processedChunk1.length-1).foreach {
                      i => writer.write(pair._1.filmID, processedChunk1(i), processedChunk2(i))

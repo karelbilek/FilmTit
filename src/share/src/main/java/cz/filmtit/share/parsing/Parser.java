@@ -39,15 +39,15 @@ public abstract class Parser {
 	
     public abstract List<UnprocessedChunk> parseUnprocessed(String text);
 
-	public List<TimedChunk> parse(String text, long documentId) {
-        return processChunks(parseUnprocessed(text), documentId);
+	public List<TimedChunk> parse(String text, long documentId, Language l) {
+        return processChunks(parseUnprocessed(text), documentId, l);
     }
 
-    public static List<TimedChunk> processChunks(List<UnprocessedChunk> chunks, long documentId) {
+    public static List<TimedChunk> processChunks(List<UnprocessedChunk> chunks, long documentId, Language l) {
         LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
         int chunkId = 0;
         for (UnprocessedChunk chunk: chunks){
-            result.addAll(processChunk(chunk, chunkId, documentId));
+            result.addAll(processChunk(chunk, chunkId, documentId, l));
             chunkId++;
         }
         renumber(result);
@@ -62,13 +62,13 @@ public abstract class Parser {
         }
     }
     
-    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId) {
+    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
         
 
         LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
         
         //separate into sentences
-        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), Language.EN);
+        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), l);
     	int partNumber = 1;
 
         for (String chunkText : separatedText) {
