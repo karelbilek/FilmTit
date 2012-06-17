@@ -6,8 +6,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
-import java.io.File;
-
 public class HibernateUtil {
     private static SessionFactory sessionFactory = null;
     private static ServiceRegistry serviceRegistry;
@@ -89,7 +87,7 @@ public class HibernateUtil {
        lock(false);
     }
 
-    private static SessionFactory getSessionFactory() {
+    public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             sessionFactory = buildSessionFactory();
         }
