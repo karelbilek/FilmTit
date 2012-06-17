@@ -16,7 +16,7 @@ public class TitChunkSeparator {
 	
 	public static final RegExp indirectSplitter = RegExp.compile(" *\\| *");
 	public static final RegExp dialogSegmenter = RegExp.compile("^ ?- ?.");
-    public static final RegExp endOfLinePunct = RegExp.compile("[.?…!]");
+    public static final RegExp endOfLinePunct = RegExp.compile("[.?…!]$");
 
 	// formatting tags - in srt e.g. "<i>", in sub e.g. "{Y:i}"
 	public static final RegExp formatTag = RegExp.compile("(<[^>]*>)|(\\{[^}]*\\})", "g");  // the "{}" are here as literals
