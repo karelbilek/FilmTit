@@ -21,9 +21,9 @@
         <property name="sharedId" type="int" column="sharedId" />
         <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
-
+      
         <!--commenting this out mainly for testing, sorry-->
-        <list name="tmSuggestions" table="TranslationPairs">
+        <list name="tmSuggestions" table="USTranslationPairs">
             <key column="TranslationResultId"/>
             <index column="listIndex"/>
             <composite-element class="cz.filmtit.share.TranslationPair">
