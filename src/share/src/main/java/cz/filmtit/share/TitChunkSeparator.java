@@ -59,8 +59,8 @@ public class TitChunkSeparator {
                 if (endOfLinePunct.test(intermediateChunk)) {
                     resultChunks.addAll(tokenizeByTokenizers(intermediateChunk,l));
                     
+                    intermediateChunk="";
                 }
-                intermediateChunk="";
             }
 		}
 		if (!intermediateChunk.equals("")) {

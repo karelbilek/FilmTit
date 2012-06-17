@@ -94,9 +94,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
-        USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
-        tr.setUserTranslation(userTranslation);
-        tr.setSelectedTranslationPairID(chosenTranslationPairID);
+        USTranslationResult tr=null;  
+        try {
+            tr = activeTranslationResults.get(documentId).get(chunkId);
+            tr.setUserTranslation(userTranslation);
+            tr.setSelectedTranslationPairID(chosenTranslationPairID);
+        } catch (NullPointerException e) {
+            System.err.println("Nullpointerexception "+e);
+            return null;
+        }
 
         // a Session free temporary saving solution
         org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
