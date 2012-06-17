@@ -31,9 +31,9 @@ class LevenstheinDistanceCounter(val tolerance:Long) {
         (0 to times1.size).foreach{i=>table((i, 0))=i}
         (0 to times2.size).foreach{i=>table((0, i))=i}
 
-        (0 to times1.size).foreach{
+        (1 to times1.size).foreach{
           i=>
-            (0 to times2.size).foreach{
+            (1 to times2.size).foreach{
               j=>
                 if (abs(times1(i-1) - times2(j-1)) < tolerance) {
                     table((i,j)) = table((i-1, j-1))
