@@ -277,7 +277,7 @@ with MediaStorage {
    * @return
    */
   def getSuggestions(title: String, year: String): java.util.List[MediaSource] = {
-    MediaSourceFactory.suggestionsFromIMDB(title, year).asJava
+    MediaSourceFactory.suggestionsFromIMDB(title, year)
   }
 
   /**

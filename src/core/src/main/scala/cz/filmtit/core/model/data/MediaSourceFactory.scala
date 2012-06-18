@@ -1,5 +1,6 @@
 package cz.filmtit.core.model.data
 
+import _root_.java.util.LinkedList
 import org.json.JSONObject
 import cz.filmtit.core.io.data.IMDB
 import collection.mutable.HashMap
@@ -16,12 +17,18 @@ object MediaSourceFactory {
     }
   }
 
-  def suggestionsFromIMDB(title: String, year: String): List[MediaSource] = {
+  def suggestionsFromIMDB(title: String, year: String): java.util.List[MediaSource] = {
     try {
       val nbest = IMDB.queryNBest(title, year)
-      nbest map { jo: JSONObject => new MediaSource(title, year, jo.getString("Genre")) }
+      val l = new LinkedList[MediaSource]()
+      nbest foreach { jo: JSONObject => l.add(new MediaSource(title, year, jo.getString("Genre"))) }
+      l
     } catch {
-      case e: Exception => List[MediaSource](new MediaSource(title, year))
+      case e: Exception => {
+        val l = new LinkedList[MediaSource]()
+        l.add(new MediaSource(title, year))
+        l
+      }
     }
   }
 
