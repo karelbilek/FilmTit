@@ -26,9 +26,7 @@
         <dependency>
             <artifactId>lib-gwt-file</artifactId>
             <groupId>org.vectomatic</groupId>
-            <version>3.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/lib-gwt-file-0.3.jar</systemPath>
+            <version>0.3.1</version>
         </dependency>
         <dependency>
     	   <groupId>com.github.gwtbootstrap</groupId>
