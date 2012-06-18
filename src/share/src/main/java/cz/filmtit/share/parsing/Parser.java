@@ -30,7 +30,7 @@ public abstract class Parser {
 	public static final String LINE_SEPARATOR  = "\r?\n";
 	
 	public static final String SUBLINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
-	public static final RegExp dialogueMatch = RegExp.compile("^ ?- ?");
+	public static final RegExp dialogueMatch = RegExp.compile("^ ?-+ ?");
     public static final RegExp sublineAtBeginMatch = RegExp.compile("^\\|");
 
     //TODO - better solution
