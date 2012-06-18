@@ -92,8 +92,7 @@ public class Session {
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
         lastOperationTime = new Date().getTime();
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
-        List<MediaSource> suggestions = scala.collection
-                .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
+        List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
