@@ -26,7 +26,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     
     public Chunk(String surfaceform) {
-        this.surfaceform = surfaceform;
+        this.surfaceform = surfaceform.replace('\u0000',' ');
     }
 
     public String getSurfaceForm() {
@@ -36,7 +36,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     public void setSurfaceForm(String surfaceform) throws /*IllegalAccessException*/ IllegalArgumentException {
         if (this.surfaceform.equals(surfaceform)) { return; }
         if (this.surfaceform == null || this.surfaceform.equals("")) {
-            this.surfaceform = surfaceform;
+            this.surfaceform = surfaceform.replace('\u0000', ' ');
         }
         else {
             //throw new IllegalAccessException("The chunk surface form can be set just once.");
