@@ -1,16 +1,14 @@
 package cz.filmtit.core.search.postgres
 
 import org.apache.commons.logging.LogFactory
-import org.postgresql.util.PSQLException
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
-import java.sql.{SQLException, DriverManager, Connection}
+import java.sql.{SQLException, Connection}
 import gnu.trove.map.hash.TObjectLongHashMap
-import org.slf4j.Logger
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 import collection.mutable.{ListBuffer, HashSet}
-import cz.filmtit.core.Configuration
 import cz.filmtit.core.model.data.MediaSourceFactory
+import scala.collection.JavaConverters._
 
 
 /**
@@ -278,8 +276,8 @@ with MediaStorage {
    * @param year year it was released
    * @return
    */
-  def getSuggestions(title: String, year: String): List[MediaSource] = {
-    MediaSourceFactory.suggestionsFromIMDB(title, year)
+  def getSuggestions(title: String, year: String): java.util.List[MediaSource] = {
+    MediaSourceFactory.suggestionsFromIMDB(title, year).asJava
   }
 
   /**
