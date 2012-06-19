@@ -167,14 +167,16 @@ public class Gui implements EntryPoint {
 			public void onLoadEnd(LoadEndEvent event) {
 				subtext = freader.getStringResult();
 				//log(subtext);
-				
-				// TODO: movieTitle, year, language
+
+                // replacing the document-creating interface with the subtitle table:
                 guiStructure.scrollPanel.removeStyleName("creating_document");
                 guiStructure.scrollPanel.addStyleName("translating");
 				guiStructure.scrollPanel.setWidget(table);
 
-				rpcHandler.createDocument("My Movie", "2012", "en");
-				// sets currentDocument and calls processText() on success
+                rpcHandler.createDocument(docCreator.getMovieTitle(),
+                        docCreator.getMovieYear(),
+                        docCreator.getChosenLanguage());
+                // sets currentDocument and calls processText() on success
 			}
 		} );
 		
@@ -211,9 +213,15 @@ public class Gui implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				subtext = docCreator.txtFileContentArea.getText();
-				// TODO: movieTitle, year, language
-				guiStructure.scrollPanel.setWidget(table);
-				rpcHandler.createDocument("My Movie", "2012", "en");
+
+				// replacing the document-creating interface with the subtitle table:
+                guiStructure.scrollPanel.removeStyleName("creating_document");
+                guiStructure.scrollPanel.addStyleName("translating");
+                guiStructure.scrollPanel.setWidget(table);
+
+                rpcHandler.createDocument(docCreator.getMovieTitle(),
+                        docCreator.getMovieYear(),
+                        docCreator.getChosenLanguage());
 				// sets currentDocument and calls processText() on success
 			}
 		} );

@@ -134,8 +134,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public DocumentResponse createNewDocument(String movieTitle, String year, String language) {
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
-        List<MediaSource> suggestions = scala.collection
-                .JavaConversions.asList(TM.mediaStorage().getSuggestions(movieTitle, year));
+        List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));

@@ -1,10 +1,15 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import cz.filmtit.share.*;
 
 import java.util.List;
@@ -34,18 +39,36 @@ public class FilmTitServiceHandler {
 	}
 	
 	public void createDocument(String movieTitle, String year, String language) {
-		
-		AsyncCallback<Document> callback = new AsyncCallback<Document>() {
+
+		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
 			
-			public void onSuccess(Document result) {
-				gui.setCurrentDocument(result);
-				gui.log( "succesfully created document: " + result.getId());
-				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-					public void execute() {
-						gui.processText();
-					}
-				});
-			}
+			public void onSuccess(final DocumentResponse result) {
+				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
+                gui.setCurrentDocument(result.document);
+
+                final DialogBox dialogBox = new DialogBox(false);
+                final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
+                mediaSelector.submitButton.addClickHandler( new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        selectSource(result.document.getId(), mediaSelector.getSelected());
+
+                        gui.log("document created successfully.");
+
+                        Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                            public void execute() {
+                                gui.processText();
+                            }
+                        });
+
+                        dialogBox.hide();
+                    }
+                } );
+
+                dialogBox.setWidget(mediaSelector);
+                dialogBox.setGlassEnabled(true);
+                dialogBox.center();
+            }
 			
 			public void onFailure(Throwable caught) {
 				// TODO: repeat sending a few times, then ask user
@@ -55,7 +78,7 @@ public class FilmTitServiceHandler {
 
 		};
 		
-		filmTitSvc.createDocument(movieTitle, year, language, callback);
+		filmTitSvc.createNewDocument(movieTitle, year, language, callback);
 	}
 	
 	public void getTranslationResults(List<TimedChunk> chunks) {
@@ -95,18 +118,34 @@ public class FilmTitServiceHandler {
 		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
 			public void onSuccess(Void o) {
-				//TODO: do something?
 				gui.log("setUserTranslation() succeeded");
 			}
 			
 			public void onFailure(Throwable caught) {
-				displayWindow(caught.getLocalizedMessage());
-				gui.log("setUserTranslation() didn't succeed");
+				gui.log("ERROR: setUserTranslation() didn't succeed!");
 				// TODO: repeat sending a few times, then ask user
 			}
 		};
 		
 		filmTitSvc.setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPair, callback);
 	}
-		
+
+
+
+    public void selectSource(long documentID, MediaSource selectedMediaSource) {
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+            public void onSuccess(Void o) {
+                gui.log("selectSource() succeeded");
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: selectSource() didn't succeed!");
+                // TODO: repeat sending a few times, then ask user
+            }
+        };
+
+        filmTitSvc.selectSource(documentID, selectedMediaSource, callback);
+    }
+
 }

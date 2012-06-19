@@ -11,29 +11,39 @@
 
 		<b:Form type="HORIZONTAL" ui:field="movieInfoForm">
 			<b:Fieldset>
-			
-					<b:ControlGroup>
-						<b:ControlLabel>Movie title:</b:ControlLabel>
-						<b:Controls>
-							<b:TextBox ui:field="txtMovieTitle"></b:TextBox>
-						</b:Controls>
-					</b:ControlGroup>
 
-					<b:ControlGroup>
-						<b:ControlLabel>Movie year:</b:ControlLabel>
-						<b:Controls>
-							<b:TextBox ui:field="txtMovieYear"></b:TextBox>
-						</b:Controls>
-					</b:ControlGroup>
-					
-					<b:ControlGroup>
-						<b:ControlLabel>Choose subtitle format:</b:ControlLabel>
-						<b:Controls>
-							<b:RadioButton ui:field="rdbFormatSrt" name="file format"
+                <b:ControlGroup>
+                    <b:ControlLabel>Movie title:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="txtMovieTitle"></b:TextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Movie year:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="txtMovieYear"></b:TextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Subtitle source language:</b:ControlLabel>
+                    <b:Controls>
+                        <b:ListBox ui:field="lsbLanguage">
+                            <g:item id="en">English</g:item>
+                            <g:item id="cz">Czech</g:item>
+                        </b:ListBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+					<b:ControlLabel>Choose subtitle format:</b:ControlLabel>
+					<b:Controls>
+						<b:RadioButton ui:field="rdbFormatSrt" name="file format"
 								value="true">.srt</b:RadioButton>
-							<b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
-						</b:Controls>
-					</b:ControlGroup>
+						<b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
+					</b:Controls>
+				</b:ControlGroup>
 					
 			</b:Fieldset>
 		</b:Form>
