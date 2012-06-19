@@ -27,18 +27,22 @@ class Import(val configuration: Configuration) {
   var hit = 0
   var miss = 0
 
-  def writeIMDBCache() {
-    System.err.println("Writing cached IMDB database to file...")
-    new ObjectOutputStream(new FileOutputStream(configuration.importIMDBCache)).writeObject(imdbCache)
-  }
-
   var imdbCache = if( configuration.importIMDBCache.exists() ) {
     System.err.println("Reading cached IMDB database from file...")
     new ObjectInputStream(new FileInputStream(configuration.importIMDBCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
   } else {
     HashMap[String, MediaSource]()
   }
-  System.err.println("IMDB cache contains %d elements...".format(imdbCache.size))
+  val imdbInitialSize = imdbCache.size
+  System.err.println("IMDB cache contains %d elements...".format(imdbInitialSize))
+
+
+  def writeIMDBCache() {
+    if (imdbInitialSize != imdbCache.size) {
+      System.err.println("Writing cached IMDB database to file...")
+      new ObjectOutputStream(new FileOutputStream(configuration.importIMDBCache)).writeObject(imdbCache)
+    }
+  }
 
   /**
    * Get the MediaSource with additional information on the movie/TV show

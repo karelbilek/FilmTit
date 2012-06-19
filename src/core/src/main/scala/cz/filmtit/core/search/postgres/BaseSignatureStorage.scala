@@ -24,7 +24,8 @@ abstract class BaseSignatureStorage(
   signatureTable: String,
   connection: Connection,
   useInMemoryDB: Boolean = false,
-  reversible: Boolean = false
+  reversible: Boolean = false,
+  maximumSignatureLength: Int = 500
 ) extends BaseStorage(l1, l2, source, connection, useInMemoryDB)
 with SignatureTranslationPairStorage {
 
@@ -85,29 +86,31 @@ with SignatureTranslationPairStorage {
         val sigL1 = signature(new Chunk(row.getString("chunk_l1")), l1)
         val sigL2 = signature(new Chunk(row.getString("chunk_l2")), l2)
 
+        if(sigL1.surfaceform.size < maximumSignatureLength && sigL2.surfaceform.size < maximumSignatureLength) {
 
-        if (reversible) {
-          inStmt.setInt(1, row.getInt("pair_id"))
+          if (reversible) {
+            inStmt.setInt(1, row.getInt("pair_id"))
 
-          //Signature, annotations for L1
-          inStmt.setString(2, sigL1.surfaceform)
-          inStmt.setString(3, sigL1.listAnnotations())
+            //Signature, annotations for L1
+            inStmt.setString(2, sigL1.surfaceform)
+            inStmt.setString(3, sigL1.listAnnotations())
 
-          //Signature, annotations for L2
-          inStmt.setString(4, sigL2.surfaceform)
-          inStmt.setString(5, sigL2.listAnnotations())
+            //Signature, annotations for L2
+            inStmt.setString(4, sigL2.surfaceform)
+            inStmt.setString(5, sigL2.listAnnotations())
 
-        }else{
-          inStmt.setInt(1, row.getInt("pair_id"))
-          inStmt.setString(2, sigL1.surfaceform)
-          inStmt.setString(3, sigL2.surfaceform)
+          }else{
+            inStmt.setInt(1, row.getInt("pair_id"))
+            inStmt.setString(2, sigL1.surfaceform)
+            inStmt.setString(3, sigL2.surfaceform)
+          }
+
+          inStmt.execute()
+
+          i += 1
+          if(i % 50000 == 0)
+            log.info("Wrote %d signatures...".format(i))
         }
-
-        inStmt.execute()
-
-        i += 1
-        if(i % 50000 == 0)
-          log.info("Wrote %d signatures...".format(i))
       }
     }
 
