@@ -5,17 +5,14 @@
 
 <hibernate-mapping package="cz.filmtit.userspace">
 
-    <class name="USession" table="Sessions">
+    <class name="cz.filmtit.userspace.Session" table="SessionLog">
         <id name="databaseId" type="long" column="Id">
             <generator class="native"/>
         </id>
 
-        <property name="Session" type="java.lang.String" column="session" />
-        <property name="SessionFrom" type="java.util.Date" column="from" />
-        <property name="SessionTo" type="java.util.Date" column="to" />
-        <property name="SessionDoc" type="java.lang.String" column="documents" />
-        <property name="SessionDocSize" type="java.lang.String" column="docSize" />
-        <property name="SessionFinishedChunks" type="java.lang.String" column="finishedChunks" />
+        <!--<property name="sessionStart" type="long" column="from" />
+        <property name="lastOperationTime" type="long" column="to" /> -->
+        <property name="userDatabaseId"  type="long" column="userId" />
     </class>
 
 </hibernate-mapping>

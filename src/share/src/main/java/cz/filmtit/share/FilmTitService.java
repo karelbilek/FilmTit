@@ -33,5 +33,11 @@ public interface FilmTitService extends RemoteService {
     Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException;
     List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException;
     Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
-
+    Void closeDocument(String sessionId, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
+    Void setChunkStartTime(String sessionId, int chunkId, long documentId, String newStartTime)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    Void setChunkEndTime(String sessionId, int chunkId, long documentId, String newEndTime)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    TranslationResult regenerateTranslationResult(String sessionId, int chunkId, long documentId, TimedChunk chunk)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 }

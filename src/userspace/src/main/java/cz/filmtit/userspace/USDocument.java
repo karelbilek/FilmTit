@@ -232,23 +232,19 @@ public class USDocument extends DatabaseObject {
         document.getTranslationResults().add(translationResult.getTranslationResult());
     }
 
-    /**
-     * Static method that loads the document given its ID.
-     * @param id   The ID od the document (both communication and database)
-     * @return     The loaded document
-     */
-    public static USDocument load(long id) {
-        // TODO: Should be later in the USUser
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        
-        List docs = dbSession.createQuery("select d from USDocument d where d.databaseId = :did")
-                .setParameter("did", id).list();
-        HibernateUtil.closeAndCommitSession(dbSession);
-        
-        if (docs.size() == 1) {
-            USDocument doc = (USDocument)(docs.get(0));
-            return doc;
+
+    public void replaceTranslationResult(USTranslationResult usTranslationResult) {
+         for (int i = 0; i < translationResults.size(); ++i) {
+             if (translationResults.get(i).getSharedId() == usTranslationResult.getSharedId()) {
+                 translationResults.set(i, usTranslationResult);
+             }
+         }
+
+        for (int i = 0; i < document.getTranslationResults().size(); ++i) {
+            if (document.getTranslationResults().get(i).getChunkId() == usTranslationResult.getSharedId()) {
+                document.getTranslationResults().set(i, usTranslationResult.getTranslationResult());
+            }
         }
-        return null;
     }
+
 }

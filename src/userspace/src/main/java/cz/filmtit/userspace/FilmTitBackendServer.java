@@ -127,6 +127,30 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionId).setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPairID);
     }
 
+    public Void setChunkStartTime(String sessionId, int chunkId, long documentId, String newStartTime)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).setChunkStartTime(chunkId, documentId, newStartTime);
+    }
+
+    public Void setChunkEndTime(String sessionId, int chunkId, long documentId, String newEndTime)
+            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).setChunkEndTime(chunkId, documentId, newEndTime);
+    }
+
+    public TranslationResult regenerateTranslationResult(String sessionId, int chunkId, long documentId, TimedChunk chunk)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).regenerateTranslationResult(chunkId, documentId, chunk, TM);
+    }
+
     @Override
     public Document createDocument(String movieTitle, String year, String language) {
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
@@ -179,6 +203,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
         return activeSessions.get(sessionId).loadDocument(documentID);
+    }
+
+    public Void closeDocument(String sessionId, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionId).closeDocument(documentId);
     }
 
     @Override

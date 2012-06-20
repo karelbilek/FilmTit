@@ -171,6 +171,57 @@ public class Session {
         return null;
     }
 
+    public Void setChunkStartTime(int chunkId, long documentId, String newStartTime) throws InvalidDocumentIdException, InvalidChunkIdException {
+        lastOperationTime = new Date().getTime();
+
+        if (!activeDocuments.containsKey(documentId)) {
+            throw new InvalidDocumentIdException("Not existing document ID.");
+        }
+        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
+            throw new InvalidChunkIdException("Not existing chunk ID given.");
+        }
+
+        activeTranslationResults.get(documentId).get(chunkId).setStartTime(newStartTime);
+        return  null;
+    }
+
+    public Void setChunkEndTime(int chunkId, long documentId, String newEndTime) throws InvalidDocumentIdException, InvalidChunkIdException {
+        lastOperationTime = new Date().getTime();
+
+        if (!activeDocuments.containsKey(documentId)) {
+            throw new InvalidDocumentIdException("Not existing document ID.");
+        }
+        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
+            throw new InvalidChunkIdException("Not existing chunk ID given.");
+        }
+
+        activeTranslationResults.get(documentId).get(chunkId).setStartTime(newEndTime);
+        return  null;
+    }
+
+    public TranslationResult regenerateTranslationResult(int chunkId, long documentId, TimedChunk chunk, TranslationMemory TM)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
+        lastOperationTime = new Date().getTime();
+
+        if (!activeDocuments.containsKey(documentId)) {
+            throw new InvalidDocumentIdException("Not existing document ID.");
+        }
+        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
+            throw new InvalidChunkIdException("Not existing chunk ID given.");
+        }
+
+        USDocument document = activeDocuments.get(documentId);
+
+        USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+        usTranslationResult.setParent(document);
+
+        usTranslationResult.generateMTSuggestions(TM);
+        document.replaceTranslationResult(usTranslationResult);
+
+        activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
+        return usTranslationResult.getTranslationResult();
+    }
+
     public Void selectSource(long documentID, MediaSource selectedMediaSource) {
         lastOperationTime = new Date().getTime();
         USDocument usDocument = activeDocuments.get(documentID);
@@ -207,5 +258,21 @@ public class Session {
         }
 
         throw new InvalidDocumentIdException("The user does not own a document with such ID.");
+    }
+
+    public Void closeDocument(long documentID) throws InvalidDocumentIdException {
+        lastOperationTime = new Date().getTime();
+        if (!activeDocuments.containsKey(documentID)) {
+            throw new InvalidDocumentIdException("The session does not have an active document with such ID.");
+        }
+
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        activeDocuments.get(documentID).saveToDatabase(dbSession);
+        HibernateUtil.closeAndCommitSession(dbSession);
+
+        activeDocuments.remove(documentID);
+        activeTranslationResults.remove(documentID);
+
+        return null;
     }
 }
