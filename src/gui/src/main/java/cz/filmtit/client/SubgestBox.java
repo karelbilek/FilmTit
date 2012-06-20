@@ -47,7 +47,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private Gui gui;
 	private PopupPanel suggestPanel;
     private boolean loadedSuggestions = false;
-    
+    private String lastText = "";
+
+
     public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox() {
@@ -240,23 +242,14 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
 					//gui.log("selection changed...");
-					// TODO: rewrite the TPair's "id" acquisition in some reasonable way...
-					int i = 0;
-					for (TranslationPair transpair : translationResult.getTmSuggestions()) {
-						if (transpair.equals(selected)) {
-							break;
-						}
-						else {
-							i++;
-						}
-					}
-					translationResult.setSelectedTranslationPairID(i);
+					int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
+					translationResult.setSelectedTranslationPairID(selectedIndex);
 					
                     // copy the selected suggestion into the textbox:
 					//setValue(selected.getStringL2(), true);
 					// copy the selected suggestion into the richtextarea with the annotation highlighting:
 					setHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2()));
-							
+
 					setFocus(true);
 				}
 			}
@@ -296,6 +289,14 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	public TranslationResult getTranslationResult() {
 		return this.translationResult;
 	}
+
+    protected boolean textChanged() {
+        return !this.getText().equals(this.lastText);
+    }
+
+    protected void updateLastText() {
+        this.lastText = this.getText();
+    }
 
 	@Override
 	public int compareTo(SubgestBox that) {

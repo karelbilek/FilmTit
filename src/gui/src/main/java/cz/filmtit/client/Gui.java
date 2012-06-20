@@ -59,20 +59,13 @@ public class Gui implements EntryPoint {
 	
 	protected List<TimedChunk> chunklist;
 	
-	//private List<Label> sources = new ArrayList<Label>();
 	private List<FakeSubgestBox> targetBoxes = new ArrayList<FakeSubgestBox>();
 
-	//private TextArea txtDebug;
-	//private RadioButton rdbFormatSrt;
-	//private RadioButton rdbFormatSub;
-
 	protected RootPanel rootPanel;
-	//protected AbsolutePanel mainPanel;
-	protected AbsolutePanel suggestArea;
-	
+
 	private FlexTable table;
 	protected int counter = 0;
-	// column numbers in 
+	// column numbers in the subtitle-table
 	private static final int TIMES_COLNUMBER      = 0;
 	private static final int SOURCETEXT_COLNUMBER = 1;
 	private static final int TARGETBOX_COLNUMBER  = 2;  
@@ -86,7 +79,7 @@ public class Gui implements EntryPoint {
 	/**
 	 * Multi-line subtitle text to parse
 	 */
-	private String subtext;
+	//private String subtext;
 	
 	private DocumentCreator docCreator;
 	
@@ -95,9 +88,7 @@ public class Gui implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 
-		
-		//sublist = new GUISubtitleList(new SampleDocument()); 
-		
+        // RPC:
 		// FilmTitServiceHandler has direct access
 		// to package-internal (and public) fields and methods
 		// of this Gui instance
@@ -106,10 +97,8 @@ public class Gui implements EntryPoint {
 		
 		// Request translation suggestions for a TimedChunk via:
 		// rpcHandler.getTranslationResults(timedchunk);
-		//
 		// Because the calls are asynchronous, the method returns void.
-		// The result will automatically appear in trlist once it arrives.
-		
+
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 		
@@ -122,10 +111,10 @@ public class Gui implements EntryPoint {
 		//rootPanel.setSize("800", "600");
 
 
-		// --- loading of the uibinder-defined structure --- //
+		// --- loading the uibinder-defined structure of the page --- //
 		guiStructure = new GuiStructure();
 		rootPanel.add(guiStructure, 0, 0);
-		// --- end of loading of uibinder --- //
+		// --- end of loading the uibinder --- //
 		
 
 		// --- main interface --- //
@@ -141,19 +130,9 @@ public class Gui implements EntryPoint {
         table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
         table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
         table.getRowFormatter().setStyleName(0, "header");
-
-
-		/*
-		// filling the interface with the sample subtitles:
-		List<TranslationResult> transresults = (new SampleDocument()).translationResults;
-		for (TranslationResult transresult : transresults) {
-			showResult(transresult);
-		}
-		*/
 		// --- end of main interface --- //
 
-		
-        
+
         docCreator = new DocumentCreator();
         guiStructure.scrollPanel.setWidget(docCreator);
         guiStructure.scrollPanel.addStyleName("creating_document");
@@ -165,18 +144,8 @@ public class Gui implements EntryPoint {
 		freader.addLoadEndHandler( new LoadEndHandler() {
 			@Override
 			public void onLoadEnd(LoadEndEvent event) {
-				subtext = freader.getStringResult();
+				createDocumentFromText( freader.getStringResult() );
 				//log(subtext);
-
-                // replacing the document-creating interface with the subtitle table:
-                guiStructure.scrollPanel.removeStyleName("creating_document");
-                guiStructure.scrollPanel.addStyleName("translating");
-				guiStructure.scrollPanel.setWidget(table);
-
-                rpcHandler.createDocument(docCreator.getMovieTitle(),
-                        docCreator.getMovieYear(),
-                        docCreator.getChosenLanguage());
-                // sets currentDocument and calls processText() on success
 			}
 		} );
 		
@@ -188,17 +157,7 @@ public class Gui implements EntryPoint {
 				FileList fl = docCreator.fileUpload.getFiles();
 				Iterator<File> fit = fl.iterator();
 				if (fit.hasNext()) {
-					String encoding = "utf-8";  // default value
-					if (docCreator.rdbEncodingUtf8.getValue()) {
-						encoding = "utf-8";
-					}
-					else if (docCreator.rdbEncodingWin.getValue()) {
-						encoding = "windows-1250";
-					}
-					else if (docCreator.rdbEncodingIso.getValue()) {
-						encoding = "iso-8859-2";
-					}
-					freader.readAsText(fit.next(), encoding);
+					freader.readAsText(fit.next(), docCreator.getChosenEncoding());
 				}
 				else {
 					error("No file chosen.\n");
@@ -212,17 +171,7 @@ public class Gui implements EntryPoint {
 		docCreator.btnSendToTm.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				subtext = docCreator.txtFileContentArea.getText();
-
-				// replacing the document-creating interface with the subtitle table:
-                guiStructure.scrollPanel.removeStyleName("creating_document");
-                guiStructure.scrollPanel.addStyleName("translating");
-                guiStructure.scrollPanel.setWidget(table);
-
-                rpcHandler.createDocument(docCreator.getMovieTitle(),
-                        docCreator.getMovieYear(),
-                        docCreator.getChosenLanguage());
-				// sets currentDocument and calls processText() on success
+				createDocumentFromText( docCreator.txtFileContentArea.getText() );
 			}
 		} );
 		// --- end of textarea interface --- //
@@ -240,6 +189,22 @@ public class Gui implements EntryPoint {
 	}	// onModuleLoad()
 	
 
+
+
+    private void createDocumentFromText(String subtext) {
+        // replacing the document-creating interface with the subtitle table:
+        guiStructure.scrollPanel.removeStyleName("creating_document");
+        guiStructure.scrollPanel.addStyleName("translating");
+        guiStructure.scrollPanel.setWidget(table);
+
+        rpcHandler.createDocument(docCreator.getMovieTitle(),
+                docCreator.getMovieYear(),
+                docCreator.getChosenLanguage(),
+                subtext);
+        // sets currentDocument and calls processText() on success
+    }
+
+
 	
 	/**
 	 * Parse the given text in the subtitle format of choice (by the radiobuttons)
@@ -247,21 +212,21 @@ public class Gui implements EntryPoint {
 	 * Currently verbosely outputting both input text, format
 	 * and output chunks into the debug-area,
 	 * also "reloads" the CellBrowser interface accordingly.
+     *
+     * @param subtext - multiline text (of the whole subtitle file, typically) to parse
 	 */
-	protected void processText() {
+	protected void processText(String subtext) {
 		// dump the input text into the debug-area:
-		log("processing the following input:\n" + this.subtext + "\n");
+		log("processing the following input:\n" + subtext + "\n");
 		
 		// determine format (from corresponding radiobuttons) and choose parser:
-		String subformat;
+		String subformat = docCreator.getChosenSubFormat();
 		Parser subtextparser;
-		if (docCreator.rdbFormatSub.getValue()) {  // i.e. ".sub" is checked
-			subformat = "sub";
+		if (subformat == "sub") {  // i.e. ".sub" is checked
 			subtextparser = new ParserSub();
 		}
 		else {  // i.e. ".srt" is checked
-			assert docCreator.rdbFormatSrt.getValue() : "One of the subtitle formats must be chosen.";
-			subformat = "srt";
+			assert subformat == "srt" : "One of the subtitle formats must be chosen.";
 			subtextparser = new ParserSrt();
 		}
 		log("subtitle format chosen: " + subformat);
@@ -269,7 +234,7 @@ public class Gui implements EntryPoint {
 		// parse:
 		log("starting parsing");
 		long startTime = System.currentTimeMillis();
-		this.chunklist = subtextparser.parse(this.subtext, this.currentDocument.getId(), Language.EN);
+		this.chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
 		long endTime = System.currentTimeMillis();
 		long parsingTime = endTime - startTime;
 		log("parsing finished in " + parsingTime + "ms");
@@ -302,7 +267,6 @@ public class Gui implements EntryPoint {
 			this.chunks = new LinkedList<TimedChunk>(chunks);
 		}
 
-
         //exponential window
         //
         //a "trick" - first subtitle goes in a single request so it's here soonest without wait
@@ -320,7 +284,7 @@ public class Gui implements EntryPoint {
 				return false;
 			} else {
                 List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
-				for (int i = 0; i< exponential; i++) {
+				for (int i = 0; i < exponential; i++) {
                     if (!chunks.isEmpty()){
                         TimedChunk timedchunk = chunks.removeFirst();
 				        sentTimedchunks.add(timedchunk);
@@ -346,6 +310,7 @@ public class Gui implements EntryPoint {
 		this.currentDocument = currentDocument;
 	}
 
+
     public void showSource(TimedChunk chunk, int index) {
 		Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
         timeslabel.setStyleName("chunk_timing");
@@ -365,6 +330,7 @@ public class Gui implements EntryPoint {
 
     }
 
+
     public void replaceFake(int id, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
@@ -372,6 +338,7 @@ public class Gui implements EntryPoint {
         real.setWidth("97%");
         real.setFocus(true);
     }
+
 
 	/**
 	 * Adds the given TranslationResult to the current listing interface.
@@ -382,20 +349,18 @@ public class Gui implements EntryPoint {
 		
 		counter++;
 	}
-	
-	private Widget getActiveSuggestionWidget() {
-		return activeSuggestionWidget;
-	}
-	
+
+
 	protected void setActiveSuggestionWidget(Widget w) {
-		activeSuggestionWidget = w;
+		this.activeSuggestionWidget = w;
 	}
+
 	
 	/**
 	 * Hide the currently active (visible) popup with suggestions
 	 */
 	protected void deactivateSuggestionWidget() {
-		Widget w = getActiveSuggestionWidget();
+		Widget w = this.activeSuggestionWidget;
 		if (w != null) {
 			if (w instanceof PopupPanel) {
 				//((PopupPanel)w).hide();
@@ -408,6 +373,7 @@ public class Gui implements EntryPoint {
 		}
 	}
 
+
 	/**
 	 * Send the given translation result as a "user-feedback" to the userspace
 	 * @param transresult
@@ -418,6 +384,7 @@ public class Gui implements EntryPoint {
 		rpcHandler.setUserTranslation(transresult.getChunkId(), transresult.getDocumentId(),
 				                      transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
 	}
+
 	
 	/**
 	 * Set the focus to the next SubgestBox in order.
@@ -441,6 +408,7 @@ public class Gui implements EntryPoint {
 		} );
         return true;
 	}
+
 	
 	/**
 	 * Set the focus to the previous SubgestBox in order.
@@ -464,13 +432,14 @@ public class Gui implements EntryPoint {
 		} );
 	    return true;
     }
-	
-	/**
-	 * Output the given text in the debug textarea
-	 * @param logtext
-	 */
+
 
     long start=0;
+	/**
+	 * Output the given text in the debug textarea
+     * with a timestamp relative to the first logging.
+	 * @param logtext
+	 */
 	public void log(String logtext) {
 		if (start == 0) {
             start = System.currentTimeMillis();
