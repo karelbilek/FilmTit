@@ -9,7 +9,7 @@ import cz.filmtit.share._
  *
  *
  */
-//TODO add more features
+//TODO add more features -> length penalty
 class ExactRanker extends BaseRanker {
 
   val lambdas = (0.95, 0.05)

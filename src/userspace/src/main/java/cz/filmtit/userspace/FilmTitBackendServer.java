@@ -55,9 +55,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected void loadTranslationMemory() {
         TM = Factory.createTMFromConfiguration(
                 ConfigurationSingleton.getConf(),
-                false, // readonly
+                true, // readonly
                 false  // in memory
         );
+
+
+        TM.warmup();
     }
 
     public TranslationMemory getTM() {

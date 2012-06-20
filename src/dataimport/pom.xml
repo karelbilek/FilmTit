@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dataimport</artifactId>
-    <name>Importing data to database from outer sources</name>
+    <name>Data Import from External Sources</name>
 
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>

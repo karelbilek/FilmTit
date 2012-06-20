@@ -37,7 +37,7 @@ class BackoffTranslationMemory(
     }
   ))
 
-  logger.info("Starting up...")
+  logger.info("Backoff TM created.")
 
   /**
    * TODO: this is a bit confusing
@@ -68,12 +68,12 @@ class BackoffTranslationMemory(
 
     val ranked = ranker match {
       case Some(r) => r.rank(chunk, null, pairs)
-      case None => pairs.asInstanceOf[List[TranslationPair]]
+      case None => pairs
     }
     val s3 = System.currentTimeMillis
 
-    logger.info( "Retrieved %d candidates (%dms), ranking: %dms, total: %dms"
-      .format(pairs.size, s2 - s1, s3 - s2, s3 - s1) )
+    logger.info( "Retrieved %d candidates (%dms), ranking: %dms, total: %dms, Chunk: %s"
+      .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
 
     if ( ranked.take(n).exists(pair => pair.getScore >= threshold) )
       ranked.take(n)
@@ -94,7 +94,7 @@ class BackoffTranslationMemory(
     val pairs: List[TranslationPair] = candidates(chunk, language, mediaSource)
     val best = ranker match {
       case Some(r) => r.best(chunk, null, pairs)
-      case None => pairs.headOption.asInstanceOf[Option[TranslationPair]]
+      case None => pairs.headOption
     }
 
     best match {
@@ -124,9 +124,28 @@ class BackoffTranslationMemory(
 
   }
 
+  def warmup() {
+
+    logger.info("Warming up...")
+
+     //If the searcher can be warmed up, do it:
+     searcher match {
+       case s: TranslationPairStorage => s.warmup()
+       case s: TranslationPairSearcherWrapper => {
+         s.searchers.head match {
+           case s: TranslationPairStorage => s.warmup()
+           case _ =>
+         }
+       }
+       case _ =>
+      }
+
+      if (backoff.isDefined) backoff.get.warmup()
+  }
+
   def reindex() {
 
-    //If the searcher can reindexed, do it:
+    //If the searcher can be reindexed, do it:
     searcher match {
       case s: TranslationPairStorage => s.reindex()
       case s: TranslationPairSearcherWrapper => {

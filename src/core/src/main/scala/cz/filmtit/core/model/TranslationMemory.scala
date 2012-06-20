@@ -28,6 +28,10 @@ trait TranslationMemory {
    */
   def reindex()
 
+  /**
+   * Warm up the TranslationMemory (searchers may or may not have a warm-up routine)
+   */
+  def warmup()
 
   /**
    * Reset the TranslationMemory (this will clear all database tables!)

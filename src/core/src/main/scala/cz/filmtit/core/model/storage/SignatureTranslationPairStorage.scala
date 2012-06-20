@@ -10,10 +10,7 @@ import cz.filmtit.share.Language
  */
 trait SignatureTranslationPairStorage extends TranslationPairStorage {
 
-  /**A signature String for a specific [[cz.filmtit.core.model.Chunk]] used to index and retrieve it. */
+  /**A signature String for a specific [[cz.filmtit.share.Chunk]] used to index and retrieve it. */
   def signature(sentence: Chunk, language: Language): Signature
-
-  /**Write the signatures for the chunk table to the database. */
-  def reindex()
 
 }

@@ -26,6 +26,8 @@ class TrigramStorage(
   hssql
 ) {
 
+  override def warmup() {}
+
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM " +
       "" + pairTable + " WHERE sentence % ?;")

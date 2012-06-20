@@ -29,6 +29,13 @@ abstract class BaseSignatureStorage(
 ) extends BaseStorage(l1, l2, source, connection, useInMemoryDB)
 with SignatureTranslationPairStorage {
 
+  override def warmup() {
+    connection.createStatement().execute(
+          "SELECT * FROM %s ORDER BY SIGNATURE_l1;".format(signatureTable)
+    )
+  }
+
+
   /**Write the signatures for the chunk table to the database. */
   override def reindex() {
     connection.createStatement().execute(

@@ -22,6 +22,7 @@ class FulltextStorage(
   hssql
 ) {
 
+  override def warmup() {}
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val select = connection.prepareStatement("SELECT sentence FROM %s WHERE to_tsvector('english', sentence) @@ plainto_tsquery('english', ?);".format(pairTable))

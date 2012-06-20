@@ -14,9 +14,6 @@ import akka.actor.{OneForOneStrategy, ActorSystem, Props}
 
 /**
  * @author Joachim Daiber
- *
- *
- *
  */
 
 class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher], val searcherTimeout: Int)
