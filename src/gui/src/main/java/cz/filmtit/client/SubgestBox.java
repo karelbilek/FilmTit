@@ -240,17 +240,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
 					//gui.log("selection changed...");
-					// TODO: rewrite the TPair's "id" acquisition in some reasonable way...
-					int i = 0;
-					for (TranslationPair transpair : translationResult.getTmSuggestions()) {
-						if (transpair.equals(selected)) {
-							break;
-						}
-						else {
-							i++;
-						}
-					}
-					translationResult.setSelectedTranslationPairID(i);
+					int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
+					translationResult.setSelectedTranslationPairID(selectedIndex);
 					
                     // copy the selected suggestion into the textbox:
 					//setValue(selected.getStringL2(), true);

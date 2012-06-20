@@ -38,7 +38,7 @@ public class FilmTitServiceHandler {
 		this.gui = gui;
 	}
 	
-	public void createDocument(String movieTitle, String year, String language) {
+	public void createDocument(String movieTitle, String year, String language, final String subtext) {
 
 		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
 			
@@ -57,7 +57,7 @@ public class FilmTitServiceHandler {
 
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                                gui.processText();
+                                gui.processText(subtext);
                             }
                         });
                     }
