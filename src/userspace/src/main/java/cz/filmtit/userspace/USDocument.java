@@ -39,7 +39,7 @@ public class USDocument extends DatabaseObject {
         workStartTime = new Date().getTime();
         translationResults = new ArrayList<USTranslationResult>();
 
-        Session dbSession = HibernateUtil.getCurrentSession();
+        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
         HibernateUtil.closeAndCommitSession(dbSession);
     }
@@ -177,7 +177,7 @@ public class USDocument extends DatabaseObject {
      * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :did")
@@ -239,7 +239,7 @@ public class USDocument extends DatabaseObject {
      */
     public static USDocument load(long id) {
         // TODO: Should be later in the USUser
-        org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         
         List docs = dbSession.createQuery("select d from USDocument d where d.databaseId = :did")
                 .setParameter("did", id).list();

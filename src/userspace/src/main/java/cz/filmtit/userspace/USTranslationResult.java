@@ -32,7 +32,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         //translationResult.setId(chunk.getId());
 
         
-        Session dbSession = HibernateUtil.getCurrentSession();
+        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
         HibernateUtil.closeAndCommitSession(dbSession);
     }
@@ -190,7 +190,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @return  A list of unchecked translation results.
      */
     public static List<TranslationResult> getUncheckedResults() {
-        Session dbSession = HibernateUtil.getCurrentSession();
+        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
 
 
         List queryResult = dbSession.createQuery("select t from USTranslationResult t " +

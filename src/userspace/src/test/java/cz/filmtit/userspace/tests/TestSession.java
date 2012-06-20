@@ -13,13 +13,6 @@ public class TestSession {
         //not a real test
     }
     // methods to be tested
-    //public void logout()
-
-    //private void terminate()
-
-    //public void kill()
-
-    //public Document createDocument(String movieTitle, String year, String language)
 
     //public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM)
 

@@ -11,7 +11,7 @@ import java.util.*;
  * @author Jindřich Libovický
  */
 public class Session {
-    private int sessionId;
+    private String sessionId;
     private USUser user;
     private long sessionStart;
     private long lastOperationTime;
@@ -57,7 +57,7 @@ public class Session {
      */
     private void terminate() {
         
-        org.hibernate.Session session = HibernateUtil.getCurrentSession();
+        org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
 
         session.save(this);
 

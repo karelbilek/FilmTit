@@ -108,7 +108,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
 
         // a Session free temporary saving solution
-        org.hibernate.Session dbSession = HibernateUtil.getCurrentSession();
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
 
         tr.saveToDatabase(dbSession);
 
@@ -221,7 +221,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         } catch (UnsupportedEncodingException e) {
            return false;
         }
-
 
         return null;
     }

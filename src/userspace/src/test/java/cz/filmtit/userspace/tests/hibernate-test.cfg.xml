@@ -14,12 +14,13 @@
         </property>
         <property name="hibernate.connection.username"></property>
         <property name="hibernate.connection.password"></property>
-        <property name="hibernate.connection.pool_size">1</property>
+        <property name="hibernate.connection.pool_size">20</property>
         <property name="show_sql">true</property>
         <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
         <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
         <property name="current_session_context_class">thread</property>
+        //<property name="lockMode">PESSIMISTIC_WRITE</property>
 
         <!-- List of mapping files -->
         <!-- <mapping resource="USUser.hbm.xml"/>
