@@ -47,7 +47,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private Gui gui;
 	private PopupPanel suggestPanel;
     private boolean loadedSuggestions = false;
-    
+    private String lastText = "";
+
+
     public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox() {
@@ -287,6 +289,14 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	public TranslationResult getTranslationResult() {
 		return this.translationResult;
 	}
+
+    protected boolean textChanged() {
+        return !this.getText().equals(this.lastText);
+    }
+
+    protected void updateLastText() {
+        this.lastText = this.getText();
+    }
 
 	@Override
 	public int compareTo(SubgestBox that) {

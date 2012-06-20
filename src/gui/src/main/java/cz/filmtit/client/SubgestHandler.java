@@ -23,7 +23,6 @@ import com.google.gwt.user.client.ui.SimplePanel;
  */
 public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChangeHandler<String>, BlurHandler {
 	Gui gui;
-	String lastText = "";
 
 	/**
 	 * Creates a new SubgestHandler.
@@ -145,9 +144,9 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			subbox.getTranslationResult().setUserTranslation(subbox.getText());
 
             // submitting only when the contents have changed
-            if (!subbox.getText().equals(this.lastText)) {
+            if (subbox.textChanged()) {
                 gui.submitUserTranslation(subbox.getTranslationResult());
-                this.lastText = subbox.getText();
+                subbox.updateLastText();
             }
 
 			//gui.deactivateSuggestionWidget();
