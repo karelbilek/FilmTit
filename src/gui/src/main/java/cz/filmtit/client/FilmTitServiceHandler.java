@@ -51,8 +51,8 @@ public class FilmTitServiceHandler {
                 mediaSelector.submitButton.addClickHandler( new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
+                        dialogBox.hide();
                         selectSource(result.document.getId(), mediaSelector.getSelected());
-
                         gui.log("document created successfully.");
 
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
@@ -60,11 +60,8 @@ public class FilmTitServiceHandler {
                                 gui.processText();
                             }
                         });
-
-                        dialogBox.hide();
                     }
                 } );
-
                 dialogBox.setWidget(mediaSelector);
                 dialogBox.setGlassEnabled(true);
                 dialogBox.center();

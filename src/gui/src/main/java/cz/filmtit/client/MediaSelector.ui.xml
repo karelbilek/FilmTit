@@ -7,7 +7,7 @@
         <b:WellForm>
             <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>
             <b:ListBox ui:field="listbox" />
-            <b:SubmitButton ui:field="submitButton" />
+            <b:Button ui:field="submitButton">Submit</b:Button>
         </b:WellForm>
     </g:HTMLPanel>
 
