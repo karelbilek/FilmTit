@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class USUser extends DatabaseObject {
 
-    private int databaseId;
     private String userName;
     private String login;
     private String openId;
@@ -30,6 +29,16 @@ public class USUser extends DatabaseObject {
     private Boolean active;
     private String lastSession;
     private String email;
+
+    public USUser(String userName) {
+        this.userName = userName;
+        ownedDocuments = new ArrayList<USDocument>();
+    }
+
+    /**
+     * Default constructor for Hibernate.
+     */
+    private USUser() {}
 
     private List<USDocument> ownedDocuments;
     private USDocument activeDocument;
@@ -45,9 +54,9 @@ public class USUser extends DatabaseObject {
     public List<USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
         if (ownedDocuments == null) {
+
             ownedDocuments = new ArrayList<USDocument>();
             org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
-            
 
             // query the documents owned by the user
             List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid")
@@ -64,6 +73,11 @@ public class USUser extends DatabaseObject {
     protected void setSharedDatabaseId(long id) { }
     protected long getSharedDatabaseId() { return databaseId; }
 
+    public void addDocument(USDocument document) {
+        ownedDocuments.add(document);
+        document.setOwnerDatabaseId(databaseId);
+    }
+
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
         activeDocument.saveToDatabase(dbSession);
@@ -75,12 +89,4 @@ public class USUser extends DatabaseObject {
             document.deleteFromDatabase(dbSession);
         }
     }
-
-    public static int CreateUser(String name, String email,String openId , String fbId )
-    {
-//        org.hibernate.Session session = HibernateUtil.getSessionFactory().getSessionWithActiveTransaction();
-        return -1;
-    }
-
-
 }

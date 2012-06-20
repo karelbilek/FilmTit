@@ -2,6 +2,7 @@ package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 
 import java.util.*;
@@ -28,11 +29,13 @@ public class Session {
      */
     private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;
 
-    public Session() {
+    public Session(USUser user) {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, Map<Integer, USTranslationResult>>());
+        sessionStart = new Date().getTime();
         lastOperationTime = new Date().getTime();
         state = SessionState.active;
+        this.user = user;
     }
 
     public long getLastOperationTime() {
@@ -83,8 +86,7 @@ public class Session {
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
-        //user TODO: add the document to the correct user
-
+        // TODO: add the document to the correct user
 
         return usDocument.getDocument();
     }
@@ -105,7 +107,7 @@ public class Session {
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
         lastOperationTime = new Date().getTime();
         if (!activeDocuments.containsKey(chunk.getDocumentId())) {
-            throw new InvalidDocumentIdException("Sent time chunk is refering to a document using an invalid ID.");
+            throw new InvalidDocumentIdException("Sent time chunk is referring to a document using an invalid ID.");
         }
 
         USDocument document = activeDocuments.get(chunk.getDocumentId());
@@ -113,16 +115,24 @@ public class Session {
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
         usTranslationResult.setParent(document);
 
-
-
         usTranslationResult.generateMTSuggestions(TM);
+        document.addTranslationResult(usTranslationResult);
 
         activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 
-    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
+    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
         lastOperationTime = new Date().getTime();
+
+        if (!activeDocuments.containsKey(documentId)) {
+            throw new InvalidDocumentIdException("Not existing document ID.");
+        }
+        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
+            throw new InvalidChunkIdException("Not existing chunk ID given.");
+        }
+
         USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
@@ -151,9 +161,11 @@ public class Session {
         lastOperationTime = new Date().getTime();
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
+                  activeDocuments.put(documentID, usDocument);
                   return  usDocument.getDocument();
               }
         }
+
         throw new InvalidDocumentIdException("The user does not own a document with such ID.");
     }
 }

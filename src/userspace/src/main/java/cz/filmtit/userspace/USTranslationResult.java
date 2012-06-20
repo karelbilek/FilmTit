@@ -31,7 +31,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setSourceChunk(chunk);
         //translationResult.setId(chunk.getId());
 
-        
         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
         HibernateUtil.closeAndCommitSession(dbSession);
@@ -133,7 +132,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     public void setSharedId(int sharedId) {
-        // TODO: Make the property immutable
         translationResult.setChunkId(sharedId);
     }
 

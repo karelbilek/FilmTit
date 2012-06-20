@@ -5,6 +5,7 @@ import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import org.expressme.openid.Association;
@@ -119,7 +120,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
-            throws InvalidSessionIdException {
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         if (!activeSessions.containsKey(sessionId)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
@@ -232,7 +233,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             authenticatingSessions.remove(authID);
             // USUser user = createUser(authentication);          create user from auth information (select or create in db)
             String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
-            Session session = new Session(); //= createSession(newSessionID,user)      create session with user
+            Session session = new Session(null); //= createSession(newSessionID,user)      create session with user
             activeSessions.put(newSessionID, session);
 
             return newSessionID;

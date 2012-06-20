@@ -173,6 +173,7 @@ public class USDocument extends DatabaseObject {
         return translationResults;
     }
 
+
     /**
      * Loads the translationResults from User Space database if there are some
      */
@@ -229,7 +230,6 @@ public class USDocument extends DatabaseObject {
     public void addTranslationResult(USTranslationResult translationResult) {
         translationResults.add(translationResult);
         document.getTranslationResults().add(translationResult.getTranslationResult());
-        //Collections.sort(document.getTranslationResults());
     }
 
     /**
