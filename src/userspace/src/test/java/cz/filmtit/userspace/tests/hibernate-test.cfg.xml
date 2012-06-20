@@ -24,7 +24,7 @@
 
         <!-- List of mapping files -->
         <!-- <mapping resource="USUser.hbm.xml"/>
-        <mapping resource="session.hbm.xml"/>  -->
+        <mapping resource="Session.hbm.xml"/>  -->
         <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USTranslationResult.hbm.xml"/>
 

@@ -1,5 +1,6 @@
 package cz.filmtit.userspace;
 
+import cz.filmtit.share.User;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -22,16 +23,11 @@ import java.util.List;
  */
 public class USUser extends DatabaseObject {
 
-    private String userName;
-    private String login;
-    private String openId;
-    private String fcbId;
-    private Boolean active;
-    private String lastSession;
-    private String email;
+    User user;
 
     public USUser(String userName) {
-        this.userName = userName;
+        this.user = new User();
+        user.setName(userName);
         ownedDocuments = new ArrayList<USDocument>();
     }
 
@@ -80,7 +76,6 @@ public class USUser extends DatabaseObject {
 
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
-        activeDocument.saveToDatabase(dbSession);
     }
 
     public void deleteFromDatabase(Session dbSession) {

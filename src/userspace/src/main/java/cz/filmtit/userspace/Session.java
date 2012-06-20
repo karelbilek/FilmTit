@@ -13,7 +13,9 @@ import java.util.*;
  */
 public class Session {
     private String sessionId;
+    private long databaseId = Long.MIN_VALUE;
     private USUser user;
+
     private long sessionStart;
     private long lastOperationTime;
     private SessionState state;
@@ -42,13 +44,42 @@ public class Session {
         return lastOperationTime;
     }
 
-    public void setLastOperationTime(long lastOperationTime) {
-        this.lastOperationTime = lastOperationTime;
+    private void setLastOperationTime(long time) {}
+
+    public long getSessionStart() {
+        return sessionStart;
     }
+
+    private void setSessionStart(long time) {}
 
     public USUser getUser() {
         return user;
     }
+
+    public long getUserDatabaseId() {
+        return user.getDatabaseId();
+    }
+
+    private void setUserDatabaseId(long id) {}
+
+    public long getDatabaseId() {
+        return databaseId;
+    }
+
+    private void setDatabaseId(long databaseId) {
+        if (this.databaseId == databaseId) { return; }
+        if (this.databaseId == Long.MIN_VALUE) {
+            this.databaseId = databaseId;
+            return;
+        }
+        throw new UnsupportedOperationException("Once the database ID is set, it can't be changed.");
+    }
+
+    public SessionState getState() {
+        return state;
+    }
+
+    private void setState(SessionState state) {  }
 
     public void logout() {
         state = SessionState.loggedOut;
@@ -64,7 +95,8 @@ public class Session {
 
         session.save(this);
 
-        user.saveToDatabase(session);
+        // TODO: when proper users, save to database here
+        //user.saveToDatabase(session);
         for (USDocument activeDoc : activeDocuments.values()) {
             activeDoc.saveToDatabase(session);
         }
@@ -161,7 +193,15 @@ public class Session {
         lastOperationTime = new Date().getTime();
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
+
                   activeDocuments.put(documentID, usDocument);
+                  activeTranslationResults.put(documentID, new HashMap<Integer, USTranslationResult>());
+
+                  usDocument.loadChunksFromDb();
+                  for (USTranslationResult result : usDocument.getTranslationsResults()) {
+                        activeTranslationResults.get(documentID).put(result.getSharedId(), result);
+                  }
+
                   return  usDocument.getDocument();
               }
         }

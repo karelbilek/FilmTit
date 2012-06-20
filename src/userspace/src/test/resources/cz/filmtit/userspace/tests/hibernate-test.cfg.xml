@@ -22,10 +22,9 @@
         <property name="current_session_context_class">thread</property>
 
         <!-- List of mapping files -->
-        <!-- <mapping resource="USUser.hbm.xml"/>
-        <mapping resource="session.hbm.xml"/>  -->
         <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USTranslationResult.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/Session.hbm.xml"/>
 
 
 

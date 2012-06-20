@@ -2,6 +2,9 @@ package cz.filmtit.share;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
+import cz.filmtit.share.exceptions.InvalidDocumentIdException;
+import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
 import java.util.List;
 //import cz.filmtit.share.Feedback;
@@ -21,13 +24,14 @@ public interface FilmTitService extends RemoteService {
 
     // Method signatures prepared for the moment we'll have users and session:
 
-    //Void logout(String sessionId) throws InvalidSessionIdException;
-    //Document createDocument(String sessionId, String movieTitle, String year, String language) throws InvalidSessionIdException;
-    //DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language);
-    //TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
-    //Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) throws InvalidSessionIdException
-    //Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException
-    //List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException
-    //Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException
+    Void logout(String sessionId) throws InvalidSessionIdException;
+    DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language)
+            throws InvalidSessionIdException;
+    TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
+    Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException;
+    List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException;
+    Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
 
 }

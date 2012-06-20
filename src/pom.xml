@@ -72,18 +72,18 @@
                 </configuration>
             </plugin>
 
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
                     <argLine>-Xmx2G -Xms512m</argLine>
-                    <useFile>true</useFile>
+                    <useFile>true</useFile>  -->
 
                     <!-- Please note that Jenkins needs Surefire
                          XML reports in order for detection to work.
                          Keep this property set to false. -->
-                    <disableXmlReport>false</disableXmlReport>
+                    <!-- <disableXmlReport>false</disableXmlReport>
 
                     <includes>
                         <include>**/Test*.*</include>
@@ -94,7 +94,7 @@
 
                     <skipTests>false</skipTests>
                 </configuration>
-            </plugin>
+            </plugin>  -->
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
