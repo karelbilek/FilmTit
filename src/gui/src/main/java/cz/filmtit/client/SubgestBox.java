@@ -247,7 +247,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 					//setValue(selected.getStringL2(), true);
 					// copy the selected suggestion into the richtextarea with the annotation highlighting:
 					setHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2()));
-							
+
 					setFocus(true);
 				}
 			}
