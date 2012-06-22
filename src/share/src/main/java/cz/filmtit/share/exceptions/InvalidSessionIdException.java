@@ -7,6 +7,8 @@ import java.io.Serializable;
  * @author Jindřich Libovický
  */
 public class InvalidSessionIdException extends Exception implements Serializable {
+    InvalidSessionIdException() {}
+
     public InvalidSessionIdException(String message) {
         super(message);
     }

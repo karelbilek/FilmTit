@@ -7,6 +7,8 @@ import java.io.Serializable;
  * @author Jindřich Libovický
  */
 public class InvalidDocumentIdException extends Exception implements Serializable {
+    InvalidDocumentIdException() {}
+
     public InvalidDocumentIdException(String message) {
         super(message);
     }
