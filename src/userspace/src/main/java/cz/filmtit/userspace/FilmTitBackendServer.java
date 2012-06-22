@@ -60,8 +60,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 false  // in memory
         );
 
+        new Thread(new Runnable() {
+            public void run() {
+                TM.warmup();
+            }
+        }).start();
 
-        TM.warmup();
     }
 
     public TranslationMemory getTM() {
@@ -82,11 +86,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public List<TranslationResult> getTranslationResults(List<TimedChunk> chunks) {
         List<TranslationResult> res = new ArrayList<TranslationResult>(chunks.size());
-        
+
         for (TimedChunk timedchunk:chunks) {
             res.add(getTranslationResults(timedchunk));
         }
-        return res;   
+        return res;
     }
 
     public TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException {
@@ -98,7 +102,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
-        USTranslationResult tr=null;  
+        USTranslationResult tr=null;
         try {
             tr = activeTranslationResults.get(documentId).get(chunkId);
             tr.setUserTranslation(userTranslation);
@@ -113,7 +117,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         tr.saveToDatabase(dbSession);
 
-        
+
         HibernateUtil.closeAndCommitSession(dbSession);
 
         return null;
@@ -223,7 +227,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
-         // create url for authentication
+        // create url for authentication
         // need to raw data for getting authentication
         AuthData authData = new AuthData();
         authData.Mac_key = association.getRawMacKey();
@@ -251,7 +255,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
         } catch (UnsupportedEncodingException e) {
-           return false;
+            return false;
         }
 
         return null;
@@ -299,7 +303,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             map.put(key, URLDecoder.decode(value, "UTF-8"));
         }
         return (HttpServletRequest) Proxy.newProxyInstance(
-               FilmTitBackendServer.class.getClassLoader(),
+                FilmTitBackendServer.class.getClassLoader(),
                 new Class[]{HttpServletRequest.class},
                 new InvocationHandler() {
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
