@@ -103,7 +103,7 @@ public class TestUSTranslationResult {
         USTranslationResult testRes = new USTranslationResult(
                 new TimedChunk("0:00", "0:00",0, "Sample text", 0, 0l));
 
-        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         testRes.setUserTranslation("User translation");
