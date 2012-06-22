@@ -59,7 +59,6 @@ public class HibernateUtil {
 
     public static void closeAndCommitSession(org.hibernate.Session dbSession){
         dbSession.getTransaction().commit();
-        dbSession.close();
     }
 
     public static SessionFactory getSessionFactory() {
