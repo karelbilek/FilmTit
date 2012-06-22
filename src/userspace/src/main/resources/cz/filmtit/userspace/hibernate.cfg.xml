@@ -19,12 +19,11 @@
         <property name="dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="current_session_context_class">thread</property>
-        <property name="transaction.auto_close_session">true</property>
 
         <!-- List of mapping files -->
         <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USTranslationResult.hbm.xml"/>
-        <mapping resource="cz/filmtit/userspace/Session.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/session.hbm.xml"/>
 
 
     </session-factory>

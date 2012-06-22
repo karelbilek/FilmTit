@@ -23,7 +23,7 @@
 
       
         <!--commenting this out mainly for testing, sorry-->
-        <list name="tmSuggestions" table="USTranslationPairs">
+        <list name="tmSuggestions" table="USTranslationPairs" lazy="false">
             <key column="TranslationResultId"/>
             <index column="listIndex"/>
             <composite-element class="cz.filmtit.share.TranslationPair">
