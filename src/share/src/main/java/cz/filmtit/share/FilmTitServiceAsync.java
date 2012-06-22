@@ -1,5 +1,7 @@
 package cz.filmtit.share;
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -7,18 +9,13 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 public interface FilmTitServiceAsync
 {
 
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
-    void getTranslationResults( java.util.List<cz.filmtit.share.TimedChunk> chunk, AsyncCallback<java.util.List<cz.filmtit.share.TranslationResult>> callback );
+    void getTranslationResults(List<TimedChunk> chunk,
+			AsyncCallback<List<TranslationResult>> callback);
 
 
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
-    void setUserTranslation( int chunkId, long documentId, java.lang.String userTranslation, long chosenTranslationPair, AsyncCallback<java.lang.Void> callback );
+    void setUserTranslation(String sessionId, int chunkId, long documentId,
+			String userTranslation, long chosenTranslationPairID,
+			AsyncCallback<Void> callback);
 
 
     /**
@@ -28,18 +25,12 @@ public interface FilmTitServiceAsync
     void createDocument( java.lang.String movieTitle, java.lang.String year, java.lang.String language, AsyncCallback<cz.filmtit.share.Document> callback );
 
 
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
-    void createNewDocument( java.lang.String movieTitle, java.lang.String year, java.lang.String language, AsyncCallback<cz.filmtit.share.DocumentResponse> callback );
+    void createNewDocument(String movieTitle, String year, String language,
+			AsyncCallback<DocumentResponse> callback);
 
 
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
-    void selectSource( long documentID, cz.filmtit.share.MediaSource selectedMediaSource, AsyncCallback<java.lang.Void> callback );
+    void selectSource(String sessionId, long documentID,
+			MediaSource selectedMediaSource, AsyncCallback<Void> callback);
 
 
     /**
@@ -86,4 +77,49 @@ public interface FilmTitServiceAsync
             // Utility class should not be instanciated
         }
     }
+
+
+	void closeDocument(String sessionId, long documentId,
+			AsyncCallback<Void> callback);
+
+
+	void getListOfDocuments(String sessionId,
+			AsyncCallback<List<Document>> callback);
+
+
+	void logout(String sessionId, AsyncCallback<Void> callback);
+
+
+	void loadDocument(String sessionId, long documentID,
+			AsyncCallback<Document> callback);
+
+
+	void setChunkEndTime(String sessionId, int chunkId, long documentId,
+			String newEndTime, AsyncCallback<Void> callback);
+
+
+	void setChunkStartTime(String sessionId, int chunkId, long documentId,
+			String newStartTime, AsyncCallback<Void> callback);
+
+
+	void setUserTranslation(int chunkId, long documentId,
+			String userTranslation, long chosenTranslationPair,
+			AsyncCallback<Void> callback);
+
+
+	void regenerateTranslationResult(String sessionId, int chunkId,
+			long documentId, TimedChunk chunk,
+			AsyncCallback<TranslationResult> callback);
+
+
+	void getTranslationResults(String sessionId, TimedChunk chunk,
+			AsyncCallback<TranslationResult> callback);
+
+
+	void createNewDocument(String sessionId, String movieTitle, String year,
+			String language, AsyncCallback<DocumentResponse> callback);
+
+
+	void selectSource(long documentID, MediaSource selectedMediaSource,
+			AsyncCallback<Void> callback);
 }
