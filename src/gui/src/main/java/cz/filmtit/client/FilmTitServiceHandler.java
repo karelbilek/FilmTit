@@ -47,6 +47,8 @@ public class FilmTitServiceHandler {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
                 gui.setCurrentDocument(result.document);
 
+                gui.document_created();
+                
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
                 mediaSelector.submitButton.addClickHandler( new ClickHandler() {

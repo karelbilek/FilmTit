@@ -204,17 +204,18 @@ public class Gui implements EntryPoint {
 
 
     private void createDocumentFromText(String subtext) {
-        // replacing the document-creating interface with the subtitle table:
-        // TODO: this should be done *after* the success of createDocument()
-        guiStructure.scrollPanel.removeStyleName("creating_document");
-        guiStructure.scrollPanel.addStyleName("translating");
-        guiStructure.scrollPanel.setWidget(table);
-
         rpcHandler.createDocument(docCreator.getMovieTitle(),
                 docCreator.getMovieYear(),
                 docCreator.getChosenLanguage(),
                 subtext);
         // sets currentDocument and calls processText() on success
+    }
+
+    protected void document_created() {
+        // replacing the document-creating interface with the subtitle table:
+        guiStructure.scrollPanel.removeStyleName("creating_document");
+        guiStructure.scrollPanel.addStyleName("translating");
+        guiStructure.scrollPanel.setWidget(table);
     }
 
 
