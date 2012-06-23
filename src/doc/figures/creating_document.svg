@@ -1,0 +1,1396 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="595.27557"
+   height="336.61417"
+   id="svg2"
+   inkscape:label="Pozadí"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="creating_document.svg">
+  <defs
+     id="defs3">
+    <marker
+       inkscape:stockid="TriangleInL"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleInL"
+       style="overflow:visible">
+      <path
+         id="path3842"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="scale(-0.8,-0.8)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleOutL"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleOutL"
+       style="overflow:visible">
+      <path
+         id="path3851"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="scale(0.8,0.8)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path3708"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(0.8,0,0,0.8,10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lstart"
+       style="overflow:visible">
+      <path
+         id="path3726"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(1.1,0,0,1.1,1.1,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective9" />
+    <filter
+       inkscape:collect="always"
+       id="filter4963"
+       x="-0.061139606"
+       width="1.1222792"
+       y="-0.51489819"
+       height="2.0297964">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.8458061"
+         id="feGaussianBlur4965" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5487"
+       x="-0.089469543"
+       width="1.1789391"
+       y="-0.7383006"
+       height="2.4766012">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5489" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5491"
+       x="-0.089469543"
+       width="1.1789391"
+       y="-0.7383006"
+       height="2.4766012">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5493" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5495"
+       x="-0.089469543"
+       width="1.1789391"
+       y="-0.7383006"
+       height="2.4766012">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5497" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5499"
+       x="-0.089469543"
+       width="1.1789391"
+       y="-0.7383006"
+       height="2.4766012">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5501" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5503"
+       x="-0.089469543"
+       width="1.1789391"
+       y="-0.7383006"
+       height="2.4766012">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5505" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5507"
+       x="-0.089469543"
+       width="1.1789391"
+       y="-0.7383006"
+       height="2.4766012">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5509" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5519"
+       x="-0.066092397"
+       width="1.1321848"
+       y="-0.45172221"
+       height="1.9034444">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5521" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5523"
+       x="-0.066092397"
+       width="1.1321848"
+       y="-0.45172221"
+       height="1.9034444">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5525" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5527"
+       x="-0.066092397"
+       width="1.1321848"
+       y="-0.45172221"
+       height="1.9034444">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5529" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter5531"
+       x="-0.066092397"
+       width="1.1321848"
+       y="-0.45172221"
+       height="1.9034444">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.1397756"
+         id="feGaussianBlur5533" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter6723">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.50413043"
+         id="feGaussianBlur6725" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter6743"
+       x="-0.022860535"
+       width="1.0457211"
+       y="-0.17540978"
+       height="1.3508196">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.21654999"
+         id="feGaussianBlur6745" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter6991"
+       x="-0.063840029"
+       width="1.1276801"
+       y="-0.48984702"
+       height="1.979694">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.60473465"
+         id="feGaussianBlur6993" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="173.03442"
+     inkscape:cy="106.39086"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="936"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     units="mm"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata6">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-715.74796)">
+    <text
+       id="text4222"
+       y="1406.197"
+       x="33.840111"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="1406.197"
+         x="33.840111"
+         id="tspan4224"
+         sodipodi:role="line" /></text>
+    <path
+       style="fill:none;stroke:#aaaaaa;stroke-width:0.97044653;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:0.9704465, 3.881786;stroke-dashoffset:0"
+       d="m 198.9248,716.20451 0,335.67239"
+       id="path2921" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="95"
+       y="732.2193"
+       id="text2925"><tspan
+         sodipodi:role="line"
+         id="tspan2927"
+         x="95"
+         y="732.2193"
+         style="font-size:14px;font-weight:bold">Client</tspan></text>
+    <text
+       id="text2929"
+       y="732.2193"
+       x="295"
+       style="font-size:20px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         style="font-size:14px;font-weight:bold"
+         y="732.2193"
+         x="295"
+         id="tspan2931"
+         sodipodi:role="line">User Space</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="497"
+       y="732.2193"
+       id="text2933"><tspan
+         sodipodi:role="line"
+         id="tspan2935"
+         x="497"
+         y="732.2193"
+         style="font-size:14px;font-weight:bold">TM Core</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 14.26108,749.62444 0,42.14286 31.607143,0 0,-37.32143 -4.285714,-5.17857 -27.321429,0.35714 z"
+       id="path3749" />
+    <path
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.77146691px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.825386,749.86732 3.889248,4.78211 -3.611447,-0.13664 -0.277801,-4.64547 z"
+       id="path3751" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="28.663078"
+       y="778.52515"
+       id="text3753"><tspan
+         sodipodi:role="line"
+         id="tspan3755"
+         x="28.663078"
+         y="778.52515"
+         style="fill:#80b3ff">srt</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="80.246208"
+       y="765.60065"
+       id="text3759"><tspan
+         sodipodi:role="line"
+         id="tspan3761"
+         x="80.246208"
+         y="765.60065">movie information</tspan><tspan
+         sodipodi:role="line"
+         x="80.246208"
+         y="778.10065"
+         id="tspan3763">provided by the user</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:35.69067383px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="63.791901"
+       y="782.47266"
+       id="text3765"><tspan
+         sodipodi:role="line"
+         id="tspan3767"
+         x="63.791901"
+         y="782.47266">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="295.46964"
+       y="772.08539"
+       id="text3771"><tspan
+         sodipodi:role="line"
+         id="tspan3773"
+         x="295.46964"
+         y="772.08539">queries the core</tspan><tspan
+         sodipodi:role="line"
+         x="295.46964"
+         y="784.58539"
+         id="tspan5537">and create a document</tspan><tspan
+         sodipodi:role="line"
+         x="295.46964"
+         y="797.08539"
+         id="tspan5539">object with generated ID</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 185.36299,768.0448 64.14469,0"
+       id="path3775" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="504.06613"
+       y="773.8443"
+       id="text3779"><tspan
+         sodipodi:role="line"
+         id="tspan3781"
+         x="504.06613"
+         y="773.8443">queries the IMDB.com</tspan><tspan
+         sodipodi:role="line"
+         x="504.06613"
+         y="786.3443"
+         id="tspan3783">API and generates list</tspan><tspan
+         sodipodi:role="line"
+         x="504.06613"
+         y="798.87433"
+         id="tspan3785"><tspan
+   style="font-style:italic"
+   id="tspan3787">n</tspan> best matching movies</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-mid:none;marker-end:url(#TriangleOutL)"
+       d="m 340.42141,769.56002 105.05586,0"
+       id="path3979" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4963);font-family:Arial;-inkscape-font-specification:Arial"
+       x="265.16504"
+       y="161.85777"
+       id="text4931"
+       transform="matrix(0.55120475,0,0,0.53308041,66.411957,677.58225)"><tspan
+         sodipodi:role="line"
+         id="tspan4933"
+         x="265.16504"
+         y="161.85777">The movie, 2011</tspan></text>
+    <text
+       transform="matrix(0.55120475,0,0,0.53308041,248.41196,677.58225)"
+       id="text4967"
+       y="161.85777"
+       x="265.16504"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4963);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="161.85777"
+         x="265.16504"
+         id="tspan4969"
+         sodipodi:role="line">The movie, 2011</tspan></text>
+    <rect
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5531)"
+       id="rect4971"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="844.42957"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)" />
+    <rect
+       y="853.17719"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect4973"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)" />
+    <rect
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5523)"
+       id="rect4975"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="861.9248"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)" />
+    <rect
+       y="870.6723"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect4977"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)" />
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="848.43353"
+       id="text4983"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)"><tspan
+         sodipodi:role="line"
+         id="tspan4985"
+         x="56.428574"
+         y="848.43353">Movie suggestion</tspan></text>
+    <text
+       id="text4987"
+       y="857.50488"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)"><tspan
+         y="857.50488"
+         x="56.428574"
+         id="tspan4989"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="866.21912"
+       id="text4991"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)"><tspan
+         sodipodi:role="line"
+         id="tspan4993"
+         x="56.428574"
+         y="866.21912">Movie suggestion</tspan></text>
+    <text
+       id="text4995"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,374.94761,470.75915)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan4997"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 453.55849,782.18693 -96.46957,11.11168"
+       id="path5543"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 236.69514,792.06873 -88.71396,17.07979"
+       id="path5925"
+       sodipodi:nodetypes="cc" />
+    <rect
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       y="844.42957"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect5927"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5531)" />
+    <rect
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       id="rect5929"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="853.17719" />
+    <rect
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       y="861.9248"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect5931"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5523)" />
+    <rect
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       id="rect5933"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="870.6723" />
+    <text
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       id="text5935"
+       y="848.43353"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="848.43353"
+         x="56.428574"
+         id="tspan5937"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="857.50488"
+       id="text5939"><tspan
+         sodipodi:role="line"
+         id="tspan5941"
+         x="56.428574"
+         y="857.50488">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       id="text5943"
+       y="866.21912"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="866.21912"
+         x="56.428574"
+         id="tspan5945"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.33677453,0,0,0.36009513,192.22204,476.91852)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="874.93335"
+       id="text5947"><tspan
+         sodipodi:role="line"
+         id="tspan5949"
+         x="56.428574"
+         y="874.93335">Movie suggestion</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.03582585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#TriangleOutL)"
+       d="m 23.233509,796.38759 0,63.76025 c -3.143333,14.56935 7.657155,23.00971 21.785714,22.8809"
+       id="path5951"
+       sodipodi:nodetypes="ccc" />
+    <rect
+       style="opacity:0.76000001;fill:#d7e3f4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter6723)"
+       id="rect6713"
+       width="23.233509"
+       height="18.182745"
+       x="93.944183"
+       y="186.60651"
+       transform="matrix(0.82205412,0,0,0.6596995,97.648467,661.24685)"
+       ry="6.0609155" />
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter6991);font-family:Arial;-inkscape-font-specification:Arial"
+       x="184.80406"
+       y="795.35876"
+       id="text6727"
+       transform="matrix(0.68228684,0,0,0.66124606,58.594335,265.08873)"><tspan
+         sodipodi:role="line"
+         id="tspan6729"
+         x="184.80406"
+         y="795.35876">DOCUMENT</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="89.903572"
+       y="809.96613"
+       id="text6995"><tspan
+         sodipodi:role="line"
+         id="tspan6997"
+         x="89.903572"
+         y="809.96613">receives the document,</tspan><tspan
+         sodipodi:role="line"
+         x="89.903572"
+         y="822.46613"
+         id="tspan6999">ofers the movie list</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="-847.11487"
+       y="17.663576"
+       id="text7001"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan7003"
+         x="-847.11487"
+         y="17.663576">parsing into chunks</tspan></text>
+    <text
+       id="text7005"
+       y="853.96613"
+       x="89.903572"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         id="tspan7009"
+         y="853.96613"
+         x="89.903572"
+         sodipodi:role="line">user chooses a movie</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.14747524px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 87.378195,824.9396 0,12.87294"
+       id="path7013" />
+    <text
+       id="text7205"
+       y="840.08539"
+       x="295.46964"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="840.08539"
+         x="296.85635"
+         sodipodi:role="line"
+         id="tspan7218">selected movie is stored </tspan><tspan
+         y="852.58539"
+         x="295.46964"
+         sodipodi:role="line"
+         id="tspan7222">on the US side</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.38001156px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.847763"
+       y="886.92883"
+       id="text7224"><tspan
+         sodipodi:role="line"
+         id="tspan7226"
+         x="56.847763"
+         y="886.92883">list of timed chunks</tspan></text>
+    <rect
+       style="opacity:0.76000001;fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5531)"
+       id="rect7228"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="844.42957"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)" />
+    <rect
+       y="853.17719"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect7230"
+       style="opacity:0.76000001;fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)" />
+    <rect
+       y="870.6723"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect7234"
+       style="opacity:0.76000001;fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)" />
+    <rect
+       style="opacity:0.76000001;fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5523)"
+       id="rect7232"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="861.9248"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)" />
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="848.43353"
+       id="text7236"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)"><tspan
+         sodipodi:role="line"
+         id="tspan7238"
+         x="56.428574"
+         y="848.43353">Movie suggestion</tspan></text>
+    <text
+       id="text7240"
+       y="857.50488"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)"><tspan
+         y="857.50488"
+         x="56.428574"
+         id="tspan7242"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="866.21912"
+       id="text7244"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)"><tspan
+         sodipodi:role="line"
+         id="tspan7246"
+         x="56.428574"
+         y="866.21912">Movie suggestion</tspan></text>
+    <text
+       id="text7248"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.45489466,0,0,0.35957546,152.76989,574.22288)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan7250"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <rect
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       y="844.42957"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect7252"
+       style="opacity:0.76000001;fill:#ccaaff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5531)" />
+    <rect
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       style="opacity:0.76000001;fill:#ccaaff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       id="rect7254"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="853.17719" />
+    <rect
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       y="861.9248"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect7256"
+       style="opacity:0.76000001;fill:#ccaaff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5523)" />
+    <rect
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       style="opacity:0.76000001;fill:#ccaaff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       id="rect7258"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="870.6723" />
+    <text
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       id="text7260"
+       y="848.43353"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="848.43353"
+         x="56.428574"
+         id="tspan7262"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="857.50488"
+       id="text7264"><tspan
+         sodipodi:role="line"
+         id="tspan7266"
+         x="56.428574"
+         y="857.50488">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       id="text7268"
+       y="866.21912"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="866.21912"
+         x="56.428574"
+         id="tspan7270"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.41269793,0,0,0.35975226,371.63035,643.35647)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="874.93335"
+       id="text7272"><tspan
+         sodipodi:role="line"
+         id="tspan7274"
+         x="56.428574"
+         y="874.93335">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="848.43353"
+       id="text7290"
+       transform="matrix(0.44576485,0,0,0.36009513,154.17738,573.63283)"><tspan
+         sodipodi:role="line"
+         id="tspan7292"
+         x="56.428574"
+         y="848.43353">Movie suggestion</tspan></text>
+    <text
+       id="text7294"
+       y="857.50488"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,158.36433,573.63283)"><tspan
+         y="857.50488"
+         x="56.428574"
+         id="tspan7296"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="866.21912"
+       id="text7298"
+       transform="matrix(0.36649916,0,0,0.36009513,157.22244,573.63283)"><tspan
+         sodipodi:role="line"
+         id="tspan7300"
+         x="56.428574"
+         y="866.21912">Movie suggestion</tspan></text>
+    <text
+       id="text7302"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,158.36433,573.63283)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan7304"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-mid:none;marker-end:url(#TriangleOutL)"
+       d="m 139.64286,823.36213 92.5,16.07142"
+       id="path7306"
+       sodipodi:nodetypes="cc" />
+    <text
+       id="text8068"
+       y="1034.9287"
+       x="56.847763"
+       style="font-size:12.38001156px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="1034.9287"
+         x="56.847763"
+         id="tspan8070"
+         sodipodi:role="line">list of translation</tspan><tspan
+         y="1050.4037"
+         x="56.847763"
+         sodipodi:role="line"
+         id="tspan8112">results</tspan></text>
+    <rect
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       y="844.42957"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect8072"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5531)" />
+    <rect
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       id="rect8074"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="853.17719" />
+    <rect
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       id="rect8076"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="870.6723" />
+    <rect
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       y="861.9248"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect8078"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5523)" />
+    <text
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       id="text8080"
+       y="848.43353"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="848.43353"
+         x="56.428574"
+         id="tspan8082"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="857.50488"
+       id="text8084"><tspan
+         sodipodi:role="line"
+         id="tspan8086"
+         x="56.428574"
+         y="857.50488">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       id="text8088"
+       y="866.21912"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="866.21912"
+         x="56.428574"
+         id="tspan8090"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.66920424,0,0,0.49173702,127.91132,614.48745)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="874.93335"
+       id="text8092"><tspan
+         sodipodi:role="line"
+         id="tspan8094"
+         x="56.428574"
+         y="874.93335">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.6557732,0,0,0.4924477,129.9819,613.68052)"
+       id="text8096"
+       y="848.43353"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="848.43353"
+         x="56.428574"
+         id="tspan8098"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.49543545,0,0,0.4924477,136.1414,613.68052)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="857.50488"
+       id="text8100"><tspan
+         sodipodi:role="line"
+         id="tspan8102"
+         x="56.428574"
+         y="857.50488">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.53916392,0,0,0.4924477,134.46155,613.68052)"
+       id="text8104"
+       y="866.21912"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="866.21912"
+         x="56.428574"
+         id="tspan8106"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       transform="matrix(0.49543545,0,0,0.4924477,136.1414,613.68052)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="874.93335"
+       id="text8108"><tspan
+         sodipodi:role="line"
+         id="tspan8110"
+         x="56.428574"
+         y="874.93335">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Cordia New;-inkscape-font-specification:Cordia New"
+       x="12.142853"
+       y="918.2193"
+       id="text8114"><tspan
+         sodipodi:role="line"
+         id="tspan8116"
+         x="12.142853"
+         y="918.2193"
+         style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;font-family:Arial;-inkscape-font-specification:Arial">for each timed chunk</tspan></text>
+    <text
+       id="text8118"
+       y="935.96613"
+       x="89.903572"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         id="tspan8122"
+         y="935.96613"
+         x="89.903572"
+         sodipodi:role="line">sends a timed chunk</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="295.46964"
+       y="936.08539"
+       id="text8126"><tspan
+         id="tspan8130"
+         sodipodi:role="line"
+         x="295.46964"
+         y="936.08539">queries the core</tspan></text>
+    <rect
+       y="853.17719"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect8134"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       transform="matrix(0.33677453,0,0,0.36009513,180.22204,518.91852)" />
+    <text
+       id="text8136"
+       y="857.50488"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,180.22204,518.91852)"><tspan
+         y="857.50488"
+         x="56.428574"
+         id="tspan8138"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <rect
+       transform="matrix(0.33677453,0,0,0.36009513,376.55457,615.56829)"
+       style="opacity:0.76000001;fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       id="rect8140"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="853.17719" />
+    <text
+       transform="matrix(0.33677453,0,0,0.36009513,376.55457,615.56829)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="857.50488"
+       id="text8142"><tspan
+         sodipodi:role="line"
+         id="tspan8144"
+         x="56.428574"
+         y="857.50488">Movie suggestion</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 145.20943,932.83037 105.81348,0"
+       id="path8146" />
+    <rect
+       transform="matrix(0.45489466,0,0,0.35957546,170.95264,612.35614)"
+       style="opacity:0.76000001;fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       id="rect8338"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="870.6723" />
+    <text
+       transform="matrix(0.33677453,0,0,0.36009513,176.54708,611.76609)"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="874.93335"
+       id="text8340"><tspan
+         sodipodi:role="line"
+         id="tspan8342"
+         x="56.428574"
+         y="874.93335">Movie suggestion</tspan></text>
+    <rect
+       y="870.6723"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect8344"
+       style="opacity:0.76000001;fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       transform="matrix(0.45489466,0,0,0.35957546,368.94254,604.78)" />
+    <text
+       id="text8346"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,374.53698,604.18995)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan8348"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       id="text8350"
+       y="936.86212"
+       x="504.06613"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         id="tspan8356"
+         y="936.86212"
+         x="504.06613"
+         sodipodi:role="line">generates the suggestions</tspan><tspan
+         y="949.36212"
+         x="504.06613"
+         sodipodi:role="line"
+         id="tspan8365">for the chunk</tspan></text>
+    <text
+       id="text8367"
+       y="962.08539"
+       x="295.46964"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="962.08539"
+         x="295.46964"
+         sodipodi:role="line"
+         id="tspan8369">wraps the timed chung</tspan><tspan
+         y="974.58539"
+         x="295.46964"
+         sodipodi:role="line"
+         id="tspan8371">and received suggestion into</tspan><tspan
+         y="987.08539"
+         x="295.46964"
+         sodipodi:role="line"
+         id="tspan8373">tranlsation results</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="89.903572"
+       y="985.96613"
+       id="text8375"><tspan
+         sodipodi:role="line"
+         x="89.903572"
+         y="985.96613"
+         id="tspan8377">reveives the tranlsation</tspan><tspan
+         sodipodi:role="line"
+         x="89.903572"
+         y="998.46613"
+         id="tspan8379">result and displays it</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#TriangleInL);marker-mid:none;marker-end:none"
+       d="m 146.47211,991.67176 83.3376,-18.18275"
+       id="path8381"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:68.55780792px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="32.174595"
+       y="760.60626"
+       id="text9143"
+       transform="scale(0.76933096,1.2998307)"><tspan
+         sodipodi:role="line"
+         id="tspan9145"
+         x="32.174595"
+         y="760.60626">(</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#TriangleOutL)"
+       d="m 335.37064,933.08291 102.02541,0"
+       id="path9147" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#TriangleInL)"
+       d="M 368.13969,970.96363 472.69048,946.71996"
+       id="path9151"
+       sodipodi:nodetypes="cc" />
+    <text
+       transform="scale(-0.76933096,1.2998307)"
+       id="text9723"
+       y="760.6062"
+       x="-752.34387"
+       style="font-size:68.55780792px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="760.6062"
+         x="-752.34387"
+         id="tspan9725"
+         sodipodi:role="line">(</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-mid:none;marker-end:url(#TriangleOutL)"
+       d="m 17.142857,996.07641 c -1.396297,21.00349 -8.3089609,41.56319 29.285714,42.14289"
+       id="path9727"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.38001156px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="220.84778"
+       y="1034.9287"
+       id="text10109"><tspan
+         sodipodi:role="line"
+         id="tspan10111"
+         x="220.84778"
+         y="1034.9287">list of translation</tspan><tspan
+         id="tspan10113"
+         sodipodi:role="line"
+         x="220.84778"
+         y="1050.4037">results</tspan></text>
+    <rect
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5531)"
+       id="rect10115"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="844.42957"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)" />
+    <rect
+       y="853.17719"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect10117"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5527)"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)" />
+    <rect
+       y="870.6723"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect10119"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)" />
+    <rect
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5523)"
+       id="rect10121"
+       width="41.388443"
+       height="6.0556273"
+       x="39.305779"
+       y="861.9248"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)" />
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="848.43353"
+       id="text10123"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)"><tspan
+         sodipodi:role="line"
+         id="tspan10125"
+         x="56.428574"
+         y="848.43353">Movie suggestion</tspan></text>
+    <text
+       id="text10127"
+       y="857.50488"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)"><tspan
+         y="857.50488"
+         x="56.428574"
+         id="tspan10129"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="866.21912"
+       id="text10131"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)"><tspan
+         sodipodi:role="line"
+         id="tspan10133"
+         x="56.428574"
+         y="866.21912">Movie suggestion</tspan></text>
+    <text
+       id="text10135"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#ffeeaa;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.66920424,0,0,0.49173702,291.91132,614.48745)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan10137"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5507);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="848.43353"
+       id="text10139"
+       transform="matrix(0.6557732,0,0,0.4924477,293.9819,613.68052)"><tspan
+         sodipodi:role="line"
+         id="tspan10141"
+         x="56.428574"
+         y="848.43353">Movie suggestion</tspan></text>
+    <text
+       id="text10143"
+       y="857.50488"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5503);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.49543545,0,0,0.4924477,300.1414,613.68052)"><tspan
+         y="857.50488"
+         x="56.428574"
+         id="tspan10145"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5499);font-family:Arial;-inkscape-font-specification:Arial"
+       x="56.428574"
+       y="866.21912"
+       id="text10147"
+       transform="matrix(0.53916392,0,0,0.4924477,298.46155,613.68052)"><tspan
+         sodipodi:role="line"
+         id="tspan10149"
+         x="56.428574"
+         y="866.21912">Movie suggestion</tspan></text>
+    <text
+       id="text10151"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.49543545,0,0,0.4924477,300.1414,613.68052)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan10153"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:47.1235199px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="203.04066"
+       y="1052.7687"
+       id="text10155"><tspan
+         sodipodi:role="line"
+         id="tspan10157"
+         x="203.04066"
+         y="1052.7687">=</tspan></text>
+    <rect
+       y="870.6723"
+       x="39.305779"
+       height="6.0556273"
+       width="41.388443"
+       id="rect10165"
+       style="opacity:0.76000001;fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.34935281;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter5519)"
+       transform="matrix(0.45489466,0,0,0.35957546,166.95264,660.35614)" />
+    <text
+       id="text10167"
+       y="874.93335"
+       x="56.428574"
+       style="font-size:4px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5495);font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"
+       transform="matrix(0.33677453,0,0,0.36009513,172.54708,659.76609)"><tspan
+         y="874.93335"
+         x="56.428574"
+         id="tspan10169"
+         sodipodi:role="line">Movie suggestion</tspan></text>
+    <path
+       id="path10171"
+       d="m 397.33562,716.20451 0,335.67239"
+       style="fill:none;stroke:#aaaaaa;stroke-width:0.97044653;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:0.9704465, 3.881786;stroke-dashoffset:0" />
+    <path
+       id="path10173"
+       d="m 594.34004,740.0407 -593.69473449,0"
+       style="fill:none;stroke:#aaaaaa;stroke-width:1.29061103;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.29061107, 5.16244429;stroke-dashoffset:0" />
+  </g>
+</svg>

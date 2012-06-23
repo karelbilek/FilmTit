@@ -1,0 +1,31 @@
+\chapter{Specification}
+
+\section{Application}
+
+The application has two parts -- the server part consisting of  two components,the translation memory and a server application mirroring the users activity in the client, and the web application client providing the user interface in the web browser.
+
+The user interface provides the user practical and intuitive environment for the translation and (zařizuje) the communication with the translation memory. From the user's view, the main functionality is parsing the subtitle into individual chunks and providing the translation suggestions together with with possibility to play the corresponding pieces of the movie stored on the translator's computer with the subtitles either in the source or target language. The interface provides complex tool for the subtitle editing including the possibility to adjust the timing, add new chunks or delete some. Except the suggestions from other movie subtitles a machine translated sentences are provided from the Moses system trained on the movie subtitle data.
+
+The server part queries the the translation memory for similar sentences which have occurred in the subtitles before and has been already translated. Different method of retrieving the similar chunks are used ... For evaluating how much the ...
+
+Překladová paměť bude přijímat požadavky klientské aplikace na překlad jednotlivých úseků titulků, vyhledá v databázi podobné známé texty a několik nejlepších z nich odešle zpět. Pro ohodnocení se pokusíme kromě běžných metrik shody využívat i zpětnou vazbu od uživatelů, kteří budou mít možnost hodnotit výstupy překladové paměti. Ověříme také možnost využití některých meta informací, jako je shoda filmové či seriálové řady, shoda filmového žánru apod. Zároveň bude překladová paměť samozřejmě přijímat veškeré překlady vytvořené uživateli a ukládat si je do databáze. Celkově by tedy mělo docházet k neustálému zkvalitňování obsahu překladové paměti. 
+
+ The communication is implemented the the remote procedure calls (RPC) ....
+
+The translation memory itself is implemented in Scala using the Postgre SQL databese. The server side is implemented in Java, the client is developed in Google Web Toolkit.
+
+\section{Data}
+
+Processing the movie subtitles is in many ways different from processing a general text. We believe that this differences make a lot of tasks much easier, e.g. the sentence alignment.
+
+Věříme, že většina odlišností bude představovat spíše výhody (například omezená doména nebo velké množství dat využitelných pro počáteční naplnění překladové paměti), jistě tomu tak ale nebude ve všech případech.
+
+Firstly, it is necessary to set a suitable basic unit of text which will be stored in the translation memory. In the statistical machine translation context it is usual to use alignment on the sentence level, anyway the subtitle chunks often split the sentence into more pieces and on the other hand often contains more than one sentence. We are trying to take advantage from that and split the chunks on the sentence boundary whenever it is possible. Because of the limited size of the subtitle chunks we hope that using this sentence and sub-sentece level will lead to repetitivness
+
+V první řadě je nutné stanovit vhodnou základní jednotku textu, která bude celistvě ukládána do překladové paměti. Je obvyklé používat párování na úrovni vět, nicméně jednotlivé úseky titulků často dělí věty na více částí a/nebo sdružují více vět dohromady, k čemuž lze přistupovat jako k šumu, který je třeba odstranit, ale i jako k informaci navíc, kterou lze využít.
+
+Pravděpodobně bude možné zlepšit výsledky preprocessingem pojmenovaných entit (jména, čísla apod.), případně i jejich odděleným překladem (přičemž data obsažená v překladové paměti je v tomto případě možné využít pro vybudování jazykového modelu).
+
+Filmové titulky také umožňují využití mnoha metadat, která lze získat pomocí API IMDb.com (International Movie Database) nebo z její otevřené obdoby TMDb.org (The Movie Database). Pokusíme se využít alespoň žánr filmu (a v návrzích překladu upřednostnit ty z žánrově podobných filmů), případně i další informace, jako jsou jména postav ve filmu (zde se samozřejmě nabízí propojení s preprocessingem pojmenovaných entit).
+
+Jako zdroj dat pro počáteční naplnění překladové paměti budou využity filmové a seriálové titulky volně dostupné na internetu. Například na serveru    opensubtitles.org, který je často používán pro podobné účely, je v současné chvíli k dispozici více než 65 000 filmových titulků v češtině. Potřebné spárování titulků je navíc snazší než párování obecných textů (zejména díky specifické struktuře titulků) a existují pro něj efektivní metody

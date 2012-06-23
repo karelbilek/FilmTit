@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="403.93701"
+   height="336.61417"
+   id="svg2"
+   inkscape:label="Pozadí"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="shared_classes.svg">
+  <defs
+     id="defs3">
+    <marker
+       inkscape:stockid="TriangleInL"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleInL"
+       style="overflow:visible">
+      <path
+         id="path3842"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="scale(-0.8,-0.8)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleOutL"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleOutL"
+       style="overflow:visible">
+      <path
+         id="path3851"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="scale(0.8,0.8)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path3708"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(0.8,0,0,0.8,10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lstart"
+       style="overflow:visible">
+      <path
+         id="path3726"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(1.1,0,0,1.1,1.1,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective9" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="77.320497"
+     inkscape:cy="229.72093"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="936"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     units="mm" />
+  <metadata
+     id="metadata6">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-715.748)">
+    <rect
+       style="fill:#eff4d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.81865382;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2894"
+       width="400.24863"
+       height="229.56824"
+       x="0.40932691"
+       y="717.28107" />
+    <rect
+       y="761.9892"
+       x="27.200457"
+       height="165.26378"
+       width="365.74155"
+       id="rect3730"
+       style="fill:#d7eef4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.9040364;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       style="fill:#d7eef4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.9040364;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3728"
+       width="365.74155"
+       height="165.26378"
+       x="22.672785"
+       y="766.51691" />
+    <rect
+       y="771.04449"
+       x="18.145121"
+       height="165.26378"
+       width="365.74155"
+       id="rect3726"
+       style="fill:#d7eef4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.9040364;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <text
+       xml:space="preserve"
+       style="font-size:15.0922327px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="6.165751"
+       y="731.43231"
+       id="text3692"><tspan
+         sodipodi:role="line"
+         id="tspan3694"
+         x="6.165751"
+         y="731.43231"
+         style="font-size:10.5645628px;font-weight:bold">User</tspan></text>
+    <rect
+       style="fill:#d7eef4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.9040364;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3710"
+       width="365.74155"
+       height="165.26378"
+       x="13.617456"
+       y="775.5722" />
+    <rect
+       y="781.91376"
+       x="143.70361"
+       height="257.8295"
+       width="228.48172"
+       id="rect5874"
+       style="fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.09043944;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="784.93219"
+       x="140.68517"
+       height="257.8295"
+       width="228.48172"
+       id="rect5872"
+       style="fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.09043944;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       style="fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.09043944;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect5870"
+       width="228.48172"
+       height="257.8295"
+       x="137.66672"
+       y="787.95062" />
+    <rect
+       y="790.96906"
+       x="134.64827"
+       height="257.8295"
+       width="228.48172"
+       id="rect5868"
+       style="fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.09043944;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       style="fill:#ffd5d5;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.66629821;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3934"
+       width="102.70212"
+       height="58.773094"
+       x="31.638485"
+       y="841.37366"
+       transform="matrix(1,0,-0.01269665,0.99991939,0,0)" />
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="53.577404"
+       y="734.33466"
+       id="text3722"><tspan
+         sodipodi:role="line"
+         id="tspan3724"
+         x="53.577404"
+         y="734.33466">- authentication data, user settings</tspan><tspan
+         sodipodi:role="line"
+         x="53.577404"
+         y="745.65381"
+         id="tspan3736">- list of documents owned by the user</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:31.00584984px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="736.37781"
+       y="403.79385"
+       id="text3732"
+       transform="matrix(0.529484,0.52155028,-0.94420801,0.95857106,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan3734"
+         x="736.37781"
+         y="403.79385"
+         style="font-family:Times New Roman;-inkscape-font-specification:Times New Roman">{</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75461167px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 12.243144,761.27741 c 4.802413,-12.4701 14.063105,-18.253 27.489427,-17.7873"
+       id="path3738"
+       sodipodi:nodetypes="cc" />
+    <text
+       id="text3740"
+       y="788.78278"
+       x="18.23955"
+       style="font-size:15.0922327px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         style="font-size:10.5645628px;font-weight:bold"
+         y="788.78278"
+         x="18.23955"
+         id="tspan3742"
+         sodipodi:role="line">Document</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+       x="22.807711"
+       y="851.01849"
+       id="text3936"><tspan
+         sodipodi:role="line"
+         id="tspan3938"
+         x="22.807711"
+         y="851.01849"
+         style="font-size:9.05533981px">Media source</tspan></text>
+    <rect
+       style="fill:#ffccaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.09043944;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3940"
+       width="228.48172"
+       height="257.8295"
+       x="131.62982"
+       y="793.98749" />
+    <text
+       xml:space="preserve"
+       style="font-size:10.5645628px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="132.65761"
+       y="805.58392"
+       id="text3942"><tspan
+         sodipodi:role="line"
+         id="tspan3944"
+         x="132.65761"
+         y="805.58392"
+         style="font-weight:bold">Translation result</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3954"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       transform="matrix(0.75461164,0,0,0.75461164,124.89588,379.65954)"><flowRegion
+         id="flowRegion3956"><rect
+           id="rect3958"
+           width="122.85714"
+           height="100.71429"
+           x="-132.14285"
+           y="551.42859"
+           style="text-align:start;text-anchor:start"
+           ry="0.71428573" /></flowRegion><flowPara
+         id="flowPara3960">- document ID</flowPara><flowPara
+         id="flowPara3962">- list of subtitle chunks</flowPara><flowPara
+         id="flowPara4232">- the source movie</flowPara></flowRoot>    <text
+       transform="matrix(0.5401028,0.51129624,-0.9631441,0.93972489,0,0)"
+       id="text3964"
+       y="361.36841"
+       x="882.33069"
+       style="font-size:20.89585686px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         style="font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         y="361.36841"
+         x="882.33069"
+         id="tspan3966"
+         sodipodi:role="line">{</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75461167px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#TriangleInL)"
+       d="m 90.97474,804.08261 c 5.993372,-9.7723 28.57226,-18.1627 39.63819,-19.819"
+       id="path3968"
+       sodipodi:nodetypes="cc" />
+    <flowRoot
+       transform="matrix(0.75461164,0,0,0.75461164,124.89588,437.32981)"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       id="flowRoot4160"
+       xml:space="preserve"><flowRegion
+         id="flowRegion4162"><rect
+           ry="0.71428573"
+           style="text-align:start;text-anchor:start"
+           y="551.42859"
+           x="-132.14285"
+           height="103.23967"
+           width="145.08049"
+           id="rect4164" /></flowRegion><flowPara
+         id="flowPara4166">- movie title</flowPara><flowPara
+         id="flowPara4170">- release year  </flowPara><flowPara
+         id="flowPara4172">- set of genre tags from</flowPara><flowPara
+         id="flowPara4174">     IMDB.com</flowPara></flowRoot>    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="141.07216"
+       y="817.39569"
+       id="text4184"><tspan
+         sodipodi:role="line"
+         id="tspan4186"
+         x="141.07216"
+         y="817.39569">- the source subtitle chunk</tspan></text>
+    <text
+       id="text4188"
+       y="889.83844"
+       x="141.07216"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="889.83844"
+         x="141.07216"
+         id="tspan4190"
+         sodipodi:role="line">- user translation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="141.07216"
+       y="900.40289"
+       id="text4192"><tspan
+         sodipodi:role="line"
+         id="tspan4194"
+         x="141.07216"
+         y="900.40289">- list of translation memory suggestions</tspan></text>
+    <rect
+       style="fill:#fff6d5;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.64671773;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect4200"
+       width="163.7917"
+       height="58.598053"
+       x="152.88797"
+       y="821.67865" />
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="154.92905"
+       y="830.38104"
+       id="text4202"><tspan
+         sodipodi:role="line"
+         id="tspan4204"
+         x="154.92905"
+         y="830.38104"
+         style="font-weight:bold;text-align:start;text-anchor:start">Timed chunk <tspan
+   style="font-size:6.79150486px;fill:#666666"
+   id="tspan4230">extends Chunk</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="162.50581"
+       y="839.84808"
+       id="text4206"><tspan
+         sodipodi:role="line"
+         x="162.50581"
+         y="839.84808"
+         id="tspan4226">- time of  start and end, part number</tspan></text>
+    <rect
+       style="fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.78969145;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect4210"
+       width="158.12402"
+       height="34.635815"
+       x="155.3972"
+       y="843.36359" />
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="158.43782"
+       y="852.10602"
+       id="text4212"><tspan
+         sodipodi:role="line"
+         id="tspan4214"
+         x="158.43782"
+         y="852.10602"
+         style="font-weight:bold;text-align:start;text-anchor:start">Chunk</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="161.85272"
+       y="861.63446"
+       id="text4216"><tspan
+         sodipodi:role="line"
+         id="tspan4218"
+         x="161.85272"
+         y="861.63446">- surface form</tspan><tspan
+         sodipodi:role="line"
+         x="161.85272"
+         y="872.95361"
+         id="tspan4220">- list of annotations</tspan></text>
+    <text
+       id="text4222"
+       y="1406.197"
+       x="33.840111"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="1406.197"
+         x="33.840111"
+         id="tspan4224"
+         sodipodi:role="line" /></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75461167px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutL)"
+       d="m 21.485322,847.15111 c -11.337078,-12.9097 0.438264,-19.571 4.954788,-22.1059"
+       id="path4234"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:#d7d7f4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.77713871;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect5862"
+       width="187.55238"
+       height="122.60186"
+       x="160.8051"
+       y="906.17413" />
+    <rect
+       y="909.19257"
+       x="157.78665"
+       height="122.60186"
+       width="187.55238"
+       id="rect5860"
+       style="fill:#d7d7f4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.77713871;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       style="fill:#d7d7f4;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.77713871;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect5844"
+       width="187.55238"
+       height="122.60186"
+       x="154.7682"
+       y="912.211" />
+    <rect
+       y="936.72467"
+       x="161.97795"
+       height="34.841686"
+       width="85.913979"
+       id="rect4426"
+       style="fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.75461167;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <text
+       id="text4428"
+       y="945.57001"
+       x="165.12152"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         style="font-weight:bold;text-align:start;text-anchor:start"
+         y="945.57001"
+         x="165.12152"
+         id="tspan4430"
+         sodipodi:role="line">Chunk</tspan></text>
+    <text
+       id="text4432"
+       y="955.09845"
+       x="168.53642"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="955.09845"
+         x="168.53642"
+         id="tspan4434"
+         sodipodi:role="line">- surface form</tspan><tspan
+         id="tspan4436"
+         y="966.4176"
+         x="168.53642"
+         sodipodi:role="line">- list of annotations</tspan></text>
+    <rect
+       style="fill:#ffeeaa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.75461167;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect4450"
+       width="85.913979"
+       height="34.841686"
+       x="251.02214"
+       y="936.72467" />
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="254.16568"
+       y="945.57001"
+       id="text4452"><tspan
+         sodipodi:role="line"
+         id="tspan4454"
+         x="254.16568"
+         y="945.57001"
+         style="font-weight:bold;text-align:start;text-anchor:start">Chunk</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="257.5806"
+       y="955.09845"
+       id="text4456"><tspan
+         sodipodi:role="line"
+         id="tspan4458"
+         x="257.5806"
+         y="955.09845">- surface form</tspan><tspan
+         sodipodi:role="line"
+         x="257.5806"
+         y="966.4176"
+         id="tspan4460">- list of annotations</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="165.02765"
+       y="932.05597"
+       id="text4462"><tspan
+         sodipodi:role="line"
+         id="tspan4464"
+         x="165.02765"
+         y="932.05597">- chunk in source and target language</tspan></text>
+    <rect
+       style="fill:#f4d7d7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.75461167;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect4506"
+       width="174.85379"
+       height="34.595573"
+       x="162.10101"
+       y="985.14288" />
+    <text
+       id="text4466"
+       y="981.86029"
+       x="165.02765"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="981.86029"
+         x="165.02765"
+         sodipodi:role="line"
+         id="tspan4470">- movies which is the pair from</tspan></text>
+    <text
+       id="text4476"
+       y="993.96893"
+       x="164.79485"
+       style="font-size:9.05533981px;font-style:normal;font-weight:bold;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+       xml:space="preserve"><tspan
+         style="font-size:9.05533981px"
+         y="993.96893"
+         x="164.79485"
+         id="tspan4478"
+         sodipodi:role="line">Media source</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4480"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       transform="matrix(0.75461164,0,0,0.75461164,265.73961,580.28041)"><flowRegion
+         id="flowRegion4482"><rect
+           id="rect4484"
+           width="219.32671"
+           height="91.622917"
+           x="-132.14285"
+           y="551.42859"
+           style="text-align:start;text-anchor:start"
+           ry="0.71428573" /></flowRegion><flowPara
+         id="flowPara4490">- movie title, release year</flowPara><flowPara
+         id="flowPara4494">- set of genre tags from, IMDB.com</flowPara></flowRoot>    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75461167px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#TriangleOutL)"
+       d="m 198.50638,943.13951 c 8.6085,-0.7928 16.46451,-0.051 19.05681,-6.8604"
+       id="path4508"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75461167px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#TriangleInL);marker-end:none"
+       d="m 252.67371,934.75451 c -14.45784,8.0039 -7.1456,6.0533 -2.28682,7.2416"
+       id="path4510"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.75461167px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#TriangleInL)"
+       d="m 164.23474,978.96641 c -10.00574,0.012 -10.14304,8.1715 -1.14341,13.3397"
+       id="path4892"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="157.12857"
+       y="921.90192"
+       id="text5846"><tspan
+         sodipodi:role="line"
+         id="tspan5848"
+         x="157.12857"
+         y="921.90192"
+         style="font-weight:bold;fill:#000000">Translation pair</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="165.02765"
+       y="1030.1554"
+       id="text5856"><tspan
+         id="tspan5858"
+         sodipodi:role="line"
+         x="165.02765"
+         y="1030.1554">- score</tspan></text>
+    <text
+       id="text5864"
+       y="1046.7976"
+       x="141.07216"
+       style="font-size:9.05533981px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       xml:space="preserve"><tspan
+         y="1046.7976"
+         x="141.07216"
+         id="tspan5866"
+         sodipodi:role="line">- ID of selected translation suggestion</tspan></text>
+  </g>
+</svg>

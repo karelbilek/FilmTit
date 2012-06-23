@@ -1,0 +1,40 @@
+\section{Preliminaries}
+
+The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work available always in the same state she finished her work.
+
+The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. All of the User Space code is implemented Java. It uses \emph{Hibernate} object-relational mapping library. The same \emph{PostgreSQL} database as in the TM Core is used. The in-memory \emph{hsqldb} database is used for the unit testing.
+
+Because the TM Core is a separate module it is also linked as dependency to the User Space.
+
+\section{Architecture}
+
+We try to use as most as possible from the shared classes and prevent using the User Space specific classes. If some additional functionality is required and cannot be incorporated into the shared classes, mostly the database and core calls, we wrap the shared classes into distinct User Space classes.
+
+The server class which processes the calls on the first level contains the Session objects. These objects processes the calls with association the the particular logged in users. These two classes are not a part of the shared classes set.
+
+The session class contains an object representing the user (a wrapper for the shared class). Hash tables of active documents and active chunks is there to access them faster than by searching lists in the user and document objects. Both the document objects and translation results objects which collect the source chunk, translation suggestion and the actual user's translation are wrappers for the shared classes. Anyway, the inner shared objects are used for communication with other components.
+
+The more basic level than the translation result uses exactly the shared classes structure.
+
+\section{Functionality overview}
+
+Most of the functionality of the User Space is available via the RPC calls from the client side. During the run of the server there exist one instance of the server class. The main task of the sever class is to process the calls from the clients -- which in fact means pass the calls further to the particular sessions and manage the sessions. It has a method for every single operation that is possible to happen in the client.
+
+After the user logs in, a Session object is created. It contains a unique session ID the client uses for authentication of its calls. A session object contains information about the user o -- the settings and a list of the documents owned by the user, and hash tables of documents and chunks which are currently in use. 
+
+Until the user does not explicitly request a document, only basic information about the document remains loaded into memory (basic facts about the movie, time of last changes of the document). Only if he opens the document for editing, all the document chunks with the translation suggestions and already finished users translations are loaded.
+
+There is also a thread running in the server that checks the time how long the sessions are opened without any users action. If this time exceeds the predefined session time out limit, the session is terminated. The other way of terminating a session is when the user logs out. In both of these cases the changes the user made which were stored just in the memory so far, are saved permanently to the database. It is also possible to close just a document, which will also lead to saving all the document content to the database immediately.
+
+\begin{figure}
+\begin{center}
+\includegraphics{figures/creating_document.pdf}
+\end{center}
+\caption{Structure of component communication during a new document creation}
+\end{figure}
+
+When a new document is created, the User Space receives a basic information about the movie first. Based on that it creates a Document object and saves it to the database immediately, to receive a unique  database ID which is the used as a document identifier in all other calls. The core is called at this moment to provide a list of possible movies with best matching title and year of production together with genre tags obtained from the IMDB.com. The user is then supposed to choose one or none of the suggested movies. This information is used by the User Space at the moment the core is queried for the translation suggestions.
+
+When a new document is created, the client application starts to send the batches of chunks which are supposed to be translated. When the User Space receives such call, it queries the TM Core for the translation suggestion and adds the chunks to the list list chunks which the appropriate document consists of.
+
+User Space also provides feedback to the core. A list of new translation the users produced can be generated together with information which translation suggestions were post-edited.

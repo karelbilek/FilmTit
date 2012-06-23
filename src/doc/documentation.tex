@@ -1,0 +1,121 @@
+\documentclass[11pt, oneside]{book}
+\usepackage[utf8]{inputenc}
+%\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,top=3cm,bottom=3cm,right=2.5cm]{geometry}
+%\usepackage{arydshln} % dotted line
+\usepackage{multirow} 
+\usepackage{multicol}
+\usepackage{color}
+\usepackage{lmodern} % allows font size in millimeters
+
+\usepackage{url}
+
+\usepackage{hyperref}
+
+
+\usepackage{listingsutf8}
+
+%-----------------------------------------------------------%
+% Source Codes
+%-----------------------------------------------------------%
+	%Colours:
+	\definecolor{jorange}{rgb}{1,0.71,0.0588235294}
+	\definecolor{joGrau}{rgb}{0.95,0.95,0.95}
+	\definecolor{joGrau2}{rgb}{0.85,0.85,0.85}
+	\definecolor{joDunkelGrau}{rgb}{0.7,0.7,0.7}
+	\definecolor{joDunkelGrau2}{rgb}{0.5,0.5,0.5}
+	\definecolor{joCommentGrau}{rgb}{0.55,0.55,0.55}
+
+	\lstset{
+		basicstyle={\footnotesize},
+		numberstyle=\footnotesize \color{joDunkelGrau},
+		keywordstyle={\bfseries},
+		tabsize=5,
+		rulecolor = \color{joDunkelGrau},
+		backgroundcolor=\color{joGrau},
+		framesep=4pt,
+		breaklines=true,
+		numbers=left,
+		framexleftmargin=0pt,
+		framexrightmargin=5pt,
+		framexbottommargin=0pt,
+		framextopmargin=0pt,
+		breakatwhitespace=true,
+		showspaces=false,
+		commentstyle=\color{joCommentGrau}\textbf,
+		captionpos=b,
+		showstringspaces=false,
+		extendedchars=true,
+		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+		columns=fullflexible,
+		framerule=0.3pt,
+		frame=trbl,
+		prebreak=\mbox{},
+		postbreak=\mbox{$\hookrightarrow$\hspace{0.2cm}}
+	}
+	% "define" Scala
+	\lstdefinelanguage{scala}{
+	  morekeywords={abstract,case,catch,class,def,%
+	    do,else,extends,false,final,finally,%
+	    for,if,implicit,import,match,mixin,%
+	    new,null,object,override,package,%
+	    private,protected,requires,return,sealed,%
+	    super,this,throw,trait,true,try,%
+	    type,val,var,while,with,yield},
+	  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+	  sensitive=true,
+	  morecomment=[l]{//},
+	  morecomment=[n]{/*}{*/},
+	  morestring=[b]",
+	  morestring=[b]',
+	  morestring=[b]"""
+	}
+
+	%Space between listings in multiple colums
+	\setlength{\columnsep}{20mm}	
+
+
+\title{Filmtit documentation}
+\author{}
+%\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+
+\pagenumbering{Roman}
+
+\input{titlePage}
+
+\tableofcontents*
+\sloppy
+
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+\input{introduction}
+\input{specification}
+
+\chapter{Project structure}
+\input{structure}
+
+\chapter{Core Translation Memory}
+\input{coretm}
+\input{opensubtitles}
+
+\chapter{User Space}
+\input{userspace}
+
+\chapter{Graphical interface}
+\input{gui}
+
+\chapter{User's manual}
+\input{usersmanual}
+
+
+
+\end{document}
