@@ -205,6 +205,7 @@ public class Gui implements EntryPoint {
 
     private void createDocumentFromText(String subtext) {
         // replacing the document-creating interface with the subtitle table:
+        // TODO: this should be done *after* the success of createDocument()
         guiStructure.scrollPanel.removeStyleName("creating_document");
         guiStructure.scrollPanel.addStyleName("translating");
         guiStructure.scrollPanel.setWidget(table);
@@ -463,6 +464,16 @@ public class Gui implements EntryPoint {
 	
 	private void error(String errtext) {
 		log(errtext);
+	}
+	
+	protected void please_log_in () {
+		logged_out ();
+		rpcHandler.displayWindow("Please log in first.");
+	}
+	
+	protected void please_relog_in () {
+		logged_out ();
+		rpcHandler.displayWindow("You have not logged in or your session has expired. Please log in.");
 	}
 	
 	protected void logged_in (String username) {

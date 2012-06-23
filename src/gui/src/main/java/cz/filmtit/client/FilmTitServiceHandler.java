@@ -11,6 +11,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
 import java.util.List;
 
@@ -68,14 +69,19 @@ public class FilmTitServiceHandler {
             }
 			
 			public void onFailure(Throwable caught) {
-				// TODO: repeat sending a few times, then ask user
-				displayWindow(caught.getLocalizedMessage());
-				gui.log("failure on creating document!");
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					// TODO: repeat sending a few times, then ask user
+					displayWindow(caught.getLocalizedMessage());
+					gui.log("failure on creating document!");
+				}
 			}
 
 		};
 		
-		filmTitSvc.createNewDocument(movieTitle, year, language, callback);
+		filmTitSvc.createNewDocument(gui.sessionID, movieTitle, year, language, callback);
 	}
 	
 	public void getTranslationResults(List<TimedChunk> chunks) {
@@ -96,18 +102,23 @@ public class FilmTitServiceHandler {
 			}
 			
 			public void onFailure(Throwable caught) {
-				// TODO: repeat sending a few times, then ask user
-				displayWindow(caught.getLocalizedMessage());
-				gui.log("failure on receiving some chunk!");
-				gui.log(caught.toString());				
-				StackTraceElement[] st = caught.getStackTrace();
-				for (StackTraceElement stackTraceElement : st) {
-					gui.log(stackTraceElement.toString());
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					// TODO: repeat sending a few times, then ask user
+					displayWindow(caught.getLocalizedMessage());
+					gui.log("failure on receiving some chunk!");
+					gui.log(caught.toString());				
+					StackTraceElement[] st = caught.getStackTrace();
+					for (StackTraceElement stackTraceElement : st) {
+						gui.log(stackTraceElement.toString());
+					}
 				}
 			}
 		};
 		
-		filmTitSvc.getTranslationResults(chunks, callback);
+		filmTitSvc.getTranslationResults(gui.sessionID, chunks, callback);
 	}
 	
 	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
@@ -119,12 +130,17 @@ public class FilmTitServiceHandler {
 			}
 			
 			public void onFailure(Throwable caught) {
-				gui.log("ERROR: setUserTranslation() didn't succeed!");
-				// TODO: repeat sending a few times, then ask user
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					gui.log("ERROR: setUserTranslation() didn't succeed!");
+					// TODO: repeat sending a few times, then ask user
+				}
 			}
 		};
 		
-		filmTitSvc.setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPair, callback);
+		filmTitSvc.setUserTranslation(gui.sessionID, chunkId, documentId, userTranslation, chosenTranslationPair, callback);
 	}
 
 
@@ -137,12 +153,17 @@ public class FilmTitServiceHandler {
             }
 
             public void onFailure(Throwable caught) {
-                gui.log("ERROR: selectSource() didn't succeed!");
-                // TODO: repeat sending a few times, then ask user
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+	                gui.log("ERROR: selectSource() didn't succeed!");
+	                // TODO: repeat sending a few times, then ask user
+				}
             }
         };
 
-        filmTitSvc.selectSource(documentID, selectedMediaSource, callback);
+        filmTitSvc.selectSource( gui.sessionID, documentID, selectedMediaSource, callback);
     }
 
     public void simple_login(final String username, String password) {
