@@ -27,20 +27,21 @@ public interface FilmTitService extends RemoteService {
     
     // Method signatures prepared for the moment we'll have users and session:
 
-    Void logout(String sessionId) throws InvalidSessionIdException;
-    DocumentResponse createNewDocument(String sessionId, String movieTitle, String year, String language)
+    Void logout(String sessionID) throws InvalidSessionIdException;
+    DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language)
             throws InvalidSessionIdException;
-    TranslationResult getTranslationResults(String sessionId, TimedChunk chunk) throws InvalidSessionIdException;
-    Void setUserTranslation(String sessionId, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+    TranslationResult getTranslationResults(String sessionID, TimedChunk chunk) throws InvalidSessionIdException, InvalidDocumentIdException;
+    List<TranslationResult>  getTranslationResults(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException;
+    Void setUserTranslation(String sessionID, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    Void selectSource(String sessionId, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException;
-    List<Document> getListOfDocuments(String sessionId) throws InvalidSessionIdException;
-    Document loadDocument(String sessionId, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
-    Void closeDocument(String sessionId, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
-    Void setChunkStartTime(String sessionId, int chunkId, long documentId, String newStartTime)
+    Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException;
+    List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException;
+    Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
+    Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
+    Void setChunkStartTime(String sessionID, int chunkId, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    Void setChunkEndTime(String sessionId, int chunkId, long documentId, String newEndTime)
+    Void setChunkEndTime(String sessionID, int chunkId, long documentId, String newEndTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    TranslationResult regenerateTranslationResult(String sessionId, int chunkId, long documentId, TimedChunk chunk)
+    TranslationResult regenerateTranslationResult(String sessionID, int chunkId, long documentId, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 }

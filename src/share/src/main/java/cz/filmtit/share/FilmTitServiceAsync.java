@@ -13,7 +13,7 @@ public interface FilmTitServiceAsync
 			AsyncCallback<List<TranslationResult>> callback);
 
 
-    void setUserTranslation(String sessionId, int chunkId, long documentId,
+    void setUserTranslation(String sessionID, int chunkId, long documentId,
 			String userTranslation, long chosenTranslationPairID,
 			AsyncCallback<Void> callback);
 
@@ -29,7 +29,7 @@ public interface FilmTitServiceAsync
 			AsyncCallback<DocumentResponse> callback);
 
 
-    void selectSource(String sessionId, long documentID,
+    void selectSource(String sessionID, long documentID,
 			MediaSource selectedMediaSource, AsyncCallback<Void> callback);
 
 
@@ -79,26 +79,26 @@ public interface FilmTitServiceAsync
     }
 
 
-	void closeDocument(String sessionId, long documentId,
+	void closeDocument(String sessionID, long documentId,
 			AsyncCallback<Void> callback);
 
 
-	void getListOfDocuments(String sessionId,
+	void getListOfDocuments(String sessionID,
 			AsyncCallback<List<Document>> callback);
 
 
-	void logout(String sessionId, AsyncCallback<Void> callback);
+	void logout(String sessionID, AsyncCallback<Void> callback);
 
 
-	void loadDocument(String sessionId, long documentID,
+	void loadDocument(String sessionID, long documentID,
 			AsyncCallback<Document> callback);
 
 
-	void setChunkEndTime(String sessionId, int chunkId, long documentId,
+	void setChunkEndTime(String sessionID, int chunkId, long documentId,
 			String newEndTime, AsyncCallback<Void> callback);
 
 
-	void setChunkStartTime(String sessionId, int chunkId, long documentId,
+	void setChunkStartTime(String sessionID, int chunkId, long documentId,
 			String newStartTime, AsyncCallback<Void> callback);
 
 
@@ -107,16 +107,16 @@ public interface FilmTitServiceAsync
 			AsyncCallback<Void> callback);
 
 
-	void regenerateTranslationResult(String sessionId, int chunkId,
+	void regenerateTranslationResult(String sessionID, int chunkId,
 			long documentId, TimedChunk chunk,
 			AsyncCallback<TranslationResult> callback);
 
 
-	void getTranslationResults(String sessionId, TimedChunk chunk,
+	void getTranslationResults(String sessionID, TimedChunk chunk,
 			AsyncCallback<TranslationResult> callback);
 
 
-	void createNewDocument(String sessionId, String movieTitle, String year,
+	void createNewDocument(String sessionID, String movieTitle, String year,
 			String language, AsyncCallback<DocumentResponse> callback);
 
 
@@ -126,4 +126,8 @@ public interface FilmTitServiceAsync
 
 	void simple_login(String username, String password,
 			AsyncCallback<String> callback);
+
+
+	void getTranslationResults(String sessionID, List<TimedChunk> chunks,
+			AsyncCallback<List<TranslationResult>> callback);
 }
