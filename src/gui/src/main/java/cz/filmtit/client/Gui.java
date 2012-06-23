@@ -72,6 +72,9 @@ public class Gui implements EntryPoint {
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
+	protected String sessionID;
+	
+	private String username;
 	
 	protected Widget activeSuggestionWidget = null;
 	protected SubgestHandler subgestHandler = new SubgestHandler(this);
@@ -139,7 +142,11 @@ public class Gui implements EntryPoint {
         
         guiStructure.guestlogin.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				rpcHandler.simple_login("guest", "guest");
+				if (sessionID == null) {
+					rpcHandler.simple_login("guest", "guest");					
+				} else {
+					rpcHandler.logout();
+				}
 			}        	
         });
         
@@ -456,6 +463,16 @@ public class Gui implements EntryPoint {
 	
 	private void error(String errtext) {
 		log(errtext);
+	}
+	
+	protected void logged_in (String username) {
+        this.username = username;
+		guiStructure.guestlogin.setText("Log out user " + username);		
+	}
+	
+	protected void logged_out () {
+        this.username = null;
+		guiStructure.guestlogin.setText("Log in as guest");				
 	}
 	
 }

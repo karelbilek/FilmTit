@@ -19,7 +19,6 @@ public class FilmTitServiceHandler {
 	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
 	private FilmTitServiceAsync filmTitSvc;
 	private Gui gui;
-	private String SessionID;
 
     int windowsDisplayed = 0;
     public  void displayWindow(String message) {
@@ -150,8 +149,13 @@ public class FilmTitServiceHandler {
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {
-                gui.log("logged in as " + username + " with session id " + SessionID);
-                FilmTitServiceHandler.this.SessionID = SessionID;
+            	if (SessionID != null) {
+	                gui.log("logged in as " + username + " with session id " + SessionID);
+	                gui.sessionID = SessionID;
+	                gui.logged_in(username);
+            	} else {
+                    gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
+            	}
             }
 
             public void onFailure(Throwable caught) {
@@ -160,6 +164,23 @@ public class FilmTitServiceHandler {
         };
 
         filmTitSvc.simple_login(username, password, callback);
+    }
+
+    public void logout() {
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+            public void onSuccess(Void o) {
+                gui.log("logged out");
+                gui.sessionID = null;
+                gui.logged_out();
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: logout didn't succeed!");
+            }
+        };
+
+        filmTitSvc.logout(gui.sessionID, callback);
     }
 
 }
