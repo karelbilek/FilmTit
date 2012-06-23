@@ -137,6 +137,11 @@ public class Gui implements EntryPoint {
         guiStructure.scrollPanel.setWidget(docCreator);
         guiStructure.scrollPanel.addStyleName("creating_document");
         
+        guiStructure.guestlogin.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				rpcHandler.simple_login("guest", "guest");
+			}        	
+        });
         
         
 		// --- file reading interface via lib-gwt-file --- //
