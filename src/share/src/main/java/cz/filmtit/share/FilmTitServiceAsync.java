@@ -122,4 +122,8 @@ public interface FilmTitServiceAsync
 
 	void selectSource(long documentID, MediaSource selectedMediaSource,
 			AsyncCallback<Void> callback);
+
+
+	void simple_login(String username, String password,
+			AsyncCallback<String> callback);
 }

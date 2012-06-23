@@ -276,6 +276,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
+    public String simple_login(String username, String password) {
+        if (username.equals("guest") && password.equals("guest")) {
+            USUser user = new USUser(username);
+            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+            Session session = new Session(user);
+            activeSessions.put(newSessionID, session);
+
+            return newSessionID;
+        }
+        return null;
+    }
+
     public Void logout(String sessionId) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");

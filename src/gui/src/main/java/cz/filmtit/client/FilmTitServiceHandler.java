@@ -19,6 +19,7 @@ public class FilmTitServiceHandler {
 	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
 	private FilmTitServiceAsync filmTitSvc;
 	private Gui gui;
+	private String SessionID;
 
     int windowsDisplayed = 0;
     public  void displayWindow(String message) {
@@ -143,6 +144,22 @@ public class FilmTitServiceHandler {
         };
 
         filmTitSvc.selectSource(documentID, selectedMediaSource, callback);
+    }
+
+    public void simple_login(final String username, String password) {
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+            public void onSuccess(String SessionID) {
+                gui.log("logged in as " + username + " with session id " + SessionID);
+                FilmTitServiceHandler.this.SessionID = SessionID;
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: simple login didn't succeed!");
+            }
+        };
+
+        filmTitSvc.simple_login(username, password, callback);
     }
 
 }
