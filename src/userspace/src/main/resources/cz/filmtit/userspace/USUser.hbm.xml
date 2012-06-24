@@ -13,12 +13,15 @@
         <property name="userName" type="java.lang.String" column="userName" />
         <property name="login" type="java.lang.String" column="login" />
         <property name="email" type="java.lang.String" column="email" />
-        <!--  <property name="password" type="java.lang.String" column="pass" />
-        /    <property name="rating" type="long" column="rating" />      -->
         <property name="openID" type="java.lang.String" column="openId" />
         <property name="fbid" type="long" column="fbId" />
         <property name="active" type="boolean" column="active" />
         <property name="lastSession" type="java.util.Date" column="lastSession" />
+
+        <set name="activeDocumentIDs" table="ActiveDocumentIDs" lazy="false">
+            <key column="TranslationResultId"/>
+            <one-to-many class="USDocument" />
+        </set>
 
     </class>
 

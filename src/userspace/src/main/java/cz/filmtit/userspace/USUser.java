@@ -4,7 +4,9 @@ import cz.filmtit.share.User;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /* what may come from the interface
     - administrating the account =
@@ -29,6 +31,7 @@ public class USUser extends DatabaseObject {
         this.user = new User();
         user.setName(userName);
         ownedDocuments = new ArrayList<USDocument>();
+        activeDocumentIDs = new HashSet<Long>();
     }
 
     /**
@@ -37,7 +40,7 @@ public class USUser extends DatabaseObject {
     private USUser() {}
 
     private List<USDocument> ownedDocuments;
-    private USDocument activeDocument;
+    private Set<Long> activeDocumentIDs;
     /**
      * Sign if the active document was created in the current session and therefore is not yet in the database.
      */
@@ -68,6 +71,19 @@ public class USUser extends DatabaseObject {
 
     protected void setSharedDatabaseId(long id) { }
     protected long getSharedDatabaseId() { return databaseId; }
+
+    public Set<Long> getActiveDocumentIDs() {
+        return activeDocumentIDs;
+    }
+
+    /**
+     * Sets the set of document ID which are active at the time a session is terminated.
+     * Used by the Hibernate mapping.
+     * @param activeDocumentIDs
+     */
+    private void setActiveDocumentIDs(Set<Long> activeDocumentIDs) {
+        this.activeDocumentIDs = activeDocumentIDs;
+    }
 
     public void addDocument(USDocument document) {
         ownedDocuments.add(document);

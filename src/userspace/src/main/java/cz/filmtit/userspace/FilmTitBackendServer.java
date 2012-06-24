@@ -50,6 +50,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         String serverAddress = ConfigurationSingleton.getConf().serverAddress();
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
+        // initialize the database by opening and closing a session
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        HibernateUtil.closeAndCommitSession(dbSession);
+
         System.err.println("FilmTitBackendServer started fine!");
     }
 
