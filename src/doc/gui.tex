@@ -42,7 +42,17 @@ To conclude, we are happy that we decided to use GWT because of the benefits it 
 \section{GUI Structure}
 % (Honza/Ruda)
 
+(I am not sure what this section should look like, so I'm just drafting something.... RR)
 
+The main class is Gui.java. It defines the web application itself, providing an entry point and initialization methods. It also handles general requests.
+
+FilmTitServiceHandler.java provides wrappers for "raw" RPC calls. It offers methods with names and parameters similar to the actual RPC methods, also providing response and error handling.
+
+Layout and design using Twitter Bootstrap, so that design is separated from function as much as possible. Design is defined in *.ui.xml files, linked to *.java files with the same names.
+
+An important class is the SubgestBox, or "SUBtitle sugGESTion BOX", which visualizes the TM results, offering a variety of means of navigation through them.
+
+Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.)
 
 \subsection{Parsing and segmentation}
 % (maybe Karel?)
