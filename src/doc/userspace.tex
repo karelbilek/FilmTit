@@ -41,22 +41,20 @@ User Space also provides feedback to the core. A list of new translation the use
 
 \section{The Data Types Overview}
 
-The User Space uses the shared data types used thorough the application or the wrapper of such classes. A brief overview of the used classes and their role in the User Space follows.
+The User Space uses the shared data types used thorough the application or the wrapper of such classes. A brief overview of the used classes and their role in the User Space follows. (Prefix US means User Space.)
 
 \begin{itemize}
 \item {\tt FilmtitBackendServer}  -- The class is the Java Servlet whose public methods are invoked by the RPC calls. Its main task is to mediate the calls to concrete opened sessions and take care of users login. A thread checking if there some sessions without activity for a long time and termites the non-active sessions is run the server class.
 
-\item {\tt Session} -- The class represents a running session. There is exactly one session object for one logged in user, it is actually the Session class which process the client calls. It contains hash tables of actively edited documents and the chunks they contain to access them faster via the calls. During the existence of a session object all the client side operations are stored just in the memory. All the content is saved to database when the session is terminated.
+\item {\tt Session} -- The class represents a running session. There is exactly one session object for one logged in user, it is actually the Session class which process the client calls. It contains hash tables of actively edited documents and the chunks they contain to access them faster via the calls. During the existence of a session object all the client side operations are stored just in the memory. All the content is saved to database when the session is terminated. The existence of sessions is saved to the database to provide some basic statistics about using the application.
 
-\item {\tt USUser} --
+\item {\tt USUser} -- This class is a wrapper of the shared User class. During the existence of the session its used as a provider of the documents owned by the user. It is also used for storing the settings of the user. In advance to the shared class a set of documents which has been left opened when the last user's session was terminated is also stored in the class which is used at the time a new session is created. 
 
-\item {\tt USDocumets} --
+\item {\tt USDocument} -- The class is a wrapper of the shared {\tt Document} class. A {\tt USDocument} object represents a subtitle file with additional information about the movie it belongs to. Its content is supposed to be a mirror image of the Document object on the client side. It contains a list of Translation Results representing the actual subtitle chunks if the document is loaded to be edited.
 
-\item {\tt USTranslationResult} --
+\item {\tt USTranslationResult} -- It is a wrapper for the shared {\tt TranlsationResult} class. The class congregates the original subtitle chunk, its timing, the translation suggested by translation memory and the result of the user activity -- the user's translation which translation suggestion she has chosen. It is the class where the actual translation is being done. Despite a user can delete the document he is working all the translation results are kept in the database to provide a  feed back to the translation memory.
 
-\item {\tt TimedChunk} --
+\item {\tt TimedChunk} -- It is a shared class which is used for the communication with the client. When the User Space receives a Timed Chunk it wraps it into a Tranlsation Result and send it back to the client together with the translation memory suggestion.
 
-\item {\tt TranslationPair} --
+\item {\tt TranslationPair} -- A list {\tt TranslationPair} objects is received as a respond from the Translation Memory Core. It is then stored in the Translation Results objects both on the server and client side.
 \end{itemize}
-
-The mapping, just simple operations -- storing data in database and loading it again -- using JPA would be overkill, Hibernate is just enough.
