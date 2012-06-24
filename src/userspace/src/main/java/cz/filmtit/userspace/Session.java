@@ -105,18 +105,18 @@ public class Session {
      * Terminates the session. Usually in the situation when the user open a new one.
      */
     private void terminate() {
-        
         org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
-
         session.save(this);
 
-        // TODO: when proper users, save to database here
-        //user.saveToDatabase(session);
+        user.getActiveDocumentIDs().clear();
+
         for (USDocument activeDoc : activeDocuments.values()) {
             activeDoc.saveToDatabase(session);
+            user.getActiveDocumentIDs().add(activeDoc.getDatabaseId());
         }
-        HibernateUtil.closeAndCommitSession(session);
 
+        user.saveToDatabase(session);
+        HibernateUtil.closeAndCommitSession(session);
     }
 
     /**
