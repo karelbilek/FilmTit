@@ -9,48 +9,23 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 public interface FilmTitServiceAsync
 {
 
-    void getTranslationResults(List<TimedChunk> chunk,
-			AsyncCallback<List<TranslationResult>> callback);
-
-
-    void setUserTranslation(String sessionID, int chunkId, long documentId,
-			String userTranslation, long chosenTranslationPairID,
-			AsyncCallback<Void> callback);
-
-
     /**
      * GWT-RPC service  asynchronous (client-side) interface
      * @see cz.filmtit.share.FilmTitService
      */
-    void createDocument( java.lang.String movieTitle, java.lang.String year, java.lang.String language, AsyncCallback<cz.filmtit.share.Document> callback );
 
-
-    void createNewDocument(String movieTitle, String year, String language,
-			AsyncCallback<DocumentResponse> callback);
+	void setUserTranslation(String sessionID, int chunkId, long documentId,
+			String userTranslation, long chosenTranslationPairID,
+			AsyncCallback<Void> callback);
 
 
     void selectSource(String sessionID, long documentID,
 			MediaSource selectedMediaSource, AsyncCallback<Void> callback);
 
-
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
     void getAuthenticationURL( long authID, cz.filmtit.share.AuthenticationServiceType serviceType, AsyncCallback<java.lang.String> callback );
 
-
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
     void validateAuthentication( long authID, java.lang.String responseURL, AsyncCallback<java.lang.Boolean> callback );
 
-
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see cz.filmtit.share.FilmTitService
-     */
     void getSessionID( long authID, AsyncCallback<java.lang.String> callback );
 
 
@@ -102,11 +77,6 @@ public interface FilmTitServiceAsync
 			String newStartTime, AsyncCallback<Void> callback);
 
 
-	void setUserTranslation(int chunkId, long documentId,
-			String userTranslation, long chosenTranslationPair,
-			AsyncCallback<Void> callback);
-
-
 	void regenerateTranslationResult(String sessionID, int chunkId,
 			long documentId, TimedChunk chunk,
 			AsyncCallback<TranslationResult> callback);
@@ -118,10 +88,6 @@ public interface FilmTitServiceAsync
 
 	void createNewDocument(String sessionID, String movieTitle, String year,
 			String language, AsyncCallback<DocumentResponse> callback);
-
-
-	void selectSource(long documentID, MediaSource selectedMediaSource,
-			AsyncCallback<Void> callback);
 
 
 	void simple_login(String username, String password,
