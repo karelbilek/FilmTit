@@ -239,8 +239,12 @@ manually selected the annotation types and trained the OpenNLP named entity reco
 Both approaches showed to have their unique advantages and disadvantages. While the first approach is only minimally supervised
 and can easily be extended to other languages that have a local version of Wikipedia and existing DBpedia dumps (DBpedia dumps are currently available for 97 languages\footnote{\url{http://wiki.dbpedia.org/Downloads37}}), our manual evaluation of the produced Named Entity recognizers showed that the models trained on the Czech Named Entity corpus produced better results.
 
+More precisely, we approximated, that the DBPedia recognized far less cases and, therefore, had much lower RECALL, the PRECISION was only slightly better. We then decided, that lower RECALL is worse for our purposes -- it's better to show wrong translation to user than to not show anything.
 
+\subsubsection*{Effectiveness}
+It's worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitles, there is not a single match, but the recognition of named entities takes the most time during the data import.  
 
+TODO:DATA HERE
 
 \subsection{External services}
 
@@ -249,6 +253,8 @@ For this, a query with the chunk is sent to an external REST-based
 API.\footnote{We use the free Machine Translation API of the MyMemory project, cf. \url{http://mymemory.translated.net/doc/spec.php}.}
 If the resulting translation meets the minimal quality threshold, it
 will be presented to the user.
+
+However, there is no machine translation service with unlimited free REST-based API, and, for example, MyMemory project has so low daily quota, that we get over its quota with averagely TODO:FILLDATA subtitle files.
 
 \subsection{Statistical Machine-Translation based on Moses}
 
