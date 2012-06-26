@@ -197,6 +197,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // lib is open source and we can added for example seznam or myid
 
         Endpoint endpoint = manager.lookupEndpoint("Google");
+        // TODO: java.lang.NullPointerException at cz.filmtit.userspace.FilmTitBackendServer.getAuthenticationURL(FilmTitBackendServer.java:199)
         Association association = manager.lookupAssociation(endpoint);
         // create url for authentication
         // need to raw data for getting authentication
