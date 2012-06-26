@@ -144,28 +144,12 @@ public class Gui implements EntryPoint {
         guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (sessionID == null) {
-
-	                final DialogBox dialogBox = new DialogBox(false);
-	                final LoginDialog loginDialog = new LoginDialog();
-	                
-	                loginDialog.btnLogin.addClickHandler( new ClickHandler() {
-	                    @Override
-	                    public void onClick(ClickEvent event) {
-	                        dialogBox.hide();
-	                        log("trying to log in as user " + loginDialog.getUsername());
-	    					rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());					
-	                    }
-	                } );
-	                
-	                dialogBox.setWidget(loginDialog);
-	                dialogBox.setGlassEnabled(true);
-	                dialogBox.center();
+	                showLoginDialog();
 				} else {
 					rpcHandler.logout();
 				}
 			}        	
         });
-        
         
 		// --- file reading interface via lib-gwt-file --- //
 		final FileReader freader = new FileReader();
@@ -216,10 +200,7 @@ public class Gui implements EntryPoint {
 
 	}	// onModuleLoad()
 	
-
-
-
-    private void createDocumentFromText(String subtext) {
+	private void createDocumentFromText(String subtext) {
         rpcHandler.createDocument(docCreator.getMovieTitle(),
                 docCreator.getMovieYear(),
                 docCreator.getChosenLanguage(),
@@ -483,14 +464,56 @@ public class Gui implements EntryPoint {
 		log(errtext);
 	}
 	
+	/**
+	 * show a dialog enabling the user to
+	 * log in directly or [this line maybe to be removed]
+	 * via OpenID services
+	 */
+    protected void showLoginDialog() {
+    	
+    	final DialogBox dialogBox = new DialogBox(false);
+        final LoginDialog loginDialog = new LoginDialog();
+        
+        loginDialog.btnLogin.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+                log("trying to log in as user " + loginDialog.getUsername());
+				rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());					
+            }
+        } );
+        
+        loginDialog.btnLoginGoogle.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("trying to log in through Google account");
+				rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, dialogBox);
+			}
+		});
+        
+        loginDialog.btnCancel.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("LoginDialog closed by user hitting Cancel button");
+                dialogBox.hide();
+			}
+		});
+        
+        dialogBox.setWidget(loginDialog);
+        dialogBox.setGlassEnabled(true);
+        dialogBox.center();
+    }
+
 	protected void please_log_in () {
 		logged_out ();
 		rpcHandler.displayWindow("Please log in first.");
+		showLoginDialog();
 	}
 	
 	protected void please_relog_in () {
 		logged_out ();
 		rpcHandler.displayWindow("You have not logged in or your session has expired. Please log in.");
+		showLoginDialog();
 	}
 	
 	protected void logged_in (String username) {

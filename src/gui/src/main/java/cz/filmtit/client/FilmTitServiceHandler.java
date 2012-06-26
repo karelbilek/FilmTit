@@ -6,6 +6,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -178,6 +179,8 @@ public class FilmTitServiceHandler {
 	                gui.logged_in(username);
             	} else {
                     gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
+                    displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
+            		gui.showLoginDialog();
             	}
             }
 
@@ -206,4 +209,48 @@ public class FilmTitServiceHandler {
         filmTitSvc.logout(gui.sessionID, callback);
     }
 
+    
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, final DialogBox loginDialogBox) {
+		
+		final long authID = Random.nextInt();
+
+		AsyncCallback<String> callback = new AsyncCallback<String>() {
+			
+			public void onSuccess(final String url) {
+				gui.log("Authentication URL arrived: " + url);
+
+				loginDialogBox.hide();
+				
+				Window.open(url, "AuthenticationWindow", "width=200,height=200");
+
+				// open a dialog saying that we are waiting for the user to authenticate
+                final DialogBox dialogBox = new DialogBox(false);
+                final SessionIDPollingDialog sessionIDPollingDialog = new SessionIDPollingDialog(authID);
+                sessionIDPollingDialog.btnCancel.addClickHandler( new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+                        gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
+                        dialogBox.hide();
+					}
+				});
+                dialogBox.setGlassEnabled(true);
+                dialogBox.center();
+            }
+			
+			public void onFailure(Throwable caught) {
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					// TODO: repeat sending a few times, then ask user
+					// displayWindow(caught.getLocalizedMessage());
+					gui.log("failure on requesting authentication url!");
+				}
+			}
+
+		};
+		
+		filmTitSvc.getAuthenticationURL(authID, serviceType, callback);
+	}
+	    
 }
