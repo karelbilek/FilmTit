@@ -4,9 +4,10 @@ To ensure the full usability of the software from the very first moments when it
 
 \subsection{Retrieving data}
 
-There plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded. Anyway, in order to avoid any copyright problems we asked the administrator of the biggest server providing the subtitles \emph{opensubtitles.org}.
+There are plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded.
+However, it is problematic to download from most of the servers in bigger batches (thanks to anti-spam protection and so on); also, we wanted to avoid any copyright problems we would meet by using random subtitles from the internet. For this purpose, we asked the administrator of the biggest server providing the subtitles \emph{opensubtitles.org} for the data.
 
-As a result of this we received all subtitle files in Czech and English from \emph{opensubtitles.org} with following licence contition (in Slovak):
+As a result of this we received all subtitle files in Czech and English from \emph{opensubtitles.org} with following licence condition (in Slovak):
 
 \begin{quote}
 \begin{verbatim}
@@ -36,30 +37,50 @@ but I think it's ok :)
 \end{verbatim}
 \end{quote}
 
-\noindent As a matter of fact, the users of \emph{opensubtitles.org} agree with a statement where they declare they are holders of all rights to the content they post to the server, and provide the subtitle files as their own intellectual property for public use. % Based on this statement we trust the users they really did what they declared.
 
-From this data we will create a parallel corpus of ...
+\noindent We decided that this licence condition is acceptable for our purposes. 
+
+As a matter of fact, the users of \emph{opensubtitles.org} agree with a statement where they declare they are holders of all rights to the content they post to the server, and provide the subtitle files as their own intellectual property for public use. Based on this and the licence, we think there are no more copyright issues.% Based on this statement we trust the users they really did what they declared.
+
+%From this data we will create a parallel corpus of ...
 
 \subsection{The data properties}
 
+(In this section, we call \emph{subtitle} the whole subtitle file, \emph{chunk} is again the piece of text, displayed on screen at one time)
+
 We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After solving this problem we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data.
 
-Some subtitles are divide into more files, anyway 81\% of subtitles are in one piece. There is also just 1.7\% movies having subtitles only in multiple files. Moreover, we can assume that those which are in more parts, are probably just split the complete onces. To keep the chunk alignment simple I would delete those as well.
+
+Some subtitles are divide into more files, anyway 81\% of subtitles are in one piece. There is also just 1.7\% movies having subtitles only in multiple files. Moreover, we can assume that those which are in more parts, are probably just split the complete onces. To keep the chunk alignment simple we would delete those as well.
 
 This caused that some movies lost its translation -- 64
 of Czech and 218 of English. In total we will lost 3,5\% of movies. After this steps, the amount of data was 2,556 MB.
 
-While looking more carefully at the data we found there were 228 Czech subtitles files, 814 files in total having the same movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001}.
+Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were correctly marked.
+
+However, this also caused one curious issue.
+While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
 
 After doing all mentioned filtering we had 2,543 MB in 110,312 subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
-\subsection{Processing the data}
+From these, the average subtitle file had XX chunks.
 
-The next logical step was to find the matching pair of subtitle files for each movie. 
+\subsection{Aligning the subtitles}
+
+While we had enough metadata to align subtitles of the same movie together, there were still more than two subtitle files for each of the movies, so we needed to chose the best pair. Also, on these, we needed to align the actual chunks together. 
+
+For elignment, we used two different approaches, which we then compared. TODO: COMPARISON. Damn, I am doing that today.
+
+\subsubsection*{Editing distance}
 
 While comparing two mostly identical subtitle files, there may appear some issues which cause that the timing of the files is not identical. There exist some cases where one chunk is split into more or two are merged into one. In both of this cases, two time declarations in the file remain the same and two time declarations are added or deleted. There are also a lot of subtitles for deaf people where from time to time some additional subtitle appears. 
 
-From that we concluded that the best measure how subtitle files matches would be the editing distance of their time declarations since the cases mentioned above contributes relatively little to the score in contrast to some more significant mismatches. As one of the papers (CITE!!!) proposed we used 0.6\,s as a tolerance for equality, not to be confused by slight differences in timing. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
+From that we concluded that the best measure how subtitle files matches would be the editing distance of their time declarations since the cases mentioned above contributes relatively little to the score in contrast to some more significant mismatches. 
+By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+
+As one of the papers (CITE!!!) proposed we used 0.6\,s as a tolerance for equality, not to be confused by slight differences in timing. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
+
+%when I rewrote it to scala it was actually much faster then in perl. Maybe we COULD do the whole files now :-)
 
 The results were following: from 15,552 movies there was 22.2\,\%
 with perfect matches and 3.1\,\% of total mismatches. The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
@@ -81,6 +102,7 @@ amount of films & measure of match\\ \hline
 \caption{Table capturing for how many movies there exist a matching pair of subtitle files with given measure of matching}\label{opensubtitles:matchTable}
 \end{table}
 
+%what does the "measure of match" mean in this context? I don't get it.
 
 After looking at some randomly selected files we have decided to use just movies for which we have a pair of files with at least 70 \% match. Surprisingly, some worse scored pairs have quite high-quality translations, because they contain a lot of joined and split chunks, but generally, based on ran the quality of translation decreased with the match score.
 
