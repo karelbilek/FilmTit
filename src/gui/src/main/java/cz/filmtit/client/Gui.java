@@ -60,7 +60,7 @@ public class Gui implements EntryPoint {
 	
 	protected List<TimedChunk> chunklist;
 	
-	private List<FakeSubgestBox> targetBoxes = new ArrayList<FakeSubgestBox>();
+	private List<FakeSubgestBox> targetBoxes;
 
 	protected RootPanel rootPanel;
 
@@ -78,7 +78,7 @@ public class Gui implements EntryPoint {
 	private String username;
 	
 	protected Widget activeSuggestionWidget = null;
-	protected SubgestHandler subgestHandler = new SubgestHandler(this);
+	protected SubgestHandler subgestHandler;
 
 	/**
 	 * Multi-line subtitle text to parse
@@ -107,6 +107,24 @@ public class Gui implements EntryPoint {
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 		
 		
+		// determine the page to be loaded (GUI is the default and fallback)
+		String page = Window.Location.getParameter("page");
+		if (page == null) {
+			createGui();			
+			log("No page parameter set, creating GUI...");
+		}
+		else if (page.equals("AuthenticationValidationWindow")) {
+			createAuthenticationValidationWindow();			
+		}
+		else {
+			createGui();			
+			log("Fallback to GUI - page=" + page);
+		}
+		
+	}	// onModuleLoad()
+
+	private void createGui() {
+		
 		// -------------------- //
 		// --- GUI creation --- //
 		// -------------------- //
@@ -114,43 +132,45 @@ public class Gui implements EntryPoint {
 		rootPanel = RootPanel.get();
 		//rootPanel.setSize("800", "600");
 
-
 		// --- loading the uibinder-defined structure of the page --- //
 		guiStructure = new GuiStructure();
 		rootPanel.add(guiStructure, 0, 0);
 		// --- end of loading the uibinder --- //
-		
+				
+		// initializations
+		targetBoxes = new ArrayList<FakeSubgestBox>();
+		subgestHandler = new SubgestHandler(this);
 
 		// --- main interface --- //
 		// only preparing the table - not showing it yet
 		table = new FlexTable();
 		table.setWidth("100%");
 
-        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
+		table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
+		table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
 		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "410px");
 
-        table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
-        table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
-        table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
-        table.getRowFormatter().setStyleName(0, "header");
+		table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
+		table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
+		table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
+		table.getRowFormatter().setStyleName(0, "header");
 		// --- end of main interface --- //
 
 
-        docCreator = new DocumentCreator();
-        guiStructure.scrollPanel.setWidget(docCreator);
-        guiStructure.scrollPanel.addStyleName("creating_document");
-        
-        guiStructure.login.addClickHandler(new ClickHandler() {
+		docCreator = new DocumentCreator();
+		guiStructure.scrollPanel.setWidget(docCreator);
+		guiStructure.scrollPanel.addStyleName("creating_document");
+		
+		guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (sessionID == null) {
-	                showLoginDialog();
+		            showLoginDialog();
 				} else {
 					rpcHandler.logout();
 				}
 			}        	
-        });
-        
+		});
+		
 		// --- file reading interface via lib-gwt-file --- //
 		final FileReader freader = new FileReader();
 		freader.addLoadEndHandler( new LoadEndHandler() {
@@ -196,10 +216,28 @@ public class Gui implements EntryPoint {
 				deactivateSuggestionWidget();
 			}
 		} );
-		
-
-	}	// onModuleLoad()
+	}
 	
+	private void createAuthenticationValidationWindow() {
+		// ----------------------------------------------- //
+		// --- AuthenticationValidationWindow creation --- //
+		// ----------------------------------------------- //
+		
+		rootPanel = RootPanel.get();
+		//rootPanel.setSize("800", "600");
+
+		// --- loading the uibinder-defined structure of the page --- //
+		AuthenticationValidationWindow authenticationValidationWindow = new AuthenticationValidationWindow();
+		rootPanel.add(authenticationValidationWindow, 0, 0);
+		
+		// get authentication data
+		// String responseURL = Window.Location.getQueryString();
+		String responseURL = Window.Location.getParameter("responseURL");
+		long authID = Long.parseLong(Window.Location.getParameter("authID"));			
+		
+		rpcHandler.validateAuthentication (responseURL, authID);
+	}
+
 	private void createDocumentFromText(String subtext) {
         rpcHandler.createDocument(docCreator.getMovieTitle(),
                 docCreator.getMovieYear(),

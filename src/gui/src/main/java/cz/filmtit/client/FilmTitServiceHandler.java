@@ -252,5 +252,23 @@ public class FilmTitServiceHandler {
 		
 		filmTitSvc.getAuthenticationURL(authID, serviceType, callback);
 	}
+	
+	public void validateAuthentication (String responseURL, long authID) {
+
+		// create callback
+		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+			
+			public void onSuccess(Boolean result) {
+				// TODO say OK and close the window
+			}
+			
+			public void onFailure(Throwable caught) {
+				// TODO say error
+			}
+		};
+		
+		// RPC
+		filmTitSvc.validateAuthentication(authID, responseURL, callback);		
+	}
 	    
 }
