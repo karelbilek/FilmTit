@@ -15,7 +15,7 @@
                 <b:NavLink href="http://www.google.com">Another Test</b:NavLink>
             </b:Nav>
             <b:Nav alignment="RIGHT">
-                <b:NavLink ui:field="guestlogin">Log in as guest</b:NavLink>
+                <b:NavLink ui:field="login">Log in</b:NavLink>
             </b:Nav>
 
             <b:NavSearch size="2" placeholder="Search" alignment="RIGHT"/>

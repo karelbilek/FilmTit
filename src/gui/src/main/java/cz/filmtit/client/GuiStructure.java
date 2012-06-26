@@ -26,7 +26,7 @@ public class GuiStructure extends Composite {
 	NavLink loginlink;
 
 	@UiField
-	NavLink guestlogin;
+	NavLink login;
 
 	@UiField
 	ScrollPanel scrollPanel;

@@ -1,0 +1,131 @@
+\section{Configuration}
+
+The configuration for the server is contained in the file \verb#configuration.xml#, which has to be specified on startup.
+
+In this section, we will give a brief overview over the properties specified in the configuration file and its default values.
+
+\subsection{General settings}
+L1 and L2 specify the ISO 639-1 codes of the source and target languages used in the translation memory.
+\lstset{numbers=none, language=XML, caption={Languages}}
+\begin{lstlisting}
+<l1>en</l1>
+<l2>cs</l2>
+\end{lstlisting}
+
+\subsection{Database}
+
+The database connection must be specified as a valid JDBC connector. By default, the DBMS is the local Postgres database \verb#filmtit# with default username and password.
+
+\lstset{numbers=none, language=XML, caption={Database connection}}
+\begin{lstlisting}
+<database>
+    <connector>jdbc:postgresql://localhost/filmtit</connector>
+    <user>postgres</user>
+    <password>postgres</password>
+</database>
+\end{lstlisting}
+
+
+\newpage
+\subsection{Text processing models}
+
+For various text processing tasks within the translation memory, 
+it is necessary to specify a number of model files.
+
+The system will search for the models in the folder \verb#model_path#.
+\lstset{numbers=none, language=XML, caption={Model path}}
+\begin{lstlisting}
+<model_path>models/</model_path>
+\end{lstlisting}
+
+OpenNLP Maximum Entropy tokenizer models are specified in the \verb#tokenizers# section. If for a specific language, no tokenizer model is specified, the translation memory will use the default OpenNLP WhitespaceTokenizer.
+\lstset{numbers=none, language=XML, caption={Tokenizers}, }
+\begin{lstlisting}
+<tokenizers>
+    <tokenizer language="en">en/token.bin</tokenizer>
+    <tokenizer language="cs">cs/token.bin</tokenizer>
+</tokenizers>
+\end{lstlisting}
+
+OpenNLP Maximum Entropy models for Named Entity Recognition are specified in the \verb#ner_models# section. Each \verb#ner_model# specifies a language (ISO 639-1 code) and the type of Entity that it recognizes. Currently, only Person, Place and Organization are used. If fewer models are specified, only the specified models will be used.
+
+\lstset{numbers=none, language=XML, caption={Models for Named Entity Recognition}}
+\begin{lstlisting}
+<ner_models>
+    <!-- English -->
+    <ner_model language="en" type="Person">en/ner-person.bin</ner_model>
+    <ner_model language="en" type="Place">en/ner-place.bin</ner_model>
+    <ner_model language="en" type="Organization">en/ner-organization.bin</ner_model>
+
+    <!-- Czech -->
+    <ner_model language="cs" type="Person">cs/ner-person.bin</ner_model>
+    <ner_model language="cs" type="Place">cs/ner-place.bin</ner_model>
+    <ner_model language="cs" type="Organization">cs/ner-organization.bin</ner_model>
+</ner_models>
+\end{lstlisting}
+
+\subsection{Data Import}
+%TODO section?
+For the data import as described in section~\ref{sec:dataimport}, several files have to be specified.
+
+\begin{itemize}
+        \item \verb#subtitles_folder# -- the folder containing the subtitle files for the initial import
+        \item \verb#data_folder# -- the folder the results of the alignment (see section~\ref{sec:dataimport})
+        \item \verb#file_mediasource_mapping# -- a CSV file that describes the source (movie or TV show) of the  subtitle files
+        \item \verb#batch_size# -- the number of subtitle files that should be processed at the same time. A higher number will increase the memory consumption of the import process.
+        \item \verb#imdb_cache# -- the location of a cache file for the movie data queried from IMDB for each subtitle file
+        
+        \item \verb#heldout# -- specifies a portion of the data that will be left out of the import for tuning purposes
+\end{itemize}
+
+
+\lstset{numbers=none, language=XML, caption={Settings for the Data Import}}
+\begin{lstlisting}
+<import>
+
+    <subtitles_folder>/filmtit/data/export/files/</subtitles_folder>
+
+    <data_folder>/filmtit/data/aligned/</data_folder>
+    <file_mediasource_mapping>/filmtit/data/files/export_final.txt</file_mediasource_mapping>
+    <batch_size>100</batch_size>
+    <imdb_cache>/filmtit/data/imdb_cache</imdb_cache>
+
+    <heldout>
+        <size>0.02</size>
+        <path>/tmp/heldout.csv</path>
+    </heldout>
+
+</import>
+\end{lstlisting}
+
+
+\subsection{Module-Specific Options}
+
+\subsubsection{Core TM}
+
+The module-specific options for the Core TM are mostly related to performance.
+
+\begin{itemize}
+        \item \verb#max_number_of_concurrent_searchers# -- specifies the maximum number of searchers that will be created concurrently. By default, 5 searchers will be created and requests will be scheduled among them.
+        \item \verb#searcher_timeout# -- specifies the maximum time the scheduler will wait for a searcher to respond. If the time is exceeded, the scheduler will retry a different searcher.
+\end{itemize}
+
+\lstset{numbers=none, language=XML, caption={Settings for the Core TM}}
+\begin{lstlisting}
+<core>
+    <max_number_of_concurrent_searchers>5</max_number_of_concurrent_searchers>
+    <searcher_timeout>60</searcher_timeout> <!--in seconds-->
+</core>
+\end{lstlisting}
+
+
+\subsubsection{Userspace}
+
+\lstset{numbers=none, language=XML, caption={Settings for the Userspace}}
+\begin{lstlisting}
+<userspace>
+    <session_timeout_limit>3600000</session_timeout_limit>
+    <server_address>http://ufallab.ms.mff.cuni.cz:12480</server_address>
+</userspace>
+\end{lstlisting}
+

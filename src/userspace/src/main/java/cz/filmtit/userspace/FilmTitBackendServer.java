@@ -50,6 +50,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         String serverAddress = ConfigurationSingleton.getConf().serverAddress();
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
+        // initialize the database by opening and closing a session
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        HibernateUtil.closeAndCommitSession(dbSession);
+
         System.err.println("FilmTitBackendServer started fine!");
     }
 
@@ -70,27 +74,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public TranslationMemory getTM() {
         return TM;
-    }
-    public TranslationResult getTranslationResults(TimedChunk chunk) {
-        //this looks terribly unsafe, nothing is checked here
-        USDocument docu = activeDocuments.get(chunk.getDocumentId());
-        USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-        usTranslationResult.setParent(docu);
-
-        usTranslationResult.generateMTSuggestions(TM);
-
-        activeTranslationResults.get(docu.getDatabaseId()).put(chunk.getId(), usTranslationResult);
-        return usTranslationResult.getTranslationResult();
-    }
-
-
-    public List<TranslationResult> getTranslationResults(List<TimedChunk> chunks) {
-        List<TranslationResult> res = new ArrayList<TranslationResult>(chunks.size());
-
-        for (TimedChunk timedchunk:chunks) {
-            res.add(getTranslationResults(timedchunk));
-        }
-        return res;
     }
 
     public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk) throws InvalidSessionIdException, InvalidDocumentIdException {
@@ -114,28 +97,28 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return res;
     }
 
-    @Override
-    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
-        USTranslationResult tr=null;
-        try {
-            tr = activeTranslationResults.get(documentId).get(chunkId);
-            tr.setUserTranslation(userTranslation);
-            tr.setSelectedTranslationPairID(chosenTranslationPairID);
-        } catch (NullPointerException e) {
-            System.err.println("Nullpointerexception "+e);
-            return null;
-        }
-
-        // a Session free temporary saving solution
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-
-        tr.saveToDatabase(dbSession);
-
-
-        HibernateUtil.closeAndCommitSession(dbSession);
-
-        return null;
-    }
+//    @Override
+//    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
+//        USTranslationResult tr=null;
+//        try {
+//            tr = activeTranslationResults.get(documentId).get(chunkId);
+//            tr.setUserTranslation(userTranslation);
+//            tr.setSelectedTranslationPairID(chosenTranslationPairID);
+//        } catch (NullPointerException e) {
+//            System.err.println("Nullpointerexception "+e);
+//            return null;
+//        }
+//
+//        // a Session free temporary saving solution
+//        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+//
+//        tr.saveToDatabase(dbSession);
+//
+//
+//        HibernateUtil.closeAndCommitSession(dbSession);
+//
+//        return null;
+//    }
 
     public Void setUserTranslation(String sessionID, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
@@ -169,37 +152,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionID).regenerateTranslationResult(chunkId, documentId, chunk, TM);
     }
 
-    @Override
-    public Document createDocument(String movieTitle, String year, String language) {
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
-        activeDocuments.put(usDocument.getDatabaseId(), usDocument);
-        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
-        return usDocument.getDocument();
-    }
-
-    @Override
-    public DocumentResponse createNewDocument(String movieTitle, String year, String language) {
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
-        List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
-
-        activeDocuments.put(usDocument.getDatabaseId(), usDocument);
-        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
-
-        return new DocumentResponse(usDocument.getDocument(), suggestions);
-    }
-
     public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
         return activeSessions.get(sessionID).createNewDocument(movieTitle, year, language, TM);
-    }
-
-    @Override
-    public Void selectSource(long documentID, MediaSource selectedMediaSource) {
-        USDocument usDocument = activeDocuments.get(documentID);
-        usDocument.setMovie(selectedMediaSource);
-        return null;
     }
 
     public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException {

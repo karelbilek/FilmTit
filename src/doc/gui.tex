@@ -12,12 +12,47 @@ Our main goal is to offer a tool for the translators of the movie subtitles as e
 The web-based user interface representing the client part of the FilmTit application is based on the Google Web Toolkit (GWT) framework. This technology is a development toolkit for building and optimizing browser-based applications %\citep{Gwtweb}
 and is based on the idea of translation of Java source code into Javascript. Therefore, it enables us to write in Java even on the client side, but preserving most of the advantages of web application accessibility for the user.
 
+The official description of GWT isas follows:
+
+Google Web Toolkit (GWT) is a development toolkit for building and optimizing complex browser-based applications. Its goal is to enable productive development of high-performance web applications without the developer having to be an expert in browser quirks, XMLHttpRequest, and JavaScript. GWT is used by many products at Google, including Google Wave and the new version of AdWords. It's open source, completely free, and used by thousands of developers around the world.
+
+We decided to use GWT for several reasons.
+
+One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.
+
+However, there is a downside which can be expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsopported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had been already solved by others. Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
+
+A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE), possibly with debugging support (realized by a browser plugin). This proved to be very efficient in the first phases of the development when GUI was developed independently, but was harder to control once GUI was integreated with the rest of the project.
+
+Using any web framework should allow the developers to concentrate on the functionality that they need, not having to deal with cross browser compatibility. GWT usually does a good job -- it actually compiles several variants of the Javascript code to be used by different browsers (these variants are called permutations) -- but we still had to solve compatibility problems time to time.
+Still, we hope that GWT development will continue and will keep up with the development of web browsers, allowing us to provide up-to-date versions of FilmTit simply by acquiring a new version of GWT and recompiling the project.
+
+Another feature that we found useful is the possibility to directly insert real Javascript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way how to do something that is supported in Javascript but unsupported in GWT.
+
+An important point also was that GWT is freeware (it is even open-source, but we did not benefit from it much).
+
+Although GWT can be integrated into a Maven project, it was far from flawless and a lot of time had to be spent on making everything work together. We managed to do that in the end, but we had expected this to be much easier.
+
+To conclude, we are happy that we decided to use GWT because of the benefits it brought to us, but we were disappointed by the number of complications that it brought as well. Were we to decide on a web framework to use for a similar project, we would still have to consider our decision carefully.
+
 \section{Browser Support}
 % (Honza)
 
 
 \section{GUI Structure}
 % (Honza/Ruda)
+
+(I am not sure what this section should look like, so I'm just drafting something.... RR)
+
+The main class is Gui.java. It defines the web application itself, providing an entry point and initialization methods. It also handles general requests.
+
+FilmTitServiceHandler.java provides wrappers for "raw" RPC calls. It offers methods with names and parameters similar to the actual RPC methods, also providing response and error handling.
+
+Layout and design using Twitter Bootstrap, so that design is separated from function as much as possible. Design is defined in *.ui.xml files, linked to *.java files with the same names.
+
+An important class is the SubgestBox, or "SUBtitle sugGESTion BOX", which visualizes the TM results, offering a variety of means of navigation through them.
+
+Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.)
 
 \subsection{Parsing and segmentation}
 % (maybe Karel?)

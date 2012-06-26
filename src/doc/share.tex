@@ -1,0 +1,41 @@
+
+Shared classes are used in the whole project. Therefore, they have to be compilable both into Java bytecode by javac and into Javascript by Google Web Toolkit (GWT), i.e. they have to use the intersection of Java and GWT.
+
+These classes can be shared by all parts of the project, but some of them are used only e.g. in GUI and Userspace.
+
+annotations.gwt.xml \\
+AuthenticationServiceType.java \\
+Chunk.java \\
+Document.java \\
+DocumentResponse.java \\
+FilmTitServiceAsync.java \\
+FilmTitService.java \\
+Language.java \\
+MediaSource.java \\
+TimedChunk.java \\
+TitChunkSeparator.java \\
+TranslationPair.java \\
+TranslationResult.java \\
+TranslationSource.java \\
+User.java \\
+
+./annotations: \\
+Annotation.java \\
+AnnotationType.java \\
+
+./exceptions: \\
+DatabaseException.java \\
+InvalidChunkIdException.java \\
+InvalidDocumentIdException.java \\
+InvalidSessionIdException.java \\
+
+./parsing: \\
+Parser.java \\
+ParserSrt.java \\
+ParserSub.java \\
+UnprocessedChunk.java \\
+
+./tokenizers: \\
+CzechSentenceTokenizer.java \\
+EnglishSentenceTokenizer.java \\
+SentenceTokenizer.java \\

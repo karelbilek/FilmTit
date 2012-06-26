@@ -19,6 +19,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -140,10 +141,25 @@ public class Gui implements EntryPoint {
         guiStructure.scrollPanel.setWidget(docCreator);
         guiStructure.scrollPanel.addStyleName("creating_document");
         
-        guiStructure.guestlogin.addClickHandler(new ClickHandler() {
+        guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (sessionID == null) {
-					rpcHandler.simple_login("guest", "guest");					
+
+	                final DialogBox dialogBox = new DialogBox(false);
+	                final LoginDialog loginDialog = new LoginDialog();
+	                
+	                loginDialog.btnLogin.addClickHandler( new ClickHandler() {
+	                    @Override
+	                    public void onClick(ClickEvent event) {
+	                        dialogBox.hide();
+	                        log("trying to log in as user " + loginDialog.getUsername());
+	    					rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());					
+	                    }
+	                } );
+	                
+	                dialogBox.setWidget(loginDialog);
+	                dialogBox.setGlassEnabled(true);
+	                dialogBox.center();
 				} else {
 					rpcHandler.logout();
 				}
@@ -479,12 +495,12 @@ public class Gui implements EntryPoint {
 	
 	protected void logged_in (String username) {
         this.username = username;
-		guiStructure.guestlogin.setText("Log out user " + username);		
+		guiStructure.login.setText("Log out user " + username);		
 	}
 	
 	protected void logged_out () {
         this.username = null;
-		guiStructure.guestlogin.setText("Log in as guest");				
+		guiStructure.login.setText("Log in");				
 	}
 	
 }
