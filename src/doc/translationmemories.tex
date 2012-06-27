@@ -1,16 +1,29 @@
 \section{What is a Translation Memory?}
 
-A translation memory is a tool for a machine assisted human translation. The core idea behind translation memories is an assumption that sentences that are similar in the source language will have probably a similar translation in the target language. If the tool is able to provide the translator a translation of a similar sentence, there is a big chance the translator can just a little bit edit the provided sentence and get the translation he wants.
+A translation memory is a tool for a computer assisted human translation.
+ The core idea behind translation memories is an assumption that sentences that are similar in the source language will have probably a similar translation in the target language. If the tool is able to provide the translator a translation of a similar sentence, there is a big chance the translator can just a little bit edit the provided sentence and get the translation he wants.
 
-The translation memories are widely used in the translation industry, mostly while translating technical documentation and localization of software when the translators usually take advantage from that the new version of manuals of software does not differ much from the previous version. Usually there is an effort to keep the translation memories as clean as possible -- to contain only relevant in domain sentences. The reasons to do that are to keep the database as small as possible not to make the search too slow and not spoil the terminology that is used in the texts. To keep the the terminology consistent the domain glosaries are usually used.
+The translation memories are widely used in the translation industry, mostly while translating technical documentation and localization of software when the translators usually take advantage from that the new version of manuals of software does not differ much from the previous version. A survey \footnote{Elina Lagoudaki (2006), "Translation Memory systems: Enlightening users' perspective. Key finding of the TM Survey 2006 carried out during July and August 2006. (Imperial College London, Translation Memories Survey 2006), p.16} among companies producing multilingual documentation for their products in 2006 showed that 82.5 \% out of 874 such companies uses a TM system.
 
-In contrast to the completely machine translation it is still the human translator who controls the whole process of translation. Nevertheless, the improvements in the machine translation allows to include the machine translation outputs to be included in the 
+Usually there is an effort to keep the translation memories as clean as possible -- to contain only relevant in domain sentences. The reasons to do that are to keep the database as small as possible not to make the search too slow and not spoil the terminology that is used in the texts. To keep the the terminology consistent the domain glossaries are usually used.
+
+Advantages of using ...
+
+Disadvantages of using ...
+
+In contrast to the completely machine translation it is still the human translator who controls the whole process of translation. Nevertheless, the improvements in the machine translation allows to provide a machine translation output together with the TM candidates.
 
 \section{Usual implementation}
 
-... letter based editing distance, word based editing distance, 
+A simple option is to provide only candidate sentences where the sentences in the source language matches exactly each other. Usually a fuzzy matching algorithm is used to retrieve similar also similar sentences where the similarity is usually a metric based on the Levensthein editing distance.
 
-... definition, traditional dynamic programming based algorithm, finite state machine can be constructed for Levensthein distance, for bigger databases a good index is necessary to find some candidate which are later 
+Preprocessing -- often the text extraction is necessary (e.g. in case of localization of user interfaces), finding the terminology, segmentation to elementary units. In the case the parallel texts the TM should consist of has not been translated sentence by sentence in a TM system, a sentence alignment is done.
+
+During the translation process the system retrieves the similar sentences from the database of already translated sentences. Usually sentences having the letter based or word based Levensthein editing distance are used.
+
+The Levensthein distance of two strings is a minimum number of edits (insertions, deletions and substitutions) which is needed to transform one string to another. A modification called Damerau–Levenshtein distance allowing also transposition of two adjacent letters can be also used.
+
+Originally a bottom-up dynamic programming algorithm was used -- a distance of two strings is computed from the knowledge of the of the distance of one letter shorter prefixes. Later the Bitap algorithm used in unix tool agrep appeared. Theoretically also a finite state machine (Levenshtein transducer) can be constructed for Levensthein distance. For bigger databases the online algorithms starts to be very slow a preprocessing of the database is necessary. Some sophisticated indexing methods are used, among them the suffix trees or $n$-gram indexes.
 
 \section{Current TM tools}
 
