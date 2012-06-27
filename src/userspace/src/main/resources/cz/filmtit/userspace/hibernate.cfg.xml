@@ -23,6 +23,7 @@
         <!-- List of mapping files -->
         <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/USTranslationResult.hbm.xml"/>
+        <mapping resource="cz/filmtit/userspace/USUser.hbm.xml" />
         <mapping resource="cz/filmtit/userspace/session.hbm.xml"/>
 
 
