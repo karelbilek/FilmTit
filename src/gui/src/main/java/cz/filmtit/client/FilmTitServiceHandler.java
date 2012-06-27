@@ -92,6 +92,8 @@ public class FilmTitServiceHandler {
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
 			
 			public void onSuccess(List<TranslationResult> newresults) {
+				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
+				
 				// add to trlist to the correct position:
 				List<TranslationResult> translist = gui.getCurrentDocument().translationResults;
 			

@@ -85,6 +85,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
+        // System.out.println("US: getTranslationResults for " + chunks.size() + " TimedChunks");
+
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
@@ -94,6 +96,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         for (TimedChunk chunk:chunks) {
             res.add(session.getTranslationResults(chunk, TM));
         }
+        
+        // System.out.println("US: sending " + res.size() + " TranslationResults");
         return res;
     }
 
