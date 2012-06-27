@@ -154,13 +154,8 @@ public class Gui implements EntryPoint {
 		table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
 		table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
 		table.getRowFormatter().setStyleName(0, "header");
-		// --- end of main interface --- //
 
-
-		docCreator = new DocumentCreator();
-		guiStructure.scrollPanel.setWidget(docCreator);
-		guiStructure.scrollPanel.addStyleName("creating_document");
-		
+		// top menu handlers		
 		guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (sessionID == null) {
@@ -170,6 +165,21 @@ public class Gui implements EntryPoint {
 				}
 			}        	
 		});
+		
+		// --- end of main interface --- //
+
+		
+		createDocumentCreator();
+	}
+
+	/**
+	 * show the Start a new subtitle document panel
+	 * inside the GUI scrollpanel
+	 */
+	private void createDocumentCreator() {
+		docCreator = new DocumentCreator();
+		guiStructure.scrollPanel.setWidget(docCreator);
+		guiStructure.scrollPanel.addStyleName("creating_document");
 		
 		// --- file reading interface via lib-gwt-file --- //
 		final FileReader freader = new FileReader();
