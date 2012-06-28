@@ -84,6 +84,7 @@ public class FilmTitServiceHandler {
 
 		};
 		
+		gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
 		filmTitSvc.createNewDocument(gui.sessionID, movieTitle, year, language, callback);
 	}
 	
