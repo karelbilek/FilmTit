@@ -14,8 +14,8 @@
         <property name="openId" type="java.lang.String" column="openId" />
 
         <set name="activeDocumentIDs" table="ActiveDocumentIDs" lazy="false">
-            <key column="TranslationResultId"/>
-            <one-to-many class="USDocument" />
+            <key column="ActiveDocIdId" />
+            <element column="ActiveDocId" type="java.lang.Long" />
         </set>
 
     </class>
