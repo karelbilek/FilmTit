@@ -237,7 +237,7 @@ public class Gui implements EntryPoint {
 		//rootPanel.setSize("800", "600");
 
 		// --- loading the uibinder-defined structure of the page --- //
-		AuthenticationValidationWindow authenticationValidationWindow = new AuthenticationValidationWindow();
+		final AuthenticationValidationWindow authenticationValidationWindow = new AuthenticationValidationWindow();
 		rootPanel.add(authenticationValidationWindow, 0, 0);
         authenticationValidationWindow.btnCancel.addClickHandler( new ClickHandler() {
 			@Override
