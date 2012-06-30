@@ -177,6 +177,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // TODO: Add the service type resolving   -  is enough send  name of service like enum
         // lib is open source and we can added for example seznam or myid
 
+        configuration = ConfigurationSingleton.getConf();
+        String serverAddress = configuration.serverAddress();
+        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
+        
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
         AuthData authData = new AuthData();
