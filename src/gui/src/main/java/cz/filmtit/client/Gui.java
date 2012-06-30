@@ -239,13 +239,33 @@ public class Gui implements EntryPoint {
 		// --- loading the uibinder-defined structure of the page --- //
 		AuthenticationValidationWindow authenticationValidationWindow = new AuthenticationValidationWindow();
 		rootPanel.add(authenticationValidationWindow, 0, 0);
-		
+        authenticationValidationWindow.btnCancel.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// TODO: say to the UserSpace that I am closing the window
+                authenticationValidationWindow.close();
+			}
+		});
+
 		// get authentication data
-		// String responseURL = Window.Location.getQueryString();
-		String responseURL = Window.Location.getParameter("responseURL");
-		long authID = Long.parseLong(Window.Location.getParameter("authID"));			
+		authenticationValidationWindow.paraValidation.setText("Processing authentication data...");		
+		// response URL
+		String responseURL = Window.Location.getQueryString();
+		// String responseURL = Window.Location.getParameter("responseURL");
+		// auhID
+		long authID = 0;
+		String authIDstring = Window.Location.getParameter("authID");
+		try {
+			authID = Long.parseLong(authIDstring);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			Window.alert("Cannot parse authID " + authIDstring + " as a number! " + e.getLocalizedMessage());
+		}
 		
-		rpcHandler.validateAuthentication (responseURL, authID);
+		// send RPC
+		authenticationValidationWindow.paraValidation.setText("Validating authentication data for authID " + authID + "...");
+		rpcHandler.validateAuthentication (responseURL, authID, authenticationValidationWindow);
 	}
 
 	private void createDocumentFromText(String subtext) {

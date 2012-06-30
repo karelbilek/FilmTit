@@ -16,7 +16,7 @@ public class SessionIDPollingDialog extends Composite {
 			UiBinder<Widget, SessionIDPollingDialog> {
 	}
 
-	public SessionIDPollingDialog(long authID) {
+	public SessionIDPollingDialog() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		// TODO: start polling with getSessionID()

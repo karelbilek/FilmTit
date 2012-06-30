@@ -3,7 +3,7 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
         	 xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<g:HTMLPanel>
-        <b:Paragraph>Validating authentication data...</b:Paragraph>
+        <b:Paragraph ui:field="paraValidation">Validating authentication data...</b:Paragraph>
         <b:Button ui:field="btnCancel">Cancel</b:Button>        	   
 	</g:HTMLPanel>
 </ui:UiBinder> 
