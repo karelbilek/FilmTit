@@ -101,7 +101,23 @@ TODO: Do we allow the user to work without being logged in?
 The user is logged in if he has a valid session id which is linked to a user account in Userspace.
 The session id expires after a given period of time without any user interaction with the server,
 it is therefore neccessary that the user can log in without the application\'s main window being reloaded so that the user does not lose unsaved data.
-For this reason, the authentication itself is done in a new authentication window.
+
+\subsubsection{Simple Login}
+
+TODO: There is simple login which is very simple. See Figure \ref{gui:sd:simple_login}.
+
+TODO: make figure smaller (some latex things).
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{figures/simple_login_sequence.pdf}
+\end{center}
+\caption{Sequence diagram of simple login and logout.}\label{gui:sd:simple_login}
+\end{figure}
+
+\subsubsection{Login via OpenID Services}
+
+The authentication itself is done in a new authentication window.
 A successful authentication is then paired with the GUI instance using a temporary one-time identifier, authID, shared by the main window and the authentication window.
 (Because of Javascript security restrictions, there is no simple way of sending the result of the authentication process from the authentication window to the main window;
 however, it is straightforward to generate the authID in the main window, store it in Userspace and send it to the authentication window on its creation.)
