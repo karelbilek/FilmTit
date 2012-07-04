@@ -30,6 +30,10 @@ public class UnprocessedChunk {
         return text;
     }
 
+    public String toString() {
+        return startTime + " - "+endTime+" : "+text;
+    }
+
     public boolean equalsTo(UnprocessedChunk other) {
         return (startTime.equals(other.startTime) && endTime.equals(other.endTime) && text.equals(other.text));
     }

@@ -30,6 +30,7 @@ class DistanceSubtitleFileAlignment(l1:Language, l2:Language, val counter:FilePa
             file1=>
                 filesL2.foreach{
                     file2=>
+                        System.out.println("Counting another score...")
                         val score:Long = counter.countFiles(file1, file2)._1
                         if (score < bestPair._1) {
                             bestPair=((score, (file1, file2)))

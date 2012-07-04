@@ -19,13 +19,7 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
     
     val writer = new Writer(conf)
 
-  /**
-   * Dose the aligning itself and write it to files
-   *
-   * @param mapping mapping of movie ID to subtitle files
-   */
-   def align(mapping:SubtitleMapping, maxFiles:Int=0) {
-       
+  def alignFiles(mapping:SubtitleMapping, maxFiles:Int=0): Iterable[Pair[SubtitleFile, SubtitleFile]] = {
        println("start")
        var counter = 0
        
@@ -47,6 +41,22 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
        }
        println("done")
        val goodPairs = goodFilePairChooser.choosePairs(pairs)
+       goodPairs
+  }
+
+  
+
+  
+
+
+  /**
+   * Dose the aligning itself and write it to files
+   *
+   * @param mapping mapping of movie ID to subtitle files
+   */
+   def align(mapping:SubtitleMapping, maxFiles:Int=0) {
+       
+       val goodPairs = alignFiles(mapping, maxFiles)
        println("Goodpairs bude "+goodPairs.size())
        goodPairs.foreach {
         pair=>
@@ -68,4 +78,34 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
        }
        
     }
+}
+
+object Aligner {
+    def writeFilePairsToPrintWriter(pairs: Iterable[Pair[SubtitleFile, SubtitleFile]], writer:java.io.PrintWriter) {
+         pairs.foreach {
+            case Pair(sf1, sf2) => 
+            writer.println(sf1.filmID+"\t"+sf1.fileNumber + "\t"+sf2.fileNumber)
+         }
+    }
+  def writeFilePairsToFile(pairs:Iterable[Pair[SubtitleFile, SubtitleFile]], where:java.io.File) = {
+      val writer = new java.io.PrintWriter(where)
+      writeFilePairsToPrintWriter(pairs, writer)
+      writer.close
+  }
+
+  def readFilePairsFromFile(where:java.io.File, conf:Configuration, l1:Language, l2:Language, includeNonExistingFiles:Boolean) : Iterable[Pair[SubtitleFile, SubtitleFile]] = {
+      val reg = """(.*)\t(.*)\t(.*)""".r
+      io.Source.fromFile(where).getLines().toIterable.flatMap {
+         case reg(movie, descrL, descrR) => 
+            val sub1 = SubtitleFile.maybeNew(conf, movie, descrL, l1, !includeNonExistingFiles) 
+            val sub2 = SubtitleFile.maybeNew(conf, movie, descrR, l2, !includeNonExistingFiles) 
+            if (sub1.isDefined && sub2.isDefined) {
+                Some((sub1.get, sub2.get))
+            } else {
+                None
+            }
+      }
+  }
+
+
 }

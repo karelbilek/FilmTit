@@ -37,13 +37,17 @@ class SubtitleMapping(val conf:Configuration) {
               data(7),
               data(8),
               "");
+
         val language = if (data(2) == "eng") {Language.EN} else {Language.CS}
 
-        val subtitlefile = SubtitleFile.maybeNew(conf, filmID, data(1), language)
+
+        val subtitlefile = SubtitleFile.maybeNew(conf, filmID, data(1), language, true)
+
 
         if (!subtitles.contains(filmID)) {
          if (subtitlefile.isDefined) {
              subtitles.put(filmID,(mediasource, ListBuffer(subtitlefile.get)))
+             
           } else {
              subtitles.put(filmID,(mediasource, ListBuffer[SubtitleFile]()))
           }
@@ -53,8 +57,8 @@ class SubtitleMapping(val conf:Configuration) {
           }
  
         }
+      
       }
-     System.out.println("Loaded files: "+subtitles.keys.size)
   }
 
   def getMediaSource(name:String):Option[MediaSource] = {
@@ -72,5 +76,22 @@ class SubtitleMapping(val conf:Configuration) {
         None
     }
   }
+
+  def hasSubtitles(name:String) = {
+     val subs = getSubtitles(name)
+     if (subs==None) {
+        false;
+     } else {
+        if (subs.get.isEmpty) {
+            false
+        } else {
+            true
+        }
+     }
+  }
  
+  def movies():Iterable[String] = subtitles.keys
+  
+  def moviesWithSubs():Iterable[String] = movies.filter{hasSubtitles(_)}
+
 }

@@ -25,11 +25,14 @@ import java.io.IOException
  */
 class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
 
+  def fileNumber():String = file.getName.replaceAll("\\.gz","");
+
   /**
    * Read the text from the .gz subtitle file
    * @return The raw string of the file
    */
    def readText():String = {
+       
        val fin = new FileInputStream(file)
        val gzis = new GZIPInputStream(fin)
        
@@ -79,8 +82,8 @@ object SubtitleFile {
    * @param language language of subtitle
    * @return None if file doesn't exist, otherwise the subtitle file
    */
-    def maybeNew(conf:Configuration, filmID:String, subname:String, language:Language):Option[SubtitleFile] = {
-        if (new File(conf.getSubtitleName(subname)).exists()) {
+    def maybeNew(conf:Configuration, filmID:String, subname:String, language:Language, testOnExistence:Boolean):Option[SubtitleFile] = {
+        if ((!testOnExistence) ||new File(conf.getSubtitleName(subname)).exists()) {
             Some(new SubtitleFile(filmID, new File(conf.getSubtitleName(subname)), language))
         } else {
             None
