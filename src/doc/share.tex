@@ -1,8 +1,18 @@
+Since we are using Google Web Toolkit (GWT), we can share java classes between GUI and server, as described in \todo{where}??.
 
-Shared classes are used in the whole project. Therefore, they have to be compilable both into Java bytecode by javac and into Javascript by Google Web Toolkit (GWT), i.e. they have to use the intersection of Java and GWT.
+However, as noted in GWT documentation \footnote{\url{https://developers.google.com/web-toolkit/doc/latest/DevGuideCodingBasicsCompatibility} and \url{https://developers.google.com/web-toolkit/doc/latest/RefJreEmulation}}, not all java classes are directly translatable to GWT. The main issues are:
+
+\begin{itemize}
+\item the shared classes cannot reference any class, that is not translatable to JavaScript through GWT (for example, any third-party libraries)
+\item the shared classes can use only a subset of Java runtime library. In our case, main case of this was \texttt{java.util.regex}, which is not implemented in GWT; we had to use \texttt{com.google.gwt.regexp.shared} instead
+\item serialization works differently in GWT. What this effectively meant for us is that, even when we use general \texttt{List} interface for some property, we cannot set it as subtype of \texttt{List} that is not implemented in GWT (more concretely -- we wanted to use \texttt{scala.collection.JavaConverters.AsJava[List]} for scala $\Leftrightarrow$ java conversion)
+\end{itemize}
+
+Therefore, shared classes could only use a subset of Java (generally, what is translatable with GWT to JavaScript is also translatable by java compiler to JVM bytecode, but not the other way around).
 
 These classes can be shared by all parts of the project, but some of them are used only e.g. in GUI and Userspace.
-
+\section{List of classes}
+\todo{I would personally delete this}
 annotations.gwt.xml \\
 AuthenticationServiceType.java \\
 Chunk.java \\
