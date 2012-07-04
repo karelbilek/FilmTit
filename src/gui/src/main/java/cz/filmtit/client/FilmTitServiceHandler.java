@@ -3,9 +3,11 @@ package cz.filmtit.client;
 import com.github.gwtbootstrap.client.ui.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -19,7 +21,22 @@ public class FilmTitServiceHandler {
 	// FilmTitServiceAsync should be created automatically by Maven
 	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
 	private FilmTitServiceAsync filmTitSvc;
+	/**
+	 * reference to the gui for access to its protected and public members
+	 */
 	private Gui gui;
+	/**
+	 * indicates whether polling for session ID is in progress
+	 */
+	private boolean sessionIDPolling = false;
+	/**
+	 * dialog polling for session ID
+	 */
+	private DialogBox sessionIDPollingDialogBox;
+	/**
+	 * temporary ID for authentication
+	 */
+	private int authID;
 
     int windowsDisplayed = 0;
     public  void displayWindow(String message) {
@@ -83,6 +100,7 @@ public class FilmTitServiceHandler {
 
 		};
 		
+		gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
 		filmTitSvc.createNewDocument(gui.sessionID, movieTitle, year, language, callback);
 	}
 	
@@ -91,6 +109,8 @@ public class FilmTitServiceHandler {
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
 			
 			public void onSuccess(List<TranslationResult> newresults) {
+				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
+				
 				// add to trlist to the correct position:
 				List<TranslationResult> translist = gui.getCurrentDocument().translationResults;
 			
@@ -178,6 +198,8 @@ public class FilmTitServiceHandler {
 	                gui.logged_in(username);
             	} else {
                     gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
+                    displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
+            		gui.showLoginDialog();
             	}
             }
 
@@ -206,4 +228,137 @@ public class FilmTitServiceHandler {
         filmTitSvc.logout(gui.sessionID, callback);
     }
 
+    
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, final DialogBox loginDialogBox) {
+		
+		authID = Random.nextInt();
+
+		AsyncCallback<String> callback = new AsyncCallback<String>() {
+			
+			public void onSuccess(final String url) {
+				gui.log("Authentication URL arrived: " + url);
+
+				loginDialogBox.hide();
+				
+				// open a dialog saying that we are waiting for the user to authenticate
+                final DialogBox dialogBox = new DialogBox(false);
+                final SessionIDPollingDialog sessionIDPollingDialog = new SessionIDPollingDialog();
+                sessionIDPollingDialog.btnCancel.addClickHandler( new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						sessionIDPolling = false;
+                        gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
+                        dialogBox.hide();
+					}
+				});
+                dialogBox.setWidget(sessionIDPollingDialog);
+                dialogBox.setGlassEnabled(true);
+                dialogBox.center();
+                
+                start_sessionIDPolling(dialogBox);
+                
+                // open the authenticationwindow
+				Window.open(url, "AuthenticationWindow", "width=400,height=500");
+            }
+			
+			private void start_sessionIDPolling(DialogBox dialogBox) {
+				sessionIDPolling = true;
+				sessionIDPollingDialogBox = dialogBox;
+				
+				Scheduler.RepeatingCommand poller = new RepeatingCommand() {
+					
+					@Override
+					public boolean execute() {
+						if (sessionIDPolling) {
+							getSessionID();
+							return true;
+						} else {
+							return false;
+						}
+					}
+				};
+				
+				Scheduler.get().scheduleFixedDelay(poller, 2000);
+			}
+
+			public void onFailure(Throwable caught) {
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					// TODO: repeat sending a few times, then ask user
+					// displayWindow(caught.getLocalizedMessage());
+					gui.log("failure on requesting authentication url!");
+				}
+			}
+
+		};
+		
+		filmTitSvc.getAuthenticationURL(authID, serviceType, callback);
+	}
+	
+	public void getSessionID () {
+
+		// create callback
+		AsyncCallback<String> callback = new AsyncCallback<String>() {
+			
+			public void onSuccess(String result) {
+				if (result != null) {
+					// stop polling
+					sessionIDPolling = false;
+					sessionIDPollingDialogBox.hide();
+					// we now have a session ID
+					gui.sessionID = result;
+					gui.logged_in("");
+				}
+				// else continue polling
+			}
+			
+			public void onFailure(Throwable caught) {
+				if(sessionIDPolling) {
+					// stop polling
+					sessionIDPolling = false;
+					sessionIDPollingDialogBox.hide();
+					// say error
+					displayWindow(caught.getLocalizedMessage());
+					gui.log("failure on requesting session ID!");					
+				}
+			}
+		};
+		
+		// RPC
+		if (sessionIDPolling) {
+			gui.log("asking for session ID with authID=" + authID);
+			filmTitSvc.getSessionID(authID, callback);			
+		}
+	}
+	    
+	public void validateAuthentication (String responseURL, long authID, final AuthenticationValidationWindow authenticationValidationWindow) {
+
+		// create callback
+		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+			
+			public void onSuccess(Boolean result) {
+				// TODO say OK and close the window
+				if (result) {
+					authenticationValidationWindow.paraValidation.setText("Logged in successfully! You can now close this window.");
+					Window.alert("Logged in successfully! You can now close this window.");					
+				}
+				else {
+					authenticationValidationWindow.paraValidation.setText("Not logged in! Authentication validation failed.");
+					Window.alert("Not logged in! Authentication validation failed.");
+				}
+			}
+			
+			public void onFailure(Throwable caught) {
+				// TODO say error
+				authenticationValidationWindow.paraValidation.setText("Not logged in! Authentication validation failed: " + caught.getLocalizedMessage());
+				Window.alert(caught.getLocalizedMessage());
+			}
+		};
+		
+		// RPC
+		filmTitSvc.validateAuthentication(authID, responseURL, callback);		
+	}
+	    
 }

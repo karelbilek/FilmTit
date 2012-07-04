@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
@@ -30,8 +31,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
     protected TranslationMemory TM;
-    private Map<Long, USDocument> activeDocuments;                   // delete ASAP sessions introduced
-    private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;  // delete ASAP sessions introduced
+    protected Configuration configuration;
 
     // AuthId which are in process
     private Map<Long, AuthData> authenticatingSessions = new HashMap<Long, AuthData>();
@@ -40,15 +40,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // Activated User
     private Map<String, Session> activeSessions = new HashMap<String,Session>();
 
-    protected OpenIdManager  manager;
-    public FilmTitBackendServer(/*Configuration configuration*/) {
+    protected OpenIdManager manager = new OpenIdManager();
+    public FilmTitBackendServer() {
+        configuration = ConfigurationSingleton.getConf();
 
         loadTranslationMemory();
 
-        activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
-        activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, Map<Integer, USTranslationResult>>());
-        String serverAddress = ConfigurationSingleton.getConf().serverAddress();
+        String serverAddress = configuration.serverAddress();
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
+
+        // set up the OpenID returning address
+        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow");
+        manager.setRealm(serverAddress);
 
         // initialize the database by opening and closing a session
         org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
@@ -85,6 +88,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
+        // System.out.println("US: getTranslationResults for " + chunks.size() + " TimedChunks");
+
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
@@ -94,31 +99,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         for (TimedChunk chunk:chunks) {
             res.add(session.getTranslationResults(chunk, TM));
         }
+        
+        // System.out.println("US: sending " + res.size() + " TranslationResults");
         return res;
     }
-
-//    @Override
-//    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID) {
-//        USTranslationResult tr=null;
-//        try {
-//            tr = activeTranslationResults.get(documentId).get(chunkId);
-//            tr.setUserTranslation(userTranslation);
-//            tr.setSelectedTranslationPairID(chosenTranslationPairID);
-//        } catch (NullPointerException e) {
-//            System.err.println("Nullpointerexception "+e);
-//            return null;
-//        }
-//
-//        // a Session free temporary saving solution
-//        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-//
-//        tr.saveToDatabase(dbSession);
-//
-//
-//        HibernateUtil.closeAndCommitSession(dbSession);
-//
-//        return null;
-//    }
 
     public Void setUserTranslation(String sessionID, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
@@ -190,16 +174,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
 
-        // Manager is field in class it seem  quite non useful copy 1 object 1000x
-        // add setting in constructor
-        // TODO: the manager should be stored for further use in  validateAuthentication method
         // TODO: Add the service type resolving   -  is enough send  name of service like enum
         // lib is open source and we can added for example seznam or myid
 
+        configuration = ConfigurationSingleton.getConf();
+        String serverAddress = configuration.serverAddress();
+        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
+        
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
-        // create url for authentication
-        // need to raw data for getting authentication
         AuthData authData = new AuthData();
         authData.Mac_key = association.getRawMacKey();
         authData.endpoint = endpoint;
@@ -248,7 +231,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public String simple_login(String username, String password) {
-        if (username.equals("guest") && password.equals("guest")) {
+        if (password.equals("guest")) {
             USUser user = new USUser(username);
             String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
             Session session = new Session(user);
@@ -319,10 +302,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    class AuthData
-    {
+    class AuthData {
         public byte[] Mac_key;
         public Endpoint endpoint;
-
     }
 }

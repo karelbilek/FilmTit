@@ -72,6 +72,20 @@ public class USUser extends DatabaseObject {
     protected void setSharedDatabaseId(long id) { }
     protected long getSharedDatabaseId() { return databaseId; }
 
+    public String getUserName() {
+        return user.getName();
+    }
+    private void setUserName(String name) {
+        user.setName(name);
+    }
+
+    public String getOpenId() {
+        return user.getId();
+    }
+    private void setOpenId(String id) {
+        user.setId(id);
+    }
+
     public Set<Long> getActiveDocumentIDs() {
         return activeDocumentIDs;
     }

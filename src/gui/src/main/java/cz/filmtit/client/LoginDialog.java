@@ -1,15 +1,14 @@
 package cz.filmtit.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
+import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.SubmitButton;
 import com.github.gwtbootstrap.client.ui.TextBox;
 
@@ -34,6 +33,12 @@ public class LoginDialog extends Composite {
 
 	@UiField
 	SubmitButton btnLogin;
+	
+	@UiField
+	Button btnLoginGoogle;
+	
+	@UiField
+	Button btnCancel;
 	
     public String getUsername() {
         return txtUsername.getText();

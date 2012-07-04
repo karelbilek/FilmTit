@@ -1,8 +1,11 @@
 package cz.filmtit.userspace.tests;
 
-import cz.filmtit.core.tests.TestUtil;
+import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.core.tests.TestUtil;
 import cz.filmtit.userspace.FilmTitBackendServer;
+
+import java.io.File;
 
 /**
  * Keeps all the functionality of the FilmtitBackendServer, except loading the translation memory which is
@@ -12,9 +15,14 @@ import cz.filmtit.userspace.FilmTitBackendServer;
 */
 
 public class MockFilmTitBackendServer extends FilmTitBackendServer {
+    static {
+      ConfigurationSingleton.setConf(new Configuration(new File("configuration.xml")));
+    }
+
     @Override
     protected void loadTranslationMemory() {
-        TM =  TestUtil.createTMWithDummyContent(ConfigurationSingleton.getConf());
+        Configuration config = new Configuration(new File("configuration.xml"));
+        TM =  TestUtil.createTMWithDummyContent(config);
     }
 
     /**

@@ -1,7 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
-             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client">
 
     <g:HTMLPanel>
         <b:Form type="HORIZONTAL" ui:field="loginForm">
@@ -21,8 +21,24 @@
                     </b:Controls>
                 </b:ControlGroup>
 
-                <b:SubmitButton ui:field="btnLogin">Login</b:SubmitButton>
-
+                <b:ControlGroup>
+                    <b:Controls>
+                        <b:SubmitButton ui:field="btnLogin">Login</b:SubmitButton>
+                    </b:Controls>
+                </b:ControlGroup>
+                
+                <b:ControlGroup>
+                    <b:Controls>
+                        <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
+                    </b:Controls>
+                </b:ControlGroup>
+                
+                <b:ControlGroup>
+                    <b:Controls>
+                        <b:Button ui:field="btnCancel">Cancel</b:Button>
+                    </b:Controls>
+                </b:ControlGroup>
+                
             </b:Fieldset>
         </b:Form>
     </g:HTMLPanel>

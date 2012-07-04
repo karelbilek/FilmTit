@@ -55,6 +55,8 @@ public class Session {
         }
     }
 
+
+
     public long getLastOperationTime() {
         return lastOperationTime;
     }
@@ -107,16 +109,20 @@ public class Session {
     private void terminate() {
         org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
         session.save(this);
+        HibernateUtil.closeAndCommitSession(session);
 
         user.getActiveDocumentIDs().clear();
 
+        session = HibernateUtil.getSessionWithActiveTransaction();
         for (USDocument activeDoc : activeDocuments.values()) {
             activeDoc.saveToDatabase(session);
             user.getActiveDocumentIDs().add(activeDoc.getDatabaseId());
         }
-
-        user.saveToDatabase(session);
         HibernateUtil.closeAndCommitSession(session);
+
+        session = HibernateUtil.getSessionWithActiveTransaction();
+        user.saveToDatabase(session);
+        HibernateUtil.closeAndCommitSession(session);   // TODO: throws an exception
     }
 
     /**

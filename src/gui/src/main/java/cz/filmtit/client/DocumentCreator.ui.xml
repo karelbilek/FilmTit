@@ -30,8 +30,8 @@
                     <b:ControlLabel>Subtitle source language:</b:ControlLabel>
                     <b:Controls>
                         <b:ListBox ui:field="lsbLanguage">
-                            <g:item id="en">English</g:item>
-                            <g:item id="cz">Czech</g:item>
+                            <g:item id="en" value="en">English</g:item>
+                            <g:item id="cs" value="cs">Czech</g:item>
                         </b:ListBox>
                     </b:Controls>
                 </b:ControlGroup>

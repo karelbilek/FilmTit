@@ -5,6 +5,7 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.TimedChunk;
+import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.userspace.Session;
@@ -17,6 +18,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -135,19 +137,33 @@ public class TestSession {
     }
 
     @Test
-    public void testTerminate() {
+    public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
+        Configuration config = new Configuration(new File("configuration.xml"));
+        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
+
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
 
-        // do a scenario 1. add document
-        //               2. add translation result to the document
-        //               3. set the user translation
+        DocumentResponse response = session.createNewDocument("Jindrich the great", "2010", "cs", TM);
+        Document clientDocument = response.document;
+        session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
 
+        List<TranslationResult> clientTRList = new ArrayList<TranslationResult>();
+        for (int i = 0; i < 9; ++i) {
+            TimedChunk sampleTimedChunk = new TimedChunk("00:0" + i + ":00,000", "00:0" + (i + 1) + ":01,000", 0,
+                    loremIpsum.getWords(5,5), 150, clientDocument.getId());
+            TranslationResult serverRespond = session.getTranslationResults(sampleTimedChunk, TM);
+            clientTRList.add(serverRespond);
+        }
 
-        session.kill();
+        for (TranslationResult tr : clientTRList) {
+            session.setUserTranslation(tr.getChunkId(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
+        }
 
-        // test if everything was properly saved to database
+        session.logout();
+
+        // TODO: test if everything was properly saved to database
     }
 
     private USUser getSampleUser() {

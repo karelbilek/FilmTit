@@ -60,7 +60,7 @@ public class Gui implements EntryPoint {
 	
 	protected List<TimedChunk> chunklist;
 	
-	private List<FakeSubgestBox> targetBoxes = new ArrayList<FakeSubgestBox>();
+	private List<FakeSubgestBox> targetBoxes;
 
 	protected RootPanel rootPanel;
 
@@ -78,7 +78,7 @@ public class Gui implements EntryPoint {
 	private String username;
 	
 	protected Widget activeSuggestionWidget = null;
-	protected SubgestHandler subgestHandler = new SubgestHandler(this);
+	protected SubgestHandler subgestHandler;
 
 	/**
 	 * Multi-line subtitle text to parse
@@ -107,6 +107,24 @@ public class Gui implements EntryPoint {
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 		
 		
+		// determine the page to be loaded (GUI is the default and fallback)
+		String page = Window.Location.getParameter("page");
+		if (page == null) {
+			createGui();			
+			log("No page parameter set, creating GUI...");
+		}
+		else if (page.equals("AuthenticationValidationWindow")) {
+			createAuthenticationValidationWindow();			
+		}
+		else {
+			createGui();			
+			log("Fallback to GUI - page=" + page);
+		}
+		
+	}	// onModuleLoad()
+
+	private void createGui() {
+		
 		// -------------------- //
 		// --- GUI creation --- //
 		// -------------------- //
@@ -114,59 +132,55 @@ public class Gui implements EntryPoint {
 		rootPanel = RootPanel.get();
 		//rootPanel.setSize("800", "600");
 
-
 		// --- loading the uibinder-defined structure of the page --- //
 		guiStructure = new GuiStructure();
 		rootPanel.add(guiStructure, 0, 0);
 		// --- end of loading the uibinder --- //
-		
+				
+		// initializations
+		targetBoxes = new ArrayList<FakeSubgestBox>();
+		subgestHandler = new SubgestHandler(this);
 
 		// --- main interface --- //
 		// only preparing the table - not showing it yet
 		table = new FlexTable();
 		table.setWidth("100%");
 
-        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
+		table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
+		table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
 		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "410px");
 
-        table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
-        table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
-        table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
-        table.getRowFormatter().setStyleName(0, "header");
-		// --- end of main interface --- //
+		table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
+		table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
+		table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
+		table.getRowFormatter().setStyleName(0, "header");
 
-
-        docCreator = new DocumentCreator();
-        guiStructure.scrollPanel.setWidget(docCreator);
-        guiStructure.scrollPanel.addStyleName("creating_document");
-        
-        guiStructure.login.addClickHandler(new ClickHandler() {
+		// top menu handlers		
+		guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (sessionID == null) {
-
-	                final DialogBox dialogBox = new DialogBox(false);
-	                final LoginDialog loginDialog = new LoginDialog();
-	                
-	                loginDialog.btnLogin.addClickHandler( new ClickHandler() {
-	                    @Override
-	                    public void onClick(ClickEvent event) {
-	                        dialogBox.hide();
-	                        log("trying to log in as user " + loginDialog.getUsername());
-	    					rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());					
-	                    }
-	                } );
-	                
-	                dialogBox.setWidget(loginDialog);
-	                dialogBox.setGlassEnabled(true);
-	                dialogBox.center();
+		            showLoginDialog();
 				} else {
 					rpcHandler.logout();
 				}
 			}        	
-        });
-        
-        
+		});
+		
+		// --- end of main interface --- //
+
+		
+		createDocumentCreator();
+	}
+
+	/**
+	 * show the Start a new subtitle document panel
+	 * inside the GUI scrollpanel
+	 */
+	private void createDocumentCreator() {
+		docCreator = new DocumentCreator();
+		guiStructure.scrollPanel.setWidget(docCreator);
+		guiStructure.scrollPanel.addStyleName("creating_document");
+		
 		// --- file reading interface via lib-gwt-file --- //
 		final FileReader freader = new FileReader();
 		freader.addLoadEndHandler( new LoadEndHandler() {
@@ -212,14 +226,49 @@ public class Gui implements EntryPoint {
 				deactivateSuggestionWidget();
 			}
 		} );
-		
-
-	}	// onModuleLoad()
+	}
 	
+	private void createAuthenticationValidationWindow() {
+		// ----------------------------------------------- //
+		// --- AuthenticationValidationWindow creation --- //
+		// ----------------------------------------------- //
+		
+		rootPanel = RootPanel.get();
+		//rootPanel.setSize("800", "600");
 
+		// --- loading the uibinder-defined structure of the page --- //
+		final AuthenticationValidationWindow authenticationValidationWindow = new AuthenticationValidationWindow();
+		rootPanel.add(authenticationValidationWindow, 0, 0);
+        authenticationValidationWindow.btnCancel.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// TODO: say to the UserSpace that I am closing the window
+                authenticationValidationWindow.close();
+			}
+		});
 
+		// get authentication data
+		authenticationValidationWindow.paraValidation.setText("Processing authentication data...");		
+		// response URL
+		String responseURL = Window.Location.getQueryString();
+		// String responseURL = Window.Location.getParameter("responseURL");
+		// auhID
+		long authID = 0;
+		String authIDstring = Window.Location.getParameter("authID");
+		try {
+			authID = Long.parseLong(authIDstring);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			Window.alert("Cannot parse authID " + authIDstring + " as a number! " + e.getLocalizedMessage());
+		}
+		
+		// send RPC
+		authenticationValidationWindow.paraValidation.setText("Validating authentication data for authID " + authID + "...");
+		rpcHandler.validateAuthentication (responseURL, authID, authenticationValidationWindow);
+	}
 
-    private void createDocumentFromText(String subtext) {
+	private void createDocumentFromText(String subtext) {
         rpcHandler.createDocument(docCreator.getMovieTitle(),
                 docCreator.getMovieYear(),
                 docCreator.getChosenLanguage(),
@@ -483,14 +532,56 @@ public class Gui implements EntryPoint {
 		log(errtext);
 	}
 	
+	/**
+	 * show a dialog enabling the user to
+	 * log in directly or [this line maybe to be removed]
+	 * via OpenID services
+	 */
+    protected void showLoginDialog() {
+    	
+    	final DialogBox dialogBox = new DialogBox(false);
+        final LoginDialog loginDialog = new LoginDialog();
+        
+        loginDialog.btnLogin.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+                log("trying to log in as user " + loginDialog.getUsername());
+				rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());					
+            }
+        } );
+        
+        loginDialog.btnLoginGoogle.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("trying to log in through Google account");
+				rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, dialogBox);
+			}
+		});
+        
+        loginDialog.btnCancel.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("LoginDialog closed by user hitting Cancel button");
+                dialogBox.hide();
+			}
+		});
+        
+        dialogBox.setWidget(loginDialog);
+        dialogBox.setGlassEnabled(true);
+        dialogBox.center();
+    }
+
 	protected void please_log_in () {
 		logged_out ();
 		rpcHandler.displayWindow("Please log in first.");
+		showLoginDialog();
 	}
 	
 	protected void please_relog_in () {
 		logged_out ();
 		rpcHandler.displayWindow("You have not logged in or your session has expired. Please log in.");
+		showLoginDialog();
 	}
 	
 	protected void logged_in (String username) {
