@@ -1,28 +1,30 @@
 
 \section{Application}
 
-The application has two parts -- the server part consisting of  two components
+\todo{I am not sure if this whole section should be the same thing as we handed in or if it could be rewritten}
+
+The application has two parts -- \todo{Unclear (even to me) -- is the server part one of the parts? or how is it meant exactly}the server part consisting of  two components
 \begin{enumerate}
 \item the translation memory and a server application mirroring the users activity in the client
 \item the web application client providing the user interface in the web browser
 \end{enumerate}
 
-The user interface provides the user a practical and intuitive environment for the translation and  communicates with the translation memory. %technically speaking, we are communicating with userspace, not the TM
-From the user's view, the main functionality is parsing the subtitle into individual chunks %shouldn't  we define what a "chunk" is? :)
+The user interface provides the user a practical and intuitive environment for the translation and \todo{technically speaking, we are communicating with userspace, not the TM} communicates with the translation memory.
+From the user's view, the main functionality is parsing the subtitle into individual \todo{shouldn't  we define what a "chunk" is? :)}chunks 
 and providing the translation suggestions to each of them,  with the possibility to play the corresponding pieces of the movie stored on the translator's computer with the subtitles either in the source or target language. 
-The interface provides complex tool for the subtitle editing including the possibility to adjust the timing, add new chunks or delete some. %not right now it doesn't
+The interface \todo{not right now it doesn't} provides complex tool for the subtitle editing including the possibility to adjust the timing, add new chunks or delete some. 
 In addition to the suggestions from other movie subtitles, a machine translated sentences are provided from the Moses system trained on the movie subtitle data.
 
-The server part queries the translation memory for similar sentences which have occurred in the subtitles before and has been already translated. Different method of retrieving the similar chunks are used ... For evaluating how much the ...
 
-The translation memory will accept the queries of the client application for the individual subtitle chunks, will search for simillar already used texts in the database and send several best ones back. For evaluation we will try not only the usual metrics, but also the feedback from users, who will have he ability to rate the imports of the translation memory. We will also try the possibilit of using some meta information like the agreement %????is agreement the right word?
+The server part queries the translation memory for similar sentences which have occurred in the subtitles before and has been already translated. Different method of retrieving the similar chunks are \todo{?????} used ... For evaluating how much the ...
+
+The translation memory will accept the queries of the client application for the individual subtitle chunks, will search for simillar already used texts in the database and send several best ones back. For evaluation we will try not only the usual metrics, but also the feedback from users, who will have he ability to rate the imports of the translation memory. We will also try the possibilit of using some meta information like the agreement
 of the TV show season, the agreement of genre etc. At the same time, the translation memory will accept all the translations made by the users and save it back to the database, so the quality of translation memory data increases over time.
 
 
 The translation memory itself is implemented in Scala using the Postgre SQL databese. The server side is implemented in Java, the client is developed in Java, using Google Web Toolkit. (Google Web Toolkit -- or GWT -- is translating the Java code into a JavaScript code).
 
 The communication between the server and client is using GWT's remote procedure calls (RPC), which are themselves implemented as asynchronous POST requests in GWT.
-%more about GWT/Scala here? I don't think so
 
 \section{Data}
 
@@ -31,7 +33,7 @@ Processing the movie subtitles is in many ways different from processing a gener
 %Věříme, že většina odlišností bude představovat spíše výhody (například omezená doména nebo velké množství dat využitelných pro počáteční naplnění překladové paměti), jistě tomu tak ale nebude ve všech případech.
 %Mam tohle rekladat/should I rewrite that?
 
-The subtitles in general consist of small, few-lined chunks of text, that are described by the time they should appear in the movie. It is important to note that the division of those chunks is not the divion by sentences; sentences are often divided in half and vice versa -- the chunks are often consisting from more sentences.    
+\todo{I (Karel) added this whole paragraph, was not in original specification}The subtitles in general consist of small, few-lined chunks of text, that are described by the time they should appear in the movie. It is important to note that the division of those chunks is not the divion by sentences; sentences are often divided in half and vice versa -- the chunks are often consisting from more sentences.    
 
 Therefore, it is necessary to set a suitable basic unit of text which will be stored in the translation memory. In the statistical machine translation context, it is usual to use alignment on the sentence level, but the subtitle chunks often split the sentence into more pieces and on the other hand often contains more than one sentence. 
 We  are trying to take this as an advantage and split the data into chunks and then, split the chunks on  sentence boundaries whenever it is possible. Because of the limited size of the subtitle chunks, we hope that using this sentence and sub-sentece level splitting will lead to enough repetitivness.
