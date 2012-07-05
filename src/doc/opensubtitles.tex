@@ -1,8 +1,13 @@
-\section{Initial data processing}
+Since we wanted the translation memory to be functional from the very beginning, we needed to build some parallel corpus -- best from some repository of subtitles. 
 
-To ensure the full usability of the software from the very first moments when it is launched, some initial data is necessary.
+We first get data from OpenSubtitles. Once we have the "raw" subtitle data, we build a parallel corpus from that data to use for translation memory. 
 
-\subsection{Retrieving data}
+Since there are more strategies for building the corpus from the "raw" data, we also want to somehow measure the quality of the resulting corpus (either by measuring the alignment itself or the resulting corpus).
+
+In this chapter, we discuss these steps, together with more detailed description of the data we got. We will also discuss various strategies for measuring the quality of the corpus.
+
+
+\section{Retrieving data}
 
 There are plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded.
 However, it is problematic to download from most of the servers in bigger batches (thanks to anti-spam protection and so on); also, we wanted to avoid any copyright problems we would meet by using random subtitles from the internet. For this purpose, we asked the administrator of the biggest server providing the subtitles \emph{opensubtitles.org} for the data.
@@ -38,38 +43,634 @@ but I think it's ok :)
 \end{quote}
 
 
-\noindent We decided that this licence condition is acceptable for our purposes. 
+\noindent We decided that this license condition is acceptable for our purposes. 
 
-As a matter of fact, the users of \emph{opensubtitles.org} agree with a statement where they declare they are holders of all rights to the content they post to the server, and provide the subtitle files as their own intellectual property for public use. Based on this and the licence, we think there are no more copyright issues.% Based on this statement we trust the users they really did what they declared.
+As a matter of fact, the users of \emph{opensubtitles.org} agree with a statement where they declare they are holders of all rights to the content they post to the server, and provide the subtitle files as their own intellectual property for public use. Based on this and the license, we think there are no more copyright issues.% Based on this statement we trust the users they really did what they declared.
 
 %From this data we will create a parallel corpus of ...
 
-\subsection{The data properties}
+\section{The initial data properties}
 
-(In this section, we call \emph{subtitle} the whole subtitle file, \emph{chunk} is again the piece of text, displayed on screen at one time)
+We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After removing files, which were not in the index, and removing index data, that didn't have the files, we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data. (Each file was individually zipped with \texttt{gzip}, so unzipped version would be probably bigger.)
 
-We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After solving this problem we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data.
-
-
-Some subtitles are divide into more files, anyway 81\% of subtitles are in one piece. There is also just 1.7\% movies having subtitles only in multiple files. Moreover, we can assume that those which are in more parts, are probably just split the complete onces. To keep the chunk alignment simple we would delete those as well.
+Some subtitles are divide into more files, anyway 81\% of subtitles are in one piece.
+There is also just 1.7\% movies having subtitles only in multiple files. 
+We assumed that those split into more parts are probably just split version the complete ones. 
+So, to keep the chunk alignment simple, we deleted the split subtitle files.
 
 This caused that some movies lost its translation -- 64
 of Czech and 218 of English. In total we will lost 3,5\% of movies. After this steps, the amount of data was 2,556 MB.
 
-Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were correctly marked.
+Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
 However, this also caused one curious issue.
 While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
 
 After doing all mentioned filtering we had 2,543 MB in 110,312 subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
-From these, the average subtitle file had XX chunks.
+\todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
 
-\subsection{Aligning the subtitles}
+\section{Subtitles and sentences}
 
-While we had enough metadata to align subtitles of the same movie together, there were still more than two subtitle files for each of the movies, so we needed to chose the best pair. Also, on these, we needed to align the actual chunks together. 
+By observing several subtitle files, we can see some patterns. 
 
-For elignment, we used two different approaches, which we then compared. TODO: COMPARISON. Damn, I am doing that today.
+\begin{enumerate}
+    \item Usually, dialogues are marked with dash in the beginning. Example (from english subtitles from movie \emph{Jurassic Park III}):
+    
+        \texttt{7 \\
+        00:01:40,224 --> 00:01:42,762 \\
+        -Ready, amigo? \\
+        -Ready!}
+        
+    \item Sometimes, there is a sentence spread through more "screens" (or what we call \emph{chunks})
+    
+    \texttt{62
+    00:05:35,327 --> 00:05:36,092\\
+    Ellie,\\
+\\
+    63\\
+    00:05:36,127 --> 00:05:37,967\\
+    all the theories are about\\
+    raptors intelligence,\\
+\\
+    64\\
+    00:05:38,002 --> 00:05:39,567\\
+    what are they capable of?}
+    
+    \item Sometimes, there are more sentences in one chunk
+    
+    \texttt{43\\
+    00:04:43,047 --> 00:04:46,607\\
+    This is Hylaeosaurus.\\
+    That's the dinosaur man.}
+    
+\end{enumerate}
+
+As you can see, the sentences and chunks don't exactly match each other.
+
+\section{Aligning the subtitles}
+
+While we had enough metadata to align subtitles of the same movie together, there were still more than two subtitle files for each of the movies, so we needed to chose the best pair. Also, on these, we needed to align the actual chunk pairs.
+
+We used two different approaches for this. All of them need to solve these three issues:
+\begin{itemize}
+    \item file to file alignment -- in each movie find \emph{one} best pair
+    \item filter the "good" movies -- filter the movies, whose best pairs are well alignable
+    \item chunk to chunk alignment -- if we already have pairs of files, chose the best  
+\end{itemize}
+
+All those are implemented as abstract classes in \texttt{cz.filmtit.dataimport.alignment.model} and their two implementations (described below) in \texttt{cz.filmtit.dataimport.alignment.aligners}.
+
+\subsection{File to file alignment}
+In general, there is 2.1 Czech subtitle files and 5 English subtitle file. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
+
+What is, however, helping us in determining alignment is the fact, that Czech subtitles are usually taken from existing subtitles in English and directly translated, therefore the time marks should be similar. It is interesting to note that in professional translation of movie subtitles, this is not the case -- as was noted to us by professional movie subtitle translators, professional subtitles are translated directly from the script and then recut to not be too long or too short, which is usually not a concern for fan made translations. 
+
+On the other hand, usually, people, who download movies (and, therefore, subtitles) online, download them from sources of questionable legality, which usually have more versions of the same file (some are so-called "cam-rips", some are copied from DVDs or blu-rays). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles (which is a case of professional translation with different timing).
+
+Also, sometimes, subtitles have absolutely wrong movie tag.
+
+For illustration here, I randomly selected a movie from the database and show sample of its subtitles. The randomly selected movie is \emph{Legends of the Fall} from 1994 - 5 lines from beginning, 3 lines from the middle (374 to 376, if possible), 3 lines from the end.
+ 
+\todo{better formating}
+
+\newenvironment{subexam}{\begin{boxedminipage}[b]{0.4\textwidth}
+\footnotesize
+\begin{alltt}
+}
+{
+\end{alltt}
+\end{boxedminipage}}
+
+
+
+\begin{subexam}
+1
+00:00:00,066 --> 00:00:02,375
+Titulky preložené do češtiny by BiGfOoT.
+----------------------------------------
+Tento disk DVD (Digital Versatile Disc)
+je určen pouze pro domácí užití.
+Veškerá práva k obsahové náplni včetně
+zvukového záznamu přísluší vlastníku
+autorského práva.
+
+2
+00:00:02,746 --> 00:00:05,055
+Neautorizované rozmnožování,
+úpravy, projekce pro jiné než domácí
+účely, pronájem, výměna, pújčování a
+jakákoli forma přenosu tohoto disku
+DVD nebo jeho částí jsou zakázány.
+Porušování práv vlastníka autorského
+práva bude stíháno podle platných
+právních předpisú.
+
+3
+00:00:32,666 --> 00:00:38,059
+LEGENDA O VÁŠNI
+
+4
+00:00:46,426 --> 00:00:51,454
+Někteří lidě slyší svúj
+vnitřní hlas nadmíru jasně.
+
+5
+00:00:51,626 --> 00:00:54,663
+A řídí se jím po celý život.
+
+374
+00:56:41,186 --> 00:56:44,781
+Řekni to ještě jednou
+a přestaneme být bratry.
+
+375
+00:56:46,506 --> 00:56:49,862
+Někdy!
+
+376
+00:56:52,146 --> 00:56:56,503
+- S tebou nebude šťastna.
+- Uvidíme.
+
+755
+02:01:42,266 --> 02:01:47,101
+... někde mezi tímto světem
+a tím druhým.
+
+756
+02:02:23,266 --> 02:02:26,178
+Byla to dobrá smrt.
+
+757
+02:07:18,306 --> 02:07:22,697
+České titulky - BiGfOoT.
+\end{subexam}
+\hspace{0.5cm}
+\begin{subexam}
+1
+00:00:00,066 --> 00:00:02,375
+Titulky preložené do češtiny by BiGfOoT.
+----------------------------------------
+Tento disk DVD (Digital Versatile Disc)
+je určen pouze pro domácí užití.
+Veškerá práva k obsahové náplni včetně
+zvukového záznamu přísluší vlastníku
+autorského práva.
+
+2
+00:00:02,746 --> 00:00:05,055
+Neautorizované rozmnožování,
+úpravy, projekce pro jiné než domácí
+účely, pronájem, výměna, pújčování a
+jakákoli forma přenosu tohoto disku
+DVD nebo jeho částí jsou zakázány.
+Porušování práv vlastníka autorského
+práva bude stíháno podle platných
+právních předpisú.
+
+3
+00:00:32,666 --> 00:00:38,059
+LEGENDA O VÁŠNI
+
+4
+00:00:46,426 --> 00:00:51,454
+Někteří lidě slyší svúj
+vnitřní hlas nadmíru jasně.
+
+5
+00:00:51,626 --> 00:00:54,663
+A řídí se jím po celý život.
+
+374
+00:56:41,186 --> 00:56:44,781
+Řekni to ještě jednou
+a přestaneme být bratry.
+
+375
+00:56:46,506 --> 00:56:49,862
+Někdy!
+
+376
+00:56:52,146 --> 00:56:56,503
+- S tebou nebude šťastna.
+- Uvidíme.
+
+755
+02:01:42,266 --> 02:01:47,101
+... někde mezi tímto světem
+a tím druhým.
+
+756
+02:02:23,266 --> 02:02:26,178
+Byla to dobrá smrt.
+
+757
+02:07:18,306 --> 02:07:22,697
+České titulky - BiGfOoT.
+\end{subexam}
+
+
+\begin{subexam}
+
+1
+00:00:46,577 --> 00:00:51,605
+Somepeople heartheir own
+innervoices with greatcleamess.
+
+2
+00:00:51,777 --> 00:00:54,814
+And they live bywhatthey hear.
+
+3
+00:00:54,977 --> 00:01:00,973
+Such people become crazy,
+orthey become legends ...
+
+4
+00:01:07,137 --> 00:01:11,813
+Tristan Ludlowwas bom
+in the moon ofthe falling leaves.
+
+5
+00:01:11,977 --> 00:01:14,332
+ltwas a terrible winter.
+
+374
+00:56:41,337 --> 00:56:44,932
+You saythat again
+and we're not brothers.
+
+375
+00:56:46,657 --> 00:56:50,013
+Once!
+
+376
+00:56:52,297 --> 00:56:56,654
+- You know you can't make her happy.
+- l'm gonna try.
+
+756
+02:01:38,937 --> 02:01:42,247
+He hadalways lived
+in the borderland, anyway.
+
+757
+02:01:42,417 --> 02:01:47,252
+Somewhere between this world
+and the other.
+
+758
+02:02:23,417 --> 02:02:26,329
+lt was a good death.
+\end{subexam}
+\hspace{0.5cm}
+\begin{subexam}
+1
+00:00:58,000 --> 00:01:00,696
+- I'm here!
+- Where? I can't see.
+
+2
+00:01:02,704 --> 00:01:04,365
+I can't move!
+
+3
+00:01:08,577 --> 00:01:10,238
+I'm coming!
+
+4
+00:01:35,671 --> 00:01:38,037
+I got you now.
+
+5
+00:01:40,008 --> 00:01:42,272
+You're doing good.
+
+315
+00:44:59,438 --> 00:45:02,032
+were married several years ago.
+
+316
+00:45:05,278 --> 00:45:07,542
+Your brother's a congressman now.
+
+317
+00:45:09,282 --> 00:45:11,716
+They have a big, new place
+in Helena.
+\end{subexam}
+
+
+\begin{subexam}
+1
+00:00:45,869 --> 00:00:49,186
+<i>Some people hear 
+their own inner voices...</i>
+
+2
+00:00:49,261 --> 00:00:50,920
+<i>with great clearness...</i>
+
+3
+00:00:50,989 --> 00:00:54,087
+<i>and they live by what they hear.</i>
+
+4
+00:00:54,157 --> 00:00:57,125
+<i>Such people become crazy...</i>
+
+5
+00:00:57,198 --> 00:00:59,369
+<i>or they become legends.</i>
+
+374
+00:34:22,150 --> 00:34:23,710
+Charge!
+
+375
+00:34:37,734 --> 00:34:39,806
+Goddamn it!
+
+376
+00:34:40,838 --> 00:34:42,693
+- Where are you hit?
+- It's just a scratch.
+
+983
+02:01:38,444 --> 02:01:41,891
+<i>He had always lived
+in the borderland anyway:</i>
+
+984
+02:01:41,964 --> 02:01:45,576
+<i>somewhere between this world
+and the other.</i>
+
+985
+02:02:23,086 --> 02:02:25,093
+<i>It was a good death.</i>
+\end{subexam}
+\hspace{0.5cm}
+\begin{subexam}
+1
+00:00:44,411 --> 00:00:47,869
+Some people hear their own
+inner voices
+
+2
+00:00:47,948 --> 00:00:49,677
+with great clearness
+
+3
+00:00:49,750 --> 00:00:52,981
+and they live
+by what they hear
+
+4
+00:00:53,053 --> 00:00:56,147
+Such people become crazy
+
+5
+00:00:56,223 --> 00:00:58,487
+or they become legend
+
+374
+00:35:27,326 --> 00:35:30,921
+Is that wrong to want
+to distinguish myself gloriously
+
+375
+00:35:30,996 --> 00:35:33,226
+in combat as my father did?
+
+376
+00:35:33,298 --> 00:35:36,290
+Tristan and Alfred
+watch over me so carefully
+
+1000
+02:06:50,103 --> 02:06:53,869
+Somewhere between this world
+and the other
+
+1001
+02:07:32,979 --> 02:07:35,072
+It was a good death
+
+1002
+02:12:47,200 --> 02:12:49,072
+\{\{\{the end\}\}\}
+\end{subexam}
+
+
+\begin{subexam}
+1
+00:00:43,411 --> 00:00:46,869
+Some people hear their own
+inner voices
+
+2
+00:00:46,948 --> 00:00:48,677
+with great clearness
+
+3
+00:00:48,750 --> 00:00:51,981
+and they live
+by what they hear
+
+4
+00:00:52,053 --> 00:00:55,147
+Such people become crazy
+
+5
+00:00:55,223 --> 00:00:57,487
+or they become legend
+
+374
+00:35:26,326 --> 00:35:29,921
+Is that wrong to want
+to distinguish myself gloriously
+
+375
+00:35:29,996 --> 00:35:32,226
+in combat as my father did?
+
+376
+00:35:32,298 --> 00:35:35,290
+Tristan and Alfred
+watch over me so carefully
+
+1000
+02:06:49,103 --> 02:06:52,869
+Somewhere between this world
+and the other
+
+1001
+02:07:31,979 --> 02:07:34,072
+It was a good death
+
+1002
+02:12:46,200 --> 02:12:48,072
+\{\{\{the end\}\}\}
+\end{subexam}
+\hspace{0.5cm}
+\begin{subexam}
+1
+00:00:46,418 --> 00:00:51,446
+Some people hear their own
+inner voices with great clearness.
+
+2
+00:00:51,618 --> 00:00:54,655
+And they live by what they hear.
+
+3
+00:00:54,818 --> 00:01:00,814
+Such people become crazy,
+or they become legends ...
+
+4
+00:01:06,978 --> 00:01:11,654
+Ôristan Ludlow was born
+in the moon of the falling leaves.
+
+5
+00:01:11,818 --> 00:01:14,173
+It was a terrible winter.
+
+374
+00:56:58,898 --> 00:57:02,208
+You will fail.
+
+375
+00:57:14,298 --> 00:57:17,529
+I'm going to be leaving today.
+
+376
+00:57:26,458 --> 00:57:30,087
+l do wish you both all the best.
+
+752
+02:01:42,258 --> 02:01:47,093
+Somewhere between this world
+and the other.
+
+753
+02:02:23,258 --> 02:02:26,170
+It was a good death.
+
+754
+02:07:18,298 --> 02:07:22,689
+English subtitles - lFT
+\end{subexam}
+
+\begin{subexam}
+1
+00:00:45,977 --> 00:00:51,005
+Some people hear their own
+inner voices with great cleamess.
+
+2
+00:00:51,177 --> 00:00:54,214
+And they live by what they hear.
+
+3
+00:00:54,377 --> 00:01:00,373
+Such people become crazy,
+or they become legends ...
+
+4
+00:01:06,537 --> 00:01:11,213
+Tristan Ludlow was bom
+in the moon of the falling leaves.
+
+5
+00:01:11,377 --> 00:01:13,732
+lt was a terrible winter.
+
+374
+00:56:40,737 --> 00:56:44,332
+You saythat again
+and we're not brothers.
+
+375
+00:56:46,057 --> 00:56:49,413
+Once!
+
+376
+00:56:51,697 --> 00:56:56,054
+- You know you can't make her happy.
+- l'm gonna try.
+
+756
+02:01:38,337 --> 02:01:41,647
+He had always lived
+in the borderland, anyway.
+
+757
+02:01:41,817 --> 02:01:46,652
+Somewhere between this world
+and the other.
+
+758
+02:02:22,817 --> 02:02:25,729
+lt was a good death.
+\end{subexam}
+\hspace{0.5cm}
+\begin{subexam}
+1
+00:00:43,785 --> 00:00:47,243
+Some people hear their own
+inner voices...
+
+2
+00:00:47,322 --> 00:00:49,051
+with great clearness...
+
+3
+00:00:49,123 --> 00:00:52,354
+and they live
+by what they hear.
+
+4
+00:00:52,427 --> 00:00:55,521
+Such people become crazy...
+
+5
+00:00:55,597 --> 00:00:57,861
+or they become legends.
+
+374
+00:35:35,741 --> 00:35:37,470
+I may never get the opportunity.
+
+375
+00:35:46,085 --> 00:35:47,712
+Charge!
+
+376
+00:36:02,334 --> 00:36:04,495
+Goddamn it!
+
+987
+02:06:45,772 --> 02:06:49,367
+He had always lived
+in the borderland anyway:
+
+988
+02:06:49,443 --> 02:06:53,209
+somewhere between this world
+and the other.
+
+989
+02:07:32,319 --> 02:07:34,412
+It was a good death.
+\end{subexam}
+
+As you can see, the two czech subtitles are exact duplicates. Also, there is one English subtitle that is totally wrong. Except this one, though, most of the English files are correct "translation" of the Czech one. You can also see neither one is a "perfect" match, if you look either at numbers or at time marks; but -- judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source.
+
+\todo{This is where I ended up, I have to go to sleep, gotta finish the rest later}
 
 \subsubsection*{Editing distance}
 
