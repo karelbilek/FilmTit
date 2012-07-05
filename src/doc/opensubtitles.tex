@@ -670,21 +670,36 @@ It was a good death.
 
 As you can see, the two czech subtitles are exact duplicates. Also, there is one English subtitle that is totally wrong. Except this one, though, most of the English files are correct "translation" of the Czech one. You can also see neither one is a "perfect" match, if you look either at numbers or at time marks; but -- judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source.
 
-\todo{This is where I ended up, I have to go to sleep, gotta finish the rest later}
+So, none of the pairs are perfect match, however, we have a few almost-perfect matches.
 
-\subsubsection*{Editing distance}
+\subsection{Subtitle to subtitle alignment}
+As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks.
 
-While comparing two mostly identical subtitle files, there may appear some issues which cause that the timing of the files is not identical. There exist some cases where one chunk is split into more or two are merged into one. In both of this cases, two time declarations in the file remain the same and two time declarations are added or deleted. There are also a lot of subtitles for deaf people where from time to time some additional subtitle appears. 
+However, even in cases when Czech subtitle file \emph{was} done directly from English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, Czech version has those deleted.
 
-From that we concluded that the best measure how subtitle files matches would be the editing distance of their time declarations since the cases mentioned above contributes relatively little to the score in contrast to some more significant mismatches. 
-By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+Anyway, we align only the one best candidate from each media source. The result of this alignment is almost what goes into the corpus; we yet have to do sentence splitting before putting it into corpus.
 
-As one of the papers (CITE!!!) proposed we used 0.6\,s as a tolerance for equality, not to be confused by slight differences in timing. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
+\subsection{Approaches}
+\subsubsection{Direct equality}
 
-%when I rewrote it to scala it was actually much faster then in perl. Maybe we COULD do the whole files now :-)
+The first approach is to take only the chunks with the same time (with some small tolerance) as belonging to each other.
+
+For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+
+We chose editing distance, since there can be some small splitting or additions, as described above.
+
+Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
+
+%deleting this, since I covered it in previous section already
+%While comparing two mostly identical subtitle files, there may appear some issues which cause that the timing of the files is not identical. There exist some cases where one chunk is split into more or two are merged into one. In both of this cases, two time declarations in the file remain the same and two time declarations are added or deleted. There are also a lot of subtitles for deaf people where from time to time some additional subtitle appears. 
+%From that we concluded that the best measure how subtitle files matches would be the editing distance of their time declarations since the cases mentioned above contributes relatively little to the score in contrast to some more significant mismatches. 
+%By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+%As one of the papers (CITE!!!) proposed we used 0.6\,s as a tolerance for equality, not to be confused by slight differences in timing. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
+
+
 
 The results were following: from 15,552 movies there was 22.2\,\%
-with perfect matches and 3.1\,\% of total mismatches. The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
+with perfect matches and 3.1\,\% of total mismatches. \todo{I have \textbf{no clue whatsoever} what the percentages mean. Is it the editing distance?}The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
 
 \begin{table}[h]
 
@@ -705,6 +720,59 @@ amount of films & measure of match\\ \hline
 
 %what does the "measure of match" mean in this context? I don't get it.
 
-After looking at some randomly selected files we have decided to use just movies for which we have a pair of files with at least 70 \% match. Surprisingly, some worse scored pairs have quite high-quality translations, because they contain a lot of joined and split chunks, but generally, based on ran the quality of translation decreased with the match score.
+After looking at some randomly selected files we have decided to use just movies for which we have a pair of files with at least \todo{Again, what does the 70\% mean??}70 \% match. Again, lower match score doesn't mean lower quality of translation, but rather how the subtitles match to each other. 
 
-On this files we run an aligning algorithm based just on the timing. The chunks were aligned if both the time of their start and time of their end differ less than by 0.6\ s. This gave us 884 MB of parallel data which consists of 13,636,022 chunks. In this we have 5,669,837 unique chunks, from which 3.7 \% appears more than once. On the other hand, chunks appearing more than once make 57.6 \% of the whole corpus.
+The chunk-to-chunk alignment is then simple -- chunks are aligned together it both the time of their start and time of their end differ less than by 0.6\ s.
+
+This gave us 884 MB of parallel data which consists of 13,636,022 chunks. In this we have 5,669,837 unique chunks, from which 3.7 \% appears more than once. On the other hand, chunks appearing more than once make 57.6 \% of the whole corpus.
+
+\subsubsection{Shortest distance}
+Another approach was to not take the directly equal times (even with tolerance), but to find the distances between Czech and English subtitles and take the subtitles that are "closest" to each other.
+
+More concretely, we took the middle time of each chunk (in milliseconds) and distance from other chunk is absolute difference of these middles. 
+
+To find the best matching pairs in pair of two files, we took for each \todo{maybe it's the other way around :/} the closest Czech chunk for each English chunk; then, if more English chunks were aligned with the same Czech chunks, we select the closest.
+
+(Although similar, this is not a case of graph matching in bipartite graphs, since it is not needed that each Czech chunk would have some English chunk and vice versa.)
+
+Trivially implemented this algorithm would be quadratic to the size of subtitle file; however, we may dynamize it so the worst case is linear.
+
+In the file-to-file alignment case, we count this alignment for each pair of files and then we sum all the distances for a given pair; we then select the pair with the smallest sum as the correct one. If the subtitles are just translated from each other, the sum should be small and can be even zero, if the time marks are exactly the same.
+
+We then selected given number of movies (we tried \todo{mabye more cases, see below}6000 and 12000) with the smallest sum as the "good" movie pairs and then align them.
+
+\subsubsection{Baseline -- trivial alignment}
+As a baseline for comparison, the "trivial" algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side.
+
+\subsection{Evaluation of alignment}
+We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose? For more scientific approach, we have to evaluate them; but it turns out it is not so easy.
+
+\subsubsection{Manual alignment}
+The first idea was to compare the alignment with manual alignment, as noted in \todo{The paper that Bojar sent me :)}???.
+
+The problem is -- what to manually align exactly? We can manually align files for a given movie (we demonstrated it in a chapter \todo{chapter}???). It is not very easy though, since -- as we seen already -- the files are all more or less the correct translations and the timings are not exact matches. Anyway, we randomly selected 30 movies and for each of these, selected which pairs seems like from the same source and match together.
+
+However, there is bigger issue with the manual chunk-to-chunk alignment, that is -- which file pairs to manually align? Since we don't know the file-to-file aligner results in advance, we should align all the file pairs -- but if there are, for example, 10 subtitle files on each language, it makes 100 of pairs of files on which we should provide manual alignment, while the texts in all of them are \emph{mostly} the same, but \emph{not exactly} the same. This actually proved too hard and tedious to do.
+
+Plus, the aligner chooses just one pair, but person would have to align all the possible pairs for no reason (plus, person can produce different errors in different file pairs, which could be "unfair" to some of the aligners).
+
+Therefore, we manually annotated just the file-to-file alignment and we tried a different metric on the whole chunk-to-chunk alignment.
+
+\subsubsection{Manual translation memory test}
+We tried a different evaluation metric for testing the alignments. We imported the whole corpus (as created by an aligner) except for randomly selected 30 media sources into a database, then we took 20 chunks from each file, then we looked at how many of those results are relevant.
+
+\subsubsection{Counting precision and recall for file to file alignment}
+There are those five cases of what can happen:
+\begin{itemize}
+    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a "good" movie - in this section, we call this \textbf{true negative}
+    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a "good" movie - in this section, we call this \textbf{false negative}
+    \item With manual alignment, we found no possible matches, the aligner marked it as a "good" movie and included it in corpus - in this section, we call this \textbf{false positive}
+    \item With manual alignment, we found possible matches, the aligner marked it as a "good" movie, but the match from aligner was not one of the correct ones -  we call this \textbf{partly true positive}
+    \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textbf{fully true positive}
+\end{itemize}
+
+With some consideration, we count precision as equal to $\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}}$ and recall as $\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}$.
+
+That means -- precision is a percentage of movies, chosen by aligner, that are aligned correctly; recall is a percentage of movies, that \emph{can} be aligned (from manual aligning), that are aligned correctly.
+
+With these definitions, precision and recall are as follows:
