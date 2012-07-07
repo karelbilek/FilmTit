@@ -29,22 +29,14 @@ class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment
     val mapping = new SubtitleMapping(c)
     def tested:Seq[String] = util.Random.shuffle(mapping.moviesWithSubs).take(numberOfTestedFiles).toSeq
   
-    def loadAlignedFiles():Map[String, Pair[SubtitleFile, SubtitleFile]] = {
-        import cz.filmtit.dataimport.alignment.model.Aligner.readFilePairsFromFile
-        
-        val iterable = readFilePairsFromFile(alignedFiles, c, Language.CS, Language.EN, false)
-
-        iterable.map{case(f1,f2)=>(f1.filmID, (f1,f2))}.toMap
-    }
+    def loadAlignedFiles():Map[String, Pair[SubtitleFile, SubtitleFile]] = 
+        TMEvaluator.loadFilePairsToMap(alignedFiles, c)
  
 
-   def loadAlignedFilesExceptTested():Map[String, Pair[SubtitleFile, SubtitleFile]] =  {
+   def loadAlignedFilesExceptTested():Map[String, Pair[SubtitleFile, SubtitleFile]] = 
         loadAlignedFiles--tested
-   }
     
    def alignFiles() {
-//       class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkAlignment, goodFilePairChooser:GoodFilePairChooser, conf:Configuration, l1:Language, l2:Language) {
-
 
         c.dataFolder.listFiles.foreach{_.delete()}
         
@@ -123,6 +115,19 @@ class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment
 }
 
 object TMEvaluator {
+
+        val l1 = Language.EN
+        val l2 = Language.CS
+
+    def loadFilePairsToMap(f:File, c:Configuration):Map[String, Pair[SubtitleFile, SubtitleFile]] = {
+        import cz.filmtit.dataimport.alignment.model.Aligner.readFilePairsFromFile
+        
+        //for reasons I don't remember anymore it's switched here
+        //(noone really cares here)
+        val iterable = readFilePairsFromFile(f, c, l2, l1, false)
+
+        iterable.map{case(f1,f2)=>(f1.filmID, (f1,f2))}.toMap
+    }
     def readCountInfo(source:Seq[String], targets:Seq[Iterable[String]]):Seq[Int] = {
         (0 to source.size-1).flatMap {
             i=>
@@ -165,7 +170,7 @@ object TMEvaluator {
         descriptions.foreach {
             case(file2file, chunk2chunk, results) =>
                val evaluator = new TMEvaluator(new Configuration("configuration.xml"), new File(file2file), chunk2chunk, 30)
-               //evaluator.alignFiles
+               evaluator.alignFiles
                val testedS = evaluator.loadTestedFiles
                val testedT = evaluator.queryTMForStrings(testedS)
                saveCountInfo(new File(results), readCountInfo(testedS, testedT))
@@ -214,20 +219,38 @@ object TMEvaluator {
         } 
     }
 
-    def main(args: Array[String]) {
+    def final_alignment() {
+        val c = new Configuration("configuration.xml")
         val l1 = Language.EN
         val l2 = Language.CS
+        
+        val mapping = new SubtitleMapping(c)
 
-        var cnt = new LinearSubtitlePairCounter
+        val cnt = new LinearSubtitlePairCounter
+        val filename ="../alignment_file2file/distance12k" 
+        val alignment =  new DistanceChunkAlignment(l1, l2, cnt)
+        
+        val file = new File(filename)
+        val map = loadFilePairsToMap(file, c)
+
+        val aligner:Aligner = new Aligner(new SubtitleFileAlignmentFromFile(l1, l2, map), alignment, new GoodFilePairChooserFromFile(map), c, l1, l2)
+        aligner.align(mapping)
+    
+    }
+
+    def main(args: Array[String]) {
+
+        if(true){final_alignment(); return}
+        val cnt = new LinearSubtitlePairCounter
 
         val ar:Array[Tuple3[String, ChunkAlignment, String]] = Array (
-          //  ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k"),
-           // ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 600L), "../res/leven600"),
-           // ("../alignment_file2file/distance",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k_d"),
-          //  ("../alignment_file2file/distance12k",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k_d12k"),
-           // ("../alignment_file2file/leven",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance_leven"),
-           // ("../alignment_file2file/distance",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance"),
-        //    ("../alignment_file2file/distance12k",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance12k"),
+            ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k"),
+            ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 600L), "../res/leven600"),
+            ("../alignment_file2file/distance",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k_d"),
+            ("../alignment_file2file/distance12k",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k_d12k"),
+            ("../alignment_file2file/leven",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance_leven"),
+            ("../alignment_file2file/distance",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance"),
+            ("../alignment_file2file/distance12k",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance12k"),
             ("../alignment_file2file/trivial",  new TrivialChunkAlignment(l1, l2), "../res/trivial")
     )
             
