@@ -6,7 +6,7 @@ import scala.Math._
  * difference between the middles of timings
  * (0 if same times)
  */
-class LinearFilePairCounter extends FilePairCounter {
+class LinearSubtitlePairCounter extends FilePairCounter {
 
   /**
    * Counts distance of two subtitles like

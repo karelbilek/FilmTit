@@ -684,7 +684,7 @@ Anyway, we align only the one best candidate from each media source. The result 
 
 The first approach is to take only the chunks with the same time (with some small tolerance) as belonging to each other.
 
-For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+For counting file to file alignment, we used \todo{Actually it was 6s in your code :)}0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
 
 We chose editing distance, since there can be some small splitting or additions, as described above.
 
@@ -742,7 +742,7 @@ In the file-to-file alignment case, we count this alignment for each pair of fil
 We then selected given number of movies (we tried \todo{mabye more cases, see below}6000 and 12000) with the smallest sum as the "good" movie pairs and then align them.
 
 \subsubsection{Baseline -- trivial alignment}
-As a baseline for comparison, the "trivial" algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side.
+As a baseline for comparison, the "trivial" algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
 
 \subsection{Evaluation of alignment}
 We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose? For more scientific approach, we have to evaluate them; but it turns out it is not so easy.
@@ -758,8 +758,12 @@ Plus, the aligner chooses just one pair, but person would have to align all the 
 
 Therefore, we manually annotated just the file-to-file alignment and we tried a different metric on the whole chunk-to-chunk alignment.
 
-\subsubsection{Manual translation memory test}
-We tried a different evaluation metric for testing the alignments. We imported the whole corpus (as created by an aligner) except for randomly selected 30 media sources into a database, then we took 20 chunks from each file, then we looked at how many of those results are relevant.
+\subsubsection{Simulation of translation memory}
+We tried a different evaluation metric for testing the alignments.
+
+We imported the whole corpus (as created by an aligner) except for randomly selected 30 media sources into a database, then we took 20 chunks from each file, then we looked at how many of those results were relevant.
+
+We didn't test it on real database (since that would be time consuming), we searched just for direct matches.
 
 \subsubsection{Counting precision and recall for file to file alignment}
 There are those five cases of what can happen:
@@ -771,8 +775,50 @@ There are those five cases of what can happen:
     \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textbf{fully true positive}
 \end{itemize}
 
-With some consideration, we count precision as equal to $\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}}$ and recall as $\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}$.
+With some consideration, we count precision \todo{this looks like shit}as equal to $\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}}$ and recall as $\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}$.
 
 That means -- precision is a percentage of movies, chosen by aligner, that are aligned correctly; recall is a percentage of movies, that \emph{can} be aligned (from manual aligning), that are aligned correctly.
 
-With these definitions, precision and recall are as follows:
+With these definitions, precision and recall are as follows (\todo{sounds terrible}the numbers are percentages):
+
+\begin{tabular}{|l|l|l|l|} 
+    \hline
+    \textbf{approach} & \textbf{precision} & \textbf{recall} & \textbf{F1-measure} \\ \hline
+    Baseline & 33 & 33 & 33 \\ \hline
+    Equality & 61 & 57 & 59 \\ \hline
+    6,000 best distance-based & 67 & 20 & 31 \\ \hline
+    12,000 best distance-based & 76 & 53 & 63 \\ \hline
+\end{tabular}
+
+\subsubsection{Translation memory simulation result}
+We counted two percentages for each configuration - one was \emph{precision} -- that is, how many of the received translation results were correct -- and second we called \emph{coverage} -- that is, how many of the subtitle chunks received at least one good translation.
+
+We also counted a harmonized mean of those two.
+
+What also has to be noted here that the result counts are not evenly distributed -- on the more "popular" sentences like "I don't know", we might have hundreds of matches; we recieve only first 30 ones. This will, of course, skew the precision a bit (since we take only 30 chunks as received); however, it emulates the working of translation memory anyway.
+
+Results are as follows:
+
+\begin{tabular}{|p{7cm}|l|l|l|} 
+    \hline
+    \textbf{approach} & \textbf{precision} & \textbf{coverage} & \textbf{mean} \\ \hline
+    Baseline & 15 & 20 & 17 \\ \hline
+    Equality based with tolerance 6s & 92 & 21 & 35 \\ \hline
+    Equality based with tolerance 600 ms & 96 & 19 & 31 \\ \hline
+    
+    6,000 best distance-based file alignment, but equality based chunk alignment with tolerance 6s & 94 & 17 & 28 \\ \hline
+    12,000 best distance-based file alignment, but equality based chunk alignment with tolerance 6s & 93 & 19 & 31 \\ \hline
+    
+    6,000 best distance-based & 89 & 21 & 35 \\ \hline
+    12,000 best distance-based & 85 & 24 & 38 \\ \hline
+    Equality based file alignment with distance-based chunk alignment & 83 & 24 & 37 \\ \hline
+\end{tabular}
+
+We may notice that generally, when we allow more tolerance (the distance-based chunk alignment is more tolerant), we got more wrong translation pairs, however, some good translations can appear in chunks that were not translatable with the less tolerant alignment.
+
+The baseline algorithm is absurdly tolerant and produces actually bigger coverage than equality based algorithm with tolerance 600 ms.
+
+Also note, that even with the alignment with best coverage, we still covered only about one fourth of the file. Automatic translations are therefore needed, if we want to provide at least something to the user.
+
+We chose the distance-based algorithm with 12,000 files, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations.
+

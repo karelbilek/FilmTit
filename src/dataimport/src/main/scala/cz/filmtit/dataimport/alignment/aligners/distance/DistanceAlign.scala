@@ -21,7 +21,7 @@ object DistanceAlign {
         val config = new Configuration(args(0))
         val where = args(1)
 
-        val counter = new LinearFilePairCounter
+        val counter = new LinearSubtitlePairCounter
 
         val aligner = new Aligner(
             new DistanceSubtitleFileAlignment(Language.EN, Language.CS, counter),

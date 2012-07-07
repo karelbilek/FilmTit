@@ -17,7 +17,6 @@ import cz.filmtit.dataimport.SubtitleMapping
   */
 class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkAlignment, goodFilePairChooser:GoodFilePairChooser, conf:Configuration, l1:Language, l2:Language) {
     
-    val writer = new Writer(conf)
 
   def alignFiles(mapping:SubtitleMapping, maxFiles:Int=0): Iterable[Pair[SubtitleFile, SubtitleFile]] = {
        println("start")
@@ -41,13 +40,9 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
        }
        println("done")
        val goodPairs = goodFilePairChooser.choosePairs(pairs)
+       println("I chose files "+goodPairs.size)
        goodPairs
   }
-
-  
-
-  
-
 
   /**
    * Dose the aligning itself and write it to files
@@ -62,19 +57,23 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
         pair=>
            println("another : "+pair._1.filmID)
            val chunks = chunkAlignment.alignChunks(pair._1.readChunks, pair._2.readChunks)
+           val pw: java.io.PrintWriter = new java.io.PrintWriter(new java.io.File(conf.getDataFileName(pair._1.filmID)))
            chunks.foreach {
+
              chunkPair=>
+                
+                
                 val processedChunk1:Seq[TimedChunk] = processChunk(chunkPair._1, 0, 0L, l1)
                 val processedChunk2:Seq[TimedChunk] = processChunk(chunkPair._2, 0, 0L, l2)
                 if (processedChunk1.length == processedChunk2.length) {
                    (0 to processedChunk1.length-1).foreach {
-                     i => writer.write(pair._1.filmID, processedChunk1(i), processedChunk2(i))
+                     i => Writer.write(pw, processedChunk1(i), processedChunk2(i))
                    }
                 } else {
-                   writer.write(pair._1.filmID,chunkPair._1, chunkPair._2);
+                   Writer.write(pw,chunkPair._1, chunkPair._2);
                 }
            }
-           writer.flush(pair._1.filmID)
+           pw.close() 
        }
        
     }

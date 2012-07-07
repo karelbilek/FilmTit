@@ -36,16 +36,19 @@ class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
        val fin = new FileInputStream(file)
        val gzis = new GZIPInputStream(fin)
        
-       try {
+       val res = try {
         try {
-             return readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
+            readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
         } catch {
-         case e: UnmappableCharacterException => return readWithCodec(gzis, Codec.UTF8)
+         case e: UnmappableCharacterException => readWithCodec(gzis, Codec.UTF8)
         }
        } catch {
-        case e:IOException => return ""; 
+        case e:IOException => ""; 
         
        }
+       fin.close();
+      
+      res
    }
 
     private def readWithCodec(stream:GZIPInputStream, codec:Codec):String = {

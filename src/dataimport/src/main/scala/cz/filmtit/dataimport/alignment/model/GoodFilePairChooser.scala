@@ -14,6 +14,6 @@ abstract class GoodFilePairChooser {
    * @param pairs all file pairs
    * @return the correct file pairs
    */
-    def choosePairs(pairs:Iterable[Pair[SubtitleFile, SubtitleFile]]):List[Pair[SubtitleFile, SubtitleFile]];
+    def choosePairs(pairs:Iterable[Pair[SubtitleFile, SubtitleFile]]):Iterable[Pair[SubtitleFile, SubtitleFile]];
 
 }

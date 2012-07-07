@@ -13,10 +13,9 @@ import java.io._
  * @constructor creates a new Writer
  * @param conf configuration that determines where to write
  */
-class Writer(conf:Configuration) {
+ 
+ object Writer {
     
-    var lastName:Option[String]=None;
-    var printWriter:PrintWriter=null;
 
   /**
    * A helper method for cleaning all |, - and < and > from subtitles
@@ -33,10 +32,10 @@ class Writer(conf:Configuration) {
    * @param chunk1  first chunk
    * @param chunk2  second chunk
    */
-    def write(name:String, chunk1:UnprocessedChunk, chunk2:UnprocessedChunk) {
+    def write(pw:java.io.PrintWriter, chunk1:UnprocessedChunk, chunk2:UnprocessedChunk) {
         //in the case of different sentence split, I still want to have the chunks there
         
-        write(name, 
+        write(pw, 
             quickClean(chunk1.getText),
             quickClean(chunk2.getText));
     }
@@ -47,8 +46,8 @@ class Writer(conf:Configuration) {
    * @param chunk1  first chunk
    * @param chunk2  second chunk
    */
-    def write(name:String, chunk1:TimedChunk, chunk2:TimedChunk) {
-        write(name, chunk1.getSurfaceForm, chunk2.getSurfaceForm)
+    def write(pw:java.io.PrintWriter, chunk1:TimedChunk, chunk2:TimedChunk) {
+        write(pw, chunk1.getSurfaceForm, chunk2.getSurfaceForm)
     }
 
 
@@ -58,37 +57,8 @@ class Writer(conf:Configuration) {
    * @param chunk1  first chunk
    * @param chunk2  second chunk
    */
-    def write(name:String, chunk1:String, chunk2:String) {
-        
-
-        if (lastName!= None && lastName!=Some(name)) {
-            throw new Exception("Did not flush");
-        }
-
-        if (lastName==None) {
-            printWriter = new java.io.PrintWriter(new File(conf.getDataFileName(name)));
-        }
-
-        printWriter.println(chunk1.replaceAll("\t"," ") +"\t"+ chunk2.replaceAll("\t"," "))
-        lastName = Some(name)
+    def write(pw:java.io.PrintWriter, chunk1:String, chunk2:String) {
+       
+        pw.println(chunk1.replaceAll("\t"," ") +"\t"+ chunk2.replaceAll("\t"," "))
     }
-
-  /**
-   * Closes given movie file
-   * @param name  movie ID, name of the file
-   */
-    def flush(name:String) {
-        if (lastName!= None && lastName!=Some(name)) {
-            throw new Exception("Did not flush");
-        }
-        
-        if (lastName!=None) {
-            printWriter.close;
-            printWriter=null;
-        }
-
-        lastName=None;
-
-    }
-
 }
