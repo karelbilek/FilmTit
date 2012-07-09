@@ -70,9 +70,10 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             this.setStyleName("pre_subgestbox");
         }
 
-        public SubgestBox getFather(){
+        public SubgestBox getFather() {
             return SubgestBox.this;
         }
+
         @Override
 	    public int compareTo(FakeSubgestBox that) {
 	        return getFather().compareTo(that.getFather());
@@ -268,9 +269,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	
 	
 	private String getAnnotatedSuggestionFromChunk(Chunk chunk) {
-		// naively expects that annotations are non-overlapping and ordered by their position
-		// TODO: generalize to correct behavior independent of the annotations' positions and possible nesting
-		gui.log("number of annotations for this chunk: " + chunk.getAnnotations().size());
+		// expects that annotations are non-overlapping and ordered by their position
+		// (should be)
+        if (chunk.getAnnotations().size() > 0) {
+		    gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
+        }
 		StringBuffer sb = new StringBuffer(chunk.getSurfaceForm());
 		for (Annotation annotation : chunk.getAnnotations()) {
 			String toInsertBegin = "<span style=\"background-color:" + annotationColor.get(annotation.getType()) + "\">";
