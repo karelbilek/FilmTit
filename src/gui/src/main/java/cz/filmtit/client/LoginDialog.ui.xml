@@ -4,6 +4,9 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client">
 
     <g:HTMLPanel>
+
+        <b:Heading size="3">Login</b:Heading>
+
         <b:Form type="HORIZONTAL" ui:field="loginForm">
             <b:Fieldset>
 
@@ -17,13 +20,13 @@
                 <b:ControlGroup>
                     <b:ControlLabel>Password:</b:ControlLabel>
                     <b:Controls>
-                        <b:TextBox ui:field="txtPassword"></b:TextBox>
+                        <b:PasswordTextBox ui:field="txtPassword"></b:PasswordTextBox>
                     </b:Controls>
                 </b:ControlGroup>
 
                 <b:ControlGroup>
                     <b:Controls>
-                        <b:SubmitButton ui:field="btnLogin">Login</b:SubmitButton>
+                        <b:Button ui:field="btnLogin">Login</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
                 
