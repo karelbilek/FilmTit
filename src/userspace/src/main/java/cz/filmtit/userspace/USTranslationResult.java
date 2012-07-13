@@ -13,23 +13,45 @@ import java.util.List;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
- * and also the user translation.
+ * and also the user translation in the User Space. It is a wrapper of the TranslationResult class from the
+ * share namespace. Unlike the other User Space objects, the Translations Results stays in the database even
+ * in cases the the document the Translation Result belongs to is deleted.
+ *
  * @author Jindřich Libovický
  */
 public class USTranslationResult extends DatabaseObject implements Comparable<USTranslationResult> {
+    /**
+     * The shared object which is wrapped by the USTranslationResult.
+     */
     private TranslationResult translationResult;
+    /**
+     * A sign if the feedback to the core has been already provided.
+     */
     private boolean feedbackSent = false;
-    private USDocument parent; // is set if and only if it's created from the document side
-    
+    /**
+     * The document this translation result is part of.
+     */
+    private USDocument parent;
+
+    /**
+     * Sets the document the Translation Result belongs to. It is called either when a new translation
+     * result is created or when the loadChunksFromDb() on a document is called.
+      * @param parent A document the Translation Result is part of.
+     */
     public void setParent(USDocument parent) {
         this.parent = parent;
-
     }
 
+    /**
+     * Creates the Translation Result object from the Timed Chunk. It is typically called when the User Space
+     * receives a TimedChunk from the client. The object is immediately stored in the database, but the
+     * TM core is not queried for the translation suggestions in the constructor. It happens latter in
+     * a separate method.
+     * @param chunk
+     */
     public USTranslationResult(TimedChunk chunk) {
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
-        //translationResult.setId(chunk.getId());
 
         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
@@ -37,35 +59,15 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * Default constructor for Hibernate.
+     * A default constructor used by Hibernate.
      */
     private USTranslationResult() {
         translationResult = new TranslationResult();
     }
 
-    /**
-     * Creates an instance of User Space Chunk from the shared Match.
-     *
-     * It just assigns it to the inner variable, User Space objects
-     * wrapping the contained translations are created when necessary.
-     * @param c
-     */
-    public USTranslationResult(TranslationResult c) {
-        translationResult = c;
-    }
-    
     public TranslationResult getTranslationResult() {
 	    return translationResult;
 	}
-
-    public int hashCode() {
-        return translationResult.hashCode();
-    }    
-    
-    public boolean equals(Object obj) {
-        if (obj.getClass() != this.getClass()) { return false; }
-        return  translationResult.equals(((USTranslationResult)obj).translationResult);
-    }
 
     public long getDocumentDatabaseId() {
         return translationResult.getDocumentId();
@@ -183,8 +185,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     /**
      * Queries the database for a list of translation results which were not marked as checked
-     * and mark them as checked. This is then interpreted as that a feedback has been provided
-     *
+     * and mark them as checked. This is then interpreted as that a feedback for has been provided
+     * and the chunks are ready to be deleted from the database.
      * @return  A list of unchecked translation results.
      */
     public static List<TranslationResult> getUncheckedResults() {
@@ -206,6 +208,12 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         return results;
     }
 
+    /**
+     * Compares the object with a different one based on the start time of the chunks. In fact
+     * only the compareTo method of the wrapped TranslationResult object is called.
+     * @param other A Translation Result which is compared to this one
+     * @return Result of comparison of the translation result with other chunk.
+     */
     @Override
     public int compareTo(USTranslationResult other) {
         return translationResult.compareTo(other.getTranslationResult());

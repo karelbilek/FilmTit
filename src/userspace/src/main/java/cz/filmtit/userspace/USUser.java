@@ -8,25 +8,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/* what may come from the interface
-    - administrating the account =
-        - change password
-        - change username
-        - change the way of authorization
-    - get the list of existing documents
-    - create a new document
-    - choosing a document to edit (and save the previous to database)
-    - pass further the editing of an active document
- */
-
 /**
- * Represents a user of the application in the user space
+ * Represents a user of the application in the user space. It is a wrapper of the User
+ * class from the share namespace.
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
 
     User user;
 
+    /**
+     * Creates a new user given his user name. It is used in cases a user logs for the first time
+     * in the application.
+     * @param userName The name of the new user.
+     */
     public USUser(String userName) {
         this.user = new User();
         user.setName(userName);
@@ -35,20 +30,26 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Default constructor for Hibernate.
+     * Default constructor used by Hibernate.
      */
     private USUser() {}
 
-    private List<USDocument> ownedDocuments;
-    private Set<Long> activeDocumentIDs;
     /**
-     * Sign if the active document was created in the current session and therefore is not yet in the database.
+     * A list of the documents owned by the user stored as the User Space wrappers of the
+     * Document objects from the share namespace.
      */
-    private boolean activeIsNew;  // is it necessary ???  I guess it's not
+    private List<USDocument> ownedDocuments;
+    /**
+     * A set of IDs of documents which were active at the moment the user logged out (or was logged
+     * out) last time. It is not kept up to date while a Session exists. It is updated at the moment
+     * the session is terminated and everything is stored to the database.
+     */
+    private Set<Long> activeDocumentIDs;
+
 
     /**
      * Gets the list of documents owned by this user.
-     * @return List of USDocument objects
+     * @return List of USDocument objects wrapping the Document objects
      */
     public List<USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
