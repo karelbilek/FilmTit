@@ -21,17 +21,19 @@ public abstract class DatabaseObject {
 
     /**
      * Method that gets the database ID in case its also used in the shared class. If the database ID is not
-     * shared, it should just return the inner database ID.
-      * @return Database ID.
+     * included in the shared class or the extended class is not a wrapper of a shared class,
+     * it should just return the inner database ID from field databaseId in the DatabaseObject.
+     * @return Database ID.
      */
-    protected abstract long getSharedDatabaseId();
+    protected abstract long getSharedClassDatabaseId();
 
     /**
-     * Sets the database ID which is in the shared class. If the database ID is not shared and is used for the
-     * User Space purposes, it should have an empty body.
+     * Sets the database ID and if it is necessary propagates the database ID setting to the wrapped object
+     * if there is one. This setter is called from the setDatabaseId setter after the databaseId field is set
+     * (which is the authoritative for the Hibernate mapping).
      * @param databaseId Database ID.
      */
-    protected abstract void setSharedDatabaseId(long databaseId);
+    protected abstract void setSharedClassDatabaseId(long databaseId);
 
     /**
      * Get the unique database identifier of the object or the value of Long.MIN_VALUE if the
@@ -39,7 +41,7 @@ public abstract class DatabaseObject {
      * @return The database ID of the object or Long.MIN_VALUE if it has not been set yet.
      */
     public long getDatabaseId() {
-        return getSharedDatabaseId();
+        return getSharedClassDatabaseId();
     }
 
     /**
@@ -55,7 +57,7 @@ public abstract class DatabaseObject {
         if (this.databaseId == databaseId) { return; }
         if (this.databaseId == Long.MIN_VALUE) {
             this.databaseId = databaseId;
-            setSharedDatabaseId(databaseId);
+            setSharedClassDatabaseId(databaseId);
             gotFromDb = true;
         }
         else {

@@ -70,8 +70,8 @@ public class USUser extends DatabaseObject {
         return ownedDocuments;
     }
 
-    protected void setSharedDatabaseId(long id) { }
-    protected long getSharedDatabaseId() { return databaseId; }
+    protected void setSharedClassDatabaseId(long id) { }
+    protected long getSharedClassDatabaseId() { return databaseId; }
 
     public String getUserName() {
         return user.getName();

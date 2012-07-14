@@ -6,15 +6,6 @@ import org.hibernate.Session;
 
 import java.util.*;
 
-/* Functionality ... what may happen
-    - changing the title / year or even language of the document => regenerate no finished translations
-    - changing the original language chunk => regenerate this chunk translations
-    - changing the timing of the chunk
-    - adding new chunk, deleting a chunk
-    - claim it's finished => delete matches, ?? where the result file will be generated
-                               update the TM
- */
-
 /**
  * Represents a subtitle file the user work with.
  * @author Jindřich Libovický
@@ -22,7 +13,6 @@ import java.util.*;
 public class USDocument extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
-    private static final long RELOAD_TRANSLATIONS_TIME = 86400000;
 
     private long ownerDatabaseId;
     private Document document;
@@ -152,11 +142,11 @@ public class USDocument extends DatabaseObject {
         this.translationGenerationTime = translationGenerationTime;
     }
 
-    protected long getSharedDatabaseId() {
+    protected long getSharedClassDatabaseId() {
         return document.getId();
     }
 
-    protected void setSharedDatabaseId(long databaseId) {
+    protected void setSharedClassDatabaseId(long databaseId) {
         document.setId(databaseId);
     }
 
@@ -181,13 +171,13 @@ public class USDocument extends DatabaseObject {
         org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
-        List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :did")
-                .setParameter("did", getDatabaseId()).list();
+        List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
+                .setParameter("d", databaseId).list();
 
         translationResults = new ArrayList<USTranslationResult>();
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
-            result.setParent(this);
+            result.setDocument(this);
             translationResults.add(result);
         }
     
@@ -199,13 +189,6 @@ public class USDocument extends DatabaseObject {
             document.getTranslationResults().add(usResult.getTranslationResult());
         }
 
-        // if the translationResults have old translations, regenerate them
-        /*if (new Date().getTime() > this.translationGenerationTime + RELOAD_TRANSLATIONS_TIME)  {
-            for (USTranslationResult translationResult : translationResults) {
-                translationResult.generateMTSuggestions(FilmTitServer.getInstance().getTM());
-            }
-        } */
-        // otherwise they're automatically loaded from the database
     }
 
     /**

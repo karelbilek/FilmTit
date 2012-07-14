@@ -31,15 +31,29 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     /**
      * The document this translation result is part of.
      */
-    private USDocument parent;
+    private USDocument document;
 
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
      * result is created or when the loadChunksFromDb() on a document is called.
-      * @param parent A document the Translation Result is part of.
+      * @param document A document the Translation Result is part of.
      */
-    public void setParent(USDocument parent) {
-        this.parent = parent;
+    public void setDocument(USDocument document) {
+        this.document = document;
+        translationResult.setDocumentId(document.getDatabaseId());
+    }
+
+    private void setDocumentDatabaseId(long documentDatabaseId) {
+        translationResult.setDocumentId(documentDatabaseId);
+    }
+
+    public long getDocumentDatabaseId() {
+        return  translationResult.getDocumentId();
+    }
+
+
+    private USDocument getDocument() {
+        return document;
     }
 
     /**
@@ -65,17 +79,13 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult = new TranslationResult();
     }
 
+    /**
+     * Gets the wrapped shared object.
+     * @return Wrapped shared object.
+     */
     public TranslationResult getTranslationResult() {
 	    return translationResult;
 	}
-
-    public long getDocumentDatabaseId() {
-        return translationResult.getDocumentId();
-    }
-
-    public void setDocumentDatabaseId(long documentDatabaseId) {
-        translationResult.setDocumentId(documentDatabaseId);
-    }
 
     public String getStartTime() {
         return translationResult.getSourceChunk().getStartTime();
@@ -121,33 +131,69 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.getSourceChunk().setPartNumber(partNumber);
     }
 
+    /**
+     * Gets the index of translation pair user selected int the client in the wrapped object.
+     * @return The index of selected translation pair.
+     */
     public long getSelectedTranslationPairID() {
         return translationResult.getSelectedTranslationPairID();
     }
 
+    /**
+     * Sets the index of translation pair the user selected in the client in the wrapped object.
+     * @param selectedTranslationPairID The index of the selected translation pair.
+     */
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
     }
 
+    /**
+     * Gets the chunk identifier which is unique within a document and is used for identifying the
+     * chunks during the communication between the GUI and User Space. The getter of the wrapped
+     * object is called.
+     * @return The chunk identifier.
+     */
     public int getSharedId() {
         return translationResult.getChunkId();
     }
 
+    /**
+     * Sets the chunk identifier which is unique within a document. The property is immutable.
+     * Once the value is set, later attempts to reset the value throw an exception. The setter
+     * of the wrapped object is called in this method.
+     * @param sharedId A new value of the chunk identifier.
+     * @exception UnsupportedOperationException The exception is thrown if the resetting the identifier
+     *   is attempted.
+     * */
     public void setSharedId(int sharedId) {
         translationResult.setChunkId(sharedId);
     }
 
+    /**
+     * A private getter of the list of Translation Memory suggestions. It is used by Hibernate only.
+     * @return
+     */
     private List<TranslationPair> getTmSuggestions() {
         return translationResult.getTmSuggestions();
     }
 
+    /**
+     * A private setter of the list of Translation Memory suggestion. It is used by Hibernate
+     * while loading a Translation Result object from the database.
+     * @param tmSuggestions
+     */
     private void setTmSuggestions(List<TranslationPair> tmSuggestions) {
         translationResult.setTmSuggestions(tmSuggestions);
     }
 
-    protected long getSharedDatabaseId() { return databaseId; }
-    protected void setSharedDatabaseId(long setSharedDatabaseId) { }
+    protected long getSharedClassDatabaseId() { return databaseId; }
+    protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
 
+    /**
+     * Queries the Translation Memory for the suggestions. If there are some previous
+     * suggestions they are discarded.
+     * @param TM An instance of Tranlsation Memory from the core.
+     */
     public void generateMTSuggestions(TranslationMemory TM) {
         if (TM == null) { return; }
 
@@ -156,7 +202,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setTmSuggestions(null);
 
         scala.collection.immutable.List<TranslationPair> TMResults =
-                TM.nBest(translationResult.getSourceChunk(), parent.getLanguage(), parent.getMediaSource(), 10, false);
+                TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
 
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
@@ -175,10 +221,20 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         deleteJustObject(dbSession);
     }
 
+    /**
+     * A private getter of the sign if the Translation Result already provided
+     * a feedback to the core. Used by Hibernate.
+     * @return The sign value
+     */
     private boolean isFeedbackSent() {
         return feedbackSent;
     }
 
+    /**
+     * A private setter for the sign if the Translation Result already provided
+     * a feedback to the core. Used by Hibernate.
+     * @param feedbackSent The sign value
+     */
     private void setFeedbackSent(boolean feedbackSent) {
         this.feedbackSent = feedbackSent;
     }
