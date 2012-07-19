@@ -47,7 +47,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private Gui gui;
 	private PopupPanel suggestPanel;
     private boolean loadedSuggestions = false;
-    private String lastText = "";
+    String lastText = "";
 
 
     public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
@@ -70,10 +70,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             this.setStyleName("pre_subgestbox");
         }
 
-        public SubgestBox getFather() {
+        public SubgestBox getFather(){
             return SubgestBox.this;
         }
-
         @Override
 	    public int compareTo(FakeSubgestBox that) {
 	        return getFather().compareTo(that.getFather());
@@ -251,7 +250,12 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 					// copy the selected suggestion into the richtextarea with the annotation highlighting:
 					setHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2()));
 
-					setFocus(true);
+                    Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            SubgestBox.this.setFocus(true);
+                        }
+                    } );
 				}
 			}
 		} );
@@ -269,13 +273,13 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	
 	
 	private String getAnnotatedSuggestionFromChunk(Chunk chunk) {
-		// expects that annotations are non-overlapping and ordered by their position
-		// (should be)
+        // expects that annotations are non-overlapping and ordered by their position
+        // (should be)
         if (chunk.getAnnotations().size() > 0) {
-		    gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
+            gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
         }
-		StringBuffer sb = new StringBuffer(chunk.getSurfaceForm());
-		for (Annotation annotation : chunk.getAnnotations()) {
+        StringBuffer sb = new StringBuffer(chunk.getSurfaceForm());
+        for (Annotation annotation : chunk.getAnnotations()) {
 			String toInsertBegin = "<span style=\"background-color:" + annotationColor.get(annotation.getType()) + "\">";
 			String toInsertEnd   = "</span>";
 			sb.insert(annotation.getBegin(), toInsertBegin);
