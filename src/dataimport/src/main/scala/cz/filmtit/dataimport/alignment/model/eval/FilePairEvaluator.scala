@@ -10,7 +10,7 @@ import cz.filmtit.share.parsing.UnprocessedChunk
 
 class FilePairEvaluator(c: Configuration, numberOfFiles:Int, placeToWrite:String) {
     val mapping = new SubtitleMapping(c)
-    def random:Iterable[String] = util.Random.shuffle(mapping.moviesWithSubs).take(numberOfFiles)
+    def random:Iterable[String] = scala.util.Random.shuffle(mapping.moviesWithSubs).take(numberOfFiles)
 
     def writeFileExcerpts(file:SubtitleFile) {
        println(file.file.getName)

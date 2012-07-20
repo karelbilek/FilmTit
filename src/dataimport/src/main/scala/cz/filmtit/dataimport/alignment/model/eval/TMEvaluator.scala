@@ -27,7 +27,7 @@ class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment
     val l2 = Language.CS
     
     val mapping = new SubtitleMapping(c)
-    def tested:Seq[String] = util.Random.shuffle(mapping.moviesWithSubs).take(numberOfTestedFiles).toSeq
+    def tested:Seq[String] = scala.util.Random.shuffle(mapping.moviesWithSubs).take(numberOfTestedFiles).toSeq
   
     def loadAlignedFiles():Map[String, Pair[SubtitleFile, SubtitleFile]] = 
         TMEvaluator.loadFilePairsToMap(alignedFiles, c)
