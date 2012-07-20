@@ -21,7 +21,7 @@
         <property name="sharedId" type="int" column="sharedId" />
         <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
-      
+
         <!--commenting this out mainly for testing, sorry-->
         <list name="tmSuggestions" table="USTranslationPairs" lazy="false">
             <key column="TranslationResultId"/>

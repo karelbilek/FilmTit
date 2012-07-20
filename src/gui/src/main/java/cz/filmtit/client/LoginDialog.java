@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -29,10 +30,10 @@ public class LoginDialog extends Composite {
 	TextBox txtUsername;
 
 	@UiField
-	TextBox txtPassword;
+    PasswordTextBox txtPassword;
 
 	@UiField
-	SubmitButton btnLogin;
+	Button btnLogin;
 	
 	@UiField
 	Button btnLoginGoogle;

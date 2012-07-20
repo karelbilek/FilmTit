@@ -179,7 +179,7 @@ public class TestSession {
                 USTranslationResult translationResult = new USTranslationResult(
                         new TimedChunk("01:43:29,000", "01:43:32,128", 0, loremIpsum.getWords(7, 10), 1, documentID));
 
-                translationResult.setParent(usDocument);
+                translationResult.setDocument(usDocument);
                 usDocument.addTranslationResult(translationResult);
             }
 

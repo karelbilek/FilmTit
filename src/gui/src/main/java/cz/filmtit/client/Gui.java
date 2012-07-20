@@ -123,6 +123,8 @@ public class Gui implements EntryPoint {
 		
 	}	// onModuleLoad()
 
+
+
 	private void createGui() {
 		
 		// -------------------- //
@@ -482,7 +484,13 @@ public class Gui implements EntryPoint {
         Scheduler.get().scheduleDeferred( new ScheduledCommand() {
 			@Override
 			public void execute() {
-		        targetBoxes.get(nextIndex).setFocus(true);
+                FakeSubgestBox targetbox = targetBoxes.get(nextIndex);
+                if (targetbox.isAttached()) {
+		            targetbox.setFocus(true);
+                }
+                else { // there is already a real box instead of the fake one
+                    targetbox.getFather().setFocus(true);
+                }
 			}
 		} );
         return true;
@@ -506,7 +514,13 @@ public class Gui implements EntryPoint {
         Scheduler.get().scheduleDeferred( new ScheduledCommand() {
 			@Override
 			public void execute() {
-		        targetBoxes.get(prevIndex).setFocus(true);
+                FakeSubgestBox targetbox = targetBoxes.get(prevIndex);
+                if (targetbox.isAttached()) {
+                    targetbox.setFocus(true);
+                }
+                else { // there is already a real box instead of the fake one
+                    targetbox.getFather().setFocus(true);
+                }
 			}
 		} );
 	    return true;

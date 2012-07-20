@@ -53,8 +53,8 @@ class LevenstheinChunkAlignment(l1:Language, l2:Language, tolerance:Long) extend
             comparisn match {
                 case Match => result.append((ch1, ch2));l1pointer += 1; l2pointer += 1;
                 case EndMismatch=> l1pointer +=1 ; l2pointer += 1;
-                case FirstLate=>l1pointer+=1
-                case SecondLate=>l2pointer+=1
+                case FirstLate=>l2pointer+=1
+                case SecondLate=>l1pointer+=1
             }
         }
         
