@@ -155,7 +155,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), parent.getLanguage(), parent.getMediaSource(), 10, false);
-
+        System.out.println("TM.nBest " + translationResult.getSourceChunk() + " (" + parent.getLanguage() + ") " + parent.getMediaSource());
+        
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
         Collection<TranslationPair> javaList =
