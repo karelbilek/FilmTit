@@ -166,7 +166,7 @@ public class Session {
         USDocument document = activeDocuments.get(chunk.getDocumentId());
 
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-        usTranslationResult.setParent(document);
+        usTranslationResult.setDocument(document);
 
         usTranslationResult.generateMTSuggestions(TM);
         document.addTranslationResult(usTranslationResult);
@@ -234,7 +234,7 @@ public class Session {
         USDocument document = activeDocuments.get(documentId);
 
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-        usTranslationResult.setParent(document);
+        usTranslationResult.setDocument(document);
 
         usTranslationResult.generateMTSuggestions(TM);
         document.replaceTranslationResult(usTranslationResult);

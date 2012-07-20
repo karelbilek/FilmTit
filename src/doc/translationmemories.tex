@@ -1,7 +1,55 @@
-\section{What is a Translation Memory?}
+\section{Movie Subtitles}
+\subsection{Subtitles in General}
 
-A \emph{translation memory} is a tool for a computer assisted human translation.
- The core idea behind translation memories is the assumption that sentences that are similar in the source language will probably have a similar translation in the target language. Then, if the tool is able to provide the translator a translation of a similar sentence, there is a big chance the translator can just edit a little the provided sentence and get the translation he wants.
+Subtitles are textual versions of the dialog in films or television shows which are shown on the screen at the same time the dialogs are performed. The most common reasons to show the subtitles is either to allow the deaf of hard-of-hearing viewers to follow the dialogs or to allow viewers who are not speakers of the language used in the movie to understand the movie while hearing the original sound track. The major difference between these two types of subtitling is that the subtitles for deaf people usually contains not only the dialogs, but also a lot additional information, e.g. that music is playing or description of other noises important for the story. 
+
+Originally, the subtitles used to be chemically corroded or leaser burnt into the tape. While using the digital technology, the subtitles can be added dynamically to the screen and do not have to be actual part of the movie. Moreover, they can distributed independently on the movie. The subtitles are in a standalone file which contains the subtitles and some meta data telling the players which subtitle chunks should be displayed at the which time interval.
+
+While making a professional translation of the subtitles, the translator have the whole screenplay of the movie, accompanied with a lot of notes concerning the expressiveness of the utterances and using the rhetorical devices (culture references, sarcasm etc.), on the other hand the often do not see the movie. They are equipped with the same tools as other professional translators as translation memories or glossaries checking the consistence of used vocabulary.
+
+On the other hand, the fan translators use simple editors without any special functionality and usually watch the movie during translating.
+
+\subsection{Subtitle Formats}
+
+There is a lot of subtitle formats, mostly proprietary. The most widely is the SubRip srt format. Sometimes MicroDVD sub format or some proprietary formats are used. Example of the formats is in table \ref{subtitleFormats}.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{cc}
+\fbox{\parbox{7.5cm}{\tt4\\
+00:02:04,718 --$>$ 00:02:08,054\\
+I just want to be alone with her\\
+and hold her and kiss her\\
+\\
+5\\
+00:02:08,179 --$>$ 00:02:12,309\\
+and tell her how much l love her\\
+and take care of her.\\
+}} & \fbox{\parbox{7.5cm}{\tt
+\{1025\}\{1110\}I just want to be alone with her|and hold her and kiss her\\
+
+\{1375\}\{1460\}and tell her how much l love her|and take care of her.
+}}
+\end{tabular}
+\end{center}
+
+\caption{An example of the subtitle file formats, \emph{srt} at the left, \emph{sub} at the right side.}
+\label{subtitleFormats}
+\end{table}
+
+The \emph{srt} file does not have any header and contains everything as text. Each subtitle contains from three of four lines and is separated from the previous and the next one by an empty line. The first line is the order of the subtitle in the movie, the second line contains the absolute time in the movie when the subtitle shows up and when it disappears. The time is expressed with the precision of thousandths of seconds. On the next one or two lines is the actual text of the subtitle. Standardly it should not contain any formating data, but the players usually support simple HTML-like formating tags.
+
+In the MicroDVD sub format each line represents a subtitle. Numbers of frames in the video between whose the subtitle is displayed are used instead of absolute time. After the frame numbers in brackets, the actual text of the subtitle follows. The pipe symbol is used the line separator. The are also other proprietary format having the extension .sub, but they look differently.
+
+
+\subsection{Current tools}
+
+Google Translation toolkit ... did not became popular among, probably because of the quality of the machine translation , suggest the Google Translate results, allows to export the finished work to a translation memory or load existing translation memories
+
+\section{Translation Memories}
+\subsection{What is a Translation Memory?}
+
+A \emph{translation memory} is a tool for a computer assisted human translation. The core idea behind translation memories is the assumption that sentences that are similar in the source language will probably have a similar translation in the target language. Then, if the tool is able to provide the translator a translation of a similar sentence, there is a big chance the translator can just edit a little the provided sentence and get the translation he wants.
 
 The translation memories are widely used in the translation industry, mostly while translating technical documentation and localization of software. In such cases the translators usually take advantage from that the new version of manuals of software does not differ much from the previous version. A survey \footnote{Elina Lagoudaki (2006), "Translation Memory systems: Enlightening users' perspective. Key finding of the TM Survey 2006 carried out during July and August 2006. (Imperial College London, Translation Memories Survey 2006), p.16} among companies producing multilingual documentation for their products in 2006 showed that 82.5 \% out of 874 such companies uses a TM system.
 
@@ -13,7 +61,7 @@ There also some obstacles in using the translation memory systems. The professio
 
 In contrast to the complete machine translation it is still the human translator who controls the whole process of translation. Nevertheless, the improvements in the machine translation allows to provide a machine translation output together with the TM candidates.
 
-\section{Usual implementation}
+\subsection{Usual implementation}
 
 A simple option is to provide only candidate sentences where the sentences in the source language matches exactly each other. Usually the database is relatively sparse and probably no sentences would be retrieved. In such cases a fuzzy matching algorithm is used to retrieve similar also similar sentences where the similarity is usually a metric based on the Levensthein editing distance.
 
@@ -35,7 +83,7 @@ Originally a bottom-up dynamic programming algorithm was used -- a distance of t
 
 For bigger databases the online algorithms begin to be very slow a preprocessing of the database is necessary. Some sophisticated indexing methods are used, among them the suffix trees or $n$-gram indexes. The candidates retrieved from such indexes are later examined more carefully.
 
-\section{Current TM tools}
+\subsection{Current TM tools}
 
 ... most of professional translator use SDL Trados, some open-source projects, IBM released its own TM as open source, OmegaT widely used for localization of open source projects
 
