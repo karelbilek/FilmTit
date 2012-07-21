@@ -101,26 +101,26 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
 
     @Type(type="text")
     public String getStringL1() {
-        if (chunkL1==null) {return "";}
+        if (chunkL1 == null) {return "";}
         return chunkL1.getSurfaceForm();
     }
 
     @Type(type="text")
     public void setStringL1(String stringL1) {
-        if (chunkL1!=null)
-            chunkL1.setSurfaceForm(stringL1); // TODO: create chunk is necessary and make it immutable
+        if (chunkL1 != null) { chunkL1.setSurfaceForm(stringL1); }
+        else { chunkL1 = new Chunk(stringL1); }
     }
 
     @Type(type="text")
     public String getStringL2() {
-        if (chunkL2==null) {return "";}
+        if (chunkL2 == null) {return "";}
         return chunkL2.getSurfaceForm();
     }
 
     @Type(type="text")
     public void setStringL2(String stringL2) {
-        if (chunkL2!=null)
-        chunkL2.setSurfaceForm(stringL2); // TODO: create chunk is necessary and make it immutable
+        if (chunkL2 != null) { chunkL2.setSurfaceForm(stringL2); }
+        else { chunkL2 = new Chunk(stringL2); }
     }
 
     public static TranslationPair fromString(String string) {
