@@ -15,6 +15,7 @@ import java.io.Serializable;
 */
 public class TranslationPair implements Comparable<TranslationPair>, com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
+    private Long id;
     private Chunk chunkL1;
     private Chunk chunkL2;
     private TranslationSource source;
@@ -121,6 +122,14 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
     public void setStringL2(String stringL2) {
         if (chunkL2 != null) { chunkL2.setSurfaceForm(stringL2); }
         else { chunkL2 = new Chunk(stringL2); }
+    }
+
+    private Long getId() {
+        return id;
+    }
+
+    private void setId(Long id) {
+        this.id = id;
     }
 
     public static TranslationPair fromString(String string) {
