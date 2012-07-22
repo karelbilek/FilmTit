@@ -7,9 +7,7 @@ import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
 import org.hibernate.annotations.Type;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
@@ -173,17 +171,17 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * A private getter of the list of Translation Memory suggestions. It is used by Hibernate only.
      * @return
      */
-    private List<TranslationPair> getTmSuggestions() {
-        return translationResult.getTmSuggestions();
+    private Set<TranslationPair> getTmSuggestionsSet() {
+        return new HashSet(translationResult.getTmSuggestions());
     }
 
     /**
      * A private setter of the list of Translation Memory suggestion. It is used by Hibernate
      * while loading a Translation Result object from the database.
-     * @param tmSuggestions
+     * @param tmSuggestions A set of translation memory suggestions (as translation pairs)
      */
-    private void setTmSuggestions(List<TranslationPair> tmSuggestions) {
-        translationResult.setTmSuggestions(tmSuggestions);
+    private void setTmSuggestionsSet(Set<TranslationPair> tmSuggestions) {
+        translationResult.setTmSuggestions(new ArrayList(tmSuggestions));
     }
 
     protected long getSharedClassDatabaseId() { return databaseId; }
