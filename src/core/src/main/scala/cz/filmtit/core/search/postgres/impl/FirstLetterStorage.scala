@@ -33,7 +33,7 @@ class FirstLetterStorage(
   useInMemoryDB
 ) {
 
-  def tokenizer(language: Language): Tokenizer =
+  def  tokenizer(language: Language): Tokenizer =
     if(language == l1) tokenizerL1 else tokenizerL2
 
   /**
@@ -46,6 +46,7 @@ class FirstLetterStorage(
       token =>
         token match {
           case Patterns.number() => '0'
+          case Patterns.punctuation() => null
           case _ => {
             token.take(
               tokens.size match {
@@ -57,7 +58,7 @@ class FirstLetterStorage(
             ).toLowerCase
           }
         }
-    } mkString (" ")
+    } filter(_ != null) mkString (" ")
   }
 
   override def name: String = "Translation pair storage using the first letter of every word as an index."
