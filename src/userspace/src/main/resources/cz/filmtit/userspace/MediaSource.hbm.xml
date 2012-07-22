@@ -5,19 +5,14 @@
 
 <hibernate-mapping package="cz.filmtit.share">
 
-    <class name="cz.filmtit.share.MediaSource" table="USMediaSources">
-        <id name="id" type="long" column="Id">
+    <class name="cz.filmtit.share.MediaSource" table="mediasources">
+        <id name="id" type="long" column="source_id">
             <generator class="native"/>
         </id>
 
-        <property name="id" type="java.lang.Long" column="coreId"/>
         <property name="title" type="java.lang.String" column="title" />
         <property name="year" type="java.lang.String" column="year" />
-
-        <set name="genres" table="USGenres" lazy="false">
-            <key column="genreId" />
-            <element type="java.lang.String" />
-        </set>
+        <property name="genresString" type="java.lang.String" column="genres" />
 
     </class>
 </hibernate-mapping>
