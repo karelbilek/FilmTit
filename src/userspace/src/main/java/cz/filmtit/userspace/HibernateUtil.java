@@ -19,7 +19,7 @@ public class HibernateUtil {
      */
     private static SessionFactory buildSessionFactory() {
         try {
-            cz.filmtit.core.Configuration projectConfiguration = ConfigurationSingleton.getConf();
+            cz.filmtit.core.Configuration projectConfiguration = ConfigurationSingleton.conf();
 
             // Create the SessionFactory from hibernate.cfg.xml
             Configuration configuration = new Configuration();

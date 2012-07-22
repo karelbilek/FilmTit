@@ -2,10 +2,9 @@ package cz.filmtit.share;
 
 import org.hibernate.annotations.Type;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import java.io.Serializable;
+import java.util.*;
+
 /**
 * Wrapper class for chunks in the parallel data. In the most basic case,
 * a chunk only consists of the the surface form in a particular language.
@@ -21,6 +20,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
     private TranslationSource source;
     private List<MediaSource> mediaSources = new LinkedList<MediaSource>();
     private Double score;
+    private int count = 1;
 
     public TranslationPair() {
     	// nothing
@@ -52,6 +52,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         this.score = score;
     }
 
+
     public boolean hasMediaSource() {
         return !(mediaSources.isEmpty());
     }
@@ -66,6 +67,22 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
 
     public List<MediaSource> getMediaSources() {
         return mediaSources;
+    }
+
+    /**
+     * Getter that return the media source as a set. It is used by Hibernate only.
+     * @return The set of media sources.
+     */
+    private Set<MediaSource> getMediaSourcesSet() {
+        return new HashSet<MediaSource>(mediaSources);
+    }
+
+    /**
+     * Setter that sets the list of media sources given in the form of set. It is used by Hibernate only.
+     * @param sources A set of media sources.
+     */
+    private void setMediaSourcesSet(Set<MediaSource> sources) {
+        this.mediaSources = new ArrayList<MediaSource>(sources);
     }
 
     public void addMediaSource(MediaSource mediaSource) {
@@ -152,6 +169,14 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         	// GWT does not know String.format - rewritten:
         	return ("TP[" + chunkL1.getSurfaceForm() + ", " + chunkL2.getSurfaceForm() + "]");
         }
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
     }
 
 

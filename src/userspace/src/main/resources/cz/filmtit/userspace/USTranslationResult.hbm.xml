@@ -5,8 +5,8 @@
 
 <hibernate-mapping package="cz.filmtit.userspace">
 
-    <class name="USTranslationResult" table="TranslationResults">
-        <id name="databaseId" type="long" column="Id">
+    <class name="USTranslationResult" table="translationresults">
+        <id name="databaseId" type="long" column="id">
             <generator class="native"/>
         </id>
 
@@ -21,11 +21,10 @@
         <property name="sharedId" type="int" column="sharedId" />
         <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
-        <list name="tmSuggestions" table="USTranslationPairs" lazy="false">
-            <key column="TranslationResultId"/>
-            <index column="listIndex"/>
-            <element type="cz.filmtit.share.TranslationPair" />
-        </list>
+        <set name="tmSuggestionsSet" table="tranlsationresults_translationpairs" lazy="false">
+            <key column="id" />
+            <many-to-many column="pair_id" class="cz.filmtit.share.TranslationPair" />
+        </set>
 
     </class>
 

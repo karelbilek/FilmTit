@@ -5,24 +5,23 @@
 
 <hibernate-mapping package="cz.filmtit.share">
 
-    <class name="cz.filmtit.share.TranslationPair" table="USTranslationPairs">
+    <class name="TranslationPair" table="translationpairs">
 
-        <id name="id" type="long" column="Id">
+        <id name="id" type="long" column="pair_id">
             <generator class="native"/>
         </id>
 
-        <property name="stringL1" type="java.lang.String" column="form1" />
-        <property name="stringL2" type="java.lang.String" column="form2" />
+        <property name="stringL1" type="java.lang.String" column="chunk_l1" />
+        <property name="stringL2" type="java.lang.String" column="chunk_l2" />
         <property name="score" type="java.lang.Double" column="score" />
+        <property name="count" type="java.lang.Integer" column="pair_count" />
 
-        <property name="source" type="cz.filmtit.share.TranslationSource" />
+        <!-- <property name="source" type="cz.filmtit.share.TranslationSource" /> -->
 
-
-        <list name="mediaSources" table="USMediaSources" lazy="false">
-            <key column="USMediaSourceId" />
-            <index column="listIndex" />
-            <element type="cz.filmtit.share.MediaSource" />
-        </list>
+        <set name="mediaSourcesSet" table="translationpairs_mediasources" lazy="false">
+            <key column="pair_id" />
+            <many-to-many column="source_id" class="cz.filmtit.share.MediaSource" />
+        </set>
 
     </class>
 </hibernate-mapping>

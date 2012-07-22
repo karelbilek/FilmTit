@@ -9,6 +9,8 @@ package cz.filmtit.core.model
 object Patterns {
   val number = "^[0-9]+".r
 
+  val punctuation = "[\\p{Punct}]".r
+
   val stopwordPath = "/Users/jodaiber/Desktop/stopwords/"
   //var stopwords: HashMap[Language, HashSet[String]] = HashMap()
   //Language.values foreach {
