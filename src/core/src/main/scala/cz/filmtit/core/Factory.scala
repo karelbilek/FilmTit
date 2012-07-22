@@ -14,7 +14,8 @@ import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
 import cz.filmtit.share.annotations.AnnotationType
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import org.apache.commons.logging.LogFactory
-import search.external.MyMemorySearcher
+import search.external.MosesServerSearcher
+//import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
 import cz.filmtit.core.Factory._
 import collection.mutable.HashMap
@@ -102,12 +103,16 @@ object Factory {
     searcherTimeout: Int
     ): TranslationMemory = {
 
-    //Third level: Google translate
+    val csTokenizer = createTokenizer(Language.CS, configuration)
+    val enTokenizer = createTokenizer(Language.EN, configuration)
+
+    //Third level: Moses
     val mtTM = new BackoffTranslationMemory(
-      new MyMemorySearcher(
+      new MosesServerSearcher(
         Language.EN,
         Language.CS,
-        allowedSources = Set(TranslationSource.EXTERNAL_MT)
+        enTokenizer,
+        configuration.mosesURL
       ),
       threshold = 0.7
     )
@@ -127,7 +132,7 @@ object Factory {
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection, createTokenizer(Language.EN, configuration), createTokenizer(Language.CS, configuration), useInMemoryDB),
+      new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizer, csTokenizer, useInMemoryDB),
       Some(new ExactRanker()),
       threshold = 0.8,
       backoff = Some(neTM)

@@ -24,6 +24,8 @@ class Configuration(configurationFile: InputStream) {
   }
 
   private val XMLFile = XML.load(configurationFile)
+  
+  val mosesURL:java.net.URL = new java.net.URL("""http://"""+(XMLFile \ "mosesURL").text+"/RPC2");
 
   //Languages:
   val l1 = Language.fromCode((XMLFile \ "l1").text)
@@ -39,6 +41,7 @@ class Configuration(configurationFile: InputStream) {
   val modelPath: String = (XMLFile \ "model_path").text
   val neRecognizers = HashMap[Language, List[Pair[AnnotationType, String]]]()
 
+  
   //Read the NER models and them by their language
   (XMLFile \ "ner_models" \ "ner_model") foreach( ner_model => {
     val language_code = Language.fromCode( (ner_model \ "@language").text )
