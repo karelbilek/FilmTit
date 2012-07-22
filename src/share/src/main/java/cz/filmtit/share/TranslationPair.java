@@ -21,7 +21,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
     private TranslationSource source;
     private List<MediaSource> mediaSources = new LinkedList<MediaSource>();
     private Double score;
-    private int count;
+    private int count = 1;
 
     public TranslationPair() {
     	// nothing
