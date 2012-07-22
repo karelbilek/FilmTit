@@ -21,6 +21,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
     private TranslationSource source;
     private List<MediaSource> mediaSources = new LinkedList<MediaSource>();
     private Double score;
+    private int count;
 
     public TranslationPair() {
     	// nothing
@@ -152,6 +153,14 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         	// GWT does not know String.format - rewritten:
         	return ("TP[" + chunkL1.getSurfaceForm() + ", " + chunkL2.getSurfaceForm() + "]");
         }
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
     }
 
 

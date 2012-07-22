@@ -186,6 +186,7 @@ with SignatureTranslationPairStorage {
 
       val chunkL1: Chunk = new Chunk(rs.getString("chunk_l1"))
       val chunkL2: Chunk = new Chunk(rs.getString("chunk_l2"))
+      val chunkL2: Int = rs.getString("pair_count").toInt
       val pairID: Long = rs.getLong("pair_id")
 
       //Restore the signature for both chunks if possible
@@ -222,7 +223,9 @@ with SignatureTranslationPairStorage {
           chunkL1,
           chunkL2,
           source,
-          new java.util.ArrayList(mediaSourceIDs.map(getMediaSource).toList)
+          new java.util.ArrayList(mediaSourceIDs.map(getMediaSource).toList,
+
+          )
         )
     }
 
