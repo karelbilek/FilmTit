@@ -1,8 +1,10 @@
 package cz.filmtit.client;
 
 import com.github.gwtbootstrap.client.ui.incubator.Table;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -73,8 +75,32 @@ public class Gui implements EntryPoint {
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
-	protected String sessionID;
 	
+	private String sessionID;
+	
+	// persistent session ID via cookies (set to null to unset)
+	@SuppressWarnings("deprecation")
+	protected void setSessionID(String newSessionID) {
+		if (newSessionID == null) {
+			Cookies.removeCookie("sessionID");
+		} else {
+			// cookie should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
+			Date in1year = new Date();
+			in1year.setYear(in1year.getYear() + 1);
+			// set cookie
+			Cookies.setCookie("sessionID", newSessionID, in1year);
+		}
+		sessionID = newSessionID;
+	}
+
+	// persistent session ID via cookies (null if not set)	
+	protected String getSessionID() {
+		if (sessionID == null) {
+			sessionID = Cookies.getCookie("sessionID");
+		}
+		return sessionID;
+	}
+
 	private String username;
 	
 	protected Widget activeSuggestionWidget = null;
@@ -86,8 +112,6 @@ public class Gui implements EntryPoint {
 	//private String subtext;
 	
 	private DocumentCreator docCreator;
-	
-	
 	
 	@Override
 	public void onModuleLoad() {
@@ -106,6 +130,10 @@ public class Gui implements EntryPoint {
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 		
+		// TODO: check whether user is logged in or not
+		rpcHandler.checkSessionID();
+		// TODO: we have to show welcome page as if user not logged in)
+		// and repaint this if checkSessionID() succeeds
 		
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
@@ -160,7 +188,7 @@ public class Gui implements EntryPoint {
 		// top menu handlers		
 		guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (sessionID == null) {
+				if (getSessionID() == null) {
 		            showLoginDialog();
 				} else {
 					rpcHandler.logout();

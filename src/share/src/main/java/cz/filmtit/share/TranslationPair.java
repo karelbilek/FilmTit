@@ -141,7 +141,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         else { chunkL2 = new Chunk(stringL2); }
     }
 
-    private Long getId() {
+    public Long getId() {
         return id;
     }
 
