@@ -145,7 +145,7 @@ public class TestSession {
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Jindrich the great", "2010", "cs", TM);
+        DocumentResponse response = session.createNewDocument("Jindrich the great", "2010", "en", TM);
         Document clientDocument = response.document;
         session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
 
