@@ -18,7 +18,7 @@
 
         <!-- <property name="source" type="cz.filmtit.share.TranslationSource" /> -->
 
-        <set name="mediaSourcesSet" table="translationpairs_mediasources" lazy="false">
+        <set name="mediaSourcesSet" table="translationpairs_mediasources" lazy="false" cascade="all">
             <key column="pair_id" />
             <many-to-many column="source_id" class="cz.filmtit.share.MediaSource" />
         </set>

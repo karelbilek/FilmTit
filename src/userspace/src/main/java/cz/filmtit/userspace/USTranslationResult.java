@@ -145,6 +145,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
     }
 
+
     /**
      * Gets the chunk identifier which is unique within a document and is used for identifying the
      * chunks during the communication between the GUI and User Space. The getter of the wrapped
@@ -212,6 +213,10 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
+
+        for (TranslationPair pair : translationResult.getTmSuggestions()) {
+            dbSession.saveOrUpdate(pair);
+        }
     }
 
     public void deleteFromDatabase(Session dbSession) {
