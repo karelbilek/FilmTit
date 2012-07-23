@@ -113,6 +113,9 @@ public class TestUSTranslationResult {
 
         org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
+
+        dbSession.createQuery("delete from USTranslationResult").executeUpdate();
+
         Document doc = new Document("Movie title", "2012", "cs");
         USDocument testDoc = new USDocument(doc);
         testDoc.saveToDatabase(dbSession);
@@ -141,7 +144,7 @@ public class TestUSTranslationResult {
         dbSession.getTransaction().commit();
 
         List<TranslationResult> res = USTranslationResult.getUncheckedResults();
-        //assertEquals(1, res.size());
+        assertEquals(1, res.size());
     }
 
 }

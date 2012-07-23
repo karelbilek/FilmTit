@@ -31,6 +31,10 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     private USDocument document;
 
+    private Set<TranslationPair> internalTMSuggestions;
+
+    private Set<TranslationPair> externalTMSuggestions;
+
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
      * result is created or when the loadChunksFromDb() on a document is called.
@@ -168,21 +172,30 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setChunkId(sharedId);
     }
 
-    /**
-     * A private getter of the list of Translation Memory suggestions. It is used by Hibernate only.
-     * @return
-     */
-    private Set<TranslationPair> getTmSuggestionsSet() {
-        return new HashSet(translationResult.getTmSuggestions());
+    public Set<TranslationPair> getInternalTMSuggestions() {
+        return internalTMSuggestions;
     }
 
-    /**
-     * A private setter of the list of Translation Memory suggestion. It is used by Hibernate
-     * while loading a Translation Result object from the database.
-     * @param tmSuggestions A set of translation memory suggestions (as translation pairs)
-     */
-    private void setTmSuggestionsSet(Set<TranslationPair> tmSuggestions) {
-        translationResult.setTmSuggestions(new ArrayList(tmSuggestions));
+    private void setInternalTMSuggestions(Set<TranslationPair> internalTMSuggestions) {
+        this.internalTMSuggestions = internalTMSuggestions;
+        // suggestions list is instantiated in the constructor of TranslationPair
+        translationResult.getTmSuggestions().addAll(internalTMSuggestions);
+    }
+
+    public Set<TranslationPair> getExternalTMSuggestions() {
+        return externalTMSuggestions;
+    }
+
+    private void setExternalTMSuggestions(Set<TranslationPair> externalTMSuggestions) {
+        this.externalTMSuggestions = externalTMSuggestions;
+        // suggestions list is instantiated in the constructor of TranslationPair
+        translationResult.getTmSuggestions().addAll(externalTMSuggestions);
+    }
+
+    public Set<TranslationPair> getTranslationSuggestions() {
+        Set<TranslationPair> result = new HashSet<TranslationPair>(internalTMSuggestions);
+        result.addAll(externalTMSuggestions);
+        return result;
     }
 
     protected long getSharedClassDatabaseId() { return databaseId; }
@@ -199,6 +212,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         // TODO: ensure none of the potential previous suggestions is in the server cache collection
         // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
+        internalTMSuggestions = new HashSet<TranslationPair>();
+        externalTMSuggestions = new HashSet<TranslationPair>();
 
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
@@ -207,8 +222,18 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         Collection<TranslationPair> javaList =
                 scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
 
-        // the list of suggestions will be stored as a synchronized list
-        translationResult.setTmSuggestions(new ArrayList<TranslationPair>(javaList));
+        // go through the list of retrieved candidates and classify them as internal and external
+        for (TranslationPair pair : javaList) {
+            if (pair.getId() == null) { externalTMSuggestions.add(pair); }
+            else { internalTMSuggestions.add(pair); }
+        }
+
+        // store the collections as synchronized (to have a better feeling from this)
+        externalTMSuggestions = Collections.synchronizedSet(externalTMSuggestions);
+        internalTMSuggestions = Collections.synchronizedSet(internalTMSuggestions);
+        List<TranslationPair> wrappedObjectList = new ArrayList<TranslationPair>(internalTMSuggestions);
+        wrappedObjectList.addAll(externalTMSuggestions);
+        translationResult.setTmSuggestions(Collections.synchronizedList(wrappedObjectList));
     }
 
     public void saveToDatabase(Session dbSession) {

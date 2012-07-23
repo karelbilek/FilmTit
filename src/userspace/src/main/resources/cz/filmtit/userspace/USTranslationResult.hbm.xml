@@ -21,7 +21,7 @@
         <property name="sharedId" type="int" column="sharedId" />
         <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
-        <set name="tmSuggestionsSet" table="tranlsationresults_translationpairs" lazy="false">
+        <set name="internalTMSuggestions" table="tranlsationresults_translationpairs" lazy="false">
             <key column="id" />
             <many-to-many column="pair_id" class="cz.filmtit.share.TranslationPair" />
         </set>
