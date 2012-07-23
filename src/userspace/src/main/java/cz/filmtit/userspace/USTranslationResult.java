@@ -289,8 +289,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
-        Collection<TranslationPair> javaList =
-                scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
+        List<TranslationPair> javaList = new ArrayList<TranslationPair>(
+                scala.collection.JavaConverters.asJavaListConverter(TMResults).asJava());
 
         // go through the list of retrieved candidates and classify them as internal and external
         for (TranslationPair pair : javaList) {
@@ -299,11 +299,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         }
 
         // store the collections as synchronized (to have a better feeling from this)
-        externalTMSuggestions = Collections.synchronizedSet(externalTMSuggestions);
-        internalTMSuggestions = Collections.synchronizedSet(internalTMSuggestions);
-        List<TranslationPair> wrappedObjectList = new ArrayList<TranslationPair>(internalTMSuggestions);
-        wrappedObjectList.addAll(externalTMSuggestions);
-        translationResult.setTmSuggestions(Collections.synchronizedList(wrappedObjectList));
+        translationResult.setTmSuggestions(javaList);
     }
 
     public void saveToDatabase(Session dbSession) {
