@@ -130,6 +130,11 @@ public class Gui implements EntryPoint {
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 		
+		// TODO: check whether user is logged in or not
+		rpcHandler.checkSessionID();
+		// TODO: we have to show welcome page as if user not logged in)
+		// and repaint this if checkSessionID() succeeds
+		
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
 		if (page == null) {

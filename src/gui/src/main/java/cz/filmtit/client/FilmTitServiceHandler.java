@@ -188,6 +188,37 @@ public class FilmTitServiceHandler {
         filmTitSvc.selectSource( gui.getSessionID(), documentID, selectedMediaSource, callback);
     }
 
+    // TODO will probably return the whole Session object - now returns username or null
+    public void checkSessionID() {
+    	
+    	final String sessionID = gui.getSessionID();
+    	
+    	if (sessionID == null) {
+    		return;
+    	}
+    	
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+            public void onSuccess(String username) {
+            	if (username != null) {
+	                gui.log("logged in as " + username + " with session id " + sessionID);
+	                gui.logged_in(username);
+            	} else {
+                    gui.log("Warning: sessionID invalid.");
+            		gui.setSessionID(null);
+                    // gui.showLoginDialog();
+            	}
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: sessionID check didn't succeed!");
+            }
+        };
+
+    	// TODO call something
+        // filmTitSvc.checkSessionID(sessionID, callback);
+    }
+
     public void simple_login(final String username, String password) {
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
