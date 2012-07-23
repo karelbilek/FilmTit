@@ -1,10 +1,8 @@
 package cz.filmtit.core.rank
 
-import cz.filmtit.core.model.data._
 import org.apache.commons.lang3.StringUtils
 import cz.filmtit.share._
 import cz.filmtit.core.model.Patterns
-import collection.mutable.ListBuffer
 
 /**
  * @author Joachim Daiber
@@ -12,7 +10,7 @@ import collection.mutable.ListBuffer
  *
  */
 
-class ExactRanker(val weights: List[Double] = List(1.0, 1.0, 0.2, 0.2, 0.2, 0.0)) extends BaseRanker {
+class ExactRanker(val weights: List[Double] = List(0.2, 0.5, 0.1, 0.1, 0.1, 0.0)) extends BaseRanker {
 
   val MIN_EDIT_DISTANCE = 1
 
@@ -63,7 +61,7 @@ class ExactRanker(val weights: List[Double] = List(1.0, 1.0, 0.2, 0.2, 0.2, 0.0)
       ,
 
       //Does final punctuation match?
-      pair.getStringL2.last match{
+      pair.getStringL2.last match {
         case Patterns.punctuation() if pair.getStringL2.last != chunk.getSurfaceForm.last => 0.0
         case _ => 1.0
       }
