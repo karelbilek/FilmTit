@@ -31,20 +31,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     private USDocument document;
 
     /**
-     * A set of translation memory suggestions that originates in the translation memory.
-     * It means that instances of the Translation Pairs from this collection already exist in the database.
-     * Therefore it is sufficient to store them in the database as many-to-many association to the
-     * translationpair table in database.
-     */
-    private Set<TranslationPair> internalTMSuggestions;
-    /**
-     * A set of translation suggestions that originate outside our application, typically in a machine tranlsation.
-     * Consequence of this is that such suggestions don't have any instances in the database before they appear
-     * here.
-     */
-    private Set<TranslationPair> externalTMSuggestions;
-
-    /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
      * result is created or when the loadChunksFromDb() on a document is called.
       * @param document A document the Translation Result is part of.
@@ -219,54 +205,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setChunkId(sharedId);
     }
 
-    /**
-     * Gets the set of translation memory suggestions that originates in our database.
-     * @return Set of translation memory suggestion form our database.
-     */
-    public Set<TranslationPair> getInternalTMSuggestions() {
-        return internalTMSuggestions;
-    }
-
-    /**
-     * Sets the set of translation memory suggestion that originates in our database. It is used by Hibernate
-     * only at the moment a translation result is loaded from the database using the same database as the
-     * translation memory core does.
-     * @param internalTMSuggestions Internal translation memory suggestions.
-     */
-    private void setInternalTMSuggestions(Set<TranslationPair> internalTMSuggestions) {
-        this.internalTMSuggestions = internalTMSuggestions;
-        // suggestions list is instantiated in the constructor of TranslationPair
-        translationResult.getTmSuggestions().addAll(internalTMSuggestions);
-    }
-
-    /**
-     * Gets the translation suggestions that originates outside the this application.
-     * @return  External translation suggestions.
-     */
-    public Set<TranslationPair> getExternalTMSuggestions() {
-        return externalTMSuggestions;
-    }
-
-    /**
-     * Private setter for the translation suggestion outside our application.
-     * @param externalTMSuggestions A set of external translation suggestions.
-     */
-    private void setExternalTMSuggestions(Set<TranslationPair> externalTMSuggestions) {
-        this.externalTMSuggestions = externalTMSuggestions;
-        // suggestions list is instantiated in the constructor of TranslationPair
-        translationResult.getTmSuggestions().addAll(externalTMSuggestions);
-    }
-
-    /**
-     * Gets the complete set of translation suggestion including both those from our internal database and those
-     * from the external sources.
-     * @return Complete list of translation suggestions.
-     */
-    public Set<TranslationPair> getTranslationSuggestions() {
-        Set<TranslationPair> result = new HashSet<TranslationPair>(internalTMSuggestions);
-        result.addAll(externalTMSuggestions);
-        return result;
-    }
 
     protected long getSharedClassDatabaseId() { return databaseId; }
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
@@ -282,8 +220,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         // TODO: ensure none of the potential previous suggestions is in the server cache collection
         // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
-        internalTMSuggestions = new HashSet<TranslationPair>();
-        externalTMSuggestions = new HashSet<TranslationPair>();
 
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
@@ -292,11 +228,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         List<TranslationPair> javaList = new ArrayList<TranslationPair>(
                 scala.collection.JavaConverters.asJavaListConverter(TMResults).asJava());
 
-        // go through the list of retrieved candidates and classify them as internal and external
-        for (TranslationPair pair : javaList) {
-            if (pair.getId() == null) { externalTMSuggestions.add(pair); }
-            else { internalTMSuggestions.add(pair); }
-        }
 
         // store the collections as synchronized (to have a better feeling from this)
         translationResult.setTmSuggestions(javaList);
@@ -304,10 +235,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
-
-        for (TranslationPair pair : translationResult.getTmSuggestions()) {
-            dbSession.saveOrUpdate(pair);
-        }
     }
 
     public void deleteFromDatabase(Session dbSession) {

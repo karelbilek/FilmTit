@@ -136,6 +136,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionID).regenerateTranslationResult(chunkId, documentId, chunk, TM);
     }
 
+    public List<TranslationPair> requestTMSuggestions(String sessionID, int chunkId, long documentId)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+        if (!activeSessions.containsKey(sessionID)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return activeSessions.get(sessionID).requestTMSuggestions(chunkId, documentId, TM);
+    }
+
     public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
