@@ -173,6 +173,7 @@ body {
 }
 
 .pre_subgestbox {
+	width: 380px;
 	height: 20px;
 	padding: 8px;
 	margin: 0;
@@ -181,6 +182,10 @@ body {
 	display: block;
 	outline: none;
 
+}
+
+iframe.gwt-RichTextArea {
+	width: 396px;
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {

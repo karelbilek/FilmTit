@@ -1,50 +1,27 @@
 package cz.filmtit.client;
 
-import com.github.gwtbootstrap.client.ui.incubator.Table;
-import com.google.gwt.user.client.Cookies;
-import com.google.gwt.user.client.Window;
-
-import java.util.Date;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ScrollEvent;
-import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
-
 import cz.filmtit.share.*;
-import cz.filmtit.share.parsing.*;
-
-//lib-gwt-file imports:
+import cz.filmtit.share.parsing.Parser;
+import cz.filmtit.share.parsing.ParserSrt;
+import cz.filmtit.share.parsing.ParserSub;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
+
+import java.util.*;
+
+//lib-gwt-file imports:
 
 
 
@@ -434,8 +411,7 @@ public class Gui implements EntryPoint {
 		SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
         targetBoxes.add(fake);
 		table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
-		fake.setWidth("97%");
-		
+
 
     }
 
@@ -444,7 +420,6 @@ public class Gui implements EntryPoint {
         table.remove(fake);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
 		
-        real.setWidth("97%");
         real.setFocus(true);
     }
 
