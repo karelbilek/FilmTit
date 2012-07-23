@@ -101,7 +101,7 @@ public class FilmTitServiceHandler {
 		};
 		
 		gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
-		filmTitSvc.createNewDocument(gui.sessionID, movieTitle, year, language, callback);
+		filmTitSvc.createNewDocument(gui.getSessionID(), movieTitle, year, language, callback);
 	}
 	
 	public void getTranslationResults(List<TimedChunk> chunks) {
@@ -140,7 +140,7 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.getTranslationResults(gui.sessionID, chunks, callback);
+		filmTitSvc.getTranslationResults(gui.getSessionID(), chunks, callback);
 	}
 	
 	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
@@ -162,7 +162,7 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.setUserTranslation(gui.sessionID, chunkId, documentId, userTranslation, chosenTranslationPair, callback);
+		filmTitSvc.setUserTranslation(gui.getSessionID(), chunkId, documentId, userTranslation, chosenTranslationPair, callback);
 	}
 
 
@@ -185,7 +185,7 @@ public class FilmTitServiceHandler {
             }
         };
 
-        filmTitSvc.selectSource( gui.sessionID, documentID, selectedMediaSource, callback);
+        filmTitSvc.selectSource( gui.getSessionID(), documentID, selectedMediaSource, callback);
     }
 
     public void simple_login(final String username, String password) {
@@ -194,7 +194,7 @@ public class FilmTitServiceHandler {
             public void onSuccess(String SessionID) {
             	if (SessionID != null) {
 	                gui.log("logged in as " + username + " with session id " + SessionID);
-	                gui.sessionID = SessionID;
+	                gui.setSessionID(SessionID);
 	                gui.logged_in(username);
             	} else {
                     gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
@@ -216,7 +216,7 @@ public class FilmTitServiceHandler {
 
             public void onSuccess(Void o) {
                 gui.log("logged out");
-                gui.sessionID = null;
+                gui.setSessionID(null);
                 gui.logged_out();
             }
 
@@ -225,7 +225,7 @@ public class FilmTitServiceHandler {
             }
         };
 
-        filmTitSvc.logout(gui.sessionID, callback);
+        filmTitSvc.logout(gui.getSessionID(), callback);
     }
 
     
@@ -308,7 +308,7 @@ public class FilmTitServiceHandler {
 					sessionIDPolling = false;
 					sessionIDPollingDialogBox.hide();
 					// we now have a session ID
-					gui.sessionID = result;
+					gui.setSessionID(result);
 					gui.logged_in("");
 				}
 				// else continue polling

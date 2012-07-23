@@ -1,6 +1,7 @@
 package cz.filmtit.client;
 
 import com.github.gwtbootstrap.client.ui.incubator.Table;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 
 import java.util.Iterator;
@@ -73,8 +74,17 @@ public class Gui implements EntryPoint {
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
-	protected String sessionID;
 	
+	private String sessionID;
+	
+	protected void setSessionID(String sessionID) {
+		this.sessionID = sessionID;
+	}
+
+	protected String getSessionID() {
+		return sessionID;
+	}
+
 	private String username;
 	
 	protected Widget activeSuggestionWidget = null;
@@ -86,8 +96,6 @@ public class Gui implements EntryPoint {
 	//private String subtext;
 	
 	private DocumentCreator docCreator;
-	
-	
 	
 	@Override
 	public void onModuleLoad() {
@@ -105,7 +113,6 @@ public class Gui implements EntryPoint {
 
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
-		
 		
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
@@ -160,7 +167,7 @@ public class Gui implements EntryPoint {
 		// top menu handlers		
 		guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (sessionID == null) {
+				if (getSessionID() == null) {
 		            showLoginDialog();
 				} else {
 					rpcHandler.logout();
