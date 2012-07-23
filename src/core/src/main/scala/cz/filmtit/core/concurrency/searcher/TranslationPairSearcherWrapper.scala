@@ -1,4 +1,4 @@
-package cz.filmtit.core.concurrency
+package cz.filmtit.core.concurrency.searcher
 
 import cz.filmtit.core.model.TranslationPairSearcher
 import cz.filmtit.share.{Chunk, TranslationPair, Language}

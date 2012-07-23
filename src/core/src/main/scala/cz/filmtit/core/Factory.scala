@@ -1,6 +1,7 @@
 package cz.filmtit.core
 
-import concurrency.TranslationPairSearcherWrapper
+import concurrency.tokenizer.TokenizerWrapper
+import concurrency.searcher.TranslationPairSearcherWrapper
 import cz.filmtit.core.tm.BackoffTranslationMemory
 import cz.filmtit.core.model.names.NERecognizer
 
@@ -20,7 +21,7 @@ import cz.filmtit.share.{Language, TranslationSource}
 import cz.filmtit.core.Factory._
 import collection.mutable.HashMap
 import java.io.{File, FileInputStream}
-import opennlp.tools.tokenize.{TokenizerModel, TokenizerME, WhitespaceTokenizer, Tokenizer}
+import opennlp.tools.tokenize.{TokenizerME, WhitespaceTokenizer, Tokenizer}
 
 /**
  * Factories for default implementations of various classes
@@ -62,8 +63,10 @@ object Factory {
     connection
   }
 
-  def createNERecognizersFromConfiguration(configuration: Configuration) = {
-    (configuration.l1, configuration.l2) map { l:Language=> createNERecognizers(l, configuration) }
+  def createNERecognizersFromConfiguration(configuration: Configuration, wrapperl1:TokenizerWrapper, wrapperl2:TokenizerWrapper) = {
+    (createNERecognizers(configuration.l1, configuration, wrapperl1), 
+    createNERecognizers(configuration.l2, configuration, wrapperl2))
+    
   }
 
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
@@ -82,17 +85,17 @@ object Factory {
   def createTMFromConfiguration(
     configuration: Configuration,
     readOnly: Boolean = true,
-    useInMemoryDB: Boolean = false
-    ): TranslationMemory = {
+    useInMemoryDB: Boolean = false) : TranslationMemory = 
+   
     createTM(
-    configuration.l1, configuration.l2,
-    { if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly) },
-    configuration,
-    useInMemoryDB,
-    configuration.maxNumberOfConcurrentSearchers,
-    configuration.searcherTimeout
-    )
-  }
+      configuration.l1, configuration.l2,
+      if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly),
+      configuration,
+      useInMemoryDB,
+      configuration.maxNumberOfConcurrentSearchers,
+      configuration.searcherTimeout
+  )
+  
 
   def createTM(
     l1: Language, l2: Language,
@@ -103,39 +106,48 @@ object Factory {
     searcherTimeout: Int
     ): TranslationMemory = {
 
-    val csTokenizer = createTokenizer(Language.CS, configuration)
-    val enTokenizer = createTokenizer(Language.EN, configuration)
+    val csTokenizerWrapper = createTokenizerWrapper(Language.CS, configuration)
+    val enTokenizerWrapper = createTokenizerWrapper(Language.EN, configuration)
 
     //Third level: Moses
     val mtTM = new BackoffTranslationMemory(
       new MosesServerSearcher(
         Language.EN,
         Language.CS,
-        enTokenizer,
-        configuration.mosesURL
+ //       enTokenizer,
+        configuration.mosesURL,
+        30, 60*20
       ),
+      Language.EN,
+      Language.CS,
       threshold = 0.7
     )
 
     val neSearchers = (1 to maxNumberOfConcurrentSearchers).map { _ =>
-      val recognizers = createNERecognizersFromConfiguration(configuration)
+      val recognizers = createNERecognizersFromConfiguration(configuration, csTokenizerWrapper, enTokenizerWrapper)
       new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2, useInMemoryDB)
     }.toList
 
     //Second level fuzzy matching with NER:
     val neTM = new BackoffTranslationMemory(
       new TranslationPairSearcherWrapper(neSearchers, searcherTimeout),
-      Some(new FuzzyNERanker()),
+      Language.EN,
+      Language.CS,
+       Some(new FuzzyNERanker()),
       threshold = 0.2,
       backoff = Some(mtTM)
     )
 
     //First level exact matching with backoff to fuzzy matching:
     new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizer, csTokenizer, useInMemoryDB),
-      Some(new ExactRanker()),
+      new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB),
+      l1=Language.EN,
+      l2=Language.CS,
+      ranker= Some(new ExactRanker()),
       threshold = 0.8,
-      backoff = Some(neTM)
+      backoff = Some(neTM),
+      tokenizerl1= Some(enTokenizerWrapper),
+      tokenizerl2 = Some(csTokenizerWrapper)
     )
   }
 
@@ -149,7 +161,7 @@ object Factory {
    * @param language the language the NE recognizers work on
    * @return
    */
-  def createNERecognizers(language: Language, configuration: Configuration): List[NERecognizer] = {
+  def createNERecognizers(language: Language, configuration: Configuration, tokenizer:TokenizerWrapper): List[NERecognizer] = {
     configuration.neRecognizers.get(language) match {
       case Some(recognizers) => recognizers map {
         pair => {
@@ -164,7 +176,7 @@ object Factory {
           new OpenNLPNameFinder(
             neType,
             new NameFinderME(model),
-            createTokenizer(language, configuration)
+            tokenizer
           )
         }
       }
@@ -180,8 +192,8 @@ object Factory {
    * @param neType the type of NE, the recognizer detects
    * @return
    */
-  def createNERecognizer(language: Language, neType: AnnotationType, configuration: Configuration): NERecognizer =
-    createNERecognizers(language, configuration).filter( _.neClass == neType ).head
+  def createNERecognizer(language: Language, neType: AnnotationType, configuration: Configuration, wrapper:TokenizerWrapper): NERecognizer =
+    createNERecognizers(language, configuration, wrapper).filter( _.neClass == neType ).head
 
 
   /**
@@ -190,7 +202,7 @@ object Factory {
    * @param language language to be tokenized
    * @return
    */
-  def createTokenizer(language: Language): Tokenizer = {
+  def createTokenizer_(language: Language): Tokenizer = {
     WhitespaceTokenizer.INSTANCE
   }
 
@@ -201,13 +213,19 @@ object Factory {
    * @param language language to be tokenized
    * @return
    */
-  def createTokenizer(language: Language, configuration: Configuration): Tokenizer = {
+  def createTokenizer_(language: Language, configuration: Configuration): Tokenizer = {
     if (configuration.tokenizers contains language) {
       logger.debug("Creating ME tokenizer (%s)".format(language))
       new TokenizerME(configuration.tokenizers(language))
     } else {
       logger.debug("Creating default tokenizer (%s)".format(language))
-      createTokenizer(language)
+      createTokenizer_(language)
     }
+  }
+
+  def createTokenizerWrapper(language:Language, conf:Configuration) = {
+      val tokenizers = (0 to 10).par.map{_=>createTokenizer_(language, conf)}
+      new TokenizerWrapper(tokenizers, conf.searcherTimeout)
+
   }
 }

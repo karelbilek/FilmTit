@@ -1,4 +1,4 @@
-package cz.filmtit.core.concurrency
+package cz.filmtit.core.concurrency.searcher
 
 import cz.filmtit.core.model.TranslationPairSearcher
 import akka.actor.Actor
