@@ -38,6 +38,9 @@ with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */
   override def reindex() {
+
+    val FETCH_SIZE = 100000
+
     connection.createStatement().execute(
       "DROP TABLE IF EXISTS %s;".format(signatureTable)
     )
@@ -64,7 +67,7 @@ with SignatureTranslationPairStorage {
       java.sql.ResultSet.CONCUR_READ_ONLY
     )
 
-    //selStmt.setFetchSize(1000)
+    selStmt.setFetchSize(FETCH_SIZE)
     selStmt.execute("SELECT * FROM %s;".format(pairTable))
 
     log.info("Creating chunk signatures...")
@@ -78,7 +81,7 @@ with SignatureTranslationPairStorage {
           "signature_l2, annotations_l2) VALUES(?, ?, ?, ?, ?);"
         ).format(signatureTable)
     )
-    //inStmt.setFetchSize(500)
+    inStmt.setFetchSize(FETCH_SIZE)
 
     var i = 0
 
