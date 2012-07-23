@@ -5,7 +5,6 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
-import org.hibernate.annotations.Type;
 
 import java.util.*;
 
@@ -32,6 +31,20 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     private USDocument document;
 
     /**
+     * A set of translation memory suggestions that originates in the translation memory.
+     * It means that instances of the Translation Pairs from this collection already exist in the database.
+     * Therefore it is sufficient to store them in the database as many-to-many association to the
+     * translationpair table in database.
+     */
+    private Set<TranslationPair> internalTMSuggestions;
+    /**
+     * A set of translation suggestions that originate outside our application, typically in a machine tranlsation.
+     * Consequence of this is that such suggestions don't have any instances in the database before they appear
+     * here.
+     */
+    private Set<TranslationPair> externalTMSuggestions;
+
+    /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
      * result is created or when the loadChunksFromDb() on a document is called.
       * @param document A document the Translation Result is part of.
@@ -41,18 +54,23 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setDocumentId(document.getDatabaseId());
     }
 
+    /**
+     * A private setter that sets the document ID. It is used by Hibernate only. Due the immutability of
+     * the documentId in TimedChunk, this property is also immutable.
+     * @param documentDatabaseId
+     */
     private void setDocumentDatabaseId(long documentDatabaseId) {
         translationResult.setDocumentId(documentDatabaseId);
     }
 
+    /**
+     * Gets the ID of documents this translation result belongs. The value originates in the TimedChunk object.
+     * @return A ID of the document this translation result is part of.
+     */
     public long getDocumentDatabaseId() {
         return  translationResult.getDocumentId();
     }
 
-
-    private USDocument getDocument() {
-        return document;
-    }
 
     /**
      * Creates the Translation Result object from the Timed Chunk. It is typically called when the User Space
@@ -85,10 +103,18 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 	    return translationResult;
 	}
 
+    /**
+     * Gets the starting time of the chunk in the srt format.
+     * @return Starting time of the chunk.
+     */
     public String getStartTime() {
         return translationResult.getSourceChunk().getStartTime();
     }
 
+    /**
+     * Sets the starting time of the chunk in the srt format.
+     * @param startTime Starting time of the chunk.
+     */
     public void setStartTime(String startTime) {
         translationResult.getSourceChunk().setStartTime(startTime);
     }
@@ -101,31 +127,57 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.getSourceChunk().setEndTime(endTime);
     }
 
-    @Type(type="text")
+    /**
+     * Gets the original text of the chunk.
+     * @return Original text of the chunk.
+     */
     public String getText() {
         return translationResult.getSourceChunk().getSurfaceForm();
     }
 
-    @Type(type="text")
+    /**
+     * Sets the original text of the chunk. It is used by Hibenrate only.
+     * @param text Original text of the chunk.
+     * @throws IllegalAccessException
+     */
     public void setText(String text) throws IllegalAccessException {
         translationResult.getSourceChunk().setSurfaceForm(text);
     }
 
-    @Type(type="text")
+    /**
+     * Gets the translation provided by the user.
+     * @return The user tranlsation.
+     */
     public String getUserTranslation() {
         return translationResult.getUserTranslation();
     }
 
-    @Type(type="text")
+    /**
+     * Sets the user translation. It is used both at the runtime when a user changes the translation and
+     * by Hibernate at the time the TranslationsResult is loaded from the database.
+     * @param userTranslation
+     */
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
+        feedbackSent = false;
     }
 
+    /**
+     * Gets the order of the part of the original subtitle chunk which is this translation result part of.
+     * (The original subtitle chunks -- the amount of text which is displayed on the screen at one moment
+     * is split on the sentences boundaries.)
+     * @return The order of the part of the original subtitle chunk
+     */
     public int getPartNumber() {
         return translationResult.getSourceChunk().getPartNumber();
     }
 
-    public void setPartNumber(int partNumber) {
+    /**
+     * the order of the part of the original subtitle chunk which is this translation result part of.
+     * It is used by Hibernate only.
+     * @param partNumber The order of the part of the original subtitle chunk
+     */
+    private void setPartNumber(int partNumber) {
         translationResult.getSourceChunk().setPartNumber(partNumber);
     }
 
@@ -168,20 +220,52 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * A private getter of the list of Translation Memory suggestions. It is used by Hibernate only.
-     * @return
+     * Gets the set of translation memory suggestions that originates in our database.
+     * @return Set of translation memory suggestion form our database.
      */
-    private Set<TranslationPair> getTmSuggestionsSet() {
-        return new HashSet(translationResult.getTmSuggestions());
+    public Set<TranslationPair> getInternalTMSuggestions() {
+        return internalTMSuggestions;
     }
 
     /**
-     * A private setter of the list of Translation Memory suggestion. It is used by Hibernate
-     * while loading a Translation Result object from the database.
-     * @param tmSuggestions A set of translation memory suggestions (as translation pairs)
+     * Sets the set of translation memory suggestion that originates in our database. It is used by Hibernate
+     * only at the moment a translation result is loaded from the database using the same database as the
+     * translation memory core does.
+     * @param internalTMSuggestions Internal translation memory suggestions.
      */
-    private void setTmSuggestionsSet(Set<TranslationPair> tmSuggestions) {
-        translationResult.setTmSuggestions(new ArrayList(tmSuggestions));
+    private void setInternalTMSuggestions(Set<TranslationPair> internalTMSuggestions) {
+        this.internalTMSuggestions = internalTMSuggestions;
+        // suggestions list is instantiated in the constructor of TranslationPair
+        translationResult.getTmSuggestions().addAll(internalTMSuggestions);
+    }
+
+    /**
+     * Gets the translation suggestions that originates outside the this application.
+     * @return  External translation suggestions.
+     */
+    public Set<TranslationPair> getExternalTMSuggestions() {
+        return externalTMSuggestions;
+    }
+
+    /**
+     * Private setter for the translation suggestion outside our application.
+     * @param externalTMSuggestions A set of external translation suggestions.
+     */
+    private void setExternalTMSuggestions(Set<TranslationPair> externalTMSuggestions) {
+        this.externalTMSuggestions = externalTMSuggestions;
+        // suggestions list is instantiated in the constructor of TranslationPair
+        translationResult.getTmSuggestions().addAll(externalTMSuggestions);
+    }
+
+    /**
+     * Gets the complete set of translation suggestion including both those from our internal database and those
+     * from the external sources.
+     * @return Complete list of translation suggestions.
+     */
+    public Set<TranslationPair> getTranslationSuggestions() {
+        Set<TranslationPair> result = new HashSet<TranslationPair>(internalTMSuggestions);
+        result.addAll(externalTMSuggestions);
+        return result;
     }
 
     protected long getSharedClassDatabaseId() { return databaseId; }
@@ -198,6 +282,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         // TODO: ensure none of the potential previous suggestions is in the server cache collection
         // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
+        internalTMSuggestions = new HashSet<TranslationPair>();
+        externalTMSuggestions = new HashSet<TranslationPair>();
 
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
@@ -206,12 +292,26 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         Collection<TranslationPair> javaList =
                 scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
 
-        // the list of suggestions will be stored as a synchronized list
-        translationResult.setTmSuggestions(new ArrayList<TranslationPair>(javaList));
+        // go through the list of retrieved candidates and classify them as internal and external
+        for (TranslationPair pair : javaList) {
+            if (pair.getId() == null) { externalTMSuggestions.add(pair); }
+            else { internalTMSuggestions.add(pair); }
+        }
+
+        // store the collections as synchronized (to have a better feeling from this)
+        externalTMSuggestions = Collections.synchronizedSet(externalTMSuggestions);
+        internalTMSuggestions = Collections.synchronizedSet(internalTMSuggestions);
+        List<TranslationPair> wrappedObjectList = new ArrayList<TranslationPair>(internalTMSuggestions);
+        wrappedObjectList.addAll(externalTMSuggestions);
+        translationResult.setTmSuggestions(Collections.synchronizedList(wrappedObjectList));
     }
 
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
+
+        for (TranslationPair pair : translationResult.getTmSuggestions()) {
+            dbSession.saveOrUpdate(pair);
+        }
     }
 
     public void deleteFromDatabase(Session dbSession) {

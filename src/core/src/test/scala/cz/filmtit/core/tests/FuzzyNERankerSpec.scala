@@ -25,7 +25,7 @@ class FuzzyNERankerSpec extends Spec {
 
   val configuration = new Configuration(new File("configuration.xml"))
 
-  val recognizer: NERecognizer = Factory.createNERecognizer(Language.EN, AnnotationType.PERSON, configuration)
+  val recognizer: NERecognizer = Factory.createNERecognizer(Language.EN, AnnotationType.PERSON, configuration, Factory.createTokenizerWrapper(Language.EN, configuration))
   val ranker: FuzzyNERanker = new FuzzyNERanker()
 
 

@@ -1,13 +1,14 @@
 package cz.filmtit.core.tm
 
 import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
+import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
 import org.apache.commons.logging.LogFactory
 import scala.Predef._
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.share.{Language, MediaSource, Chunk, TranslationPair}
-import cz.filmtit.core.concurrency.TranslationPairSearcherWrapper
+import cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper
 
 
 /**
@@ -21,9 +22,13 @@ import cz.filmtit.core.concurrency.TranslationPairSearcherWrapper
 
 class BackoffTranslationMemory(
   val searcher: TranslationPairSearcher,
+  val l1:Language,
+  val l2:Language,
   val ranker: Option[TranslationPairRanker] = None,
   val backoff: Option[TranslationMemory] = None,
-  val threshold: Double = 0.90
+  val threshold: Double = 0.90,
+  val tokenizerl1: Option[TokenizerWrapper] = None,
+  val tokenizerl2: Option[TokenizerWrapper] = None
   ) extends TranslationMemory {
 
   val logger = LogFactory.getLog("BackoffTM[%s, %s]".format(
@@ -49,15 +54,36 @@ class BackoffTranslationMemory(
     case s: BaseStorage => s.asInstanceOf[MediaStorage]
     case _ => null
   }
+  
+  def tokenizer(language:Language) = language match {
+        case `l1` => tokenizerl1
+        case `l2` => tokenizerl2
+        case _ => throw new Exception("Wrong tokenization language")
+    }
 
 
-  def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource) =
+  def tokenize(pair:TranslationPair) {
+    tokenize(pair.getChunkL1, l1)
+    tokenize(pair.getChunkL2, l2)
+  }
+
+  def tokenize(chunk:Chunk, language:Language) {
+    if (!chunk.isTokenized) {
+       //foreach means "do if not None"
+        tokenizer(language).foreach {_.tokenize(chunk)}
+    }
+  }
+
+  def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource)={
+    tokenize(chunk, language);
     searcher.candidates(chunk, language)
+  }
 
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
     n: Int = 10, inner: Boolean = false): List[TranslationPair] = {
 
+    tokenize(chunk, language);
     //Only on first level:
     if (!inner)
       logger.info( "n-best: (%s) %s".format(language, chunk) )
@@ -89,6 +115,7 @@ class BackoffTranslationMemory(
   def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
   Option[TranslationPair] = {
 
+    tokenize(chunk, language);
     logger.info( "first-best: (%s) %s".format(language, chunk) )
 
     val pairs: List[TranslationPair] = candidates(chunk, language, mediaSource)
@@ -109,6 +136,7 @@ class BackoffTranslationMemory(
   }
 
   def add(pairs: Array[TranslationPair]) {
+    pairs.foreach{p=>tokenize(p)}
 
     //If the searcher can be initialized with translation pairs, do it:
     searcher match {

@@ -3,6 +3,7 @@ package cz.filmtit.share;
 import cz.filmtit.share.annotations.AnnotationType;
 import cz.filmtit.share.annotations.Annotation;
 
+import com.google.gwt.user.client.rpc.GwtTransient;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +20,33 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     //I do NOT want to create a constructor with list so scala doesn't add 
     //its own implementation of java lists
     private List<Annotation> annotations;
+
+    @GwtTransient
+    private String[] tokens = null;
+
+    public boolean isTokenized() {
+        return (tokens != null);
+    }
+
+    public void setTokens(String[] tokens) throws Exception {
+        if (tokens== null) {
+            throw new Exception("Cannot unset tokens");
+        }
+        if (isTokenized()) {
+            throw new Exception("Cannot reset tokens.");
+        }
+        this.tokens = tokens;
+    }
+
+    public String[] getTokens() throws Exception {
+        if (isTokenized()) {
+            return tokens;
+        } else {
+            throw new Exception("cannot get no tokens");
+            
+//            return new String[]{};
+        }
+    }
 
     public Chunk() {
     	// nothing
