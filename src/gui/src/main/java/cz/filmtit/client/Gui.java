@@ -4,6 +4,7 @@ import com.github.gwtbootstrap.client.ui.incubator.Table;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -77,11 +78,26 @@ public class Gui implements EntryPoint {
 	
 	private String sessionID;
 	
-	protected void setSessionID(String sessionID) {
-		this.sessionID = sessionID;
+	// persistent session ID via cookies (set to null to unset)
+	@SuppressWarnings("deprecation")
+	protected void setSessionID(String newSessionID) {
+		if (newSessionID == null) {
+			Cookies.removeCookie("sessionID");
+		} else {
+			// cookie should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
+			Date in1year = new Date();
+			in1year.setYear(in1year.getYear() + 1);
+			// set cookie
+			Cookies.setCookie("sessionID", newSessionID, in1year);
+		}
+		sessionID = newSessionID;
 	}
 
+	// persistent session ID via cookies (null if not set)	
 	protected String getSessionID() {
+		if (sessionID == null) {
+			sessionID = Cookies.getCookie("sessionID");
+		}
 		return sessionID;
 	}
 
