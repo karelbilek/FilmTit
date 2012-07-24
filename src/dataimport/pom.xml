@@ -71,5 +71,11 @@
             <version>${filmtit.version}</version>
         </dependency>
 
+        <dependency>
+            <artifactId>userspace</artifactId>
+            <groupId>cz.filmtit</groupId>
+            <version>${filmtit.version}</version>
+        </dependency>
+
     </dependencies>
 </project>
