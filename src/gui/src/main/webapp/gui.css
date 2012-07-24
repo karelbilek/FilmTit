@@ -17,11 +17,11 @@
 	-webkit-box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, 0.1);
 	box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, 0.1);
 }
-.contentPanel.users_page {
+.scrollPanel.creating_document {
 	background: #fcfcfc;
 }
 
-.contentPanel.translating {
+.scrollPanel.translating {
 	
 }
 
@@ -173,6 +173,7 @@ body {
 }
 
 .pre_subgestbox {
+	width: 380px;
 	height: 20px;
 	padding: 8px;
 	margin: 0;
@@ -181,6 +182,10 @@ body {
 	display: block;
 	outline: none;
 
+}
+
+iframe.gwt-RichTextArea, .pre_subgestbox {
+	width: 396px;
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {

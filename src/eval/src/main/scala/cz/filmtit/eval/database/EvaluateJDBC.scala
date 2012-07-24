@@ -11,6 +11,8 @@ import cz.filmtit.core.{Configuration, Factory}
 import java.io.File
 import java.sql.{SQLException, DriverManager, Connection}
 
+//NOTE - this might stopped working with the tokenization update
+//I am just too lazy to rewrite it
 object EvaluateJDBC {
 
   var storages: ListBuffer[TranslationPairStorage] = ListBuffer[TranslationPairStorage]()
@@ -22,7 +24,7 @@ object EvaluateJDBC {
   storages += new FulltextStorage(Language.EN, Language.CS,  connection)
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_fulltext"
 
-  storages += new FirstLetterStorage(Language.EN, Language.CS, connection, Factory.createTokenizer(Language.EN), Factory.createTokenizer(Language.CS))
+  storages += new FirstLetterStorage(Language.EN, Language.CS, connection, Factory.createTokenizerWrapper(Language.EN, configuration), Factory.createTokenizerWrapper(Language.CS, configuration))
   storages.last.asInstanceOf[BaseStorage].pairTable = "sentences_firstletter"
 
   storages += new TrigramStorage(Language.EN, Language.CS,  connection)

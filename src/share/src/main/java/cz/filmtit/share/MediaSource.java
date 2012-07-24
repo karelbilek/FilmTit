@@ -3,7 +3,6 @@ package cz.filmtit.share;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.io.Serializable;
 
 /**
  * The source of a subtitle chunk. This may be a movie, TV series etc.
@@ -32,8 +31,16 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         return title;
     }
 
+    private void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getYear() {
         return year;
+    }
+
+    private  void setYear(String year) {
+        this.year = year;
     }
 
     public HashSet<String> getGenres() {
@@ -42,6 +49,33 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     public Long getId() {
         return id;
+    }
+
+    /**
+     * Parses and sets a list genres provided as a comma separated list of string.
+     * Used by Hibernate.
+     * @param genres
+     */
+    private void setGenresString(String genres) {
+        this.genres = new HashSet<String>();
+        String[] genresStrings = genres.split(",");
+        for (String genre : genresStrings) {
+            this.getGenres().add(genre);
+        }
+    }
+
+    /**
+     * Gets the genres as a comma separated list of strings.
+     * Used by Hibernate.
+     * @return Comma separated list of genres.
+     */
+    private String getGenresString() {
+        StringBuilder genresBuilder = new StringBuilder();
+        for (String genre : genres) {
+            genresBuilder.append(genre + ",");
+        }
+        genresBuilder.deleteCharAt(genresBuilder.length() - 1); // removes last comma
+        return genresBuilder.toString();
     }
 
     public MediaSource(String title, String year, String genres) {

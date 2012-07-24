@@ -5,11 +5,8 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
-import org.hibernate.annotations.Type;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
@@ -43,18 +40,23 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setDocumentId(document.getDatabaseId());
     }
 
+    /**
+     * A private setter that sets the document ID. It is used by Hibernate only. Due the immutability of
+     * the documentId in TimedChunk, this property is also immutable.
+     * @param documentDatabaseId
+     */
     private void setDocumentDatabaseId(long documentDatabaseId) {
         translationResult.setDocumentId(documentDatabaseId);
     }
 
+    /**
+     * Gets the ID of documents this translation result belongs. The value originates in the TimedChunk object.
+     * @return A ID of the document this translation result is part of.
+     */
     public long getDocumentDatabaseId() {
         return  translationResult.getDocumentId();
     }
 
-
-    private USDocument getDocument() {
-        return document;
-    }
 
     /**
      * Creates the Translation Result object from the Timed Chunk. It is typically called when the User Space
@@ -87,10 +89,18 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 	    return translationResult;
 	}
 
+    /**
+     * Gets the starting time of the chunk in the srt format.
+     * @return Starting time of the chunk.
+     */
     public String getStartTime() {
         return translationResult.getSourceChunk().getStartTime();
     }
 
+    /**
+     * Sets the starting time of the chunk in the srt format.
+     * @param startTime Starting time of the chunk.
+     */
     public void setStartTime(String startTime) {
         translationResult.getSourceChunk().setStartTime(startTime);
     }
@@ -103,31 +113,57 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.getSourceChunk().setEndTime(endTime);
     }
 
-    @Type(type="text")
+    /**
+     * Gets the original text of the chunk.
+     * @return Original text of the chunk.
+     */
     public String getText() {
         return translationResult.getSourceChunk().getSurfaceForm();
     }
 
-    @Type(type="text")
+    /**
+     * Sets the original text of the chunk. It is used by Hibenrate only.
+     * @param text Original text of the chunk.
+     * @throws IllegalAccessException
+     */
     public void setText(String text) throws IllegalAccessException {
         translationResult.getSourceChunk().setSurfaceForm(text);
     }
 
-    @Type(type="text")
+    /**
+     * Gets the translation provided by the user.
+     * @return The user tranlsation.
+     */
     public String getUserTranslation() {
         return translationResult.getUserTranslation();
     }
 
-    @Type(type="text")
+    /**
+     * Sets the user translation. It is used both at the runtime when a user changes the translation and
+     * by Hibernate at the time the TranslationsResult is loaded from the database.
+     * @param userTranslation
+     */
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
+        feedbackSent = false;
     }
 
+    /**
+     * Gets the order of the part of the original subtitle chunk which is this translation result part of.
+     * (The original subtitle chunks -- the amount of text which is displayed on the screen at one moment
+     * is split on the sentences boundaries.)
+     * @return The order of the part of the original subtitle chunk
+     */
     public int getPartNumber() {
         return translationResult.getSourceChunk().getPartNumber();
     }
 
-    public void setPartNumber(int partNumber) {
+    /**
+     * the order of the part of the original subtitle chunk which is this translation result part of.
+     * It is used by Hibernate only.
+     * @param partNumber The order of the part of the original subtitle chunk
+     */
+    private void setPartNumber(int partNumber) {
         translationResult.getSourceChunk().setPartNumber(partNumber);
     }
 
@@ -169,22 +205,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setChunkId(sharedId);
     }
 
-    /**
-     * A private getter of the list of Translation Memory suggestions. It is used by Hibernate only.
-     * @return
-     */
-    private List<TranslationPair> getTmSuggestions() {
-        return translationResult.getTmSuggestions();
-    }
-
-    /**
-     * A private setter of the list of Translation Memory suggestion. It is used by Hibernate
-     * while loading a Translation Result object from the database.
-     * @param tmSuggestions
-     */
-    private void setTmSuggestions(List<TranslationPair> tmSuggestions) {
-        translationResult.setTmSuggestions(tmSuggestions);
-    }
 
     protected long getSharedClassDatabaseId() { return databaseId; }
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
@@ -205,11 +225,12 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
-        Collection<TranslationPair> javaList =
-                scala.collection.JavaConverters.asJavaCollectionConverter(TMResults).asJavaCollection();
+        List<TranslationPair> javaList = new ArrayList<TranslationPair>(
+                scala.collection.JavaConverters.asJavaListConverter(TMResults).asJava());
 
-        // the list of suggestions will be stored as a synchronized list
-        translationResult.setTmSuggestions(new ArrayList<TranslationPair>(javaList));
+
+        // store the collections as synchronized (to have a better feeling from this)
+        translationResult.setTmSuggestions(javaList);
     }
 
     public void saveToDatabase(Session dbSession) {

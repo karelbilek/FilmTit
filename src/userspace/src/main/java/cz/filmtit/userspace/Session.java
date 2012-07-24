@@ -20,6 +20,8 @@ public class Session {
     private long lastOperationTime;
     private SessionState state;
 
+
+
     enum SessionState {active, loggedOut, terminated, killed}
 
     /**
@@ -241,6 +243,24 @@ public class Session {
 
         activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
         return usTranslationResult.getTranslationResult();
+    }
+
+    public List<TranslationPair> requestTMSuggestions(int chunkId, long documentId, TranslationMemory TM)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
+        lastOperationTime = new Date().getTime();
+
+        if (!activeDocuments.containsKey(documentId)) {
+            throw new InvalidDocumentIdException("Not existing document ID.");
+        }
+        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
+            throw new InvalidChunkIdException("Not existing chunk ID given.");
+        }
+
+        USTranslationResult selected = activeTranslationResults.get(documentId).get(chunkId);
+        selected.generateMTSuggestions(TM);
+        List<TranslationPair> l = new ArrayList<TranslationPair>();
+        l.addAll( selected.getTranslationResult().getTmSuggestions());
+        return l;
     }
 
     public Void selectSource(long documentID, MediaSource selectedMediaSource) {

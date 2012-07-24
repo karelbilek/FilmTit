@@ -2,10 +2,9 @@ package cz.filmtit.share;
 
 import org.hibernate.annotations.Type;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import java.io.Serializable;
+import java.util.*;
+
 /**
 * Wrapper class for chunks in the parallel data. In the most basic case,
 * a chunk only consists of the the surface form in a particular language.
@@ -15,11 +14,13 @@ import java.io.Serializable;
 */
 public class TranslationPair implements Comparable<TranslationPair>, com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
+    private Long id;
     private Chunk chunkL1;
     private Chunk chunkL2;
     private TranslationSource source;
     private List<MediaSource> mediaSources = new LinkedList<MediaSource>();
     private Double score;
+    private int count = 1;
 
     public TranslationPair() {
     	// nothing
@@ -51,6 +52,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         this.score = score;
     }
 
+
     public boolean hasMediaSource() {
         return !(mediaSources.isEmpty());
     }
@@ -65,6 +67,22 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
 
     public List<MediaSource> getMediaSources() {
         return mediaSources;
+    }
+
+    /**
+     * Getter that return the media source as a set. It is used by Hibernate only.
+     * @return The set of media sources.
+     */
+    private Set<MediaSource> getMediaSourcesSet() {
+        return new HashSet<MediaSource>(mediaSources);
+    }
+
+    /**
+     * Setter that sets the list of media sources given in the form of set. It is used by Hibernate only.
+     * @param sources A set of media sources.
+     */
+    private void setMediaSourcesSet(Set<MediaSource> sources) {
+        this.mediaSources = new ArrayList<MediaSource>(sources);
     }
 
     public void addMediaSource(MediaSource mediaSource) {
@@ -101,26 +119,34 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
 
     @Type(type="text")
     public String getStringL1() {
-        if (chunkL1==null) {return "";}
+        if (chunkL1 == null) {return "";}
         return chunkL1.getSurfaceForm();
     }
 
     @Type(type="text")
     public void setStringL1(String stringL1) {
-        if (chunkL1!=null)
-            chunkL1.setSurfaceForm(stringL1); // TODO: create chunk is necessary and make it immutable
+        if (chunkL1 != null) { chunkL1.setSurfaceForm(stringL1); }
+        else { chunkL1 = new Chunk(stringL1); }
     }
 
     @Type(type="text")
     public String getStringL2() {
-        if (chunkL2==null) {return "";}
+        if (chunkL2 == null) {return "";}
         return chunkL2.getSurfaceForm();
     }
 
     @Type(type="text")
     public void setStringL2(String stringL2) {
-        if (chunkL2!=null)
-        chunkL2.setSurfaceForm(stringL2); // TODO: create chunk is necessary and make it immutable
+        if (chunkL2 != null) { chunkL2.setSurfaceForm(stringL2); }
+        else { chunkL2 = new Chunk(stringL2); }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    private void setId(Long id) {
+        this.id = id;
     }
 
     public static TranslationPair fromString(String string) {
@@ -143,6 +169,14 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         	// GWT does not know String.format - rewritten:
         	return ("TP[" + chunkL1.getSurfaceForm() + ", " + chunkL2.getSurfaceForm() + "]");
         }
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
     }
 
 

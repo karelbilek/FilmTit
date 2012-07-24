@@ -20,15 +20,15 @@
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
         <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
         <property name="current_session_context_class">thread</property>
-        //<property name="lockMode">PESSIMISTIC_WRITE</property>
+        <!-- <property name="lockMode">PESSIMISTIC_WRITE</property> -->
 
         <!-- List of mapping files -->
-        <!-- <mapping resource="USUser.hbm.xml"/>
-        <mapping resource="session.hbm.xml"/>  -->
-        <mapping resource="cz/filmtit/userspace/USDocument.hbm.xml"/>
+        <!--<mapping resource="cz/filmtit/userspace/MediaSource.hbm.xml" />
+        <mapping resource="cz/filmtit/userspace/TranslationPair.hbm.xml" />
+        <mapping resource="cz/filmtit/userspace/USDocument.hbm.xmlsdfsdf"/>
         <mapping resource="cz/filmtit/userspace/USTranslationResult.hbm.xml"/>
-
-
+        <mapping resource="cz/filmtit/userspace/USUser.hbm.xml" />
+        <mapping resource="cz/filmtit/userspace/session.hbm.xml"/> -->
 
     </session-factory>
 </hibernate-configuration>

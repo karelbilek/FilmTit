@@ -93,7 +93,6 @@ public class TranslationWorkspace extends Composite {
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
-        fake.setWidth("97%");
     }
 
 
@@ -101,7 +100,6 @@ public class TranslationWorkspace extends Composite {
         table.remove(fake);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
 
-        real.setWidth("97%");
         real.setFocus(true);
     }
 
@@ -191,12 +189,9 @@ public class TranslationWorkspace extends Composite {
      * Hide the currently active (visible) popup with suggestions
      */
     protected void deactivateSuggestionWidget() {
-        gui.log("inside deactivateSW");
         Widget w = this.activeSuggestionWidget;
         if (w != null) {
-            gui.log("activeSW is not null");
             if (w instanceof PopupPanel) {
-                gui.log("and is a PopupPanel");
                 //((PopupPanel)w).hide();
                 w.setVisible(false);
             }

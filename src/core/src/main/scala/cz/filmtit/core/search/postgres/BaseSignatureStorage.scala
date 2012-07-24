@@ -38,6 +38,9 @@ with SignatureTranslationPairStorage {
 
   /**Write the signatures for the chunk table to the database. */
   override def reindex() {
+
+    val FETCH_SIZE = 100000
+
     connection.createStatement().execute(
       "DROP TABLE IF EXISTS %s;".format(signatureTable)
     )
@@ -64,7 +67,7 @@ with SignatureTranslationPairStorage {
       java.sql.ResultSet.CONCUR_READ_ONLY
     )
 
-    //selStmt.setFetchSize(1000)
+    selStmt.setFetchSize(FETCH_SIZE)
     selStmt.execute("SELECT * FROM %s;".format(pairTable))
 
     log.info("Creating chunk signatures...")
@@ -78,7 +81,7 @@ with SignatureTranslationPairStorage {
           "signature_l2, annotations_l2) VALUES(?, ?, ?, ?, ?);"
         ).format(signatureTable)
     )
-    //inStmt.setFetchSize(500)
+    inStmt.setFetchSize(FETCH_SIZE)
 
     var i = 0
 
@@ -186,6 +189,7 @@ with SignatureTranslationPairStorage {
 
       val chunkL1: Chunk = new Chunk(rs.getString("chunk_l1"))
       val chunkL2: Chunk = new Chunk(rs.getString("chunk_l2"))
+      val count: Int = rs.getString("pair_count").toInt
       val pairID: Long = rs.getLong("pair_id")
 
       //Restore the signature for both chunks if possible
@@ -217,13 +221,14 @@ with SignatureTranslationPairStorage {
       }
 
       //Add the candidate to the list of candidates
-      candidates +=
-        new TranslationPair(
-          chunkL1,
-          chunkL2,
-          source,
-          new java.util.ArrayList(mediaSourceIDs.map(getMediaSource).toList)
-        )
+      val tp = new TranslationPair(
+                chunkL1,
+                chunkL2,
+                source,
+                new java.util.ArrayList(mediaSourceIDs.map(getMediaSource).toList)
+              )
+      tp.setCount(count)
+      candidates += tp
     }
 
     candidates.toList

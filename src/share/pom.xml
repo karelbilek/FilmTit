@@ -32,7 +32,7 @@
                         <goals>
                             <goal>compile</goal>
                             <goal>resources</goal>
-                            <!--<goal>generateAsync</goal>-->
+                            <goal>generateAsync</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -1,4 +1,5 @@
 package cz.filmtit.core.search.postgres.impl
+import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._
@@ -7,7 +8,6 @@ import java.sql.Connection
 import storage.Signature
 import java.lang.String
 import cz.filmtit.share._
-import opennlp.tools.tokenize.Tokenizer
 
 
 /**
@@ -21,8 +21,8 @@ class FirstLetterStorage(
   l1: Language,
   l2: Language,
   connection: Connection,
-  tokenizerL1: Tokenizer,
-  tokenizerL2: Tokenizer,
+  tokenizerL1: TokenizerWrapper,
+  tokenizerL2: TokenizerWrapper,
   useInMemoryDB: Boolean = false
 ) extends BaseSignatureStorage(
   l1,
@@ -33,19 +33,26 @@ class FirstLetterStorage(
   useInMemoryDB
 ) {
 
-  def tokenizer(language: Language): Tokenizer =
-    if(language == l1) tokenizerL1 else tokenizerL2
+  def tokenizer(l:Language) = l match {
+     case `l1`=>tokenizerL1
+     case `l2`=>tokenizerL2
+     case _=>throw new Exception("Wrong tokenizer language")
+  }
 
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
   override def signature(chunk: Chunk, language: Language): Signature = {
-    val tokens: Array[String] = tokenizer(language).tokenize(chunk.getSurfaceForm)
+    if (!chunk.isTokenized) {
+        tokenizer(language).tokenize(chunk)
+    }
+    val tokens: Array[String] = chunk.getTokens
 
     tokens map {
       token =>
         token match {
           case Patterns.number() => '0'
+          case Patterns.punctuation() => null
           case _ => {
             token.take(
               tokens.size match {
@@ -57,7 +64,7 @@ class FirstLetterStorage(
             ).toLowerCase
           }
         }
-    } mkString (" ")
+    } filter(_ != null) mkString (" ")
   }
 
   override def name: String = "Translation pair storage using the first letter of every word as an index."

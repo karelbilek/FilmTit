@@ -5,8 +5,8 @@
 
 <hibernate-mapping package="cz.filmtit.userspace">
 
-    <class name="USTranslationResult" table="TranslationResults">
-        <id name="databaseId" type="long" column="Id">
+    <class name="USTranslationResult" table="translationresults">
+        <id name="databaseId" type="long" column="id">
             <generator class="native"/>
         </id>
 
@@ -21,17 +21,10 @@
         <property name="sharedId" type="int" column="sharedId" />
         <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
-
-        <!--commenting this out mainly for testing, sorry-->
-        <list name="tmSuggestions" table="USTranslationPairs" lazy="false">
-            <key column="TranslationResultId"/>
-            <index column="listIndex"/>
-            <composite-element class="cz.filmtit.share.TranslationPair">
-                <property name="stringL1" type="java.lang.String" column="form1" />
-                <property name="stringL2" type="java.lang.String" column="form2" />
-                <property name="score" type="java.lang.Double" column="score" />
-            </composite-element>
-        </list>
+        <!--<set name="internalTMSuggestions" table="tranlsationresults_translationpairs" lazy="false">
+            <key column="id" />
+            <many-to-many column="pair_id" class="cz.filmtit.share.TranslationPair" />
+        </set>-->
 
     </class>
 

@@ -1,39 +1,15 @@
 package cz.filmtit.client;
 
-import com.github.gwtbootstrap.client.ui.incubator.Table;
-import com.google.gwt.user.client.Window;
-
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ScrollEvent;
-import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
-
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.*;
 
@@ -43,6 +19,9 @@ import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
+
+import java.util.*;
+
 
 
 
@@ -60,17 +39,39 @@ public class Gui implements EntryPoint {
 	
 	protected List<TimedChunk> chunklist;
 	
-
 	protected RootPanel rootPanel;
 
 	protected int counter = 0;
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
-	protected String sessionID;
 	
-	private String username;
+	private String sessionID;
+	
+	// persistent session ID via cookies (set to null to unset)
+	@SuppressWarnings("deprecation")
+	protected void setSessionID(String newSessionID) {
+		if (newSessionID == null) {
+			Cookies.removeCookie("sessionID");
+		} else {
+			// cookie should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
+			Date in1year = new Date();
+			in1year.setYear(in1year.getYear() + 1);
+			// set cookie
+			Cookies.setCookie("sessionID", newSessionID, in1year);
+		}
+		sessionID = newSessionID;
+	}
 
+	// persistent session ID via cookies (null if not set)	
+	protected String getSessionID() {
+		if (sessionID == null) {
+			sessionID = Cookies.getCookie("sessionID");
+		}
+		return sessionID;
+	}
+
+	private String username;
 
 	/**
 	 * Multi-line subtitle text to parse
@@ -99,6 +100,10 @@ public class Gui implements EntryPoint {
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 		
+		// TODO: check whether user is logged in or not
+		rpcHandler.checkSessionID();
+		// TODO: we have to show welcome page as if user not logged in)
+		// and repaint this if checkSessionID() succeeds
 		
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
@@ -134,7 +139,7 @@ public class Gui implements EntryPoint {
 		// top menu handlers		
 		guiStructure.login.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (sessionID == null) {
+				if (getSessionID() == null) {
 		            showLoginDialog();
 				} else {
 					rpcHandler.logout();

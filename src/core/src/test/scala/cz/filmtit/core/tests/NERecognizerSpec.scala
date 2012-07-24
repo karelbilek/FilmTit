@@ -26,9 +26,11 @@ class NERecognizerSpec extends Spec {
   val configuration = new Configuration(new File("configuration.xml"))
 
   describe("A NER") {
+    
+    val enwrap = Factory.createTokenizerWrapper(Language.EN, configuration)
 
-    val personNER = Factory.createNERecognizer(Language.EN, AnnotationType.PERSON, configuration)
-    val placeNER =  Factory.createNERecognizer(Language.EN, AnnotationType.PLACE, configuration)
+    val personNER = Factory.createNERecognizer(Language.EN, AnnotationType.PERSON, configuration, enwrap)
+    val placeNER =  Factory.createNERecognizer(Language.EN, AnnotationType.PLACE, configuration, enwrap)
 
 
     it("should add annotations") {

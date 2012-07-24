@@ -46,4 +46,6 @@ public interface FilmTitService extends RemoteService {
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     TranslationResult regenerateTranslationResult(String sessionID, int chunkId, long documentId, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    public List<TranslationPair> requestTMSuggestions(String sessionID, int chunkId, long documentId)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 }

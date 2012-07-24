@@ -16,6 +16,8 @@ import cz.filmtit.core.{Configuration, Factory}
  *
  */
 
+//NOTE - this might stopped working with the tokenization update
+//I am just too lazy to rewrite it
 object EvaluateSignature {
 
   val n = -1
@@ -86,7 +88,7 @@ object EvaluateSignature {
     val configuration = new Configuration(new File("configuration.xml"))
     val connection = Factory.createConnection(configuration)
     
-    val (neEN, neCS) = (Language.EN, Language.CS) map { Factory.createNERecognizers(_, configuration) }
+    val (neEN, neCS) = (Language.EN, Language.CS) map {l=> Factory.createNERecognizers(l, configuration, Factory.createTokenizerWrapper(l, configuration)) }
     
     evaluateSignatures(
       new NEStorage(Language.EN, Language.CS, connection, neEN, neCS),

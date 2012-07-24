@@ -1,11 +1,12 @@
 package cz.filmtit.userspace.tests;
 
-import cz.filmtit.share.AuthenticationServiceType;
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.userspace.FilmTitBackendServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import cz.filmtit.core.Configuration;
-import cz.filmtit.core.ConfigurationSingleton;
+import org.openid4java.consumer.ConsumerException;
+import org.openid4java.message.MessageException;
 
 /**
  * @author Jindřich Libovický
@@ -18,8 +19,8 @@ public class TestFilmtitBackendServer {
     }
 
     @Test
-    public void testGetAutheticationURL() {
+    public void testGetAutheticationURL() throws ConsumerException, MessageException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
-        System.out.println(server.getAuthenticationURL(1234, AuthenticationServiceType.GOOGLE));
+        //server.authenticateOpenId("http://google.com/");
     }
 }
