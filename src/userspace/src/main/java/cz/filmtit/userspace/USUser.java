@@ -135,9 +135,15 @@ public class USUser extends DatabaseObject {
     public String getPassword() {
         return password;
     }
+    private void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getEmail() {
         return email;
+    }
+    private void setEmail(String email) {
+        this.email = email;
     }
 
     /**
