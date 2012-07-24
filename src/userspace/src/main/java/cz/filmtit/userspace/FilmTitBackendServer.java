@@ -14,6 +14,7 @@ import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
 import org.expressme.openid.OpenIdManager;
 
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationHandler;
@@ -21,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.util.*;
+
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
         FilmTitService {
@@ -247,7 +249,27 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             return newSessionID;
         }
-        return null;
+        else {
+            org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+            dbSession.beginTransaction();
+
+            List UserResult = dbSession.createQuery("select d from USUser d where d.userName = " +
+                    username + " AND d.password = " + password).list();
+
+            dbSession.getTransaction().commit();
+            if (UserResult.isEmpty())
+            {
+                return  null;
+            }
+            else {
+                USUser user =(USUser)(UserResult.get(0));
+                String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+                Session session = new Session(user);
+                activeSessions.put(newSessionID, session);
+                return newSessionID;
+            }
+
+        }
     }
 
     public Void logout(String sessionID) throws InvalidSessionIdException {
@@ -259,6 +281,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         activeSessions.remove(sessionID);
 
         return null;
+    }
+
+    public boolean  Registration(String name ,  String pass  , String email, String openId) {
+          // create user
+             USUser user = new USUser(name,pass,email,openId);
+          // create hibernate session
+             org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+             dbSession.beginTransaction();
+          // save into db
+             user.saveToDatabase(dbSession);
+            HibernateUtil.closeAndCommitSession(dbSession);
+         return true;
     }
 
     static HttpServletRequest createRequest(String url) throws UnsupportedEncodingException {
@@ -309,6 +343,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             }
         }
     }
+
+
+
 
     class AuthData {
         public byte[] Mac_key;
