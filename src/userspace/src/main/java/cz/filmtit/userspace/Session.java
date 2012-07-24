@@ -258,7 +258,9 @@ public class Session {
 
         USTranslationResult selected = activeTranslationResults.get(documentId).get(chunkId);
         selected.generateMTSuggestions(TM);
-        return selected.getTranslationResult().getTmSuggestions();
+        List<TranslationPair> l = new ArrayList<TranslationPair>();
+        l.addAll( selected.getTranslationResult().getTmSuggestions());
+        return l;
     }
 
     public Void selectSource(long documentID, MediaSource selectedMediaSource) {
