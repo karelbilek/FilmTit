@@ -1,6 +1,5 @@
 package cz.filmtit.core.search.external
 
-import cz.filmtit.core.concurrency.moses.MosesWrapper
 import java.net.{UnknownHostException, URLEncoder}
 import io.Source
 import org.apache.commons.logging.LogFactory
@@ -9,7 +8,8 @@ import cz.filmtit.core.model.TranslationPairSearcher
 import collection.mutable.ListBuffer
 import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
 import opennlp.tools.tokenize.Tokenizer
-
+import org.apache.xmlrpc.client.XmlRpcClient
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl
 /**
  * Translation pair searcher using standard Moses server 
  *
@@ -32,19 +32,46 @@ object MosesServerSearcher {
   val apostropheRegex = """'(\S)""".r
   val spaceRegex = """\s+(\s)""".r
   val unkRegex = """\|UNK""".r
+  val ntRegex = """ n &apos; t""".r
+
+
+  
+
 }
 
 class MosesServerSearcher(
   l1: Language,
   l2: Language,
-  url: java.net.URL,
-  maxNumber: Int,
-  timeout:Int
-) extends TranslationPairSearcher(l1, l2) {
+  url: java.net.URL
+  ) extends TranslationPairSearcher(l1, l2) {
 
-  val wrapper = new MosesWrapper(url, maxNumber, timeout)
+  val config = new XmlRpcClientConfigImpl();
+  config.setServerURL(url);
+  val client = new XmlRpcClient();
+  client.setConfig(config);
 
-  def sendToMoses(sourceTokens:Array[String]):String = {
+  def getRawTranslation(source:String):String = {
+    val mosesParams = new java.util.HashMap[String,String]()
+    mosesParams.put("text", source)
+    mosesParams.put("align", "false")
+    mosesParams.put("report-all-factors", "false")
+    val params = Array[Object](null)
+    params(0) = mosesParams
+
+
+    val result:java.util.HashMap[String, Object] = client.execute("translate", params) match {
+        case m:java.util.HashMap[String, Object]=>m
+        case _ => throw new ClassCastException("Wrong type of result from moses")
+    }
+
+    val translation = result.get("text") match {
+        case s:String=> s
+        case _ => throw new ClassCastException("Wrong type of result from moses")
+    }
+    translation;
+  }
+
+  def prepareAndSendToMoses(sourceTokens:Array[String]):String = {
    
     import MosesServerSearcher._
 
@@ -63,9 +90,14 @@ class MosesServerSearcher(
 
      val joinedSource = uncapitalizedTokens.reduceLeftOption(_+" "+_).get
      
-     val toSend = apostropheAfterRegex.replaceAllIn(apostropheRegex.replaceAllIn(joinedSource, """&apos; $1"""), """$1 &apos;""");
+     //scala sucks with regexes
+     val toSend = ntRegex.replaceAllIn(
+                    apostropheAfterRegex.replaceAllIn(
+                      apostropheRegex.replaceAllIn(joinedSource, """&apos; $1"""), 
+                    """$1 &apos;"""), 
+                  "n &apos; t");
 
-     val translation = wrapper.translate(toSend) 
+     val translation = getRawTranslation(toSend) 
 
 	 val translationWithoutSpaces = spaceBefDiaRegex.replaceAllIn(spaceRegex.replaceAllIn(translation, " "), "$1")
      
@@ -86,7 +118,7 @@ class MosesServerSearcher(
     List[TranslationPair] (
        new TranslationPair(
           chunk,
-          new Chunk(sendToMoses(chunk.getTokens)),
+          new Chunk(prepareAndSendToMoses(chunk.getTokens)),
           TranslationSource.EXTERNAL_TM,
           1
         )
