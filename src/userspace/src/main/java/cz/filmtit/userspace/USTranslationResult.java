@@ -6,7 +6,8 @@ import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
@@ -146,6 +147,10 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
         feedbackSent = false;
+
+        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        saveToDatabase(dbSession);
+        HibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -181,6 +186,10 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
+
+        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        saveToDatabase(dbSession);
+        HibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
