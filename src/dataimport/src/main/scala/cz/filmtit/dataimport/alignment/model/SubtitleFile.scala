@@ -2,17 +2,14 @@ package cz.filmtit.dataimport.alignment.model
 
 import cz.filmtit.core.Configuration
 import cz.filmtit.share.MediaSource
-import java.io.File
-import java.io.FileInputStream
+import java.io._
 import cz.filmtit.share.parsing.ParserSrt
 import cz.filmtit.share.parsing.UnprocessedChunk
 import scala.collection.JavaConversions._
-import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
 import cz.filmtit.share.Language
 import scala.io.Codec
 import java.nio.charset._
-import java.io.IOException
 
 /**
  * A representation of .srt subtitle file
@@ -26,6 +23,13 @@ import java.io.IOException
 class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
 
   def fileNumber():String = file.getName.replaceAll("\\.gz","");
+
+  def copyToFolder(folder:File) {
+     val newf = new File(folder, file.getName)
+     val writer = new BufferedWriter( new FileWriter( newf));
+     writer.write(readText)
+     writer.close
+  }
 
   /**
    * Read the text from the .gz subtitle file

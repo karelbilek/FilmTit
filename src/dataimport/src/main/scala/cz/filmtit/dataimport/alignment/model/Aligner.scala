@@ -1,5 +1,6 @@
 package cz.filmtit.dataimport.alignment.model
 
+import eval.TMEvaluator
 import cz.filmtit.share.Language
 import cz.filmtit.share.TimedChunk
 import cz.filmtit.core.Configuration
@@ -80,6 +81,40 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
 }
 
 object Aligner {
+
+    def writeHeldoutData(alignment:SubtitleFileAlignment,choser:GoodFilePairChooser, mapping:SubtitleMapping, conf:Configuration) {
+       val a = new Aligner(alignment, null, choser, conf, Language.EN, Language.CS);
+       val alignedMovies = a.alignFiles(mapping).map{_._1.filmID}
+       val nonalignedMovies = mapping.moviesWithSubs.toSet -- alignedMovies
+
+       val nonalignedSubtitles = nonalignedMovies.map{m=>mapping.getSubtitles(m).get.head}
+
+       val folder = new java.io.File("heldout")
+       folder.mkdir
+
+       nonalignedSubtitles.foreach {
+           _.copyToFolder(folder)
+       }
+    
+    }
+
+    def writeHeldoutData() {
+
+           val c = new Configuration("configuration.xml")
+
+           val mapping = new SubtitleMapping(c)
+           val filename ="distance12k" 
+        
+           val file = new java.io.File(filename)
+           val map = TMEvaluator.loadFilePairsToMap(file, c)
+
+           writeHeldoutData(new SubtitleFileAlignmentFromFile(Language.EN, Language.CS, map), new GoodFilePairChooserFromFile(map), mapping,c)
+ 
+
+    }
+
+    def main(args:Array[String]) = writeHeldoutData
+
     def writeFilePairsToPrintWriter(pairs: Iterable[Pair[SubtitleFile, SubtitleFile]], writer:java.io.PrintWriter) {
          pairs.foreach {
             case Pair(sf1, sf2) => 
@@ -105,6 +140,8 @@ object Aligner {
             }
       }
   }
+
+
 
 
 }
