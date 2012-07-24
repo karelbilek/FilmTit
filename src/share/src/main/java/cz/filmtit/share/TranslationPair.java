@@ -145,7 +145,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         return id;
     }
 
-    private void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
