@@ -10,7 +10,7 @@ import cz.filmtit.core.model.Patterns
  *
  */
 
-class ExactRanker(val weights: List[Double] = List(0.2, 0.5, 0.1, 0.1, 0.1, 0.0)) extends BaseRanker {
+class ExactRanker(val weights: List[Double] = List(0.091, 0.8441, 0.02163, 0.02163, 0.02163, 0.0)) extends BaseRanker {
 
   val MIN_EDIT_DISTANCE = 1
 
@@ -41,6 +41,8 @@ class ExactRanker(val weights: List[Double] = List(0.2, 0.5, 0.1, 0.1, 0.1, 0.0)
 
   def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair): TranslationPair = pair
 
+  def getScoreNames = List("count","leven","genres","lengthpenalty","punctuation","class")
+
   def getScores(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair, totalCount: Int): List[Double] = {
 
     List(
@@ -55,9 +57,9 @@ class ExactRanker(val weights: List[Double] = List(0.2, 0.5, 0.1, 0.1, 0.1, 0.0)
 
       //Length difference between source and translation
       if (pair.getStringL1.length < pair.getStringL2.length)
-        pair.getStringL1.length / pair.getStringL2.length
+        pair.getStringL1.length / pair.getStringL2.length.toDouble
       else
-        pair.getStringL2.length / pair.getStringL1.length
+        pair.getStringL2.length / pair.getStringL1.length.toDouble
       ,
 
       //Does final punctuation match?

@@ -7,7 +7,9 @@ import cz.filmtit.share.TranslationResult;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
@@ -128,6 +130,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @throws IllegalAccessException
      */
     public void setText(String text) throws IllegalAccessException {
+        if (text == null)
+            text = "";
         translationResult.getSourceChunk().setSurfaceForm(text);
     }
 
@@ -231,7 +235,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setTmSuggestions(null);
 
         scala.collection.immutable.List<TranslationPair> TMResults =
-                TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 10, false);
+                TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 25, false);
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
         List<TranslationPair> javaList = new ArrayList<TranslationPair>(
@@ -274,24 +278,43 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * and the chunks are ready to be deleted from the database.
      * @return  A list of unchecked translation results.
      */
-    public static List<TranslationResult> getUncheckedResults() {
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+    public static List<USTranslationResult> getUncheckedResults() {
+         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
 
 
-        List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
-                "where t.feedbackSent = false and t.userTranslation != null").list();
+         List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
+                 "where t.feedbackSent = false").list();
 
-        List<TranslationResult> results = new ArrayList<TranslationResult>();
+         Map<Long, USDocument> involvedDocuments = new HashMap<Long, USDocument>();
+         List<USTranslationResult> results = new ArrayList<USTranslationResult>();
 
-        for (Object tr : queryResult) {
-            USTranslationResult usResult = (USTranslationResult)tr;
-            usResult.setFeedbackSent(true);
-            usResult.saveToDatabase(dbSession);
-            results.add(usResult.getTranslationResult());
-        }
-        HibernateUtil.closeAndCommitSession(dbSession);
-        return results;
-    }
+         for (Object tr : queryResult) {
+             USTranslationResult usResult = (USTranslationResult)tr;
+             usResult.setFeedbackSent(true);
+
+             if (!involvedDocuments.containsKey(usResult.getDocumentDatabaseId()))
+             {
+                 List documentResult = dbSession.createQuery("select d from USDocument d " +
+                         "where d.databaseId = " +
+                         usResult.getDocumentDatabaseId()).list();
+
+                 if (documentResult.size() == 1) {
+                     involvedDocuments.put(usResult.getDocumentDatabaseId(),
+                             (USDocument)documentResult.get(0));
+                 }
+                 else {
+                     throw new RuntimeException("Referencing to not-existing document.");
+                 }
+
+             }
+             usResult.setDocument(involvedDocuments.get(usResult.getDocumentDatabaseId()));
+
+             usResult.saveToDatabase(dbSession);
+             results.add(usResult);
+         }
+         HibernateUtil.closeAndCommitSession(dbSession);
+         return results;
+     }
 
     /**
      * Compares the object with a different one based on the start time of the chunks. In fact
