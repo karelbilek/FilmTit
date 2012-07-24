@@ -30,7 +30,7 @@
                 </b:Heading>
 
                 <b:FluidRow>
-                    <g:ScrollPanel ui:field="scrollPanel" stylePrimaryName="scrollPanel" width="984px" />
+                    <g:SimplePanel ui:field="contentPanel" stylePrimaryName="contentPanel" width="984px" />
                 </b:FluidRow>
                 
                 <b:FluidRow>
