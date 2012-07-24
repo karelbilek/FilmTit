@@ -110,14 +110,18 @@ object Factory {
     val enTokenizerWrapper = createTokenizerWrapper(Language.EN, configuration)
 
     //Third level: Moses
-    val mtTM = new BackoffTranslationMemory(
+   
+   val mosesSearchers = (1 to 30).map { _ =>
       new MosesServerSearcher(
         Language.EN,
         Language.CS,
- //       enTokenizer,
-        configuration.mosesURL,
-        30, 60*20
-      ),
+        configuration.mosesURL)
+    }.toList
+ 
+    
+    
+    val mtTM = new BackoffTranslationMemory(
+      new TranslationPairSearcherWrapper(mosesSearchers, 30*60),
       Language.EN,
       Language.CS,
       threshold = 0.7
@@ -145,7 +149,7 @@ object Factory {
       l2=Language.CS,
       ranker= Some(new ExactRanker()),
       threshold = 0.8,
-      backoff = Some(neTM),
+      backoff = Some(mtTM),
       tokenizerl1= Some(enTokenizerWrapper),
       tokenizerl2 = Some(csTokenizerWrapper)
     )

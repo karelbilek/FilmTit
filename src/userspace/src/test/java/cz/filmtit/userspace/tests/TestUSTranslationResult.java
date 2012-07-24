@@ -116,7 +116,7 @@ public class TestUSTranslationResult {
 
         dbSession.createQuery("delete from USTranslationResult").executeUpdate();
 
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "2012", "en");
         USDocument testDoc = new USDocument(doc);
         testDoc.saveToDatabase(dbSession);
         dbSession.getTransaction().commit();

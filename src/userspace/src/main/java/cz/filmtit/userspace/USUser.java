@@ -16,15 +16,52 @@ import java.util.Set;
 public class USUser extends DatabaseObject {
 
     User user;
-
+    String userName;
+    String password;
+    String email;
+    String openId;
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
      * in the application.
      * @param userName The name of the new user.
+     * @param password - The new password
+     * @param email - The email of new user
      */
-    public USUser(String userName) {
+
+    public USUser(String userName,String password , String email, String openId) {
+
+
         this.user = new User();
         user.setName(userName);
+
+
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+        this.openId = openId;
+
+        ownedDocuments = new ArrayList<USDocument>();
+        activeDocumentIDs = new HashSet<Long>();
+    }
+    /**
+     * Creates a new user given his user name. It is used in cases a user logs for the first time
+     * in the application.
+     * @param userName The name of the new user.
+
+     */
+
+    public USUser(String userName) {
+
+
+        this.user = new User();
+        user.setName(userName);
+
+
+        this.userName = userName;
+        this.password = null;
+        this.email = null;
+        this.openId =null;
+
         ownedDocuments = new ArrayList<USDocument>();
         activeDocumentIDs = new HashSet<Long>();
     }
@@ -32,7 +69,11 @@ public class USUser extends DatabaseObject {
     /**
      * Default constructor used by Hibernate.
      */
-    private USUser() {}
+    private USUser() {
+        this.user = new User();
+        ownedDocuments = new ArrayList<USDocument>();
+        activeDocumentIDs = new HashSet<Long>();
+    }
 
     /**
      * A list of the documents owned by the user stored as the User Space wrappers of the
@@ -89,6 +130,20 @@ public class USUser extends DatabaseObject {
 
     public Set<Long> getActiveDocumentIDs() {
         return activeDocumentIDs;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    private void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    private void setEmail(String email) {
+        this.email = email;
     }
 
     /**
