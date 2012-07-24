@@ -1,36 +1,33 @@
 package cz.filmtit.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RichTextArea;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-
 import cz.filmtit.share.Chunk;
-import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.TranslationPair;
+import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.annotations.Annotation;
 import cz.filmtit.share.annotations.AnnotationType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -242,8 +239,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
 					//gui.log("selection changed...");
-					int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
-					translationResult.setSelectedTranslationPairID(selectedIndex);
+					//int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
+					translationResult.setSelectedTranslationPairID(selected.getId());
 					
                     // copy the selected suggestion into the textbox:
 					//setValue(selected.getStringL2(), true);
