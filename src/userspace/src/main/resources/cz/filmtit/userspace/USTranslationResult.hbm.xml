@@ -11,7 +11,7 @@
         </id>
 
         <!-- name, type, column -->
-        <property name="text" type="java.lang.String" column="text"/>
+        <property name="text" type="text" column="text"/>
         <property name="documentDatabaseId" type="long" column="documentId" />
         <property name="startTime" type="java.lang.String" column="startTime" />
         <property name="endTime" type="java.lang.String" column="endTime" />
