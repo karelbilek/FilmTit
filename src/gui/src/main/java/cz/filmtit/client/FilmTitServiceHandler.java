@@ -11,6 +11,7 @@ import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -119,7 +120,7 @@ public class FilmTitServiceHandler {
                     int index = newresult.getSourceChunk().getIndex();
                     translist.set(index, newresult);
                     
-                    gui.showResult(newresult, index);
+                    gui.getTranslationWorkspace().showResult(newresult, index);
                 }
 			}
 			
@@ -391,5 +392,38 @@ public class FilmTitServiceHandler {
 		// RPC
 		filmTitSvc.validateAuthentication(authID, responseURL, callback);		
 	}
+
+
+    public void getListOfDocuments(final FlexTable doctable) {
+
+        // create callback
+        AsyncCallback<List<Document>> callback = new AsyncCallback<List<Document>>() {
+
+            @Override
+            public void onSuccess(List<Document> result) {
+                gui.log("received " + result.size() + " documents");
+
+                if (result.size() == 0) {
+                    doctable.setWidget(0, 0, new Label("(you have no documents)"));
+                }
+                else {
+                    int row = 0;
+                    for (Document doc : result) {
+                        doctable.setWidget(row++, 0, new Label(doc.getMovie().getTitle() + " (" + doc.getMovie().getYear() + ")") );
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                // TODO: repeat sending a few times, then ask user
+                gui.log("failure on getting list of documents!");
+            }
+
+        };
+
+        // RPC
+        filmTitSvc.getListOfDocuments(gui.getSessionID(), callback);
+    }
 	    
 }

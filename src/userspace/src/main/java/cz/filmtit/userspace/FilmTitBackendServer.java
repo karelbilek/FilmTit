@@ -282,7 +282,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
-    public boolean  Registration(String name ,  String pass  , String email, String openId) {
+    public boolean  registration(String name ,  String pass  , String email, String openId) {
           // create user
              USUser user = new USUser(name,pass,email,openId);
           // create hibernate session

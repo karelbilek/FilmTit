@@ -14,7 +14,7 @@ import java.util.*;
 */
 public class TranslationPair implements Comparable<TranslationPair>, com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-    private Long id;
+    private Long id = (long) -1;
     private Chunk chunkL1;
     private Chunk chunkL2;
     private TranslationSource source;
@@ -145,7 +145,7 @@ public class TranslationPair implements Comparable<TranslationPair>, com.google.
         return id;
     }
 
-    private void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
