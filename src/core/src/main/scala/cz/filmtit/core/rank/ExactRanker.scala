@@ -27,16 +27,18 @@ class ExactRanker(val weights: List[Double] = List(0.091, 0.8441, 0.02163, 0.021
     for (i <- 0 to lenStr1) d(i)(0) = i
     for (j <- 0 to lenStr2) d(0)(j) = j
 
-    for (i <- 1 to lenStr1; j <- 1 to lenStr2) {
-      val cost = if (str1(i - 1) == str2(j-1)) 0 else 1
+    for (i <- 1 to lenStr1) {
+      for (j <- 1 to lenStr2) {
+        val cost = if (str1(i - 1) == str2(j-1)) 0 else 1
 
-      d(i)(j) = min(
-        d(i-1)(j  ) + 1,     // deletion
-        d(i  )(j-1) + 1,     // insertion
-        d(i-1)(j-1) + cost   // substitution
-      )
+        d(i)(j) = min(
+          d(i-1)(j  ) + 1,     // deletion
+          d(i  )(j-1) + 1,     // insertion
+          d(i-1)(j-1) + cost   // substitution
+        )
+      }
 
-      if (i == j && d(i)(j) > MIN_EDIT_DISTANCE) {
+      if (d(i).min > MIN_EDIT_DISTANCE) {
         return false
       }
 
