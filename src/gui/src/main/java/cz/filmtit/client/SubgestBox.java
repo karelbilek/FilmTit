@@ -40,9 +40,10 @@ import java.util.Map;
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private int id;
 	private TranslationResult translationResult;
-	private Widget suggestionWidget;
 	private Gui gui;
+    private TranslationWorkspace workspace;
 	private PopupPanel suggestPanel;
+    private Widget suggestionWidget;
     private boolean loadedSuggestions = false;
     String lastText = "";
 
@@ -57,7 +58,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             @Override
                             public void execute() {
-                                gui.replaceFake(id, SubgestBox.FakeSubgestBox.this, SubgestBox.this);
+                                workspace.replaceFake(id, SubgestBox.FakeSubgestBox.this, SubgestBox.this);
                             }
                         });
                     }
@@ -70,12 +71,18 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         public SubgestBox getFather(){
             return SubgestBox.this;
         }
+
         @Override
 	    public int compareTo(FakeSubgestBox that) {
 	        return getFather().compareTo(that.getFather());
         }
+
     }
 
+
+    /**
+     * Color of the annotation highlighting.
+     */
 	private static final Map<AnnotationType, String> annotationColor = new HashMap<AnnotationType, String>();
 	static {
 		// setting the colors for annotations:
@@ -89,19 +96,22 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		this.id = id;
 		this.translationResult = new TranslationResult();
 		this.gui = gui;
-		
-		this.setHeight("36px");
-		
-		this.addFocusHandler(this.gui.subgestHandler);
-		this.addKeyDownHandler(this.gui.subgestHandler);
-		//this.addValueChangeHandler(this.gui.subgestHandler);
-		this.addBlurHandler(this.gui.subgestHandler);
-		
-		this.setTabIndex(id + 1);
-		
+        this.workspace = gui.getTranslationWorkspace();
+        if (this.workspace == null) {
+            gui.log("workspace for subgestbox is null!!!");
+        }
+
+        this.setHeight("36px");
+
+        this.addFocusHandler(this.workspace.subgestHandler);
+		this.addKeyDownHandler(this.workspace.subgestHandler);
+		//this.addValueChangeHandler(this.workspace.subgestHandler);
+		this.addBlurHandler(this.workspace.subgestHandler);
+
+        this.setTabIndex(id + 1);
+
         //delaying loadSuggestions() for focus
 		//this.loadSuggestions();
-		
 	}
 	
     public void setTranslationResult(TranslationResult translationResult) {
@@ -305,7 +315,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	@Override
 	public int compareTo(SubgestBox that) {
 		// compare according to the underlying TranslationResult
-		return this.translationResult.compareTo( ((SubgestBox)that).getTranslationResult() );
+		return this.translationResult.compareTo( that.getTranslationResult() );
 	}
 	
 }

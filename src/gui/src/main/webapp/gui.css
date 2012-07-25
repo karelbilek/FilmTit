@@ -184,7 +184,7 @@ body {
 
 }
 
-iframe.gwt-RichTextArea {
+iframe.gwt-RichTextArea, .pre_subgestbox {
 	width: 396px;
 }
 
