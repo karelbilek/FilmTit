@@ -5,7 +5,6 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.tests.TestUtil;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
 import cz.filmtit.userspace.HibernateUtil;
 import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USTranslationResult;
@@ -143,7 +142,7 @@ public class TestUSTranslationResult {
 
         dbSession.getTransaction().commit();
 
-        List<TranslationResult> res = USTranslationResult.getUncheckedResults();
+        List<USTranslationResult> res = USTranslationResult.getUncheckedResults();
         assertEquals(1, res.size());
     }
 
