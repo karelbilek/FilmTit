@@ -576,6 +576,15 @@ public class Gui implements EntryPoint {
 			}
 		});
         
+        loginDialog.btnRegister.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("User decided to register, showing registration form");
+                dialogBox.hide();
+                showRegistrationForm();
+			}
+		});
+        
         loginDialog.btnCancel.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -585,6 +594,45 @@ public class Gui implements EntryPoint {
 		});
         
         dialogBox.setWidget(loginDialog);
+        dialogBox.setGlassEnabled(true);
+        dialogBox.center();
+    }
+
+	/**
+	 * show a dialog enabling the user to
+	 * log in directly or [this line maybe to be removed]
+	 * via OpenID services
+	 */
+    protected void showRegistrationForm() {
+    	
+    	final DialogBox dialogBox = new DialogBox(false);
+        final RegistrationForm registrationForm = new RegistrationForm();
+        
+        registrationForm.btnRegister.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("Trying to register user...");
+                // check data entered
+                if (registrationForm.checkForm()) {
+                    // invoke the registration
+    				rpcHandler.registerUser(registrationForm.getName(), registrationForm.getPassword(), registrationForm.getEmail());					
+                    dialogBox.hide();                	
+                } else {
+                	log("errors in registration form");
+                	// TODO: tell the user to correct what is wrong
+                }
+			}
+		});
+        
+        registrationForm.btnCancel.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("RegistrationForm closed by user hitting Cancel button");
+                dialogBox.hide();
+			}
+		});
+        
+        dialogBox.setWidget(registrationForm);
         dialogBox.setGlassEnabled(true);
         dialogBox.center();
     }

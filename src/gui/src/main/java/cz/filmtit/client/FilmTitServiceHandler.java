@@ -216,7 +216,34 @@ public class FilmTitServiceHandler {
         };
 
     	// TODO call something
+        
         // filmTitSvc.checkSessionID(sessionID, callback);
+    }
+
+    public void registerUser(final String username, final String password, String email) {
+        AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+            public void onSuccess(Boolean result) {
+            	if (result) {
+	                gui.log("registered as " + username);
+                    simple_login(username, password);
+                    displayWindow("You successfully registered with the username '" + username + "'!");
+            	} else {
+            		// TODO: bool means unavailable username, right? Or are there other reasons for failing?
+                    gui.log("ERROR: registration didn't succeed, username already taken.");
+                    displayWindow("The username '" + username + "' is not available. Please choose a different username.");
+            		gui.showRegistrationForm();
+            	}
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: registration didn't succeed!");
+                displayWindow("ERROR: registration didn't succeed!");
+            }
+        };
+
+    	String openid = null;
+        // filmTitSvc.registerUser(username, password, email, openid, callback);
     }
 
     public void simple_login(final String username, String password) {

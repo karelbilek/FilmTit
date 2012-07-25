@@ -39,6 +39,9 @@ public class LoginDialog extends Composite {
 	Button btnLoginGoogle;
 	
 	@UiField
+	Button btnRegister
+	
+	@UiField
 	Button btnCancel;
 	
     public String getUsername() {

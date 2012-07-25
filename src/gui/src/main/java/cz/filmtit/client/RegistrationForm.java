@@ -55,6 +55,10 @@ public class RegistrationForm extends Composite {
     }
     
     
+    public boolean checkForm() {
+        return checkEmailValidity() && checkPassword();
+    }
+    
     public boolean checkEmailValidity() {
         String email = getEmail();
         // TODO
