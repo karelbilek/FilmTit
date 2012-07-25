@@ -197,7 +197,13 @@ public class FilmTitServiceHandler {
     	if (sessionID == null) {
     		return;
     	}
-    	
+        else {
+            gui.log("logged in as -=unknown=- with session id " + sessionID);
+            gui.logged_in("-=unknown=-");
+            return;
+        }
+
+        /*
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String username) {
@@ -218,6 +224,7 @@ public class FilmTitServiceHandler {
 
     	// TODO call something
         // filmTitSvc.checkSessionID(sessionID, callback);
+        */
     }
 
     public void simple_login(final String username, String password) {
