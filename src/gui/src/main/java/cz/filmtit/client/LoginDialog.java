@@ -39,10 +39,10 @@ public class LoginDialog extends Composite {
 	Button btnLoginGoogle;
 	
 	@UiField
-	Button btnRegister
+	Button btnRegister;
 	
 	@UiField
-	Button btnForgottenPassword
+	Button btnForgottenPassword;
 	
 	@UiField
 	Button btnCancel;
