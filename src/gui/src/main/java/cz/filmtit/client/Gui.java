@@ -99,12 +99,8 @@ public class Gui implements EntryPoint {
 
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
-		
-		// TODO: check whether user is logged in or not
-		rpcHandler.checkSessionID();
-		// TODO: we have to show welcome page as if user not logged in)
-		// and repaint this if checkSessionID() succeeds
-		
+
+
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
 		if (page == null) {
@@ -118,8 +114,13 @@ public class Gui implements EntryPoint {
 			createGui();
 			log("Fallback to welcome page (page requested: " + page + ")");
 		}
-		
-	}	// onModuleLoad()
+
+        // TODO: check whether user is logged in or not
+        rpcHandler.checkSessionID();
+        // TODO: we have to show welcome page as if user not logged in)
+        // and repaint this if checkSessionID() succeeds
+
+    }	// onModuleLoad()
 
 
 
@@ -150,9 +151,7 @@ public class Gui implements EntryPoint {
         // only after login:
         //createDocumentCreator();
 
-        WelcomeScreen welcomePage = new WelcomeScreen();
-        guiStructure.contentPanel.setStyleName("welcoming");
-        guiStructure.contentPanel.setWidget(welcomePage);
+        showWelcomePage();
 	}
 
 
@@ -468,8 +467,15 @@ public class Gui implements EntryPoint {
 	
 	protected void logged_out () {
         this.username = null;
-		guiStructure.login.setText("Log in");				
+		guiStructure.login.setText("Log in");
+        showWelcomePage();
 	}
+
+    protected void showWelcomePage() {
+        WelcomeScreen welcomePage = new WelcomeScreen();
+        guiStructure.contentPanel.setStyleName("welcoming");
+        guiStructure.contentPanel.setWidget(welcomePage);
+    }
 
 
     public TranslationWorkspace getTranslationWorkspace() {

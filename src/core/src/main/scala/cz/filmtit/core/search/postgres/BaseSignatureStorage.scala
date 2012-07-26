@@ -30,9 +30,9 @@ abstract class BaseSignatureStorage(
 with SignatureTranslationPairStorage {
 
   override def warmup() {
-    connection.createStatement().execute(
-          "SELECT * FROM %s ORDER BY SIGNATURE_l1;".format(signatureTable)
-    )
+    //connection.createStatement().execute(
+    //      "SELECT * FROM %s ORDER BY SIGNATURE_l1;".format(signatureTable)
+    //)
   }
 
 
