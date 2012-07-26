@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.BlurEvent;
@@ -12,6 +13,7 @@ import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -23,6 +25,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
  */
 public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChangeHandler<String>, BlurHandler {
 	Gui gui;
+    TranslationWorkspace workspace;
 
 	/**
 	 * Creates a new SubgestHandler.
@@ -30,23 +33,34 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	 */
 	public SubgestHandler(Gui gui) {
 		this.gui = gui;
+        if (gui == null) {
+            Window.alert("gui for handler is null during the constructor!!!");
+        }
+        this.workspace = gui.getTranslationWorkspace();
+        if (workspace == null) {
+            gui.log("workspace for handler is null during the constructor!!!");
+        }
 	}
 	
 	@Override
 	public void onFocus(FocusEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
-			final SubgestBox subbox = (SubgestBox) event.getSource();
+            final SubgestBox subbox = (SubgestBox) event.getSource();
             subbox.loadSuggestions();
-			// hide the suggestion widget corresponding to the SubgestBox
+            // hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus (if any)
-			gui.deactivateSuggestionWidget();
-			gui.guiStructure.scrollPanel.ensureVisible(subbox);
+            workspace = gui.getTranslationWorkspace();
+            if (workspace == null) {
+                gui.log("workspace for handler is null when focusing!!!");
+            }
+            workspace.deactivateSuggestionWidget();
+            workspace.ensureVisible(subbox);
 			// and show a new one for the current SubgestBox
 			Scheduler.get().scheduleDeferred( new ScheduledCommand() {
 				@Override
 				public void execute() {
-					subbox.showSuggestions();
-					gui.setActiveSuggestionWidget(subbox.getSuggestionWidget());
+                    subbox.showSuggestions();
+					workspace.setActiveSuggestionWidget(subbox.getSuggestionWidget());
 				}
 			} );
 			gui.log("tabindex of this: " + subbox.getTabIndex());
@@ -56,8 +70,8 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	
 	@Override
 	public void onKeyDown(KeyDownEvent event) {
-		if (event.getSource() instanceof SubgestBox) { // should be
-			// pressing the Down arrow - setting focus to the suggestions:
+        if (event.getSource() instanceof SubgestBox) { // should be
+            // pressing the Down arrow - setting focus to the suggestions:
 			if     ( isThisKeyEvent(event, KeyCodes.KEY_DOWN) ) {
 				event.preventDefault(); // default is to scroll down the page or to move to the next line in the textarea
 				SubgestBox subbox = (SubgestBox) event.getSource();
@@ -67,21 +81,23 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			}
 			// pressing Esc:
 			else if ( isThisKeyEvent(event, KeyCodes.KEY_ESCAPE) ) {
+                workspace = gui.getTranslationWorkspace();
 				// hide the suggestion widget corresponding to the SubgestBox
 				//   which previously had focus (PopupPanel does not hide on keyboard events)
-				gui.deactivateSuggestionWidget();
+				workspace.deactivateSuggestionWidget();
 			}
 			// pressing Tab:
 			else if ( isThisKeyEvent(event, KeyCodes.KEY_TAB) ) {
+                workspace = gui.getTranslationWorkspace();
 				event.preventDefault(); // e.g. in Chrome, default is to insert TAB character in the textarea
-				gui.deactivateSuggestionWidget();
+                workspace.deactivateSuggestionWidget();
 				SubgestBox subbox = (SubgestBox) event.getSource();
 				boolean moved;
 				if (event.isShiftKeyDown()) {
-					moved = gui.goToPreviousBox(subbox);
+					moved = workspace.goToPreviousBox(subbox);
 				}
 				else {
-					moved = gui.goToNextBox(subbox);
+					moved = workspace.goToNextBox(subbox);
 				}
 				/*
 				if (!moved) {
@@ -123,16 +139,16 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	
 	@Override
 	public void onValueChange(ValueChangeEvent<String> event) {
-		/*
-		if (event.getSource() instanceof SubgestBox) { // should be
-			gui.log("valuechange handled: " + event.getValue());
-			
-			// all this should probably proceed only when explicitly submitted - e.g. by hitting Enter (or Tab)
-			SubgestBox subbox = (SubgestBox) event.getSource();
-			subbox.getTranslationResult().setUserTranslation(event.getValue());
-			gui.submitUserTranslation(subbox.getTranslationResult());
-		}
-		*/
+        /*
+         * all this should proceed only when explicitly submitted - e.g. by hitting Enter (or Tab)
+        if (event.getSource() instanceof SubgestBox) { // should be
+          gui.log("valuechange handled: " + event.getValue());
+
+          SubgestBox subbox = (SubgestBox) event.getSource();
+          subbox.getTranslationResult().setUserTranslation(event.getValue());
+          gui.submitUserTranslation(subbox.getTranslationResult());
+        }
+        */
 	}
 	
 	

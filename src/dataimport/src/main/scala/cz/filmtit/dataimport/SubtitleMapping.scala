@@ -16,7 +16,7 @@ import cz.filmtit.core.Configuration
  *
  * @param conf configuration, determining where is the file
  */
-class SubtitleMapping(val conf:Configuration) {
+class SubtitleMapping(val conf:Configuration, val checkForExistenceAndLanguages:Boolean=true) {
    val subtitles = HashMap[String, Pair[MediaSource, ListBuffer[SubtitleFile]]]()
 
   /**
@@ -28,8 +28,11 @@ class SubtitleMapping(val conf:Configuration) {
   /*def load() =*/ {
     val mappingFile = conf.fileMediasourceMapping
     println("mapping file: "+mappingFile);
+    var counter = 1
     Source.fromFile(mappingFile).getLines() foreach
       { line =>
+        println(counter)
+        counter+=1
         val data = line.split("\t")
         val filmID = data(0)
 
@@ -38,11 +41,17 @@ class SubtitleMapping(val conf:Configuration) {
               data(8),
               "");
 
-        val language = if (data(2) == "eng") {Language.EN} else {Language.CS}
+        //it is wrong in the export, we had to detect it
+        //val language = if (data(2) == "eng") {Language.EN} else {Language.CS}
 
 
-        val subtitlefile = SubtitleFile.maybeNew(conf, filmID, data(1), language, true)
-
+        val subtitlefile = if (checkForExistenceAndLanguages) {
+            SubtitleFile.maybeNew(conf, filmID, data(1), true)
+        } else {
+           val language = if (data(2) == "eng") {Language.EN} else {Language.CS}
+            SubtitleFile.maybeNew(conf, filmID, data(1), false, putLanguage = Some(language))
+                                  
+        }
 
         if (!subtitles.contains(filmID)) {
          if (subtitlefile.isDefined) {
@@ -57,7 +66,6 @@ class SubtitleMapping(val conf:Configuration) {
           }
  
         }
-      
       }
   }
 
@@ -77,6 +85,17 @@ class SubtitleMapping(val conf:Configuration) {
     }
   }
 
+  def hasSubtitlesLanguages(name:String, checkEnglish:Boolean, checkCzech:Boolean) = {
+     val osubs = getSubtitles(name);
+     val languages:Set[Language] = osubs.map {subs=>
+
+        subs.map{_.language}.filter{_.isDefined}.map{_.get}.toSet
+     }.getOrElse(Set[Language]())
+     val hasCzech = (!checkCzech || languages.contains(Language.CS))
+     val hasEn = (!checkEnglish || languages.contains(Language.EN))
+     (hasCzech && hasEn)
+  }
+
   def hasSubtitles(name:String) = {
      val subs = getSubtitles(name)
      if (subs==None) {
@@ -93,5 +112,6 @@ class SubtitleMapping(val conf:Configuration) {
   def movies():Iterable[String] = subtitles.keys
   
   def moviesWithSubs():Iterable[String] = movies.filter{hasSubtitles(_)}
-
+  def moviesWithSubsBothLangs():Iterable[String] = movies.filter{hasSubtitlesLanguages(_, checkEnglish = true, checkCzech = true)}
+  def moviesWithSubsEn():Iterable[String] = movies.filter{hasSubtitlesLanguages(_, checkEnglish = true, checkCzech = false)}
 }

@@ -22,10 +22,13 @@ abstract class SubtitleFileAlignment(val l1:Language, val l2:Language) {
         val filesL1 = new ListBuffer[SubtitleFile]()
         val filesL2 = new ListBuffer[SubtitleFile]()
         files.foreach{f=>
+            
+            println(" vec")
 
-            if (f.language == l1) {
+            if (f.language == Some(l1)) {
                 filesL1.append(f);
-            } else if (f.language == l2) {
+            } else if (f.language == Some(l2)) {
+                
                 filesL2.append(f);
             } else {
                 return None

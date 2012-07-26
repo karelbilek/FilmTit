@@ -8,11 +8,12 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
 import cz.filmtit.share.*;
-import cz.filmtit.share.parsing.Parser;
-import cz.filmtit.share.parsing.ParserSrt;
-import cz.filmtit.share.parsing.ParserSub;
+import cz.filmtit.share.parsing.*;
+
+//lib-gwt-file imports:
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
@@ -21,7 +22,6 @@ import org.vectomatic.file.events.LoadEndHandler;
 
 import java.util.*;
 
-//lib-gwt-file imports:
 
 
 
@@ -39,16 +39,9 @@ public class Gui implements EntryPoint {
 	
 	protected List<TimedChunk> chunklist;
 	
-	private List<FakeSubgestBox> targetBoxes;
-
 	protected RootPanel rootPanel;
 
-	private FlexTable table;
 	protected int counter = 0;
-	// column numbers in the subtitle-table
-	private static final int TIMES_COLNUMBER      = 0;
-	private static final int SOURCETEXT_COLNUMBER = 1;
-	private static final int TARGETBOX_COLNUMBER  = 2;  
 
 	private FilmTitServiceHandler rpcHandler;
 	protected Document currentDocument;
@@ -79,16 +72,16 @@ public class Gui implements EntryPoint {
 	}
 
 	private String username;
-	
-	protected Widget activeSuggestionWidget = null;
-	protected SubgestHandler subgestHandler;
 
 	/**
 	 * Multi-line subtitle text to parse
 	 */
 	//private String subtext;
 	
-	private DocumentCreator docCreator;
+	private DocumentCreator docCreator = null;
+    private TranslationWorkspace workspace = null;
+	
+	
 	
 	@Override
 	public void onModuleLoad() {
@@ -106,27 +99,27 @@ public class Gui implements EntryPoint {
 
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
-		
-		// TODO: check whether user is logged in or not
-		rpcHandler.checkSessionID();
-		// TODO: we have to show welcome page as if user not logged in)
-		// and repaint this if checkSessionID() succeeds
-		
+
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
 		if (page == null) {
 			createGui();			
-			log("No page parameter set, creating GUI...");
+			log("No page parameter set, showing welcome page...");
 		}
-		else if (page.equals("AuthenticationValidationWindow")) {
-			createAuthenticationValidationWindow();			
-		}
+        else if (page.equals("AuthenticationValidationWindow")) {
+            createAuthenticationValidationWindow();
+        }
 		else {
-			createGui();			
-			log("Fallback to GUI - page=" + page);
+			createGui();
+			log("Fallback to welcome page (page requested: " + page + ")");
 		}
-		
-	}	// onModuleLoad()
+
+        // TODO: check whether user is logged in or not
+        rpcHandler.checkSessionID();
+        // TODO: we have to show welcome page as if user not logged in)
+        // and repaint this if checkSessionID() succeeds
+
+    }	// onModuleLoad()
 
 
 
@@ -139,28 +132,9 @@ public class Gui implements EntryPoint {
 		rootPanel = RootPanel.get();
 		//rootPanel.setSize("800", "600");
 
-		// --- loading the uibinder-defined structure of the page --- //
+		// loading the uibinder-defined structure of the page
 		guiStructure = new GuiStructure();
 		rootPanel.add(guiStructure, 0, 0);
-		// --- end of loading the uibinder --- //
-				
-		// initializations
-		targetBoxes = new ArrayList<FakeSubgestBox>();
-		subgestHandler = new SubgestHandler(this);
-
-		// --- main interface --- //
-		// only preparing the table - not showing it yet
-		table = new FlexTable();
-		table.setWidth("100%");
-
-		table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-		table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
-		table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "410px");
-
-		table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
-		table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
-		table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
-		table.getRowFormatter().setStyleName(0, "header");
 
 		// top menu handlers		
 		guiStructure.login.addClickHandler(new ClickHandler() {
@@ -172,22 +146,31 @@ public class Gui implements EntryPoint {
 				}
 			}        	
 		});
-		
-		// --- end of main interface --- //
 
-		
-		createDocumentCreator();
+        // only after login:
+        //createDocumentCreator();
+
+        showWelcomePage();
 	}
+
 
 	/**
 	 * show the Start a new subtitle document panel
-	 * inside the GUI scrollpanel
+	 * inside the GUI contentPanel
 	 */
 	private void createDocumentCreator() {
-		docCreator = new DocumentCreator();
-		guiStructure.scrollPanel.setWidget(docCreator);
-		guiStructure.scrollPanel.addStyleName("creating_document");
-		
+        UserPage userpage = new UserPage();
+        guiStructure.contentPanel.setStyleName("users_page");
+
+        log("getting list of documents...");
+        FlexTable doctable = new FlexTable();
+        rpcHandler.getListOfDocuments(doctable);
+
+        userpage.tabDocumentList.add(doctable);
+
+
+        docCreator = new DocumentCreator();
+
 		// --- file reading interface via lib-gwt-file --- //
 		final FileReader freader = new FileReader();
 		freader.addLoadEndHandler( new LoadEndHandler() {
@@ -197,7 +180,6 @@ public class Gui implements EntryPoint {
 				//log(subtext);
 			}
 		} );
-		
 
 		docCreator.fileUpload.addChangeHandler( new ChangeHandler() {
 			@Override
@@ -214,9 +196,8 @@ public class Gui implements EntryPoint {
 			}
 		} );
 		// --- end of file reading interface via lib-gwt-file --- //
-		
-		
-		// --- textarea interface for loading whole subtitle file --- //
+
+		// --- textarea interface for loading whole subtitle file by copy-paste --- //
 		docCreator.btnSendToTm.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -224,16 +205,13 @@ public class Gui implements EntryPoint {
 			}
 		} );
 		// --- end of textarea interface --- //
-		
-		
-		// hiding the suggestion popup when scrolling the subtitle panel
-		guiStructure.scrollPanel.addScrollHandler( new ScrollHandler() {
-			@Override
-			public void onScroll(ScrollEvent event) {
-				deactivateSuggestionWidget();
-			}
-		} );
-	}
+
+        userpage.tabNewDocument.add(docCreator);
+
+
+        guiStructure.contentPanel.setWidget(userpage);
+
+    }
 	
 	private void createAuthenticationValidationWindow() {
 		// ----------------------------------------------- //
@@ -285,9 +263,9 @@ public class Gui implements EntryPoint {
 
     protected void document_created() {
         // replacing the document-creating interface with the subtitle table:
-        guiStructure.scrollPanel.removeStyleName("creating_document");
-        guiStructure.scrollPanel.addStyleName("translating");
-        guiStructure.scrollPanel.setWidget(table);
+        this.workspace = new TranslationWorkspace(this);
+        guiStructure.contentPanel.setWidget(workspace);
+        guiStructure.contentPanel.setStyleName("translating");
     }
 
 
@@ -332,11 +310,11 @@ public class Gui implements EntryPoint {
 		}
 
 		// output the parsed chunks:
-		log("\nparsed chunks: "+chunklist.size());
+		log("parsed chunks: "+chunklist.size());
 
         int i=0;
         for (TimedChunk timedchunk : chunklist) {
-            this.showSource(timedchunk, i++);
+            workspace.showSource(timedchunk, i++);
 		}
 
 		Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
@@ -397,67 +375,6 @@ public class Gui implements EntryPoint {
 	}
 
 
-    public void showSource(TimedChunk chunk, int index) {
-		Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
-        timeslabel.setStyleName("chunk_timing");
-		table.setWidget(index+1, TIMES_COLNUMBER, timeslabel);
-		
-                            //html because of <br />
-        Label sourcelabel = new HTML(chunk.getGUIForm());
-        sourcelabel.setStyleName("chunk_l1");
-		table.setWidget(index+1, SOURCETEXT_COLNUMBER, sourcelabel);
-
-        SubgestBox targetbox = new SubgestBox(index, this); // suggestions handling - see the constructor for details
-		SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
-        targetBoxes.add(fake);
-		table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
-
-
-    }
-
-
-    public void replaceFake(int id, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
-        table.remove(fake);
-        table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
-		
-        real.setFocus(true);
-    }
-
-
-	/**
-	 * Adds the given TranslationResult to the current listing interface.
-	 * @param transresult - the TranslationResult to be shown
-	 */
-	public void showResult(TranslationResult transresult, int index) {
-	    targetBoxes.get(index).getFather().setTranslationResult(transresult);
-		
-		counter++;
-	}
-
-
-	protected void setActiveSuggestionWidget(Widget w) {
-		this.activeSuggestionWidget = w;
-	}
-
-	
-	/**
-	 * Hide the currently active (visible) popup with suggestions
-	 */
-	protected void deactivateSuggestionWidget() {
-		Widget w = this.activeSuggestionWidget;
-		if (w != null) {
-			if (w instanceof PopupPanel) {
-				//((PopupPanel)w).hide();
-				((PopupPanel)w).setVisible(false);
-			}
-			else {
-				((Panel)(w.getParent())).remove(w);
-			}
-			setActiveSuggestionWidget(null);
-		}
-	}
-
-
 	/**
 	 * Send the given translation result as a "user-feedback" to the userspace
 	 * @param transresult
@@ -468,66 +385,6 @@ public class Gui implements EntryPoint {
 		rpcHandler.setUserTranslation(transresult.getChunkId(), transresult.getDocumentId(),
 				                      transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
 	}
-
-	
-	/**
-	 * Set the focus to the next SubgestBox in order.
-	 * If there is not any, stay in the current one and return false.
-	 * @param currentBox - the SubgestBox relative to which is the "next" determined
-	 * @return false if the currentBox is the last one (and therefore nothing has changed),
-	 *         true otherwise
-	 */
-	public boolean goToNextBox(SubgestBox currentBox) {
-		int currentIndex = currentBox.getId();
-		//final int nextIndex = (currentIndex < targetBoxes.size()-1) ? (currentIndex + 1) : currentIndex;
-        final int nextIndex = currentIndex + 1;
-		if (nextIndex >= targetBoxes.size()) {
-            return false;
-        }
-        Scheduler.get().scheduleDeferred( new ScheduledCommand() {
-			@Override
-			public void execute() {
-                FakeSubgestBox targetbox = targetBoxes.get(nextIndex);
-                if (targetbox.isAttached()) {
-		            targetbox.setFocus(true);
-                }
-                else { // there is already a real box instead of the fake one
-                    targetbox.getFather().setFocus(true);
-                }
-			}
-		} );
-        return true;
-	}
-
-	
-	/**
-	 * Set the focus to the previous SubgestBox in order.
-	 * If there is not any, stay in the current one and return false.
-	 * @param currentBox - the SubgestBox relative to which is the "previous" determined
-	 * @return false if the currentBox is the first one (and therefore nothing has changed),
-	 *         true otherwise
-	 */
-	public boolean goToPreviousBox(SubgestBox currentBox) {
-		int currentIndex = currentBox.getId();
-		//final int prevIndex = (currentIndex > 0) ? (currentIndex - 1) : currentIndex;
-		final int prevIndex = currentIndex - 1;
-		if (prevIndex <0) {
-        	return false;
-        }
-        Scheduler.get().scheduleDeferred( new ScheduledCommand() {
-			@Override
-			public void execute() {
-                FakeSubgestBox targetbox = targetBoxes.get(prevIndex);
-                if (targetbox.isAttached()) {
-                    targetbox.setFocus(true);
-                }
-                else { // there is already a real box instead of the fake one
-                    targetbox.getFather().setFocus(true);
-                }
-			}
-		} );
-	    return true;
-    }
 
 
     long start=0;
@@ -666,12 +523,25 @@ public class Gui implements EntryPoint {
 	
 	protected void logged_in (String username) {
         this.username = username;
-		guiStructure.login.setText("Log out user " + username);		
+		guiStructure.login.setText("Log out user " + username);
+        createDocumentCreator();
 	}
 	
 	protected void logged_out () {
         this.username = null;
-		guiStructure.login.setText("Log in");				
+		guiStructure.login.setText("Log in");
+        showWelcomePage();
 	}
+
+    protected void showWelcomePage() {
+        WelcomeScreen welcomePage = new WelcomeScreen();
+        guiStructure.contentPanel.setStyleName("welcoming");
+        guiStructure.contentPanel.setWidget(welcomePage);
+    }
+
+
+    public TranslationWorkspace getTranslationWorkspace() {
+        return workspace;
+    }
 	
 }

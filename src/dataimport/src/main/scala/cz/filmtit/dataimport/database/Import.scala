@@ -66,7 +66,6 @@ class Import(val configuration: Configuration) {
   def loadChunks(tm: TranslationMemory, folder: File) {
 
     tm.reset()
-    val heldoutWriter = new PrintWriter(configuration.heldoutFile)
 
     var finishedFiles = 0
 
@@ -98,13 +97,7 @@ class Import(val configuration: Configuration) {
               .filter(_ != null)
               .map( (pair: TranslationPair) => { pair.addMediaSource(mediaSource); pair })
 
-            //Exclude heldoutSize% of the data as heldout data
-            val (training, heldout) =
-              pairs.toList.partition({ _: TranslationPair => (Random.nextFloat >= configuration.heldoutSize) })
-
-            heldout.foreach({ pair: TranslationPair => heldoutWriter.println(pair.toExternalString) })
-
-            training
+            pairs
           } catch {
             case e: MalformedInputException => {
               System.err.println("Error: Could not read file %s".format(sourceFile))
@@ -129,8 +122,6 @@ class Import(val configuration: Configuration) {
         }
       }
       )
-
-    heldoutWriter.close()
 
     writeIMDBCache()
   }

@@ -124,8 +124,10 @@ object TMEvaluator {
         
         //for reasons I don't remember anymore it's switched here
         //(noone really cares here)
-        val iterable = readFilePairsFromFile(f, c, l2, l1, false)
-
+        
+        println("zacinam cist ze souboru")
+        val iterable = readFilePairsFromFile(f, c, l2, l1, true)
+        println("pulka") 
         iterable.map{case(f1,f2)=>(f1.filmID, (f1,f2))}.toMap
     }
     def readCountInfo(source:Seq[String], targets:Seq[Iterable[String]]):Seq[Int] = {
@@ -224,18 +226,23 @@ object TMEvaluator {
         val l1 = Language.EN
         val l2 = Language.CS
         
-        val mapping = new SubtitleMapping(c)
-
+        val mapping = new SubtitleMapping(c, false)
+        println("mapdan")
         val cnt = new LinearSubtitlePairCounter
-        val filename ="../alignment_file2file/distance12k" 
+        println("A")
+        val filename ="aligned" 
+        println("B")
         val alignment =  new DistanceChunkAlignment(l1, l2, cnt)
+        println("C")
         
         val file = new File(filename)
+        println("D")
         val map = loadFilePairsToMap(file, c)
 
+        println("pred alignerem")
         val aligner:Aligner = new Aligner(new SubtitleFileAlignmentFromFile(l1, l2, map), alignment, new GoodFilePairChooserFromFile(map), c, l1, l2)
         aligner.align(mapping)
-    
+        println("po nem")
     }
 
     def main(args: Array[String]) {

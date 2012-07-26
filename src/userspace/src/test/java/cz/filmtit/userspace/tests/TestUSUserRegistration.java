@@ -1,6 +1,9 @@
 package cz.filmtit.userspace.tests;
 
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.userspace.FilmTitBackendServer;
+import cz.filmtit.userspace.HibernateUtil;
 import cz.filmtit.userspace.USUser;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
@@ -14,21 +17,19 @@ public class TestUSUserRegistration {
     @BeforeClass
     public static void InitializeDatabase() {
         DatabaseUtil.setDatabase();
+        ConfigurationSingleton.setConf(new Configuration("configuration.xml"));
     }
 
-
-
     @Test
-    public void testRegistration()
-    {
-        FilmTitBackendServer server = new FilmTitBackendServer();
+    public void testRegistration() {
 
-        server.Registration("Pepa","hitman","cechjoe@gmail.com",null);
+        FilmTitBackendServer server = new MockFilmTitBackendServer();
 
-        Session dbSession = DatabaseUtil.getSession();
+        server.registration("Pepa", "hitman", "cechjoe@gmail.com", null);
+
+        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName ='Pepa' AND d.password = 'hitman'").list();
-
-        dbSession.getTransaction().commit();
+        HibernateUtil.closeAndCommitSession(dbSession);
 
         assertEquals(1, UserResult.size());
         USUser loadedUser = (USUser)(UserResult.get(0));

@@ -1,12 +1,11 @@
 package cz.filmtit.client;
 
 
+import com.github.gwtbootstrap.client.ui.TextArea;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
 import com.github.gwtbootstrap.client.ui.*;
 
@@ -29,7 +28,7 @@ public class GuiStructure extends Composite {
 	NavLink login;
 
 	@UiField
-	ScrollPanel scrollPanel;
+    SimplePanel contentPanel;
 	
 	@UiField
 	TextArea txtDebug;

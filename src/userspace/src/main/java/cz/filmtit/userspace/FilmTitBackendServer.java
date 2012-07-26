@@ -251,12 +251,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         else {
             org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-            dbSession.beginTransaction();
 
             List UserResult = dbSession.createQuery("select d from USUser d where d.userName = " +
                     username + " AND d.password = " + password).list();
 
-            dbSession.getTransaction().commit();
+            HibernateUtil.closeAndCommitSession(dbSession);
             if (UserResult.isEmpty())
             {
                 return  null;
@@ -283,16 +282,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
-    public boolean  Registration(String name ,  String pass  , String email, String openId)
-    {
+    public boolean  registration(String name ,  String pass  , String email, String openId) {
           // create user
              USUser user = new USUser(name,pass,email,openId);
           // create hibernate session
              org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-             dbSession.beginTransaction();
+
           // save into db
              user.saveToDatabase(dbSession);
-             dbSession.getTransaction().commit();
+            HibernateUtil.closeAndCommitSession(dbSession);
          return true;
     }
 
