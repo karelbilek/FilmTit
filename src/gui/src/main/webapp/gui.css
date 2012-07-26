@@ -88,6 +88,7 @@ h1 {
 	width: 1024px;
 	margin-left: auto;
 	margin-right: auto;
+	margin-top: 40px;
 }
 
 body {
@@ -140,15 +141,29 @@ body {
 }
 .suggestionItem {
 	width: 100%;
-	padding: 5px;
 	/*border: 2px outset Silver;*/
+	border-bottom: 1px solid #EEE;
 	cursor: pointer;
 }
+.suggestionItem p {
+	margin: 4px 0;
+}
+.suggestionItem .row-fluid {
+	padding: 8px 10px;
+}
+
 .suggestionItemText {
+	font-weight: normal;
 }
 .suggestionItemMatch {
 	font-size: 80%;
+	font-style: italic;
 }
+.score {
+	font-weight: bold;
+	color: #777;
+}
+
 .suggestionItemScore {
 	width: 30px;
 }
@@ -158,8 +173,9 @@ body {
 	border-radius: 2px;
 	
 	padding: 10px 20px;
-	border: 1px solid #ccc;
-	height: 452px;
+	border: 0px solid #ccc;
+	/*height: 452px;*/
+	overflow: visible;
 }
 .scrollPanel td {
 	height: 45px;
@@ -170,6 +186,8 @@ body {
 }
 .suggestionItemSource {
 	font-size: 80%;
+	color: #999;
+	
 }
 
 body input.pre_subgestbox {

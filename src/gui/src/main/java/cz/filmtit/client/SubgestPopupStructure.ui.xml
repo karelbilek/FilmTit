@@ -7,20 +7,14 @@
 	<g:HTMLPanel stylePrimaryName="suggestionItem">
 
 		<b:FluidRow>
-			<b:Paragraph ui:field="suggestionItemText" stylePrimaryName="suggestionItemText" />
-		</b:FluidRow>
-		
-		<b:FluidRow>
 			<b:Column size="8">
+                <b:Paragraph ui:field="suggestionItemText" stylePrimaryName="suggestionItemText" />
 				<b:Paragraph ui:field="suggestionItemMatch" stylePrimaryName="suggestionItemMatch"/>
 			</b:Column>
 			<b:Column size="4">
 				<b:Paragraph ui:field="suggestionItemScore" stylePrimaryName="suggestionItemScore"/>
+                <b:Paragraph ui:field="suggestionItemSource" stylePrimaryName="suggestionItemSource"/>
 			</b:Column>
-		</b:FluidRow>
-		
-		<b:FluidRow>
-			<b:Paragraph ui:field="suggestionItemSource" stylePrimaryName="suggestionItemSource"/>
 		</b:FluidRow>
 		
 	</g:HTMLPanel>

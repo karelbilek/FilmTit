@@ -6,33 +6,28 @@
 
 
     <g:HTMLPanel styleName="filmtit_container">
-        <div id="content">
 
-        <b:ResponsiveNavbar>
+        <b:Navbar position="TOP">
             <b:Brand>Filmtit</b:Brand>
             <b:Nav>
-                <b:NavLink ui:field="loginlink">Test</b:NavLink>
-                <b:NavLink href="http://www.google.com">Another Test</b:NavLink>
+                <b:NavLink href="#">Start</b:NavLink>
             </b:Nav>
             <b:Nav alignment="RIGHT">
                 <b:NavLink ui:field="login">Log in</b:NavLink>
             </b:Nav>
 
-            <b:NavSearch size="2" placeholder="Search" alignment="RIGHT"/>
-        </b:ResponsiveNavbar>
+        </b:Navbar>
 
+
+        <div id="content">
 
         <b:Row>
             <b:Column size="7">
 
-                <b:Heading size="2" subtext="translate your subtitles!">
-                    FilmTit
-                </b:Heading>
-
                 <b:FluidRow>
-                    <g:SimplePanel ui:field="contentPanel" stylePrimaryName="contentPanel" width="984px" />
+                    <g:ScrollPanel ui:field="contentPanel" stylePrimaryName="contentPanel" width="984px" />
                 </b:FluidRow>
-                
+
                 <b:FluidRow>
                     <b:FluidRow>
                         <b:Label>Debug outputs:</b:Label>
@@ -46,6 +41,7 @@
         </b:Row>
 
         </div>
+
     </g:HTMLPanel>
 
 </ui:UiBinder>

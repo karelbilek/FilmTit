@@ -45,7 +45,7 @@ public class TranslationWorkspace extends Composite {
 
         scrollPanel.setStyleName("scrollPanel");
         // hiding the suggestion popup when scrolling the subtitle panel
-        scrollPanel.addScrollHandler( new ScrollHandler() {
+        gui.guiStructure.contentPanel.addScrollHandler( new ScrollHandler() {
             @Override
             public void onScroll(ScrollEvent event) {
                 deactivateSuggestionWidget();
