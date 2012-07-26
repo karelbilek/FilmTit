@@ -20,7 +20,17 @@ import java.nio.charset._
  * @param file the file itself
  * @param language language of file
  */
-class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
+class SubtitleFile(val filmID:String, val file:File, val c:Configuration, val presetLanguage:Option[Language]=None)  {
+
+  lazy val language:Option[Language] = {
+       if (presetLanguage == None) {
+         
+         val s = readTextFromChunks
+         LanguageDetector.detect(s, c)       
+       } else {
+         presetLanguage
+       }
+  }
 
   def fileNumber():String = file.getName.replaceAll("\\.gz","");
 
@@ -77,6 +87,13 @@ class SubtitleFile(val filmID:String, val file:File, val language:Language)  {
         val parser = new ParserSrt
         parser.parseUnprocessed(readText())
     }
+
+    
+    def readTextFromChunks():String = {
+        //done by par, so it is faster, but not necesarilly in order
+        val chunks = readChunks.par
+        chunks.map{_.getText}.reduce{_+"\n"+_}
+     }
 }
 
 object SubtitleFile {
@@ -86,13 +103,27 @@ object SubtitleFile {
    * @param conf configuration determining location of file
    * @param filmID movie ID
    * @param subname name of subtitle file (without .gz, just number)
-   * @param language language of subtitle
    * @return None if file doesn't exist, otherwise the subtitle file
    */
-    def maybeNew(conf:Configuration, filmID:String, subname:String, language:Language, testOnExistence:Boolean):Option[SubtitleFile] = {
+    def maybeNew(conf:Configuration, filmID:String, subname:String, testOnExistence:Boolean, testLanguage:Option[Language]=None, putLanguage:Option[Language]=None):Option[SubtitleFile] = {
         if ((!testOnExistence) ||new File(conf.getSubtitleName(subname)).exists()) {
-            Some(new SubtitleFile(filmID, new File(conf.getSubtitleName(subname)), language))
+            val f = Some(new SubtitleFile(filmID, new File(conf.getSubtitleName(subname)),  conf, putLanguage))
+            if (testOnExistence) {
+                //file has to exist in this branch
+                //but we check it for language
+                val lan:Option[Language] = f.flatMap{_.language}
+                val testres = if (testLanguage==None) {
+                    lan.isDefined;
+                } else {
+                    lan == testLanguage;
+                }
+                if (testres) {f} else {None}
+            } else {
+                //do not test on existence
+                f
+            }
         } else {
+            //file does not exist
             None
         }
     }

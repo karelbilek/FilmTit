@@ -23,7 +23,7 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
        println("start")
        var counter = 0
        
-       val pairs = mapping.subtitles.keys.flatMap{
+       val pairs = mapping.moviesWithSubsBothLangs.flatMap{
          filmname =>
            val files = mapping.getSubtitles(filmname);
            if (filmname==None){
@@ -51,7 +51,8 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
    * @param mapping mapping of movie ID to subtitle files
    */
    def align(mapping:SubtitleMapping, maxFiles:Int=0) {
-       
+      
+       println("vstup do mapping")
        val goodPairs = alignFiles(mapping, maxFiles)
        println("Goodpairs bude "+goodPairs.size())
        goodPairs.foreach {
@@ -82,43 +83,48 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
 
 object Aligner {
 
-    def writeHeldoutData(alignment:SubtitleFileAlignment,choser:GoodFilePairChooser, mapping:SubtitleMapping, conf:Configuration) {
+    
+
+    def writeHeldoutData(alignment:SubtitleFileAlignment,choser:GoodFilePairChooser, mapping:SubtitleMapping, conf:Configuration, where:String) {
+        
        val a = new Aligner(alignment, null, choser, conf, Language.EN, Language.CS);
        val alignedMovies = a.alignFiles(mapping).map{_._1.filmID}
        val nonalignedMovies = mapping.moviesWithSubs.toSet -- alignedMovies
 
-       val nonalignedSubtitles = nonalignedMovies.map{m=>mapping.getSubtitles(m).get.head}
+       val nonalignedSubtitles = nonalignedMovies.map{m=>(m, mapping.getSubtitles(m).get.find{sf=>sf.language==Some(Language.EN)})}.filter{_._2.isDefined}
+       val writer = new java.io.PrintWriter(new java.io.File(where))
 
-       val folder = new java.io.File("heldout")
-       folder.mkdir
+        nonalignedSubtitles.foreach{
+            case (movie, file)=>writer.println(movie+"\n"+file.get.fileNumber)
+        }
+        writer.close
 
-       nonalignedSubtitles.foreach {
-           _.copyToFolder(folder)
-       }
     
     }
 
-    def writeHeldoutData() {
+    def writeHeldoutData(where:String="heldout") {
 
            val c = new Configuration("configuration.xml")
 
            val mapping = new SubtitleMapping(c)
-           val filename ="distance12k" 
+           val filename ="aligned" 
         
            val file = new java.io.File(filename)
            val map = TMEvaluator.loadFilePairsToMap(file, c)
 
-           writeHeldoutData(new SubtitleFileAlignmentFromFile(Language.EN, Language.CS, map), new GoodFilePairChooserFromFile(map), mapping,c)
+           writeHeldoutData(new SubtitleFileAlignmentFromFile(Language.EN, Language.CS, map), new GoodFilePairChooserFromFile(map), mapping,c, where)
  
 
     }
 
-    def main(args:Array[String]) = writeHeldoutData
+    def main(args:Array[String]) = writeHeldoutData("heldout")
 
     def writeFilePairsToPrintWriter(pairs: Iterable[Pair[SubtitleFile, SubtitleFile]], writer:java.io.PrintWriter) {
          pairs.foreach {
             case Pair(sf1, sf2) => 
             writer.println(sf1.filmID+"\t"+sf1.fileNumber + "\t"+sf2.fileNumber)
+            println(sf1.filmID+"\t"+sf1.fileNumber + "\t"+sf2.fileNumber)
+         
          }
     }
   def writeFilePairsToFile(pairs:Iterable[Pair[SubtitleFile, SubtitleFile]], where:java.io.File) = {
@@ -131,8 +137,8 @@ object Aligner {
       val reg = """(.*)\t(.*)\t(.*)""".r
       io.Source.fromFile(where).getLines().toIterable.flatMap {
          case reg(movie, descrL, descrR) => 
-            val sub1 = SubtitleFile.maybeNew(conf, movie, descrL, l1, !includeNonExistingFiles) 
-            val sub2 = SubtitleFile.maybeNew(conf, movie, descrR, l2, !includeNonExistingFiles) 
+            val sub1 = SubtitleFile.maybeNew(conf, movie, descrL, !includeNonExistingFiles, Some(l1)) 
+            val sub2 = SubtitleFile.maybeNew(conf, movie, descrR, !includeNonExistingFiles, Some(l2)) 
             if (sub1.isDefined && sub2.isDefined) {
                 Some((sub1.get, sub2.get))
             } else {
