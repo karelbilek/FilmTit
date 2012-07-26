@@ -568,6 +568,21 @@ public class Gui implements EntryPoint {
             }
         } );
         
+        loginDialog.btnForgottenPassword.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+            	String username = loginDialog.getUsername();
+            	if (username.isEmpty()) {
+            		Window.alert("You must fill in your username!");
+            	} else {
+                	dialogBox.hide();
+                    log("forgotten password - user " + username);
+                    //TODO: invoke RPC call
+    				//rpcHandler.forgotten_password(username);            		
+            	}
+            }
+        } );
+        
         loginDialog.btnLoginGoogle.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -615,11 +630,11 @@ public class Gui implements EntryPoint {
                 // check data entered
                 if (registrationForm.checkForm()) {
                     // invoke the registration
-    				rpcHandler.registerUser(registrationForm.getName(), registrationForm.getPassword(), registrationForm.getEmail());					
-                    dialogBox.hide();                	
+    				rpcHandler.registerUser(registrationForm.getUsername(), registrationForm.getPassword(), registrationForm.getEmail(), dialogBox);
                 } else {
                 	log("errors in registration form");
-                	// TODO: tell the user to correct what is wrong
+                	Window.alert("Please correct errors in registration form.");
+                	// TODO: tell the user what is wrong
                 }
 			}
 		});
