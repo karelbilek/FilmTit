@@ -220,11 +220,12 @@ public class FilmTitServiceHandler {
         // filmTitSvc.checkSessionID(sessionID, callback);
     }
 
-    public void registerUser(final String username, final String password, String email) {
+    public void registerUser(final String username, final String password, final String email, final DialogBox registrationForm) {
         AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
             	if (result) {
+            		registrationForm.hide();
 	                gui.log("registered as " + username);
                     simple_login(username, password);
                     displayWindow("You successfully registered with the username '" + username + "'!");
@@ -246,7 +247,7 @@ public class FilmTitServiceHandler {
         // filmTitSvc.registerUser(username, password, email, openid, callback);
     }
 
-    public void simple_login(final String username, String password) {
+    public void simple_login(final String username, final String password) {
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {

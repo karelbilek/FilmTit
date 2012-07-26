@@ -42,6 +42,9 @@ public class LoginDialog extends Composite {
 	Button btnRegister
 	
 	@UiField
+	Button btnForgottenPassword
+	
+	@UiField
 	Button btnCancel;
 	
     public String getUsername() {
