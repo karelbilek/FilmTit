@@ -252,7 +252,7 @@ public class FilmTitServiceHandler {
         };
 
     	String openid = null;
-        // filmTitSvc.registerUser(username, password, email, openid, callback);
+        filmTitSvc.registration(username, password, email, openid, callback);
     }
 
     public void simple_login(final String username, final String password) {
