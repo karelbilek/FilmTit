@@ -28,7 +28,7 @@ public class RegistrationForm extends Composite {
 	TextBox txtEmail;
 
 	@UiField
-	TextBox txtName;
+	TextBox txtUsername;
 
 	@UiField
     PasswordTextBox txtPassword;
@@ -46,14 +46,18 @@ public class RegistrationForm extends Composite {
         return txtEmail.getText();
     }
 
-    public String getName() {
-        return txtName.getText();
+    public String getUsername() {
+        return txtUsername.getText();
     }
 
     public String getPassword() {
         return txtPassword.getText();
     }
     
+    
+    public boolean checkForm() {
+        return (!getUsername().isEmpty()) && checkPassword() && checkEmailValidity();
+    }
     
     public boolean checkEmailValidity() {
         String email = getEmail();

@@ -30,8 +30,13 @@ public interface FilmTitService extends RemoteService {
     String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
     Boolean validateAuthentication(long authID, String responseURL);
     String getSessionID(long authID);
-    // - Simple login (returns session id on success, null in case of error (should throw an exception eventually))
+    
+    // Simple login
+    // - registration (true if successful)
+    Boolean  registration(String name ,  String pass  , String email, String openId);
+    // - login (returns session id on success, null in case of error (should throw an exception eventually))
     String simple_login(String username, String password);
+    
     // - Logout
     Void logout(String sessionID) throws InvalidSessionIdException;
 
