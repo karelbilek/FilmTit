@@ -32,7 +32,19 @@
                 
                 <b:ControlGroup>
                     <b:Controls>
+                        <b:Button ui:field="btnForgottenPassword">Forgotten password</b:Button>
+                    </b:Controls>
+                </b:ControlGroup>
+                
+                <b:ControlGroup>
+                    <b:Controls>
                         <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
+                    </b:Controls>
+                </b:ControlGroup>
+                
+                <b:ControlGroup>
+                    <b:Controls>
+                        <b:Button ui:field="btnRegister">Registration form</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
                 
