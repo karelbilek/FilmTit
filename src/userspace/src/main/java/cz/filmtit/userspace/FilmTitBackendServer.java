@@ -52,6 +52,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
         // set up the OpenID returning address
+        // localhost hack
+        //serverAddress = "localhost:8080/";
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow");
         manager.setRealm(serverAddress);
 
@@ -252,13 +254,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         else {
             org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
 
-            List UserResult = dbSession.createQuery("select d from USUser d where d.userName = " +
-                    username + " AND d.password = " + password).list();
+            List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username and d.password like :pass")
+                               .setParameter("username",username).setParameter("pass",password).list(); //UPDATE hibernate  for more consraints
 
             HibernateUtil.closeAndCommitSession(dbSession);
             if (UserResult.isEmpty())
             {
-                return  null;
+                return  "";
             }
             else {
                 USUser user =(USUser)(UserResult.get(0));
@@ -322,6 +324,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         );
     }
 
+    /**
+     * Check if found sessionId is still active
+     */
+    public String checkSessionID(String sessionID)
+    {
+       if (activeSessions.isEmpty())
+       {
+           return null;     // no session at all
+       }
+        Session s = activeSessions.get(sessionID);
+        if (s == null) return null;   // not found sessionId
+        return s.getUser().getUserName(); // return name of user who had  session
+
+     }
     /**
      * A thread that checks out whether the sessions should be timed out.
      */

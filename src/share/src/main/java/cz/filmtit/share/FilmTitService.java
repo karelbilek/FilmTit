@@ -48,4 +48,6 @@ public interface FilmTitService extends RemoteService {
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     public List<TranslationPair> requestTMSuggestions(String sessionID, int chunkId, long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+
+    public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
 }
