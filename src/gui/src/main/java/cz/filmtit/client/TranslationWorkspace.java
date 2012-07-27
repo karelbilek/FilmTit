@@ -110,6 +110,7 @@ public class TranslationWorkspace extends Composite {
      */
     public void showResult(TranslationResult transresult, int index) {
         targetBoxes.get(index).getFather().setTranslationResult(transresult);
+        targetBoxes.get(index).removeStyleName("loading");
 
         gui.counter++;
     }

@@ -66,6 +66,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             });
             this.setTabIndex(id + 1);
             this.setStyleName("pre_subgestbox");
+            this.addStyleName("loading");
+
         }
 
         public SubgestBox getFather(){

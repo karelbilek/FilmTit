@@ -4,18 +4,11 @@
 /** Example rules used by the template application (remove for your app) */
 .new_document {
 	background: white;
-	border: 1px solid #ccc;
 	padding: 15px;
 	width: 600px;
-	
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
+
 	
 	margin: 5px auto 0 auto;
-	
-	-webkit-box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, 0.1);
-	box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, 0.1);
 }
 .scrollPanel.creating_document {
 	background: #fcfcfc;
@@ -38,10 +31,7 @@
 }
 
 div.tab-content {
-	padding: 10px;
-	padding-left: 20px;
 
-	border: 1px solid #DDD;
 }
 .tabs-left > .nav-tabs {
 	margin-right: 0px !important;
@@ -70,14 +60,6 @@ tr.header .gwt-Label {
 	
 }
 
-h1 {
-	color: Black;
-	margin: 40px 0px 70px;
-	font-size: 2em;
-	font-weight: bold;
-	text-align: center;
-	background-color: Silver;
-}
 
 .filmtit_container {
 	width: 100%;
@@ -200,6 +182,9 @@ body input.pre_subgestbox {
 	display: block;
 	outline: none;
 
+}
+body input.pre_subgestbox.loading {
+	background: #fbfbfb ;
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {
