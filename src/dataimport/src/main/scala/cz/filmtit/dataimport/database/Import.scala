@@ -20,7 +20,7 @@ import cz.filmtit.core.{Configuration, Factory}
 
 class Import(val configuration: Configuration) {
 
-  var subtitles = new SubtitleMapping(configuration)
+  var subtitles = new SubtitleMapping(configuration, checkForExistenceAndLanguages=false)
 //  subtitles.load()
   
 
@@ -111,7 +111,7 @@ class Import(val configuration: Configuration) {
 
         if ( finishedFiles % (configuration.importBatchSize * 5) == 0 ) {
           System.err.println("Doing some cleanup...")
-          writeIMDBCache()
+          //writeIMDBCache()
 
           val r = Runtime.getRuntime
           System.err.println("Total memory is: %.2fMB".format(r.totalMemory() / (1024.0*1024.0)))
@@ -123,7 +123,9 @@ class Import(val configuration: Configuration) {
       }
       )
 
+
     writeIMDBCache()
+    tm.close()
   }
  }
 

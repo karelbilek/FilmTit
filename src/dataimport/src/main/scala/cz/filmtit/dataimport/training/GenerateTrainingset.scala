@@ -66,7 +66,7 @@ object GenerateTrainingset {
         }
     }
     exactOutputWriter.close()
-
+    TM.close()
   }
 
 }

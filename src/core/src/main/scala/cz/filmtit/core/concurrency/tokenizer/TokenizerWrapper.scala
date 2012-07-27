@@ -54,4 +54,8 @@ class TokenizerWrapper(val tokenizers: ParSeq[Tokenizer], val tokenizerTimeout: 
 
   }
 
+  def close() {
+    system.shutdown()
+  }
+
 }
