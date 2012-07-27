@@ -1,14 +1,8 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.*;
 import org.vectomatic.file.FileUploadExt;
 
-import com.github.gwtbootstrap.client.ui.RadioButton;
-import com.github.gwtbootstrap.client.ui.SubmitButton;
-import com.github.gwtbootstrap.client.ui.TabPane;
-import com.github.gwtbootstrap.client.ui.TabPanel;
-import com.github.gwtbootstrap.client.ui.TextArea;
-import com.github.gwtbootstrap.client.ui.TextBox;
-import com.github.gwtbootstrap.client.ui.ListBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -27,7 +21,8 @@ public class DocumentCreator extends Composite {
 
 	public DocumentCreator() {
 		initWidget(uiBinder.createAndBindUi(this));
-		
+
+        btnCreateDocument.setEnabled(false);
 	}
 
 	@UiField
@@ -53,13 +48,13 @@ public class DocumentCreator extends Composite {
 
     @UiField
     FileUploadExt fileUpload;
-
+    @UiField
+    Label lblUploadProgress;
 
     @UiField
-    TextArea txtFileContentArea;
-
+    Button btnCreateDocument;
     @UiField
-    SubmitButton btnSendToTm;
+    Label lblCreateProgress;
 
 
     public String getMovieTitle() {

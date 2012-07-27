@@ -10,16 +10,9 @@
             <b:Fieldset>
 
                 <b:ControlGroup>
-                    <b:ControlLabel>E-mail address:</b:ControlLabel>
+                    <b:ControlLabel>User name:</b:ControlLabel>
                     <b:Controls>
-                        <b:TextBox ui:field="txtEmail"></b:TextBox>
-                    </b:Controls>
-                </b:ControlGroup>
-
-                <b:ControlGroup>
-                    <b:ControlLabel>Display name:</b:ControlLabel>
-                    <b:Controls>
-                        <b:TextBox ui:field="txtName"></b:TextBox>
+                        <b:TextBox ui:field="txtUsername"></b:TextBox>
                     </b:Controls>
                 </b:ControlGroup>
 
@@ -34,6 +27,13 @@
                     <b:ControlLabel>Repeat password:</b:ControlLabel>
                     <b:Controls>
                         <b:PasswordTextBox ui:field="txtPasswordRepeat"></b:PasswordTextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>E-mail address:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="txtEmail"></b:TextBox>
                     </b:Controls>
                 </b:ControlGroup>
 

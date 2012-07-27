@@ -100,7 +100,6 @@ public class Gui implements EntryPoint {
 		// Send feedback via:
 		// rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
 
-
 		// determine the page to be loaded (GUI is the default and fallback)
 		String page = Window.Location.getParameter("page");
 		if (page == null) {
@@ -177,7 +176,8 @@ public class Gui implements EntryPoint {
 		freader.addLoadEndHandler( new LoadEndHandler() {
 			@Override
 			public void onLoadEnd(LoadEndEvent event) {
-				createDocumentFromText( freader.getStringResult() );
+                docCreator.lblUploadProgress.setText("File uploaded successfully.");
+                docCreator.btnCreateDocument.setEnabled(true);
 				//log(subtext);
 			}
 		} );
@@ -186,6 +186,8 @@ public class Gui implements EntryPoint {
 			@Override
 			public void onChange(ChangeEvent event) {
 				//log(fileUpload.getFilename());
+                docCreator.lblUploadProgress.setVisible(true);
+                docCreator.lblUploadProgress.setText("Uploading the file...");
 				FileList fl = docCreator.fileUpload.getFiles();
 				Iterator<File> fit = fl.iterator();
 				if (fit.hasNext()) {
@@ -196,16 +198,16 @@ public class Gui implements EntryPoint {
 				}
 			}
 		} );
-		// --- end of file reading interface via lib-gwt-file --- //
 
-		// --- textarea interface for loading whole subtitle file by copy-paste --- //
-		docCreator.btnSendToTm.addClickHandler( new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				createDocumentFromText( docCreator.txtFileContentArea.getText() );
-			}
-		} );
-		// --- end of textarea interface --- //
+        docCreator.btnCreateDocument.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                docCreator.lblCreateProgress.setVisible(true);
+                docCreator.lblCreateProgress.setText("Creating the document...");
+                createDocumentFromText( freader.getStringResult() );
+            }
+        } );
+		// --- end of file reading interface via lib-gwt-file --- //
 
         userpage.tabNewDocument.add(docCreator);
 
@@ -426,11 +428,35 @@ public class Gui implements EntryPoint {
             }
         } );
         
+        loginDialog.btnForgottenPassword.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+            	String username = loginDialog.getUsername();
+            	if (username.isEmpty()) {
+            		Window.alert("You must fill in your username!");
+            	} else {
+                	dialogBox.hide();
+                    log("forgotten password - user " + username);
+                    //TODO: invoke RPC call
+    				//rpcHandler.forgotten_password(username);            		
+            	}
+            }
+        } );
+        
         loginDialog.btnLoginGoogle.addClickHandler( new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
                 log("trying to log in through Google account");
 				rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, dialogBox);
+			}
+		});
+        
+        loginDialog.btnRegister.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("User decided to register, showing registration form");
+                dialogBox.hide();
+                showRegistrationForm();
 			}
 		});
         
@@ -443,6 +469,45 @@ public class Gui implements EntryPoint {
 		});
         
         dialogBox.setWidget(loginDialog);
+        dialogBox.setGlassEnabled(true);
+        dialogBox.center();
+    }
+
+	/**
+	 * show a dialog enabling the user to
+	 * log in directly or [this line maybe to be removed]
+	 * via OpenID services
+	 */
+    protected void showRegistrationForm() {
+    	
+    	final DialogBox dialogBox = new DialogBox(false);
+        final RegistrationForm registrationForm = new RegistrationForm();
+        
+        registrationForm.btnRegister.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("Trying to register user...");
+                // check data entered
+                if (registrationForm.checkForm()) {
+                    // invoke the registration
+    				rpcHandler.registerUser(registrationForm.getUsername(), registrationForm.getPassword(), registrationForm.getEmail(), dialogBox);
+                } else {
+                	log("errors in registration form");
+                	Window.alert("Please correct errors in registration form.");
+                	// TODO: tell the user what is wrong
+                }
+			}
+		});
+        
+        registrationForm.btnCancel.addClickHandler( new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+                log("RegistrationForm closed by user hitting Cancel button");
+                dialogBox.hide();
+			}
+		});
+        
+        dialogBox.setWidget(registrationForm);
         dialogBox.setGlassEnabled(true);
         dialogBox.center();
     }

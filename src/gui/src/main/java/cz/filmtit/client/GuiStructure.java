@@ -20,15 +20,12 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
-	
-	@UiField
-	NavLink loginlink;
 
 	@UiField
 	NavLink login;
 
 	@UiField
-    SimplePanel contentPanel;
+    ScrollPanel contentPanel;
 	
 	@UiField
 	TextArea txtDebug;
