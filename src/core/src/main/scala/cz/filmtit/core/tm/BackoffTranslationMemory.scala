@@ -7,8 +7,8 @@ import org.apache.commons.logging.LogFactory
 import scala.Predef._
 import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
-import cz.filmtit.share.{Language, MediaSource, Chunk, TranslationPair}
 import cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper
+import cz.filmtit.share._
 
 
 /**
@@ -74,6 +74,15 @@ class BackoffTranslationMemory(
     }
   }
 
+  def tokenizeForImport(pair:TranslationPair) {
+    tokenizeForImport(pair.getChunkL1, l1)
+    tokenizeForImport(pair.getChunkL2, l2)
+  }
+
+  def tokenizeForImport(chunk:Chunk, language:Language) {
+    chunk.setTokens(tokenizer(language).get.tokenizers(0).tokenize(chunk.getSurfaceForm))
+  }
+
   def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource)={
     tokenize(chunk, language);
     searcher.candidates(chunk, language)
@@ -136,7 +145,10 @@ class BackoffTranslationMemory(
   }
 
   def add(pairs: Array[TranslationPair]) {
-    pairs.foreach{p=>tokenize(p)}
+
+    logger.info( "Tokenizing..." )
+    pairs.foreach{ p => tokenizeForImport(p) }
+    logger.info( "Done." )
 
     //If the searcher can be initialized with translation pairs, do it:
     searcher match {
@@ -205,5 +217,20 @@ class BackoffTranslationMemory(
 
   }
 
+  def close() {
+    tokenizerl1.foreach(_.close())
+    tokenizerl2.foreach(_.close())
+
+    searcher match {
+      case s: TranslationPairStorage => s.close()
+      case s: TranslationPairSearcherWrapper => {
+        s.searchers.head match {
+          case s: TranslationPairStorage => s.close()
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+  }
 }
 

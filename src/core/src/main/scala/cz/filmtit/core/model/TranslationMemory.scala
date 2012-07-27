@@ -73,4 +73,7 @@ trait TranslationMemory {
    * @return
    */
   def mediaStorage: MediaStorage
+
+
+  def close()
 }
