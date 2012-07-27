@@ -176,7 +176,8 @@ public class Gui implements EntryPoint {
 		freader.addLoadEndHandler( new LoadEndHandler() {
 			@Override
 			public void onLoadEnd(LoadEndEvent event) {
-				createDocumentFromText( freader.getStringResult() );
+                docCreator.lblUploadProgress.setText("File uploaded successfully.");
+                docCreator.btnCreateDocument.setEnabled(true);
 				//log(subtext);
 			}
 		} );
@@ -185,6 +186,8 @@ public class Gui implements EntryPoint {
 			@Override
 			public void onChange(ChangeEvent event) {
 				//log(fileUpload.getFilename());
+                docCreator.lblUploadProgress.setVisible(true);
+                docCreator.lblUploadProgress.setText("Uploading the file...");
 				FileList fl = docCreator.fileUpload.getFiles();
 				Iterator<File> fit = fl.iterator();
 				if (fit.hasNext()) {
@@ -195,16 +198,16 @@ public class Gui implements EntryPoint {
 				}
 			}
 		} );
-		// --- end of file reading interface via lib-gwt-file --- //
 
-		// --- textarea interface for loading whole subtitle file by copy-paste --- //
-		docCreator.btnSendToTm.addClickHandler( new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				createDocumentFromText( docCreator.txtFileContentArea.getText() );
-			}
-		} );
-		// --- end of textarea interface --- //
+        docCreator.btnCreateDocument.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                docCreator.lblCreateProgress.setVisible(true);
+                docCreator.lblCreateProgress.setText("Creating the document...");
+                createDocumentFromText( freader.getStringResult() );
+            }
+        } );
+		// --- end of file reading interface via lib-gwt-file --- //
 
         userpage.tabNewDocument.add(docCreator);
 
