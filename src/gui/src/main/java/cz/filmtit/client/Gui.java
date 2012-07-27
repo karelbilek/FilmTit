@@ -3,17 +3,19 @@ package cz.filmtit.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
-
-import cz.filmtit.client.SubgestBox.FakeSubgestBox;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.RootPanel;
 import cz.filmtit.share.*;
-import cz.filmtit.share.parsing.*;
-
-//lib-gwt-file imports:
+import cz.filmtit.share.parsing.Parser;
+import cz.filmtit.share.parsing.ParserSrt;
+import cz.filmtit.share.parsing.ParserSub;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
@@ -21,6 +23,8 @@ import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 
 import java.util.*;
+
+//lib-gwt-file imports:
 
 
 
@@ -540,6 +544,23 @@ public class Gui implements EntryPoint {
         WelcomeScreen welcomePage = new WelcomeScreen();
         guiStructure.contentPanel.setStyleName("welcoming");
         guiStructure.contentPanel.setWidget(welcomePage);
+
+        welcomePage.login.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                if (getSessionID() == null) {
+                    showLoginDialog();
+                } else {
+                    rpcHandler.logout();
+                }
+            }
+        });
+        welcomePage.register.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                showRegistrationForm();
+            }
+        });
+
     }
 
 

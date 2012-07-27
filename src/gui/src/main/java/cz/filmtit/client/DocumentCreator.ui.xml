@@ -70,7 +70,7 @@
             <b:Fieldset>
                 <b:ControlGroup>
                     <b:Controls>
-                        <b:Button ui:field="btnCreateDocument">Create document</b:Button>
+                        <b:Button type="PRIMARY" ui:field="btnCreateDocument">Create document</b:Button>
                         <b:Label ui:field="lblCreateProgress" visible="false"></b:Label>
                     </b:Controls>
                 </b:ControlGroup>
