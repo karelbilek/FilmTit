@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.util.*;
+import java.security.*;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -31,6 +32,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.getConf().sessionTimeout();
     private static int SESSION_ID_LENGHT = 47;
 
+
+
+    private enum CheckUserEnum {
+        UserName,
+        UserNamePass
+    }
 
     protected TranslationMemory TM;
     protected Configuration configuration;
@@ -252,18 +259,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return newSessionID;
         }
         else {
-            org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-
-            List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username and d.password like :pass")
-                               .setParameter("username",username).setParameter("pass",password).list(); //UPDATE hibernate  for more consraints
-
-            HibernateUtil.closeAndCommitSession(dbSession);
-            if (UserResult.isEmpty())
+            USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
+            if (user == null)
             {
                 return  "";
             }
             else {
-                USUser user =(USUser)(UserResult.get(0));
                 String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
                 Session session = new Session(user);
                 activeSessions.put(newSessionID, session);
@@ -286,7 +287,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public Boolean  registration(String name ,  String pass  , String email, String openId) {
           // create user
-             USUser user = new USUser(name,pass,email,openId);
+
+             USUser check = checkUser(name,pass,CheckUserEnum.UserName);
+         if (check == null)
+         {
+             String hash = pass_hash(pass);
+             USUser user = new USUser(name,hash,email,openId);
           // create hibernate session
              org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
 
@@ -294,6 +300,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
              user.saveToDatabase(dbSession);
             HibernateUtil.closeAndCommitSession(dbSession);
          return true;
+         }
+        return false;
     }
 
     static HttpServletRequest createRequest(String url) throws UnsupportedEncodingException {
@@ -325,6 +333,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
+     * Get hash of string
+     * if return same string like input - problem with algortithm
+     */
+    public static String pass_hash(String pass)
+    {
+       return BCrypt.hashpw(pass,BCrypt.gensalt(12));
+    }
+    /**
      * Check if found sessionId is still active
      */
     public String checkSessionID(String sessionID)
@@ -338,6 +354,48 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return s.getUser().getUserName(); // return name of user who had  session
 
      }
+
+    /**
+     * Check if user exists
+     *  switch according CheckUserEnum
+     *     CheckName - return first user of given name
+     *     CheckNamePass - return user with given name and pass
+     */
+    private  USUser checkUser(String username , String password, CheckUserEnum type)
+    {
+        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+
+        List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
+                .setParameter("username",username).list(); //UPDATE hibernate  for more consraints
+
+        USUser succesUser = null;
+        int count= 0;
+        if (type == CheckUserEnum.UserNamePass)
+        {
+            HibernateUtil.closeAndCommitSession(dbSession);
+            for (Object aUserResult : UserResult) {
+                USUser user = (USUser) aUserResult;
+                if (BCrypt.checkpw(password, user.getPassword())) {
+                    succesUser = user;
+                    count++;
+                }
+            }
+
+            if (count > 1)
+            {
+                throw new ExceptionInInitializerError("Two users with same name and passwords");
+            }
+        }
+        else if (type == CheckUserEnum.UserName)
+        {
+            if (!UserResult.isEmpty())
+            {
+                succesUser=(USUser)UserResult.get(0);
+            }
+
+        }
+    return succesUser;
+    }
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
@@ -361,9 +419,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
 
-
     class AuthData {
         public byte[] Mac_key;
         public Endpoint endpoint;
     }
+
+
 }
+
