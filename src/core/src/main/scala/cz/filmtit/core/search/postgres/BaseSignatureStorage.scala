@@ -68,7 +68,7 @@ with SignatureTranslationPairStorage {
     )
 
     selStmt.setFetchSize(FETCH_SIZE)
-    selStmt.execute("SELECT * FROM %s LIMIT 200000;".format(pairTable))
+    selStmt.execute("SELECT * FROM %s ;".format(pairTable))
 
     log.info("Creating chunk signatures...")
 
