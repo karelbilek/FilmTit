@@ -1,6 +1,7 @@
 package cz.filmtit.client;
 
-
+import cz.filmtit.client.widgets.*;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -34,12 +35,15 @@ public class TranslationWorkspace extends Composite {
     private static final int SOURCETEXT_COLNUMBER = 1;
     private static final int TARGETBOX_COLNUMBER  = 2;
 
+    private boolean isVideo=false;
 
-    public TranslationWorkspace(Gui gui) {
+
+    public TranslationWorkspace(Gui gui, String path) {
 		initWidget(uiBinder.createAndBindUi(this));
 
+        isVideo = path!=null;
+
         this.gui = gui;
-        this.subgestHandler = new SubgestHandler(this.gui);
 
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
 
@@ -53,26 +57,53 @@ public class TranslationWorkspace extends Composite {
         } );
 
         table.setWidth("100%");
-
-        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
-        table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
-
+        if (!isVideo) {
+            table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
+            table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
+            table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
+            this.subgestHandler = new SubgestHandler(this.gui, null);
+            translationHPanel.setCellWidth(scrollPanel, "100%");
+            translationHPanel.setCellWidth(emptyPanel, "0%");            
+         } else {
+            table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "99px");
+            table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "246px");
+            table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER, "240px");
+            vlcPlayer = new VLCWidget(path, 400, 225);
+            this.subgestHandler = new SubgestHandler(this.gui, vlcPlayer);
+            hPanel.add(vlcPlayer);
+            translationHPanel.setCellWidth(scrollPanel, "60%");
+            translationHPanel.setCellWidth(emptyPanel, "40%");            
+       }
+        
+        
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
         table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
         table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
         table.getRowFormatter().setStyleName(0, "header");
-
+         
+        
 	}
 
+    
+    VLCWidget vlcPlayer;
 
     @UiField
     ScrollPanel scrollPanel;
+    @UiField
+    SimplePanel emptyPanel;
+
 
 	@UiField
     FlexTable table;
 
-
+  
+    @UiField
+    HorizontalPanel hPanel;
+ 
+    @UiField
+    HorizontalPanel translationHPanel;
+   
+    
     /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
      * the chunk text and an empty (fake)subgestbox.
@@ -89,7 +120,7 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(index, gui); // suggestions handling - see the constructor for details
+        SubgestBox targetbox = new SubgestBox(index, gui, !isVideo);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);

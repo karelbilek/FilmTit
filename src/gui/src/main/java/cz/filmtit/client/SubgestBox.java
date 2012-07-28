@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
@@ -66,6 +67,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             });
             this.setTabIndex(id + 1);
             this.setStyleName("pre_subgestbox");
+            if (fullWidth) {
+                this.addStyleName("subgest_fullwidth");
+            } else {
+                this.addStyleName("subgest_halfwidth");
+            }        
         }
 
         public SubgestBox getFather(){
@@ -90,9 +96,10 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		annotationColor.put(AnnotationType.ORGANIZATION, "#ccffff");
 		annotationColor.put(AnnotationType.PERSON,       "#ffff99");
 	};
+
+    boolean fullWidth;
 	
-	
-	public SubgestBox(int id/*, TranslationResult translationResult*/, Gui gui) {
+	public SubgestBox(int id/*, TranslationResult translationResult*/, Gui gui, boolean fullWidth) {
 		this.id = id;
 		this.translationResult = new TranslationResult();
 		this.gui = gui;
@@ -112,6 +119,12 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         //delaying loadSuggestions() for focus
 		//this.loadSuggestions();
+        this.fullWidth = fullWidth;
+        if (fullWidth) {
+            this.addStyleName("subgest_fullwidth");
+        } else {
+            this.addStyleName("subgest_halfwidth");
+        }
 	}
 	
     public void setTranslationResult(TranslationResult translationResult) {

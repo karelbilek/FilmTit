@@ -47,6 +47,14 @@
 					
 			</b:Fieldset>
 
+                <b:ControlGroup>
+                    <b:ControlLabel>Movie address on the disk: (tested on unixes only, window paths will need tweakinng with backslashes), empty = no movie</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="moviePath"></b:TextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+
 		    <b:Fieldset>
                 <b:Heading size="4">Load subtitles from a file:</b:Heading>
                 <b:ControlGroup>
