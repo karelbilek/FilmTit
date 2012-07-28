@@ -46,4 +46,9 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
     Await.result(futureResult, timeout.duration).asInstanceOf[List[TranslationPair]]
   }
 
+  override def close() {
+    system.shutdown()
+  }
+
+
 }

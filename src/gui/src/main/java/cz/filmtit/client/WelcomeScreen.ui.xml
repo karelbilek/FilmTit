@@ -3,7 +3,41 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
              xmlns:g="urn:import:com.google.gwt.user.client.ui">
     <g:HTMLPanel>
-        <b:Heading size="3">Welcome to FilmTit</b:Heading>
-        <b:Paragraph>Please log in.</b:Paragraph>
+        <g:FlowPanel>
+
+            <b:FluidContainer ui:field="container">
+            			<b:Hero>
+            				<b:Heading size="1">Welcome to Filmtit</b:Heading>
+
+            				<b:Paragraph>Helping you translate your subtitle files.</b:Paragraph>
+            			</b:Hero>
+
+                        <b:FluidRow>
+            				<b:Column size="4">
+            					<b:Heading size="6">Have an account?</b:Heading>
+            					<b:Paragraph>Just login with your Filmtit or Google account and start translating...</b:Paragraph>
+            					<b:Button type="PRIMARY" ui:field="login">Login »</b:Button>
+            				</b:Column>
+
+                            <b:Column size="4">
+                                <b:Heading size="6">Create an account</b:Heading>
+                                <b:Paragraph>If you do not have an account yet, create one for free.</b:Paragraph>
+                                <b:Button ui:field="register">Register »</b:Button>
+                            </b:Column>
+
+                            <b:Column size="4">
+                                <b:Heading size="6">About Filmtit</b:Heading>
+                                <b:Paragraph>Filmtit is an easy way to quickly translate SRT and SUB movie subtitle files.</b:Paragraph>
+                                <b:Button href="about">Read more »</b:Button>
+                            </b:Column>
+
+
+            			</b:FluidRow>
+            </b:FluidContainer>
+
+
+        </g:FlowPanel>
+
+
     </g:HTMLPanel>
 </ui:UiBinder> 

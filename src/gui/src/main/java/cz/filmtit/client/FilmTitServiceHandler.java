@@ -199,9 +199,30 @@ public class FilmTitServiceHandler {
     		return;
     	}
         else {
-            gui.log("logged in as -=unknown=- with session id " + sessionID);
-            gui.logged_in("-=unknown=-");
-            return;
+          //  gui.log("logged in as -=unknown=- with session id " + sessionID);
+          //  gui.logged_in("-=unknown=-");
+
+            AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+                public void onSuccess(String username) {
+                    if (username != null && username!="") {
+                        gui.log("logged in as " + username + " with session id " + sessionID);
+                        gui.logged_in(username);
+                    } else {
+                        gui.log("Warning: sessionID invalid.");
+                        gui.setSessionID(null);
+                        // gui.showLoginDialog();
+                    }
+                }
+
+                public void onFailure(Throwable caught) {
+                    gui.log("ERROR: sessionID check didn't succeed!");
+                }
+            };
+
+            // TODO call something
+            filmTitSvc.checkSessionID(sessionID, callback);
+           return;
         }
 
         /*
@@ -260,7 +281,7 @@ public class FilmTitServiceHandler {
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {
-            	if (SessionID != null) {
+            	if (SessionID != null && SessionID!="") {
 	                gui.log("logged in as " + username + " with session id " + SessionID);
 	                gui.setSessionID(SessionID);
 	                gui.logged_in(username);
