@@ -249,16 +249,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public String simple_login(String username, String password) {
-        if (password.equals("guest")) {
-        	// TODO: this branch must be removed once login works properly!!!
-        	USUser user = new USUser(username);
-            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
-            Session session = new Session(user);
-            activeSessions.put(newSessionID, session);
 
-            return newSessionID;
-        }
-        else {
             USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
             if (user == null)
             {
@@ -271,7 +262,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 return newSessionID;
             }
 
-        }
     }
 
     public Void logout(String sessionID) throws InvalidSessionIdException {
@@ -372,6 +362,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         int count= 0;
         if (type == CheckUserEnum.UserNamePass)
         {
+            // check if exist user with name and password
             HibernateUtil.closeAndCommitSession(dbSession);
             for (Object aUserResult : UserResult) {
                 USUser user = (USUser) aUserResult;
@@ -388,6 +379,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         else if (type == CheckUserEnum.UserName)
         {
+            // check if exist user with name
             if (!UserResult.isEmpty())
             {
                 succesUser=(USUser)UserResult.get(0);
@@ -396,6 +388,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     return succesUser;
     }
+
+    public boolean sendMail(String username)
+    {
+
+
+        return false;
+    }
+
+    public boolean sendMail(USUser user)
+    {
+
+
+    }
+
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
