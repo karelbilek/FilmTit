@@ -39,6 +39,11 @@ public class FilmTitServiceHandler {
 	 */
 	private int authID;
 
+	// to represent a callable RPC method with parameters, to be able to call it again etc.
+//	abstract class Callable {
+//		
+//	}
+
     int windowsDisplayed = 0;
     public  void displayWindow(String message) {
         if (windowsDisplayed < 10) {
