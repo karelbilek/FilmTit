@@ -38,6 +38,10 @@ public class Gui implements EntryPoint {
 	GuiStructure guiStructure;
 	
 	protected List<TimedChunk> chunklist;
+
+    public TimedChunk getChunk(int i) {
+        return chunklist.get(i);
+    }
 	
 	protected RootPanel rootPanel;
 
@@ -260,13 +264,14 @@ public class Gui implements EntryPoint {
         rpcHandler.createDocument(docCreator.getMovieTitle(),
                 docCreator.getMovieYear(),
                 docCreator.getChosenLanguage(),
-                subtext);
+                subtext,
+                docCreator.getMoviePathOrNull());
         // sets currentDocument and calls processText() on success
     }
 
-    protected void document_created() {
+    protected void document_created(String moviePath) {
         // replacing the document-creating interface with the subtitle table:
-        this.workspace = new TranslationWorkspace(this);
+        this.workspace = new TranslationWorkspace(this, moviePath);
         guiStructure.contentPanel.setWidget(workspace);
         guiStructure.contentPanel.setStyleName("translating");
     }
@@ -320,17 +325,20 @@ public class Gui implements EntryPoint {
             workspace.showSource(timedchunk, i++);
 		}
 
-		Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
+        SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
+        sendChunks.execute();
+
+		//Scheduler.get().scheduleIncremental(new SendChunksRepeatingCommand(chunklist));
 
 	}
 	
 	
 	
-	class SendChunksRepeatingCommand implements RepeatingCommand {
+	class SendChunksCommand /*implements RepeatingCommand */{
 
 		LinkedList<TimedChunk> chunks;
 		
-		public SendChunksRepeatingCommand(List<TimedChunk> chunks) {
+		public SendChunksCommand(List<TimedChunk> chunks) {
 			this.chunks = new LinkedList<TimedChunk>(chunks);
 		}
 
@@ -345,7 +353,7 @@ public class Gui implements EntryPoint {
         //exponentially growing
         int exponential = 1;
 
-		@Override
+//		@Override
         public boolean execute() {
 			if (chunks.isEmpty()) {
 				return false;
@@ -364,7 +372,7 @@ public class Gui implements EntryPoint {
 		}
 		
 		private void sendChunks(List<TimedChunk> timedchunks) {
-			rpcHandler.getTranslationResults(timedchunks);
+			rpcHandler.getTranslationResults(timedchunks, this);
 		}
 	}
 	

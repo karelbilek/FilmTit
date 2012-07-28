@@ -96,14 +96,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
         
-        List<TranslationResult> res = new ArrayList<TranslationResult>(chunks.size());
         Session session = activeSessions.get(sessionID);
-        for (TimedChunk chunk:chunks) {
+/*        for (TimedChunk chunk:chunks) {
             res.add(session.getTranslationResults(chunk, TM));
         }
-        
+*/        
         // System.out.println("US: sending " + res.size() + " TranslationResults");
-        return res;
+        return ParallelHelper.getTranslationsParallel(chunks, session, TM);
     }
 
     public Void setUserTranslation(String sessionID, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
