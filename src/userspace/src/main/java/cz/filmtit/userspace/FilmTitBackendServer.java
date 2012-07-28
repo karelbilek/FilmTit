@@ -249,16 +249,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public String simple_login(String username, String password) {
-        if (password.equals("guest")) {
-        	// TODO: this branch must be removed once login works properly!!!
-        	USUser user = new USUser(username);
-            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
-            Session session = new Session(user);
-            activeSessions.put(newSessionID, session);
 
-            return newSessionID;
-        }
-        else {
             USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
             if (user == null)
             {
@@ -271,7 +262,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 return newSessionID;
             }
 
-        }
     }
 
     public Void logout(String sessionID) throws InvalidSessionIdException {
