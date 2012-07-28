@@ -135,7 +135,8 @@ public class Session {
         terminate();
     }
 
-    public Document createDocument(String movieTitle, String year, String language) {
+    /* Testing if this is needed
+     * public Document createDocument(String movieTitle, String year, String language) {
         lastOperationTime = new Date().getTime();
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
 
@@ -144,7 +145,7 @@ public class Session {
         // TODO: add the document to the correct user
 
         return usDocument.getDocument();
-    }
+    }*/
 
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
         lastOperationTime = new Date().getTime();
