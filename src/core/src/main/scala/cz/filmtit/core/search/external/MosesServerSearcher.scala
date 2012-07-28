@@ -58,17 +58,33 @@ class MosesServerSearcher(
     val params = Array[Object](null)
     params(0) = mosesParams
 
+    val tries = Iterator.continually{
+        try {
+            val result:java.util.HashMap[String, Object] = client.execute("translate", params) match {
+            case m:java.util.HashMap[String, Object]=>m
+            case _ => throw new ClassCastException("Wrong type of result from moses")
+            }
 
-    val result:java.util.HashMap[String, Object] = client.execute("translate", params) match {
-        case m:java.util.HashMap[String, Object]=>m
-        case _ => throw new ClassCastException("Wrong type of result from moses")
-    }
+            val translation = result.get("text") match {
+                case s:String=> s
+                case _ => throw new ClassCastException("Wrong type of result from moses")
+            }
+            (Some(translation), None);
+        } catch {
+            case e:Exception=>
+            Thread.sleep(1000);
+            (None, Some(e))
+        }
+   }.take(15).toIterable
+   
+   val res = tries.find{_._1.isDefined}
+   if (res.isDefined) {
+     res.get._1.get
+   } else {
+     throw tries.last._2.get
+   }
 
-    val translation = result.get("text") match {
-        case s:String=> s
-        case _ => throw new ClassCastException("Wrong type of result from moses")
-    }
-    translation;
+
   }
 
   def prepareAndSendToMoses(sourceTokens:Array[String]):String = {
