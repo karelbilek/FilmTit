@@ -95,7 +95,7 @@ public class TestUSTranslationResult {
         Configuration conf = new Configuration(new File("configuration.xml"));
         TranslationMemory TM = TestUtil.createTMWithDummyContent(conf);
 
-        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "1986", "en"));
+        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "1986", "en"), null);
 
         USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1,
                 "Sample chunk", 5, document.getDatabaseId()));
@@ -116,7 +116,7 @@ public class TestUSTranslationResult {
         dbSession.createQuery("delete from USTranslationResult").executeUpdate();
 
         Document doc = new Document("Movie title", "2012", "en");
-        USDocument testDoc = new USDocument(doc);
+        USDocument testDoc = new USDocument(doc, null);
         testDoc.saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
 

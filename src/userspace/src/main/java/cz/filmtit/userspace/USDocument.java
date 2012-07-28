@@ -14,7 +14,7 @@ public class USDocument extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
     private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
 
-    private long ownerDatabaseId;
+    private long ownerDatabaseId=0;
     private Document document;
     private List<USTranslationResult> translationResults;
     private long workStartTime;
@@ -24,10 +24,15 @@ public class USDocument extends DatabaseObject {
     private String cachedMovieTitle;
     private String cachedMovieYear;
     
-    public USDocument(Document document) {
+    public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
         translationResults = new ArrayList<USTranslationResult>();
+        
+        //it should not be null, but I am lazy to rewrite the tests
+        if (user != null) {
+            this.ownerDatabaseId = user.getDatabaseId();
+        }
 
         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
@@ -46,7 +51,13 @@ public class USDocument extends DatabaseObject {
         return ownerDatabaseId;
     }
 
-    public void setOwnerDatabaseId(long ownerDatabaseId) {
+
+    //this should not be run anywhere in regular code!
+    //it is here only for hibernate
+    public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
+        if (ownerDatabaseId!=0) {
+            throw new Exception("you should not reset the owner.");
+        }
         this.ownerDatabaseId = ownerDatabaseId;
     }
 

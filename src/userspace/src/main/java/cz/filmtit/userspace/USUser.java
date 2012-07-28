@@ -155,9 +155,11 @@ public class USUser extends DatabaseObject {
         this.activeDocumentIDs = activeDocumentIDs;
     }
 
+    //adds document into server memory
+    //it doesn't add it into database, it is added into database in document constructor
     public void addDocument(USDocument document) {
         ownedDocuments.add(document);
-        document.setOwnerDatabaseId(databaseId);
+    //    document.setOwnerDatabaseId(databaseId);
     }
 
     public void saveToDatabase(Session dbSession) {
