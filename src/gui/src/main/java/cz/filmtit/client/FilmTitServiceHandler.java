@@ -280,14 +280,14 @@ public class FilmTitServiceHandler {
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {
-            	if (SessionID != null && !SessionID.equals("")) {
-	                gui.log("logged in as " + username + " with session id " + SessionID);
-	                gui.setSessionID(SessionID);
-	                gui.logged_in(username);
-            	} else {
+            	if (SessionID == null || SessionID.equals("")) {
                     gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
                     displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
             		gui.showLoginDialog();
+            	} else {
+	                gui.log("logged in as " + username + " with session id " + SessionID);
+	                gui.setSessionID(SessionID);
+	                gui.logged_in(username);
             	}
             }
 
