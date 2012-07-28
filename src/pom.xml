@@ -177,8 +177,11 @@
             <id>JBoss Repository</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repository</name>
-        </repository> 
-
+        </repository>
+        <repository>
+            <id>Java.Net</id>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -370,6 +373,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Java Mail API -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.3</version>
+        </dependency>
 
     </dependencies>
 
