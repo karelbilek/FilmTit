@@ -4,13 +4,35 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
         >
 
+    <g:HTMLPanel>
+
+    <!--this is a little hack to have the player both fixed and on nice position on right-->
+    <g:HTMLPanel styleName="translationWorkspaceFixed">
+    
+        <g:HorizontalPanel ui:field="hPanel" width="100%">
+            <g:cell width="60%">
+                <g:SimplePanel />
+                <!--this is purposedly empty-->
+            </g:cell>
+         </g:HorizontalPanel>
+    </g:HTMLPanel>
+
 
     <g:HTMLPanel styleName="translationWorkspace">
 
-        <g:ScrollPanel ui:field="scrollPanel">
-            <g:FlexTable ui:field="table" />
-        </g:ScrollPanel>
+        <g:HorizontalPanel ui:field="translationHPanel" width="100%">
+            <g:cell >
+                <g:ScrollPanel ui:field="scrollPanel">
+                    <g:FlexTable ui:field="table" />
+                </g:ScrollPanel>
+            </g:cell>
+            <g:cell >
+                <g:SimplePanel  ui:field="emptyPanel"/>
+                <!--this is purposedly empty-->
+            </g:cell>
+        </g:HorizontalPanel>
 
+    </g:HTMLPanel>
     </g:HTMLPanel>
 
 </ui:UiBinder>

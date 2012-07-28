@@ -19,6 +19,11 @@
 }
 
 
+.translationWorkspaceFixed {
+    position:fixed;
+}
+
+
 .chunk_timing {
 	font-size: 11px;
 	font-weight: normal;
@@ -36,12 +41,6 @@ div.tab-content {
 .tabs-left > .nav-tabs {
 	margin-right: 0px !important;
 	border-right: 0 !important;
-}
-
-textarea .subtitle_pastebox {
-	width: 400px;
-	height: 100px;
-	margin-bottom: 5px;
 }
 
 .chunk_l1 {
@@ -172,8 +171,24 @@ body {
 	
 }
 
+body input.subgest_fullwidth {
+    width:380px;
+}
+
+.subgest_fullwidth {
+    width:396px;
+}
+
+body input.subgest_halfwidth {
+    width:220px;
+}
+
+.subgest_halfwidth {
+    width:236px;
+}
+
 body input.pre_subgestbox {
-	width: 380px;
+	/*width: 380px;*/
 	height: 20px;
 	padding: 8px;
 	margin: 0;
@@ -188,7 +203,7 @@ body input.pre_subgestbox.loading {
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {
-	width: 396px;
+/*	width: 396px;*/
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {

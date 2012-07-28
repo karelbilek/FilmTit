@@ -20,6 +20,7 @@ import cz.filmtit.core.{Configuration, Factory}
 
 class Import(val configuration: Configuration) {
 
+
   var subtitles = new SubtitleMapping(configuration, checkForExistenceAndLanguages=false)
 //  subtitles.load()
   

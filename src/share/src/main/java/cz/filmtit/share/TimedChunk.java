@@ -21,7 +21,15 @@ Comparable<TimedChunk> {
     public TimedChunk() {
     	// nothing;    	
     }
-
+    
+    public static long timeToLong(String time) {
+        String[] times = time.split("[,:.]");
+        Long hour = Long.valueOf(times[0].replaceAll(" ",""));
+        Long minute = Long.valueOf(times[1].replaceAll(" ",""));
+        Long second = Long.valueOf(times[2].replaceAll(" ",""));
+        Long mili = Long.valueOf(times[3].replaceAll(" ", ""));
+        return hour*3600*1000+minute*60*1000+second*1000+mili;
+    }
     public int getIndex() {
         return index;
     }
@@ -37,6 +45,14 @@ Comparable<TimedChunk> {
         this.partNumber = partNumber;
 		this.id = id;
 		this.documentId = documentId;
+    }
+
+    public long getStartTimeLongNonZero() {
+        long r = timeToLong(getStartTime());
+        if (r<=0) {
+            return 1;
+        }
+        return r;
     }
 
     public String getStartTime() {

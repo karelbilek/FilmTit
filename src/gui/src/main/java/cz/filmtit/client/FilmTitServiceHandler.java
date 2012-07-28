@@ -62,7 +62,7 @@ public class FilmTitServiceHandler {
 		this.gui = gui;
 	}
 	
-	public void createDocument(String movieTitle, String year, String language, final String subtext) {
+	public void createDocument(String movieTitle, String year, String language, final String subtext, final String moviePath) {
 
 		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
 			
@@ -70,7 +70,7 @@ public class FilmTitServiceHandler {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
                 gui.setCurrentDocument(result.document);
 
-                gui.document_created();
+                gui.document_created(moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
@@ -110,7 +110,7 @@ public class FilmTitServiceHandler {
 		filmTitSvc.createNewDocument(gui.getSessionID(), movieTitle, year, language, callback);
 	}
 	
-	public void getTranslationResults(List<TimedChunk> chunks) {
+	public void getTranslationResults(List<TimedChunk> chunks, final Gui.SendChunksCommand command) {
 		
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
 			
@@ -126,6 +126,7 @@ public class FilmTitServiceHandler {
                     translist.set(index, newresult);
                     
                     gui.getTranslationWorkspace().showResult(newresult, index);
+                    command.execute();
                 }
 			}
 			

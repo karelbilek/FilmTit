@@ -28,6 +28,8 @@ public class DocumentCreator extends Composite {
 	@UiField
 	TextBox txtMovieTitle;
 	@UiField
+	TextBox moviePath;
+	@UiField
 	TextBox txtMovieYear;
     @UiField
     ListBox lsbLanguage;
@@ -56,6 +58,13 @@ public class DocumentCreator extends Composite {
     @UiField
     Label lblCreateProgress;
 
+
+    public String getMoviePathOrNull() {
+        if (moviePath.getText()==null || moviePath.getText().equals("")) {
+            return null;
+        }
+        return moviePath.getText();
+    }
 
     public String getMovieTitle() {
         return txtMovieTitle.getText();

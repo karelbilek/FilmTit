@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import cz.filmtit.client.widgets.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -16,6 +17,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.SimplePanel;
+import cz.filmtit.share.TimedChunk;
 
 /**
  * Universal event-handler for SubgestBoxes.
@@ -26,13 +28,16 @@ import com.google.gwt.user.client.ui.SimplePanel;
 public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChangeHandler<String>, BlurHandler {
 	Gui gui;
     TranslationWorkspace workspace;
+    VLCWidget vlcPlayer;
+
 
 	/**
 	 * Creates a new SubgestHandler.
 	 * @param gui - reference to the main Gui class (for more global possibilities)
 	 */
-	public SubgestHandler(Gui gui) {
+	public SubgestHandler(Gui gui, VLCWidget vlcPlayer) {
 		this.gui = gui;
+        this.vlcPlayer = vlcPlayer;
         if (gui == null) {
             Window.alert("gui for handler is null during the constructor!!!");
         }
@@ -41,28 +46,39 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
             gui.log("workspace for handler is null during the constructor!!!");
         }
 	}
-	
+
+    public static TimedChunk getChunk(SubgestBox sb, Gui g) {
+        return g.getChunk(sb.getId());
+    }
+
 	@Override
 	public void onFocus(FocusEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
             final SubgestBox subbox = (SubgestBox) event.getSource();
+            long time = getChunk(subbox, gui).getStartTimeLongNonZero();
+            if (vlcPlayer != null) {
+                vlcPlayer.maybePlayWindow(time);
+            }
+
             subbox.loadSuggestions();
             // hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus (if any)
             workspace = gui.getTranslationWorkspace();
             if (workspace == null) {
                 gui.log("workspace for handler is null when focusing!!!");
+                final Throwable throwable = new IllegalArgumentException("Hello");
+            } else {
+                workspace.deactivateSuggestionWidget();
+                workspace.ensureVisible(subbox);
+                // and show a new one for the current SubgestBox
+                Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        subbox.showSuggestions();
+                        workspace.setActiveSuggestionWidget(subbox.getSuggestionWidget());
+                    }
+                } );
             }
-            workspace.deactivateSuggestionWidget();
-            workspace.ensureVisible(subbox);
-			// and show a new one for the current SubgestBox
-			Scheduler.get().scheduleDeferred( new ScheduledCommand() {
-				@Override
-				public void execute() {
-                    subbox.showSuggestions();
-					workspace.setActiveSuggestionWidget(subbox.getSuggestionWidget());
-				}
-			} );
 			gui.log("tabindex of this: " + subbox.getTabIndex());
 		}
 	}
