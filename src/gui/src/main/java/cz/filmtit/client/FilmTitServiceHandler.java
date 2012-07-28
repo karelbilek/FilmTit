@@ -280,7 +280,7 @@ public class FilmTitServiceHandler {
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {
-            	if (SessionID != null && SessionID!="") {
+            	if (SessionID != null && !SessionID.equals("")) {
 	                gui.log("logged in as " + username + " with session id " + SessionID);
 	                gui.setSessionID(SessionID);
 	                gui.logged_in(username);
@@ -309,7 +309,15 @@ public class FilmTitServiceHandler {
             }
 
             public void onFailure(Throwable caught) {
-                gui.log("ERROR: logout didn't succeed!");
+                if (caught.getClass().equals(InvalidSessionIdException.class)) {
+                    gui.log("already logged out");
+                    gui.setSessionID(null);
+                    gui.logged_out();
+                } else {
+                    gui.log("ERROR: logout didn't succeed! Forcing local logout... " + caught.getLocalizedMessage());
+                    gui.setSessionID(null);
+                    gui.logged_out();
+                }
             }
         };
 
