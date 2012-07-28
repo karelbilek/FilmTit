@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
@@ -79,89 +78,6 @@
             <b:Fieldset>
                 <b:ControlGroup>
                     <b:Controls>
-                        <b:Button ui:field="btnCreateDocument">Create document</b:Button>
-                        <b:Label ui:field="lblCreateProgress" visible="false"></b:Label>
-                    </b:Controls>
-                </b:ControlGroup>
-            </b:Fieldset>
-        </b:Form>
-
-	</g:HTMLPanel>
-	
-</ui:UiBinder> 
-=======
-<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
-<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-             xmlns:g="urn:import:com.google.gwt.user.client.ui"
-             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-             xmlns:lgf="urn:import:org.vectomatic.file">
-
-
-	<g:HTMLPanel styleName="new_document">
-	
-		<b:Heading size="3">Start a new subtitle document</b:Heading>
-
-		<b:Form type="HORIZONTAL" ui:field="movieInfoForm">
-			<b:Fieldset>
-
-                <b:ControlGroup>
-                    <b:ControlLabel>Movie title:</b:ControlLabel>
-                    <b:Controls>
-                        <b:TextBox ui:field="txtMovieTitle"></b:TextBox>
-                    </b:Controls>
-                </b:ControlGroup>
-
-                <b:ControlGroup>
-                    <b:ControlLabel>Movie year:</b:ControlLabel>
-                    <b:Controls>
-                        <b:TextBox ui:field="txtMovieYear"></b:TextBox>
-                    </b:Controls>
-                </b:ControlGroup>
-
-                <b:ControlGroup>
-                    <b:ControlLabel>Subtitle source language:</b:ControlLabel>
-                    <b:Controls>
-                        <b:ListBox ui:field="lsbLanguage">
-                            <g:item id="en" value="en">English</g:item>
-                            <g:item id="cs" value="cs">Czech</g:item>
-                        </b:ListBox>
-                    </b:Controls>
-                </b:ControlGroup>
-
-                <b:ControlGroup>
-					<b:ControlLabel>Choose subtitle format:</b:ControlLabel>
-					<b:Controls>
-						<b:RadioButton ui:field="rdbFormatSrt" name="file format"
-								value="true">.srt</b:RadioButton>
-						<b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
-					</b:Controls>
-				</b:ControlGroup>
-					
-			</b:Fieldset>
-
-		    <b:Fieldset>
-                <b:Heading size="4">Load subtitles from a file:</b:Heading>
-                <b:ControlGroup>
-                    <b:ControlLabel>Choose file encoding:</b:ControlLabel>
-                    <b:Controls>
-                        <b:RadioButton ui:field="rdbEncodingUtf8" name="file encoding"
-                            value="true">UTF-8</b:RadioButton>
-                        <b:RadioButton ui:field="rdbEncodingWin" name="file encoding">windows-1250</b:RadioButton>
-                        <b:RadioButton ui:field="rdbEncodingIso" name="file encoding">iso-8859-2</b:RadioButton>
-                    </b:Controls>
-                </b:ControlGroup>
-                <b:ControlGroup>
-                    <b:ControlLabel>Choose the file with subtitles:</b:ControlLabel>
-                    <b:Controls>
-                        <lgf:FileUploadExt ui:field="fileUpload" />
-                        <b:Label ui:field="lblUploadProgress" visible="false"></b:Label>
-                    </b:Controls>
-                </b:ControlGroup>
-            </b:Fieldset>
-
-            <b:Fieldset>
-                <b:ControlGroup>
-                    <b:Controls>
                         <b:Button type="PRIMARY" ui:field="btnCreateDocument">Create document</b:Button>
                         <b:Label ui:field="lblCreateProgress" visible="false"></b:Label>
                     </b:Controls>
@@ -172,4 +88,3 @@
 	</g:HTMLPanel>
 	
 </ui:UiBinder> 
->>>>>>> 625c126e974f29a145075ab086dc2505d4edbf13

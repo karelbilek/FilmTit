@@ -1,6 +1,6 @@
 package cz.filmtit.client;
 
-import com.google.gwt.core.client.*
+import com.google.gwt.core.client.*;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.*;
@@ -256,11 +256,12 @@ public class Gui implements EntryPoint {
           rpcHandler.validateAuthentication (responseURL, authID, authenticationValidationWindow);
      }
 
-     private void createDocumentFromText(String subtext, docCreator.getMoviePathOrNull()) {
+     private void createDocumentFromText(String subtext) {
         rpcHandler.createDocument(docCreator.getMovieTitle(),
                 docCreator.getMovieYear(),
                 docCreator.getChosenLanguage(),
-                subtext);
+                subtext,
+                docCreator.getMoviePathOrNull());
         // sets currentDocument and calls processText() on success
     }
 
@@ -326,11 +327,12 @@ public class Gui implements EntryPoint {
      
      
      
-     class SendChunksCommand  {
+     //class SendChunksCommand {
+     class SendChunksCommand implements RepeatingCommand {
 
           LinkedList<TimedChunk> chunks;
           
-          public SendChunksRepeatingCommand(List<TimedChunk> chunks) {
+          public SendChunksCommand(List<TimedChunk> chunks) {
                this.chunks = new LinkedList<TimedChunk>(chunks);
           }
 
