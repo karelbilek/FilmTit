@@ -251,7 +251,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public String simple_login(String username, String password) {
         if (password.equals("guest")) {
-            USUser user = new USUser(username);
+        	// TODO: this branch must be removed once login works properly!!!
+        	USUser user = new USUser(username);
             String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
             Session session = new Session(user);
             activeSessions.put(newSessionID, session);
