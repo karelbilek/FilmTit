@@ -27,6 +27,7 @@
                 <b:ControlGroup>
                     <b:Controls>
                         <b:Button ui:field="btnLogin">Login</b:Button>
+                        <b:Button ui:field="btnRegister">Registration form</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
                 
@@ -39,12 +40,6 @@
                 <b:ControlGroup>
                     <b:Controls>
                         <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
-                    </b:Controls>
-                </b:ControlGroup>
-                
-                <b:ControlGroup>
-                    <b:Controls>
-                        <b:Button ui:field="btnRegister">Registration form</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
                 
