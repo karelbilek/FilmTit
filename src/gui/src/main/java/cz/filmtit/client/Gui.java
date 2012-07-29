@@ -430,7 +430,7 @@ public class Gui implements EntryPoint {
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
                 log("trying to log in as user " + loginDialog.getUsername());
-                new FilmTitServiceHandler.SimpleLogin(loginDialog.getUsername(), loginDialog.getPassword());
+                rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());
             }
         } );
         
