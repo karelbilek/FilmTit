@@ -42,7 +42,12 @@ public class FilmTitServiceHandler {
 	 */
 	private int authID;
 
-	// to represent a callable RPC method with parameters, to be able to call it again etc.
+	/**
+	 * Represents an RPC with parameters.
+	 * The method is automatically called on its creation
+	 * and stored into a queue of active calls
+	 * so that it can be easily re-called on failure.
+	 */
 	abstract class Callable {
 		
 		// static members
@@ -51,6 +56,12 @@ public class FilmTitServiceHandler {
 		
 		static int newId = 1;
 		
+		static private FilmTitServiceAsync filmTitService;
+		
+		static private Gui gui;
+
+		public static FilmTitServiceHandler filmTitServiceHandler;
+
 		// non-static members
 		
 		int id;
@@ -85,7 +96,13 @@ public class FilmTitServiceHandler {
 	}
 
     int windowsDisplayed = 0;
-    public  void displayWindow(String message) {
+    
+    /**
+     * display a widow with an error message
+     * unless maximum nimber of error messages has been reached
+     * @param string
+     */
+    public void displayWindow(String message) {
         if (windowsDisplayed < 10) {
             windowsDisplayed++;
             Window.alert(message);
@@ -100,6 +117,10 @@ public class FilmTitServiceHandler {
 	public FilmTitServiceHandler(Gui gui) {
 		filmTitSvc = GWT.create(FilmTitService.class);
 		this.gui = gui;
+		
+		Callable.filmTitService = filmTitSvc;
+		Callable.gui = gui;
+		Callable.filmTitServiceHandler = this;
 	}
 	
 	public void createDocument(String movieTitle, String year, String language, final String subtext, final String moviePath) {
@@ -191,25 +212,55 @@ public class FilmTitServiceHandler {
 	}
 	
 	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
+		new SetUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPair);
+	}
+
+	public class SetUserTranslation extends Callable {
 		
+		// parameters
+		int chunkId;
+		long documentId;
+		String userTranslation;
+		long chosenTranslationPair;
+
+		// callback
 		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
 			public void onSuccess(Void o) {
-				gui.log("setUserTranslation() succeeded");
+				Callable.gui.log("setUserTranslation() succeeded");
 			}
 			
 			public void onFailure(Throwable caught) {
 				if (caught.getClass().equals(InvalidSessionIdException.class)) {
-					gui.please_relog_in();
+					Callable.gui.please_relog_in();
 					// TODO: store user input to be used when user logs in
 				} else {
-					gui.log("ERROR: setUserTranslation() didn't succeed!");
+					Callable.gui.log("ERROR: setUserTranslation() didn't succeed!");
 					// TODO: repeat sending a few times, then ask user
 				}
 			}
 		};
 		
-		filmTitSvc.setUserTranslation(gui.getSessionID(), chunkId, documentId, userTranslation, chosenTranslationPair, callback);
+		// constructor
+		public SetUserTranslation(int chunkId, long documentId,
+				String userTranslation, long chosenTranslationPair) {
+						
+			super();
+			
+			this.chunkId = chunkId;
+			this.documentId = documentId;
+			this.userTranslation = userTranslation;
+			this.chosenTranslationPair = chosenTranslationPair;
+			
+	        enqueue();
+		}
+
+		@Override
+		public void call() {
+			Callable.filmTitService.setUserTranslation(gui.getSessionID(), chunkId,
+					documentId, userTranslation, chosenTranslationPair,
+					callback);
+		}
 	}
 
 
@@ -312,7 +363,7 @@ public class FilmTitServiceHandler {
             	}
             }
 
-            public void onFailure(Throwable caught) {
+			public void onFailure(Throwable caught) {
                 gui.log("ERROR: registration didn't succeed!");
                 displayWindow("ERROR: registration didn't succeed!");
             }
@@ -322,27 +373,50 @@ public class FilmTitServiceHandler {
         filmTitSvc.registration(username, password, email, openid, callback);
     }
 
-    public void simple_login(final String username, final String password) {
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
+    public void simple_login(String username, String password) {
+    	new SimpleLogin(username, password);
+	}
+
+    public class SimpleLogin extends Callable {
+    	
+    	// parameters
+    	String username;
+    	String password;
+    	
+    	// callback
+		AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {
             	if (SessionID == null || SessionID.equals("")) {
-                    gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
-                    displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
-            		gui.showLoginDialog();
+            		Callable.gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
+            		Callable.filmTitServiceHandler.displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
+                    Callable.gui.showLoginDialog();
             	} else {
-	                gui.log("logged in as " + username + " with session id " + SessionID);
-	                gui.setSessionID(SessionID);
-	                gui.logged_in(username);
+            		Callable.gui.log("logged in as " + username + " with session id " + SessionID);
+            		Callable.gui.setSessionID(SessionID);
+            		Callable.gui.logged_in(username);
             	}
             }
 
             public void onFailure(Throwable caught) {
-                gui.log("ERROR: simple login didn't succeed!");
+            	Callable.gui.log("ERROR: simple login didn't succeed!");
             }
         };
+		
+        // constructor
+        public SimpleLogin(String username, String password) {
+			super();
+			
+			this.username = username;
+			this.password = password;
 
-        filmTitSvc.simple_login(username, password, callback);
+	        enqueue();
+		}
+
+		@Override
+		public void call() {
+	        Callable.filmTitService.simple_login(username, password, callback);
+		}
     }
 
     public void logout() {
