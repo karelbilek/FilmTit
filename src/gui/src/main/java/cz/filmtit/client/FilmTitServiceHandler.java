@@ -52,15 +52,15 @@ public class FilmTitServiceHandler {
 		
 		// static members
 		
-		static Dictionary<Integer, Callable> queue;
+		static private Dictionary<Integer, Callable> queue;
 		
-		static int newId = 1;
+		static private int newId = 1;
 		
 		static private FilmTitServiceAsync filmTitService;
 		
 		static private Gui gui;
 
-		public static FilmTitServiceHandler filmTitServiceHandler;
+		static private FilmTitServiceHandler filmTitServiceHandler;
 
 		// non-static members
 		
@@ -115,6 +115,7 @@ public class FilmTitServiceHandler {
     }
 	
 	public FilmTitServiceHandler(Gui gui) {
+		// TODO: FilmTitServiceHandler fields should eventually become obsolete in favor of Callable
 		filmTitSvc = GWT.create(FilmTitService.class);
 		this.gui = gui;
 		
