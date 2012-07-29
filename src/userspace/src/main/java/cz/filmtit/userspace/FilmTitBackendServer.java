@@ -14,15 +14,16 @@ import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
 import org.expressme.openid.OpenIdManager;
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
-import java.util.*;
-import java.security.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -362,6 +363,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         int count= 0;
         if (type == CheckUserEnum.UserNamePass)
         {
+            // check if exist user with name and password
             HibernateUtil.closeAndCommitSession(dbSession);
             for (Object aUserResult : UserResult) {
                 USUser user = (USUser) aUserResult;
@@ -378,6 +380,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         else if (type == CheckUserEnum.UserName)
         {
+            // check if exist user with name
             if (!UserResult.isEmpty())
             {
                 succesUser=(USUser)UserResult.get(0);
@@ -386,6 +389,25 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     return succesUser;
     }
+
+    public boolean sendMail(String username)
+    {
+        USUser user = checkUser(username,"",CheckUserEnum.UserName);
+        if (user != null)
+        {
+            return sendMail(user);
+        }
+
+        return false;
+    }
+
+    public boolean sendMail(USUser user)
+    {
+           Emailer email = new Emailer();
+           if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
+           return true;
+    }
+
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
