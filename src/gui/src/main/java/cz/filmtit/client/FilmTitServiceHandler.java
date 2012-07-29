@@ -223,7 +223,7 @@ public class FilmTitServiceHandler {
 	public class SetUserTranslation extends Callable {
 		
 		// parameters
-		int chunkId;
+		ChunkIndex chunkIndex;
 		long documentId;
 		String userTranslation;
 		long chosenTranslationPair;
@@ -248,12 +248,12 @@ public class FilmTitServiceHandler {
 		
 
 		// constructor
-		public SetUserTranslation(int chunkId, long documentId,
+		public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
 				String userTranslation, long chosenTranslationPair) {
 						
 			super();
 			
-			this.chunkId = chunkId;
+			this.chunkIndex = chunkIndex;
 			this.documentId = documentId;
 			this.userTranslation = userTranslation;
 			this.chosenTranslationPair = chosenTranslationPair;
