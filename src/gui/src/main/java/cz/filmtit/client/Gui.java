@@ -214,7 +214,7 @@ public class Gui implements EntryPoint {
                 createNewDocumentCreator();
                 guiStructure.contentPanel.setWidget(docCreator);
             }
-        
+
         });
 
 
@@ -544,6 +544,23 @@ public class Gui implements EntryPoint {
 
     protected void showWelcomePage() {
         WelcomeScreen welcomePage = new WelcomeScreen();
+
+        welcomePage.login.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                if (getSessionID() == null) {
+                    showLoginDialog();
+                } else {
+                    rpcHandler.logout();
+                }
+            }
+        });
+        welcomePage.register.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                showRegistrationForm();
+            }
+        });
+
         guiStructure.contentPanel.setStyleName("welcoming");
         guiStructure.contentPanel.setWidget(welcomePage);
     }
