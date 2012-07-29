@@ -137,7 +137,6 @@ public class Session {
 
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
         lastOperationTime = new Date().getTime();
-        // USDocument usDocument = new USDocument( new Document(movieTitle, year, language, user.getDatabaseId()) );
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) , user);
         List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 

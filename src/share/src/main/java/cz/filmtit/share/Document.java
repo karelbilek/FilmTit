@@ -26,12 +26,6 @@ public class Document implements IsSerializable, Serializable {
 		this.language = Language.fromCode(langCode);
 	}
 
-    /*public Document(String movieTitle, String year, String langCode, long userId) {
-		movie = new MediaSource(movieTitle, year);
-		this.language = Language.fromCode(langCode);
-		this.userId = userId;
-	}*/
-
 	public long getId() {
 		return id;
 	}
