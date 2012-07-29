@@ -172,7 +172,7 @@ public class TestSession {
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Movie " + i, "2012", "en"));
+            USDocument usDocument = new USDocument(new Document("Movie " + i, "2012", "en"), null);
             long documentID = usDocument.getDatabaseId();
 
             for (int j = 0; j < 20; ++j) {

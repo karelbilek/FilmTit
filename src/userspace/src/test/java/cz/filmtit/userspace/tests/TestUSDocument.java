@@ -22,7 +22,7 @@ public class TestUSDocument {
     @Test
     public  void testUSDocumentConstructor() {
         Document doc = new Document("Movie title", "2012", "cs");
-        USDocument resultUSDocument = new USDocument(doc);
+        USDocument resultUSDocument = new USDocument(doc, null);
 
         assertEquals(resultUSDocument.getMovieTitle(), doc.getMovie().getTitle());
         assertEquals(resultUSDocument.getYear(), doc.getMovie().getYear());
@@ -37,7 +37,7 @@ public class TestUSDocument {
 
         // create a sample document and save it to the database to know the ID
         Document doc = new Document("Movie title", "2012", "cs");
-        USDocument sampleUSDocument = new USDocument(doc);
+        USDocument sampleUSDocument = new USDocument(doc, null);
         sampleUSDocument.setFinished(false);
 
         sampleUSDocument.setSpentOnThisTime(120);
@@ -95,7 +95,7 @@ public class TestUSDocument {
     public void testDatabaseImmutability() {
         Session session = DatabaseUtil.getSession();
         Document doc = new Document("Movie title", "2012", "cs");
-        USDocument resultUSDocument = new USDocument(doc);
+        USDocument resultUSDocument = new USDocument(doc, null);
 
         resultUSDocument.setDatabaseId(2001);
     }
