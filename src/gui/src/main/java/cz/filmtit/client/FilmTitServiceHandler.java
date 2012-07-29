@@ -16,7 +16,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
 	// FilmTitServiceAsync should be created automatically by Maven
@@ -40,9 +43,46 @@ public class FilmTitServiceHandler {
 	private int authID;
 
 	// to represent a callable RPC method with parameters, to be able to call it again etc.
-//	abstract class Callable {
-//		
-//	}
+	abstract class Callable {
+		
+		// static members
+		
+		static Dictionary<Integer, Callable> queue;
+		
+		static int newId = 1;
+		
+		// non-static members
+		
+		int id;
+		
+		/**
+		 * creates the RPC
+		 */
+		public Callable() {
+			this.id = newId++;
+		}
+		
+		/**
+		 * invokes the RPC
+		 */
+		abstract void call();
+		
+		/**
+		 * enqueues the object and invokes the RPC
+		 */
+		public void enqueue() {
+			queue.put(id, this);
+			call();
+		}
+		
+		/**
+		 * called after successful completion of RPC
+		 */
+		public void dequeue() {
+			queue.remove(id);
+		}
+		
+	}
 
     int windowsDisplayed = 0;
     public  void displayWindow(String message) {
@@ -268,7 +308,7 @@ public class FilmTitServiceHandler {
             		// TODO: bool means unavailable username, right? Or are there other reasons for failing?
                     gui.log("ERROR: registration didn't succeed, username already taken.");
                     displayWindow("The username '" + username + "' is not available. Please choose a different username.");
-            		gui.showRegistrationForm();
+                    //registrationForm.txtUsername.focus();
             	}
             }
 
