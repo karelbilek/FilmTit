@@ -1,6 +1,7 @@
 \section{Preliminaries}
 
 \subsection{Choosing a DBMS}
+\label{sec:dbms}
 
 For the choice of a suitable database management system underlying the
 core translation memory and the user space, the main points we
@@ -48,6 +49,7 @@ configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://h
 \end{lstlisting}
 
 
+\newpage
 \section{Architecture of the Core Translation Memory}
 
 The core translation memory consists of the database of chunks and media
@@ -87,7 +89,7 @@ implementation. Within the database, each signature function is represented by
 a relation which is indexed by the signature and refers to the original
 translation pair.
 
-\begin{figure}[htbp]
+\begin{figure}[h!]
 	\centering
 		\includegraphics[width=17cm]{figures/core/signatures.pdf}
 	\caption{Illustration of signature strings in the database.}
@@ -96,7 +98,7 @@ translation pair.
 
 In the following sections, the signature functions will be illustrated.
 
-
+\newpage
 \subsection{Tokenization}
 
 For all retrieval methods, we tokenize, i.e. separate the input sentence into individual tokens,
@@ -124,14 +126,13 @@ positions were manually marked in the Prague Dependency Treebank by annotators.
 
 On a test dataset from the Prague Dependency Treebank, the ME tokenizer achieved the following results:
 
-\begin{verbatim}
+\begin{lstlisting}
 Precision: 0.9970180340649772
 Recall: 0.9954658318039512
 F-Measure: 0.9962413283293529
-\end{verbatim}
+\end{lstlisting}
 
 %TODO: layout this (table or something)
-
 
 
 
@@ -157,13 +158,13 @@ category. This allows the retrieval of candidate chunks that differ only
 in the named entities they are using. As an example, consider the
 following chunks:
 
-\begin{verbatim}
+\begin{lstlisting}
 Chunk 1:   Peter saw the girl.
 Signature: <Person> saw the girl
 
 Chunk 2:   Thomas saw the girl.
 Signature: <Person> saw the girl
-\end{verbatim}
+\end{lstlisting}
 
 Using the named entity-based signature, Chunk 2 can be retrieved as a
 candidate for chunk 1. Since an exact match would be preferable, this 
@@ -256,9 +257,19 @@ However, there is no machine translation service with unlimited free REST-based 
 \subsection{Statistical Machine-Translation based on Moses}
 
 
-\newpage
+
 
 \section{Candidate Ranking}
+
+After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and how well they fit the query. We use different methods for ranking the candidates retrieved by the candidate retrieval methods.
+
+
+\subsection{Ranking for exact matches}
+
+For exact matches, 
+
+
+\section{Merging similar candidates}
 
 
 
@@ -266,6 +277,7 @@ However, there is no machine translation service with unlimited free REST-based 
 \section{Technical issues}
 
 \subsection{Concurrency}
+
 
 
 

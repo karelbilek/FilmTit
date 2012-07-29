@@ -13,16 +13,21 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import cz.filmtit.client.Gui.SendChunksCommand;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
 import java.util.Map;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
 	// FilmTitServiceAsync should be created automatically by Maven
 	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
-	private FilmTitServiceAsync filmTitSvc;
+	private FilmTitServiceAsync filmTitService;
 	/**
 	 * reference to the gui for access to its protected and public members
 	 */
@@ -40,13 +45,14 @@ public class FilmTitServiceHandler {
 	 */
 	private int authID;
 
-	// to represent a callable RPC method with parameters, to be able to call it again etc.
-//	abstract class Callable {
-//		
-//	}
-
     int windowsDisplayed = 0;
-    public  void displayWindow(String message) {
+    
+    /**
+     * display a widow with an error message
+     * unless maximum nimber of error messages has been reached
+     * @param string
+     */
+    public void displayWindow(String message) {
         if (windowsDisplayed < 10) {
             windowsDisplayed++;
             Window.alert(message);
@@ -59,19 +65,36 @@ public class FilmTitServiceHandler {
     }
 	
 	public FilmTitServiceHandler(Gui gui) {
-		filmTitSvc = GWT.create(FilmTitService.class);
+		// TODO: FilmTitServiceHandler fields should eventually become obsolete in favor of Callable
+		filmTitService = GWT.create(FilmTitService.class);
 		this.gui = gui;
+		
+		Callable.filmTitService = filmTitService;
+		Callable.gui = gui;
+		Callable.filmTitServiceHandler = this;
 	}
 	
 	public void createDocument(String movieTitle, String year, String language, final String subtext, final String moviePath) {
+		new CreateDocument(movieTitle, year, language, subtext, moviePath);
+	}
+	
+	public class CreateDocument extends Callable {
 
+		// parameters
+		String movieTitle;
+		String year;
+		String language;
+		String subtext;
+		String moviePath;
+		
+		// callback
 		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
 			
 			public void onSuccess(final DocumentResponse result) {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
-                gui.setCurrentDocument(result.document);
+				gui.setCurrentDocument(result.document);
 
-                gui.document_created(moviePath);
+				gui.document_created(moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
@@ -84,7 +107,7 @@ public class FilmTitServiceHandler {
 
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                                gui.processText(subtext);
+                            	gui.processText(subtext);
                             }
                         });
                     }
@@ -104,15 +127,40 @@ public class FilmTitServiceHandler {
 					gui.log("failure on creating document!");
 				}
 			}
-
-		};
+		};		
 		
-		gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
-		filmTitSvc.createNewDocument(gui.getSessionID(), movieTitle, year, language, callback);
+		// constructor
+		public CreateDocument(String movieTitle, String year, String language,
+				String subtext, String moviePath) {
+			super();
+			
+			this.movieTitle = movieTitle;
+			this.year = year;
+			this.language = language;
+			this.subtext = subtext;
+			this.moviePath = moviePath;
+			
+			enqueue();
+		}
+
+		@Override
+		public void call() {
+			gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
+			filmTitService.createNewDocument(gui.getSessionID(), movieTitle, year, language, callback);
+		}
 	}
 	
-	public void getTranslationResults(List<TimedChunk> chunks, final Gui.SendChunksCommand command) {
+	public void getTranslationResults(List<TimedChunk> chunks, Gui.SendChunksCommand command) {
+		new GetTranslationResults(chunks, command);
+	}
+
+	public class GetTranslationResults extends Callable {
 		
+		// parameters
+		List<TimedChunk> chunks;
+		Gui.SendChunksCommand command;
+		
+		// callback
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
 			
 			public void onSuccess(List<TranslationResult> newresults) {
@@ -151,11 +199,36 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.getTranslationResults(gui.getSessionID(), chunks, callback);
+		// constructor
+		public GetTranslationResults(List<TimedChunk> chunks,
+				SendChunksCommand command) {
+			super();
+			
+			this.chunks = chunks;
+			this.command = command;
+			
+			enqueue();
+		}
+
+		@Override
+		public void call() {
+			filmTitService.getTranslationResults(gui.getSessionID(), chunks, callback);
+		}
 	}
 	
 	public void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPair) {
+		new SetUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPair);
+	}
+
+	public class SetUserTranslation extends Callable {
 		
+		// parameters
+		int chunkId;
+		long documentId;
+		String userTranslation;
+		long chosenTranslationPair;
+
+		// callback
 		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
 			public void onSuccess(Void o) {
@@ -173,12 +246,40 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.setUserTranslation(gui.getSessionID(), chunkIndex, documentId, userTranslation, chosenTranslationPair, callback);
+
+		// constructor
+		public SetUserTranslation(int chunkId, long documentId,
+				String userTranslation, long chosenTranslationPair) {
+						
+			super();
+			
+			this.chunkId = chunkId;
+			this.documentId = documentId;
+			this.userTranslation = userTranslation;
+			this.chosenTranslationPair = chosenTranslationPair;
+			
+	        enqueue();
+		}
+
+		@Override
+		public void call() {
+			filmTitService.setUserTranslation(gui.getSessionID(), chunkIndex,
+					documentId, userTranslation, chosenTranslationPair,
+					callback);
+		}
 	}
 
-
-
     public void selectSource(long documentID, MediaSource selectedMediaSource) {
+    	new SelectSource(documentID, selectedMediaSource);
+    }
+
+    public class SelectSource extends Callable {
+    	
+    	// parameters
+    	long documentID;	
+    	MediaSource selectedMediaSource;
+    	
+    	// callback
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
             public void onSuccess(Void o) {
@@ -196,43 +297,64 @@ public class FilmTitServiceHandler {
             }
         };
 
-        filmTitSvc.selectSource( gui.getSessionID(), documentID, selectedMediaSource, callback);
-    }
+		public SelectSource(long documentID, MediaSource selectedMediaSource) {
+			super();
+			this.documentID = documentID;
+			this.selectedMediaSource = selectedMediaSource;
+			enqueue();
+		}
 
-    // TODO will probably return the whole Session object - now returns username or null
+		@Override
+		public void call() {
+	        filmTitService.selectSource( gui.getSessionID(), documentID, selectedMediaSource, callback);
+		}
+	}
+
     public void checkSessionID() {
+    	new CheckSessionID();
+    }
+    
+    // TODO will probably return the whole Session object - now returns username or null
+    public class CheckSessionID extends Callable {
     	
-    	final String sessionID = gui.getSessionID();
+    	// parameters
+    	String sessionID;
     	
-    	if (sessionID == null) {
-    		return;
+    	// callback
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+            public void onSuccess(String username) {
+                if (username != null && username!="") {
+                    gui.log("logged in as " + username + " with session id " + sessionID);
+                    gui.logged_in(username);
+                } else {
+                    gui.log("Warning: sessionID invalid.");
+                    gui.setSessionID(null);
+                    // gui.showLoginDialog();
+                }
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: sessionID check didn't succeed!");
+            }
+        };
+	
+        // constructor
+    	public CheckSessionID() {
+    		sessionID = gui.getSessionID();
+    		if (sessionID == null) {
+        		return;
+        	}
+    		else {
+            	enqueue();
+            }
     	}
-        else {
-          //  gui.log("logged in as -=unknown=- with session id " + sessionID);
-          //  gui.logged_in("-=unknown=-");
-
-            AsyncCallback<String> callback = new AsyncCallback<String>() {
-
-                public void onSuccess(String username) {
-                    if (username != null && username!="") {
-                        gui.log("logged in as " + username + " with session id " + sessionID);
-                        gui.logged_in(username);
-                    } else {
-                        gui.log("Warning: sessionID invalid.");
-                        gui.setSessionID(null);
-                        // gui.showLoginDialog();
-                    }
-                }
-
-                public void onFailure(Throwable caught) {
-                    gui.log("ERROR: sessionID check didn't succeed!");
-                }
-            };
-
-            // TODO call something
-            filmTitSvc.checkSessionID(sessionID, callback);
-           return;
-        }
+    	
+		@Override
+		public void call() {
+            filmTitService.checkSessionID(sessionID, callback);
+		}
+    }
 
         /*
         AsyncCallback<String> callback = new AsyncCallback<String>() {
@@ -255,9 +377,8 @@ public class FilmTitServiceHandler {
 
     	// TODO call something
         
-        // filmTitSvc.checkSessionID(sessionID, callback);
+        // filmTitService.checkSessionID(sessionID, callback);
         */
-    }
 
     public void registerUser(final String username, final String password, final String email, final DialogBox registrationForm) {
         AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
@@ -272,41 +393,64 @@ public class FilmTitServiceHandler {
             		// TODO: bool means unavailable username, right? Or are there other reasons for failing?
                     gui.log("ERROR: registration didn't succeed, username already taken.");
                     displayWindow("The username '" + username + "' is not available. Please choose a different username.");
-            		gui.showRegistrationForm();
+                    //registrationForm.txtUsername.focus();
             	}
             }
 
-            public void onFailure(Throwable caught) {
+			public void onFailure(Throwable caught) {
                 gui.log("ERROR: registration didn't succeed!");
                 displayWindow("ERROR: registration didn't succeed!");
             }
         };
 
     	String openid = null;
-        filmTitSvc.registration(username, password, email, openid, callback);
+        filmTitService.registration(username, password, email, openid, callback);
     }
 
-    public void simple_login(final String username, final String password) {
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
+    public void simple_login(String username, String password) {
+    	new SimpleLogin(username, password);
+	}
+
+    public class SimpleLogin extends Callable {
+    	
+    	// parameters
+    	String username;
+    	String password;
+    	
+    	// callback
+		AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             public void onSuccess(String SessionID) {
             	if (SessionID == null || SessionID.equals("")) {
-                    gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
-                    displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
-            		gui.showLoginDialog();
+            		gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
+            		displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
+                    gui.showLoginDialog();
             	} else {
-	                gui.log("logged in as " + username + " with session id " + SessionID);
-	                gui.setSessionID(SessionID);
-	                gui.logged_in(username);
+            		gui.log("logged in as " + username + " with session id " + SessionID);
+            		gui.setSessionID(SessionID);
+            		gui.logged_in(username);
             	}
             }
 
             public void onFailure(Throwable caught) {
-                gui.log("ERROR: simple login didn't succeed!");
+            	gui.log("ERROR: simple login didn't succeed!");
             }
         };
+		
+        // constructor
+        public SimpleLogin(String username, String password) {
+			super();
+			
+			this.username = username;
+			this.password = password;
 
-        filmTitSvc.simple_login(username, password, callback);
+	        enqueue();
+		}
+
+		@Override
+		public void call() {
+	        filmTitService.simple_login(username, password, callback);
+		}
     }
 
     public void logout() {
@@ -331,7 +475,7 @@ public class FilmTitServiceHandler {
             }
         };
 
-        filmTitSvc.logout(gui.getSessionID(), callback);
+        filmTitService.logout(gui.getSessionID(), callback);
     }
 
     
@@ -400,7 +544,7 @@ public class FilmTitServiceHandler {
 
 		};
 		
-		filmTitSvc.getAuthenticationURL(authID, serviceType, callback);
+		filmTitService.getAuthenticationURL(authID, serviceType, callback);
 	}
 	
 	public void getSessionID () {
@@ -435,7 +579,7 @@ public class FilmTitServiceHandler {
 		// RPC
 		if (sessionIDPolling) {
 			gui.log("asking for session ID with authID=" + authID);
-			filmTitSvc.getSessionID(authID, callback);			
+			filmTitService.getSessionID(authID, callback);			
 		}
 	}
 	    
@@ -464,7 +608,7 @@ public class FilmTitServiceHandler {
 		};
 		
 		// RPC
-		filmTitSvc.validateAuthentication(authID, responseURL, callback);		
+		filmTitService.validateAuthentication(authID, responseURL, callback);		
 	}
 
 
@@ -490,7 +634,7 @@ public class FilmTitServiceHandler {
         };
 
         // RPC
-        filmTitSvc.getListOfDocuments(gui.getSessionID(), callback);
+        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
     }
 	    
 }
