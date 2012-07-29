@@ -320,9 +320,17 @@ public class FilmTitServiceHandler {
 		}
 	}
 
-
-
     public void selectSource(long documentID, MediaSource selectedMediaSource) {
+    	new SelectSource(documentID, selectedMediaSource);
+    }
+
+    public class SelectSource extends Callable {
+    	
+    	// parameters
+    	long documentID;	
+    	MediaSource selectedMediaSource;
+    	
+    	// callback
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
             public void onSuccess(Void o) {
@@ -340,43 +348,64 @@ public class FilmTitServiceHandler {
             }
         };
 
-        filmTitService.selectSource( gui.getSessionID(), documentID, selectedMediaSource, callback);
-    }
+		public SelectSource(long documentID, MediaSource selectedMediaSource) {
+			super();
+			this.documentID = documentID;
+			this.selectedMediaSource = selectedMediaSource;
+			enqueue();
+		}
 
-    // TODO will probably return the whole Session object - now returns username or null
+		@Override
+		public void call() {
+	        filmTitService.selectSource( gui.getSessionID(), documentID, selectedMediaSource, callback);
+		}
+	}
+
     public void checkSessionID() {
+    	new CheckSessionID();
+    }
+    
+    // TODO will probably return the whole Session object - now returns username or null
+    public class CheckSessionID extends Callable {
     	
-    	final String sessionID = gui.getSessionID();
+    	// parameters
+    	String sessionID;
     	
-    	if (sessionID == null) {
-    		return;
+    	// callback
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+            public void onSuccess(String username) {
+                if (username != null && username!="") {
+                    gui.log("logged in as " + username + " with session id " + sessionID);
+                    gui.logged_in(username);
+                } else {
+                    gui.log("Warning: sessionID invalid.");
+                    gui.setSessionID(null);
+                    // gui.showLoginDialog();
+                }
+            }
+
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: sessionID check didn't succeed!");
+            }
+        };
+	
+        // constructor
+    	public CheckSessionID() {
+    		sessionID = gui.getSessionID();
+    		if (sessionID == null) {
+        		return;
+        	}
+    		else {
+            	enqueue();
+            }
     	}
-        else {
-          //  gui.log("logged in as -=unknown=- with session id " + sessionID);
-          //  gui.logged_in("-=unknown=-");
-
-            AsyncCallback<String> callback = new AsyncCallback<String>() {
-
-                public void onSuccess(String username) {
-                    if (username != null && username!="") {
-                        gui.log("logged in as " + username + " with session id " + sessionID);
-                        gui.logged_in(username);
-                    } else {
-                        gui.log("Warning: sessionID invalid.");
-                        gui.setSessionID(null);
-                        // gui.showLoginDialog();
-                    }
-                }
-
-                public void onFailure(Throwable caught) {
-                    gui.log("ERROR: sessionID check didn't succeed!");
-                }
-            };
-
-            // TODO call something
+    	
+		@Override
+		public void call() {
             filmTitService.checkSessionID(sessionID, callback);
-           return;
-        }
+		}
+    }
 
         /*
         AsyncCallback<String> callback = new AsyncCallback<String>() {
@@ -401,7 +430,6 @@ public class FilmTitServiceHandler {
         
         // filmTitService.checkSessionID(sessionID, callback);
         */
-    }
 
     public void registerUser(final String username, final String password, final String email, final DialogBox registrationForm) {
         AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
