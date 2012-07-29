@@ -314,9 +314,10 @@ public class Gui implements EntryPoint {
           log("parsing finished in " + parsingTime + "ms");
 
           for (TimedChunk chunk : chunklist) {
+              ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult();
               tr.setSourceChunk(chunk);
-              this.currentDocument.translationResults.add(tr);
+              this.currentDocument.translationResults.put(chunkIndex, tr);
           }
 
           // output the parsed chunks:
@@ -391,7 +392,9 @@ public class Gui implements EntryPoint {
      public void submitUserTranslation(TranslationResult transresult) {
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
           log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
-          rpcHandler.setUserTranslation(transresult.getChunkId(), transresult.getDocumentId(),
+          
+          ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
+          rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
      }
 

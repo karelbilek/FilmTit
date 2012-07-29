@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
+import java.util.Map;
 import java.util.List;
 
 public class FilmTitServiceHandler {
@@ -118,16 +119,19 @@ public class FilmTitServiceHandler {
 				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
 				
 				// add to trlist to the correct position:
-				List<TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
 			
                 for (TranslationResult newresult:newresults){
 
                     int index = newresult.getSourceChunk().getIndex();
-                    translist.set(index, newresult);
+                    ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
+                    
+                    //not sure if this is needed
+                    translist.put(poi, newresult);
                     
                     gui.getTranslationWorkspace().showResult(newresult, index);
                 }
-                    command.execute();
+                command.execute();
 			}
 			
 			public void onFailure(Throwable caught) {
@@ -150,7 +154,7 @@ public class FilmTitServiceHandler {
 		filmTitSvc.getTranslationResults(gui.getSessionID(), chunks, callback);
 	}
 	
-	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
+	public void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPair) {
 		
 		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 			
@@ -169,7 +173,7 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitSvc.setUserTranslation(gui.getSessionID(), chunkId, documentId, userTranslation, chosenTranslationPair, callback);
+		filmTitSvc.setUserTranslation(gui.getSessionID(), chunkIndex, documentId, userTranslation, chosenTranslationPair, callback);
 	}
 
 

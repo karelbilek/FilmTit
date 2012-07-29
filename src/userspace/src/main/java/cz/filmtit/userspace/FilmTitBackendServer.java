@@ -99,59 +99,56 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
-        // System.out.println("US: getTranslationResults for " + chunks.size() + " TimedChunks");
 
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
         
         Session session = activeSessions.get(sessionID);
-/*        for (TimedChunk chunk:chunks) {
-            res.add(session.getTranslationResults(chunk, TM));
-        }
-*/        
-        // System.out.println("US: sending " + res.size() + " TranslationResults");
-        return ParallelHelper.getTranslationsParallel(chunks, session, TM);
+
+        List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
+        session.saveAllTranslationResults(chunks.get(0).getDocumentId());
+        return res;
     }
 
-    public Void setUserTranslation(String sessionID, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+    public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return activeSessions.get(sessionID).setUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPairID);
+        return activeSessions.get(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
     }
 
-    public Void setChunkStartTime(String sessionID, int chunkId, long documentId, String newStartTime)
+    public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return activeSessions.get(sessionID).setChunkStartTime(chunkId, documentId, newStartTime);
+        return activeSessions.get(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
     }
 
-    public Void setChunkEndTime(String sessionID, int chunkId, long documentId, String newEndTime)
+    public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return activeSessions.get(sessionID).setChunkEndTime(chunkId, documentId, newEndTime);
+        return activeSessions.get(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
-    public TranslationResult regenerateTranslationResult(String sessionID, int chunkId, long documentId, TimedChunk chunk)
+    public TranslationResult regenerateTranslationResult(String sessionID, ChunkIndex chunkIndex, long documentId, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return activeSessions.get(sessionID).regenerateTranslationResult(chunkId, documentId, chunk, TM);
+        return activeSessions.get(sessionID).regenerateTranslationResult(chunkIndex, documentId, chunk, TM);
     }
 
-    public List<TranslationPair> requestTMSuggestions(String sessionID, int chunkId, long documentId)
+    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return activeSessions.get(sessionID).requestTMSuggestions(chunkId, documentId, TM);
+        return activeSessions.get(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
     }
 
     public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language) throws InvalidSessionIdException {
