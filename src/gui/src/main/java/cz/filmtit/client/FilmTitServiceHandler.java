@@ -126,8 +126,8 @@ public class FilmTitServiceHandler {
                     translist.set(index, newresult);
                     
                     gui.getTranslationWorkspace().showResult(newresult, index);
-                    command.execute();
                 }
+                    command.execute();
 			}
 			
 			public void onFailure(Throwable caught) {

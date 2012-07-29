@@ -333,8 +333,7 @@ public class Gui implements EntryPoint {
      
      
      
-     //class SendChunksCommand {
-     class SendChunksCommand implements RepeatingCommand {
+     class SendChunksCommand {
 
           LinkedList<TimedChunk> chunks;
           
@@ -353,7 +352,6 @@ public class Gui implements EntryPoint {
         //exponentially growing
         int exponential = 1;
 
-          @Override
         public boolean execute() {
                if (chunks.isEmpty()) {
                     return false;
