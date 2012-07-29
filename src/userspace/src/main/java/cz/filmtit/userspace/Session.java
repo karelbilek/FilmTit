@@ -135,26 +135,18 @@ public class Session {
         terminate();
     }
 
-    public Document createDocument(String movieTitle, String year, String language) {
-        lastOperationTime = new Date().getTime();
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language, user.getDatabaseId()) );
-
-        activeDocuments.put(usDocument.getDatabaseId(), usDocument);
-        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
-        // TODO: add the document to the correct user
-
-        return usDocument.getDocument();
-    }
-
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
         lastOperationTime = new Date().getTime();
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language, user.getDatabaseId()) );
+        // USDocument usDocument = new USDocument( new Document(movieTitle, year, language, user.getDatabaseId()) );
+        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) , user);
         List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
 
-        // TODO: add the document to the user !
+        user.addDocument(usDocument);
+       
+        
 
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }

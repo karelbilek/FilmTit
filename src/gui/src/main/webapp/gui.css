@@ -199,7 +199,7 @@ body input.pre_subgestbox {
 
 }
 body input.pre_subgestbox.loading {
-	background: #fbfbfb ;
+	background: pink ;
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {

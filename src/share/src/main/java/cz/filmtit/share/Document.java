@@ -21,11 +21,16 @@ public class Document implements IsSerializable, Serializable {
     	// nothing
     }
 
-    public Document(String movieTitle, String year, String langCode, long userId) {
+    public Document(String movieTitle, String year, String langCode) {
+		movie = new MediaSource(movieTitle, year);
+		this.language = Language.fromCode(langCode);
+	}
+
+    /*public Document(String movieTitle, String year, String langCode, long userId) {
 		movie = new MediaSource(movieTitle, year);
 		this.language = Language.fromCode(langCode);
 		this.userId = userId;
-	}
+	}*/
 
 	public long getId() {
 		return id;

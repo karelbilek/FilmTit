@@ -5,13 +5,22 @@
 
 
 	<g:HTMLPanel styleName="user_page">
-	
+        <b:Button type="PRIMARY" ui:field="btnDisplayCreator">Create a new document</b:Button>
+
 		<b:Heading size="3">Your documents</b:Heading>
 
-		<b:TabPanel ui:field="tabPanel" tabPosition="above">
+        <!--I have no idea how to make celltable in .xml-->
+        <!--So I do the heavy work in .java-->
+        <b:CellTable ui:field="docTable" />
+
+
+        <b:Label ui:field="emptyLabel" />
+
+
+		<!--b:TabPanel ui:field="tabPanel" tabPosition="above">
 			<b:Tab ui:field="tabDocumentList" heading="List of your documents" active="true" />
 			<b:Tab ui:field="tabNewDocument" heading="Create a new document" />
-		</b:TabPanel>
+		</b:TabPanel-->
         
 	</g:HTMLPanel>
 	

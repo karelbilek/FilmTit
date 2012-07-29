@@ -153,51 +153,36 @@ public class Gui implements EntryPoint {
         showWelcomePage();
      }
 
-
-     /**
-      * show the Start a new subtitle document panel
-      * inside the GUI contentPanel
-      */
-     private void createDocumentCreator() {
-        UserPage userpage = new UserPage();
-        guiStructure.contentPanel.setStyleName("users_page");
-
-        log("getting list of documents...");
-        FlexTable doctable = new FlexTable();
-        rpcHandler.getListOfDocuments(doctable);
-
-        userpage.tabDocumentList.add(doctable);
-
-
+    private void createNewDocumentCreator() {
         docCreator = new DocumentCreator();
 
-          // --- file reading interface via lib-gwt-file --- //
-          final FileReader freader = new FileReader();
-          freader.addLoadEndHandler( new LoadEndHandler() {
-               @Override
-               public void onLoadEnd(LoadEndEvent event) {
-                docCreator.lblUploadProgress.setText("File uploaded successfully.");
-                docCreator.btnCreateDocument.setEnabled(true);
-                    //log(subtext);
-               }
-          } );
+    // --- file reading interface via lib-gwt-file --- //
+        final FileReader freader = new FileReader();
+        freader.addLoadEndHandler( new LoadEndHandler() {
+            @Override
+            public void onLoadEnd(LoadEndEvent event) {
+            docCreator.lblUploadProgress.setText("File uploaded successfully.");
+            docCreator.btnCreateDocument.setEnabled(true);
+                //log(subtext);
+            }
+        } );
 
-          docCreator.fileUpload.addChangeHandler( new ChangeHandler() {
-               @Override
-               public void onChange(ChangeEvent event) {
-                    //log(fileUpload.getFilename());
-                docCreator.lblUploadProgress.setVisible(true);
-                docCreator.lblUploadProgress.setText("Uploading the file...");
-                    FileList fl = docCreator.fileUpload.getFiles();
-                    Iterator<File> fit = fl.iterator();
-                    if (fit.hasNext()) {
-                         freader.readAsText(fit.next(), docCreator.getChosenEncoding());
-                    }
-                    else {
-                         error("No file chosen.\n");
-                    }
-               }
-          } );
+        docCreator.fileUpload.addChangeHandler( new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                //log(fileUpload.getFilename());
+            docCreator.lblUploadProgress.setVisible(true);
+            docCreator.lblUploadProgress.setText("Uploading the file...");
+                FileList fl = docCreator.fileUpload.getFiles();
+                Iterator<File> fit = fl.iterator();
+                if (fit.hasNext()) {
+                        freader.readAsText(fit.next(), docCreator.getChosenEncoding());
+                }
+                else {
+                        error("No file chosen.\n");
+                }
+            }
+        } );
 
         docCreator.btnCreateDocument.addClickHandler( new ClickHandler() {
             @Override
@@ -207,9 +192,30 @@ public class Gui implements EntryPoint {
                 createDocumentFromText( freader.getStringResult() );
             }
         } );
-          // --- end of file reading interface via lib-gwt-file --- //
+    }
 
-        userpage.tabNewDocument.add(docCreator);
+
+     /**
+      * show the Start a new subtitle document panel
+      * inside the GUI contentPanel
+      */
+     private void createAndLoadUserPage() {
+        UserPage userpage = new UserPage();
+        guiStructure.contentPanel.setStyleName("users_page");
+
+        log("getting list of documents...");
+        rpcHandler.getListOfDocuments(userpage);
+
+
+
+        userpage.btnDisplayCreator.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                createNewDocumentCreator();
+                guiStructure.contentPanel.setWidget(docCreator);
+            }
+
+        });
 
 
         guiStructure.contentPanel.setWidget(userpage);
@@ -327,8 +333,7 @@ public class Gui implements EntryPoint {
      
      
      
-     //class SendChunksCommand {
-     class SendChunksCommand implements RepeatingCommand {
+     class SendChunksCommand {
 
           LinkedList<TimedChunk> chunks;
           
@@ -347,7 +352,6 @@ public class Gui implements EntryPoint {
         //exponentially growing
         int exponential = 1;
 
-          @Override
         public boolean execute() {
                if (chunks.isEmpty()) {
                     return false;
@@ -529,7 +533,7 @@ public class Gui implements EntryPoint {
      protected void logged_in (String username) {
         this.username = username;
           guiStructure.login.setText("Log out user " + username);
-        createDocumentCreator();
+        createAndLoadUserPage();
      }
      
      protected void logged_out () {
@@ -540,6 +544,23 @@ public class Gui implements EntryPoint {
 
     protected void showWelcomePage() {
         WelcomeScreen welcomePage = new WelcomeScreen();
+
+        welcomePage.login.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                if (getSessionID() == null) {
+                    showLoginDialog();
+                } else {
+                    rpcHandler.logout();
+                }
+            }
+        });
+        welcomePage.register.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                showRegistrationForm();
+            }
+        });
+
         guiStructure.contentPanel.setStyleName("welcoming");
         guiStructure.contentPanel.setWidget(welcomePage);
     }

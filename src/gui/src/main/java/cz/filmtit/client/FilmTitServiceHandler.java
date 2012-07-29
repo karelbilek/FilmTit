@@ -230,8 +230,8 @@ public class FilmTitServiceHandler {
                     translist.set(index, newresult);
                     
                     gui.getTranslationWorkspace().showResult(newresult, index);
-                    command.execute();
                 }
+                    command.execute();
 			}
 			
 			public void onFailure(Throwable caught) {
@@ -663,7 +663,7 @@ public class FilmTitServiceHandler {
 	}
 
 
-    public void getListOfDocuments(final FlexTable doctable) {
+    public void getListOfDocuments(final UserPage userpage) {
 
         // create callback
         AsyncCallback<List<Document>> callback = new AsyncCallback<List<Document>>() {
@@ -671,16 +671,9 @@ public class FilmTitServiceHandler {
             @Override
             public void onSuccess(List<Document> result) {
                 gui.log("received " + result.size() + " documents");
-
-                if (result.size() == 0) {
-                    doctable.setWidget(0, 0, new Label("(you have no documents)"));
-                }
-                else {
-                    int row = 0;
-                    for (Document doc : result) {
-                        doctable.setWidget(row++, 0, new Label(doc.getMovie().getTitle() + " (" + doc.getMovie().getYear() + ")") );
-                    }
-                }
+                
+                userpage.setDocuments(result);
+                
             }
 
             @Override
