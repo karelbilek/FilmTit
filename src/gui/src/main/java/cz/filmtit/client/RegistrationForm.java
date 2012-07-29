@@ -28,7 +28,7 @@ public class RegistrationForm extends Composite {
 	TextBox txtEmail;
 
 	@UiField
-	TextBox txtUsername;
+	public TextBox txtUsername;
 
 	@UiField
     PasswordTextBox txtPassword;
