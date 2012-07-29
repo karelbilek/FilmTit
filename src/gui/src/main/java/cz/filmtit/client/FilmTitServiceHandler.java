@@ -13,6 +13,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import cz.filmtit.client.Gui.SendChunksCommand;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
@@ -203,8 +205,17 @@ public class FilmTitServiceHandler {
 		}
 	}
 	
-	public void getTranslationResults(List<TimedChunk> chunks, final Gui.SendChunksCommand command) {
+	public void getTranslationResults(List<TimedChunk> chunks, Gui.SendChunksCommand command) {
+		new GetTranslationResults(chunks, command);
+	}
+
+	public class GetTranslationResults extends Callable {
 		
+		// parameters
+		List<TimedChunk> chunks;
+		Gui.SendChunksCommand command;
+		
+		// callback
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
 			
 			public void onSuccess(List<TranslationResult> newresults) {
@@ -240,7 +251,21 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		filmTitService.getTranslationResults(gui.getSessionID(), chunks, callback);
+		// constructor
+		public GetTranslationResults(List<TimedChunk> chunks,
+				SendChunksCommand command) {
+			super();
+			
+			this.chunks = chunks;
+			this.command = command;
+			
+			enqueue();
+		}
+
+		@Override
+		public void call() {
+			filmTitService.getTranslationResults(gui.getSessionID(), chunks, callback);
+		}
 	}
 	
 	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
