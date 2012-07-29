@@ -52,7 +52,7 @@ public class FilmTitServiceHandler {
 		
 		// static members
 		
-		static private Dictionary<Integer, Callable> queue;
+//		static private Dictionary<Integer, Callable> queue;
 		
 		static private int newId = 1;
 		
@@ -82,7 +82,7 @@ public class FilmTitServiceHandler {
 		 * enqueues the object and invokes the RPC
 		 */
 		public void enqueue() {
-			queue.put(id, this);
+//			queue.put(id, this);
 			call();
 		}
 		
@@ -90,7 +90,7 @@ public class FilmTitServiceHandler {
 		 * called after successful completion of RPC
 		 */
 		public void dequeue() {
-			queue.remove(id);
+//			queue.remove(id);
 		}
 		
 	}
