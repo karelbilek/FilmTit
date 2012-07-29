@@ -137,7 +137,7 @@ public class Session {
 
     public Document createDocument(String movieTitle, String year, String language) {
         lastOperationTime = new Date().getTime();
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
+        USDocument usDocument = new USDocument( new Document(movieTitle, year, language, user.getDatabaseId()) );
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
         activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
@@ -148,7 +148,7 @@ public class Session {
 
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
         lastOperationTime = new Date().getTime();
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) );
+        USDocument usDocument = new USDocument( new Document(movieTitle, year, language, user.getDatabaseId()) );
         List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
