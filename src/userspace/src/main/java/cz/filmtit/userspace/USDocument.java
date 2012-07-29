@@ -45,6 +45,7 @@ public class USDocument extends DatabaseObject {
     public USDocument() {
         document = new Document();
         translationResults = new ArrayList<USTranslationResult>();
+        ownerDatabaseId = 0; 
     }
 
     public long getOwnerDatabaseId() {
@@ -55,8 +56,8 @@ public class USDocument extends DatabaseObject {
     //this should not be run anywhere in regular code!
     //it is here only for hibernate
     public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
-        if (ownerDatabaseId!=0) {
-            throw new Exception("you should not reset the owner.");
+        if (this.ownerDatabaseId!=0) {
+            throw new Exception("you should not reset the owner. It is "+this.ownerDatabaseId);
         }
         this.ownerDatabaseId = ownerDatabaseId;
     }
@@ -101,12 +102,19 @@ public class USDocument extends DatabaseObject {
      * @throws IllegalArgumentException
      */
     public void setYear(String year) {
-        int yearInt = Integer.parseInt(year);
+        
+        
+        int yearInt = year.equals("")?0:Integer.parseInt(year);
+
+        //commenting this because it causes problems with hibernate
+        //because the year is not checked with creation of document
+        //it will need to be checked in Gui, I guess
+        /*
         // the movie should be from a reasonable time period
         if (yearInt < MINIMUM_MOVIE_YEAR  ) {
             throw new IllegalArgumentException("Value of year should from 1850 to the current year + "  +
                     Calendar.YEAR + "" + ALLOWED_FUTURE_FOR_YEARS + ".");
-        }
+        }*/
         cachedMovieYear = year;
         if (cachedMovieTitle != null) { generateMediaSource(); }
     }
