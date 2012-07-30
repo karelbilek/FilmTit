@@ -136,12 +136,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
-    public TranslationResult regenerateTranslationResult(String sessionID, ChunkIndex chunkIndex, long documentId, TimedChunk chunk)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+    public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+            throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
-        return activeSessions.get(sessionID).regenerateTranslationResult(chunkIndex, documentId, chunk, TM);
+        return activeSessions.get(sessionID).changeText(chunkIndex, documentId, newText, TM);
     }
 
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
@@ -150,6 +150,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
         return activeSessions.get(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
+    }
+
+    public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        if (!activeSessions.containsKey(sessionID)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+        return  activeSessions.get(sessionID).deleteChunk(chunkIndex, documentId);
     }
 
     public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language) throws InvalidSessionIdException {

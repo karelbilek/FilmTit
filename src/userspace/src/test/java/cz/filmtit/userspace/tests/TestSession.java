@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 
@@ -32,12 +33,15 @@ public class TestSession {
     }
 
     LoremIpsum loremIpsum = new LoremIpsum();
+    TranslationMemory TM;
+
+    public TestSession() {
+        Configuration config = new Configuration(new File("configuration.xml"));
+        TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
+    }
 
     @Test
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
-
         Session session = new Session(getSampleUser());
 
         DocumentResponse response = session.createNewDocument("Movie title", "2012", "en", TM);
@@ -102,6 +106,7 @@ public class TestSession {
 
         // test if the change appeared in the database
         USTranslationResult fromDB = loadTranslationResultFromDb(changed.getDatabaseId());
+        assertNotNull(fromDB);
         assertEquals("User translation", fromDB.getUserTranslation());
         assertEquals(0l, fromDB.getSelectedTranslationPairID());
     }
@@ -114,55 +119,83 @@ public class TestSession {
         Session session = new Session(sampleUser);
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
 
-        // TODO: change the start time and end time
+        String newStartTime = "00:00:54,377";
+        String newEndTime = "00:01:00,373";
+
+        session.setChunkStartTime(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), newStartTime);
+        session.setChunkEndTime(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), newEndTime);
 
         // test if the change appeared in the user space structure
-        // TODO: assert if it is as it should be
+        USTranslationResult changed = findTranslationResultInStructure(session,
+                trToUpdate.getDocumentDatabaseId(), trToUpdate.getChunkIndex());
+        assertEquals(newStartTime, changed.getStartTime());
+        assertEquals(newEndTime, changed.getEndTime());
 
         // test if the change appeared in the database
-        // TODO: load appropriate translation result from DB
+        USTranslationResult fromDB = loadTranslationResultFromDb(trToUpdate.getDatabaseId());
+        assertNotNull(fromDB);
+        //assertEquals(newStartTime, fromDB.getStartTime());
+        //assertEquals(newEndTime, fromDB.getEndTime());
     }
 
     @Test
-    public void testChangeOriginalText() throws InvalidDocumentIdException {
+    public void testChangeOriginalText() throws InvalidDocumentIdException, InvalidChunkIdException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
         Session session = new Session(sampleUser);
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
 
-        // TODO: change the original text
+        List<TranslationPair> originalSuggestion = trToUpdate.getTranslationResult().getTmSuggestions();
+        List<TranslationPair> newSuggestions =
+                session.changeText(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), "New text", TM);
+
+        assertNotNull(newSuggestions);
+        assertTrue(originalSuggestion != newSuggestions);
 
         // test if the change appeared in the user space structure
-        // TODO: assert if it is as it should be
+        USTranslationResult changed = findTranslationResultInStructure(session,
+                trToUpdate.getDocumentDatabaseId(), trToUpdate.getChunkIndex());
+        assertEquals("New text", changed.getText());
 
         // test if the change appeared in the database
-        // TODO: load appropriate translation result from DB
+        USTranslationResult fromDB = loadTranslationResultFromDb(trToUpdate.getDatabaseId());
+        assertNotNull(fromDB);
+        //assertEquals("New text", fromDB.getText());
     }
 
     @Test
-    public void testRequestTMSuggestions() throws InvalidDocumentIdException {
+    public void testRequestTMSuggestions() throws InvalidDocumentIdException, InvalidChunkIdException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
         Session session = new Session(sampleUser);
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
 
-        // TODO: request the TM suggestion
+        List<TranslationPair> originalSuggestions = trToUpdate.getTranslationResult().getTmSuggestions();
+        List<TranslationPair> respond = session.requestTMSuggestions(trToUpdate.getChunkIndex(),
+                trToUpdate.getDocumentDatabaseId(), TM);
 
         // test if the change appeared in the user space structure
-        // TODO: assert if it is as it should be
+        assertNotNull(respond);
+        assertTrue(respond != originalSuggestions);
 
-        // test if the change appeared in the database
-        // TODO: load appropriate translation result from DB
+        // translation pairs are not stored in the database => do not test it
     }
 
+    @Test
+    public void testDeleteChunk() throws InvalidDocumentIdException {
+        USUser sampleUser = getSampleUser();
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
+
+        Session session = new Session(sampleUser);
+        session.loadDocument(trToUpdate.getDocumentDatabaseId());
+
+        session.deleteChunk(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId());
+    }
 
     @Test
     public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
-
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
@@ -185,9 +218,13 @@ public class TestSession {
 
         session.logout();
 
-        // TODO: test if everything was properly saved to database
+        // TODO: test if whole scenario was properly saved to database
     }
 
+    /**
+     * The first translation result generated in getSampleUser() method to be used in the test as
+     * a sample translation result.
+     */
     private USTranslationResult firstGeneratedTranslationResult = null;
 
     private USUser getSampleUser() {
@@ -207,7 +244,7 @@ public class TestSession {
                 translationResult.setDocument(usDocument);
                 usDocument.addTranslationResult(translationResult);
 
-                // keep the reference to the tranlsation result
+                // keep the reference to the translation result
                 if (firstGeneratedTranslationResult == null) {
                     firstGeneratedTranslationResult = translationResult;
                 }

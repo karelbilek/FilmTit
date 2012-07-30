@@ -51,10 +51,9 @@ public class USDocument extends DatabaseObject {
         return ownerDatabaseId;
     }
 
-
     //this should not be run anywhere in regular code!
     //it is here only for hibernate
-    public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
+    private void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
         if (this.ownerDatabaseId!=0) {
             throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
@@ -77,12 +76,9 @@ public class USDocument extends DatabaseObject {
         return document.getMovie().getTitle();
     }
 
-
-
     public String getYear() {
         return document.getMovie().getYear();
     }
-
 
     /**
      * Gets the time spent on translating this subtitles valid right now.

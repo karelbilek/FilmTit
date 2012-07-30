@@ -130,7 +130,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @param text Original text of the chunk.
      * @throws IllegalAccessException
      */
-    public void setText(String text) throws IllegalAccessException {
+    public void setText(String text) {
         if (text == null)
             text = "";
         translationResult.getSourceChunk().setSurfaceForm(text);

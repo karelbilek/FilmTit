@@ -59,10 +59,12 @@ public interface FilmTitService extends RemoteService {
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    TranslationResult regenerateTranslationResult(String sessionID, ChunkIndex chunkIndex, long documentId, TimedChunk chunk)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+            throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException;
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
+            throws InvalidSessionIdException, InvalidDocumentIdException;
 
     public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
 }
