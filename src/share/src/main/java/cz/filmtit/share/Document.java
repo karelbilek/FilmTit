@@ -3,8 +3,7 @@ package cz.filmtit.share;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 public class Document implements IsSerializable, Serializable {
     public long spentOnThisTime;
 
@@ -15,7 +14,7 @@ public class Document implements IsSerializable, Serializable {
 
     private long userId = Long.MIN_VALUE;
 
-    public List<TranslationResult> translationResults = new ArrayList<TranslationResult>();
+    public Map<ChunkIndex, TranslationResult> translationResults = new HashMap<ChunkIndex, TranslationResult>();
     
 	public Document() {
     	// nothing
@@ -66,7 +65,7 @@ public class Document implements IsSerializable, Serializable {
         this.userId = userId;
     }
 
-    public List<TranslationResult> getTranslationResults() {
+    public Map<ChunkIndex, TranslationResult> getTranslationResults() {
         return translationResults;
     }
 

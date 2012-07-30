@@ -22,7 +22,7 @@ public interface FilmTitService extends RemoteService {
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
-    Void setUserTranslation(String sessionID, int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+    Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
     	throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
     // Logging in methods
@@ -45,13 +45,13 @@ public interface FilmTitService extends RemoteService {
     List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException;
     Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
     Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
-    Void setChunkStartTime(String sessionID, int chunkId, long documentId, String newStartTime)
+    Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    Void setChunkEndTime(String sessionID, int chunkId, long documentId, String newEndTime)
+    Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    TranslationResult regenerateTranslationResult(String sessionID, int chunkId, long documentId, TimedChunk chunk)
+    TranslationResult regenerateTranslationResult(String sessionID, ChunkIndex chunkIndex, long documentId, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    public List<TranslationPair> requestTMSuggestions(String sessionID, int chunkId, long documentId)
+    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
     public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found

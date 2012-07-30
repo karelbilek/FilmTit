@@ -18,6 +18,7 @@ import cz.filmtit.client.Gui.SendChunksCommand;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
+import java.util.Map;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
@@ -166,16 +167,19 @@ public class FilmTitServiceHandler {
 				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
 				
 				// add to trlist to the correct position:
-				List<TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
 			
                 for (TranslationResult newresult:newresults){
 
                     int index = newresult.getSourceChunk().getIndex();
-                    translist.set(index, newresult);
+                    ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
+                    
+                    //not sure if this is needed
+                    translist.put(poi, newresult);
                     
                     gui.getTranslationWorkspace().showResult(newresult, index);
                 }
-                    command.execute();
+                command.execute();
 			}
 			
 			public void onFailure(Throwable caught) {
@@ -212,14 +216,14 @@ public class FilmTitServiceHandler {
 		}
 	}
 	
-	public void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair) {
-		new SetUserTranslation(chunkId, documentId, userTranslation, chosenTranslationPair);
+	public void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPair) {
+		new SetUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPair);
 	}
 
 	public class SetUserTranslation extends Callable {
 		
 		// parameters
-		int chunkId;
+		ChunkIndex chunkIndex;
 		long documentId;
 		String userTranslation;
 		long chosenTranslationPair;
@@ -242,13 +246,14 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
+
 		// constructor
-		public SetUserTranslation(int chunkId, long documentId,
+		public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
 				String userTranslation, long chosenTranslationPair) {
 						
 			super();
 			
-			this.chunkId = chunkId;
+			this.chunkIndex = chunkIndex;
 			this.documentId = documentId;
 			this.userTranslation = userTranslation;
 			this.chosenTranslationPair = chosenTranslationPair;
@@ -258,7 +263,7 @@ public class FilmTitServiceHandler {
 
 		@Override
 		public void call() {
-			filmTitService.setUserTranslation(gui.getSessionID(), chunkId,
+			filmTitService.setUserTranslation(gui.getSessionID(), chunkIndex,
 					documentId, userTranslation, chosenTranslationPair,
 					callback);
 		}

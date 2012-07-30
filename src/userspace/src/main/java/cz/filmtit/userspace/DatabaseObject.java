@@ -73,12 +73,13 @@ public abstract class DatabaseObject {
      *
      */
     protected void saveJustObject(Session session) {
-        if (!gotFromDb) { // completely new object
+        /*if (!gotFromDb) { // completely new object
             session.save(this);  // USDocument throws an exception here
         }
         else {           // just update an existing one
             session.update(this);
-        }
+        }*/
+        session.saveOrUpdate(this);
 
     }
 

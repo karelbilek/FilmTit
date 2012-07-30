@@ -1,7 +1,10 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.share.*;
-import cz.filmtit.core.model.data.*;
+import cz.filmtit.core.model.data.MediaSourceFactory;
+import cz.filmtit.share.ChunkIndex;
+import cz.filmtit.share.Document;
+import cz.filmtit.share.Language;
+import cz.filmtit.share.MediaSource;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -16,7 +19,7 @@ public class USDocument extends DatabaseObject {
 
     private long ownerDatabaseId=0;
     private Document document;
-    private List<USTranslationResult> translationResults;
+    private Map<ChunkIndex, USTranslationResult> translationResults;
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
@@ -27,7 +30,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
-        translationResults = new ArrayList<USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
@@ -44,7 +47,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
-        translationResults = new ArrayList<USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         ownerDatabaseId = 0; 
     }
 
@@ -57,7 +60,7 @@ public class USDocument extends DatabaseObject {
     //it is here only for hibernate
     public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
         if (this.ownerDatabaseId!=0) {
-            throw new Exception("you should not reset the owner. It is "+this.ownerDatabaseId);
+            throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
         this.ownerDatabaseId = ownerDatabaseId;
     }
@@ -177,8 +180,7 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
-    public List<USTranslationResult> getTranslationsResults() {
-        Collections.sort(translationResults);
+    public Map<ChunkIndex, USTranslationResult> getTranslationResults() {
         return translationResults;
     }
 
@@ -193,19 +195,19 @@ public class USDocument extends DatabaseObject {
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
                 .setParameter("d", databaseId).list();
 
-        translationResults = new ArrayList<USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
             result.setDocument(this);
-            translationResults.add(result);
+            translationResults.put(result.getTranslationResult().getSourceChunk().getChunkIndex(), result);
         }
     
         HibernateUtil.closeAndCommitSession(dbSession);
 
-        Collections.sort(translationResults);
+        //Collections.sort(translationResults);
         // add the translation results to the inner document
-        for (USTranslationResult usResult : translationResults) {
-            document.getTranslationResults().add(usResult.getTranslationResult());
+        for (Map.Entry<ChunkIndex, USTranslationResult> usResult : translationResults.entrySet()) {
+            document.getTranslationResults().put(usResult.getKey(), usResult.getValue().getTranslationResult());
         }
 
     }
@@ -219,7 +221,7 @@ public class USDocument extends DatabaseObject {
         saveJustObject(dbSession);
 
         if (translationResults != null) {
-            for (USTranslationResult translationResult : translationResults) {
+            for (USTranslationResult translationResult : translationResults.values()) {
                 translationResult.saveToDatabase(dbSession);
             }
         }
@@ -230,23 +232,17 @@ public class USDocument extends DatabaseObject {
     }
 
     public void addTranslationResult(USTranslationResult translationResult) {
-        translationResults.add(translationResult);
-        document.getTranslationResults().add(translationResult.getTranslationResult());
+        addOrReplaceTranslationResult(translationResult);   
     }
 
+    public void addOrReplaceTranslationResult(USTranslationResult usTranslationResult) {
+        ChunkIndex chunkIndex = usTranslationResult.getTranslationResult().getSourceChunk().getChunkIndex();
+        translationResults.put(chunkIndex, usTranslationResult);
+        document.getTranslationResults().put(chunkIndex, usTranslationResult.getTranslationResult());
+    }
 
     public void replaceTranslationResult(USTranslationResult usTranslationResult) {
-         for (int i = 0; i < translationResults.size(); ++i) {
-             if (translationResults.get(i).getSharedId() == usTranslationResult.getSharedId()) {
-                 translationResults.set(i, usTranslationResult);
-             }
-         }
-
-        for (int i = 0; i < document.getTranslationResults().size(); ++i) {
-            if (document.getTranslationResults().get(i).getChunkId() == usTranslationResult.getSharedId()) {
-                document.getTranslationResults().set(i, usTranslationResult.getTranslationResult());
-            }
-        }
-    }
+        addOrReplaceTranslationResult(usTranslationResult);
+  }
 
 }

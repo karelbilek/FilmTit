@@ -31,11 +31,10 @@ public class Session {
     /**
      * Cache hash table for translation results belonging to active documents of the current user
      */
-    private Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults;
 
     public Session(USUser user) {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
-        activeTranslationResults = Collections.synchronizedMap(new HashMap<Long, Map<Integer, USTranslationResult>>());
+        
         sessionStart = new Date().getTime();
         lastOperationTime = new Date().getTime();
         state = SessionState.active;
@@ -48,11 +47,6 @@ public class Session {
                 // load the document
                 activeDocuments.put(document.getDatabaseId(), document);
                 // load its chunks
-                document.loadChunksFromDb();
-                activeTranslationResults.put(document.getDatabaseId(), new HashMap<Integer, USTranslationResult>());
-                for (USTranslationResult tr : document.getTranslationsResults()) {
-                    activeTranslationResults.get(document.getDatabaseId()).put(tr.getSharedId(), tr);
-                }
             }
         }
     }
@@ -141,7 +135,6 @@ public class Session {
         List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
-        activeTranslationResults.put(usDocument.getDatabaseId(), Collections.synchronizedMap(new HashMap<Integer, USTranslationResult>()));
 
         user.addDocument(usDocument);
        
@@ -164,65 +157,63 @@ public class Session {
         usTranslationResult.generateMTSuggestions(TM);
         document.addTranslationResult(usTranslationResult);
 
-        activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
+        saveTranslationResult(document, usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 
-    public Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPairID)
+    public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         lastOperationTime = new Date().getTime();
 
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
-            throw new InvalidChunkIdException("Not existing chunk ID given.");
-        }
 
-        USTranslationResult tr = activeTranslationResults.get(documentId).get(chunkId);
+        USDocument doc = activeDocuments.get(documentId);
+        
+        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
+        saveTranslationResult(activeDocuments.get(documentId), tr);
         return null;
     }
 
-    public Void setChunkStartTime(int chunkId, long documentId, String newStartTime) throws InvalidDocumentIdException, InvalidChunkIdException {
+    public Void setChunkStartTime(ChunkIndex chunkIndex, long documentId, String newStartTime) throws InvalidDocumentIdException, InvalidChunkIdException {
         lastOperationTime = new Date().getTime();
 
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
-            throw new InvalidChunkIdException("Not existing chunk ID given.");
-        }
-
-        activeTranslationResults.get(documentId).get(chunkId).setStartTime(newStartTime);
+        USDocument doc = activeDocuments.get(documentId);
+        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
+        tr.setStartTime(newStartTime);
+        saveTranslationResult(doc, tr);
         return  null;
     }
 
-    public Void setChunkEndTime(int chunkId, long documentId, String newEndTime) throws InvalidDocumentIdException, InvalidChunkIdException {
+    public Void setChunkEndTime(ChunkIndex chunkIndex, long documentId, String newEndTime) throws InvalidDocumentIdException, InvalidChunkIdException {
         lastOperationTime = new Date().getTime();
 
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
-            throw new InvalidChunkIdException("Not existing chunk ID given.");
-        }
+        USDocument doc = activeDocuments.get(documentId);
+        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
 
-        activeTranslationResults.get(documentId).get(chunkId).setStartTime(newEndTime);
+        tr.setStartTime(newEndTime);
+        saveTranslationResult(doc, tr);
         return  null;
     }
 
-    public TranslationResult regenerateTranslationResult(int chunkId, long documentId, TimedChunk chunk, TranslationMemory TM)
+    public TranslationResult regenerateTranslationResult(ChunkIndex chunkIndex, long documentId, TimedChunk chunk, TranslationMemory TM)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         lastOperationTime = new Date().getTime();
 
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
-            throw new InvalidChunkIdException("Not existing chunk ID given.");
-        }
+
+
 
         USDocument document = activeDocuments.get(documentId);
 
@@ -232,25 +223,24 @@ public class Session {
         usTranslationResult.generateMTSuggestions(TM);
         document.replaceTranslationResult(usTranslationResult);
 
-        activeTranslationResults.get(document.getDatabaseId()).put(chunk.getId(), usTranslationResult);
+        saveTranslationResult(document, usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 
-    public List<TranslationPair> requestTMSuggestions(int chunkId, long documentId, TranslationMemory TM)
+    public List<TranslationPair> requestTMSuggestions(ChunkIndex chunkIndex, long documentId, TranslationMemory TM)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         lastOperationTime = new Date().getTime();
 
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        if (!activeTranslationResults.get(documentId).containsKey(chunkId)) {
-            throw new InvalidChunkIdException("Not existing chunk ID given.");
-        }
-
-        USTranslationResult selected = activeTranslationResults.get(documentId).get(chunkId);
+        
+        USTranslationResult selected = activeDocuments.get(documentId).getTranslationResults().get(chunkIndex);
         selected.generateMTSuggestions(TM);
         List<TranslationPair> l = new ArrayList<TranslationPair>();
         l.addAll( selected.getTranslationResult().getTmSuggestions());
+        
+        saveTranslationResult(activeDocuments.get(documentId), selected);
         return l;
     }
 
@@ -267,7 +257,7 @@ public class Session {
 
         for(USDocument usDocument : user.getOwnedDocuments()) {
             result.add(usDocument.getDocument());
-        }
+  }
 
         return result;
     }
@@ -278,12 +268,8 @@ public class Session {
               if (usDocument.getDatabaseId() == documentID) {
 
                   activeDocuments.put(documentID, usDocument);
-                  activeTranslationResults.put(documentID, new HashMap<Integer, USTranslationResult>());
 
                   usDocument.loadChunksFromDb();
-                  for (USTranslationResult result : usDocument.getTranslationsResults()) {
-                        activeTranslationResults.get(documentID).put(result.getSharedId(), result);
-                  }
 
                   return  usDocument.getDocument();
               }
@@ -303,8 +289,38 @@ public class Session {
         HibernateUtil.closeAndCommitSession(dbSession);
 
         activeDocuments.remove(documentID);
-        activeTranslationResults.remove(documentID);
-
+        
+        saveAllTranslationResults(activeDocuments.get(documentID));
         return null;
+    }
+    
+
+    public void saveAllTranslationResults(long l) {
+        saveAllTranslationResults(activeDocuments.get(l));
+    }
+
+    public void saveAllTranslationResults(USDocument document) {
+        Collection<USTranslationResult> results = document.getTranslationResults().values();
+        saveTranslationResults(document, results);
+    }
+
+    public void saveTranslationResult(USDocument document, USTranslationResult result) {
+       ArrayList<USTranslationResult> al = new ArrayList<USTranslationResult>(1);
+       al.add(result);
+       saveTranslationResults(document, al);
+    }
+
+    public void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
+        org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
+        document.saveToDatabase(session);
+
+
+        for (USTranslationResult tr : results) {
+
+            document.addOrReplaceTranslationResult(tr);
+            tr.saveToDatabase(session); 
+                        
+        }
+        HibernateUtil.closeAndCommitSession(session); 
     }
 }

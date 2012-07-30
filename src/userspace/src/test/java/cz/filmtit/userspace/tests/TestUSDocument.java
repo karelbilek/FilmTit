@@ -87,8 +87,7 @@ public class TestUSDocument {
         loadedDocument.loadChunksFromDb();
 
         // test if the loaded TranslationResults are the same as the saved ones
-        assertEquals(3, loadedDocument.getTranslationsResults().size());
-
+        assertEquals(3, loadedDocument.getTranslationResults().size());
     }
 
     @Test(expected=UnsupportedOperationException.class)
