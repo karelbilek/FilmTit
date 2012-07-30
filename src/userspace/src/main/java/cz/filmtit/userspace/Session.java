@@ -157,7 +157,8 @@ public class Session {
         usTranslationResult.generateMTSuggestions(TM);
         document.addTranslationResult(usTranslationResult);
 
-        saveTranslationResult(document, usTranslationResult);
+        //not saving it right away, because I do this in parallel, db doesn't like it
+        //saveTranslationResult(document, usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 
