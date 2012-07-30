@@ -20,10 +20,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -44,11 +41,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected Configuration configuration;
 
     // AuthId which are in process
-    private Map<Long, AuthData> authenticatingSessions = new HashMap<Long, AuthData>();
+    private Map<Long, AuthData> authenticatingSessions =
+            Collections.synchronizedMap(new HashMap<Long, AuthData>());
     // AuthId which are authenticated but not activated
-    private Map<Long,Authentication> authenticatedSessions = new HashMap<Long, Authentication>();
+    private Map<Long,Authentication> authenticatedSessions =
+            Collections.synchronizedMap(new HashMap<Long, Authentication>());
     // Activated User
-    private Map<String, Session> activeSessions = new HashMap<String,Session>();
+    private Map<String, Session> activeSessions =
+            Collections.synchronizedMap(new HashMap<String,Session>());
 
     protected OpenIdManager manager = new OpenIdManager();
     public FilmTitBackendServer() {
