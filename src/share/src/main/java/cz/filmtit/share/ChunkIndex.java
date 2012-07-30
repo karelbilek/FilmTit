@@ -1,7 +1,7 @@
 package cz.filmtit.share;
 
 import java.io.Serializable;
-public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
+public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable, Serializable, Comparable<ChunkIndex> {
     int partNumber;
     int id;
 
@@ -38,6 +38,15 @@ public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable
     public int hashCode() {
         Integer r = partNumber*13+id*53;
         return r.hashCode();
+    }
+
+    @Override
+    public int compareTo(ChunkIndex other) {
+        if (other.id == id) {
+            return partNumber - other.partNumber;
+        } else {
+            return id - other.id;
+        }
     }
 
 }

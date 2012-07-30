@@ -39,7 +39,7 @@ public class TranslationWorkspace extends Composite {
 
 
     public TranslationWorkspace(Gui gui, String path) {
-		initWidget(uiBinder.createAndBindUi(this));
+        initWidget(uiBinder.createAndBindUi(this));
 
         isVideo = path!=null;
 
@@ -140,6 +140,8 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(TranslationResult transresult, int index) {
+        
+
         targetBoxes.get(index).getFather().setTranslationResult(transresult);
         targetBoxes.get(index).removeStyleName("loading");
 

@@ -48,10 +48,17 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     private boolean loadedSuggestions = false;
     String lastText = "";
 
+    void replaceFakeWithReal() {
+        workspace.replaceFake(id, substitute, this);
+    }
 
+    private FakeSubgestBox substitute=null;
+    
     public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox() {
+            SubgestBox.this.substitute = SubgestBox.FakeSubgestBox.this;
+
             this.addFocusHandler(new FocusHandler() {
                 @Override
                 public void onFocus(FocusEvent event) {
@@ -59,7 +66,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             @Override
                             public void execute() {
-                                workspace.replaceFake(id, SubgestBox.FakeSubgestBox.this, SubgestBox.this);
+                                replaceFakeWithReal();
                             }
                         });
                     }
@@ -131,7 +138,12 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     public void setTranslationResult(TranslationResult translationResult) {
         this.translationResult = translationResult;
         loadedSuggestions = false;
-        //TODO - reload suggestions, if they are currently displayed
+        String userTranslation = translationResult.getUserTranslation();
+
+        if (userTranslation != null && !userTranslation.equals("")) {
+            replaceFakeWithReal();
+            setHTML(userTranslation);
+        }
     }
 
 	public int getId() {
@@ -285,8 +297,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		
 		this.setSuggestionWidget(suggestPanel);
 	}
-	
-	
+
 	public void showSuggestions() {
 		suggestPanel.showRelativeTo(this);
 		suggestionWidget.setWidth(this.getOffsetWidth() + "px");

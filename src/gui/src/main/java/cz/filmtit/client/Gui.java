@@ -13,6 +13,7 @@ import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
+import com.google.gwt.cell.client.FieldUpdater;
 
 import java.util.*;
 
@@ -200,7 +201,13 @@ public class Gui implements EntryPoint {
       * inside the GUI contentPanel
       */
      private void createAndLoadUserPage() {
-        UserPage userpage = new UserPage();
+        UserPage userpage = new UserPage(
+            new FieldUpdater<Document, String>() {
+                public void update(int index, Document doc, String value) {
+                    editDocument(doc);
+                }
+            }
+        );
         guiStructure.contentPanel.setStyleName("users_page");
 
         log("getting list of documents...");
@@ -273,12 +280,57 @@ public class Gui implements EntryPoint {
 
     protected void document_created(String moviePath) {
         // replacing the document-creating interface with the subtitle table:
+        log("worskapce begin");
         this.workspace = new TranslationWorkspace(this, moviePath);
+        log("workspace ens");
         guiStructure.contentPanel.setWidget(workspace);
         guiStructure.contentPanel.setStyleName("translating");
     }
 
 
+    public void editDocument(Document document) {
+        rpcHandler.loadDocumentFromDB(document);
+    }
+
+    protected void processTranslationResultList(List<TranslationResult> translations) {
+        
+          int i = 0;
+
+
+          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
+
+          log("Bude jich "+translations.size());
+
+          for (TranslationResult tr:translations) {
+              TimedChunk sChunk = tr.getSourceChunk();
+              String tChunk = tr.getUserTranslation();
+              
+              log("dalsi translationresult, source "+sChunk.getSurfaceForm()+", target: "+tr.getUserTranslation());
+
+              ChunkIndex chunkIndex = sChunk.getChunkIndex();
+              
+              log ("HALF THE BATTLE");
+              
+              this.currentDocument.translationResults.put(chunkIndex, tr);
+              
+              log("nejdriv showsource...");
+              workspace.showSource(sChunk, i);
+              if (tChunk==null || tChunk.equals("")){
+                 log("neni vyplneny");
+                 untranslatedOnes.add(sChunk);
+              } else {
+                 log("je vyplneny");
+                 workspace.showResult(tr, i);
+              
+              }
+              i++;
+          }
+          log("untranslated == "+untranslatedOnes.size());
+          if (untranslatedOnes.size() > 0) {
+            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
+            sendChunks.execute();
+          }
+    }
      
      /**
       * Parse the given text in the subtitle format of choice (by the radiobuttons)
@@ -371,6 +423,7 @@ public class Gui implements EntryPoint {
           }
           
           private void sendChunks(List<TimedChunk> timedchunks) {
+               log("jdu poslat chunky...");
                rpcHandler.getTranslationResults(timedchunks, this);
           }
      }

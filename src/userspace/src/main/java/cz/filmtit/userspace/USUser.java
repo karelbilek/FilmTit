@@ -90,7 +90,7 @@ public class USUser extends DatabaseObject {
 
     /**
      * Gets the list of documents owned by this user.
-     * @return List of USDocument objects wrapping the Document objects
+     * @return List of USDocument objects wrapping the Document objects, but with empty suggestion lists
      */
     public List<USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
@@ -107,9 +107,17 @@ public class USUser extends DatabaseObject {
             // store it to the variable
             for (Object o : result) { ownedDocuments.add((USDocument)o); }
             
+            for (USDocument d : ownedDocuments) {
+                System.out.println("Dalsi document. Ma "+d.getTranslationResults().size()+" prfku. Jeho podhoubi : "+d.getDocument().getTranslationResults().size());
+            }
+
+
             HibernateUtil.closeAndCommitSession(session);
         } else {
             System.out.println("Owned documents are not null.");
+            for (USDocument d : ownedDocuments) {
+                System.out.println("Dalsi document. Ma "+d.getTranslationResults().size()+" prfku. Jeho podhoubi : "+d.getDocument().getTranslationResults().size());
+            }
         }
         
         System.out.println("WEEE! the size is"+ownedDocuments.size());

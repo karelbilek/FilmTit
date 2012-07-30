@@ -14,7 +14,7 @@ public class Document implements IsSerializable, Serializable {
 
     private long userId = Long.MIN_VALUE;
 
-    public Map<ChunkIndex, TranslationResult> translationResults = new HashMap<ChunkIndex, TranslationResult>();
+    public TreeMap<ChunkIndex, TranslationResult> translationResults = new TreeMap<ChunkIndex, TranslationResult>();
     
 	public Document() {
     	// nothing
@@ -63,6 +63,15 @@ public class Document implements IsSerializable, Serializable {
             throw  new UnsupportedOperationException("Once the owner ID is set, it cannot be changed.");
         }
         this.userId = userId;
+    }
+
+    public List<TranslationResult> getSortedTranslationResults() {
+       List<TranslationResult> res = new ArrayList<TranslationResult>(translationResults.size());
+       //sorted because treeset
+       for (ChunkIndex i:translationResults.keySet()) {
+          res.add(translationResults.get(i));
+       }
+       return res;
     }
 
     public Map<ChunkIndex, TranslationResult> getTranslationResults() {

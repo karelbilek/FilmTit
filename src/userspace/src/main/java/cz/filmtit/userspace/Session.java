@@ -257,7 +257,10 @@ public class Session {
 
         for(USDocument usDocument : user.getOwnedDocuments()) {
             result.add(usDocument.getDocument());
-  }
+        
+            
+            System.out.println("SESN Dalsi document. Ma "+usDocument.getTranslationResults().size()+" prfku. Jeho podhoubi : "+usDocument.getDocument().getTranslationResults().size());
+        }
 
         return result;
     }

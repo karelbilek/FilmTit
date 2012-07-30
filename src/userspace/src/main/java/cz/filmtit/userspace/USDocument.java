@@ -27,7 +27,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = new TreeMap<ChunkIndex, USTranslationResult>();
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
@@ -44,7 +44,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = new TreeMap<ChunkIndex, USTranslationResult>();
         ownerDatabaseId = 0; 
     }
 
@@ -193,7 +193,7 @@ public class USDocument extends DatabaseObject {
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
                 .setParameter("d", databaseId).list();
 
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = new TreeMap<ChunkIndex, USTranslationResult>();
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
             result.setDocument(this);
