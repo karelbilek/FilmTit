@@ -98,7 +98,7 @@ public class USUser extends DatabaseObject {
         if (ownedDocuments == null) {
             System.out.println("Owned documents are null, let's get them ");
             ownedDocuments = new ArrayList<USDocument>();
-            org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
+            org.hibernate.Session session = USHibernateUtil.getSessionWithActiveTransaction();
 
             // query the documents owned by the user
             List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid")
@@ -107,7 +107,7 @@ public class USUser extends DatabaseObject {
             // store it to the variable
             for (Object o : result) { ownedDocuments.add((USDocument)o); }
             
-            HibernateUtil.closeAndCommitSession(session);
+            USHibernateUtil.closeAndCommitSession(session);
         } else {
             System.out.println("Owned documents are not null.");
         }

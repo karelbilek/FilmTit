@@ -184,7 +184,7 @@ public class TestSession {
     }
 
     @Test
-    public void testDeleteChunk() throws InvalidDocumentIdException {
+    public void testDeleteChunk() throws InvalidDocumentIdException, InvalidChunkIdException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
@@ -270,9 +270,9 @@ public class TestSession {
      * @return The requested USTranslationResult
      */
     private USTranslationResult loadTranslationResultFromDb(long id) {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         List dbRes = dbSession.createQuery("select r from USTranslationResult r where r.id = " + id).list();
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
         if (dbRes.size() == 1) {
             return (USTranslationResult)(dbRes.get(0));
         }

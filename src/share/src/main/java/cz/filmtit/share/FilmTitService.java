@@ -15,7 +15,7 @@ public interface FilmTitService extends RemoteService {
 	DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language)
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
-    	throws InvalidSessionIdException;
+            throws InvalidSessionIdException, InvalidDocumentIdException;
     
     // Subtitles handling
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
@@ -64,7 +64,7 @@ public interface FilmTitService extends RemoteService {
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
-            throws InvalidSessionIdException, InvalidDocumentIdException;
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
 
     public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
 }

@@ -3,6 +3,7 @@ package cz.filmtit.userspace;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.core.CoreHibernateUtil;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
@@ -66,8 +67,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         manager.setRealm(serverAddress);
 
         // initialize the database by opening and closing a session
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        HibernateUtil.closeAndCommitSession(dbSession);
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        USHibernateUtil.closeAndCommitSession(dbSession);
+
+        // initialize also the core part of hibernate
+        dbSession = CoreHibernateUtil.getSessionWithActiveTransaction();
+        CoreHibernateUtil.closeAndCommitSession(dbSession);
 
         System.err.println("FilmTitBackendServer started fine!");
     }
@@ -91,108 +96,73 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return TM;
     }
 
-    public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk) throws InvalidSessionIdException, InvalidDocumentIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-
-        return activeSessions.get(sessionID).getTranslationResults(chunk, TM);
+    public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).getTranslationResults(chunk, TM);
     }
 
-    public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
-
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        
-        Session session = activeSessions.get(sessionID);
+    public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        Session session = getSessionIfCan(sessionID);
 
         List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
         session.saveAllTranslationResults(chunks.get(0).getDocumentId());
         return res;
     }
 
-    public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
+    public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId,
+                                   String userTranslation, long chosenTranslationPairID)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
+        return getSessionIfCan(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
     }
 
     public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
+        return getSessionIfCan(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
     }
 
     public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
+        return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
     public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).changeText(chunkIndex, documentId, newText, TM);
+        return getSessionIfCan(sessionID).changeText(chunkIndex, documentId, newText, TM);
     }
 
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
+        return getSessionIfCan(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
     }
 
     public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+        return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
+    }
+
+    public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language)
+            throws InvalidSessionIdException {
+         return getSessionIfCan(sessionID).createNewDocument(movieTitle, year, language, TM);
+    }
+
+    public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
             throws InvalidSessionIdException, InvalidDocumentIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return  activeSessions.get(sessionID).deleteChunk(chunkIndex, documentId);
-    }
-
-    public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language) throws InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).createNewDocument(movieTitle, year, language, TM);
-    }
-
-    public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource) throws InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).selectSource(documentID, selectedMediaSource);
+        return getSessionIfCan(sessionID).selectSource(documentID, selectedMediaSource);
     }
 
     public List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).getListOfDocuments();
+        return getSessionIfCan(sessionID).getListOfDocuments();
     }
 
-    public Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).loadDocument(documentID);
+    public Document loadDocument(String sessionID, long documentID)
+            throws InvalidDocumentIdException, InvalidSessionIdException {
+        return getSessionIfCan(sessionID).loadDocument(documentID);
     }
 
-    public Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
-        return activeSessions.get(sessionID).closeDocument(documentId);
+    public Void closeDocument(String sessionID, long documentId)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).closeDocument(documentId);
     }
 
     @Override
@@ -281,11 +251,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public Void logout(String sessionID) throws InvalidSessionIdException {
-        if (!activeSessions.containsKey(sessionID)) {
-            throw new InvalidSessionIdException("Session ID expired or invalid.");
-        }
+        Session session = getSessionIfCan(sessionID);
 
-        activeSessions.get(sessionID).logout();
+        session.logout();
         activeSessions.remove(sessionID);
 
         return null;
@@ -294,17 +262,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Boolean  registration(String name ,  String pass  , String email, String openId) {
           // create user
 
-             USUser check = checkUser(name,pass,CheckUserEnum.UserName);
+         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
          if (check == null)
          {
              String hash = pass_hash(pass);
              USUser user = new USUser(name,hash,email,openId);
           // create hibernate session
-             org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+             org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
           // save into db
              user.saveToDatabase(dbSession);
-            HibernateUtil.closeAndCommitSession(dbSession);
+            USHibernateUtil.closeAndCommitSession(dbSession);
          return true;
          }
         return false;
@@ -369,16 +337,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     private  USUser checkUser(String username , String password, CheckUserEnum type)
     {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",username).list(); //UPDATE hibernate  for more consraints
+                .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
 
         USUser succesUser = null;
         int count= 0;
         if (type == CheckUserEnum.UserNamePass)
         {
-            HibernateUtil.closeAndCommitSession(dbSession);
+            USHibernateUtil.closeAndCommitSession(dbSession);
             for (Object aUserResult : UserResult) {
                 USUser user = (USUser) aUserResult;
                 if (BCrypt.checkpw(password, user.getPassword())) {
@@ -431,13 +399,19 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-
 	@Override
 	public Boolean changePassword(String username, String password, String token) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+    private Session getSessionIfCan(String sessionId) throws InvalidSessionIdException {
+        if (!activeSessions.containsKey(sessionId)) {
+            throw new InvalidSessionIdException("Session ID expired or invalid.");
+        }
+
+        return activeSessions.get(sessionId);
+    }
 
 }
 

@@ -73,9 +73,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -153,9 +153,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setUserTranslation(userTranslation);
         feedbackSent = false;
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -192,9 +192,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -284,7 +284,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @return  A list of unchecked translation results.
      */
     public static List<USTranslationResult> getUncheckedResults() {
-         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+         Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
 
          List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
@@ -317,7 +317,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
              usResult.saveToDatabase(dbSession);
              results.add(usResult);
          }
-         HibernateUtil.closeAndCommitSession(dbSession);
+         USHibernateUtil.closeAndCommitSession(dbSession);
          return results;
      }
 

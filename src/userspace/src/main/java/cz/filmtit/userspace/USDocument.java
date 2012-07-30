@@ -4,6 +4,7 @@ import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.MediaSource;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -33,9 +34,9 @@ public class USDocument extends DatabaseObject {
             this.ownerDatabaseId = user.getDatabaseId();
         }
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -146,12 +147,19 @@ public class USDocument extends DatabaseObject {
         return translationResults;
     }
 
+    public USTranslationResult getTranslationResultByIndex(ChunkIndex index) throws InvalidChunkIdException {
+        if (!translationResults.containsKey(index)) {
+            throw new InvalidChunkIdException("The document does not contain chunk with such index.");
+        }
+        return translationResults.get(index);
+    }
+
 
     /**
      * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
@@ -164,7 +172,7 @@ public class USDocument extends DatabaseObject {
             translationResults.put(result.getTranslationResult().getSourceChunk().getChunkIndex(), result);
         }
     
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
 
         //Collections.sort(translationResults);
         // add the translation results to the inner document
