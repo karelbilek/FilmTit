@@ -381,6 +381,19 @@ public class FilmTitServiceHandler {
         */
 
     public void registerUser(final String username, final String password, final String email, final DialogBox registrationForm) {
+    	new RegisterUser(username, password, email, registrationForm);
+    }
+    
+    public class RegisterUser extends Callable {
+    	
+    	// parameters
+    	String username;
+    	String password;
+    	String email;
+    	DialogBox registrationForm;
+    	String openid = null;
+    	
+    	// callback
         AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
             public void onSuccess(Boolean result) {
@@ -403,8 +416,23 @@ public class FilmTitServiceHandler {
             }
         };
 
-    	String openid = null;
-        filmTitService.registration(username, password, email, openid, callback);
+        // constructor
+		public RegisterUser(String username, String password, String email,
+				DialogBox registrationForm) {
+			super();
+			
+			this.username = username;
+			this.password = password;
+			this.email = email;
+			this.registrationForm = registrationForm;
+			
+			enqueue();
+		}
+
+		@Override
+		void call() {
+	        filmTitService.registration(username, password, email, openid, callback);
+		}
     }
 
     public void simple_login(String username, String password) {
