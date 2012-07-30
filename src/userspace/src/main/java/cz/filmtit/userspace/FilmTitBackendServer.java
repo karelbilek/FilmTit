@@ -422,5 +422,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
+
+	@Override
+	public Boolean changePassword(String username, String password, String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }
 
