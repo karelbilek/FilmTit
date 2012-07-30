@@ -14,7 +14,6 @@ import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
 import org.expressme.openid.OpenIdManager;
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationHandler;
@@ -22,14 +21,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.util.*;
-import java.security.*;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
         FilmTitService {
 
     private static final long serialVersionUID = 3546115L;
-    private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.getConf().sessionTimeout();
+    private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
     private static int SESSION_ID_LENGHT = 47;
 
 
@@ -43,15 +41,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected Configuration configuration;
 
     // AuthId which are in process
-    private Map<Long, AuthData> authenticatingSessions = new HashMap<Long, AuthData>();
+    private Map<Long, AuthData> authenticatingSessions =
+            Collections.synchronizedMap(new HashMap<Long, AuthData>());
     // AuthId which are authenticated but not activated
-    private Map<Long,Authentication> authenticatedSessions = new HashMap<Long, Authentication>();
+    private Map<Long,Authentication> authenticatedSessions =
+            Collections.synchronizedMap(new HashMap<Long, Authentication>());
     // Activated User
-    private Map<String, Session> activeSessions = new HashMap<String,Session>();
+    private Map<String, Session> activeSessions =
+            Collections.synchronizedMap(new HashMap<String,Session>());
 
     protected OpenIdManager manager = new OpenIdManager();
     public FilmTitBackendServer() {
-        configuration = ConfigurationSingleton.getConf();
+        configuration = ConfigurationSingleton.conf();
 
         loadTranslationMemory();
 
@@ -73,7 +74,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     protected void loadTranslationMemory() {
         TM = Factory.createTMFromConfiguration(
-                ConfigurationSingleton.getConf(),
+                ConfigurationSingleton.conf(),
                 true, // readonly
                 false  // in memory
         );
@@ -192,7 +193,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // TODO: Add the service type resolving   -  is enough send  name of service like enum
         // lib is open source and we can added for example seznam or myid
 
-        configuration = ConfigurationSingleton.getConf();
+        configuration = ConfigurationSingleton.conf();
         String serverAddress = configuration.serverAddress();
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
         
@@ -420,6 +421,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         public byte[] Mac_key;
         public Endpoint endpoint;
     }
+
+
+
+	@Override
+	public Boolean changePassword(String username, String password, String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 
 }

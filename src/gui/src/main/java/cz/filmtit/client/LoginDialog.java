@@ -33,7 +33,7 @@ public class LoginDialog extends Composite {
     PasswordTextBox txtPassword;
 
 	@UiField
-	Button btnLogin;
+	SubmitButton btnLogin;
 	
 	@UiField
 	Button btnLoginGoogle;
@@ -50,6 +50,10 @@ public class LoginDialog extends Composite {
     public String getUsername() {
         return txtUsername.getText();
     }
+
+	public void setUsername(String username) {
+		txtUsername.setText(username);
+	}
 
     public String getPassword() {
         return txtPassword.getText();

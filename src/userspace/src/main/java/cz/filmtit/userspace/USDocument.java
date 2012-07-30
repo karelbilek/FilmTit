@@ -1,7 +1,9 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.share.*;
-import cz.filmtit.core.model.data.*;
+import cz.filmtit.share.ChunkIndex;
+import cz.filmtit.share.Document;
+import cz.filmtit.share.Language;
+import cz.filmtit.share.MediaSource;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -20,14 +22,11 @@ public class USDocument extends DatabaseObject {
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
-
-    private String cachedMovieTitle;
-    private String cachedMovieYear;
     
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
@@ -44,7 +43,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         ownerDatabaseId = 0; 
     }
 
@@ -57,7 +56,7 @@ public class USDocument extends DatabaseObject {
     //it is here only for hibernate
     public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
         if (this.ownerDatabaseId!=0) {
-            throw new Exception("you should not reset the owner. It is "+this.ownerDatabaseId);
+            throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
         this.ownerDatabaseId = ownerDatabaseId;
     }
@@ -78,46 +77,12 @@ public class USDocument extends DatabaseObject {
         return document.getMovie().getTitle();
     }
 
-    /**
-     * Sets the title of the movie. If the year of publishing the movie has been defined,
-     * it also updates the IMDB information.
-     * @param movieTitle New movie title.
-     */
-    public void setMovieTitle(String movieTitle) {
-        cachedMovieTitle = movieTitle;
-        if (cachedMovieYear != null) { generateMediaSource(); }
-    }
+
 
     public String getYear() {
         return document.getMovie().getYear();
     }
 
-    private void generateMediaSource() {
-        document.setMovie(MediaSourceFactory.fromIMDB(cachedMovieTitle, cachedMovieYear));
-    }
-
-    /**
-     * Sets the year when the movie was published. If the title has been defined, it also updates the IMDB information.
-     * @param year New value of year.
-     * @throws IllegalArgumentException
-     */
-    public void setYear(String year) {
-        
-        
-        int yearInt = year.equals("")?0:Integer.parseInt(year);
-
-        //commenting this because it causes problems with hibernate
-        //because the year is not checked with creation of document
-        //it will need to be checked in Gui, I guess
-        /*
-        // the movie should be from a reasonable time period
-        if (yearInt < MINIMUM_MOVIE_YEAR  ) {
-            throw new IllegalArgumentException("Value of year should from 1850 to the current year + "  +
-                    Calendar.YEAR + "" + ALLOWED_FUTURE_FOR_YEARS + ".");
-        }*/
-        cachedMovieYear = year;
-        if (cachedMovieTitle != null) { generateMediaSource(); }
-    }
 
     /**
      * Gets the time spent on translating this subtitles valid right now.
@@ -153,6 +118,10 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
+    private void setMediaSource(MediaSource movie) {
+        document.setMovie(movie);
+    }
+
     public long getTranslationGenerationTime() {
         return translationGenerationTime;
     }
@@ -178,7 +147,6 @@ public class USDocument extends DatabaseObject {
     }
 
     public Map<ChunkIndex, USTranslationResult> getTranslationResults() {
-        //Collections.sort(translationResults);
         return translationResults;
     }
 
@@ -193,7 +161,7 @@ public class USDocument extends DatabaseObject {
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
                 .setParameter("d", databaseId).list();
 
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
             result.setDocument(this);

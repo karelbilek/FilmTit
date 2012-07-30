@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
@@ -221,6 +222,10 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     protected long getSharedClassDatabaseId() { return databaseId; }
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
+
+    public ChunkIndex getChunkIndex() {
+        return translationResult.getSourceChunk().getChunkIndex();
+    }
 
     /**
      * Queries the Translation Memory for the suggestions. If there are some previous
