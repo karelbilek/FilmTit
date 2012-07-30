@@ -123,7 +123,7 @@ public class Gui implements EntryPoint {
 
 
 
-     private void createGui() {
+     void createGui() {
           
           // -------------------- //
           // --- GUI creation --- //
@@ -420,10 +420,13 @@ public class Gui implements EntryPoint {
      
      /**
       * show a dialog enabling the user to
-      * log in directly or [this line maybe to be removed]
-      * via OpenID services
+      * log in directly
+      * or via OpenID services [this line maybe to be removed]
       */
-    protected void showLoginDialog() {
+     protected void showLoginDialog() {
+    	 showLoginDialog("");
+     }
+    protected void showLoginDialog(String username) {
          
          final DialogBox dialogBox = new DialogBox(false);
         final LoginDialog loginDialog = new LoginDialog();
@@ -484,6 +487,8 @@ public class Gui implements EntryPoint {
                 dialogBox.hide();
                }
           });
+        
+        loginDialog.setUsername(username);
         
         dialogBox.setWidget(loginDialog);
         dialogBox.setGlassEnabled(true);
