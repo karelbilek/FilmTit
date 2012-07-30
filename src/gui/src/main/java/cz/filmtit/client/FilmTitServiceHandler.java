@@ -380,7 +380,7 @@ public class FilmTitServiceHandler {
         // filmTitService.checkSessionID(sessionID, callback);
         */
 
-    public void registerUser(final String username, final String password, final String email, final DialogBox registrationForm) {
+    public void registerUser(String username, String password, String email, DialogBox registrationForm) {
     	new RegisterUser(username, password, email, registrationForm);
     }
     
@@ -435,6 +435,70 @@ public class FilmTitServiceHandler {
 		}
     }
 
+    /**
+     * change password in case of forgotten password;
+     * user chooses a new password,
+     * user authentication is done by the token sent to user's email
+     * @param username
+     * @param password
+     * @param token
+     */
+    public void changePassword(String username, String password, String token) {
+    	new ChangePassword(username, password, token);
+    }
+    
+    /**
+     * change password in case of forgotten password;
+     * user chooses a new password,
+     * user authentication is done by the token sent to user's email
+     */
+    public class ChangePassword extends Callable {
+    	
+    	// parameters
+    	String username;
+    	String password;
+    	String token;
+    	
+    	// callback
+        AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+            public void onSuccess(Boolean result) {
+            	if (result) {
+	                gui.log("changed password for user " + username);
+                    simple_login(username, password);
+                    displayWindow("You successfully changed the password for your username '" + username + "'!");
+            	} else {
+                    gui.log("ERROR: password change didn't succeed - token invalid");
+                    gui.showLoginDialog(username);
+                    displayWindow("ERROR: password change didn't succeed - the token is invalid, probably expired. " +
+                    		"Please try requesting a new password change token" +
+                    		"(by clicking the button labelled 'Forgotten password').");
+            	}
+            }
+
+			public void onFailure(Throwable caught) {
+                gui.log("ERROR: password change didn't succeed!");
+                displayWindow("ERROR: password change didn't succeed!");
+            }
+        };
+
+        // constructor
+		public ChangePassword(String username, String password, String token) {
+			super();
+			
+			this.username = username;
+			this.password = password;
+			this.token = token;
+			
+			enqueue();
+		}
+
+		@Override
+		void call() {
+	        filmTitService.changePassword(username, password, token, callback);
+		}
+    }
+
     public void simple_login(String username, String password) {
     	new SimpleLogin(username, password);
 	}
@@ -452,7 +516,7 @@ public class FilmTitServiceHandler {
             	if (SessionID == null || SessionID.equals("")) {
             		gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
             		displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
-                    gui.showLoginDialog();
+                    gui.showLoginDialog(username);
             	} else {
             		gui.log("logged in as " + username + " with session id " + SessionID);
             		gui.setSessionID(SessionID);

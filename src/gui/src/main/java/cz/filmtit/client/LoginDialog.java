@@ -51,6 +51,10 @@ public class LoginDialog extends Composite {
         return txtUsername.getText();
     }
 
+	public void setUsername(String username) {
+		txtUsername.setText(username);
+	}
+
     public String getPassword() {
         return txtPassword.getText();
     }
