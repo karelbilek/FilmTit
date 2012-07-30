@@ -33,7 +33,7 @@ public class LoginDialog extends Composite {
     PasswordTextBox txtPassword;
 
 	@UiField
-	Button btnLogin;
+	SubmitButton btnLogin;
 	
 	@UiField
 	Button btnLoginGoogle;
