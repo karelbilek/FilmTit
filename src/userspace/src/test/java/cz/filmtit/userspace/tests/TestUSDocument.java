@@ -99,19 +99,7 @@ public class TestUSDocument {
         resultUSDocument.setDatabaseId(2001);
     }
 
-    // SHOULD BE MOVED SOMEWHERE ...
-
-    @Test
-    public void testServerCall() {
-        /*FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Document resultDocument = server.createDocument("Movie title", "2012", "cs");
-
-        assertEquals("Movie title", resultDocument.getMovie().getTitle());
-        assertEquals("2012", resultDocument.getMovie().getYear());
-        assertEquals("cs", resultDocument.getLanguage().getCode());
-        assertEquals("Czech", resultDocument.getLanguage().getName());
-        assertTrue(resultDocument.getId() != Long.MIN_VALUE);*/
-    }
+    // TODO: add tests of setters saving to database
 }
 
 
