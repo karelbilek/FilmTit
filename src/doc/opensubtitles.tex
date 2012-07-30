@@ -775,7 +775,9 @@ There are those five cases of what can happen:
     \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textbf{fully true positive}
 \end{itemize}
 
-With some consideration, we count precision \todo{this looks like shit}as equal to $\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}}$ and recall as $\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}$.
+With some consideration, we count precision as 
+
+$$\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}},$$ and recall as $$\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}.$$
 
 That means -- precision is a percentage of movies, chosen by aligner, that are aligned correctly; recall is a percentage of movies, that \emph{can} be aligned (from manual aligning), that are aligned correctly.
 
