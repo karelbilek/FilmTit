@@ -428,9 +428,17 @@ public class Gui implements EntryPoint {
         loginDialog.btnLogin.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                dialogBox.hide();
-                log("trying to log in as user " + loginDialog.getUsername());
-                rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());
+            	String username = loginDialog.getUsername();
+            	String password = loginDialog.getPassword();
+            	if (username.isEmpty()) {
+            		Window.alert("Please fill in the username!");
+            	} else if (password.isEmpty()) {
+            		Window.alert("Please fill in the password!");					
+				} else {
+	                dialogBox.hide();
+	                log("trying to log in as user " + username);
+	                rpcHandler.simple_login(username, password);
+				}
             }
         } );
         
