@@ -2,10 +2,7 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.share.Document;
-import cz.filmtit.share.DocumentResponse;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.userspace.Session;
@@ -90,43 +87,18 @@ public class TestSession {
     }
 
     @Test
-    public void testGetTranslationResults() throws InvalidDocumentIdException, NoSuchFieldException, IllegalAccessException {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
-
-        USUser sampleUser = getSampleUser();
-        long documentID = sampleUser.getOwnedDocuments().get(0).getDatabaseId();
-
-        Session session = new Session(sampleUser);
-        session.loadDocument(documentID);
-
-        TimedChunk sampleTimedChunk = new TimedChunk("00:00:00,000", "00:00:01,000", 0,
-                loremIpsum.getWords(5,5), 150, documentID);
-
-        session.getTranslationResults(sampleTimedChunk, TM);
-
-        // test if the translation result ended up in the table of active ones
-        Field activeResultsField = Session.class.getDeclaredField("activeTranslationResults");
-        activeResultsField.setAccessible(true);
-        Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults =
-                (Map<Long, Map<Integer, USTranslationResult>>)(activeResultsField.get(session));
-
-        assertTrue(activeTranslationResults.containsKey(documentID));
-        assertTrue(activeTranslationResults.get(documentID).containsKey(150));
-    }
-
-    @Test
     public void testSetUserTranslation() throws InvalidChunkIdException, InvalidDocumentIdException {
         USUser sampleUser = getSampleUser();
-        USTranslationResult trToUpdate = sampleUser.getOwnedDocuments().get(0).getTranslationsResults().get(0);
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
         Session session = new Session(sampleUser);
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
-        session.setUserTranslation(trToUpdate.getSharedId(), trToUpdate.getDocumentDatabaseId(),
+        session.setUserTranslation(trToUpdate.getTranslationResult().getSourceChunk().getChunkIndex(),
+                trToUpdate.getDocumentDatabaseId(),
                 "User translation", 0l);
 
         USTranslationResult changed = null;
-        for (USTranslationResult result : session.getUser().getOwnedDocuments().get(0).getTranslationsResults()) {
+        for (USTranslationResult result : session.getUser().getOwnedDocuments().get(0).getTranslationResults().values()) {
             if (result.getSharedId() == trToUpdate.getSharedId()) {
                 changed = result;
             }
@@ -158,7 +130,7 @@ public class TestSession {
         }
 
         for (TranslationResult tr : clientTRList) {
-            session.setUserTranslation(tr.getChunkId(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
+            session.setUserTranslation(tr.getSourceChunk().getChunkIndex(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
         }
 
         session.logout();
@@ -166,7 +138,10 @@ public class TestSession {
         // TODO: test if everything was properly saved to database
     }
 
+    private USTranslationResult firstGeneratedTranslationResult = null;
+
     private USUser getSampleUser() {
+        firstGeneratedTranslationResult = null;
         USUser sampleUser = new USUser("Jindra the User");
         LoremIpsum loremIpsum = new LoremIpsum();
 
@@ -181,6 +156,11 @@ public class TestSession {
 
                 translationResult.setDocument(usDocument);
                 usDocument.addTranslationResult(translationResult);
+
+                // keep the reference to the tranlsation result
+                if (firstGeneratedTranslationResult == null) {
+                    firstGeneratedTranslationResult = translationResult;
+                }
             }
 
             sampleUser.addDocument(usDocument);

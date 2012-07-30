@@ -1,7 +1,10 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.share.*;
-import cz.filmtit.core.model.data.*;
+import cz.filmtit.core.model.data.MediaSourceFactory;
+import cz.filmtit.share.ChunkIndex;
+import cz.filmtit.share.Document;
+import cz.filmtit.share.Language;
+import cz.filmtit.share.MediaSource;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -27,7 +30,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
@@ -44,7 +47,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         ownerDatabaseId = 0; 
     }
 
@@ -57,7 +60,7 @@ public class USDocument extends DatabaseObject {
     //it is here only for hibernate
     public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
         if (this.ownerDatabaseId!=0) {
-            throw new Exception("you should not reset the owner. It is "+this.ownerDatabaseId);
+            throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
         this.ownerDatabaseId = ownerDatabaseId;
     }
@@ -178,7 +181,6 @@ public class USDocument extends DatabaseObject {
     }
 
     public Map<ChunkIndex, USTranslationResult> getTranslationResults() {
-        //Collections.sort(translationResults);
         return translationResults;
     }
 
@@ -193,7 +195,7 @@ public class USDocument extends DatabaseObject {
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
                 .setParameter("d", databaseId).list();
 
-        translationResults = new HashMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
             result.setDocument(this);
