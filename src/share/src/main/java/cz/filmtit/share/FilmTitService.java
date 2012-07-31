@@ -12,10 +12,10 @@ import java.util.List;
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
     // Document handling
-	DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language)
+	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
-            throws InvalidSessionIdException, InvalidDocumentIdException;
+    	throws InvalidSessionIdException, InvalidDocumentIdException;
     
     // Subtitles handling
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)

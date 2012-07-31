@@ -213,3 +213,7 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 	border: 1px solid #eee !important;
 /*	border-bottom: 1px solid #aaa !important;*/
 }
+
+.mediasource_thumb {
+	width: 60px;
+}

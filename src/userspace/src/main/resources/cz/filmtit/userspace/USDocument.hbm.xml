@@ -19,7 +19,6 @@
         <property name="translationGenerationTime" type="long" column="translationGenerationTime" />
         <property name="finished" type="boolean" column="finished" />
 
-
     </class>
 
 </hibernate-mapping>

@@ -3,6 +3,7 @@ package cz.filmtit.share;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The source of a subtitle chunk. This may be a movie, TV series etc.
@@ -12,12 +13,13 @@ import java.util.HashSet;
 
 public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-	private static final long serialVersionUID = 5899275001958847885L;
+	private static final long serialVersionUID = 5899275001958847886L;
 
     private Long id;
     private String title;
     private String year;
-    private HashSet<String> genres;
+    private Set<String> genres;
+    private String thumbnailURL;
 
     public MediaSource() {
 		// nothing
@@ -31,7 +33,7 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         return title;
     }
 
-    private void setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
@@ -39,11 +41,11 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         return year;
     }
 
-    private  void setYear(String year) {
+    public void setYear(String year) {
         this.year = year;
     }
 
-    public HashSet<String> getGenres() {
+    public Set<String> getGenres() {
         return genres;
     }
 
@@ -51,12 +53,26 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         return id;
     }
 
+    public void setGenres(Set<String> genres) {
+        this.genres = genres;
+    }
+
+    @Override
+    public String toString() {
+        String str = title;
+        if (!year.equals("")) {
+            str += " (" + year + ")";
+        }
+
+        return str;
+    }
+
     /**
      * Parses and sets a list genres provided as a comma separated list of string.
      * Used by Hibernate.
      * @param genres
      */
-    private void setGenresString(String genres) {
+    public void setGenresString(String genres) {
         this.genres = new HashSet<String>();
         String[] genresStrings = genres.split(",");
         for (String genre : genresStrings) {
@@ -110,6 +126,14 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         result = 31 * result + (genres != null ? genres.hashCode() : 0);
         result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
+    }
+
+    public void setThumbnailURL(String thumbnailURL) {
+        this.thumbnailURL = thumbnailURL;
+    }
+
+    public String getThumbnailURL() {
+        return thumbnailURL;
     }
 }
 

@@ -1,6 +1,8 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
+import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
+import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
@@ -34,17 +36,21 @@ public class TestSession {
 
     LoremIpsum loremIpsum = new LoremIpsum();
     TranslationMemory TM;
+    MediaSourceFactory mediaSourceFactory;
+
 
     public TestSession() {
         Configuration config = new Configuration(new File("configuration.xml"));
         TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
+        mediaSourceFactory = new FreebaseMediaSourceFactory(config.freebaseKey(), 10);
+
     }
 
     @Test
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse response = session.createNewDocument("Movie title", "2012", "en", TM);
+        DocumentResponse response = session.createNewDocument("Movie title", "en", mediaSourceFactory);
 
         assertTrue(response.mediaSourceSuggestions.size() > 0);
         assertEquals("Movie title", response.document.getMovie().getTitle());
@@ -200,7 +206,7 @@ public class TestSession {
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Jindrich the great", "2010", "en", TM);
+        DocumentResponse response = session.createNewDocument("Jindrich the great", "en", mediaSourceFactory);
         Document clientDocument = response.document;
         session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
 
@@ -234,7 +240,7 @@ public class TestSession {
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Movie " + i, "2012", "en"), null);
+            USDocument usDocument = new USDocument(new Document("Test", "en"), null);
             long documentID = usDocument.getDatabaseId();
 
             for (int j = 0; j < 20; ++j) {

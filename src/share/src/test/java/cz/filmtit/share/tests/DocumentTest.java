@@ -19,7 +19,7 @@ public class DocumentTest {
     private static Document doc;
     @BeforeClass
     public static void initializeDoc() {
-        doc = new Document("TestMovie","2012","cs");
+        doc = new Document("Test", "cs");
         doc.setId(2012);
     }
 
