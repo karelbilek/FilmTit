@@ -32,6 +32,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static int SESSION_ID_LENGHT = 47;
 
 
+    private static CoreHibernateUtil coreHibernateUtil = new CoreHibernateUtil();
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
 
     private enum CheckUserEnum {
         UserName,
@@ -67,12 +69,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         manager.setRealm(serverAddress);
 
         // initialize the database by opening and closing a session
-        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         // initialize also the core part of hibernate
-        dbSession = CoreHibernateUtil.getSessionWithActiveTransaction();
-        CoreHibernateUtil.closeAndCommitSession(dbSession);
+        dbSession = coreHibernateUtil.getSessionWithActiveTransaction();
+        coreHibernateUtil.closeAndCommitSession(dbSession);
 
         System.err.println("FilmTitBackendServer started fine!");
     }
@@ -268,11 +270,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
              String hash = pass_hash(pass);
              USUser user = new USUser(name,hash,email,openId);
           // create hibernate session
-             org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+             org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
           // save into db
              user.saveToDatabase(dbSession);
-            USHibernateUtil.closeAndCommitSession(dbSession);
+            usHibernateUtil.closeAndCommitSession(dbSession);
          return true;
          }
         return false;
@@ -337,7 +339,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     private  USUser checkUser(String username , String password, CheckUserEnum type)
     {
-        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
                 .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
@@ -346,7 +348,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         int count= 0;
         if (type == CheckUserEnum.UserNamePass)
         {
-            USHibernateUtil.closeAndCommitSession(dbSession);
+            usHibernateUtil.closeAndCommitSession(dbSession);
             for (Object aUserResult : UserResult) {
                 USUser user = (USUser) aUserResult;
                 if (BCrypt.checkpw(password, user.getPassword())) {

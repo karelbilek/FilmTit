@@ -6,23 +6,25 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
 public class CoreHibernateUtil {
-    private static SessionFactory sessionFactory = null;
-    private static ServiceRegistry serviceRegistry;
+    private SessionFactory sessionFactory = null;
+    private ServiceRegistry serviceRegistry;
 
-    public static java.net.URL configurationFile = CoreHibernateUtil.class.getResource("/cz/filmtit/core/core.cfg.xml");
+    public java.net.URL getConfigurationFile() {
+        return CoreHibernateUtil.class.getResource("/cz/filmtit/core/core.cfg.xml");
+    }
 
     /**
      * A path to the Hibernate configuration file. If it's necessary to change it (e.g. for unit testing),
      * it has to be done using reflection before the getSessionFactory method is called for the first time.
      */
-    private static SessionFactory buildSessionFactory() {
+    private SessionFactory buildSessionFactory() {
         try {
             cz.filmtit.core.Configuration projectConfiguration = ConfigurationSingleton.conf();
 
             // Create the SessionFactory from core.cfg.xml
             Configuration hibernateConfiguration = new Configuration();
 
-            hibernateConfiguration.configure(configurationFile);
+            hibernateConfiguration.configure(getConfigurationFile());
 
             hibernateConfiguration.setProperty("hibernate.connection.username", projectConfiguration.dbUser());
             hibernateConfiguration.setProperty("hibernate.connection.password", projectConfiguration.dbPassword());
@@ -39,7 +41,7 @@ public class CoreHibernateUtil {
         }
     }
 
-    public static void buildSessionFactoryFromHbmFile(String hbmFileName) {
+    public  void buildSessionFactoryFromHbmFile(String hbmFileName) {
         Configuration configuration = new Configuration();
         configuration.configure(hbmFileName);
 
@@ -47,18 +49,18 @@ public class CoreHibernateUtil {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
     }
 
-    public static org.hibernate.Session getSessionWithActiveTransaction() {
-        org.hibernate.Session dbSession = CoreHibernateUtil.getSessionFactory().openSession();
+    public  org.hibernate.Session getSessionWithActiveTransaction() {
+        org.hibernate.Session dbSession = getSessionFactory().openSession();
         dbSession.beginTransaction();
         return dbSession;
     }
 
-    public static void closeAndCommitSession(org.hibernate.Session dbSession){
+    public  void closeAndCommitSession(org.hibernate.Session dbSession){
         dbSession.getTransaction().commit();
         dbSession.close();
     }
 
-    public static SessionFactory getSessionFactory() {
+    public SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             sessionFactory = buildSessionFactory();
         }

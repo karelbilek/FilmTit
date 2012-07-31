@@ -19,6 +19,8 @@ public class Session {
     private long sessionStart;
     private long lastOperationTime;
     private SessionState state;
+    
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
 
 
 
@@ -101,22 +103,22 @@ public class Session {
      * Terminates the session. Usually in the situation when the user open a new one.
      */
     private void terminate() {
-        org.hibernate.Session session = USHibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         session.save(this);
-        USHibernateUtil.closeAndCommitSession(session);
+        usHibernateUtil.closeAndCommitSession(session);
 
         user.getActiveDocumentIDs().clear();
 
-        session = USHibernateUtil.getSessionWithActiveTransaction();
+        session = usHibernateUtil.getSessionWithActiveTransaction();
         for (USDocument activeDoc : activeDocuments.values()) {
             activeDoc.saveToDatabase(session);
             user.getActiveDocumentIDs().add(activeDoc.getDatabaseId());
         }
-        USHibernateUtil.closeAndCommitSession(session);
+        usHibernateUtil.closeAndCommitSession(session);
 
-        session = USHibernateUtil.getSessionWithActiveTransaction();
+        session = usHibernateUtil.getSessionWithActiveTransaction();
         user.saveToDatabase(session);
-        USHibernateUtil.closeAndCommitSession(session);
+        usHibernateUtil.closeAndCommitSession(session);
     }
 
     /**
@@ -160,12 +162,11 @@ public class Session {
 
         USDocument document = getActiveDocument(documentId);
         
-        USTranslationResult tr = doc.getTranslationResultForIndex(chunkIndex);
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
         
         if (tr==null) {
             
-            String s = ("TranslationResult is null for index "+chunkIndex +", document has id : "+doc.getDatabaseId()+", translationresults : "+doc.getTranslationResultKeys());
-            s += ", keys jsou :";
+            String s = ("TranslationResult is null for index "+chunkIndex +", document has id : "+document.getDatabaseId()+", translationresults : "+document.getTranslationResultKeys());
            throw new RuntimeException(s);
 
         }
@@ -185,7 +186,7 @@ public class Session {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
         USDocument document = activeDocuments.get(documentId);
-        USTranslationResult tr = doc.getTranslationResultForIndex(chunkIndex);
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
         tr.setStartTime(newStartTime);
         saveTranslationResult(document, tr);
         return  null;
@@ -198,8 +199,8 @@ public class Session {
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        USDocument doc = activeDocuments.get(documentId);
-        USTranslationResult tr = doc.getTranslationResultForIndex(chunkIndex);
+        USDocument document = activeDocuments.get(documentId);
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
         tr.setEndTime(newEndTime);
         saveTranslationResult(document, tr);
@@ -211,7 +212,7 @@ public class Session {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
-        USTranslationResult translationResult = document.getTranslationResultByIndex(chunkIndex);
+        USTranslationResult translationResult = document.getTranslationResultForIndex(chunkIndex);
         translationResult.setText(text);
 
         saveTranslationResult(document, translationResult);
@@ -238,13 +239,13 @@ public class Session {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
-        USTranslationResult translationResult = document.getTranslationResultByIndex(chunkIndex);
+        USTranslationResult translationResult = document.getTranslationResultForIndex(chunkIndex);
 
-        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         translationResult.deleteFromDatabase(dbSession);
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
-        document.getTranslationResults().remove(chunkIndex);
+        document.removeTranslationResult(chunkIndex);
 
         return null;
     }
@@ -314,7 +315,7 @@ public class Session {
     }
 
     public void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
-        org.hibernate.Session session = USHibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         document.saveToDatabase(session);
 
         for (USTranslationResult tr : results) {
@@ -322,7 +323,7 @@ public class Session {
             tr.saveToDatabase(session); 
                         
         }
-        USHibernateUtil.closeAndCommitSession(session);
+        usHibernateUtil.closeAndCommitSession(session);
     }
 
     private void updateLastOperationTime() {

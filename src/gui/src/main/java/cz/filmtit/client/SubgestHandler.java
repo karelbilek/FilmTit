@@ -175,7 +175,6 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 
             // submitting only when the contents have changed
             if (subbox.textChanged()) {
-                Window.alert("chci submitovat user translation");
                 gui.submitUserTranslation(subbox.getTranslationResult());
                 subbox.updateLastText();
             }

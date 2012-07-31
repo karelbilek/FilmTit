@@ -23,7 +23,10 @@ public class USDocument extends DatabaseObject {
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
-    
+   
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
+
+
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
@@ -34,9 +37,9 @@ public class USDocument extends DatabaseObject {
             this.ownerDatabaseId = user.getDatabaseId();
         }
 
-        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -147,6 +150,10 @@ public class USDocument extends DatabaseObject {
         return translationResults.keySet();
     }
 
+    public void removeTranslationResult(ChunkIndex index) {
+        translationResults.remove(index); 
+    }
+
     public Collection<USTranslationResult> getTranslationResultValues() {
         return translationResults.values();
     }
@@ -168,7 +175,7 @@ public class USDocument extends DatabaseObject {
      * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
@@ -184,7 +191,7 @@ public class USDocument extends DatabaseObject {
             translationResults.put(result.getTranslationResult().getSourceChunk().getChunkIndex(), result);
         }
     
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         //Collections.sort(translationResults);
         // add the translation results to the inner document

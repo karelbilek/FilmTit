@@ -17,7 +17,7 @@
         <property name="show_sql">false</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
         <!-- <property name="hibernate.hbm2ddl.auto">validate</property> -->
-        <property name="hibernate.hbm2ddl.auto">validate</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="current_session_context_class">thread</property>
 
         <!-- List of mapping files -->

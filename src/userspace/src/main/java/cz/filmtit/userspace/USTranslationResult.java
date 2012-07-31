@@ -34,6 +34,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     private USDocument document;
 
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
      * result is created or when the loadChunksFromDb() on a document is called.
@@ -73,9 +74,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
 
-        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -312,7 +313,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * @return  A list of unchecked translation results.
      */
     public static List<USTranslationResult> getUncheckedResults() {
-         Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
 
          List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
@@ -345,7 +346,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
              usResult.saveToDatabase(dbSession);
              results.add(usResult);
          }
-         USHibernateUtil.closeAndCommitSession(dbSession);
+         usHibernateUtil.closeAndCommitSession(dbSession);
          return results;
      }
 
