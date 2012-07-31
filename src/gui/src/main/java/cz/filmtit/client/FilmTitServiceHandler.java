@@ -83,18 +83,18 @@ public class FilmTitServiceHandler {
     }
 
 	
-	public void createDocument(String movieTitle, String year, String language, final String subtext, final String moviePath) {
-		new CreateDocument(movieTitle, year, language, subtext, moviePath);
+	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String moviePath) {
+		new CreateDocument(documentTitle, movieTitle, language, subtext, moviePath);
 	}
 	
 	public class CreateDocument extends Callable {
 
 		// parameters
-		String movieTitle;
-		String year;
+		String documentTitle;
+        String movieTitle;
 		String language;
 		String subtext;
-		String moviePath;
+		String moviePath;	
 		
 		// callback
 		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
@@ -139,12 +139,12 @@ public class FilmTitServiceHandler {
 		};		
 		
 		// constructor
-		public CreateDocument(String movieTitle, String year, String language,
+		public CreateDocument(String documentTitle, String movieTitle, String language,
 				String subtext, String moviePath) {
 			super();
 			
-			this.movieTitle = movieTitle;
-			this.year = year;
+			this.documentTitle = documentTitle;
+            this.movieTitle = movieTitle;
 			this.language = language;
 			this.subtext = subtext;
 			this.moviePath = moviePath;
@@ -154,8 +154,8 @@ public class FilmTitServiceHandler {
 
 		@Override
 		public void call() {
-			gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
-			filmTitService.createNewDocument(gui.getSessionID(), movieTitle, year, language, callback);
+			gui.log("Creating document " + documentTitle + "; its language is " + language);
+			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, callback);
 		}
 	}
 	
@@ -792,7 +792,7 @@ public class FilmTitServiceHandler {
 	}
 
 
-    public void getListOfDocuments(final UserPage userpage) {
+    public void getListOfDocuments(UserPage userpage) {
     	new GetListOfDocuments(userpage);
     }
 

@@ -22,11 +22,9 @@ public class TestUSDocument {
 
     @Test
     public  void testUSDocumentConstructor() {
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "cs");
         USDocument resultUSDocument = new USDocument(doc, null);
 
-        assertEquals(resultUSDocument.getMovieTitle(), doc.getMovie().getTitle());
-        assertEquals(resultUSDocument.getYear(), doc.getMovie().getYear());
         assertEquals(resultUSDocument.getLanguageCode(), doc.getLanguage().getCode());
 
         assertEquals(false,resultUSDocument.isFinished());
@@ -37,7 +35,7 @@ public class TestUSDocument {
         Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
         // create a sample document and save it to the database to know the ID
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "cs");
         USDocument sampleUSDocument = new USDocument(doc, null);
         sampleUSDocument.setFinished(false);
 
@@ -79,8 +77,6 @@ public class TestUSDocument {
         USDocument loadedDocument = (USDocument)(queryResult.get(0));
 
         // test if its the same
-        assertEquals(sampleUSDocument.getMovieTitle(), doc.getMovie().getTitle());
-        assertEquals(sampleUSDocument.getYear(), doc.getMovie().getYear());
         assertEquals(sampleUSDocument.getLanguageCode(), doc.getLanguage().getCode());
 
         // now call the loadChunksFromDb method
@@ -92,7 +88,7 @@ public class TestUSDocument {
 
     @Test(expected=UnsupportedOperationException.class)
     public void testDatabaseImmutability() {
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "cs");
         USDocument resultUSDocument = new USDocument(doc, null);
 
         resultUSDocument.setDatabaseId(2001);

@@ -270,8 +270,9 @@ public class Gui implements EntryPoint {
      }
 
      private void createDocumentFromText(String subtext) {
-        rpcHandler.createDocument(docCreator.getMovieTitle(),
-                docCreator.getMovieYear(),
+        rpcHandler.createDocument(
+                docCreator.getTitle(),
+                docCreator.getMovieTitle(),
                 docCreator.getChosenLanguage(),
                 subtext,
                 docCreator.getMoviePathOrNull());

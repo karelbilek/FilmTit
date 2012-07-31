@@ -1,5 +1,6 @@
 package cz.filmtit.userspace;
 
+import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
@@ -129,10 +130,10 @@ public class Session {
         terminate();
     }
 
-    public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
+    public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory) {
         updateLastOperationTime();
-        USDocument usDocument = new USDocument( new Document(movieTitle, year, language) , user);
-        List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
+        USDocument usDocument = new USDocument( new Document(documentTitle, language) , user);
+        List<MediaSource> suggestions = mediaSourceFactory.getSuggestions(movieTitle);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
 

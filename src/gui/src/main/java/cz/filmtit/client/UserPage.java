@@ -31,13 +31,13 @@ public class UserPage extends Composite {
         TextColumn<Document> nameClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return doc.getMovie().getTitle();
+                return doc.getTitle();
             }
         };
         TextColumn<Document> yearClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return doc.getMovie().getYear().toString();
+                return doc.getMovie().toString();
             }
         };
         TextColumn<Document> doneClm = new TextColumn<Document>() {
@@ -68,8 +68,8 @@ public class UserPage extends Composite {
 
         
 
-        docTable.addColumn(nameClm, "Name");
-        docTable.addColumn(yearClm, "Year");
+        docTable.addColumn(nameClm, "Document");
+        docTable.addColumn(yearClm, "Media source");
         docTable.addColumn(doneClm, "Percent done");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
