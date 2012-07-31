@@ -5,6 +5,23 @@
     <entry key="mail.host">localhost</entry>
     <entry key="mail.from">filmtit@filmtit.ufal.cz</entry>
     <comment > Next properties which can be set</comment>
+    <entry key="mail.user">filmtit</entry>
+    <entry key="mail.stmp.port">25</entry>
+    <entry key="mail.userdata.user">filmtit@filmtit.cz</entry>
+    <entry key="mail.userdata.pass">filmtit</entry>
+    <entry key="mail.filmtit.registrationSubject">Registration on Filmtit</entry>
+    <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>   \
+    <entry key="mail.filmtit.registrationBody">
+        Congratulation, <br />
+        your email address was registered in Filmtit app
+        with login : %userlogin% and pass : %userpass%
+    </entry>
+    <entry key="mail.filmtit.forgottenPassBody">
+        Hello, <br />
+        in FilmTit app we have request for change a password
+        on account : %userlogin%
+        you can change on this url : %changeurl%
+    </entry>
     <comment>mail.user=
     # mail.store.protocol=
     # mail.transport.protocol=

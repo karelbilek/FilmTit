@@ -20,10 +20,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -32,7 +29,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.getConf().sessionTimeout();
     private static int SESSION_ID_LENGHT = 47;
-
+    private static int LENGTH_OF_TOKEN = 10;
+    //test setting probably in configuration
+    private static String addressServer = "localhost:8080/";
+    // production
+    //private static String addressServer = "www.filmtit.cz/";
 
 
     private enum CheckUserEnum {
@@ -49,6 +50,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Map<Long,Authentication> authenticatedSessions = new HashMap<Long, Authentication>();
     // Activated User
     private Map<String, Session> activeSessions = new HashMap<String,Session>();
+
+    private Map<String, ChangePassToken> activeTokens = new HashMap<String,ChangePassToken>();
 
     protected OpenIdManager manager = new OpenIdManager();
     public FilmTitBackendServer() {
@@ -251,6 +254,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public String simple_login(String username, String password) {
 
+            System.out.println("CheckUser");
             USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
             if (user == null)
             {
@@ -280,18 +284,49 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
           // create user
 
              USUser check = checkUser(name,pass,CheckUserEnum.UserName);
-         if (check == null)
-         {
+         if (check == null){
              String hash = pass_hash(pass);
              USUser user = new USUser(name,hash,email,openId);
+
           // create hibernate session
              org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-
+             System.out.println("Registration");
           // save into db
              user.saveToDatabase(dbSession);
-            HibernateUtil.closeAndCommitSession(dbSession);
-         return true;
+             sendRegistrationMail(user,pass);
+             HibernateUtil.closeAndCommitSession(dbSession);
+             return true;
          }
+        return false;
+    }
+    public Boolean  changePassword(String user  , String pass, String string_token)
+    {
+        USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
+        ChangePassToken token = activeTokens.get(user);
+        if (user != null && token != null && token.isValidToken(string_token)){
+
+            usUser.setPassword(pass_hash(pass));
+            org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+            usUser.saveToDatabase(dbSession);
+            HibernateUtil.closeAndCommitSession(dbSession);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean sendChangePassMail(USUser user){
+        System.out.println("Sending mail to UsUser");
+        Emailer email = new Emailer();
+        if (user.getEmail()!=null) return email.sendForgottenPassMail(user.email,user.getUserName(),this.forgotUrl(user));
+        return false;
+
+    }
+
+    public boolean sendRegistrationMail(USUser user , String pass){
+
+        System.out.println("Sending mail to new UsUser");
+        Emailer email = new Emailer();
+        if (user.getEmail()!=null) return email.sendRegistrationMail(user.email,user.getUserName(),pass);
         return false;
     }
 
@@ -323,21 +358,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         );
     }
 
-    /**
-     * Get hash of string
-     * if return same string like input - problem with algortithm
-     */
-    public static String pass_hash(String pass)
-    {
-       return BCrypt.hashpw(pass,BCrypt.gensalt(12));
-    }
+
     /**
      * Check if found sessionId is still active
      */
-    public String checkSessionID(String sessionID)
-    {
-       if (activeSessions.isEmpty())
-       {
+    public String checkSessionID(String sessionID){
+       if (activeSessions.isEmpty()){
            return null;     // no session at all
        }
         Session s = activeSessions.get(sessionID);
@@ -346,14 +372,59 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
      }
 
+    public boolean sendMail(String username){
+        USUser user = checkUser(username,"",CheckUserEnum.UserName);
+        if (user != null){
+            return sendMail(user);
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Only test reason
+     */
+    public void createTestChange(String login , String token)
+    {
+        activeTokens.put(login,new ChangePassToken(token));
+    }
+
+    private boolean sendMail(USUser user){
+        System.out.println("Sending mail to UsUser");
+        Emailer email = new Emailer();
+        if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
+        return true;
+    }
+
+    /*end test zone*/
+    private String forgotUrl(USUser user ){
+          // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";
+          String templateUrl = addressServer + "?page=ChangePass&login=%login%&token=%token%";
+          String login = user.userName;
+          String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
+          ChangePassToken token = new ChangePassToken(_token);
+           String actualUrl = templateUrl.replace("%login%",login);
+           actualUrl = actualUrl.replace("%token%",_token);
+          activeTokens.put(login,token);
+        return actualUrl;
+    }
+
+    /**
+     * Get hash of string
+     * if return same string like input - problem with algortithm
+     */
+    private String pass_hash(String pass){
+        return BCrypt.hashpw(pass,BCrypt.gensalt(12));
+    }
+
     /**
      * Check if user exists
      *  switch according CheckUserEnum
      *     CheckName - return first user of given name
      *     CheckNamePass - return user with given name and pass
      */
-    private  USUser checkUser(String username , String password, CheckUserEnum type)
-    {
+    private  USUser checkUser(String username , String password, CheckUserEnum type){
         org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
@@ -387,25 +458,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             }
 
         }
-    return succesUser;
-    }
-
-    public boolean sendMail(String username)
-    {
-        USUser user = checkUser(username,"",CheckUserEnum.UserName);
-        if (user != null)
-        {
-            return sendMail(user);
-        }
-
-        return false;
-    }
-
-    public boolean sendMail(USUser user)
-    {
-           Emailer email = new Emailer();
-           if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
-           return true;
+        return succesUser;
     }
 
     /**
@@ -422,7 +475,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                         thisSession.kill();
                         activeSessions.remove(sessionID);
                     }
+
                 }
+                  for (String login : activeTokens.keySet())
+                  {
+                     ChangePassToken token =  activeTokens.get(login);
+                     if (!token.isValidTime())
+                     {
+                         activeTokens.remove(login);
+                     }
+
+                  }
                 try { Thread.sleep(60 * 1000); }
                 catch (Exception e) {}
             }
@@ -434,6 +497,48 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     class AuthData {
         public byte[] Mac_key;
         public Endpoint endpoint;
+    }
+
+   public class ChangePassToken{
+
+        private String token;
+        private Date  validTo;
+
+        public String getToken() {
+
+            return token;
+        }
+
+        public ChangePassToken(String token){
+               setToken(token);
+               // set validity of token now()+1h
+               Date actualDate = new Date();
+               Calendar cal = Calendar.getInstance();
+               cal.setTime(actualDate);
+               cal.add(Calendar.HOUR_OF_DAY,1);
+               setValidTo(cal.getTime());
+        }
+
+        public boolean isValidToken(String token){
+
+            // token is the same and its validity isn`t off
+            return ( (this.token == token) && (isValidTime()));
+        }
+
+        public boolean  isValidTime()
+        {
+            Date actual = new Date();
+            return (validTo.compareTo(actual) < 0);
+        }
+
+        private void setValidTo(Date validTo) {
+            this.validTo = validTo;
+        }
+        private void setToken(String token) {
+            this.token = token;
+        }
+
+
     }
 
 
