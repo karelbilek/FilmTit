@@ -124,7 +124,7 @@ public class Gui implements EntryPoint {
 
 
 
-     private void createGui() {
+     void createGui() {
           
           // -------------------- //
           // --- GUI creation --- //
@@ -484,10 +484,13 @@ public class Gui implements EntryPoint {
      
      /**
       * show a dialog enabling the user to
-      * log in directly or [this line maybe to be removed]
-      * via OpenID services
+      * log in directly
+      * or via OpenID services [this line maybe to be removed]
       */
-    protected void showLoginDialog() {
+     protected void showLoginDialog() {
+    	 showLoginDialog("");
+     }
+    protected void showLoginDialog(String username) {
          
          final DialogBox dialogBox = new DialogBox(false);
         final LoginDialog loginDialog = new LoginDialog();
@@ -495,9 +498,17 @@ public class Gui implements EntryPoint {
         loginDialog.btnLogin.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                dialogBox.hide();
-                log("trying to log in as user " + loginDialog.getUsername());
-                rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());
+            	String username = loginDialog.getUsername();
+            	String password = loginDialog.getPassword();
+            	if (username.isEmpty()) {
+            		Window.alert("Please fill in the username!");
+            	} else if (password.isEmpty()) {
+            		Window.alert("Please fill in the password!");					
+				} else {
+	                dialogBox.hide();
+	                log("trying to log in as user " + username);
+	                rpcHandler.simple_login(username, password);
+				}
             }
         } );
         
@@ -540,6 +551,8 @@ public class Gui implements EntryPoint {
                 dialogBox.hide();
                }
           });
+        
+        loginDialog.setUsername(username);
         
         dialogBox.setWidget(loginDialog);
         dialogBox.setGlassEnabled(true);

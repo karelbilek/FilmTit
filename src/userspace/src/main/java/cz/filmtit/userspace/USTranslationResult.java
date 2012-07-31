@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
@@ -72,9 +73,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -129,7 +130,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @param text Original text of the chunk.
      * @throws IllegalAccessException
      */
-    public void setText(String text) throws IllegalAccessException {
+    public void setText(String text) {
         if (text == null)
             text = "";
         translationResult.getSourceChunk().setSurfaceForm(text);
@@ -249,6 +250,10 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     protected long getSharedClassDatabaseId() { return databaseId; }
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
 
+    public ChunkIndex getChunkIndex() {
+        return translationResult.getSourceChunk().getChunkIndex();
+    }
+
     /**
      * Queries the Translation Memory for the suggestions. If there are some previous
      * suggestions they are discarded.
@@ -307,7 +312,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * @return  A list of unchecked translation results.
      */
     public static List<USTranslationResult> getUncheckedResults() {
-         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+         Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
 
          List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
@@ -340,7 +345,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
              usResult.saveToDatabase(dbSession);
              results.add(usResult);
          }
-         HibernateUtil.closeAndCommitSession(dbSession);
+         USHibernateUtil.closeAndCommitSession(dbSession);
          return results;
      }
 

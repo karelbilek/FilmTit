@@ -11,12 +11,14 @@
         </id>
 
         <property name="ownerDatabaseId" type="long" column="userId" />
-        <property name="movieTitle" type="java.lang.String" column="title" />
-        <property name="year" type="java.lang.String" column="year" />
+        
+        <property name="mediaSource" type="cz.filmtit.share.MediaSource" />
+        
         <property name="spentOnThisTime" type="long" column="spentOnThisTime" />
         <property name="languageCode" type="java.lang.String" column="language" />
         <property name="translationGenerationTime" type="long" column="translationGenerationTime" />
         <property name="finished" type="boolean" column="finished" />
+
 
     </class>
 

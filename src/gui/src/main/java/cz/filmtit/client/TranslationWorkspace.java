@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.google.gwt.user.client.*;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -9,9 +10,7 @@ import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import cz.filmtit.share.ChunkIndex;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 
 import java.util.*;
 
@@ -119,8 +118,8 @@ public class TranslationWorkspace extends Composite {
     public void showSource(TimedChunk chunk) {
         ChunkIndex chunkIndex = chunk.getChunkIndex();
 
-       Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
-       timeslabel.setStyleName("chunk_timing");
+        Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
+        timeslabel.setStyleName("chunk_timing");
 
         int index = lastIndex;
         lastIndex++;
@@ -228,8 +227,26 @@ public class TranslationWorkspace extends Composite {
 
 
     public void ensureVisible(SubgestBox subbox) {
-        scrollPanel.ensureVisible(subbox);
+        //scrollPanel.ensureVisible(subbox);
+        //Window.alert("ensuring visible");
+        //ensureVisibleInWindow(subbox.getElement());
+        Window.scrollTo(Window.getScrollLeft(), getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() / 2);
     }
+
+    private native int getScrollOffsetY(Element e) /*-{
+        if (!e)
+          return;
+
+
+        var item = e;
+        var realOffset = 0;
+        while (item && (item != document.body)) {
+            realOffset += item.offsetTop;
+            item = item.offsetParent;
+        }
+
+        return realOffset;
+    }-*/;
 
 
     protected void setActiveSuggestionWidget(Widget w) {

@@ -61,16 +61,16 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         return surfaceform;
     }
 
-    public void setSurfaceForm(String surfaceform) throws /*IllegalAccessException*/ IllegalArgumentException {
-        if (this.surfaceform.equals(surfaceform)) { return; }
+    public void setSurfaceForm(String surfaceform) {
+        this.surfaceform = surfaceform.replace('\u0000', ' ');
+        /*if (this.surfaceform.equals(surfaceform)) { return; }
         if (this.surfaceform == null || this.surfaceform.equals("")) {
             this.surfaceform = surfaceform.replace('\u0000', ' ');
         }
         else {
             //throw new IllegalAccessException("The chunk surface form can be set just once.");
-        	// GWT does not know IllegalAccessException - rewritten:
         	throw new IllegalArgumentException("The chunk surface form can be set just once.");
-        }
+        }*/
     }
 
     @Override

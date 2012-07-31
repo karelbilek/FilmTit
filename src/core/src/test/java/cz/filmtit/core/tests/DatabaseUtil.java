@@ -1,4 +1,4 @@
-package cz.filmtit.userspace.tests;
+package cz.filmtit.core.tests;
 
 import cz.filmtit.core.CoreHibernateUtil;
 import cz.filmtit.userspace.USHibernateUtil;
@@ -19,7 +19,6 @@ public class DatabaseUtil {
      */
     public static void setDatabase() {
         CoreHibernateUtil.buildSessionFactoryFromHbmFile("cz/filmtit/core/tests/core-test.cfg.xml");
-        USHibernateUtil.buildSessionFactoryFromHbmFile("cz/filmtit/userspace/tests/userspace-test.cfg.xml");
     }
 
 }
