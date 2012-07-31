@@ -1,10 +1,10 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.core.model.data.MediaSourceFactory;
 import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.MediaSource;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -23,9 +23,6 @@ public class USDocument extends DatabaseObject {
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
-
-    private String cachedMovieTitle;
-    private String cachedMovieYear;
     
     public USDocument(Document document, USUser user) {
         this.document = document;
@@ -37,9 +34,9 @@ public class USDocument extends DatabaseObject {
             this.ownerDatabaseId = user.getDatabaseId();
         }
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -55,10 +52,9 @@ public class USDocument extends DatabaseObject {
         return ownerDatabaseId;
     }
 
-
     //this should not be run anywhere in regular code!
     //it is here only for hibernate
-    public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
+    private void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
         if (this.ownerDatabaseId!=0) {
             throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
@@ -81,45 +77,8 @@ public class USDocument extends DatabaseObject {
         return document.getMovie().getTitle();
     }
 
-    /**
-     * Sets the title of the movie. If the year of publishing the movie has been defined,
-     * it also updates the IMDB information.
-     * @param movieTitle New movie title.
-     */
-    public void setMovieTitle(String movieTitle) {
-        cachedMovieTitle = movieTitle;
-        if (cachedMovieYear != null) { generateMediaSource(); }
-    }
-
     public String getYear() {
         return document.getMovie().getYear();
-    }
-
-    private void generateMediaSource() {
-        document.setMovie(MediaSourceFactory.fromIMDB(cachedMovieTitle, cachedMovieYear));
-    }
-
-    /**
-     * Sets the year when the movie was published. If the title has been defined, it also updates the IMDB information.
-     * @param year New value of year.
-     * @throws IllegalArgumentException
-     */
-    public void setYear(String year) {
-        
-        
-        int yearInt = year.equals("")?0:Integer.parseInt(year);
-
-        //commenting this because it causes problems with hibernate
-        //because the year is not checked with creation of document
-        //it will need to be checked in Gui, I guess
-        /*
-        // the movie should be from a reasonable time period
-        if (yearInt < MINIMUM_MOVIE_YEAR  ) {
-            throw new IllegalArgumentException("Value of year should from 1850 to the current year + "  +
-                    Calendar.YEAR + "" + ALLOWED_FUTURE_FOR_YEARS + ".");
-        }*/
-        cachedMovieYear = year;
-        if (cachedMovieTitle != null) { generateMediaSource(); }
     }
 
     /**
@@ -156,6 +115,10 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
+    private void setMediaSource(MediaSource movie) {
+        document.setMovie(movie);
+    }
+
     public long getTranslationGenerationTime() {
         return translationGenerationTime;
     }
@@ -184,12 +147,19 @@ public class USDocument extends DatabaseObject {
         return translationResults;
     }
 
+    public USTranslationResult getTranslationResultByIndex(ChunkIndex index) throws InvalidChunkIdException {
+        if (!translationResults.containsKey(index)) {
+            throw new InvalidChunkIdException("The document does not contain chunk with such index.");
+        }
+        return translationResults.get(index);
+    }
+
 
     /**
      * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
@@ -202,7 +172,7 @@ public class USDocument extends DatabaseObject {
             translationResults.put(result.getTranslationResult().getSourceChunk().getChunkIndex(), result);
         }
     
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
 
         //Collections.sort(translationResults);
         // add the translation results to the inner document

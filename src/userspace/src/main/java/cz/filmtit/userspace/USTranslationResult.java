@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.model.TranslationMemory;
+import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
@@ -72,9 +73,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult = new TranslationResult();
         translationResult.setSourceChunk(chunk);
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -129,7 +130,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @param text Original text of the chunk.
      * @throws IllegalAccessException
      */
-    public void setText(String text) throws IllegalAccessException {
+    public void setText(String text) {
         if (text == null)
             text = "";
         translationResult.getSourceChunk().setSurfaceForm(text);
@@ -152,9 +153,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setUserTranslation(userTranslation);
         feedbackSent = false;
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -191,9 +192,9 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -221,6 +222,10 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     protected long getSharedClassDatabaseId() { return databaseId; }
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
+
+    public ChunkIndex getChunkIndex() {
+        return translationResult.getSourceChunk().getChunkIndex();
+    }
 
     /**
      * Queries the Translation Memory for the suggestions. If there are some previous
@@ -279,7 +284,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @return  A list of unchecked translation results.
      */
     public static List<USTranslationResult> getUncheckedResults() {
-         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+         Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
 
          List queryResult = dbSession.createQuery("select t from USTranslationResult t " +
@@ -312,7 +317,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
              usResult.saveToDatabase(dbSession);
              results.add(usResult);
          }
-         HibernateUtil.closeAndCommitSession(dbSession);
+         USHibernateUtil.closeAndCommitSession(dbSession);
          return results;
      }
 

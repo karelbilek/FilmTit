@@ -1,17 +1,15 @@
-package cz.filmtit.userspace;
+package cz.filmtit.core;
 
-import cz.filmtit.core.ConfigurationSingleton;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
-public class HibernateUtil {
+public class CoreHibernateUtil {
     private static SessionFactory sessionFactory = null;
     private static ServiceRegistry serviceRegistry;
 
-    //this is fine, since it uses getResource
-    public static java.net.URL configurationFile = HibernateUtil.class.getResource("/cz/filmtit/userspace/hibernate.cfg.xml");
+    public static java.net.URL configurationFile = CoreHibernateUtil.class.getResource("/cz/filmtit/core/core.cfg.xml");
 
     /**
      * A path to the Hibernate configuration file. If it's necessary to change it (e.g. for unit testing),
@@ -21,17 +19,17 @@ public class HibernateUtil {
         try {
             cz.filmtit.core.Configuration projectConfiguration = ConfigurationSingleton.conf();
 
-            // Create the SessionFactory from hibernate.cfg.xml
-            Configuration configuration = new Configuration();
+            // Create the SessionFactory from core.cfg.xml
+            Configuration hibernateConfiguration = new Configuration();
 
-            configuration.configure(configurationFile);
+            hibernateConfiguration.configure(configurationFile);
 
-            configuration.setProperty("hibernate.connection.username", projectConfiguration.dbUser());
-            configuration.setProperty("hibernate.connection.password", projectConfiguration.dbPassword());
-            configuration.setProperty("hibernate.connection.url", projectConfiguration.dbConnector());
+            hibernateConfiguration.setProperty("hibernate.connection.username", projectConfiguration.dbUser());
+            hibernateConfiguration.setProperty("hibernate.connection.password", projectConfiguration.dbPassword());
+            hibernateConfiguration.setProperty("hibernate.connection.url", projectConfiguration.dbConnector());
 
-            serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
-            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            serviceRegistry = new ServiceRegistryBuilder().applySettings(hibernateConfiguration.getProperties()).buildServiceRegistry();
+            sessionFactory = hibernateConfiguration.buildSessionFactory(serviceRegistry);
             return sessionFactory;
         }
         catch (Throwable ex) {
@@ -42,8 +40,6 @@ public class HibernateUtil {
     }
 
     public static void buildSessionFactoryFromHbmFile(String hbmFileName) {
-        //java.net.URL configurationFile = HibernateUtil.class.getResource(hbmFileName);
-
         Configuration configuration = new Configuration();
         configuration.configure(hbmFileName);
 
@@ -52,7 +48,7 @@ public class HibernateUtil {
     }
 
     public static org.hibernate.Session getSessionWithActiveTransaction() {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().openSession();
+        org.hibernate.Session dbSession = CoreHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
         return dbSession;
     }
