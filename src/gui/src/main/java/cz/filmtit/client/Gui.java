@@ -47,6 +47,8 @@ public class Gui implements EntryPoint {
      private FilmTitServiceHandler rpcHandler;
      protected Document currentDocument;
      
+     private PageHandler pageHandler;
+     
      private String sessionID;
      
      // persistent session ID via cookies (set to null to unset)
@@ -84,45 +86,20 @@ public class Gui implements EntryPoint {
      
      
      
-     @Override
-     public void onModuleLoad() {
+    @Override
+    public void onModuleLoad() {
 
-        // RPC:
-          // FilmTitServiceHandler has direct access
-          // to package-internal (and public) fields and methods
-          // of this Gui instance
-          // (because the RPC calls are asynchronous)
-          rpcHandler = new FilmTitServiceHandler(this);
+		// RPC:
+		rpcHandler = new FilmTitServiceHandler(this);
           
-          // Request translation suggestions for a TimedChunk via:
-          // rpcHandler.getTranslationResults(timedchunk);
-          // Because the calls are asynchronous, the method returns void.
+		// page loading and switching
+		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
+		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
 
-          // Send feedback via:
-          // rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
-
-          // determine the page to be loaded (GUI is the default and fallback)
-          String page = Window.Location.getParameter("page");
-          if (page == null) {
-               createGui();               
-               log("No page parameter set, showing welcome page...");
-          }
-        else if (page.equals("AuthenticationValidationWindow")) {
-            createAuthenticationValidationWindow();
-        }
-          else {
-               createGui();
-               log("Fallback to welcome page (page requested: " + page + ")");
-          }
-
-        // TODO: check whether user is logged in or not
+        // check whether user is logged in or not
         rpcHandler.checkSessionID();
-        // TODO: we have to show welcome page as if user not logged in)
-        // and repaint this if checkSessionID() succeeds
-
-    }     // onModuleLoad()
-
-
+        
+    }
 
      void createGui() {
           
@@ -148,13 +125,9 @@ public class Gui implements EntryPoint {
                }             
           });
 
-        // only after login:
-        //createDocumentCreator();
-
-        showWelcomePage();
      }
 
-    private void createNewDocumentCreator() {
+    void createNewDocumentCreator() {
         docCreator = new DocumentCreator();
 
     // --- file reading interface via lib-gwt-file --- //
@@ -193,6 +166,8 @@ public class Gui implements EntryPoint {
                 createDocumentFromText( freader.getStringResult() );
             }
         } );
+        
+        guiStructure.contentPanel.setWidget(docCreator);
     }
 
 
@@ -200,7 +175,7 @@ public class Gui implements EntryPoint {
       * show the Start a new subtitle document panel
       * inside the GUI contentPanel
       */
-     private void createAndLoadUserPage() {
+     void createAndLoadUserPage() {
         UserPage userpage = new UserPage(
             new FieldUpdater<Document, String>() {
                 public void update(int index, Document doc, String value) {
@@ -219,7 +194,6 @@ public class Gui implements EntryPoint {
             @Override
             public void onClick(ClickEvent event) {
                 createNewDocumentCreator();
-                guiStructure.contentPanel.setWidget(docCreator);
             }
 
         });
@@ -229,7 +203,7 @@ public class Gui implements EntryPoint {
 
     }
      
-     private void createAuthenticationValidationWindow() {
+     void createAuthenticationValidationWindow() {
           // ----------------------------------------------- //
           // --- AuthenticationValidationWindow creation --- //
           // ----------------------------------------------- //
@@ -286,9 +260,12 @@ public class Gui implements EntryPoint {
         guiStructure.contentPanel.setStyleName("translating");
     }
 
-
     public void editDocument(Document document) {
-        rpcHandler.loadDocumentFromDB(document);
+        rpcHandler.loadDocumentFromDB(document.getId());
+    }
+
+    public void editDocument(long documentId) {
+        rpcHandler.loadDocumentFromDB(documentId);
     }
 
     protected void processTranslationResultList(List<TranslationResult> translations) {
@@ -613,14 +590,14 @@ public class Gui implements EntryPoint {
      
      protected void logged_in (String username) {
         this.username = username;
-          guiStructure.login.setText("Log out user " + username);
-        createAndLoadUserPage();
+    	guiStructure.login.setText("Log out user " + username);
+        pageHandler.loadPage(true);
      }
      
      protected void logged_out () {
         this.username = null;
-          guiStructure.login.setText("Log in");
-        showWelcomePage();
+        guiStructure.login.setText("Log in");
+        pageHandler.loadPage(false);
      }
 
     protected void showWelcomePage() {
