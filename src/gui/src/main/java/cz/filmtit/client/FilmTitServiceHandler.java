@@ -25,41 +25,10 @@ import java.util.List;
 import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
-	// FilmTitServiceAsync should be created automatically by Maven
-	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
-	private FilmTitServiceAsync filmTitService;
-	/**
-	 * reference to the gui for access to its protected and public members
-	 */
-	private Gui gui;
-	
-	int windowsDisplayed = 0;
-    
-    /**
-     * display a widow with an error message
-     * unless maximum number of error messages has been reached
-     * @param string
-     */
-    public void displayWindow(String message) {
-        if (windowsDisplayed < 10) {
-            windowsDisplayed++;
-            Window.alert(message);
-            if (windowsDisplayed==10) {
-                Window.alert("Last window displayed.");
-            }
-        } else {
-      //      gui.log("ERROR - message");
-        }
-    }
 	
 	public FilmTitServiceHandler(Gui gui) {
-		// TODO: FilmTitServiceHandler fields should eventually become obsolete in favor of Callable
-		filmTitService = GWT.create(FilmTitService.class);
-		this.gui = gui;
-		
-		Callable.filmTitService = filmTitService;
+		Callable.filmTitService = GWT.create(FilmTitService.class);
 		Callable.gui = gui;
-		Callable.filmTitServiceHandler = this;
 	}
 
     public void loadDocumentFromDB(Document document) {
@@ -114,7 +83,7 @@ public class FilmTitServiceHandler {
     }
 
 	
-	public void createDocument(String documentTitle, String movieTitle, String language, final String subtext, final String moviePath) {
+	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String moviePath) {
 		new CreateDocument(documentTitle, movieTitle, language, subtext, moviePath);
 	}
 	
@@ -125,7 +94,7 @@ public class FilmTitServiceHandler {
         String movieTitle;
 		String language;
 		String subtext;
-		String moviePath;
+		String moviePath;	
 		
 		// callback
 		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
@@ -823,9 +792,16 @@ public class FilmTitServiceHandler {
 	}
 
 
-    public void getListOfDocuments(final UserPage userpage) {
+    public void getListOfDocuments(UserPage userpage) {
+    	new GetListOfDocuments(userpage);
+    }
 
-        // create callback
+    public class GetListOfDocuments extends Callable {
+
+    	// parameters
+    	UserPage userpage;
+    	
+        // callback
         AsyncCallback<List<Document>> callback = new AsyncCallback<List<Document>>() {
 
             @Override
@@ -846,8 +822,21 @@ public class FilmTitServiceHandler {
 
         };
 
-        // RPC
-        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
-    }
+        // constructor
+		public GetListOfDocuments(UserPage userpage) {
+			super();
+
+			this.userpage = userpage;
+			
+			enqueue();
+		}
+        
+
+		@Override
+		void call() {
+	        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
+		}
+
+	}
 	    
 }
