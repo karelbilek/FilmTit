@@ -151,10 +151,16 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
         feedbackSent = false;
-
+        /*
+         *  THIS CAN'T BE HERE- we can't save it to database when it is use by hibernate setter
+         *  Hibernate will try to save it to database while we are loading it from database
+         *  
+         *  leading into needles saving to DB and more importantly - bugs, because it is in weird state
+         *
         Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
         HibernateUtil.closeAndCommitSession(dbSession);
+        */
     }
 
     /**
@@ -191,9 +197,16 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        /*
+         *  THIS CAN'T BE HERE- we can't save it to database when it is use by hibernate setter
+         *  Hibernate will try to save it to database while we are loading it from database
+         *  
+         *  leading into needles saving to DB and more importantly - bugs, because it is in weird state
+         *
+Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
         HibernateUtil.closeAndCommitSession(dbSession);
+        */
     }
 
     /**
@@ -215,6 +228,20 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      *   is attempted.
      * */
     public void setSharedId(int sharedId) {
+        if (sharedId < 0) {
+                RuntimeException e = new RuntimeException("ShareID lesser than zero!");
+                
+                System.out.println("----error stacktrace---");
+
+                StackTraceElement[] st = e.getStackTrace();
+                for (StackTraceElement stackTraceElement : st) {
+                    System.out.println(stackTraceElement.toString());
+                }
+
+
+
+            throw e;
+        }
         translationResult.setChunkId(sharedId);
     }
 
@@ -247,6 +274,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     public void saveToDatabase(Session dbSession) {
+        System.out.println("us: Chci ulozit s indexem "+getSharedId());
         saveJustObject(dbSession);
     }
 

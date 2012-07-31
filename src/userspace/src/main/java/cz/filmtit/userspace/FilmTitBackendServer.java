@@ -116,6 +116,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         if (!activeSessions.containsKey(sessionID)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
         }
+        System.out.println("Setting user translation for chunkindex : "+chunkIndex + ", translation : "+userTranslation);
         return activeSessions.get(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
     }
 

@@ -16,7 +16,7 @@ public class USDocument extends DatabaseObject {
 
     private long ownerDatabaseId=0;
     private Document document;
-    private Map<ChunkIndex, USTranslationResult> translationResults;
+    private SortedMap<ChunkIndex, USTranslationResult> translationResults;
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
@@ -27,7 +27,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
-        translationResults = new TreeMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
@@ -44,7 +44,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
-        translationResults = new TreeMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         ownerDatabaseId = 0; 
     }
 
@@ -176,12 +176,27 @@ public class USDocument extends DatabaseObject {
     protected MediaSource getMovie() {
         return document.getMovie();
     }
-
-    public Map<ChunkIndex, USTranslationResult> getTranslationResults() {
-        //Collections.sort(translationResults);
-        return translationResults;
+    
+    public Set<ChunkIndex> getTranslationResultKeys() {
+        return translationResults.keySet();
     }
 
+    public Collection<USTranslationResult> getTranslationResultValues() {
+        return translationResults.values();
+    }
+    
+    public USTranslationResult getTranslationResultForIndex(ChunkIndex i) {
+        //Collections.sort(translationResults);
+        return translationResults.get(i);
+    }
+
+    public void setTranslationResultForIndex(ChunkIndex i, USTranslationResult tr) {
+        //Collections.sort(translationResults);
+        if (tr == null) {
+            throw new RuntimeException("Someone is trying to put null translationResult!");
+        }
+        translationResults.put(i, tr);
+    }
 
     /**
      * Loads the translationResults from User Space database if there are some
@@ -193,10 +208,13 @@ public class USDocument extends DatabaseObject {
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
                 .setParameter("d", databaseId).list();
 
-        translationResults = new TreeMap<ChunkIndex, USTranslationResult>();
+        translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
             result.setDocument(this);
+            if (result==null) {
+                throw new RuntimeException("Someone is trying to put null translationResult!");
+            }
             translationResults.put(result.getTranslationResult().getSourceChunk().getChunkIndex(), result);
         }
     

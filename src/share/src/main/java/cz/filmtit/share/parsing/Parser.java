@@ -51,18 +51,10 @@ public abstract class Parser {
             result.addAll(processChunk(chunk, chunkId, documentId, l));
             chunkId++;
         }
-        renumber(result);
         return result;
     }
     
-    public static void renumber (List<TimedChunk> what) {
-        int i = 0;
-        for (TimedChunk chunk:what) {
-            chunk.setIndex(i);
-            i++;
-        }
-    }
-    
+   
     public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
         
 

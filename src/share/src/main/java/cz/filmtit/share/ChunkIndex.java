@@ -10,7 +10,13 @@ public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable
         id=0;
     }
 
-    public ChunkIndex(int partNumber, int id) {
+    public ChunkIndex(Integer partNumber, Integer id) {
+        if (partNumber==null) {
+            partNumber = 0;
+        }
+        if (id == null) {
+            id=0;
+        }
         this.partNumber=partNumber;
         this.id=id;
     }
@@ -32,6 +38,11 @@ public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable
         ChunkIndex pol = (ChunkIndex) o;
         return (pol.partNumber==partNumber && pol.id == id);
 
+    }
+
+    @Override
+    public String toString() {
+        return new Integer(partNumber).toString()+" | "+ new Integer(id).toString();
     }
 
     @Override

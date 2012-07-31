@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Chunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
@@ -39,7 +40,7 @@ import java.util.Map;
  *
  */
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
-	private int id;
+	private ChunkIndex chunkIndex;
 	private TranslationResult translationResult;
 	private Gui gui;
     private TranslationWorkspace workspace;
@@ -49,14 +50,14 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     String lastText = "";
 
     void replaceFakeWithReal() {
-        workspace.replaceFake(id, substitute, this);
+        workspace.replaceFake(chunkIndex, substitute, this);
     }
 
     private FakeSubgestBox substitute=null;
     
     public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
        
-        public FakeSubgestBox() {
+        public FakeSubgestBox(int tabIndex) {
             SubgestBox.this.substitute = SubgestBox.FakeSubgestBox.this;
 
             this.addFocusHandler(new FocusHandler() {
@@ -72,7 +73,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                     }
                 }
             });
-            this.setTabIndex(id + 1);
+            this.setTabIndex(tabIndex);
             this.setStyleName("pre_subgestbox");
             this.addStyleName("loading");
             if (fullWidth) {
@@ -107,8 +108,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
     boolean fullWidth;
 	
-	public SubgestBox(int id/*, TranslationResult translationResult*/, Gui gui, boolean fullWidth) {
-		this.id = id;
+	public SubgestBox(ChunkIndex chunkIndex, Gui gui, boolean fullWidth, int tabIndex) {
+		this.chunkIndex = chunkIndex;
 		this.translationResult = new TranslationResult();
 		this.gui = gui;
         this.workspace = gui.getTranslationWorkspace();
@@ -123,7 +124,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		//this.addValueChangeHandler(this.workspace.subgestHandler);
 		this.addBlurHandler(this.workspace.subgestHandler);
 
-        this.setTabIndex(id + 1);
+        this.setTabIndex(tabIndex);
 
         //delaying loadSuggestions() for focus
 		//this.loadSuggestions();
@@ -141,13 +142,13 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         String userTranslation = translationResult.getUserTranslation();
 
         if (userTranslation != null && !userTranslation.equals("")) {
-            replaceFakeWithReal();
-            setHTML(userTranslation);
+            //replaceFakeWithReal();
+            substitute.setText(userTranslation);
         }
     }
 
-	public int getId() {
-		return id;
+	public ChunkIndex getChunkIndex() {
+		return chunkIndex;
 	}
 	
 	public List<TranslationPair> getSuggestions() {

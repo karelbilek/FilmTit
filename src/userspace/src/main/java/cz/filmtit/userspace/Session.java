@@ -157,7 +157,7 @@ public class Session {
         usTranslationResult.generateMTSuggestions(TM);
         document.addTranslationResult(usTranslationResult);
 
-        saveTranslationResult(document, usTranslationResult);
+//        saveTranslationResult(document, usTranslationResult);
         return usTranslationResult.getTranslationResult();
     }
 
@@ -171,7 +171,21 @@ public class Session {
 
         USDocument doc = activeDocuments.get(documentId);
         
-        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
+        USTranslationResult tr = doc.getTranslationResultForIndex(chunkIndex);
+        
+        if (tr==null) {
+            
+            String s = ("TranslationResult je null pro index "+chunkIndex +", document ma id : "+doc.getDatabaseId()+", translationresults velikost : "+doc.getTranslationResultKeys());
+            s += ", keys jsou :";
+            for (ChunkIndex ci:doc.getTranslationResultKeys()) {
+                s += ci.toString();
+                s += " || ";
+            }
+            throw new RuntimeException(s);
+
+        }
+
+
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
         saveTranslationResult(activeDocuments.get(documentId), tr);
@@ -185,7 +199,7 @@ public class Session {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
         USDocument doc = activeDocuments.get(documentId);
-        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
+        USTranslationResult tr = doc.getTranslationResultForIndex(chunkIndex);
         tr.setStartTime(newStartTime);
         saveTranslationResult(doc, tr);
         return  null;
@@ -198,7 +212,7 @@ public class Session {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
         USDocument doc = activeDocuments.get(documentId);
-        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
+        USTranslationResult tr = doc.getTranslationResultForIndex(chunkIndex);
 
         tr.setStartTime(newEndTime);
         saveTranslationResult(doc, tr);
@@ -235,7 +249,7 @@ public class Session {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
         
-        USTranslationResult selected = activeDocuments.get(documentId).getTranslationResults().get(chunkIndex);
+        USTranslationResult selected = activeDocuments.get(documentId).getTranslationResultForIndex(chunkIndex);
         selected.generateMTSuggestions(TM);
         List<TranslationPair> l = new ArrayList<TranslationPair>();
         l.addAll( selected.getTranslationResult().getTmSuggestions());
@@ -259,7 +273,6 @@ public class Session {
             result.add(usDocument.getDocument());
         
             
-            System.out.println("SESN Dalsi document. Ma "+usDocument.getTranslationResults().size()+" prfku. Jeho podhoubi : "+usDocument.getDocument().getTranslationResults().size());
         }
 
         return result;
@@ -303,7 +316,7 @@ public class Session {
     }
 
     public void saveAllTranslationResults(USDocument document) {
-        Collection<USTranslationResult> results = document.getTranslationResults().values();
+        Collection<USTranslationResult> results = document.getTranslationResultValues();
         saveTranslationResults(document, results);
     }
 
@@ -319,7 +332,6 @@ public class Session {
 
 
         for (USTranslationResult tr : results) {
-
             document.addOrReplaceTranslationResult(tr);
             tr.saveToDatabase(session); 
                         

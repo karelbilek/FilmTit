@@ -46,7 +46,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 	}
 
     public static TimedChunk getChunk(SubgestBox sb, Gui g) {
-        return g.getChunk(sb.getId());
+        return g.getChunk(sb.getChunkIndex());
     }
 
 	@Override
@@ -175,6 +175,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 
             // submitting only when the contents have changed
             if (subbox.textChanged()) {
+                Window.alert("chci submitovat user translation");
                 gui.submitUserTranslation(subbox.getTranslationResult());
                 subbox.updateLastText();
             }

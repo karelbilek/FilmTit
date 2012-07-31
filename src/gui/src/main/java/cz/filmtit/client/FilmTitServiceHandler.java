@@ -84,13 +84,12 @@ public class FilmTitServiceHandler {
 
         AsyncCallback<Document> callback = new AsyncCallback<Document>() {
             public void onSuccess(final Document doc) {
-                gui.log("zacatek oncusses");
                 gui.document_created(null);//TODO: player
                 gui.setCurrentDocument(doc);
 
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
                 int i = 0;
-                for (TranslationResult t: results) {t.getSourceChunk().setIndex(i);}
+                //for (TranslationResult t: results) {t.getSourceChunk().setIndex(i);}
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
                                 gui.processTranslationResultList(results);
@@ -220,19 +219,18 @@ public class FilmTitServiceHandler {
 				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
 				
 				// add to trlist to the correct position:
-				Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				//Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
 			
                 for (TranslationResult newresult:newresults){
 
-                    int index = newresult.getSourceChunk().getIndex();
+                    //int index = newresult.getSourceChunk().getIndex();
                     ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
                    
-                    gui.log("index je "+index);
 
                     //not sure if this is needed
-                    translist.put(poi, newresult);
+                    //translist.put(poi, newresult);
                     
-                    gui.getTranslationWorkspace().showResult(newresult, index);
+                    gui.getTranslationWorkspace().showResult(newresult);
                 }
                 command.execute();
 			}
@@ -260,9 +258,6 @@ public class FilmTitServiceHandler {
 			super();
 			
 			this.chunks = chunks;
-            for (TimedChunk chunk:chunks) {
-                gui.log("pri odesilani je index "+chunk.getIndex());
-            }
 
 
 
@@ -273,7 +268,6 @@ public class FilmTitServiceHandler {
 
 		@Override
 		public void call() {
-			gui.log("JEDEM");
             filmTitService.getTranslationResults(gui.getSessionID(), chunks, callback);
 		}
 	}
@@ -417,30 +411,6 @@ public class FilmTitServiceHandler {
             filmTitService.checkSessionID(sessionID, callback);
 		}
     }
-
-        /*
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
-
-            public void onSuccess(String username) {
-            	if (username != null) {
-	                gui.log("logged in as " + username + " with session id " + sessionID);
-	                gui.logged_in(username);
-            	} else {
-                    gui.log("Warning: sessionID invalid.");
-            		gui.setSessionID(null);
-                    // gui.showLoginDialog();
-            	}
-            }
-
-            public void onFailure(Throwable caught) {
-                gui.log("ERROR: sessionID check didn't succeed!");
-            }
-        };
-
-    	// TODO call something
-        
-        // filmTitService.checkSessionID(sessionID, callback);
-        */
 
     public void registerUser(final String username, final String password, final String email, final DialogBox registrationForm) {
         AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
