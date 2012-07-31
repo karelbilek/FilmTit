@@ -1,6 +1,5 @@
 package cz.filmtit.client;
 
-import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
@@ -107,7 +106,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	};
 
     boolean fullWidth;
-	
+
+    private String subgestBoxtHTML(String content) {
+        return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; }</style></head><body>" + content + "</body></html>";
+    }
+
 	public SubgestBox(ChunkIndex chunkIndex, Gui gui, boolean fullWidth, int tabIndex) {
 		this.chunkIndex = chunkIndex;
 		this.translationResult = new TranslationResult();
@@ -118,6 +121,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         }
 
         this.setHeight("36px");
+        this.setHTML(subgestBoxtHTML(""));
 
         this.addFocusHandler(this.workspace.subgestHandler);
 		this.addKeyDownHandler(this.workspace.subgestHandler);
@@ -144,6 +148,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         if (userTranslation != null && !userTranslation.equals("")) {
             //replaceFakeWithReal();
             substitute.setText(userTranslation);
+            this.setHTML(subgestBoxtHTML(userTranslation));
         }
     }
 
