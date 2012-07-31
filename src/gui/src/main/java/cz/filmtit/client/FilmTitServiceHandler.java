@@ -634,7 +634,7 @@ public class FilmTitServiceHandler {
 				Window.open(url, "AuthenticationWindow", "width=400,height=500");
 				
 				// start polling for SessionID
-				new SessionIDPolling();				
+				new SessionIDPolling(authID);				
             }
 			
 			public void onFailure(Throwable caught) {
