@@ -25,13 +25,6 @@ import java.util.List;
 import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
-	// FilmTitServiceAsync should be created automatically by Maven
-	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
-	private FilmTitServiceAsync filmTitService;
-	/**
-	 * reference to the gui for access to its protected and public members
-	 */
-	private Gui gui;
 	
 	int windowsDisplayed = 0;
     
@@ -53,11 +46,7 @@ public class FilmTitServiceHandler {
     }
 	
 	public FilmTitServiceHandler(Gui gui) {
-		// TODO: FilmTitServiceHandler fields should eventually become obsolete in favor of Callable
-		filmTitService = GWT.create(FilmTitService.class);
-		this.gui = gui;
-		
-		Callable.filmTitService = filmTitService;
+		Callable.filmTitService = GWT.create(FilmTitService.class);
 		Callable.gui = gui;
 		Callable.filmTitServiceHandler = this;
 	}
