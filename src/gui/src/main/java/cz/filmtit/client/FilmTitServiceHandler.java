@@ -27,12 +27,24 @@ import java.util.SortedMap;
 public class FilmTitServiceHandler {
 	
 	public FilmTitServiceHandler(Gui gui) {
+		
 		Callable.filmTitService = GWT.create(FilmTitService.class);
+
+		// direct access
+		// to package-internal (and public) fields and methods
+		// of the active Gui instance
+		// is necessary to react to call results
+		// (because the RPC calls are asynchronous)
 		Callable.gui = gui;
 	}
 
-    public void loadDocumentFromDB(Document document) {
-        new LoadDocumentFromDB(document.getId());
+// disabled only to avoid duplicities, can be reenabled by uncommenting anytime if needed
+//    public void loadDocumentFromDB(Document document) {
+//        new LoadDocumentFromDB(document.getId());
+//    }
+
+    public void loadDocumentFromDB(long documentId) {
+        new LoadDocumentFromDB(documentId);    		
     }
 
     public class LoadDocumentFromDB extends Callable {
@@ -72,7 +84,7 @@ public class FilmTitServiceHandler {
 			
 			documentId = id;
 			
-			enqueue();
+    		enqueue();
 		}
 
 		@Override
