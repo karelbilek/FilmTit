@@ -108,7 +108,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     boolean fullWidth;
 
     private String subgestBoxtHTML(String content) {
-        return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; }</style></head><body>" + content + "</body></html>";
+        return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }</style></head><body>" + content + "</body></html>";
     }
 
 	public SubgestBox(ChunkIndex chunkIndex, Gui gui, boolean fullWidth, int tabIndex) {
@@ -305,8 +305,10 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	}
 
 	public void showSuggestions() {
-		suggestPanel.showRelativeTo(this);
-		suggestionWidget.setWidth(this.getOffsetWidth() + "px");
+        if(this.getSuggestions().size() > 0) {
+		    suggestPanel.showRelativeTo(this);
+		    suggestionWidget.setWidth(this.getOffsetWidth() + "px");
+        }
 	}
 	
 	
