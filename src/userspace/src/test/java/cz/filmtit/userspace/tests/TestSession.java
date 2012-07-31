@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -203,7 +204,7 @@ public class TestSession {
     @Test
     public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
         // TODO: uncomment the test when the media sources will be solved
-        /*USUser sampleUser = getSampleUser();
+        USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
 
@@ -226,8 +227,6 @@ public class TestSession {
         }
 
         session.logout();
-
-        */
     }
 
     /**
