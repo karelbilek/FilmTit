@@ -23,9 +23,6 @@ public class USDocument extends DatabaseObject {
     private long translationGenerationTime;
     private boolean finished;
 
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
-
-
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();

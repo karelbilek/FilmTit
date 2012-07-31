@@ -73,13 +73,6 @@ public abstract class DatabaseObject {
      *
      */
     protected void saveJustObject(Session session) {
-        /*if (!gotFromDb) { // completely new object
-            session.save(this);  // USDocument throws an exception here
-        }
-        else {           // just update an existing one
-            session.update(this);
-        }*/
-
         if (this instanceof USTranslationResult) {
             USTranslationResult tr = (USTranslationResult) this;
             
@@ -97,7 +90,6 @@ public abstract class DatabaseObject {
             }
         }
         session.saveOrUpdate(this);
-
     }
 
     /**
@@ -127,4 +119,6 @@ public abstract class DatabaseObject {
      * @param session A database session which is the operation happening in.
      */
     public abstract void deleteFromDatabase(Session session);
+
+    protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 }

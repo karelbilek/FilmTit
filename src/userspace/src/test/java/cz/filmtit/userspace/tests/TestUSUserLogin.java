@@ -10,15 +10,17 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 
 public class TestUSUserLogin {
     @BeforeClass
-    public static void InitializeDatabase() {
-        DatabaseUtil.setDatabase();
-        ConfigurationSingleton.setConf(new Configuration("configuration.xml"));
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
+
+    private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
     FilmTitBackendServer server = null;
      void TestUSUserLogin()
      {
@@ -41,9 +43,9 @@ public class TestUSUserLogin {
 
        server.registration(name, pass, email, null);
 
-       Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+       Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
        List UserResult = dbSession.createQuery("select d from USUser d where d.userName ='"+name+"' ").list();
-       USHibernateUtil.closeAndCommitSession(dbSession);
+       usHibernateUtil.closeAndCommitSession(dbSession);
 
        assertFalse(UserResult.size()==0);
 

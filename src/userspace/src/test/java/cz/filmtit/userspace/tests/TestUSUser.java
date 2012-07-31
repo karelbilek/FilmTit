@@ -1,13 +1,18 @@
 package cz.filmtit.userspace.tests;
 
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestUSUser {
     @BeforeClass
-    public static void InitializeDatabase() {
-        DatabaseUtil.setDatabase();
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
+
 
 
     @Test
