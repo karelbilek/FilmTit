@@ -4,6 +4,7 @@ import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.MediaSource;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -18,24 +19,27 @@ public class USDocument extends DatabaseObject {
 
     private long ownerDatabaseId=0;
     private Document document;
-    private Map<ChunkIndex, USTranslationResult> translationResults;
+    private SortedMap<ChunkIndex, USTranslationResult> translationResults;
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
-    
+   
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
+
+
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
-        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
+        translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
             this.ownerDatabaseId = user.getDatabaseId();
         }
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     /**
@@ -43,7 +47,7 @@ public class USDocument extends DatabaseObject {
      */
     public USDocument() {
         document = new Document();
-        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
+        translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         ownerDatabaseId = 0; 
     }
 
@@ -51,10 +55,9 @@ public class USDocument extends DatabaseObject {
         return ownerDatabaseId;
     }
 
-
     //this should not be run anywhere in regular code!
     //it is here only for hibernate
-    public void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
+    private void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
         if (this.ownerDatabaseId!=0) {
             throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
@@ -77,12 +80,9 @@ public class USDocument extends DatabaseObject {
         return document.getMovie().getTitle();
     }
 
-
-
     public String getYear() {
         return document.getMovie().getYear();
     }
-
 
     /**
      * Gets the time spent on translating this subtitles valid right now.
@@ -145,30 +145,53 @@ public class USDocument extends DatabaseObject {
     protected MediaSource getMovie() {
         return document.getMovie();
     }
-
-    public Map<ChunkIndex, USTranslationResult> getTranslationResults() {
-        return translationResults;
+    
+    public Set<ChunkIndex> getTranslationResultKeys() {
+        return translationResults.keySet();
     }
 
+    public void removeTranslationResult(ChunkIndex index) {
+        translationResults.remove(index); 
+    }
+
+    public Collection<USTranslationResult> getTranslationResultValues() {
+        return translationResults.values();
+    }
+    
+    public USTranslationResult getTranslationResultForIndex(ChunkIndex i) {
+        //Collections.sort(translationResults);
+        return translationResults.get(i);
+    }
+
+    public void setTranslationResultForIndex(ChunkIndex i, USTranslationResult tr) {
+        //Collections.sort(translationResults);
+        if (tr == null) {
+            throw new RuntimeException("Someone is trying to put null translationResult!");
+        }
+        translationResults.put(i, tr);
+    }
 
     /**
      * Loads the translationResults from User Space database if there are some
      */
     public void loadChunksFromDb() {
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
         List foundChunks = dbSession.createQuery("select c from USTranslationResult c where c.documentDatabaseId = :d")
                 .setParameter("d", databaseId).list();
 
-        translationResults = Collections.synchronizedMap(new HashMap<ChunkIndex, USTranslationResult>());
+        translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         for (Object o : foundChunks) {
             USTranslationResult result = (USTranslationResult)o;
             result.setDocument(this);
+            if (result==null) {
+                throw new RuntimeException("Someone is trying to put null translationResult!");
+            }
             translationResults.put(result.getTranslationResult().getSourceChunk().getChunkIndex(), result);
         }
     
-        HibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         //Collections.sort(translationResults);
         // add the translation results to the inner document

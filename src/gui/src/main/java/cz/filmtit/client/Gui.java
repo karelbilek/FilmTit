@@ -13,6 +13,7 @@ import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
+import com.google.gwt.cell.client.FieldUpdater;
 
 import java.util.*;
 
@@ -33,10 +34,10 @@ public class Gui implements EntryPoint {
 
      GuiStructure guiStructure;
      
-     protected List<TimedChunk> chunklist;
+     protected Map<ChunkIndex, TimedChunk> chunkmap;
 
-     public TimedChunk getChunk(int i) {
-        return chunklist.get(i);
+     public TimedChunk getChunk(ChunkIndex chunkIndex) {
+        return chunkmap.get(chunkIndex);
      }
      
      protected RootPanel rootPanel;
@@ -200,7 +201,13 @@ public class Gui implements EntryPoint {
       * inside the GUI contentPanel
       */
      private void createAndLoadUserPage() {
-        UserPage userpage = new UserPage();
+        UserPage userpage = new UserPage(
+            new FieldUpdater<Document, String>() {
+                public void update(int index, Document doc, String value) {
+                    editDocument(doc);
+                }
+            }
+        );
         guiStructure.contentPanel.setStyleName("users_page");
 
         log("getting list of documents...");
@@ -279,6 +286,42 @@ public class Gui implements EntryPoint {
     }
 
 
+    public void editDocument(Document document) {
+        rpcHandler.loadDocumentFromDB(document);
+    }
+
+    protected void processTranslationResultList(List<TranslationResult> translations) {
+        
+          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+
+          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
+
+
+          for (TranslationResult tr:translations) {
+              TimedChunk sChunk = tr.getSourceChunk();
+              chunkmap.put(sChunk.getChunkIndex(), sChunk);
+              String tChunk = tr.getUserTranslation();
+              
+
+              ChunkIndex chunkIndex = sChunk.getChunkIndex();
+              
+              
+              this.currentDocument.translationResults.put(chunkIndex, tr);
+              
+              workspace.showSource(sChunk);
+
+              if (tChunk==null || tChunk.equals("")){
+                 untranslatedOnes.add(sChunk);
+              } else {
+                 workspace.showResult(tr);
+              
+              }
+          }
+          if (untranslatedOnes.size() > 0) {
+            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
+            sendChunks.execute();
+          }
+    }
      
      /**
       * Parse the given text in the subtitle format of choice (by the radiobuttons)
@@ -292,7 +335,9 @@ public class Gui implements EntryPoint {
      protected void processText(String subtext) {
           // dump the input text into the debug-area:
           log("processing the following input:\n" + subtext + "\n");
-          
+         
+          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+
           // determine format (from corresponding radiobuttons) and choose parser:
           String subformat = docCreator.getChosenSubFormat();
           Parser subtextparser;
@@ -304,32 +349,45 @@ public class Gui implements EntryPoint {
                subtextparser = new ParserSrt();
           }
           log("subtitle format chosen: " + subformat);
-                    
+          
+          //Window.alert("1");
           // parse:
           log("starting parsing");
           long startTime = System.currentTimeMillis();
-          this.chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
+          List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           log("parsing finished in " + parsingTime + "ms");
+          //Window.alert("2");
 
           for (TimedChunk chunk : chunklist) {
+              chunkmap.put(chunk.getChunkIndex(), chunk);
               ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult();
               tr.setSourceChunk(chunk);
               this.currentDocument.translationResults.put(chunkIndex, tr);
+              
           }
+          
+          //Window.alert("3");
 
           // output the parsed chunks:
           log("parsed chunks: "+chunklist.size());
-
-        int i=0;
-        for (TimedChunk timedchunk : chunklist) {
-            workspace.showSource(timedchunk, i++);
+            
+          int size=50; 
+          int i = 0;
+          for (TimedChunk timedchunk : chunklist) {
+            workspace.showSource(timedchunk);
+            if (i%size==0) {
+              //  Window.alert("another "+i);
+            }
+            i++;
           }
+//          Window.alert("4");
 
-         SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
-         sendChunks.execute();
+          SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
+          sendChunks.execute();
+  //        Window.alert("5");
      }
      
      
@@ -400,18 +458,24 @@ public class Gui implements EntryPoint {
 
 
     long start=0;
+     private StringBuilder sb = new StringBuilder();
      /**
       * Output the given text in the debug textarea
      * with a timestamp relative to the first logging.
       * @param logtext
       */
      public void log(String logtext) {
-          if (start == 0) {
+        
+        if (start == 0) {
             start = System.currentTimeMillis();
         }
         long diff = (System.currentTimeMillis() - start);
-        guiStructure.txtDebug.setText(guiStructure.txtDebug.getText() + diff+" : " + logtext + "\n");
-          guiStructure.txtDebug.setCursorPos(guiStructure.txtDebug.getText().length());
+        sb.append(diff);
+        sb.append(" : ");
+       
+        sb.append(logtext);
+        sb.append("\n");
+        guiStructure.txtDebug.setText(sb.toString());
      }
      
      private void error(String errtext) {

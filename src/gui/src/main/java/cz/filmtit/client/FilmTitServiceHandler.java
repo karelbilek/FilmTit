@@ -61,6 +61,58 @@ public class FilmTitServiceHandler {
 		Callable.gui = gui;
 		Callable.filmTitServiceHandler = this;
 	}
+
+    public void loadDocumentFromDB(Document document) {
+        new LoadDocumentFromDB(document.getId());
+    }
+
+    public class LoadDocumentFromDB extends Callable {
+        long documentId;
+        
+
+        AsyncCallback<Document> callback = new AsyncCallback<Document>() {
+            public void onSuccess(final Document doc) {
+                gui.document_created(null);//TODO: player
+                gui.setCurrentDocument(doc);
+
+                final List<TranslationResult> results  = doc.getSortedTranslationResults();
+                int i = 0;
+                //for (TranslationResult t: results) {t.getSourceChunk().setIndex(i);}
+                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                            public void execute() {
+                                gui.processTranslationResultList(results);
+                            }
+                        });
+
+            }
+            
+            
+            public void onFailure(Throwable caught) {
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+				} else {
+					displayWindow(caught.getLocalizedMessage());
+					gui.log("failure on loading document!");
+				}
+			}
+        };
+
+        // constructor
+		public LoadDocumentFromDB(long id) {
+			super();
+			
+			documentId = id;
+			
+			enqueue();
+		}
+
+		@Override
+		public void call() {
+			filmTitService.loadDocument(gui.getSessionID(), documentId, callback);
+		}
+
+    }
+
 	
 	public void createDocument(String movieTitle, String year, String language, final String subtext, final String moviePath) {
 		new CreateDocument(movieTitle, year, language, subtext, moviePath);
@@ -155,17 +207,18 @@ public class FilmTitServiceHandler {
 				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
 				
 				// add to trlist to the correct position:
-				Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				//Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
 			
                 for (TranslationResult newresult:newresults){
 
-                    int index = newresult.getSourceChunk().getIndex();
+                    //int index = newresult.getSourceChunk().getIndex();
                     ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
-                    
+                   
+
                     //not sure if this is needed
-                    translist.put(poi, newresult);
+                    //translist.put(poi, newresult);
                     
-                    gui.getTranslationWorkspace().showResult(newresult, index);
+                    gui.getTranslationWorkspace().showResult(newresult);
                 }
                 command.execute();
 			}
@@ -193,6 +246,9 @@ public class FilmTitServiceHandler {
 			super();
 			
 			this.chunks = chunks;
+
+
+
 			this.command = command;
 			
 			enqueue();
@@ -200,7 +256,7 @@ public class FilmTitServiceHandler {
 
 		@Override
 		public void call() {
-			filmTitService.getTranslationResults(gui.getSessionID(), chunks, callback);
+            filmTitService.getTranslationResults(gui.getSessionID(), chunks, callback);
 		}
 	}
 	
@@ -777,7 +833,9 @@ public class FilmTitServiceHandler {
                 gui.log("received " + result.size() + " documents");
                 
                 userpage.setDocuments(result);
-                
+                for (Document d:result) {
+                    gui.log("GUI Dalsi document. Ma "+d.getTranslationResults().size()+" prfku.");
+                }
             }
 
             @Override

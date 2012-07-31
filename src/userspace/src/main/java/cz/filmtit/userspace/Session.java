@@ -19,6 +19,8 @@ public class Session {
     private long sessionStart;
     private long lastOperationTime;
     private SessionState state;
+    
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
 
 
 
@@ -36,7 +38,7 @@ public class Session {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         
         sessionStart = new Date().getTime();
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
         state = SessionState.active;
         this.user = user;
 
@@ -50,8 +52,6 @@ public class Session {
             }
         }
     }
-
-
 
     public long getLastOperationTime() {
         return lastOperationTime;
@@ -103,22 +103,22 @@ public class Session {
      * Terminates the session. Usually in the situation when the user open a new one.
      */
     private void terminate() {
-        org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         session.save(this);
-        HibernateUtil.closeAndCommitSession(session);
+        usHibernateUtil.closeAndCommitSession(session);
 
         user.getActiveDocumentIDs().clear();
 
-        session = HibernateUtil.getSessionWithActiveTransaction();
+        session = usHibernateUtil.getSessionWithActiveTransaction();
         for (USDocument activeDoc : activeDocuments.values()) {
             activeDoc.saveToDatabase(session);
             user.getActiveDocumentIDs().add(activeDoc.getDatabaseId());
         }
-        HibernateUtil.closeAndCommitSession(session);
+        usHibernateUtil.closeAndCommitSession(session);
 
-        session = HibernateUtil.getSessionWithActiveTransaction();
+        session = usHibernateUtil.getSessionWithActiveTransaction();
         user.saveToDatabase(session);
-        HibernateUtil.closeAndCommitSession(session);   // TODO: throws an exception
+        usHibernateUtil.closeAndCommitSession(session);
     }
 
     /**
@@ -130,26 +130,20 @@ public class Session {
     }
 
     public DocumentResponse createNewDocument(String movieTitle, String year, String language, TranslationMemory TM) {
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
         USDocument usDocument = new USDocument( new Document(movieTitle, year, language) , user);
         List<MediaSource> suggestions = TM.mediaStorage().getSuggestions(movieTitle, year);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
 
         user.addDocument(usDocument);
-       
-        
 
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
-        lastOperationTime = new Date().getTime();
-        if (!activeDocuments.containsKey(chunk.getDocumentId())) {
-            throw new InvalidDocumentIdException("Sent time chunk is referring to a document using an invalid ID.");
-        }
-
-        USDocument document = activeDocuments.get(chunk.getDocumentId());
+        updateLastOperationTime();
+        USDocument document = getActiveDocument(chunk.getDocumentId());
 
         USTranslationResult usTranslationResult = new USTranslationResult(chunk);
         usTranslationResult.setDocument(document);
@@ -164,79 +158,74 @@ public class Session {
 
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
 
-        if (!activeDocuments.containsKey(documentId)) {
-            throw new InvalidDocumentIdException("Not existing document ID.");
+        USDocument document = getActiveDocument(documentId);
+        
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
+        
+        if (tr==null) {
+            
+            String s = ("TranslationResult is null for index "+chunkIndex +", document has id : "+document.getDatabaseId()+", translationresults : "+document.getTranslationResultKeys());
+           throw new RuntimeException(s);
+
         }
 
-        USDocument doc = activeDocuments.get(documentId);
-        
-        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
+
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
         saveTranslationResult(activeDocuments.get(documentId), tr);
         return null;
     }
 
-    public Void setChunkStartTime(ChunkIndex chunkIndex, long documentId, String newStartTime) throws InvalidDocumentIdException, InvalidChunkIdException {
-        lastOperationTime = new Date().getTime();
-
-        if (!activeDocuments.containsKey(documentId)) {
-            throw new InvalidDocumentIdException("Not existing document ID.");
-        }
-        USDocument doc = activeDocuments.get(documentId);
-        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
-        tr.setStartTime(newStartTime);
-        saveTranslationResult(doc, tr);
-        return  null;
-    }
-
-    public Void setChunkEndTime(ChunkIndex chunkIndex, long documentId, String newEndTime) throws InvalidDocumentIdException, InvalidChunkIdException {
-        lastOperationTime = new Date().getTime();
-
-        if (!activeDocuments.containsKey(documentId)) {
-            throw new InvalidDocumentIdException("Not existing document ID.");
-        }
-        USDocument doc = activeDocuments.get(documentId);
-        USTranslationResult tr = doc.getTranslationResults().get(chunkIndex);
-
-        tr.setStartTime(newEndTime);
-        saveTranslationResult(doc, tr);
-        return  null;
-    }
-
-    public TranslationResult regenerateTranslationResult(ChunkIndex chunkIndex, long documentId, TimedChunk chunk, TranslationMemory TM)
+    public Void setChunkStartTime(ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidDocumentIdException, InvalidChunkIdException {
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
 
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-
-
-
         USDocument document = activeDocuments.get(documentId);
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
+        tr.setStartTime(newStartTime);
+        saveTranslationResult(document, tr);
+        return  null;
+    }
 
-        USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-        usTranslationResult.setDocument(document);
+    public Void setChunkEndTime(ChunkIndex chunkIndex, long documentId, String newEndTime)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
+        updateLastOperationTime();
 
-        usTranslationResult.generateMTSuggestions(TM);
-        document.replaceTranslationResult(usTranslationResult);
+        if (!activeDocuments.containsKey(documentId)) {
+            throw new InvalidDocumentIdException("Not existing document ID.");
+        }
+        USDocument document = activeDocuments.get(documentId);
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
-        saveTranslationResult(document, usTranslationResult);
-        return usTranslationResult.getTranslationResult();
+        tr.setEndTime(newEndTime);
+        saveTranslationResult(document, tr);
+        return  null;
+    }
+
+    public List<TranslationPair> changeText(ChunkIndex chunkIndex, long documentId, String text, TranslationMemory TM)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
+        updateLastOperationTime();
+
+        USDocument document = getActiveDocument(documentId);
+        USTranslationResult translationResult = document.getTranslationResultForIndex(chunkIndex);
+        translationResult.setText(text);
+
+        saveTranslationResult(document, translationResult);
+        return requestTMSuggestions(chunkIndex, documentId, TM);
     }
 
     public List<TranslationPair> requestTMSuggestions(ChunkIndex chunkIndex, long documentId, TranslationMemory TM)
             throws InvalidDocumentIdException, InvalidChunkIdException {
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
 
-        if (!activeDocuments.containsKey(documentId)) {
-            throw new InvalidDocumentIdException("Not existing document ID.");
-        }
+        USDocument document = getActiveDocument(documentId);
         
-        USTranslationResult selected = activeDocuments.get(documentId).getTranslationResults().get(chunkIndex);
+        USTranslationResult selected = document.getTranslationResultForIndex(chunkIndex);
         selected.generateMTSuggestions(TM);
         List<TranslationPair> l = new ArrayList<TranslationPair>();
         l.addAll( selected.getTranslationResult().getTmSuggestions());
@@ -245,26 +234,45 @@ public class Session {
         return l;
     }
 
-    public Void selectSource(long documentID, MediaSource selectedMediaSource) {
-        lastOperationTime = new Date().getTime();
-        USDocument usDocument = activeDocuments.get(documentID);
-        usDocument.setMovie(selectedMediaSource);
+    public Void deleteChunk(ChunkIndex chunkIndex, long documentId)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
+        updateLastOperationTime();
+
+        USDocument document = getActiveDocument(documentId);
+        USTranslationResult translationResult = document.getTranslationResultForIndex(chunkIndex);
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        translationResult.deleteFromDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        document.removeTranslationResult(chunkIndex);
+
+        return null;
+    }
+
+    public Void selectSource(long documentId, MediaSource selectedMediaSource)
+            throws InvalidDocumentIdException {
+        updateLastOperationTime();
+        USDocument document = getActiveDocument(documentId);
+        document.setMovie(selectedMediaSource);
         return null;
     }
 
     public List<Document> getListOfDocuments() {
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
         List<Document> result = new ArrayList<Document>();
 
         for(USDocument usDocument : user.getOwnedDocuments()) {
             result.add(usDocument.getDocument());
-  }
+        
+            
+        }
 
         return result;
     }
 
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
-        lastOperationTime = new Date().getTime();
+        updateLastOperationTime();
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
 
@@ -279,19 +287,14 @@ public class Session {
         throw new InvalidDocumentIdException("The user does not own a document with such ID.");
     }
 
-    public Void closeDocument(long documentID) throws InvalidDocumentIdException {
-        lastOperationTime = new Date().getTime();
-        if (!activeDocuments.containsKey(documentID)) {
-            throw new InvalidDocumentIdException("The session does not have an active document with such ID.");
-        }
+    public Void closeDocument(long documentId) throws InvalidDocumentIdException {
+        updateLastOperationTime();
 
-        org.hibernate.Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        activeDocuments.get(documentID).saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
+        USDocument document = getActiveDocument(documentId);
 
-        activeDocuments.remove(documentID);
+        activeDocuments.remove(documentId);
         
-        saveAllTranslationResults(activeDocuments.get(documentID));
+        saveAllTranslationResults(document);
         return null;
     }
     
@@ -301,7 +304,7 @@ public class Session {
     }
 
     public void saveAllTranslationResults(USDocument document) {
-        Collection<USTranslationResult> results = document.getTranslationResults().values();
+        Collection<USTranslationResult> results = document.getTranslationResultValues();
         saveTranslationResults(document, results);
     }
 
@@ -312,16 +315,26 @@ public class Session {
     }
 
     public void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
-        org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         document.saveToDatabase(session);
 
-
         for (USTranslationResult tr : results) {
-
             document.addOrReplaceTranslationResult(tr);
             tr.saveToDatabase(session); 
                         
         }
-        HibernateUtil.closeAndCommitSession(session); 
+        usHibernateUtil.closeAndCommitSession(session);
     }
+
+    private void updateLastOperationTime() {
+        lastOperationTime = new Date().getTime();
+    }
+
+    private USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
+        if (!activeDocuments.containsKey(documentID)) {
+            throw new InvalidDocumentIdException("The session does not have an active document with such ID.");
+        }
+        return activeDocuments.get(documentID);
+    }
+
 }

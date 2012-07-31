@@ -3,8 +3,7 @@ package cz.filmtit.userspace.tests;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.userspace.FilmTitBackendServer;
-import cz.filmtit.userspace.HibernateUtil;
-import cz.filmtit.userspace.USUser;
+import cz.filmtit.userspace.USHibernateUtil;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,9 +41,9 @@ public class TestUSUserLogin {
 
        server.registration(name, pass, email, null);
 
-       Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+       Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
        List UserResult = dbSession.createQuery("select d from USUser d where d.userName ='"+name+"' ").list();
-       HibernateUtil.closeAndCommitSession(dbSession);
+       USHibernateUtil.closeAndCommitSession(dbSession);
 
        assertFalse(UserResult.size()==0);
 
