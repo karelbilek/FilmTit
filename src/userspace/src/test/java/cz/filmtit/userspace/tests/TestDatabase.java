@@ -1,7 +1,7 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.share.TimedChunk;
-import cz.filmtit.userspace.HibernateUtil;
+import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -28,7 +28,7 @@ public class TestDatabase {
             new DatabaseWorker().run();
         }
 
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         dbSession.createQuery("delete from USTranslationResult");
         dbSession.getTransaction().commit();
     }
@@ -36,7 +36,7 @@ public class TestDatabase {
     private class DatabaseWorker extends Thread {
         @Override
         public void run() {
-            Session dbSession = HibernateUtil.getSessionFactory().openSession();
+            Session dbSession = USHibernateUtil.getSessionFactory().openSession();
 
             for(int i = 0; i < 200; ++i) {
 

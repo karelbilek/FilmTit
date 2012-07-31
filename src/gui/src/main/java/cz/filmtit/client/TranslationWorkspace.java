@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.google.gwt.user.client.*;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -9,11 +10,9 @@ import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class TranslationWorkspace extends Composite {
@@ -27,6 +26,7 @@ public class TranslationWorkspace extends Composite {
 
     protected SubgestHandler subgestHandler;
 
+    private HashMap<ChunkIndex, Integer> indexes;
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
     private Widget activeSuggestionWidget = null;
 
@@ -39,13 +39,14 @@ public class TranslationWorkspace extends Composite {
 
 
     public TranslationWorkspace(Gui gui, String path) {
-		initWidget(uiBinder.createAndBindUi(this));
+        initWidget(uiBinder.createAndBindUi(this));
 
         isVideo = path!=null;
 
         this.gui = gui;
 
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
+        this.indexes = new HashMap<ChunkIndex, Integer>();
 
         scrollPanel.setStyleName("scrollPanel");
         // hiding the suggestion popup when scrolling the subtitle panel
@@ -103,16 +104,29 @@ public class TranslationWorkspace extends Composite {
     @UiField
     HorizontalPanel translationHPanel;
    
-    
+   
+    int lastIndex = 0;
+
     /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
-     * the chunk text and an empty (fake)subgestbox.
+     * the chunk text and an empty (fake)subgestbox. 
+     *
+     * We have to suppose these are coming in the same order as they appear in the source.
      * @param chunk - source-language chunk to show
      * @param index - index of the chunk in the chunk-list
      */
-    public void showSource(TimedChunk chunk, int index) {
+    public void showSource(TimedChunk chunk) {
+        ChunkIndex chunkIndex = chunk.getChunkIndex();
+
         Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
         timeslabel.setStyleName("chunk_timing");
+
+        int index = lastIndex;
+        lastIndex++;
+
+        indexes.put(chunkIndex, index);
+
+                        //+1 because of the header
         table.setWidget(index + 1, TIMES_COLNUMBER, timeslabel);
 
         //html because of <br />
@@ -120,15 +134,16 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(index, gui, !isVideo);
-        SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox();
+        SubgestBox targetbox = new SubgestBox(chunkIndex, gui, !isVideo, index+1);
+        SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
     }
 
 
-    public void replaceFake(int id, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
+    public void replaceFake(ChunkIndex chunkIndex, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
+        int id = indexes.get(chunkIndex);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
 
         real.setFocus(true);
@@ -139,7 +154,11 @@ public class TranslationWorkspace extends Composite {
      * Add the given TranslationResult to the current listing interface.
      * @param transresult - the TranslationResult to be shown
      */
-    public void showResult(TranslationResult transresult, int index) {
+    public void showResult(TranslationResult transresult) {
+        
+        ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
+        int index = indexes.get(chunkIndex);
+
         targetBoxes.get(index).getFather().setTranslationResult(transresult);
         targetBoxes.get(index).removeStyleName("loading");
 
@@ -155,7 +174,7 @@ public class TranslationWorkspace extends Composite {
      *         true otherwise
      */
     public boolean goToNextBox(SubgestBox currentBox) {
-        int currentIndex = currentBox.getId();
+        int currentIndex = indexes.get(currentBox.getChunkIndex());
         //final int nextIndex = (currentIndex < targetBoxes.size()-1) ? (currentIndex + 1) : currentIndex;
         final int nextIndex = currentIndex + 1;
         if (nextIndex >= targetBoxes.size()) {
@@ -185,7 +204,7 @@ public class TranslationWorkspace extends Composite {
      *         true otherwise
      */
     public boolean goToPreviousBox(SubgestBox currentBox) {
-        int currentIndex = currentBox.getId();
+        int currentIndex = indexes.get(currentBox.getChunkIndex());
         //final int prevIndex = (currentIndex > 0) ? (currentIndex - 1) : currentIndex;
         final int prevIndex = currentIndex - 1;
         if (prevIndex <0) {
@@ -208,8 +227,26 @@ public class TranslationWorkspace extends Composite {
 
 
     public void ensureVisible(SubgestBox subbox) {
-        scrollPanel.ensureVisible(subbox);
+        //scrollPanel.ensureVisible(subbox);
+        //Window.alert("ensuring visible");
+        //ensureVisibleInWindow(subbox.getElement());
+        Window.scrollTo(Window.getScrollLeft(), getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() / 2);
     }
+
+    private native int getScrollOffsetY(Element e) /*-{
+        if (!e)
+          return;
+
+
+        var item = e;
+        var realOffset = 0;
+        while (item && (item != document.body)) {
+            realOffset += item.offsetTop;
+            item = item.offsetParent;
+        }
+
+        return realOffset;
+    }-*/;
 
 
     protected void setActiveSuggestionWidget(Widget w) {

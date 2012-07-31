@@ -375,12 +375,13 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Java Mail API -->
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.3</version>
+        	<groupId>net.liftweb</groupId>
+        	<artifactId>lift-json_2.9.1</artifactId>
+        	<version>2.4</version>
         </dependency>
+
+  <!-- Java Mail API -->        <dependency>            <groupId>javax.mail</groupId>            <artifactId>mail</artifactId>            <version>1.4.3</version>        </dependency>
 
     </dependencies>
 

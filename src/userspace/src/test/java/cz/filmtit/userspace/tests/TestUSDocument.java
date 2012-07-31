@@ -3,6 +3,7 @@ package cz.filmtit.userspace.tests;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.userspace.USDocument;
+import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
@@ -21,11 +22,9 @@ public class TestUSDocument {
 
     @Test
     public  void testUSDocumentConstructor() {
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "cs");
         USDocument resultUSDocument = new USDocument(doc, null);
 
-        assertEquals(resultUSDocument.getMovieTitle(), doc.getMovie().getTitle());
-        assertEquals(resultUSDocument.getYear(), doc.getMovie().getYear());
         assertEquals(resultUSDocument.getLanguageCode(), doc.getLanguage().getCode());
 
         assertEquals(false,resultUSDocument.isFinished());
@@ -33,19 +32,18 @@ public class TestUSDocument {
 
     @Test
     public void testSaveAndLoadWithTranslationResults() {
-        Session dbSession = DatabaseUtil.getSession();
+        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
         // create a sample document and save it to the database to know the ID
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "cs");
         USDocument sampleUSDocument = new USDocument(doc, null);
         sampleUSDocument.setFinished(false);
 
         sampleUSDocument.setSpentOnThisTime(120);
         sampleUSDocument.setTranslationGenerationTime(50);
 
-        dbSession.beginTransaction();
         sampleUSDocument.saveToDatabase(dbSession);
-        dbSession.getTransaction().commit();
+        USHibernateUtil.closeAndCommitSession(dbSession);
 
         // now add few sample chunks
         long documentID = sampleUSDocument.getDatabaseId();
@@ -58,9 +56,9 @@ public class TestUSDocument {
         sampleUSDocument.addTranslationResult(sampleTR3);
 
         // safe the translation results
-        dbSession.beginTransaction();
+        dbSession = USHibernateUtil.getSessionWithActiveTransaction();
         sampleUSDocument.saveToDatabase(dbSession);
-        dbSession.getTransaction().commit();
+        USHibernateUtil.closeAndCommitSession(dbSession);
 
         // test if the translation results got the database IDs
         assertNotSame(Long.MIN_VALUE, sampleTR1.getDatabaseId());
@@ -68,50 +66,32 @@ public class TestUSDocument {
         assertNotSame(Long.MIN_VALUE, sampleTR3.getDatabaseId());
 
         // now load the document from database
-        dbSession.beginTransaction();
+        dbSession = USHibernateUtil.getSessionWithActiveTransaction();
 
         List queryResult = dbSession.createQuery("select d from USDocument d where d.databaseId = " +
                 Long.toString(documentID)).list();
 
-        dbSession.getTransaction().commit();
+        USHibernateUtil.closeAndCommitSession(dbSession);
 
         assertEquals(1, queryResult.size());
         USDocument loadedDocument = (USDocument)(queryResult.get(0));
 
         // test if its the same
-        assertEquals(sampleUSDocument.getMovieTitle(), doc.getMovie().getTitle());
-        assertEquals(sampleUSDocument.getYear(), doc.getMovie().getYear());
         assertEquals(sampleUSDocument.getLanguageCode(), doc.getLanguage().getCode());
 
         // now call the loadChunksFromDb method
         loadedDocument.loadChunksFromDb();
 
         // test if the loaded TranslationResults are the same as the saved ones
-        assertEquals(3, loadedDocument.getTranslationsResults().size());
-
+        assertEquals(3, loadedDocument.getTranslationResults().size());
     }
 
     @Test(expected=UnsupportedOperationException.class)
     public void testDatabaseImmutability() {
-        Session session = DatabaseUtil.getSession();
-        Document doc = new Document("Movie title", "2012", "cs");
+        Document doc = new Document("Movie title", "cs");
         USDocument resultUSDocument = new USDocument(doc, null);
 
         resultUSDocument.setDatabaseId(2001);
-    }
-
-    // SHOULD BE MOVED SOMEWHERE ...
-
-    @Test
-    public void testServerCall() {
-        /*FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Document resultDocument = server.createDocument("Movie title", "2012", "cs");
-
-        assertEquals("Movie title", resultDocument.getMovie().getTitle());
-        assertEquals("2012", resultDocument.getMovie().getYear());
-        assertEquals("cs", resultDocument.getLanguage().getCode());
-        assertEquals("Czech", resultDocument.getLanguage().getName());
-        assertTrue(resultDocument.getId() != Long.MIN_VALUE);*/
     }
 }
 

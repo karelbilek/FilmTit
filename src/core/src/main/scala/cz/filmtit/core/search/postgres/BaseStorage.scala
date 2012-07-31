@@ -7,7 +7,7 @@ import gnu.trove.map.hash.TObjectLongHashMap
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 import collection.mutable.{ListBuffer, HashSet}
-import cz.filmtit.core.model.data.MediaSourceFactory
+import cz.filmtit.core.io.data.MediaSourceFactory
 import scala.collection.JavaConverters._
 
 
@@ -268,17 +268,6 @@ with MediaStorage {
     )
   }
 
-
-  /**
-   * Get possible MediaSources for an uploaded subtitle file.
-   *
-   * @param title title of the movie/TV show
-   * @param year year it was released
-   * @return
-   */
-  def getSuggestions(title: String, year: String): java.util.List[MediaSource] = {
-    MediaSourceFactory.suggestionsFromIMDB(title, year)
-  }
 
   /**
    * Add a media source to the database.

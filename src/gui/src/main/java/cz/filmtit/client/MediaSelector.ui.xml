@@ -1,13 +1,14 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
-             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
+             xmlns:c="urn:import:com.google.gwt.user.cellview.client">
 
     <g:HTMLPanel>
         <b:WellForm>
             <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>
-            <b:ListBox ui:field="listbox" />
-            <b:Button ui:field="submitButton">Submit</b:Button>
+            <c:CellList ui:field="listbox" />
+            <b:Button ui:field="submitButton" type="PRIMARY">Submit</b:Button>
         </b:WellForm>
     </g:HTMLPanel>
 

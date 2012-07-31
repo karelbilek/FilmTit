@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public class USUser extends DatabaseObject {
 
+    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
+    
     User user;
     String userName;
     String password;
@@ -90,15 +92,14 @@ public class USUser extends DatabaseObject {
 
     /**
      * Gets the list of documents owned by this user.
-     * @return List of USDocument objects wrapping the Document objects
+     * @return List of USDocument objects wrapping the Document objects, but with empty suggestion lists
      */
     public List<USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
 
         if (ownedDocuments == null) {
-            System.out.println("Owned documents are null, let's get them ");
             ownedDocuments = new ArrayList<USDocument>();
-            org.hibernate.Session session = HibernateUtil.getSessionWithActiveTransaction();
+            org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
             // query the documents owned by the user
             List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid")
@@ -107,12 +108,8 @@ public class USUser extends DatabaseObject {
             // store it to the variable
             for (Object o : result) { ownedDocuments.add((USDocument)o); }
             
-            HibernateUtil.closeAndCommitSession(session);
-        } else {
-            System.out.println("Owned documents are not null.");
+            usHibernateUtil.closeAndCommitSession(session);
         }
-        
-        System.out.println("WEEE! the size is"+ownedDocuments.size());
         return ownedDocuments;
     }
 

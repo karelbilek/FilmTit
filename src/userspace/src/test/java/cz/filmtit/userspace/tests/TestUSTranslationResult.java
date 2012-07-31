@@ -5,7 +5,7 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.tests.TestUtil;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
-import cz.filmtit.userspace.HibernateUtil;
+import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USTranslationResult;
 import org.hibernate.Session;
@@ -29,7 +29,7 @@ public class TestUSTranslationResult {
         USTranslationResult sampleResult = new USTranslationResult(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
 
         // save to database
-        Session dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        Session dbSession = USHibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
 
         sampleResult.saveToDatabase(dbSession);
@@ -58,7 +58,7 @@ public class TestUSTranslationResult {
         // change the user translation
         sampleResult.setUserTranslation("A translation a user has added.");
 
-        dbSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        dbSession = USHibernateUtil.getSessionFactory().getCurrentSession();
         dbSession.beginTransaction();
 
         // save the change to the database
@@ -95,7 +95,7 @@ public class TestUSTranslationResult {
         Configuration conf = new Configuration(new File("configuration.xml"));
         TranslationMemory TM = TestUtil.createTMWithDummyContent(conf);
 
-        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "1986", "en"), null);
+        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "en"), null);
 
         USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1,
                 "Sample chunk", 5, document.getDatabaseId()));
@@ -110,17 +110,17 @@ public class TestUSTranslationResult {
         Configuration config = new Configuration(new File("configuration.xml"));
         TranslationMemory TM = TestUtil.createTMWithDummyContent(config);
 
-        org.hibernate.Session dbSession = HibernateUtil.getSessionFactory().openSession();
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         dbSession.createQuery("delete from USTranslationResult").executeUpdate();
 
-        Document doc = new Document("Movie title", "2012", "en");
+        Document doc = new Document("Movie title", "en");
         USDocument testDoc = new USDocument(doc, null);
         testDoc.saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
 
-        dbSession = HibernateUtil.getSessionFactory().openSession();
+        dbSession = USHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         USTranslationResult testRes = new USTranslationResult(
@@ -134,7 +134,7 @@ public class TestUSTranslationResult {
         //testRes.setSelectedTranslationPairID(testRes.getTranslationResult().getTmSuggestions().get(0).getId());
         testRes.setUserTranslation("Sample translation");
 
-        dbSession = HibernateUtil.getSessionFactory().openSession();
+        dbSession = USHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         testRes.setUserTranslation("User translation");

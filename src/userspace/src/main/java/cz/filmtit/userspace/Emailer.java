@@ -82,11 +82,7 @@ public class Emailer {
      return false;
  }
 
- public boolean send(String email, String message){
-     setData(email,"Podle smyslu bude subject",message);
-     System.out.println("Set data");
-     return send();
- }
+
  public boolean sendRegistrationMail(String recipier , String login , String pass){
      String messageTemp = (String)configuration.getProperty("mail.filmtit.registrationBody");
      String message = messageTemp.replace("%userlogin%",login).replace("%userpass%",pass);

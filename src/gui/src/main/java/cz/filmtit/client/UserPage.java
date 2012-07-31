@@ -25,19 +25,19 @@ public class UserPage extends Composite {
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
 
-	public UserPage() {
+	public UserPage(FieldUpdater<Document, String> guiEditUpdater) {
 		initWidget(uiBinder.createAndBindUi(this));
 
         TextColumn<Document> nameClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return doc.getMovie().getTitle();
+                return doc.getTitle();
             }
         };
         TextColumn<Document> yearClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return doc.getMovie().getYear().toString();
+                return doc.getMovie().toString();
             }
         };
         TextColumn<Document> doneClm = new TextColumn<Document>() {
@@ -61,19 +61,15 @@ public class UserPage extends Composite {
              }
         };
 
-        buttonClm.setFieldUpdater(new FieldUpdater<Document, String>() {
-            public void update(int index, Document doc, String value) {
-                Window.alert("You want to edit document "+doc.getMovie().getTitle()+", but filmtit can't do that at the moment.");
-            }
-        });
+        buttonClm.setFieldUpdater(guiEditUpdater);
 
 
 
 
         
 
-        docTable.addColumn(nameClm, "Name");
-        docTable.addColumn(yearClm, "Year");
+        docTable.addColumn(nameClm, "Document");
+        docTable.addColumn(yearClm, "Media source");
         docTable.addColumn(doneClm, "Percent done");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");

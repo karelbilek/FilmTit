@@ -13,6 +13,7 @@ import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 import cz.filmtit.client.SubgestBox.FakeSubgestBox;
+import com.google.gwt.cell.client.FieldUpdater;
 
 import java.util.*;
 
@@ -33,10 +34,10 @@ public class Gui implements EntryPoint {
 
      GuiStructure guiStructure;
      
-     protected List<TimedChunk> chunklist;
+     protected Map<ChunkIndex, TimedChunk> chunkmap;
 
-     public TimedChunk getChunk(int i) {
-        return chunklist.get(i);
+     public TimedChunk getChunk(ChunkIndex chunkIndex) {
+        return chunkmap.get(chunkIndex);
      }
      
      protected RootPanel rootPanel;
@@ -45,6 +46,8 @@ public class Gui implements EntryPoint {
 
      private FilmTitServiceHandler rpcHandler;
      protected Document currentDocument;
+     
+     private PageHandler pageHandler;
      
      private String sessionID;
      
@@ -83,47 +86,22 @@ public class Gui implements EntryPoint {
      
      
      
-     @Override
-     public void onModuleLoad() {
+    @Override
+    public void onModuleLoad() {
 
-        // RPC:
-          // FilmTitServiceHandler has direct access
-          // to package-internal (and public) fields and methods
-          // of this Gui instance
-          // (because the RPC calls are asynchronous)
-          rpcHandler = new FilmTitServiceHandler(this);
+		// RPC:
+		rpcHandler = new FilmTitServiceHandler(this);
           
-          // Request translation suggestions for a TimedChunk via:
-          // rpcHandler.getTranslationResults(timedchunk);
-          // Because the calls are asynchronous, the method returns void.
+		// page loading and switching
+		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
+		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
 
-          // Send feedback via:
-          // rpcHandler.setUserTranslation(translationResultId, userTranslation, chosenTranslationPair);
-
-          // determine the page to be loaded (GUI is the default and fallback)
-          String page = Window.Location.getParameter("page");
-          if (page == null) {
-               createGui();               
-               log("No page parameter set, showing welcome page...");
-          }
-        else if (page.equals("AuthenticationValidationWindow")) {
-            createAuthenticationValidationWindow();
-        }
-          else {
-               createGui();
-               log("Fallback to welcome page (page requested: " + page + ")");
-          }
-
-        // TODO: check whether user is logged in or not
+        // check whether user is logged in or not
         rpcHandler.checkSessionID();
-        // TODO: we have to show welcome page as if user not logged in)
-        // and repaint this if checkSessionID() succeeds
+        
+    }
 
-    }     // onModuleLoad()
-
-
-
-     private void createGui() {
+     void createGui() {
           
           // -------------------- //
           // --- GUI creation --- //
@@ -147,13 +125,9 @@ public class Gui implements EntryPoint {
                }             
           });
 
-        // only after login:
-        //createDocumentCreator();
-
-        showWelcomePage();
      }
 
-    private void createNewDocumentCreator() {
+    void createNewDocumentCreator() {
         docCreator = new DocumentCreator();
 
     // --- file reading interface via lib-gwt-file --- //
@@ -192,6 +166,8 @@ public class Gui implements EntryPoint {
                 createDocumentFromText( freader.getStringResult() );
             }
         } );
+        
+        guiStructure.contentPanel.setWidget(docCreator);
     }
 
 
@@ -199,8 +175,14 @@ public class Gui implements EntryPoint {
       * show the Start a new subtitle document panel
       * inside the GUI contentPanel
       */
-     private void createAndLoadUserPage() {
-        UserPage userpage = new UserPage();
+     void createAndLoadUserPage() {
+        UserPage userpage = new UserPage(
+            new FieldUpdater<Document, String>() {
+                public void update(int index, Document doc, String value) {
+                    editDocument(doc);
+                }
+            }
+        );
         guiStructure.contentPanel.setStyleName("users_page");
 
         log("getting list of documents...");
@@ -212,9 +194,8 @@ public class Gui implements EntryPoint {
             @Override
             public void onClick(ClickEvent event) {
                 createNewDocumentCreator();
-                guiStructure.contentPanel.setWidget(docCreator);
             }
-        
+
         });
 
 
@@ -222,7 +203,7 @@ public class Gui implements EntryPoint {
 
     }
      
-     private void createAuthenticationValidationWindow() {
+     void createAuthenticationValidationWindow() {
           // ----------------------------------------------- //
           // --- AuthenticationValidationWindow creation --- //
           // ----------------------------------------------- //
@@ -263,8 +244,9 @@ public class Gui implements EntryPoint {
      }
 
      private void createDocumentFromText(String subtext) {
-        rpcHandler.createDocument(docCreator.getMovieTitle(),
-                docCreator.getMovieYear(),
+        rpcHandler.createDocument(
+                docCreator.getTitle(),
+                docCreator.getMovieTitle(),
                 docCreator.getChosenLanguage(),
                 subtext,
                 docCreator.getMoviePathOrNull());
@@ -278,7 +260,46 @@ public class Gui implements EntryPoint {
         guiStructure.contentPanel.setStyleName("translating");
     }
 
+    public void editDocument(Document document) {
+        rpcHandler.loadDocumentFromDB(document.getId());
+    }
 
+    public void editDocument(long documentId) {
+        rpcHandler.loadDocumentFromDB(documentId);
+    }
+
+    protected void processTranslationResultList(List<TranslationResult> translations) {
+        
+          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+
+          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
+
+
+          for (TranslationResult tr:translations) {
+              TimedChunk sChunk = tr.getSourceChunk();
+              chunkmap.put(sChunk.getChunkIndex(), sChunk);
+              String tChunk = tr.getUserTranslation();
+              
+
+              ChunkIndex chunkIndex = sChunk.getChunkIndex();
+              
+              
+              this.currentDocument.translationResults.put(chunkIndex, tr);
+              
+              workspace.showSource(sChunk);
+
+              if (tChunk==null || tChunk.equals("")){
+                 untranslatedOnes.add(sChunk);
+              } else {
+                 workspace.showResult(tr);
+              
+              }
+          }
+          if (untranslatedOnes.size() > 0) {
+            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
+            sendChunks.execute();
+          }
+    }
      
      /**
       * Parse the given text in the subtitle format of choice (by the radiobuttons)
@@ -292,7 +313,9 @@ public class Gui implements EntryPoint {
      protected void processText(String subtext) {
           // dump the input text into the debug-area:
           log("processing the following input:\n" + subtext + "\n");
-          
+         
+          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+
           // determine format (from corresponding radiobuttons) and choose parser:
           String subformat = docCreator.getChosenSubFormat();
           Parser subtextparser;
@@ -304,37 +327,50 @@ public class Gui implements EntryPoint {
                subtextparser = new ParserSrt();
           }
           log("subtitle format chosen: " + subformat);
-                    
+          
+          //Window.alert("1");
           // parse:
           log("starting parsing");
           long startTime = System.currentTimeMillis();
-          this.chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
+          List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           log("parsing finished in " + parsingTime + "ms");
+          //Window.alert("2");
 
           for (TimedChunk chunk : chunklist) {
+              chunkmap.put(chunk.getChunkIndex(), chunk);
+              ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult();
               tr.setSourceChunk(chunk);
-              this.currentDocument.translationResults.add(tr);
+              this.currentDocument.translationResults.put(chunkIndex, tr);
+              
           }
+          
+          //Window.alert("3");
 
           // output the parsed chunks:
           log("parsed chunks: "+chunklist.size());
-
-        int i=0;
-        for (TimedChunk timedchunk : chunklist) {
-            workspace.showSource(timedchunk, i++);
+            
+          int size=50; 
+          int i = 0;
+          for (TimedChunk timedchunk : chunklist) {
+            workspace.showSource(timedchunk);
+            if (i%size==0) {
+              //  Window.alert("another "+i);
+            }
+            i++;
           }
+//          Window.alert("4");
 
-         SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
-         sendChunks.execute();
+          SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
+          sendChunks.execute();
+  //        Window.alert("5");
      }
      
      
      
-     //class SendChunksCommand {
-     class SendChunksCommand implements RepeatingCommand {
+     class SendChunksCommand {
 
           LinkedList<TimedChunk> chunks;
           
@@ -353,7 +389,6 @@ public class Gui implements EntryPoint {
         //exponentially growing
         int exponential = 1;
 
-          @Override
         public boolean execute() {
                if (chunks.isEmpty()) {
                     return false;
@@ -393,24 +428,32 @@ public class Gui implements EntryPoint {
      public void submitUserTranslation(TranslationResult transresult) {
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
           log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
-          rpcHandler.setUserTranslation(transresult.getChunkId(), transresult.getDocumentId(),
+          
+          ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
+          rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
      }
 
 
     long start=0;
+     private StringBuilder sb = new StringBuilder();
      /**
       * Output the given text in the debug textarea
      * with a timestamp relative to the first logging.
       * @param logtext
       */
      public void log(String logtext) {
-          if (start == 0) {
+        
+        if (start == 0) {
             start = System.currentTimeMillis();
         }
         long diff = (System.currentTimeMillis() - start);
-        guiStructure.txtDebug.setText(guiStructure.txtDebug.getText() + diff+" : " + logtext + "\n");
-          guiStructure.txtDebug.setCursorPos(guiStructure.txtDebug.getText().length());
+        sb.append(diff);
+        sb.append(" : ");
+       
+        sb.append(logtext);
+        sb.append("\n");
+        guiStructure.txtDebug.setText(sb.toString());
      }
      
      private void error(String errtext) {
@@ -419,10 +462,13 @@ public class Gui implements EntryPoint {
      
      /**
       * show a dialog enabling the user to
-      * log in directly or [this line maybe to be removed]
-      * via OpenID services
+      * log in directly
+      * or via OpenID services [this line maybe to be removed]
       */
-    protected void showLoginDialog() {
+     protected void showLoginDialog() {
+    	 showLoginDialog("");
+     }
+    protected void showLoginDialog(String username) {
          
          final DialogBox dialogBox = new DialogBox(false);
         final LoginDialog loginDialog = new LoginDialog();
@@ -430,9 +476,17 @@ public class Gui implements EntryPoint {
         loginDialog.btnLogin.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                dialogBox.hide();
-                log("trying to log in as user " + loginDialog.getUsername());
-                    rpcHandler.simple_login(loginDialog.getUsername(), loginDialog.getPassword());                         
+            	String username = loginDialog.getUsername();
+            	String password = loginDialog.getPassword();
+            	if (username.isEmpty()) {
+            		Window.alert("Please fill in the username!");
+            	} else if (password.isEmpty()) {
+            		Window.alert("Please fill in the password!");					
+				} else {
+	                dialogBox.hide();
+	                log("trying to log in as user " + username);
+	                rpcHandler.simpleLogin(username, password);
+				}
             }
         } );
         
@@ -475,6 +529,8 @@ public class Gui implements EntryPoint {
                 dialogBox.hide();
                }
           });
+        
+        loginDialog.setUsername(username);
         
         dialogBox.setWidget(loginDialog);
         dialogBox.setGlassEnabled(true);
@@ -522,30 +578,47 @@ public class Gui implements EntryPoint {
 
      protected void please_log_in () {
           logged_out ();
-          rpcHandler.displayWindow("Please log in first.");
+          Window.alert("Please log in first.");
           showLoginDialog();
      }
      
      protected void please_relog_in () {
           logged_out ();
-          rpcHandler.displayWindow("You have not logged in or your session has expired. Please log in.");
+          Window.alert("You have not logged in or your session has expired. Please log in.");
           showLoginDialog();
      }
      
      protected void logged_in (String username) {
         this.username = username;
-          guiStructure.login.setText("Log out user " + username);
-        createAndLoadUserPage();
+    	guiStructure.login.setText("Log out user " + username);
+        pageHandler.loadPage(true);
      }
      
      protected void logged_out () {
         this.username = null;
-          guiStructure.login.setText("Log in");
-        showWelcomePage();
+        guiStructure.login.setText("Log in");
+        pageHandler.loadPage(false);
      }
 
     protected void showWelcomePage() {
         WelcomeScreen welcomePage = new WelcomeScreen();
+
+        welcomePage.login.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                if (getSessionID() == null) {
+                    showLoginDialog();
+                } else {
+                    rpcHandler.logout();
+                }
+            }
+        });
+        welcomePage.register.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                showRegistrationForm();
+            }
+        });
+
         guiStructure.contentPanel.setStyleName("welcoming");
         guiStructure.contentPanel.setWidget(welcomePage);
     }

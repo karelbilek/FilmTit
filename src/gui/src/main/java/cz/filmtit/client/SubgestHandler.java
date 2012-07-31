@@ -42,13 +42,11 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
             Window.alert("gui for handler is null during the constructor!!!");
         }
         this.workspace = gui.getTranslationWorkspace();
-        if (workspace == null) {
-            gui.log("workspace for handler is null during the constructor!!!");
-        }
+  
 	}
 
     public static TimedChunk getChunk(SubgestBox sb, Gui g) {
-        return g.getChunk(sb.getId());
+        return g.getChunk(sb.getChunkIndex());
     }
 
 	@Override

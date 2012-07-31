@@ -1,17 +1,13 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
+import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
+import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.share.Document;
-import cz.filmtit.share.DocumentResponse;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
-import cz.filmtit.userspace.Session;
-import cz.filmtit.userspace.USDocument;
-import cz.filmtit.userspace.USTranslationResult;
-import cz.filmtit.userspace.USUser;
+import cz.filmtit.userspace.*;
 import de.svenjacobs.loremipsum.LoremIpsum;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 
@@ -38,15 +35,22 @@ public class TestSession {
     }
 
     LoremIpsum loremIpsum = new LoremIpsum();
+    TranslationMemory TM;
+    MediaSourceFactory mediaSourceFactory;
+
+
+    public TestSession() {
+        Configuration config = new Configuration(new File("configuration.xml"));
+        TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
+        mediaSourceFactory = new FreebaseMediaSourceFactory(config.freebaseKey(), 10);
+
+    }
 
     @Test
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
-
         Session session = new Session(getSampleUser());
 
-        DocumentResponse response = session.createNewDocument("Movie title", "2012", "en", TM);
+        DocumentResponse response = session.createNewDocument("Movie title", "en", mediaSourceFactory);
 
         assertTrue(response.mediaSourceSuggestions.size() > 0);
         assertEquals("Movie title", response.document.getMovie().getTitle());
@@ -90,62 +94,119 @@ public class TestSession {
     }
 
     @Test
-    public void testGetTranslationResults() throws InvalidDocumentIdException, NoSuchFieldException, IllegalAccessException {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
-
-        USUser sampleUser = getSampleUser();
-        long documentID = sampleUser.getOwnedDocuments().get(0).getDatabaseId();
-
-        Session session = new Session(sampleUser);
-        session.loadDocument(documentID);
-
-        TimedChunk sampleTimedChunk = new TimedChunk("00:00:00,000", "00:00:01,000", 0,
-                loremIpsum.getWords(5,5), 150, documentID);
-
-        session.getTranslationResults(sampleTimedChunk, TM);
-
-        // test if the translation result ended up in the table of active ones
-        Field activeResultsField = Session.class.getDeclaredField("activeTranslationResults");
-        activeResultsField.setAccessible(true);
-        Map<Long, Map<Integer, USTranslationResult>> activeTranslationResults =
-                (Map<Long, Map<Integer, USTranslationResult>>)(activeResultsField.get(session));
-
-        assertTrue(activeTranslationResults.containsKey(documentID));
-        assertTrue(activeTranslationResults.get(documentID).containsKey(150));
-    }
-
-    @Test
     public void testSetUserTranslation() throws InvalidChunkIdException, InvalidDocumentIdException {
         USUser sampleUser = getSampleUser();
-        USTranslationResult trToUpdate = sampleUser.getOwnedDocuments().get(0).getTranslationsResults().get(0);
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
         Session session = new Session(sampleUser);
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
-        session.setUserTranslation(trToUpdate.getSharedId(), trToUpdate.getDocumentDatabaseId(),
+        session.setUserTranslation(trToUpdate.getTranslationResult().getSourceChunk().getChunkIndex(),
+                trToUpdate.getDocumentDatabaseId(),
                 "User translation", 0l);
 
-        USTranslationResult changed = null;
-        for (USTranslationResult result : session.getUser().getOwnedDocuments().get(0).getTranslationsResults()) {
-            if (result.getSharedId() == trToUpdate.getSharedId()) {
-                changed = result;
-            }
-        }
-
+        // test if the change appeared in the user space structure
+        USTranslationResult changed = findTranslationResultInStructure(session, trToUpdate.getDocumentDatabaseId(),
+                trToUpdate.getChunkIndex());
         assertEquals("User translation", changed.getUserTranslation());
         assertEquals(0l, changed.getSelectedTranslationPairID());
+
+        // test if the change appeared in the database
+        USTranslationResult fromDB = loadTranslationResultFromDb(changed.getDatabaseId());
+        assertNotNull(fromDB);
+        assertEquals("User translation", fromDB.getUserTranslation());
+        assertEquals(0l, fromDB.getSelectedTranslationPairID());
+    }
+
+    @Test
+    public void testChangeStartAndEndTime() throws InvalidDocumentIdException, InvalidChunkIdException {
+        USUser sampleUser = getSampleUser();
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
+
+        Session session = new Session(sampleUser);
+        session.loadDocument(trToUpdate.getDocumentDatabaseId());
+
+        String newStartTime = "00:00:54,377";
+        String newEndTime = "00:01:00,373";
+
+        session.setChunkStartTime(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), newStartTime);
+        session.setChunkEndTime(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), newEndTime);
+
+        // test if the change appeared in the user space structure
+        USTranslationResult changed = findTranslationResultInStructure(session,
+                trToUpdate.getDocumentDatabaseId(), trToUpdate.getChunkIndex());
+        assertEquals(newStartTime, changed.getStartTime());
+        assertEquals(newEndTime, changed.getEndTime());
+
+        // test if the change appeared in the database
+        USTranslationResult fromDB = loadTranslationResultFromDb(trToUpdate.getDatabaseId());
+        assertNotNull(fromDB);
+        //assertEquals(newStartTime, fromDB.getStartTime());
+        //assertEquals(newEndTime, fromDB.getEndTime());
+    }
+
+    @Test
+    public void testChangeOriginalText() throws InvalidDocumentIdException, InvalidChunkIdException {
+        USUser sampleUser = getSampleUser();
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
+
+        Session session = new Session(sampleUser);
+        session.loadDocument(trToUpdate.getDocumentDatabaseId());
+
+        List<TranslationPair> originalSuggestion = trToUpdate.getTranslationResult().getTmSuggestions();
+        List<TranslationPair> newSuggestions =
+                session.changeText(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), "New text", TM);
+
+        assertNotNull(newSuggestions);
+        assertTrue(originalSuggestion != newSuggestions);
+
+        // test if the change appeared in the user space structure
+        USTranslationResult changed = findTranslationResultInStructure(session,
+                trToUpdate.getDocumentDatabaseId(), trToUpdate.getChunkIndex());
+        assertEquals("New text", changed.getText());
+
+        // test if the change appeared in the database
+        USTranslationResult fromDB = loadTranslationResultFromDb(trToUpdate.getDatabaseId());
+        assertNotNull(fromDB);
+        //assertEquals("New text", fromDB.getText());
+    }
+
+    @Test
+    public void testRequestTMSuggestions() throws InvalidDocumentIdException, InvalidChunkIdException {
+        USUser sampleUser = getSampleUser();
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
+
+        Session session = new Session(sampleUser);
+        session.loadDocument(trToUpdate.getDocumentDatabaseId());
+
+        List<TranslationPair> originalSuggestions = trToUpdate.getTranslationResult().getTmSuggestions();
+        List<TranslationPair> respond = session.requestTMSuggestions(trToUpdate.getChunkIndex(),
+                trToUpdate.getDocumentDatabaseId(), TM);
+
+        // test if the change appeared in the user space structure
+        assertNotNull(respond);
+        assertTrue(respond != originalSuggestions);
+
+        // translation pairs are not stored in the database => do not test it
+    }
+
+    @Test
+    public void testDeleteChunk() throws InvalidDocumentIdException, InvalidChunkIdException {
+        USUser sampleUser = getSampleUser();
+        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
+
+        Session session = new Session(sampleUser);
+        session.loadDocument(trToUpdate.getDocumentDatabaseId());
+
+        session.deleteChunk(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId());
     }
 
     @Test
     public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
-
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Jindrich the great", "2010", "en", TM);
+        DocumentResponse response = session.createNewDocument("Jindrich the great", "en", mediaSourceFactory);
         Document clientDocument = response.document;
         session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
 
@@ -158,21 +219,28 @@ public class TestSession {
         }
 
         for (TranslationResult tr : clientTRList) {
-            session.setUserTranslation(tr.getChunkId(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
+            session.setUserTranslation(tr.getSourceChunk().getChunkIndex(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
         }
 
         session.logout();
 
-        // TODO: test if everything was properly saved to database
+        // TODO: test if whole scenario was properly saved to database
     }
 
+    /**
+     * The first translation result generated in getSampleUser() method to be used in the test as
+     * a sample translation result.
+     */
+    private USTranslationResult firstGeneratedTranslationResult = null;
+
     private USUser getSampleUser() {
+        firstGeneratedTranslationResult = null;
         USUser sampleUser = new USUser("Jindra the User");
         LoremIpsum loremIpsum = new LoremIpsum();
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Movie " + i, "2012", "en"), null);
+            USDocument usDocument = new USDocument(new Document("Test", "en"), null);
             long documentID = usDocument.getDatabaseId();
 
             for (int j = 0; j < 20; ++j) {
@@ -181,6 +249,11 @@ public class TestSession {
 
                 translationResult.setDocument(usDocument);
                 usDocument.addTranslationResult(translationResult);
+
+                // keep the reference to the translation result
+                if (firstGeneratedTranslationResult == null) {
+                    firstGeneratedTranslationResult = translationResult;
+                }
             }
 
             sampleUser.addDocument(usDocument);
@@ -195,5 +268,42 @@ public class TestSession {
         Map<Long, USDocument> activeDocuments = (Map<Long, USDocument>)(activeDocumentsField.get(session));
 
         assertTrue(activeDocuments.containsKey(id));
+    }
+
+    /**
+     * Loads USTranslationResult with given ID from the database.
+     * @param id ID of requested USTranslationResult
+     * @return The requested USTranslationResult
+     */
+    private USTranslationResult loadTranslationResultFromDb(long id) {
+        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        List dbRes = dbSession.createQuery("select r from USTranslationResult r where r.id = " + id).list();
+        USHibernateUtil.closeAndCommitSession(dbSession);
+        if (dbRes.size() == 1) {
+            return (USTranslationResult)(dbRes.get(0));
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Finds the chunk in given document with such index.
+     * @param session Session within the result is supposed to be found
+     * @param index Index of the source chunk
+     * @return Requested result
+     */
+    private USTranslationResult findTranslationResultInStructure(Session session, long documentId, ChunkIndex index) {
+        USTranslationResult changed = null;
+        for (USDocument document : session.getUser().getOwnedDocuments()) {
+            if (document.getDatabaseId() == documentId) {
+                for (USTranslationResult result : document.getTranslationResults().values()) {
+                    if (result.getChunkIndex().equals(index)) {
+                        changed = result;
+                    }
+                }
+            }
+        }
+        return changed;
     }
 }

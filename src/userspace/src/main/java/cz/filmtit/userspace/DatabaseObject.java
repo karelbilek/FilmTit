@@ -73,12 +73,30 @@ public abstract class DatabaseObject {
      *
      */
     protected void saveJustObject(Session session) {
-        if (!gotFromDb) { // completely new object
+        /*if (!gotFromDb) { // completely new object
             session.save(this);  // USDocument throws an exception here
         }
         else {           // just update an existing one
             session.update(this);
+        }*/
+
+        if (this instanceof USTranslationResult) {
+            USTranslationResult tr = (USTranslationResult) this;
+            
+            if (tr.getSharedId() < 0) {
+                RuntimeException e = new RuntimeException("object : ShareID lesser than zero!");
+                
+                System.out.println("----error stacktrace---");
+
+                StackTraceElement[] st = e.getStackTrace();
+                for (StackTraceElement stackTraceElement : st) {
+                    System.out.println(stackTraceElement.toString());
+                }
+
+                throw new RuntimeException("session id < 0");
+            }
         }
+        session.saveOrUpdate(this);
 
     }
 

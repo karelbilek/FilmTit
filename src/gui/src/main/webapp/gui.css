@@ -196,10 +196,11 @@ body input.pre_subgestbox {
 	box-shadow:  0px 0px 0px 0px rgba(255, 255, 255, 0.0);
 	display: block;
 	outline: none;
+	color: #333;
 
 }
 body input.pre_subgestbox.loading {
-	background: #fbfbfb ;
+	background: pink ;
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {
@@ -212,4 +213,8 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 	border-radius: 2px !important;
 	border: 1px solid #eee !important;
 /*	border-bottom: 1px solid #aaa !important;*/
+}
+
+.mediasource_thumb {
+	width: 60px;
 }

@@ -91,4 +91,6 @@ class Configuration(configurationFile: InputStream) {
   private val coreXML = XMLFile \ "core"
   var maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
   val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
+
+  val freebaseKey: String = (XMLFile \ "freebase_key").text
 }

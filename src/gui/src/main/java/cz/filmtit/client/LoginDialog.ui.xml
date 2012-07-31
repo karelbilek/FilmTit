@@ -26,7 +26,7 @@
 
                 <b:ControlGroup>
                     <b:Controls>
-                        <b:Button ui:field="btnLogin">Login</b:Button>
+                        <b:SubmitButton ui:field="btnLogin" type="PRIMARY">Login</b:SubmitButton>
                         <b:Button ui:field="btnRegister">Registration form</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
