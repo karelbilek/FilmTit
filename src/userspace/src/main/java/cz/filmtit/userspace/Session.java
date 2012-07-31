@@ -21,9 +21,7 @@ public class Session {
     private long lastOperationTime;
     private SessionState state;
     
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
-
-
+    private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     enum SessionState {active, loggedOut, terminated, killed}
 
@@ -105,7 +103,7 @@ public class Session {
      */
     private void terminate() {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        session.save(this);
+        session.saveOrUpdate(this);
         usHibernateUtil.closeAndCommitSession(session);
 
         user.getActiveDocumentIDs().clear();
