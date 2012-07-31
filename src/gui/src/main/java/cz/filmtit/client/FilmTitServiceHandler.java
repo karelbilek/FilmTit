@@ -824,8 +824,15 @@ public class FilmTitServiceHandler {
 
 
     public void getListOfDocuments(final UserPage userpage) {
+    	new GetListOfDocuments(userpage);
+    }
 
-        // create callback
+    public class GetListOfDocuments extends Callable {
+
+    	// parameters
+    	UserPage userpage;
+    	
+        // callback
         AsyncCallback<List<Document>> callback = new AsyncCallback<List<Document>>() {
 
             @Override
@@ -846,8 +853,21 @@ public class FilmTitServiceHandler {
 
         };
 
-        // RPC
-        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
-    }
+        // constructor
+		public GetListOfDocuments(UserPage userpage) {
+			super();
+
+			this.userpage = userpage;
+			
+			enqueue();
+		}
+        
+
+		@Override
+		void call() {
+	        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
+		}
+
+	}
 	    
 }
