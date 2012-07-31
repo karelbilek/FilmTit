@@ -600,13 +600,13 @@ public class Gui implements EntryPoint {
 
      protected void please_log_in () {
           logged_out ();
-          rpcHandler.displayWindow("Please log in first.");
+          Window.alert("Please log in first.");
           showLoginDialog();
      }
      
      protected void please_relog_in () {
           logged_out ();
-          rpcHandler.displayWindow("You have not logged in or your session has expired. Please log in.");
+          Window.alert("You have not logged in or your session has expired. Please log in.");
           showLoginDialog();
      }
      
