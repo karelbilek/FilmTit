@@ -1,5 +1,7 @@
 package cz.filmtit.client;
 
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -208,8 +210,28 @@ public class TranslationWorkspace extends Composite {
 
 
     public void ensureVisible(SubgestBox subbox) {
-        scrollPanel.ensureVisible(subbox);
+        //scrollPanel.ensureVisible(subbox);
+        //Window.alert("ensuring visible");
+        //ensureVisibleInWindow(subbox.getElement());
+        Window.scrollTo(Window.getScrollLeft(), getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() / 2);
     }
+
+    private native int getScrollOffsetY(Element e) /*-{
+        if (!e)
+          return;
+
+        //window.alert("ensuring visible");
+
+        var item = e;
+        var realOffset = 0;
+        while (item && (item != document.body)) {
+            realOffset += item.offsetTop;
+            item = item.offsetParent;
+        }
+
+        //return (realOffset - document.body.offsetHeight / 2);
+        return realOffset;
+    }-*/;
 
 
     protected void setActiveSuggestionWidget(Widget w) {
@@ -233,7 +255,6 @@ public class TranslationWorkspace extends Composite {
             setActiveSuggestionWidget(null);
         }
     }
-
 
 
 }
