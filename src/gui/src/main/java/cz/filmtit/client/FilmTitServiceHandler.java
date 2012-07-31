@@ -32,24 +32,12 @@ public class FilmTitServiceHandler {
 	 * reference to the gui for access to its protected and public members
 	 */
 	private Gui gui;
-	/**
-	 * indicates whether polling for session ID is in progress
-	 */
-	private boolean sessionIDPolling = false;
-	/**
-	 * dialog polling for session ID
-	 */
-	private DialogBox sessionIDPollingDialogBox;
-	/**
-	 * temporary ID for authentication
-	 */
-	private int authID;
-
-    int windowsDisplayed = 0;
+	
+	int windowsDisplayed = 0;
     
     /**
      * display a widow with an error message
-     * unless maximum nimber of error messages has been reached
+     * unless maximum number of error messages has been reached
      * @param string
      */
     public void displayWindow(String message) {
@@ -249,8 +237,7 @@ public class FilmTitServiceHandler {
 
 		// constructor
 		public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
-				String userTranslation, long chosenTranslationPair) {
-						
+				String userTranslation, long chosenTranslationPair) {		
 			super();
 			
 			this.chunkIndex = chunkIndex;
@@ -297,10 +284,13 @@ public class FilmTitServiceHandler {
             }
         };
 
+        // constructor
 		public SelectSource(long documentID, MediaSource selectedMediaSource) {
 			super();
+			
 			this.documentID = documentID;
 			this.selectedMediaSource = selectedMediaSource;
+			
 			enqueue();
 		}
 
@@ -341,6 +331,8 @@ public class FilmTitServiceHandler {
 	
         // constructor
     	public CheckSessionID() {
+    		super();
+    		
     		sessionID = gui.getSessionID();
     		if (sessionID == null) {
         		return;
@@ -355,30 +347,6 @@ public class FilmTitServiceHandler {
             filmTitService.checkSessionID(sessionID, callback);
 		}
     }
-
-        /*
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
-
-            public void onSuccess(String username) {
-            	if (username != null) {
-	                gui.log("logged in as " + username + " with session id " + sessionID);
-	                gui.logged_in(username);
-            	} else {
-                    gui.log("Warning: sessionID invalid.");
-            		gui.setSessionID(null);
-                    // gui.showLoginDialog();
-            	}
-            }
-
-            public void onFailure(Throwable caught) {
-                gui.log("ERROR: sessionID check didn't succeed!");
-            }
-        };
-
-    	// TODO call something
-        
-        // filmTitService.checkSessionID(sessionID, callback);
-        */
 
     public void registerUser(String username, String password, String email, DialogBox registrationForm) {
     	new RegisterUser(username, password, email, registrationForm);
@@ -400,7 +368,7 @@ public class FilmTitServiceHandler {
             	if (result) {
             		registrationForm.hide();
 	                gui.log("registered as " + username);
-                    simple_login(username, password);
+                    simpleLogin(username, password);
                     displayWindow("You successfully registered with the username '" + username + "'!");
             	} else {
             		// TODO: bool means unavailable username, right? Or are there other reasons for failing?
@@ -465,7 +433,7 @@ public class FilmTitServiceHandler {
             public void onSuccess(Boolean result) {
             	if (result) {
 	                gui.log("changed password for user " + username);
-                    simple_login(username, password);
+                    simpleLogin(username, password);
                     displayWindow("You successfully changed the password for your username '" + username + "'!");
             	} else {
                     gui.log("ERROR: password change didn't succeed - token invalid");
@@ -499,7 +467,7 @@ public class FilmTitServiceHandler {
 		}
     }
 
-    public void simple_login(String username, String password) {
+    public void simpleLogin(String username, String password) {
     	new SimpleLogin(username, password);
 	}
 
@@ -546,6 +514,12 @@ public class FilmTitServiceHandler {
     }
 
     public void logout() {
+    	new Logout();
+    }
+    
+    public class Logout extends Callable {
+    	
+    	// callback
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
             public void onSuccess(Void o) {
@@ -566,63 +540,47 @@ public class FilmTitServiceHandler {
                 }
             }
         };
+        
+        // constructor
+		public Logout() {
+			super();			
+			enqueue();
+		}
 
-        filmTitService.logout(gui.getSessionID(), callback);
-    }
+		@Override
+		void call() {
+	        filmTitService.logout(gui.getSessionID(), callback);
+		}
+	}
 
-    
-	public void getAuthenticationURL(AuthenticationServiceType serviceType, final DialogBox loginDialogBox) {
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, DialogBox loginDialogBox) {
+		new GetAuthenticationURL(serviceType, loginDialogBox);
+	}
+	
+	public class GetAuthenticationURL extends Callable {
 		
-		authID = Random.nextInt();
-
+		// parameters
+		AuthenticationServiceType serviceType;
+		DialogBox loginDialogBox;
+		/**
+		 * temporary ID for authentication
+		 */
+		private int authID;
+		
+		// callback
 		AsyncCallback<String> callback = new AsyncCallback<String>() {
 			
 			public void onSuccess(final String url) {
 				gui.log("Authentication URL arrived: " + url);
-
 				loginDialogBox.hide();
 				
-				// open a dialog saying that we are waiting for the user to authenticate
-                final DialogBox dialogBox = new DialogBox(false);
-                final SessionIDPollingDialog sessionIDPollingDialog = new SessionIDPollingDialog();
-                sessionIDPollingDialog.btnCancel.addClickHandler( new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						sessionIDPolling = false;
-                        gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
-                        dialogBox.hide();
-					}
-				});
-                dialogBox.setWidget(sessionIDPollingDialog);
-                dialogBox.setGlassEnabled(true);
-                dialogBox.center();
-                
-                start_sessionIDPolling(dialogBox);
-                
                 // open the authenticationwindow
 				Window.open(url, "AuthenticationWindow", "width=400,height=500");
+				
+				// start polling for SessionID
+				new SessionIDPolling();				
             }
 			
-			private void start_sessionIDPolling(DialogBox dialogBox) {
-				sessionIDPolling = true;
-				sessionIDPollingDialogBox = dialogBox;
-				
-				Scheduler.RepeatingCommand poller = new RepeatingCommand() {
-					
-					@Override
-					public boolean execute() {
-						if (sessionIDPolling) {
-							getSessionID();
-							return true;
-						} else {
-							return false;
-						}
-					}
-				};
-				
-				Scheduler.get().scheduleFixedDelay(poller, 2000);
-			}
-
 			public void onFailure(Throwable caught) {
 				if (caught.getClass().equals(InvalidSessionIdException.class)) {
 					gui.please_relog_in();
@@ -633,15 +591,44 @@ public class FilmTitServiceHandler {
 					gui.log("failure on requesting authentication url!");
 				}
 			}
-
 		};
-		
-		filmTitService.getAuthenticationURL(authID, serviceType, callback);
+			
+		// constructor
+		public GetAuthenticationURL(AuthenticationServiceType serviceType,
+				DialogBox loginDialogBox) {
+			super();
+			
+			this.serviceType = serviceType;
+			this.loginDialogBox = loginDialogBox;
+			
+			enqueue();
+		}
+
+		@Override
+		void call() {
+			authID = Random.nextInt();
+			filmTitService.getAuthenticationURL(authID, serviceType, callback);
+		}
 	}
 	
-	public void getSessionID () {
+	public class SessionIDPolling extends Callable {
 
-		// create callback
+		/**
+		 * temporary ID for authentication
+		 */
+		private int authID;
+
+		/**
+		 * dialog polling for session ID
+		 */
+		private DialogBox sessionIDPollingDialogBox;
+
+		/**
+		 * indicates whether polling for session ID is in progress
+		 */
+		private boolean sessionIDPolling = false;
+
+		// callback
 		AsyncCallback<String> callback = new AsyncCallback<String>() {
 			
 			public void onSuccess(String result) {
@@ -651,6 +638,7 @@ public class FilmTitServiceHandler {
 					sessionIDPollingDialogBox.hide();
 					// we now have a session ID
 					gui.setSessionID(result);
+					// TODO: put some username
 					gui.logged_in("");
 				}
 				// else continue polling
@@ -668,16 +656,77 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		// RPC
-		if (sessionIDPolling) {
-			gui.log("asking for session ID with authID=" + authID);
-			filmTitService.getSessionID(authID, callback);			
+		// constructor
+		public SessionIDPolling(int authID) {
+			super();
+			
+			this.authID = authID;
+			
+			createDialog();
+			
+            startSessionIDPolling();
+		}
+		
+		/**
+		 * open a dialog saying that we are waiting for the user to authenticate
+		 */
+		private void createDialog() {
+            sessionIDPollingDialogBox = new DialogBox(false);
+            SessionIDPollingDialog dialog = new SessionIDPollingDialog();
+            dialog.btnCancel.addClickHandler( new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					sessionIDPolling = false;
+                    gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
+                    sessionIDPollingDialogBox.hide();
+				}
+			});
+            sessionIDPollingDialogBox.setWidget(dialog);
+            sessionIDPollingDialogBox.setGlassEnabled(true);
+            sessionIDPollingDialogBox.center();			
+		}
+
+		private void startSessionIDPolling() {
+			sessionIDPolling = true;
+			
+			Scheduler.RepeatingCommand poller = new RepeatingCommand() {
+				
+				@Override
+				public boolean execute() {
+					if (sessionIDPolling) {
+						// enqueue();
+						call();			            
+						return true;
+					} else {
+						return false;
+					}
+				}
+			};
+			
+			Scheduler.get().scheduleFixedDelay(poller, 2000);
+		}
+
+		@Override
+		void call() {
+			if (sessionIDPolling) {
+				gui.log("asking for session ID with authID=" + authID);
+				filmTitService.getSessionID(authID, callback);			
+			}
 		}
 	}
 	    
-	public void validateAuthentication (String responseURL, long authID, final AuthenticationValidationWindow authenticationValidationWindow) {
+	public void validateAuthentication (String responseURL, long authID, AuthenticationValidationWindow authenticationValidationWindow) {
+		new ValidateAuthentication(responseURL, authID, authenticationValidationWindow);
+	}
+	
+	public class ValidateAuthentication extends Callable {
 
-		// create callback
+		// parameters
+		String responseURL;	
+		long authID;
+		AuthenticationValidationWindow authenticationValidationWindow;
+		
+		// callback
 		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 			
 			public void onSuccess(Boolean result) {
@@ -699,8 +748,22 @@ public class FilmTitServiceHandler {
 			}
 		};
 		
-		// RPC
-		filmTitService.validateAuthentication(authID, responseURL, callback);		
+		// constructor
+		public ValidateAuthentication(String responseURL, long authID,
+				AuthenticationValidationWindow authenticationValidationWindow) {
+			super();
+			
+			this.responseURL = responseURL;
+			this.authID = authID;
+			this.authenticationValidationWindow = authenticationValidationWindow;
+			
+			enqueue();
+		}
+				
+		@Override
+		void call() {
+			filmTitService.validateAuthentication(authID, responseURL, callback);		
+		}
 	}
 
 

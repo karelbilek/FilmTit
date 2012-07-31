@@ -443,7 +443,7 @@ public class Gui implements EntryPoint {
 				} else {
 	                dialogBox.hide();
 	                log("trying to log in as user " + username);
-	                rpcHandler.simple_login(username, password);
+	                rpcHandler.simpleLogin(username, password);
 				}
             }
         } );
