@@ -110,6 +110,9 @@ public class PageHandler {
     /**
      * Determines the page to be loaded and loads it
      * (unless it is already loaded).
+     * Equivalent to:
+     *   setPageUrl(suggestedPage);
+     *   loadPage();
      * @param suggestedPage page that should be loaded
      */
 	public void loadPage(Page suggestedPage) {

@@ -38,9 +38,9 @@ public class ChangePassword extends Composite {
 		token = Window.Location.getParameter("token");
 		
 		if (username == null || token == null) {
-			Window.alert("Invalid parameters, cannot proceed!");
 			gui.log("ERROR: username or token is null");
-			// gui.pageHandler.loadPage(false, Page.WelcomeScreen);
+			gui.pageHandler.loadPage(Page.WelcomeScreen);
+			Window.alert("Invalid parameters, cannot proceed!");
 		}
 
         gui.guiStructure.contentPanel.setStyleName("changePassword");
