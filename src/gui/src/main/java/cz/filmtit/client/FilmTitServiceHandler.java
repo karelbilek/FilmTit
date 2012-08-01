@@ -55,7 +55,8 @@ public class FilmTitServiceHandler {
 
         AsyncCallback<Document> callback = new AsyncCallback<Document>() {
             public void onSuccess(final Document doc) {
-                gui.document_created(null);//TODO: player
+                String moviePath = null; //TODO: player
+                gui.workspace = new TranslationWorkspace(gui, moviePath);
                 gui.setCurrentDocument(doc);
 
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
@@ -118,7 +119,7 @@ public class FilmTitServiceHandler {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
 				gui.setCurrentDocument(result.document);
 
-				gui.document_created(moviePath);
+                gui.workspace = new TranslationWorkspace(gui, moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);

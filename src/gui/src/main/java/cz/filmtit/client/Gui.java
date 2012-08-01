@@ -63,17 +63,14 @@ public class Gui implements EntryPoint {
 
     private String sessionID;
     
+    private static final String SESSIONID = "sessionID";
+    
     // persistent session ID via cookies (set to null to unset)
-    @SuppressWarnings("deprecation")
     protected void setSessionID(String newSessionID) {
          if (newSessionID == null) {
-              Cookies.removeCookie("sessionID");
+              Cookies.removeCookie(SESSIONID);
          } else {
-              // cookie should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
-              Date in1year = new Date();
-              in1year.setYear(in1year.getYear() + 1);
-              // set cookie
-              Cookies.setCookie("sessionID", newSessionID, in1year);
+              Cookies.setCookie(SESSIONID, newSessionID, getDateIn1Year());
          }
          sessionID = newSessionID;
     }
@@ -81,13 +78,21 @@ public class Gui implements EntryPoint {
     // persistent session ID via cookies (null if not set)
     protected String getSessionID() {
          if (sessionID == null) {
-              sessionID = Cookies.getCookie("sessionID");
+              sessionID = Cookies.getCookie(SESSIONID);
          }
          return sessionID;
     }
     
     // Other fields - some of them will probably be moved some place else
 
+    @SuppressWarnings("deprecation")
+    public static Date getDateIn1Year() {
+        // cookies should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
+        Date in1year = new Date();
+        in1year.setYear(in1year.getYear() + 1);
+    	return in1year;
+    }
+    
      protected Map<ChunkIndex, TimedChunk> chunkmap;
 
      public TimedChunk getChunk(ChunkIndex chunkIndex) {
@@ -108,13 +113,13 @@ public class Gui implements EntryPoint {
           this.currentDocument = currentDocument;
      }
 
-     private TranslationWorkspace workspace = null;
+     TranslationWorkspace workspace = null;
      
      public TranslationWorkspace getTranslationWorkspace() {
          return workspace;
      }
 
-     private DocumentCreator docCreator = null;
+     DocumentCreator docCreator = null;
 
     ///////////////////////////////////////
     //                                   //
@@ -236,48 +241,6 @@ public class Gui implements EntryPoint {
         // actions
         guiStructure.logged_out();
         pageHandler.loadPage();
-    }
-
-    ///////////////////////////////////////
-    //                                   //
-    //      Page creation methods        //
-    //                                   //
-    ///////////////////////////////////////
-    
-    // note: these methods should not be called and will be removed (at least most of them)
-    // use pageHandler.loadPage(Page); instead
-    
-    void createGui() {
-        guiStructure = new GuiStructure(this);
-    }
-    
-    void createAuthenticationValidationWindow() {
-    	new AuthenticationValidationWindow(this);
-    }
-	
-    public void editDocument(Document document) {
-        rpcHandler.loadDocumentFromDB(document.getId());
-    }
-
-    public void editDocument(long documentId) {
-        rpcHandler.loadDocumentFromDB(documentId);
-    }
-
-    void createAndLoadUserPage() {
-        new UserPage(this, new FieldUpdater<Document, String>() {
-                    public void update(int index, Document doc, String value) {
-                        editDocument(doc);
-                    }
-                }
-            );
-    }
-
-    void createNewDocumentCreator() {
-        docCreator = new DocumentCreator(this);
-    }
-    
-    void document_created(String moviePath) {
-        workspace = new TranslationWorkspace(this, moviePath);
     }
     
     ///////////////////////////////////////

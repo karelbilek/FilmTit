@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
 
 
@@ -28,9 +29,13 @@ public class UserPage extends Composite {
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
 
-	public UserPage(final Gui gui, FieldUpdater<Document, String> guiEditUpdater) {
+	private Gui gui;
+
+	public UserPage(final Gui gui) {
 		initWidget(uiBinder.createAndBindUi(this));
 
+		this.gui = gui;
+		
         TextColumn<Document> nameClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
@@ -57,14 +62,20 @@ public class UserPage extends Composite {
         };
 
         com.github.gwtbootstrap.client.ui.ButtonCell buttonCell = new com.github.gwtbootstrap.client.ui.ButtonCell();
-        com.google.gwt.user.cellview.client.Column buttonClm = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
+        
+        // edit button
+        com.google.gwt.user.cellview.client.Column<Document, String> buttonClm = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
              @Override
              public String getValue(Document doc) {
                 return "Edit";
              }
         };
 
-        buttonClm.setFieldUpdater(guiEditUpdater);
+        buttonClm.setFieldUpdater(new FieldUpdater<Document, String>() {
+            public void update(int index, Document doc, String value) {
+                editDocument(doc);
+            }
+        });
 
         // export button
         com.google.gwt.user.cellview.client.Column<Document, String> exportSubtitlesButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
@@ -107,7 +118,7 @@ public class UserPage extends Composite {
         btnDisplayCreator.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	gui.createNewDocumentCreator();
+            	gui.pageHandler.loadPage(Page.DocumentCreator);
             }
 
         });
@@ -117,6 +128,11 @@ public class UserPage extends Composite {
 
       
 	}
+
+    void editDocument(Document document) {
+    	gui.pageHandler.setDocumentId(document.getId());
+    	gui.pageHandler.loadPage(Page.TranslationWorkspace);
+    }
 
     public void setDocuments(List<Document> documents) {
         if (documents.size() == 0) {

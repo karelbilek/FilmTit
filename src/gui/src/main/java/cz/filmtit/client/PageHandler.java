@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -46,30 +47,7 @@ public class PageHandler {
     
     private GuiStructure guiStructure;
     
-    /**
-     * Used by TranslationWorkspace to load the correct document;
-     * -1 used if not set.
-     */
-    private long documentId = -1;
-    
-	public void setDocumentId(String id) {
-		if (id == null) {
-			// this is OK, documentId parameter is not set
-			documentId = -1;
-		} else {
-			try {
-				documentId = Long.parseLong(id);
-				gui.log("documentId (" + documentId + ") acquired from GET parameter");
-			}
-			catch (NumberFormatException e) {
-				// this is not OK, documentId parameter is set but is invalid
-				documentId = -1;
-				gui.log("WARNING: invalid documentId (" + id + ") set as GET parameter!");
-			}
-		}
-		
-	}
-    
+
     /**
      * Various pages to be set and created.
      * The 'None' page is used when no page is set.
@@ -98,10 +76,10 @@ public class PageHandler {
 		
         // base of GUI is created for every "full" window
     	if (pageUrl != Page.AuthenticationValidationWindow) {
-    		gui.createGui();
+    		gui.guiStructure = new GuiStructure(gui);
     	}
 		
-		setDocumentId(Window.Location.getParameter("documentId"));
+		setDocumentIdFromGETOrCookie();
     	
 		// load a Blank page before checkSessionId returns
 		loadBlankPage();
@@ -233,7 +211,7 @@ public class PageHandler {
 	    		new ChangePassword(gui);
 				break;
 	    	case AuthenticationValidationWindow:
-	    		gui.createAuthenticationValidationWindow();
+	    		new AuthenticationValidationWindow(gui);
 				break;
 			case About:
 	    		new About(gui);
@@ -245,14 +223,14 @@ public class PageHandler {
 					Window.alert("Cannnot load document - document ID (-1) is not valid!");
 		    	} else {
 					loadBlankPage();
-		    		gui.editDocument(documentId);
+		            gui.rpcHandler.loadDocumentFromDB(documentId);
 		    	}
 				break;
 			case DocumentCreator:
-				gui.createNewDocumentCreator();
+				gui.docCreator = new DocumentCreator(gui);
 				break;
 			case UserPage:
-				gui.createAndLoadUserPage();
+				new UserPage(gui);
 				break;				
 			case WelcomeScreen:
 				new WelcomeScreen(gui);
@@ -266,7 +244,7 @@ public class PageHandler {
 				gui.log("ERROR: Cannot load the page " + pageToLoad);
 				return;
 	    	}
-	    	
+
 			gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
 		}
@@ -274,4 +252,78 @@ public class PageHandler {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
+
+	
+	// DOCUMENT ID HANDLING	(for TranslationWorkspace)
+	
+    /**
+     * Used by TranslationWorkspace to load the correct document;
+     * -1 used if not set.
+     */
+    private long documentId = -1;
+    
+    private static final String DOCUMENTID = "documentId";
+    
+    /**
+     * load a documentId which is not set through a GET parameter;
+     * saves it into a Cookie
+     * @param id
+     */
+	public void setDocumentId(long id) {
+		this.documentId = id;
+		Cookies.setCookie(DOCUMENTID, Long.toString(id), Gui.getDateIn1Year());
+	}
+	
+    /**
+     * load a documentId set through a GET parameter or a Cookie
+     * (GET parameter has priority over a Cookie)
+     */
+	private void setDocumentIdFromGETOrCookie() {
+		setDocumentIdFromGET();
+		if (documentId == -1) {
+			setDocumentIdFromCookie();
+		}
+	}
+    
+    /**
+     * load a documentId set through a GET parameter
+     */
+	private void setDocumentIdFromGET() {
+		// get the GET parameter
+		String id = Window.Location.getParameter(DOCUMENTID);
+		// parse it
+		setDocumentIdFromString(id);
+	}
+    
+    /**
+     * load a documentId set through a Cookie
+     */
+	private void setDocumentIdFromCookie() {
+		// get the parameter
+		String id = Cookies.getCookie(DOCUMENTID);
+		// parse it
+		setDocumentIdFromString(id);
+	}
+    
+    /**
+     * load a documentId set through a string
+     * @param id
+     */
+	private void setDocumentIdFromString(String id) {
+		if (id == null) {
+			// this is OK, documentId parameter is not set
+			documentId = -1;
+		} else {
+			try {
+				documentId = Long.parseLong(id);
+				gui.log("documentId (" + documentId + ") acquired from parameter");
+			}
+			catch (NumberFormatException e) {
+				// this is not OK, documentId parameter is set but is invalid
+				documentId = -1;
+				gui.log("WARNING: invalid documentId (" + id + ") set as parameter!");
+			}
+		}
+	}
+    	
 }

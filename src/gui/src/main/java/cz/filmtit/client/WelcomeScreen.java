@@ -9,6 +9,8 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.PageHandler.Page;
+
 public class WelcomeScreen extends Composite {
 
 	private static WelcomeScreenUiBinder uiBinder = GWT
@@ -41,7 +43,7 @@ public class WelcomeScreen extends Composite {
         about.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	new About(gui);
+            	gui.pageHandler.loadPage(Page.About);
             }
         });
 
