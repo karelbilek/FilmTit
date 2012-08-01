@@ -234,7 +234,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return null;
     }
-
+     @Override
     public String simple_login(String username, String password) {
 
             System.out.println("CheckUser");
@@ -251,7 +251,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             }
 
     }
-
+    @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
 
@@ -260,7 +260,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         return null;
     }
-
+    @Override
     public Boolean  registration(String name ,  String pass  , String email, String openId) {
           // create user
 
@@ -297,8 +297,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
-    public boolean sendChangePassMail(USUser user){
-        System.out.println("Sending mail to UsUser");
+
+    public Boolean sendChangePasswordMail(USUser user){
+        System.out.println("Sending mail to UsUser "+user.email + " " + user.getUserName() + user.getPassword() + "test" );
         Emailer email = new Emailer();
         if (user.getEmail()!=null) return email.sendForgottenPassMail(user.email,user.getUserName(),this.forgotUrl(user));
         return false;
@@ -345,6 +346,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Check if found sessionId is still active
      */
+    @Override
     public String checkSessionID(String sessionID){
        if (activeSessions.isEmpty()){
            return null;     // no session at all
@@ -354,11 +356,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return s.getUser().getUserName(); // return name of user who had  session
 
      }
-
-    public boolean sendChangePasswordMail(String username){
+    @Override
+    public Boolean sendChangePasswordMail(String username){
         USUser user = checkUser(username,null,CheckUserEnum.UserName);
         if (user != null){
-            return sendChangePassMail(user);
+            return sendChangePasswordMail(user);
         }
 
         return false;
@@ -376,7 +378,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private boolean sendMail(USUser user){
         System.out.println("Sending mail to UsUser");
         Emailer email = new Emailer();
-        if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
+        //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
         return true;
     }
 
@@ -384,11 +386,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private String forgotUrl(USUser user ){
           // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";
           String templateUrl = configuration.serverAddress() + "/?page=ChangePass&login=%login%&token=%token%";
-          String login = user.userName;
+          String login = user.getUserName();
           String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
           ChangePassToken token = new ChangePassToken(_token);
-           String actualUrl = templateUrl.replace("%login%",login);
-           actualUrl = actualUrl.replace("%token%",_token);
+        System.out.println(templateUrl + " Login: "+ login + " _token:"+_token +"\n "+ user.toString());
+           String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
           activeTokens.put(login,token);
         return actualUrl;
     }
