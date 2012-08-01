@@ -286,12 +286,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     {
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
         ChangePassToken token = activeTokens.get(user);
-        if (user != null && token != null && token.isValidToken(string_token)){
+
+        if (usUser != null && token != null && token.isValidToken(string_token)){
 
             usUser.setPassword(pass_hash(pass));
             org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
             usUser.saveToDatabase(dbSession);
             usHibernateUtil.closeAndCommitSession(dbSession);
+            token.deactivate();
             return true;
         }
         return false;
@@ -299,7 +301,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
     public Boolean sendChangePasswordMail(USUser user){
-        System.out.println("Sending mail to UsUser "+user.email + " " + user.getUserName() + user.getPassword() + "test" );
+
         Emailer email = new Emailer();
         if (user.getEmail()!=null) return email.sendForgottenPassMail(user.email,user.getUserName(),this.forgotUrl(user));
         return false;
@@ -308,7 +310,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public boolean sendRegistrationMail(USUser user , String pass){
 
-        System.out.println("Sending mail to new UsUser");
         Emailer email = new Emailer();
         if (user.getEmail()!=null) return email.sendRegistrationMail(user.email,user.getUserName(),pass);
         return false;
@@ -376,7 +377,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     private boolean sendMail(USUser user){
-        System.out.println("Sending mail to UsUser");
         Emailer email = new Emailer();
         //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
         return true;
@@ -384,12 +384,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /*end test zone*/
     private String forgotUrl(USUser user ){
-          // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";
-          String templateUrl = configuration.serverAddress() + "/?page=ChangePass&login=%login%&token=%token%";
+          // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
+
+          String templateUrl = configuration.serverAddress() + "/?username=%login%&token=%token%#ChangePassword";
           String login = user.getUserName();
           String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
           ChangePassToken token = new ChangePassToken(_token);
-        System.out.println(templateUrl + " Login: "+ login + " _token:"+_token +"\n "+ user.toString());
            String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
           activeTokens.put(login,token);
         return actualUrl;
@@ -399,6 +399,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Get hash of string
      * if return same string like input - problem with algortithm
      */
+
+
     private String pass_hash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
     }
@@ -486,6 +488,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         private String token;
         private Date  validTo;
+        private Boolean active;
         public String getToken() {
             return token;
         }
@@ -498,20 +501,29 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                cal.setTime(actualDate);
                cal.add(Calendar.HOUR_OF_DAY,1);
                setValidTo(cal.getTime());
+               active = true;
+
         }
 
         public boolean isValidToken(String token){
-
             // token is the same and its validity isn`t off
-            return ( (this.token == token) && (isValidTime()));
+              return ( (this.token.compareTo(token)==0) && (isValidTime()) && (this.active()));
         }
 
         public boolean  isValidTime()
         {
             Date actual = new Date();
-            return (validTo.compareTo(actual) < 0);
+            return ((validTo.compareTo(actual) > 0) && (this.active()));
         }
 
+        public void deactivate()
+        {
+             this.active = false;
+        }
+        public Boolean active()
+        {
+            return this.active;
+        }
         private void setValidTo(Date validTo) {
             this.validTo = validTo;
         }
