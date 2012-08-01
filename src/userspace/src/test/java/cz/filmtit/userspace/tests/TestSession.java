@@ -15,6 +15,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -141,8 +143,8 @@ public class TestSession {
         // test if the change appeared in the database
         USTranslationResult fromDB = loadTranslationResultFromDb(trToUpdate.getDatabaseId());
         assertNotNull(fromDB);
-        //assertEquals(newStartTime, fromDB.getStartTime());
-        //assertEquals(newEndTime, fromDB.getEndTime());
+        assertEquals(newStartTime, fromDB.getStartTime());
+        assertEquals(newEndTime, fromDB.getEndTime());
     }
 
     @Test
@@ -163,12 +165,13 @@ public class TestSession {
         // test if the change appeared in the user space structure
         USTranslationResult changed = findTranslationResultInStructure(session,
                 trToUpdate.getDocumentDatabaseId(), trToUpdate.getChunkIndex());
+        assertEquals(trToUpdate.getDatabaseId(), changed.getDatabaseId());
         assertEquals("New text", changed.getText());
 
         // test if the change appeared in the database
         USTranslationResult fromDB = loadTranslationResultFromDb(trToUpdate.getDatabaseId());
         assertNotNull(fromDB);
-        //assertEquals("New text", fromDB.getText());
+        assertEquals("New text", fromDB.getText());
     }
 
     @Test
@@ -217,7 +220,7 @@ public class TestSession {
         List<TranslationResult> clientTRList = new ArrayList<TranslationResult>();
         for (int i = 0; i < 9; ++i) {
             TimedChunk sampleTimedChunk = new TimedChunk("00:0" + i + ":00,000", "00:0" + (i + 1) + ":01,000", 0,
-                    loremIpsum.getWords(5,5), 150, clientDocument.getId());
+                    loremIpsum.getWords(5,5), i, clientDocument.getId());
             TranslationResult serverRespond = session.getTranslationResults(sampleTimedChunk, TM);
             clientTRList.add(serverRespond);
         }
@@ -226,7 +229,7 @@ public class TestSession {
             session.setUserTranslation(tr.getSourceChunk().getChunkIndex(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
         }
 
-        session.logout();
+        //session.logout();
     }
 
     /**
@@ -247,7 +250,7 @@ public class TestSession {
 
             for (int j = 0; j < 20; ++j) {
                 USTranslationResult translationResult = new USTranslationResult(
-                        new TimedChunk("01:43:29,000", "01:43:32,128", 0, loremIpsum.getWords(7, 10), 1, documentID));
+                        new TimedChunk("01:43:29,000", "01:43:32,128", 0, loremIpsum.getWords(7, 10), j, documentID));
 
                 translationResult.setDocument(usDocument);
                 usDocument.addTranslationResult(translationResult);
@@ -259,9 +262,34 @@ public class TestSession {
             }
 
             sampleUser.addDocument(usDocument);
+
+            try {
+                Method ownerDatabaseIDSetter = USDocument.class.getDeclaredMethod("setOwnerDatabaseId", long.class);
+                ownerDatabaseIDSetter.setAccessible(true);
+                ownerDatabaseIDSetter.invoke(usDocument, sampleUser.getDatabaseId());
+            }
+            catch (NoSuchMethodException e) { e.printStackTrace(); }
+            catch (InvocationTargetException e) { e.printStackTrace(); }
+            catch (IllegalAccessException e) { e.printStackTrace(); }
+
+            org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+            usDocument.saveToDatabase(dbSession);
+            usHibernateUtil.closeAndCommitSession(dbSession);
         }
 
-        return sampleUser;
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        sampleUser.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List dbRes = dbSession.createQuery("select u from USUser u where u.id = " + sampleUser.getDatabaseId()).list();
+        if (dbRes.size() == 1) {
+            //return (USUser)(dbRes.get(0));
+            return sampleUser;
+        }
+        else {
+            return null;
+        }
     }
 
     private void testIfDocumentInActiveList(Session session, long id) throws IllegalAccessException, NoSuchFieldException {

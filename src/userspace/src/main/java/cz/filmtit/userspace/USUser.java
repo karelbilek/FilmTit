@@ -78,7 +78,7 @@ public class USUser extends DatabaseObject {
      * A list of the documents owned by the user stored as the User Space wrappers of the
      * Document objects from the share namespace.
      */
-    private List<USDocument> ownedDocuments;
+    private List<USDocument> ownedDocuments = null;
     /**
      * A set of IDs of documents which were active at the moment the user logged out (or was logged
      * out) last time. It is not kept up to date while a Session exists. It is updated at the moment
