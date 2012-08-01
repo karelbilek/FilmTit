@@ -6,18 +6,27 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
 public class CoreHibernateUtil {
-    private SessionFactory sessionFactory = null;
-    private ServiceRegistry serviceRegistry;
+    protected SessionFactory sessionFactory = null;
+    protected ServiceRegistry serviceRegistry;
 
     public java.net.URL getConfigurationFile() {
         return CoreHibernateUtil.class.getResource("/cz/filmtit/core/core.cfg.xml");
+    }
+
+    protected CoreHibernateUtil() {}
+    protected static CoreHibernateUtil instance = null;
+    public static CoreHibernateUtil getInstance() {
+        if (instance == null) {
+            instance = new CoreHibernateUtil();
+        }
+        return instance;
     }
 
     /**
      * A path to the Hibernate configuration file. If it's necessary to change it (e.g. for unit testing),
      * it has to be done using reflection before the getSessionFactory method is called for the first time.
      */
-    private SessionFactory buildSessionFactory() {
+    protected SessionFactory buildSessionFactory() {
         try {
             cz.filmtit.core.Configuration projectConfiguration = ConfigurationSingleton.conf();
 
@@ -49,13 +58,13 @@ public class CoreHibernateUtil {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
     }
 
-    public  org.hibernate.Session getSessionWithActiveTransaction() {
+    public org.hibernate.Session getSessionWithActiveTransaction() {
         org.hibernate.Session dbSession = getSessionFactory().openSession();
         dbSession.beginTransaction();
         return dbSession;
     }
 
-    public  void closeAndCommitSession(org.hibernate.Session dbSession){
+    public void closeAndCommitSession(org.hibernate.Session dbSession){
         dbSession.getTransaction().commit();
         dbSession.close();
     }

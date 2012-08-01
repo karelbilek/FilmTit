@@ -23,9 +23,6 @@ public class USDocument extends DatabaseObject {
     private long translationGenerationTime;
     private boolean finished;
 
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
-
-
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
@@ -198,6 +195,9 @@ public class USDocument extends DatabaseObject {
      * @param dbSession  Opened database session.
      */
     public void saveToDatabase(Session dbSession) {
+        if (document.getMovie() != null) {
+            dbSession.saveOrUpdate(document.getMovie());
+        }
         saveJustObject(dbSession);
 
         if (translationResults != null) {

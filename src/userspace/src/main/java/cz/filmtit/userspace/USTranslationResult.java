@@ -34,7 +34,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     private USDocument document;
 
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
      * result is created or when the loadChunksFromDb() on a document is called.

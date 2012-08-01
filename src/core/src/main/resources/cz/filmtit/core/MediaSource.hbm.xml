@@ -10,9 +10,10 @@
             <generator class="native"/>
         </id>
 
-        <property name="title" type="java.lang.String" column="title" />
+        <property name="title" type="text" column="title" />
         <property name="year" type="java.lang.String" column="year" />
-        <property name="genresString" type="java.lang.String" column="genres" />
+        <property name="genresString" type="text" column="genres" />
+        <property name="thumbnailURL" type="text" column="thumbnailURL" />
 
     </class>
 </hibernate-mapping>
