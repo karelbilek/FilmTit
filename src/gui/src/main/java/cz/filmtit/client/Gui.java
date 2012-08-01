@@ -595,13 +595,13 @@ public class Gui implements EntryPoint {
      
      protected void logged_in (String username) {
         this.username = username;
-    	guiStructure.login.setText("Log out user " + username);
+    	guiStructure.logged_in(username);
         pageHandler.loadPage(true);
      }
      
      protected void logged_out () {
         this.username = null;
-        guiStructure.login.setText("Log in");
+        guiStructure.logged_out();
         pageHandler.loadPage(false);
      }
 
