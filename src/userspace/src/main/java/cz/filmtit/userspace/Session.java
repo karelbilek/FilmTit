@@ -262,9 +262,7 @@ public class Session {
         List<Document> result = new ArrayList<Document>();
 
         for(USDocument usDocument : user.getOwnedDocuments()) {
-            result.add(usDocument.getDocument());
-        
-            
+            result.add(usDocument.getDocument().documentWithoutResults());
         }
 
         return result;
