@@ -171,8 +171,7 @@ public class PageHandler {
 	    	switch (pageToLoad) {
 	    	
 	    	case ChangePassword:
-	    		// TODO show ChangePassword window
-	    		Window.alert("TODO: show ChangePassword window");
+	    		gui.showChangePasswordForm();
 				break;
 	    	case AuthenticationValidationWindow:
 	    		gui.createAuthenticationValidationWindow();

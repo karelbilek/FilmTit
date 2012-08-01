@@ -17,11 +17,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 
 import java.util.*;
 
-//lib-gwt-file imports:
-
-
-
-
 /**
  * Entry point for the FilmTit GWT web application,
  * including the GUI creation.
@@ -44,10 +39,10 @@ public class Gui implements EntryPoint {
 
      protected int counter = 0;
 
-     private FilmTitServiceHandler rpcHandler;
+     FilmTitServiceHandler rpcHandler;
      protected Document currentDocument;
      
-     private PageHandler pageHandler;
+     PageHandler pageHandler;
      
      private String sessionID;
      
@@ -495,12 +490,10 @@ public class Gui implements EntryPoint {
             public void onClick(ClickEvent event) {
                  String username = loginDialog.getUsername();
                  if (username.isEmpty()) {
-                      Window.alert("You must fill in your username!");
+                    Window.alert("You must fill in your username!");
                  } else {
-                     dialogBox.hide();
                     log("forgotten password - user " + username);
-                    //TODO: invoke RPC call
-                        //rpcHandler.forgotten_password(username);                      
+                    rpcHandler.sendChangePasswordMail(username, dialogBox);                      
                  }
             }
         } );
@@ -574,6 +567,12 @@ public class Gui implements EntryPoint {
         dialogBox.setWidget(registrationForm);
         dialogBox.setGlassEnabled(true);
         dialogBox.center();
+    }
+    
+    protected void showChangePasswordForm() {
+        ChangePassword changePassword = new ChangePassword(this);
+        guiStructure.contentPanel.setStyleName("changePassword");
+        guiStructure.contentPanel.setWidget(changePassword);
     }
 
      protected void please_log_in () {

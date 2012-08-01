@@ -47,6 +47,14 @@ public interface FilmTitService extends RemoteService {
      */
     Boolean changePassword(String username, String password, String token);
     
+    /**
+     * Send an email with a link to password reset
+     * to the user's email address.
+     * @param username
+     * @return true on success, false if username is incorrect or there is no email address
+     */
+    Boolean sendChangePasswordMail(String username);
+    
     // - Logout
     Void logout(String sessionID) throws InvalidSessionIdException;
 
