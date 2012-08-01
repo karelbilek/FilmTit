@@ -408,14 +408,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 	@Override
 	public Boolean sendChangePasswordMail(String username) {
-		// TODO nahradit skutečnou metodou
+		// TODO nahradit skuteÄŤnou metodou
 		System.out.println("called sendChangePasswordMail, username = " + username);
 		return null;
 	}
 
 	@Override
 	public Boolean changePassword(String username, String password, String token) {
-		// TODO nahradit skutečnou metodou
+		// TODO nahradit skuteÄŤnou metodou
 		System.out.println("called changePassword, username = " + username + ", password = " + password + ", toekn = " + token);
 		return null;
 	}

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Jindřich Libovický
+ * @author JindĹ™ich LibovickĂ˝
  */
 public class MockHibernateUtil extends USHibernateUtil {
     protected static MockHibernateUtil instance = null;

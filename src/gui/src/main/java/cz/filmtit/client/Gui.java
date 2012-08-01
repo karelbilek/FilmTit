@@ -1,5 +1,7 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.NavLink;
+import com.github.gwtbootstrap.client.ui.NavWidget;
 import com.google.gwt.core.client.*;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.event.dom.client.*;
@@ -20,7 +22,7 @@ import java.util.*;
 /**
  * Entry point for the FilmTit GWT web application,
  * including the GUI creation.
- * 
+ *
  * @author Honza Václ
  *
  */
@@ -28,24 +30,24 @@ import java.util.*;
 public class Gui implements EntryPoint {
 
      GuiStructure guiStructure;
-     
+
      protected Map<ChunkIndex, TimedChunk> chunkmap;
 
      public TimedChunk getChunk(ChunkIndex chunkIndex) {
         return chunkmap.get(chunkIndex);
      }
-     
+
      protected RootPanel rootPanel;
 
      protected int counter = 0;
 
      FilmTitServiceHandler rpcHandler;
      protected Document currentDocument;
-     
+
      PageHandler pageHandler;
-     
+
      private String sessionID;
-     
+
      // persistent session ID via cookies (set to null to unset)
      @SuppressWarnings("deprecation")
      protected void setSessionID(String newSessionID) {
@@ -61,7 +63,7 @@ public class Gui implements EntryPoint {
           sessionID = newSessionID;
      }
 
-     // persistent session ID via cookies (null if not set)     
+     // persistent session ID via cookies (null if not set)
      protected String getSessionID() {
           if (sessionID == null) {
                sessionID = Cookies.getCookie("sessionID");
@@ -75,32 +77,41 @@ public class Gui implements EntryPoint {
       * Multi-line subtitle text to parse
       */
      //private String subtext;
-     
+
      private DocumentCreator docCreator = null;
     private TranslationWorkspace workspace = null;
-     
-     
-     
+
+    private NavWidget[] allMenuItems;
+    public void activateMenuItem(NavWidget menuItem) {
+
+        for (NavWidget item : allMenuItems) {
+            item.setActive(false);
+        }
+        menuItem.setActive(true);
+
+    }
+
+
     @Override
     public void onModuleLoad() {
 
 		// RPC:
 		rpcHandler = new FilmTitServiceHandler(this);
-    	
+
 		// page loading and switching
-		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);    	
+		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
 		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
-    	
+
         // check whether user is logged in or not
-        rpcHandler.checkSessionID();    	
+        rpcHandler.checkSessionID();
     }
 
      void createGui() {
-          
+
           // -------------------- //
           // --- GUI creation --- //
           // -------------------- //
-          
+
           rootPanel = RootPanel.get();
           //rootPanel.setSize("800", "600");
 
@@ -108,7 +119,7 @@ public class Gui implements EntryPoint {
           guiStructure = new GuiStructure();
           rootPanel.add(guiStructure, 0, 0);
 
-          // top menu handlers          
+          // top menu handlers
           guiStructure.login.addClickHandler(new ClickHandler() {
                public void onClick(ClickEvent event) {
                     if (getSessionID() == null) {
@@ -116,51 +127,79 @@ public class Gui implements EntryPoint {
                     } else {
                          rpcHandler.logout();
                     }
-               }             
+               }
           });
+
+         guiStructure.welcomePage.addClickHandler(new ClickHandler() {
+              public void onClick(ClickEvent event) {
+                showWelcomePage();
+              }
+         });
+
+         guiStructure.userPage.addClickHandler(new ClickHandler() {
+               public void onClick(ClickEvent event) {
+                 createAndLoadUserPage();
+               }
+          });
+
+         guiStructure.about.addClickHandler(new ClickHandler() {
+               public void onClick(ClickEvent event) {
+                 showAboutPage();
+               }
+          });
+
+         guiStructure.documentCreator.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                  createNewDocumentCreator();
+                }
+           });
+
+
+         allMenuItems = new NavWidget[]{ guiStructure.documentCreator, guiStructure.about, guiStructure.welcomePage, guiStructure.userPage };
 
      }
 
     void createNewDocumentCreator() {
+        activateMenuItem(guiStructure.documentCreator);
+
         docCreator = new DocumentCreator();
 
     // --- file reading interface via lib-gwt-file --- //
         final FileReader freader = new FileReader();
-        freader.addLoadEndHandler( new LoadEndHandler() {
+        freader.addLoadEndHandler(new LoadEndHandler() {
             @Override
             public void onLoadEnd(LoadEndEvent event) {
-            docCreator.lblUploadProgress.setText("File uploaded successfully.");
-            docCreator.btnCreateDocument.setEnabled(true);
+                docCreator.lblUploadProgress.setText("File uploaded successfully.");
+                docCreator.btnCreateDocument.setEnabled(true);
                 //log(subtext);
             }
-        } );
+        });
 
-        docCreator.fileUpload.addChangeHandler( new ChangeHandler() {
+        docCreator.fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
                 //log(fileUpload.getFilename());
-            docCreator.lblUploadProgress.setVisible(true);
-            docCreator.lblUploadProgress.setText("Uploading the file...");
+                docCreator.lblUploadProgress.setVisible(true);
+                docCreator.lblUploadProgress.setText("Uploading the file...");
                 FileList fl = docCreator.fileUpload.getFiles();
                 Iterator<File> fit = fl.iterator();
                 if (fit.hasNext()) {
-                        freader.readAsText(fit.next(), docCreator.getChosenEncoding());
-                }
-                else {
-                        error("No file chosen.\n");
+                    freader.readAsText(fit.next(), docCreator.getChosenEncoding());
+                } else {
+                    error("No file chosen.\n");
                 }
             }
-        } );
+        });
 
-        docCreator.btnCreateDocument.addClickHandler( new ClickHandler() {
+        docCreator.btnCreateDocument.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 docCreator.lblCreateProgress.setVisible(true);
                 docCreator.lblCreateProgress.setText("Creating the document...");
-                createDocumentFromText( freader.getStringResult() );
+                createDocumentFromText(freader.getStringResult());
             }
-        } );
-        
+        });
+
         guiStructure.contentPanel.setWidget(docCreator);
     }
 
@@ -170,6 +209,8 @@ public class Gui implements EntryPoint {
       * inside the GUI contentPanel
       */
      void createAndLoadUserPage() {
+        activateMenuItem(guiStructure.userPage);
+
         UserPage userpage = new UserPage(
             new FieldUpdater<Document, String>() {
                 public void update(int index, Document doc, String value) {
@@ -196,12 +237,12 @@ public class Gui implements EntryPoint {
         guiStructure.contentPanel.setWidget(userpage);
 
     }
-     
+
      void createAuthenticationValidationWindow() {
           // ----------------------------------------------- //
           // --- AuthenticationValidationWindow creation --- //
           // ----------------------------------------------- //
-          
+
           rootPanel = RootPanel.get();
           //rootPanel.setSize("800", "600");
 
@@ -217,7 +258,7 @@ public class Gui implements EntryPoint {
           });
 
           // get authentication data
-          authenticationValidationWindow.paraValidation.setText("Processing authentication data...");          
+          authenticationValidationWindow.paraValidation.setText("Processing authentication data...");
           // response URL
           String responseURL = Window.Location.getQueryString();
           // String responseURL = Window.Location.getParameter("responseURL");
@@ -231,7 +272,7 @@ public class Gui implements EntryPoint {
                // TODO: handle exception
                Window.alert("Cannot parse authID " + authIDstring + " as a number! " + e.getLocalizedMessage());
           }
-          
+
           // send RPC
           authenticationValidationWindow.paraValidation.setText("Validating authentication data for authID " + authID + "...");
           rpcHandler.validateAuthentication (responseURL, authID, authenticationValidationWindow);
@@ -263,7 +304,7 @@ public class Gui implements EntryPoint {
     }
 
     protected void processTranslationResultList(List<TranslationResult> translations) {
-        
+
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
@@ -273,20 +314,19 @@ public class Gui implements EntryPoint {
               TimedChunk sChunk = tr.getSourceChunk();
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
               String tChunk = tr.getUserTranslation();
-              
 
               ChunkIndex chunkIndex = sChunk.getChunkIndex();
-              
-              
+
+
               this.currentDocument.translationResults.put(chunkIndex, tr);
-              
+
               workspace.showSource(sChunk);
 
               if (tChunk==null || tChunk.equals("")){
                  untranslatedOnes.add(sChunk);
               } else {
                  workspace.showResult(tr);
-              
+
               }
           }
           if (untranslatedOnes.size() > 0) {
@@ -294,7 +334,7 @@ public class Gui implements EntryPoint {
             sendChunks.execute();
           }
     }
-     
+
      /**
       * Parse the given text in the subtitle format of choice (by the radiobuttons)
       * into this.chunklist (List<TimedChunk>).
@@ -307,7 +347,7 @@ public class Gui implements EntryPoint {
      protected void processText(String subtext) {
           // dump the input text into the debug-area:
           log("processing the following input:\n" + subtext + "\n");
-         
+
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           // determine format (from corresponding radiobuttons) and choose parser:
@@ -321,7 +361,7 @@ public class Gui implements EntryPoint {
                subtextparser = new ParserSrt();
           }
           log("subtitle format chosen: " + subformat);
-          
+
           //Window.alert("1");
           // parse:
           log("starting parsing");
@@ -338,15 +378,15 @@ public class Gui implements EntryPoint {
               TranslationResult tr = new TranslationResult();
               tr.setSourceChunk(chunk);
               this.currentDocument.translationResults.put(chunkIndex, tr);
-              
+
           }
-          
+
           //Window.alert("3");
 
           // output the parsed chunks:
           log("parsed chunks: "+chunklist.size());
-            
-          int size=50; 
+
+          int size=50;
           int i = 0;
           for (TimedChunk timedchunk : chunklist) {
             workspace.showSource(timedchunk);
@@ -361,13 +401,13 @@ public class Gui implements EntryPoint {
           sendChunks.execute();
   //        Window.alert("5");
      }
-     
-     
-     
+
+
+
      class SendChunksCommand {
 
           LinkedList<TimedChunk> chunks;
-          
+
           public SendChunksCommand(List<TimedChunk> chunks) {
                this.chunks = new LinkedList<TimedChunk>(chunks);
           }
@@ -395,21 +435,21 @@ public class Gui implements EntryPoint {
                     }
                 }
                 sendChunks(sentTimedchunks);
-                   exponential = exponential*2;     
+                   exponential = exponential*2;
                 return true;
                }
           }
-          
+
           private void sendChunks(List<TimedChunk> timedchunks) {
                rpcHandler.getTranslationResults(timedchunks, this);
           }
      }
-     
-     
+
+
      public Document getCurrentDocument() {
           return currentDocument;
      }
-          
+
      protected void setCurrentDocument(Document currentDocument) {
           this.currentDocument = currentDocument;
      }
@@ -422,7 +462,7 @@ public class Gui implements EntryPoint {
      public void submitUserTranslation(TranslationResult transresult) {
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
           log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
-          
+
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
           rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
@@ -437,14 +477,14 @@ public class Gui implements EntryPoint {
       * @param logtext
       */
      public void log(String logtext) {
-    	 if (guiStructure != null) {    		 
+    	 if (guiStructure != null) {
 	        if (start == 0) {
 	            start = System.currentTimeMillis();
 	        }
 	        long diff = (System.currentTimeMillis() - start);
 	        sb.append(diff);
 	        sb.append(" : ");
-	       
+
 	        sb.append(logtext);
 	        sb.append("\n");
 	        guiStructure.txtDebug.setText(sb.toString());
@@ -456,11 +496,11 @@ public class Gui implements EntryPoint {
     		 Window.setStatus(logtext);
     	 }
      }
-     
+
      private void error(String errtext) {
           log(errtext);
      }
-     
+
      /**
       * show a dialog enabling the user to
       * log in directly
@@ -470,10 +510,10 @@ public class Gui implements EntryPoint {
     	 showLoginDialog("");
      }
     protected void showLoginDialog(String username) {
-         
+
          final DialogBox dialogBox = new DialogBox(false);
         final LoginDialog loginDialog = new LoginDialog();
-        
+
         loginDialog.btnLogin.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -482,7 +522,7 @@ public class Gui implements EntryPoint {
             	if (username.isEmpty()) {
             		Window.alert("Please fill in the username!");
             	} else if (password.isEmpty()) {
-            		Window.alert("Please fill in the password!");					
+            		Window.alert("Please fill in the password!");
 				} else {
 	                dialogBox.hide();
 	                log("trying to log in as user " + username);
@@ -490,7 +530,7 @@ public class Gui implements EntryPoint {
 				}
             }
         } );
-        
+
         loginDialog.btnForgottenPassword.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -499,11 +539,11 @@ public class Gui implements EntryPoint {
                     Window.alert("You must fill in your username!");
                  } else {
                     log("forgotten password - user " + username);
-                    rpcHandler.sendChangePasswordMail(username, dialogBox);                      
+                    rpcHandler.sendChangePasswordMail(username, dialogBox);
                  }
             }
         } );
-        
+
         loginDialog.btnLoginGoogle.addClickHandler( new ClickHandler() {
                @Override
                public void onClick(ClickEvent event) {
@@ -511,7 +551,7 @@ public class Gui implements EntryPoint {
                     rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, dialogBox);
                }
           });
-        
+
         loginDialog.btnRegister.addClickHandler( new ClickHandler() {
                @Override
                public void onClick(ClickEvent event) {
@@ -520,7 +560,7 @@ public class Gui implements EntryPoint {
                 showRegistrationForm();
                }
           });
-        
+
         loginDialog.btnCancel.addClickHandler( new ClickHandler() {
                @Override
                public void onClick(ClickEvent event) {
@@ -528,9 +568,9 @@ public class Gui implements EntryPoint {
                 dialogBox.hide();
                }
           });
-        
+
         loginDialog.setUsername(username);
-        
+
         dialogBox.setWidget(loginDialog);
         dialogBox.setGlassEnabled(true);
         dialogBox.center();
@@ -542,10 +582,10 @@ public class Gui implements EntryPoint {
       * via OpenID services
       */
     protected void showRegistrationForm() {
-         
+
          final DialogBox dialogBox = new DialogBox(false);
         final RegistrationForm registrationForm = new RegistrationForm();
-        
+
         registrationForm.btnRegister.addClickHandler( new ClickHandler() {
                @Override
                public void onClick(ClickEvent event) {
@@ -561,7 +601,7 @@ public class Gui implements EntryPoint {
                 }
                }
           });
-        
+
         registrationForm.btnCancel.addClickHandler( new ClickHandler() {
                @Override
                public void onClick(ClickEvent event) {
@@ -569,12 +609,12 @@ public class Gui implements EntryPoint {
                 dialogBox.hide();
                }
           });
-        
+
         dialogBox.setWidget(registrationForm);
         dialogBox.setGlassEnabled(true);
         dialogBox.center();
     }
-    
+
     protected void showChangePasswordForm() {
         ChangePassword changePassword = new ChangePassword(this);
         guiStructure.contentPanel.setStyleName("changePassword");
@@ -582,6 +622,7 @@ public class Gui implements EntryPoint {
     }
 
     protected void showAboutPage() {
+        activateMenuItem(guiStructure.about);
         About about = new About();
         guiStructure.contentPanel.setStyleName("about");
         guiStructure.contentPanel.setWidget(about);
@@ -592,19 +633,19 @@ public class Gui implements EntryPoint {
           Window.alert("Please log in first.");
           showLoginDialog();
      }
-     
+
      protected void please_relog_in () {
           logged_out ();
           Window.alert("You have not logged in or your session has expired. Please log in.");
           showLoginDialog();
      }
-     
+
      protected void logged_in (String username) {
         this.username = username;
     	guiStructure.logged_in(username);
         pageHandler.loadPage(true);
      }
-     
+
      protected void logged_out () {
         this.username = null;
         guiStructure.logged_out();
@@ -612,7 +653,10 @@ public class Gui implements EntryPoint {
      }
 
     protected void showWelcomePage() {
+        activateMenuItem(guiStructure.welcomePage);
+
         WelcomeScreen welcomePage = new WelcomeScreen();
+
 
         welcomePage.login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -630,6 +674,13 @@ public class Gui implements EntryPoint {
             }
         });
 
+        welcomePage.about.addClickHandler( new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                showAboutPage();
+            }
+        });
+
         guiStructure.contentPanel.setStyleName("welcoming");
         guiStructure.contentPanel.setWidget(welcomePage);
     }
@@ -638,5 +689,5 @@ public class Gui implements EntryPoint {
     public TranslationWorkspace getTranslationWorkspace() {
         return workspace;
     }
-     
+
 }
