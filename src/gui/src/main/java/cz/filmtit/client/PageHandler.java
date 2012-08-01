@@ -82,12 +82,14 @@ public class PageHandler {
 		DocumentCreator
     }
     
-    public PageHandler (String page, Gui gui) {
+    public PageHandler (Gui gui) {
     	
     	this.gui = gui;
     	guiStructure = gui.guiStructure;
-    	pageUrl = string2page(page);
     	
+    	pageUrl = string2page(Window.Location.getParameter("page"));
+		setDocumentId(Window.Location.getParameter("documentId"));
+		
         // base of GUI is created for every "full" window
     	if (pageUrl != Page.AuthenticationValidationWindow) {
     		gui.createGui();

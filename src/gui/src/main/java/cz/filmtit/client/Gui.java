@@ -129,8 +129,7 @@ public class Gui implements EntryPoint {
 		rpcHandler = new FilmTitServiceHandler(this);
 
 		// page loading and switching
-		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
-		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
+		pageHandler = new PageHandler(this);
 
         // check whether user is logged in or not
         rpcHandler.checkSessionID();
