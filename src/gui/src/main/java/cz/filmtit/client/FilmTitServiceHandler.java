@@ -28,6 +28,7 @@ public class FilmTitServiceHandler {
 	
 	public FilmTitServiceHandler(Gui gui) {
 		
+		// the async service
 		Callable.filmTitService = GWT.create(FilmTitService.class);
 
 		// direct access
