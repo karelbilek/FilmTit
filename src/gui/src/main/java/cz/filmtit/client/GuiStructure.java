@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-
 import com.github.gwtbootstrap.client.ui.*;
 
 
@@ -25,74 +24,55 @@ public class GuiStructure extends Composite {
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-                  if (gui.loggedIn) {
-                	  gui.rpcHandler.logout();
-                  } else {
-                      gui.showLoginDialog();
-                  }
+                  gui.showLoginDialog();
              }
         });
 
-       welcomePage.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-            	gui.showWelcomePage();
-            }
-       });
-
-       userPage.addClickHandler(new ClickHandler() {
+        // top menu handlers
+        logout.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	 gui.createAndLoadUserPage();
+            	  gui.rpcHandler.logout();
              }
         });
 
-       about.addClickHandler(new ClickHandler() {
-             public void onClick(ClickEvent event) {
-            	 gui.showAboutPage();
-             }
-        });
-
-       documentCreator.addClickHandler(new ClickHandler() {
-              public void onClick(ClickEvent event) {
-            	  gui.createNewDocumentCreator();
-              }
-         });
-       
 		// the default layout is the logged out one
 		logged_out();
-		
 		
         gui.rootPanel = RootPanel.get();
         gui.rootPanel.add(this, 0, 0);
 
-        allMenuItems = new NavWidget[]{ documentCreator, about, welcomePage, userPage };
+        allMenuItems = new Hyperlink[]{ documentCreator, about, welcomePage, userPage };
 		
 	}
 	
-    NavWidget[] allMenuItems;
+	Hyperlink[] allMenuItems;
 
-    public void activateMenuItem(NavWidget menuItem) {
-
-        for (NavWidget item : allMenuItems) {
-            item.setActive(false);
-        }
-        menuItem.setActive(true);
-
+	static final String ACTIVE = "active";
+	
+	public void activateMenuItem(Hyperlink menuItem) {
+        for (Hyperlink item : allMenuItems) {
+            item.removeStyleName(ACTIVE);
+	    }
+	    menuItem.addStyleName(ACTIVE);
     }
 
 	@UiField
-	NavLink welcomePage;
+	Hyperlink welcomePage;
 
 	@UiField
-	NavLink userPage;
+	Hyperlink userPage;
 
 	@UiField
-	NavLink documentCreator;
+	Hyperlink documentCreator;
 
 	@UiField
-	NavLink about;
+	Hyperlink about;
 
 	@UiField
 	NavLink login;
+
+	@UiField
+	NavLink logout;
 
 	@UiField
     ScrollPanel contentPanel;
@@ -102,7 +82,9 @@ public class GuiStructure extends Composite {
 	
 	public void logged_in (String username) {
 		// login/logout link
-		login.setText("Log out user " + username);
+		login.setVisible(false);
+		logout.setText("Log out user " + username);
+		logout.setVisible(true);
 		// visibility
 		welcomePage.setVisible(false);
 		userPage.setVisible(true);
@@ -112,7 +94,8 @@ public class GuiStructure extends Composite {
 	
 	public void logged_out () {
 		// login/logout link
-		login.setText("Log in");
+		logout.setVisible(false);
+		login.setVisible(true);
 		// visibility
 		welcomePage.setVisible(true);
 		userPage.setVisible(false);

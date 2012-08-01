@@ -15,7 +15,7 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
 	private static final long serialVersionUID = 5899275001958847886L;
 
-    private Long id;
+    private Long id = Long.MIN_VALUE;
     private String title;
     private String year;
     private Set<String> genres;
