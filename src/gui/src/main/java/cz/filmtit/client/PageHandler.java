@@ -83,7 +83,8 @@ public class PageHandler {
 		AuthenticationValidationWindow,
 		About,
 		TranslationWorkspace,
-		DocumentCreator
+		DocumentCreator,
+		Settings
     }
     
     public PageHandler (Gui gui) {
@@ -203,6 +204,7 @@ public class PageHandler {
 		// pageUrl only if user is logged in, otherwise WelcomeScreen
 		case TranslationWorkspace:
 		case DocumentCreator:
+		case Settings:
 			pageToLoad = gui.loggedIn ? suggestedPage : Page.WelcomeScreen;
 			break;
 
@@ -225,16 +227,16 @@ public class PageHandler {
 	    	switch (pageToLoad) {
 	    	
 	    	case Blank:
-	    		gui.showBlankPage();
+	    		new Blank(gui);
 				break;
 	    	case ChangePassword:
-	    		gui.showChangePasswordForm();
+	    		new ChangePassword(gui);
 				break;
 	    	case AuthenticationValidationWindow:
 	    		gui.createAuthenticationValidationWindow();
 				break;
 			case About:
-	    		gui.showAboutPage();
+	    		new About(gui);
 				break;
 			case TranslationWorkspace:
 		    	if (documentId == -1) {
@@ -253,7 +255,10 @@ public class PageHandler {
 				gui.createAndLoadUserPage();
 				break;				
 			case WelcomeScreen:
-				gui.showWelcomePage();
+				new WelcomeScreen(gui);
+				break;
+			case Settings:
+				new Settings(gui);
 				break;
 	
 			// no other situation should happen

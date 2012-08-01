@@ -244,22 +244,13 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
+    // note: these methods should not be called and will be removed (at least most of them)
+    // use pageHandler.loadPage(Page); instead
+    
     void createGui() {
         guiStructure = new GuiStructure(this);
     }
     
-    protected void showWelcomePage() {
-        new WelcomeScreen(this);
-    }
-
-    protected void showChangePasswordForm() {
-        new ChangePassword(this);
-    }
-
-    protected void showAboutPage() {
-        new About(this);
-    }
-
     void createAuthenticationValidationWindow() {
     	new AuthenticationValidationWindow(this);
     }
@@ -289,10 +280,6 @@ public class Gui implements EntryPoint {
         workspace = new TranslationWorkspace(this, moviePath);
     }
     
-    void showBlankPage() {
-    	new Blank(this);
-    }
-
     ///////////////////////////////////////
     //                                   //
     //      Some mess remaining...       //

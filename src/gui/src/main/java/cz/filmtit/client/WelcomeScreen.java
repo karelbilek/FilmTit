@@ -41,7 +41,7 @@ public class WelcomeScreen extends Composite {
         about.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	gui.showAboutPage();
+            	new About(gui);
             }
         });
 
