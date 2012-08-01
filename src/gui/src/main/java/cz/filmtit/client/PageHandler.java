@@ -187,6 +187,10 @@ public class PageHandler {
 	    		Window.alert("TODO: show About window");
 				break;
 			case TranslationWorkspace:
+				// load UserPage (to be shown if there is an error in loading TranslationWorkspace)
+				// TranslationWorkspace can only be loaded if user is logged in so we can use loggedIn = true
+				loadPage(true, Page.UserPage);
+				// try to load TranslationWorkspace
 		    	if (documentId == -1) {
 					gui.log("failure on loading document: documentId -1 is not valid!");
 					Window.alert("Cannnot load document - document ID (-1) is not valid!");
