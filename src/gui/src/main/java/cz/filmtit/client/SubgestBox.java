@@ -1,5 +1,10 @@
 package cz.filmtit.client;
 
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.FrameElement;
+import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.regexp.shared.SplitResult;
+import com.google.gwt.user.client.Window;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
@@ -121,6 +126,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         this.addFocusHandler(this.workspace.subgestHandler);
 		this.addKeyDownHandler(this.workspace.subgestHandler);
+        this.addKeyUpHandler(this.workspace.subgestHandler);
 		//this.addValueChangeHandler(this.workspace.subgestHandler);
 		this.addBlurHandler(this.workspace.subgestHandler);
 
@@ -283,6 +289,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 					//setValue(selected.getStringL2(), true);
 					// copy the selected suggestion into the richtextarea with the annotation highlighting:
 					setHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2()));
+                    updateVerticalSize();
 
                     Scheduler.get().scheduleDeferred( new ScheduledCommand() {
                         @Override
@@ -338,10 +345,21 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         this.lastText = this.getText();
     }
 
-	@Override
+    public void updateVerticalSize() {
+        Document frameDoc = ((FrameElement) this.getElement().cast()).getContentDocument();
+
+        int newHeight = frameDoc.getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
+        if (newHeight != frameDoc.getClientHeight())
+        {
+            setHeight((newHeight) + "px");
+            showSuggestions();
+        }
+    }
+
+    @Override
 	public int compareTo(SubgestBox that) {
 		// compare according to the underlying TranslationResult
 		return this.translationResult.compareTo( that.getTranslationResult() );
 	}
-	
+
 }
