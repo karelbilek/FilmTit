@@ -3,6 +3,8 @@ package cz.filmtit.client;
 
 import com.github.gwtbootstrap.client.ui.TextArea;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
@@ -17,14 +19,67 @@ public class GuiStructure extends Composite {
 	interface GuiStructureUiBinder extends UiBinder<Widget, GuiStructure> {
 	}
 
-	public GuiStructure() {
+	public GuiStructure(final Gui gui) {
 		initWidget(uiBinder.createAndBindUi(this));
 		
+        // top menu handlers
+        login.addClickHandler(new ClickHandler() {
+             public void onClick(ClickEvent event) {
+                  if (gui.loggedIn) {
+                	  gui.rpcHandler.logout();
+                  } else {
+                      gui.showLoginDialog();
+                  }
+             }
+        });
+
+       welcomePage.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+            	gui.showWelcomePage();
+            }
+       });
+
+       userPage.addClickHandler(new ClickHandler() {
+             public void onClick(ClickEvent event) {
+            	 gui.createAndLoadUserPage();
+             }
+        });
+
+       about.addClickHandler(new ClickHandler() {
+             public void onClick(ClickEvent event) {
+            	 gui.showAboutPage();
+             }
+        });
+
+       documentCreator.addClickHandler(new ClickHandler() {
+              public void onClick(ClickEvent event) {
+            	  gui.createNewDocumentCreator();
+              }
+         });
+       
 		// the default layout is the logged out one
 		logged_out();
+		
+		
+        gui.rootPanel = RootPanel.get();
+        gui.rootPanel.add(this, 0, 0);
+
+        allMenuItems = new NavWidget[]{ documentCreator, about, welcomePage, userPage };
+		
 	}
 	
-    @UiField
+    NavWidget[] allMenuItems;
+
+    public void activateMenuItem(NavWidget menuItem) {
+
+        for (NavWidget item : allMenuItems) {
+            item.setActive(false);
+        }
+        menuItem.setActive(true);
+
+    }
+
+	@UiField
 	NavLink welcomePage;
 
 	@UiField

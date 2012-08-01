@@ -42,7 +42,10 @@ public class ChangePassword extends Composite {
 			gui.log("ERROR: username or token is null");
 			// gui.pageHandler.loadPage(false, Page.WelcomeScreen);
 		}
-    }
+
+        gui.guiStructure.contentPanel.setStyleName("changePassword");
+        gui.guiStructure.contentPanel.setWidget(this);	
+	}
 
 	@UiField
     PasswordTextBox txtPassword;

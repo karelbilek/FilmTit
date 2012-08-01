@@ -1,15 +1,38 @@
 package cz.filmtit.client;
 
-import com.github.gwtbootstrap.client.ui.*;
-import org.vectomatic.file.FileUploadExt;
+import java.util.Iterator;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
+import com.github.gwtbootstrap.client.ui.*;
+
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.Widget;
+
+import com.google.gwt.core.client.*;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.core.client.GWT;
+
+import com.google.gwt.event.dom.client.*;
+
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+
+import com.google.gwt.cell.client.FieldUpdater;
+
+import cz.filmtit.share.*;
+import cz.filmtit.share.parsing.*;
+import cz.filmtit.client.SubgestBox.FakeSubgestBox;
+
+import org.vectomatic.file.FileUploadExt;
+import org.vectomatic.file.File;
+import org.vectomatic.file.FileList;
+import org.vectomatic.file.FileReader;
+import org.vectomatic.file.events.LoadEndEvent;
+import org.vectomatic.file.events.LoadEndHandler;
+
+import java.util.*;
+
 
 public class DocumentCreator extends Composite {
 
@@ -19,12 +42,66 @@ public class DocumentCreator extends Composite {
 	interface DocumentCreatorUiBinder extends UiBinder<Widget, DocumentCreator> {
 	}
 
-	public DocumentCreator() {
+	private Gui gui;
+	
+	public DocumentCreator(final Gui gui) {
 		initWidget(uiBinder.createAndBindUi(this));
 
-        btnCreateDocument.setEnabled(false);
+		this.gui = gui;
+		
+		gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
+
+        // --- file reading interface via lib-gwt-file --- //
+            final FileReader freader = new FileReader();
+            freader.addLoadEndHandler(new LoadEndHandler() {
+                @Override
+                public void onLoadEnd(LoadEndEvent event) {
+                    lblUploadProgress.setText("File uploaded successfully.");
+                    btnCreateDocument.setEnabled(true);
+                    //log(subtext);
+                }
+            });
+
+            fileUpload.addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {
+                    //log(fileUpload.getFilename());
+                    lblUploadProgress.setVisible(true);
+                    lblUploadProgress.setText("Uploading the file...");
+                    FileList fl = fileUpload.getFiles();
+                    Iterator<File> fit = fl.iterator();
+                    if (fit.hasNext()) {
+                        freader.readAsText(fit.next(), getChosenEncoding());
+                    } else {
+                        gui.error("No file chosen.\n");
+                    }
+                }
+            });
+
+            btnCreateDocument.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    lblCreateProgress.setVisible(true);
+                    lblCreateProgress.setText("Creating the document...");
+                    createDocumentFromText(freader.getStringResult());
+                }
+            });
+
+            gui.guiStructure.contentPanel.setWidget(this);
+            
+            btnCreateDocument.setEnabled(false);
 	}
 
+    private void createDocumentFromText(String subtext) {
+        gui.rpcHandler.createDocument(
+                getTitle(),
+                getMovieTitle(),
+                getChosenLanguage(),
+                subtext,
+                getMoviePathOrNull());
+        // sets currentDocument and calls processText() on success
+    }
+	
     @UiField
     TextBox txtTitle;
 

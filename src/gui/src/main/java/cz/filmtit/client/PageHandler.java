@@ -1,6 +1,18 @@
 package cz.filmtit.client;
 
+import java.util.Iterator;
+
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.RootPanel;
+
+import cz.filmtit.share.Document;
+
+
 
 /**
  * Handles loading and switching of pages.
@@ -28,6 +40,8 @@ public class PageHandler {
      * Provides access to the gui.
      */
     private Gui gui;
+    
+    private GuiStructure guiStructure;
     
     /**
      * Used by TranslationWorkspace to load the correct document;
@@ -71,6 +85,7 @@ public class PageHandler {
     public PageHandler (String page, Gui gui) {
     	
     	this.gui = gui;
+    	guiStructure = gui.guiStructure;
     	pageUrl = string2page(page);
     	
         // base of GUI is created for every "full" window
@@ -220,4 +235,10 @@ public class PageHandler {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
+	
+	
+
+	
+	
+	
 }

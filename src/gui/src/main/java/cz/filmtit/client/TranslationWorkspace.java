@@ -82,6 +82,8 @@ public class TranslationWorkspace extends Composite {
         table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
         table.getRowFormatter().setStyleName(0, "header");
          
+        gui.guiStructure.contentPanel.setWidget(this);
+        gui.guiStructure.contentPanel.setStyleName("translating");
         
 	}
 

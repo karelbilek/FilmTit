@@ -12,8 +12,12 @@ public class About extends Composite {
 	interface AboutUiBinder extends UiBinder<Widget, About> {
 	}
 
-	public About() {
+	public About(Gui gui) {
 		initWidget(uiBinder.createAndBindUi(this));
+
+		gui.guiStructure.activateMenuItem(gui.guiStructure.about);
+		gui.guiStructure.contentPanel.setStyleName("about");
+		gui.guiStructure.contentPanel.setWidget(this);
 	}
 
 }
