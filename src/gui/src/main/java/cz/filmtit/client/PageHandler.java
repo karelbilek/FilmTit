@@ -78,7 +78,7 @@ public class PageHandler {
     		gui.createGui();
     	}
     	
-    	setPageToLoad(false);
+    	loadPage(false);    	
     }
     
     /**
@@ -105,7 +105,9 @@ public class PageHandler {
     
     /**
      * Determines the page to be loaded and loads it
-     * (unless it is already loaded).
+     * (unless it is already loaded),
+     * using the page set in the URL
+     * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
 	public void loadPage(boolean loggedIn) {
@@ -120,12 +122,14 @@ public class PageHandler {
      * @param suggestedPage page that should be loaded
      */
 	public void loadPage(boolean loggedIn, Page suggestedPage) {
-		setPageToLoad(loggedIn, pageToLoad);
+		setPageToLoad(loggedIn, suggestedPage);
 		loadPageToLoad();
 	}
 	
     /**
-     * Determines the page to be loaded.
+     * Determines the page to be loaded,
+     * using the page set in the URL
+     * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
     void setPageToLoad(boolean loggedIn) {
@@ -160,6 +164,8 @@ public class PageHandler {
 			break;
 			
 		}
+    	
+		gui.log("Page to load set to " + pageToLoad);
     }
 
     /**
@@ -207,6 +213,8 @@ public class PageHandler {
 			gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
 		}
-		// else: pageToLoad already loaded
+		else {
+			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
+		}
 	}
 }

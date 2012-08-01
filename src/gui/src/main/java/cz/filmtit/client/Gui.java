@@ -86,14 +86,13 @@ public class Gui implements EntryPoint {
 
 		// RPC:
 		rpcHandler = new FilmTitServiceHandler(this);
-          
+    	
 		// page loading and switching
-		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
+		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);    	
 		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
-
+    	
         // check whether user is logged in or not
-        rpcHandler.checkSessionID();
-        
+        rpcHandler.checkSessionID();    	
     }
 
      void createGui() {
@@ -438,17 +437,24 @@ public class Gui implements EntryPoint {
       * @param logtext
       */
      public void log(String logtext) {
-        
-        if (start == 0) {
-            start = System.currentTimeMillis();
-        }
-        long diff = (System.currentTimeMillis() - start);
-        sb.append(diff);
-        sb.append(" : ");
-       
-        sb.append(logtext);
-        sb.append("\n");
-        guiStructure.txtDebug.setText(sb.toString());
+    	 if (guiStructure != null) {    		 
+	        if (start == 0) {
+	            start = System.currentTimeMillis();
+	        }
+	        long diff = (System.currentTimeMillis() - start);
+	        sb.append(diff);
+	        sb.append(" : ");
+	       
+	        sb.append(logtext);
+	        sb.append("\n");
+	        guiStructure.txtDebug.setText(sb.toString());
+    	 }
+    	 else {
+        	 // txtDebug not created
+    		 // but let's at least display the message in the statusbar
+    		 // (does not work in Firefox according to documentation)
+    		 Window.setStatus(logtext);
+    	 }
      }
      
      private void error(String errtext) {
