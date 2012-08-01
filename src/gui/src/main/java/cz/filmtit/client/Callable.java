@@ -1,6 +1,7 @@
 package cz.filmtit.client;
 
 import cz.filmtit.share.*;
+import com.google.gwt.user.client.Window;
 
 /**
  * Represents an RPC with parameters.
@@ -20,12 +21,12 @@ public abstract class Callable {
 	
 	protected static Gui gui;
 
-	protected static FilmTitServiceHandler filmTitServiceHandler;
-
+	protected static int windowsDisplayed;
+	
 	// non-static members
 	
 	int id;
-	
+
 	/**
 	 * creates the RPC
 	 */
@@ -53,7 +54,21 @@ public abstract class Callable {
 //		queue.remove(id);
 	}
 	
+    
+    /**
+     * display a widow with an error message
+     * unless maximum number of error messages has been reached
+     * @param string
+     */
     public void displayWindow(String message) {
-    	filmTitServiceHandler.displayWindow(message);
+        if (windowsDisplayed < 10) {
+            windowsDisplayed++;
+            Window.alert(message);
+            if (windowsDisplayed==10) {
+                Window.alert("Last window displayed.");
+            }
+        } else {
+      //      gui.log("ERROR - message");
+        }
     }
 }

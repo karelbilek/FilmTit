@@ -5,7 +5,6 @@ import com.google.gwt.dom.client.FrameElement;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.regexp.shared.SplitResult;
 import com.google.gwt.user.client.Window;
-import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
@@ -112,7 +111,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	};
 
     boolean fullWidth;
-	
+
+    private String subgestBoxtHTML(String content) {
+        return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }</style></head><body>" + content + "</body></html>";
+    }
+
 	public SubgestBox(ChunkIndex chunkIndex, Gui gui, boolean fullWidth, int tabIndex) {
 		this.chunkIndex = chunkIndex;
 		this.translationResult = new TranslationResult();
@@ -123,6 +126,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         }
 
         this.setHeight("36px");
+        this.setHTML(subgestBoxtHTML(""));
 
         this.addFocusHandler(this.workspace.subgestHandler);
 		this.addKeyDownHandler(this.workspace.subgestHandler);
@@ -150,6 +154,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         if (userTranslation != null && !userTranslation.equals("")) {
             //replaceFakeWithReal();
             substitute.setText(userTranslation);
+            this.setHTML(subgestBoxtHTML(userTranslation));
+            updateVerticalSize();
         }
     }
 
@@ -307,8 +313,10 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	}
 
 	public void showSuggestions() {
-		suggestPanel.showRelativeTo(this);
-		suggestionWidget.setWidth(this.getOffsetWidth() + "px");
+        if(this.getSuggestions().size() > 0) {
+		    suggestPanel.showRelativeTo(this);
+		    suggestionWidget.setWidth(this.getOffsetWidth() + "px");
+        }
 	}
 	
 	
@@ -361,5 +369,5 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		// compare according to the underlying TranslationResult
 		return this.translationResult.compareTo( that.getTranslationResult() );
 	}
-
+	
 }

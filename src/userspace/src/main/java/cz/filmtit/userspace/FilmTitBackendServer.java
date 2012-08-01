@@ -5,6 +5,8 @@ import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.CoreHibernateUtil;
 import cz.filmtit.core.Factory;
+import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
+import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
@@ -32,8 +34,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static int SESSION_ID_LENGHT = 47;
 
 
-    private static CoreHibernateUtil coreHibernateUtil = new CoreHibernateUtil();
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
+    private static CoreHibernateUtil coreHibernateUtil = CoreHibernateUtil.getInstance();
+    protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     private enum CheckUserEnum {
         UserName,
@@ -41,6 +43,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     protected TranslationMemory TM;
+    protected MediaSourceFactory mediaSourceFactory;
     protected Configuration configuration;
 
     // AuthId which are in process
@@ -58,6 +61,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         configuration = ConfigurationSingleton.conf();
 
         loadTranslationMemory();
+
+        mediaSourceFactory = new FreebaseMediaSourceFactory(configuration.freebaseKey(), 10);
 
         String serverAddress = configuration.serverAddress();
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
@@ -143,9 +148,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
     }
 
-    public DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language)
+    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
             throws InvalidSessionIdException {
-         return getSessionIfCan(sessionID).createNewDocument(movieTitle, year, language, TM);
+         return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
     }
 
     public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
@@ -402,8 +407,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
 	@Override
+	public Boolean sendChangePasswordMail(String username) {
+		// TODO nahradit skuteÄŤnou metodou
+		System.out.println("called sendChangePasswordMail, username = " + username);
+		return null;
+	}
+
+	@Override
 	public Boolean changePassword(String username, String password, String token) {
-		// TODO Auto-generated method stub
+		// TODO nahradit skuteÄŤnou metodou
+		System.out.println("called changePassword, username = " + username + ", password = " + password + ", toekn = " + token);
 		return null;
 	}
 
@@ -416,4 +429,3 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 }
-

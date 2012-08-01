@@ -1,12 +1,13 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.tests.TestUtil;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
-import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USDocument;
+import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
@@ -20,17 +21,21 @@ import static org.junit.Assert.assertNotNull;
 
 public class TestUSTranslationResult {
     @BeforeClass
-    public static void InitializeDatabase() {
-        DatabaseUtil.setDatabase();
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
+
+
+    private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
 
     @Test
     public void testDatabaseSaveAndLoad() {
         USTranslationResult sampleResult = new USTranslationResult(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
 
         // save to database
-        Session dbSession = USHibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();
+        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         sampleResult.saveToDatabase(dbSession);
 
@@ -44,7 +49,7 @@ public class TestUSTranslationResult {
 
         USTranslationResult loadedResult = (USTranslationResult)(queryResult.get(0));
 
-        dbSession.getTransaction().commit();
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         // test if the loaded and saved objects are the same
         assertEquals("001", loadedResult.getStartTime());
@@ -58,8 +63,8 @@ public class TestUSTranslationResult {
         // change the user translation
         sampleResult.setUserTranslation("A translation a user has added.");
 
-        dbSession = USHibernateUtil.getSessionFactory().getCurrentSession();
-        dbSession.beginTransaction();
+        dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+
 
         // save the change to the database
         sampleResult.saveToDatabase(dbSession);
@@ -86,7 +91,7 @@ public class TestUSTranslationResult {
         dbSession.createQuery("delete from USTranslationResult t where t.databaseId = "
                 + Long.toString(savedID));
 
-        dbSession.getTransaction().commit();
+        usHibernateUtil.closeAndCommitSession(dbSession);
     }
 
     @Test
@@ -95,7 +100,7 @@ public class TestUSTranslationResult {
         Configuration conf = new Configuration(new File("configuration.xml"));
         TranslationMemory TM = TestUtil.createTMWithDummyContent(conf);
 
-        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "1986", "en"), null);
+        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "en"), null);
 
         USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1,
                 "Sample chunk", 5, document.getDatabaseId()));
@@ -110,17 +115,17 @@ public class TestUSTranslationResult {
         Configuration config = new Configuration(new File("configuration.xml"));
         TranslationMemory TM = TestUtil.createTMWithDummyContent(config);
 
-        org.hibernate.Session dbSession = USHibernateUtil.getSessionFactory().openSession();
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         dbSession.createQuery("delete from USTranslationResult").executeUpdate();
 
-        Document doc = new Document("Movie title", "2012", "en");
+        Document doc = new Document("Movie title", "en");
         USDocument testDoc = new USDocument(doc, null);
         testDoc.saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
 
-        dbSession = USHibernateUtil.getSessionFactory().openSession();
+        dbSession = usHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         USTranslationResult testRes = new USTranslationResult(
@@ -134,7 +139,7 @@ public class TestUSTranslationResult {
         //testRes.setSelectedTranslationPairID(testRes.getTranslationResult().getTmSuggestions().get(0).getId());
         testRes.setUserTranslation("Sample translation");
 
-        dbSession = USHibernateUtil.getSessionFactory().openSession();
+        dbSession = usHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
         testRes.setUserTranslation("User translation");

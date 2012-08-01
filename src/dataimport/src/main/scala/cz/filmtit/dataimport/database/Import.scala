@@ -11,7 +11,7 @@ import java.nio.charset.MalformedInputException
 
 import cz.filmtit.share.{MediaSource, TranslationPair}
 import java.lang.System
-import cz.filmtit.core.model.data.MediaSourceFactory
+import cz.filmtit.core.io.data.MediaSourceFactory
 import cz.filmtit.core.{Configuration, Factory}
 
 /**

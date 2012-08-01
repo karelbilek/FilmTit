@@ -25,12 +25,15 @@ public class DocumentCreator extends Composite {
         btnCreateDocument.setEnabled(false);
 	}
 
+    @UiField
+    TextBox txtTitle;
+
 	@UiField
 	TextBox txtMovieTitle;
-	@UiField
+
+    @UiField
 	TextBox moviePath;
-	@UiField
-	TextBox txtMovieYear;
+
     @UiField
     ListBox lsbLanguage;
 
@@ -66,12 +69,12 @@ public class DocumentCreator extends Composite {
         return moviePath.getText();
     }
 
-    public String getMovieTitle() {
-        return txtMovieTitle.getText();
+    public String getTitle() {
+        return txtTitle.getText();
     }
 
-    public String getMovieYear() {
-        return txtMovieYear.getText();
+    public String getMovieTitle() {
+        return txtMovieTitle.getText();
     }
 
     public String getChosenLanguage() {
@@ -100,5 +103,7 @@ public class DocumentCreator extends Composite {
         }
         else return "srt";	// default value
     }
+
+
 
 }

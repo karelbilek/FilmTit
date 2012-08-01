@@ -12,10 +12,10 @@ import java.util.List;
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
     // Document handling
-	DocumentResponse createNewDocument(String sessionID, String movieTitle, String year, String language)
+	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
-            throws InvalidSessionIdException, InvalidDocumentIdException;
+    	throws InvalidSessionIdException, InvalidDocumentIdException;
     
     // Subtitles handling
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
@@ -46,6 +46,14 @@ public interface FilmTitService extends RemoteService {
      * @return true on success, false if token is invalid
      */
     Boolean changePassword(String username, String password, String token);
+    
+    /**
+     * Send an email with a link to password reset
+     * to the user's email address.
+     * @param username
+     * @return true on success, false if username is incorrect or there is no email address
+     */
+    Boolean sendChangePasswordMail(String username);
     
     // - Logout
     Void logout(String sessionID) throws InvalidSessionIdException;

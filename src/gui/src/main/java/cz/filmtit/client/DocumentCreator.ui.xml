@@ -13,16 +13,16 @@
 			<b:Fieldset>
 
                 <b:ControlGroup>
-                    <b:ControlLabel>Movie title:</b:ControlLabel>
+                    <b:ControlLabel>Document title:</b:ControlLabel>
                     <b:Controls>
-                        <b:TextBox ui:field="txtMovieTitle"></b:TextBox>
+                        <b:TextBox ui:field="txtTitle"></b:TextBox>
                     </b:Controls>
                 </b:ControlGroup>
 
                 <b:ControlGroup>
-                    <b:ControlLabel>Movie year:</b:ControlLabel>
+                    <b:ControlLabel>Title of the movie or the TV show:</b:ControlLabel>
                     <b:Controls>
-                        <b:TextBox ui:field="txtMovieYear"></b:TextBox>
+                        <b:TextBox ui:field="txtMovieTitle"></b:TextBox>
                     </b:Controls>
                 </b:ControlGroup>
 

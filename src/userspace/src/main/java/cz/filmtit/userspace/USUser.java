@@ -14,9 +14,6 @@ import java.util.Set;
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
-
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
-    
     User user;
     String userName;
     String password;

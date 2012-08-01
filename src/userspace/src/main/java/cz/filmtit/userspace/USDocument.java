@@ -4,7 +4,6 @@ import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.MediaSource;
-import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import org.hibernate.Session;
 
 import java.util.*;
@@ -23,9 +22,6 @@ public class USDocument extends DatabaseObject {
     private long workStartTime;
     private long translationGenerationTime;
     private boolean finished;
-   
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
-
 
     public USDocument(Document document, USUser user) {
         this.document = document;
@@ -75,14 +71,6 @@ public class USDocument extends DatabaseObject {
     public Document getDocument() {
 		return document;
 	}
-
-     public String getMovieTitle() {
-        return document.getMovie().getTitle();
-    }
-
-    public String getYear() {
-        return document.getMovie().getYear();
-    }
 
     /**
      * Gets the time spent on translating this subtitles valid right now.
@@ -207,6 +195,9 @@ public class USDocument extends DatabaseObject {
      * @param dbSession  Opened database session.
      */
     public void saveToDatabase(Session dbSession) {
+        if (document.getMovie() != null) {
+            dbSession.saveOrUpdate(document.getMovie());
+        }
         saveJustObject(dbSession);
 
         if (translationResults != null) {

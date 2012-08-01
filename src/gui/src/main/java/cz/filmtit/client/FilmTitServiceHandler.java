@@ -25,45 +25,27 @@ import java.util.List;
 import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
-	// FilmTitServiceAsync should be created automatically by Maven
-	// from FilmTitService during compilation (or generated as a QuickFix in Eclipse)
-	private FilmTitServiceAsync filmTitService;
-	/**
-	 * reference to the gui for access to its protected and public members
-	 */
-	private Gui gui;
-	
-	int windowsDisplayed = 0;
-    
-    /**
-     * display a widow with an error message
-     * unless maximum number of error messages has been reached
-     * @param string
-     */
-    public void displayWindow(String message) {
-        if (windowsDisplayed < 10) {
-            windowsDisplayed++;
-            Window.alert(message);
-            if (windowsDisplayed==10) {
-                Window.alert("Last window displayed.");
-            }
-        } else {
-      //      gui.log("ERROR - message");
-        }
-    }
 	
 	public FilmTitServiceHandler(Gui gui) {
-		// TODO: FilmTitServiceHandler fields should eventually become obsolete in favor of Callable
-		filmTitService = GWT.create(FilmTitService.class);
-		this.gui = gui;
 		
-		Callable.filmTitService = filmTitService;
+		// the async service
+		Callable.filmTitService = GWT.create(FilmTitService.class);
+
+		// direct access
+		// to package-internal (and public) fields and methods
+		// of the active Gui instance
+		// is necessary to react to call results
+		// (because the RPC calls are asynchronous)
 		Callable.gui = gui;
-		Callable.filmTitServiceHandler = this;
 	}
 
-    public void loadDocumentFromDB(Document document) {
-        new LoadDocumentFromDB(document.getId());
+// disabled only to avoid duplicities, can be reenabled by uncommenting anytime if needed
+//    public void loadDocumentFromDB(Document document) {
+//        new LoadDocumentFromDB(document.getId());
+//    }
+
+    public void loadDocumentFromDB(long documentId) {
+        new LoadDocumentFromDB(documentId);    		
     }
 
     public class LoadDocumentFromDB extends Callable {
@@ -103,7 +85,7 @@ public class FilmTitServiceHandler {
 			
 			documentId = id;
 			
-			enqueue();
+    		enqueue();
 		}
 
 		@Override
@@ -114,18 +96,18 @@ public class FilmTitServiceHandler {
     }
 
 	
-	public void createDocument(String movieTitle, String year, String language, final String subtext, final String moviePath) {
-		new CreateDocument(movieTitle, year, language, subtext, moviePath);
+	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String moviePath) {
+		new CreateDocument(documentTitle, movieTitle, language, subtext, moviePath);
 	}
 	
 	public class CreateDocument extends Callable {
 
 		// parameters
-		String movieTitle;
-		String year;
+		String documentTitle;
+        String movieTitle;
 		String language;
 		String subtext;
-		String moviePath;
+		String moviePath;	
 		
 		// callback
 		AsyncCallback<DocumentResponse> callback = new AsyncCallback<DocumentResponse>() {
@@ -170,12 +152,12 @@ public class FilmTitServiceHandler {
 		};		
 		
 		// constructor
-		public CreateDocument(String movieTitle, String year, String language,
+		public CreateDocument(String documentTitle, String movieTitle, String language,
 				String subtext, String moviePath) {
 			super();
 			
-			this.movieTitle = movieTitle;
-			this.year = year;
+			this.documentTitle = documentTitle;
+            this.movieTitle = movieTitle;
 			this.language = language;
 			this.subtext = subtext;
 			this.moviePath = moviePath;
@@ -185,8 +167,8 @@ public class FilmTitServiceHandler {
 
 		@Override
 		public void call() {
-			gui.log("Creating document " + movieTitle + " (" + year + "); its language is " + language);
-			filmTitService.createNewDocument(gui.getSessionID(), movieTitle, year, language, callback);
+			gui.log("Creating document " + documentTitle + "; its language is " + language);
+			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, callback);
 		}
 	}
 	
@@ -457,6 +439,58 @@ public class FilmTitServiceHandler {
 		void call() {
 	        filmTitService.registration(username, password, email, openid, callback);
 		}
+    }
+    
+    public void sendChangePasswordMail (String username, DialogBox dialogBox) {
+    	new SendChangePasswordMail(username, dialogBox);
+    }
+    
+    public class SendChangePasswordMail extends Callable {
+    	
+    	// parameters
+    	String username;
+    	DialogBox dialogBox;
+
+    	// callback
+        AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+            public void onSuccess(Boolean result) {
+            	if (result) {
+            		dialogBox.hide();
+	                gui.log("successful sendChangePasswordMail for " + username);
+                    displayWindow("A link to password change page has been sent to your e-mail address.");
+            	} else {
+            		// false = bad username or no email
+                    gui.log("ERROR: sendChangePasswordMail didn't succeed, bad username or no email.");
+                    displayWindow("There was an error sending password change email to you. " +
+                    		"Either the username '" + username + "' is not registered " +
+                    				"or there is no e-mail address associated with it. " +
+                    				"Please check the username or register with a new one. " +
+                    				"(You can also try to contact the administrators.)");
+                    //dialogBox.txtUsername.focus();
+            	}
+            }
+
+			public void onFailure(Throwable caught) {
+                gui.log("ERROR: sendChangePasswordMail didn't succeed!");
+                displayWindow("ERROR: sendChangePasswordMail didn't succeed!");
+            }
+        };
+    	
+    	// constructor
+		public SendChangePasswordMail(String username, DialogBox dialogBox) {
+			super();
+			
+			this.username = username;
+			this.dialogBox = dialogBox;
+			
+			enqueue();
+		}
+
+		@Override
+		void call() {
+			filmTitService.sendChangePasswordMail(username, callback);
+		}    	
     }
 
     /**
@@ -823,9 +857,16 @@ public class FilmTitServiceHandler {
 	}
 
 
-    public void getListOfDocuments(final UserPage userpage) {
+    public void getListOfDocuments(UserPage userpage) {
+    	new GetListOfDocuments(userpage);
+    }
 
-        // create callback
+    public class GetListOfDocuments extends Callable {
+
+    	// parameters
+    	UserPage userpage;
+    	
+        // callback
         AsyncCallback<List<Document>> callback = new AsyncCallback<List<Document>>() {
 
             @Override
@@ -846,8 +887,21 @@ public class FilmTitServiceHandler {
 
         };
 
-        // RPC
-        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
-    }
+        // constructor
+		public GetListOfDocuments(UserPage userpage) {
+			super();
+
+			this.userpage = userpage;
+			
+			enqueue();
+		}
+        
+
+		@Override
+		void call() {
+	        filmTitService.getListOfDocuments(gui.getSessionID(), callback);
+		}
+
+	}
 	    
 }

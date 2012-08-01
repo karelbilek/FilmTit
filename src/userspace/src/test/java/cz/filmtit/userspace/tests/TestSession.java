@@ -1,6 +1,9 @@
 package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
+import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
@@ -16,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 
 /**
@@ -28,27 +29,33 @@ import static junit.framework.Assert.assertTrue;
  */
 public class TestSession {
     @BeforeClass
-    public static void InitializeDatabase() {
-        DatabaseUtil.setDatabase();
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
 
     LoremIpsum loremIpsum = new LoremIpsum();
     TranslationMemory TM;
+    MediaSourceFactory mediaSourceFactory;
+
+    private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
+
 
     public TestSession() {
         Configuration config = new Configuration(new File("configuration.xml"));
         TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
+        mediaSourceFactory = new FreebaseMediaSourceFactory(config.freebaseKey(), 10);
+
     }
 
     @Test
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse response = session.createNewDocument("Movie title", "2012", "en", TM);
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory);
 
-        assertTrue(response.mediaSourceSuggestions.size() > 0);
-        assertEquals("Movie title", response.document.getMovie().getTitle());
-        assertEquals("2012", response.document.getMovie().getYear());
+        assertNotNull(response.mediaSourceSuggestions);
         assertTrue(response.document.getId() != Long.MIN_VALUE);
 
         testIfDocumentInActiveList(session, response.document.getId());
@@ -196,13 +203,16 @@ public class TestSession {
 
     @Test
     public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
+        // TODO: uncomment the test when the media sources will be solved
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Jindrich the great", "2010", "en", TM);
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory);
         Document clientDocument = response.document;
-        session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
+        if (response.mediaSourceSuggestions.size() > 0) {
+            session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
+        }
 
         List<TranslationResult> clientTRList = new ArrayList<TranslationResult>();
         for (int i = 0; i < 9; ++i) {
@@ -217,8 +227,6 @@ public class TestSession {
         }
 
         session.logout();
-
-        // TODO: test if whole scenario was properly saved to database
     }
 
     /**
@@ -234,7 +242,7 @@ public class TestSession {
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Movie " + i, "2012", "en"), null);
+            USDocument usDocument = new USDocument(new Document("Test", "en"), null);
             long documentID = usDocument.getDatabaseId();
 
             for (int j = 0; j < 20; ++j) {
@@ -270,9 +278,9 @@ public class TestSession {
      * @return The requested USTranslationResult
      */
     private USTranslationResult loadTranslationResultFromDb(long id) {
-        org.hibernate.Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         List dbRes = dbSession.createQuery("select r from USTranslationResult r where r.id = " + id).list();
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
         if (dbRes.size() == 1) {
             return (USTranslationResult)(dbRes.get(0));
         }
@@ -291,7 +299,7 @@ public class TestSession {
         USTranslationResult changed = null;
         for (USDocument document : session.getUser().getOwnedDocuments()) {
             if (document.getDatabaseId() == documentId) {
-                for (USTranslationResult result : document.getTranslationResults().values()) {
+                for (USTranslationResult result : document.getTranslationResultValues()) {
                     if (result.getChunkIndex().equals(index)) {
                         changed = result;
                     }
