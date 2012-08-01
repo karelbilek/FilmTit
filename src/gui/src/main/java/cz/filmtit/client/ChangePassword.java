@@ -67,15 +67,6 @@ public class ChangePassword extends Composite {
 		}
 	}
 	
-//	@UiField
-//	Button btnCancel;
-//	
-//	@UiHandler("btnCancel")
-//	void handleClick(ClickEvent e) {
-//        log("ChangePassword closed by user hitting Cancel button");
-//        dialogBox.hide();	    
-//	}
-
     public String getPassword() {
         return txtPassword.getText();
     }

@@ -532,6 +532,8 @@ public class FilmTitServiceHandler {
             public void onSuccess(Boolean result) {
             	if (result) {
 	                gui.log("changed password for user " + username);
+	                gui.pageHandler.loadBlankPage();
+	                gui.pageHandler.setPageUrl(Page.UserPage);
                     simpleLogin(username, password);
                     displayWindow("You successfully changed the password for your username '" + username + "'!");
             	} else {

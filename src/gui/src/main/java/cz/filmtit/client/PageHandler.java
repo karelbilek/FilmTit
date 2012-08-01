@@ -153,6 +153,18 @@ public class PageHandler {
 	}
 	
     /**
+     * Sets page to be loaded,
+     * changing the URL
+     * but not loading the page at the moment;
+     * the page is loaded later, on calling loadPage().
+     * @param pageUrl the page to be loaded
+     */
+	public void setPageUrl(Page pageUrl) {
+		this.pageUrl = pageUrl;
+		History.newItem(pageUrl.toString(), false);
+    }
+    
+    /**
      * Determines the page to be loaded,
      * using the page set in the URL
      * in GET parameter "page".
