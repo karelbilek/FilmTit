@@ -542,4 +542,24 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         return activeSessions.get(sessionId);
     }
+	@Override
+	public String exportSubtitles(String sessionID, long documentID) {
+		// TODO Auto-generated method stub
+
+		// preliminary version:
+		// just return the subtitles as a String
+		
+		return "1\n" +
+		"00:02:46,039 --> 00:02:47,081\n" +
+		"So...?\n" +
+		"\n" +
+		"2\n" +
+		"00:02:47,291 --> 00:02:49,957\n" +
+		"Well, professor, I was hoping I could talk to you about your research?\n" +
+		"\n" +
+		"3\n" +
+		"00:02:50,165 --> 00:02:55,582\n" +
+		"What for? It's all on my webpage.\n";
+	}
+
 }

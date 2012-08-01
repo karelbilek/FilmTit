@@ -87,4 +87,21 @@ public class Document implements IsSerializable, Serializable {
         return translationResults;
     }
 
+    /**
+     * Return the document without translation results. If the translation results are loaded in the document,
+     * a clone of the document not containing them is created.
+     * @return Document without translation results.
+     */
+    public Document documentWithoutResults() {
+        Document clone = new Document();
+
+        clone.id = id;
+        clone.language = language;
+        clone.movie = movie;
+        clone.title = title;
+        clone.userId = userId;
+
+        return clone;
+    }
+
 }

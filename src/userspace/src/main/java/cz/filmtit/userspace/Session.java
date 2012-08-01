@@ -87,11 +87,11 @@ public class Session {
         throw new UnsupportedOperationException("Once the database ID is set, it can't be changed.");
     }
 
-    public SessionState getState() {
-        return state;
+    private String getStateString() {
+        return state.toString();
     }
 
-    private void setState(SessionState state) {  }
+    private void setStateString(String stateString) {}
 
     public void logout() {
         state = SessionState.loggedOut;
@@ -103,7 +103,7 @@ public class Session {
      */
     private void terminate() {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        session.saveOrUpdate(this);
+        session.save(this);
         usHibernateUtil.closeAndCommitSession(session);
 
         user.getActiveDocumentIDs().clear();
@@ -262,9 +262,7 @@ public class Session {
         List<Document> result = new ArrayList<Document>();
 
         for(USDocument usDocument : user.getOwnedDocuments()) {
-            result.add(usDocument.getDocument());
-        
-            
+            result.add(usDocument.getDocument().documentWithoutResults());
         }
 
         return result;
@@ -335,5 +333,4 @@ public class Session {
         }
         return activeDocuments.get(documentID);
     }
-
 }

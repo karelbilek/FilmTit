@@ -69,6 +69,9 @@ public class TestSession {
 
         List<Document> expectedList = session.getListOfDocuments();
         assertEquals(3, expectedList.size());
+        for (Document doc : expectedList) {
+            assertTrue(doc.getTranslationResults() == null || doc.getTranslationResults().size() == 0);
+        }
     }
 
     @Test

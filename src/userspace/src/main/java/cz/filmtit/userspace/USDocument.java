@@ -223,6 +223,5 @@ public class USDocument extends DatabaseObject {
 
     public void replaceTranslationResult(USTranslationResult usTranslationResult) {
         addOrReplaceTranslationResult(usTranslationResult);
-  }
-
+    }
 }

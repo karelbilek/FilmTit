@@ -55,7 +55,8 @@ public class FilmTitServiceHandler {
 
         AsyncCallback<Document> callback = new AsyncCallback<Document>() {
             public void onSuccess(final Document doc) {
-                gui.document_created(null);//TODO: player
+                String moviePath = null; //TODO: player
+                gui.workspace = new TranslationWorkspace(gui, moviePath);
                 gui.setCurrentDocument(doc);
 
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
@@ -118,7 +119,7 @@ public class FilmTitServiceHandler {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
 				gui.setCurrentDocument(result.document);
 
-				gui.document_created(moviePath);
+                gui.workspace = new TranslationWorkspace(gui, moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
@@ -908,5 +909,50 @@ public class FilmTitServiceHandler {
 		}
 
 	}
+    
+    public void exportSubtitles (long documentID) {
+    	new ExportSubtitles(documentID);
+    }
+    
+    public class ExportSubtitles extends Callable {
+
+    	// parameters
+    	long documentID;
+    	
+    	// callback
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+            @Override
+            public void onSuccess(String result) {
+                gui.log("received subtitle file of " + result.length() + " bytes");
+                gui.log("SHOWING FILE");
+                gui.log(result);
+                gui.log("END OF FILE");                
+                gui.log("received subtitle file of " + result.length() + " bytes");
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                gui.log("ERROR: failure on getting subtitle file!");
+            }
+
+        };
+    	
+    	
+		// constructor
+		public ExportSubtitles(long documentID) {
+			super();
+			
+			this.documentID = documentID;
+			
+			enqueue();
+		}
+    	    	
+		@Override
+		void call() {
+	        filmTitService.exportSubtitles(gui.getSessionID(), documentID, callback);
+		}
+
+    }
 	    
 }
