@@ -220,17 +220,22 @@ public class Gui implements EntryPoint {
     }
 
     protected void logged_in (String username) {
+    	// login state fields
     	loggedIn = true;
     	this.username = username;
+        // actions
     	guiStructure.logged_in(username);
-    	pageHandler.loadPage(true);
+    	pageHandler.loadPage();
     }
 
     protected void logged_out () {
+    	// login state fields
     	loggedIn = false;
         username = null;
+        setSessionID(null);
+        // actions
         guiStructure.logged_out();
-        pageHandler.loadPage(false);
+        pageHandler.loadPage();
     }
 
     ///////////////////////////////////////
@@ -282,6 +287,10 @@ public class Gui implements EntryPoint {
     
     void document_created(String moviePath) {
         workspace = new TranslationWorkspace(this, moviePath);
+    }
+    
+    void showBlankPage() {
+    	new Blank(this);
     }
 
     ///////////////////////////////////////

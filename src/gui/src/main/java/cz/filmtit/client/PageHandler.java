@@ -7,6 +7,9 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -73,6 +76,7 @@ public class PageHandler {
      */
     public enum Page {
 		None,
+		Blank,
 		WelcomeScreen,
 		UserPage,
 		ChangePassword,
@@ -87,18 +91,22 @@ public class PageHandler {
     	this.gui = gui;
     	guiStructure = gui.guiStructure;
     	
-    	pageUrl = string2page(Window.Location.getParameter("page"));
-		setDocumentId(Window.Location.getParameter("documentId"));
+    	History.addValueChangeHandler(historyChangeHandler);
+    	
+    	pageUrl = string2page(History.getToken());
 		
         // base of GUI is created for every "full" window
     	if (pageUrl != Page.AuthenticationValidationWindow) {
     		gui.createGui();
     	}
+		
+		setDocumentId(Window.Location.getParameter("documentId"));
     	
-    	loadPage(false);    	
+		// load a Blank page before checkSessionId returns
+		loadBlankPage();
     }
     
-    /**
+	/**
      * Converts String to Page.
      * Does not propagate any exceptions.
      * @param pageString
@@ -122,24 +130,46 @@ public class PageHandler {
     
     /**
      * Determines the page to be loaded and loads it
-     * (unless it is already loaded),
-     * using the page set in the URL
-     * in GET parameter "page".
-     * @param loggedIn whether the user is logged in
+     * (unless it is already loaded).
+     * @param suggestedPage page that should be loaded
      */
-	public void loadPage(boolean loggedIn) {
-		setPageToLoad(loggedIn, pageUrl);
-		loadPageToLoad();
+	public void loadPage(Page suggestedPage) {
+		History.newItem(suggestedPage.toString());
+		// invokes the historyChangeHandler
+			// sets pageUrl
+			// calls loadPage();
 	}
 	
     /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded).
-     * @param loggedIn whether the user is logged in
-     * @param suggestedPage page that should be loaded
+     * Reacts to user clicking the links in menu.
      */
-	public void loadPage(boolean loggedIn, Page suggestedPage) {
-		setPageToLoad(loggedIn, suggestedPage);
+	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
+		
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			// find out which page the user wants
+			pageUrl = string2page(event.getValue());
+			// load the page
+			loadPage();
+		}
+	};
+    
+	/**
+	 * loads a blank page without modifying the history
+	 */
+    public void loadBlankPage() {
+    	setPageToLoad(Page.Blank);
+    	loadPageToLoad();
+	}
+
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded),
+     * using the page set in the URL
+     * in GET parameter "page".
+     */
+	public void loadPage() {
+		setPageToLoad();
 		loadPageToLoad();
 	}
 	
@@ -149,8 +179,8 @@ public class PageHandler {
      * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
-	private void setPageToLoad(boolean loggedIn) {
-		setPageToLoad(loggedIn, pageUrl);
+	private void setPageToLoad() {
+		setPageToLoad(pageUrl);
     }
     
     /**
@@ -158,11 +188,12 @@ public class PageHandler {
      * @param loggedIn whether the user is logged in
      * @param suggestedPage the page that should be preferably loaded if possible
      */
-    private void setPageToLoad(boolean loggedIn, Page suggestedPage) {
+    private void setPageToLoad(Page suggestedPage) {
     	
     	switch (suggestedPage) {
 	
     	// pageUrl no matter whether user is logged in or not
+    	case Blank:
     	case ChangePassword:
     	case AuthenticationValidationWindow:
 		case About:
@@ -172,12 +203,12 @@ public class PageHandler {
 		// pageUrl only if user is logged in, otherwise WelcomeScreen
 		case TranslationWorkspace:
 		case DocumentCreator:
-			pageToLoad = loggedIn ? suggestedPage : Page.WelcomeScreen;
+			pageToLoad = gui.loggedIn ? suggestedPage : Page.WelcomeScreen;
 			break;
 
 		// all other situations: UserPage or WelcomeScreen
 		default:
-			pageToLoad = loggedIn ? Page.UserPage : Page.WelcomeScreen;
+			pageToLoad = gui.loggedIn ? Page.UserPage : Page.WelcomeScreen;
 			break;
 			
 		}
@@ -193,6 +224,9 @@ public class PageHandler {
 			
 	    	switch (pageToLoad) {
 	    	
+	    	case Blank:
+	    		gui.showBlankPage();
+				break;
 	    	case ChangePassword:
 	    		gui.showChangePasswordForm();
 				break;
@@ -203,14 +237,12 @@ public class PageHandler {
 	    		gui.showAboutPage();
 				break;
 			case TranslationWorkspace:
-				// load UserPage (to be shown if there is an error in loading TranslationWorkspace)
-				// TranslationWorkspace can only be loaded if user is logged in so we can use loggedIn = true
-				loadPage(true, Page.UserPage);
-				// try to load TranslationWorkspace
 		    	if (documentId == -1) {
+		    		loadPage(Page.UserPage);
 					gui.log("failure on loading document: documentId -1 is not valid!");
 					Window.alert("Cannnot load document - document ID (-1) is not valid!");
 		    	} else {
+					loadBlankPage();
 		    		gui.editDocument(documentId);
 		    	}
 				break;
@@ -237,10 +269,4 @@ public class PageHandler {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
-	
-	
-
-	
-	
-	
 }
