@@ -112,7 +112,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
     boolean fullWidth;
 
-    private String subgestBoxtHTML(String content) {
+    private String subgestBoxHTML(String content) {
         return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }</style></head><body>" + content + "</body></html>";
     }
 
@@ -126,7 +126,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         }
 
         this.setHeight("36px");
-        this.setHTML(subgestBoxtHTML(""));
+        this.setHTML(subgestBoxHTML(""));
 
         this.addFocusHandler(this.workspace.subgestHandler);
 		this.addKeyDownHandler(this.workspace.subgestHandler);
@@ -154,7 +154,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         if (userTranslation != null && !userTranslation.equals("")) {
             //replaceFakeWithReal();
             substitute.setText(userTranslation);
-            this.setHTML(subgestBoxtHTML(userTranslation));
+            this.setHTML(subgestBoxHTML(userTranslation));
             updateVerticalSize();
         }
     }
@@ -294,7 +294,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                     // copy the selected suggestion into the textbox:
 					//setValue(selected.getStringL2(), true);
 					// copy the selected suggestion into the richtextarea with the annotation highlighting:
-					setHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2()));
+					setHTML(subgestBoxHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2())));
                     updateVerticalSize();
 
                     Scheduler.get().scheduleDeferred( new ScheduledCommand() {
