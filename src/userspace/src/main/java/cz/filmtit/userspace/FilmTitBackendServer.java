@@ -484,9 +484,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         private String token;
         private Date  validTo;
-
         public String getToken() {
-
             return token;
         }
 

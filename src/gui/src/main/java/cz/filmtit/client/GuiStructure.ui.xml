@@ -10,17 +10,18 @@
         <b:Navbar position="TOP">
             <b:Brand>Filmtit</b:Brand>
             <b:Nav>
-                <b:NavLink ui:field="welcomePage" href="?page=WelcomePage">Start</b:NavLink>
+                <b:NavLink ui:field="welcomePage">Start</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="userPage" href="?page=UserPage">Document list</b:NavLink>
+                <b:NavLink ui:field="about">About</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="documentCreator" href="?page=DocumentCreator">New document</b:NavLink>
+                <b:NavLink ui:field="userPage">Document list</b:NavLink>
             </b:Nav>
-            <b:Nav alignment="RIGHT">
-                <b:NavLink ui:field="about" href="?page=About">About</b:NavLink>
+            <b:Nav>
+                <b:NavLink ui:field="documentCreator">New document</b:NavLink>
             </b:Nav>
+
             <b:Nav alignment="RIGHT">
                 <b:NavLink ui:field="login">Log in</b:NavLink>
             </b:Nav>

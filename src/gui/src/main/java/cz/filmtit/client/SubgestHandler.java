@@ -1,16 +1,10 @@
 package cz.filmtit.client;
 
+import com.google.gwt.event.dom.client.*;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Element;
@@ -25,7 +19,7 @@ import cz.filmtit.share.TimedChunk;
  * @author Honza Václ
  *
  */
-public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChangeHandler<String>, BlurHandler {
+public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, ValueChangeHandler<String>, BlurHandler {
 	Gui gui;
     TranslationWorkspace workspace;
     VLCWidget vlcPlayer;
@@ -182,6 +176,20 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, ValueChange
 			//gui.deactivateSuggestionWidget();
 		}
 	}
-	
 
+
+    @Override
+    public void onKeyUp(KeyUpEvent event) {
+        if (event.getSource() instanceof SubgestBox) { // should be
+            gui.log("keyup caught on subgestbox");
+            final SubgestBox subbox = (SubgestBox) event.getSource();
+            // recalculating number of lines and auto-resize:
+            Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+                @Override
+                public void execute() {
+                    subbox.updateVerticalSize();
+                }
+            } );
+        }
+    }
 }
