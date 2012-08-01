@@ -3,27 +3,28 @@
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
              xmlns:lgf="urn:import:org.vectomatic.file">
-
-
     <g:HTMLPanel styleName="filmtit_container">
 
         <b:Navbar position="TOP">
             <b:Brand>Filmtit</b:Brand>
             <b:Nav>
-                <b:NavLink ui:field="welcomePage">Start</b:NavLink>
+                <g:Hyperlink ui:field="welcomePage" targetHistoryToken="WelcomePage">Start</g:Hyperlink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="about">About</b:NavLink>
+                <g:Hyperlink ui:field="about" targetHistoryToken="About">About</g:Hyperlink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="userPage">Document list</b:NavLink>
+                <g:Hyperlink ui:field="userPage" targetHistoryToken="UserPage">Document list</g:Hyperlink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="documentCreator">New document</b:NavLink>
+                <g:Hyperlink ui:field="documentCreator" targetHistoryToken="DocumentCreator">New document</g:Hyperlink>
             </b:Nav>
 
             <b:Nav alignment="RIGHT">
                 <b:NavLink ui:field="login">Log in</b:NavLink>
+            </b:Nav>
+            <b:Nav alignment="RIGHT">
+                <b:NavLink ui:field="logout">Log out</b:NavLink>
             </b:Nav>
 
         </b:Navbar>

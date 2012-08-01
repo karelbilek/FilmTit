@@ -218,3 +218,21 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 .mediasource_thumb {
 	width: 60px;
 }
+
+.gwt-Hyperlink a {
+    color: #999999;
+    text-decoration: none;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    display: block;
+    padding: 9px 10px 11px 10px;
+    line-height: 19px;
+}
+
+.gwt-Hyperlink a:link, .gwt-Hyperlink a:visited {
+    color: #999999;
+}
+
+.gwt-Hyperlink a:hover, .gwt-Hyperlink a:focus {
+    color: #ffffff;
+    text-decoration: none;
+}

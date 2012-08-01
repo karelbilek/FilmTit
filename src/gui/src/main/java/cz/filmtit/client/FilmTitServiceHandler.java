@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import cz.filmtit.client.Gui.SendChunksCommand;
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
@@ -70,6 +71,7 @@ public class FilmTitServiceHandler {
             
             
             public void onFailure(Throwable caught) {
+            	gui.pageHandler.loadPage(Page.UserPage);
 				if (caught.getClass().equals(InvalidSessionIdException.class)) {
 					gui.please_relog_in();
 				} else {
@@ -339,7 +341,12 @@ public class FilmTitServiceHandler {
 	}
 
     public void checkSessionID() {
-    	new CheckSessionID();
+		if (Callable.gui.getSessionID() == null) {
+			Callable.gui.logged_out();
+    	}
+		else {
+	    	new CheckSessionID();
+        }
     }
     
     // TODO will probably return the whole Session object - now returns username or null
@@ -357,13 +364,13 @@ public class FilmTitServiceHandler {
                     gui.logged_in(username);
                 } else {
                     gui.log("Warning: sessionID invalid.");
-                    gui.setSessionID(null);
-                    // gui.showLoginDialog();
+                    gui.logged_out();
                 }
             }
 
             public void onFailure(Throwable caught) {
                 gui.log("ERROR: sessionID check didn't succeed!");
+                gui.logged_out();
             }
         };
 	
@@ -373,6 +380,7 @@ public class FilmTitServiceHandler {
     		
     		sessionID = gui.getSessionID();
     		if (sessionID == null) {
+                gui.logged_out();
         		return;
         	}
     		else {
@@ -614,18 +622,15 @@ public class FilmTitServiceHandler {
 
             public void onSuccess(Void o) {
                 gui.log("logged out");
-                gui.setSessionID(null);
                 gui.logged_out();
             }
 
             public void onFailure(Throwable caught) {
                 if (caught.getClass().equals(InvalidSessionIdException.class)) {
                     gui.log("already logged out");
-                    gui.setSessionID(null);
                     gui.logged_out();
                 } else {
                     gui.log("ERROR: logout didn't succeed! Forcing local logout... " + caught.getLocalizedMessage());
-                    gui.setSessionID(null);
                     gui.logged_out();
                 }
             }
