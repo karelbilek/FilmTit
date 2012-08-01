@@ -132,7 +132,7 @@ public class PageHandler {
      * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
-    void setPageToLoad(boolean loggedIn) {
+	private void setPageToLoad(boolean loggedIn) {
 		setPageToLoad(loggedIn, pageUrl);
     }
     
@@ -141,7 +141,7 @@ public class PageHandler {
      * @param loggedIn whether the user is logged in
      * @param suggestedPage the page that should be preferably loaded if possible
      */
-    void setPageToLoad(boolean loggedIn, Page suggestedPage) {
+    private void setPageToLoad(boolean loggedIn, Page suggestedPage) {
     	
     	switch (suggestedPage) {
 	
@@ -171,7 +171,7 @@ public class PageHandler {
     /**
      * Loads the pageToLoad unless it is already loaded.
      */
-	void loadPageToLoad() {
+	private void loadPageToLoad() {
 		if (pageToLoad != pageLoaded) {
 			
 	    	switch (pageToLoad) {
