@@ -103,7 +103,7 @@ public class Session {
      */
     private void terminate() {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        session.saveOrUpdate(this);
+        session.save(this);
         usHibernateUtil.closeAndCommitSession(session);
 
         user.getActiveDocumentIDs().clear();
@@ -333,5 +333,4 @@ public class Session {
         }
         return activeDocuments.get(documentID);
     }
-
 }
