@@ -1,6 +1,18 @@
 package cz.filmtit.client;
 
+import java.util.Iterator;
+
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.RootPanel;
+
+import cz.filmtit.share.Document;
+
+
 
 /**
  * Handles loading and switching of pages.
@@ -28,6 +40,8 @@ public class PageHandler {
      * Provides access to the gui.
      */
     private Gui gui;
+    
+    private GuiStructure guiStructure;
     
     /**
      * Used by TranslationWorkspace to load the correct document;
@@ -68,11 +82,14 @@ public class PageHandler {
 		DocumentCreator
     }
     
-    public PageHandler (String page, Gui gui) {
+    public PageHandler (Gui gui) {
     	
     	this.gui = gui;
-    	pageUrl = string2page(page);
+    	guiStructure = gui.guiStructure;
     	
+    	pageUrl = string2page(Window.Location.getParameter("page"));
+		setDocumentId(Window.Location.getParameter("documentId"));
+		
         // base of GUI is created for every "full" window
     	if (pageUrl != Page.AuthenticationValidationWindow) {
     		gui.createGui();
@@ -132,7 +149,7 @@ public class PageHandler {
      * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
-    void setPageToLoad(boolean loggedIn) {
+	private void setPageToLoad(boolean loggedIn) {
 		setPageToLoad(loggedIn, pageUrl);
     }
     
@@ -141,7 +158,7 @@ public class PageHandler {
      * @param loggedIn whether the user is logged in
      * @param suggestedPage the page that should be preferably loaded if possible
      */
-    void setPageToLoad(boolean loggedIn, Page suggestedPage) {
+    private void setPageToLoad(boolean loggedIn, Page suggestedPage) {
     	
     	switch (suggestedPage) {
 	
@@ -171,7 +188,7 @@ public class PageHandler {
     /**
      * Loads the pageToLoad unless it is already loaded.
      */
-	void loadPageToLoad() {
+	private void loadPageToLoad() {
 		if (pageToLoad != pageLoaded) {
 			
 	    	switch (pageToLoad) {
@@ -220,4 +237,10 @@ public class PageHandler {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
+	
+	
+
+	
+	
+	
 }

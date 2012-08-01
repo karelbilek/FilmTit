@@ -7,6 +7,7 @@ import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.*;
 import org.vectomatic.file.File;
@@ -29,7 +30,63 @@ import java.util.*;
 
 public class Gui implements EntryPoint {
 
-     GuiStructure guiStructure;
+    ///////////////////////////////////////
+    //                                   //
+    //      Data fields                  //
+    //                                   //
+    ///////////////////////////////////////
+    
+	
+	// Handlers
+	
+	/**
+	 * handles especially the menu
+	 */
+    GuiStructure guiStructure;
+
+ 	/**
+ 	 * handles RPC calls
+ 	 */
+    FilmTitServiceHandler rpcHandler;
+
+ 	/**
+ 	 * handles page switching
+ 	 */
+    PageHandler pageHandler;
+    
+    
+    // Login state fields
+
+    boolean loggedIn = false;
+    
+    private String username;
+
+    private String sessionID;
+    
+    // persistent session ID via cookies (set to null to unset)
+    @SuppressWarnings("deprecation")
+    protected void setSessionID(String newSessionID) {
+         if (newSessionID == null) {
+              Cookies.removeCookie("sessionID");
+         } else {
+              // cookie should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
+              Date in1year = new Date();
+              in1year.setYear(in1year.getYear() + 1);
+              // set cookie
+              Cookies.setCookie("sessionID", newSessionID, in1year);
+         }
+         sessionID = newSessionID;
+    }
+
+    // persistent session ID via cookies (null if not set)
+    protected String getSessionID() {
+         if (sessionID == null) {
+              sessionID = Cookies.getCookie("sessionID");
+         }
+         return sessionID;
+    }
+    
+    // Other fields - some of them will probably be moved some place else
 
      protected Map<ChunkIndex, TimedChunk> chunkmap;
 
@@ -41,57 +98,30 @@ public class Gui implements EntryPoint {
 
      protected int counter = 0;
 
-     FilmTitServiceHandler rpcHandler;
      protected Document currentDocument;
 
-     PageHandler pageHandler;
-
-     private String sessionID;
-
-     // persistent session ID via cookies (set to null to unset)
-     @SuppressWarnings("deprecation")
-     protected void setSessionID(String newSessionID) {
-          if (newSessionID == null) {
-               Cookies.removeCookie("sessionID");
-          } else {
-               // cookie should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
-               Date in1year = new Date();
-               in1year.setYear(in1year.getYear() + 1);
-               // set cookie
-               Cookies.setCookie("sessionID", newSessionID, in1year);
-          }
-          sessionID = newSessionID;
+     public Document getCurrentDocument() {
+          return currentDocument;
      }
 
-     // persistent session ID via cookies (null if not set)
-     protected String getSessionID() {
-          if (sessionID == null) {
-               sessionID = Cookies.getCookie("sessionID");
-          }
-          return sessionID;
+     protected void setCurrentDocument(Document currentDocument) {
+          this.currentDocument = currentDocument;
      }
 
-     private String username;
-
-     /**
-      * Multi-line subtitle text to parse
-      */
-     //private String subtext;
+     private TranslationWorkspace workspace = null;
+     
+     public TranslationWorkspace getTranslationWorkspace() {
+         return workspace;
+     }
 
      private DocumentCreator docCreator = null;
-    private TranslationWorkspace workspace = null;
 
-    private NavWidget[] allMenuItems;
-    public void activateMenuItem(NavWidget menuItem) {
-
-        for (NavWidget item : allMenuItems) {
-            item.setActive(false);
-        }
-        menuItem.setActive(true);
-
-    }
-
-
+    ///////////////////////////////////////
+    //                                   //
+    //      The "main()" of GUI          //
+    //                                   //
+    ///////////////////////////////////////
+    
     @Override
     public void onModuleLoad() {
 
@@ -99,202 +129,136 @@ public class Gui implements EntryPoint {
 		rpcHandler = new FilmTitServiceHandler(this);
 
 		// page loading and switching
-		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
-		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
+		pageHandler = new PageHandler(this);
 
         // check whether user is logged in or not
         rpcHandler.checkSessionID();
     }
 
-     void createGui() {
+    
+    ///////////////////////////////////////
+    //                                   //
+    //      Logging                      //
+    //                                   //
+    ///////////////////////////////////////
+    
+    long start=0;
+    private StringBuilder sb = new StringBuilder();
+    /**
+     * Output the given text in the debug textarea
+    * with a timestamp relative to the first logging.
+     * @param logtext
+     */
+    public void log(String logtext) {
+   	 if (guiStructure != null) {
+	        if (start == 0) {
+	            start = System.currentTimeMillis();
+	        }
+	        long diff = (System.currentTimeMillis() - start);
+	        sb.append(diff);
+	        sb.append(" : ");
 
-          // -------------------- //
-          // --- GUI creation --- //
-          // -------------------- //
+	        sb.append(logtext);
+	        sb.append("\n");
+	        guiStructure.txtDebug.setText(sb.toString());
+   	 }
+   	 else {
+       	 // txtDebug not created
+   		 // but let's at least display the message in the statusbar
+   		 // (does not work in Firefox according to documentation)
+   		 Window.setStatus(logtext);
+   	 }
+    }
 
-          rootPanel = RootPanel.get();
-          //rootPanel.setSize("800", "600");
-
-          // loading the uibinder-defined structure of the page
-          guiStructure = new GuiStructure();
-          rootPanel.add(guiStructure, 0, 0);
-
-          // top menu handlers
-          guiStructure.login.addClickHandler(new ClickHandler() {
-               public void onClick(ClickEvent event) {
-                    if (getSessionID() == null) {
-                      showLoginDialog();
-                    } else {
-                         rpcHandler.logout();
-                    }
-               }
-          });
-
-         guiStructure.welcomePage.addClickHandler(new ClickHandler() {
-              public void onClick(ClickEvent event) {
-                showWelcomePage();
-              }
-         });
-
-         guiStructure.userPage.addClickHandler(new ClickHandler() {
-               public void onClick(ClickEvent event) {
-                 createAndLoadUserPage();
-               }
-          });
-
-         guiStructure.about.addClickHandler(new ClickHandler() {
-               public void onClick(ClickEvent event) {
-                 showAboutPage();
-               }
-          });
-
-         guiStructure.documentCreator.addClickHandler(new ClickHandler() {
-                public void onClick(ClickEvent event) {
-                  createNewDocumentCreator();
-                }
-           });
-
-
-         allMenuItems = new NavWidget[]{ guiStructure.documentCreator, guiStructure.about, guiStructure.welcomePage, guiStructure.userPage };
-
-     }
-
-    void createNewDocumentCreator() {
-        activateMenuItem(guiStructure.documentCreator);
-
-        docCreator = new DocumentCreator();
-
-    // --- file reading interface via lib-gwt-file --- //
-        final FileReader freader = new FileReader();
-        freader.addLoadEndHandler(new LoadEndHandler() {
-            @Override
-            public void onLoadEnd(LoadEndEvent event) {
-                docCreator.lblUploadProgress.setText("File uploaded successfully.");
-                docCreator.btnCreateDocument.setEnabled(true);
-                //log(subtext);
-            }
-        });
-
-        docCreator.fileUpload.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                //log(fileUpload.getFilename());
-                docCreator.lblUploadProgress.setVisible(true);
-                docCreator.lblUploadProgress.setText("Uploading the file...");
-                FileList fl = docCreator.fileUpload.getFiles();
-                Iterator<File> fit = fl.iterator();
-                if (fit.hasNext()) {
-                    freader.readAsText(fit.next(), docCreator.getChosenEncoding());
-                } else {
-                    error("No file chosen.\n");
-                }
-            }
-        });
-
-        docCreator.btnCreateDocument.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                docCreator.lblCreateProgress.setVisible(true);
-                docCreator.lblCreateProgress.setText("Creating the document...");
-                createDocumentFromText(freader.getStringResult());
-            }
-        });
-
-        guiStructure.contentPanel.setWidget(docCreator);
+    void error(String errtext) {
+         log(errtext);
     }
 
 
-     /**
-      * show the Start a new subtitle document panel
-      * inside the GUI contentPanel
-      */
-     void createAndLoadUserPage() {
-        activateMenuItem(guiStructure.userPage);
+    ///////////////////////////////////////
+    //                                   //
+    //      Login - logout methods       //
+    //                                   //
+    ///////////////////////////////////////
+    
+    /**
+     * show a dialog enabling the user to
+     * log in directly or [this line maybe to be removed]
+     * via OpenID services
+     */
+	protected void showLoginDialog() {
+		showLoginDialog("");
+	}
+     
+    /**
+     * show a dialog enabling the user to
+     * log in directly or [this line maybe to be removed]
+     * via OpenID services
+     * @param username
+     */
+	protected void showLoginDialog(String username) {
+	    LoginDialog loginDialog = new LoginDialog(username, this);
+	}
 
-        UserPage userpage = new UserPage(
-            new FieldUpdater<Document, String>() {
-                public void update(int index, Document doc, String value) {
-                    editDocument(doc);
-                }
-            }
-        );
-        guiStructure.contentPanel.setStyleName("users_page");
-
-        log("getting list of documents...");
-        rpcHandler.getListOfDocuments(userpage);
-
-
-
-        userpage.btnDisplayCreator.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                createNewDocumentCreator();
-            }
-
-        });
-
-
-        guiStructure.contentPanel.setWidget(userpage);
-
+    /**
+     * show the registration dialog
+     */
+    protected void showRegistrationForm() {
+        RegistrationForm registrationForm = new RegistrationForm(this);
     }
 
-     void createAuthenticationValidationWindow() {
-          // ----------------------------------------------- //
-          // --- AuthenticationValidationWindow creation --- //
-          // ----------------------------------------------- //
-
-          rootPanel = RootPanel.get();
-          //rootPanel.setSize("800", "600");
-
-          // --- loading the uibinder-defined structure of the page --- //
-          final AuthenticationValidationWindow authenticationValidationWindow = new AuthenticationValidationWindow();
-          rootPanel.add(authenticationValidationWindow, 0, 0);
-        authenticationValidationWindow.btnCancel.addClickHandler( new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                    // TODO: say to the UserSpace that I am closing the window
-                authenticationValidationWindow.close();
-               }
-          });
-
-          // get authentication data
-          authenticationValidationWindow.paraValidation.setText("Processing authentication data...");
-          // response URL
-          String responseURL = Window.Location.getQueryString();
-          // String responseURL = Window.Location.getParameter("responseURL");
-          // auhID
-          long authID = 0;
-          String authIDstring = Window.Location.getParameter("authID");
-          try {
-               authID = Long.parseLong(authIDstring);
-          }
-          catch (Exception e) {
-               // TODO: handle exception
-               Window.alert("Cannot parse authID " + authIDstring + " as a number! " + e.getLocalizedMessage());
-          }
-
-          // send RPC
-          authenticationValidationWindow.paraValidation.setText("Validating authentication data for authID " + authID + "...");
-          rpcHandler.validateAuthentication (responseURL, authID, authenticationValidationWindow);
-     }
-
-     private void createDocumentFromText(String subtext) {
-        rpcHandler.createDocument(
-                docCreator.getTitle(),
-                docCreator.getMovieTitle(),
-                docCreator.getChosenLanguage(),
-                subtext,
-                docCreator.getMoviePathOrNull());
-        // sets currentDocument and calls processText() on success
+    protected void please_log_in () {
+        logged_out ();
+        Window.alert("Please log in first.");
+        showLoginDialog();
+    }
+    
+    protected void please_relog_in () {
+        logged_out ();
+        Window.alert("You have not logged in or your session has expired. Please log in.");
+        showLoginDialog();
     }
 
-    protected void document_created(String moviePath) {
-        // replacing the document-creating interface with the subtitle table:
-        this.workspace = new TranslationWorkspace(this, moviePath);
-        guiStructure.contentPanel.setWidget(workspace);
-        guiStructure.contentPanel.setStyleName("translating");
+    protected void logged_in (String username) {
+    	loggedIn = true;
+    	this.username = username;
+    	guiStructure.logged_in(username);
+    	pageHandler.loadPage(true);
     }
 
+    protected void logged_out () {
+    	loggedIn = false;
+        username = null;
+        guiStructure.logged_out();
+        pageHandler.loadPage(false);
+    }
+
+    ///////////////////////////////////////
+    //                                   //
+    //      Page creation methods        //
+    //                                   //
+    ///////////////////////////////////////
+    
+    void createGui() {
+        guiStructure = new GuiStructure(this);
+    }
+    
+    protected void showWelcomePage() {
+        new WelcomeScreen(this);
+    }
+
+    protected void showChangePasswordForm() {
+        new ChangePassword(this);
+    }
+
+    protected void showAboutPage() {
+        new About(this);
+    }
+
+    void createAuthenticationValidationWindow() {
+    	new AuthenticationValidationWindow(this);
+    }
+	
     public void editDocument(Document document) {
         rpcHandler.loadDocumentFromDB(document.getId());
     }
@@ -303,6 +267,29 @@ public class Gui implements EntryPoint {
         rpcHandler.loadDocumentFromDB(documentId);
     }
 
+    void createAndLoadUserPage() {
+        new UserPage(this, new FieldUpdater<Document, String>() {
+                    public void update(int index, Document doc, String value) {
+                        editDocument(doc);
+                    }
+                }
+            );
+    }
+
+    void createNewDocumentCreator() {
+        docCreator = new DocumentCreator(this);
+    }
+    
+    void document_created(String moviePath) {
+        workspace = new TranslationWorkspace(this, moviePath);
+    }
+
+    ///////////////////////////////////////
+    //                                   //
+    //      Some mess remaining...       //
+    //                                   //
+    ///////////////////////////////////////
+    
     protected void processTranslationResultList(List<TranslationResult> translations) {
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
@@ -446,15 +433,6 @@ public class Gui implements EntryPoint {
      }
 
 
-     public Document getCurrentDocument() {
-          return currentDocument;
-     }
-
-     protected void setCurrentDocument(Document currentDocument) {
-          this.currentDocument = currentDocument;
-     }
-
-
      /**
       * Send the given translation result as a "user-feedback" to the userspace
       * @param transresult
@@ -467,227 +445,5 @@ public class Gui implements EntryPoint {
           rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
      }
-
-
-    long start=0;
-     private StringBuilder sb = new StringBuilder();
-     /**
-      * Output the given text in the debug textarea
-     * with a timestamp relative to the first logging.
-      * @param logtext
-      */
-     public void log(String logtext) {
-    	 if (guiStructure != null) {
-	        if (start == 0) {
-	            start = System.currentTimeMillis();
-	        }
-	        long diff = (System.currentTimeMillis() - start);
-	        sb.append(diff);
-	        sb.append(" : ");
-
-	        sb.append(logtext);
-	        sb.append("\n");
-	        guiStructure.txtDebug.setText(sb.toString());
-    	 }
-    	 else {
-        	 // txtDebug not created
-    		 // but let's at least display the message in the statusbar
-    		 // (does not work in Firefox according to documentation)
-    		 Window.setStatus(logtext);
-    	 }
-     }
-
-     private void error(String errtext) {
-          log(errtext);
-     }
-
-     /**
-      * show a dialog enabling the user to
-      * log in directly
-      * or via OpenID services [this line maybe to be removed]
-      */
-     protected void showLoginDialog() {
-    	 showLoginDialog("");
-     }
-    protected void showLoginDialog(String username) {
-
-         final DialogBox dialogBox = new DialogBox(false);
-        final LoginDialog loginDialog = new LoginDialog();
-
-        loginDialog.btnLogin.addClickHandler( new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-            	String username = loginDialog.getUsername();
-            	String password = loginDialog.getPassword();
-            	if (username.isEmpty()) {
-            		Window.alert("Please fill in the username!");
-            	} else if (password.isEmpty()) {
-            		Window.alert("Please fill in the password!");
-				} else {
-	                dialogBox.hide();
-	                log("trying to log in as user " + username);
-	                rpcHandler.simpleLogin(username, password);
-				}
-            }
-        } );
-
-        loginDialog.btnForgottenPassword.addClickHandler( new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                 String username = loginDialog.getUsername();
-                 if (username.isEmpty()) {
-                    Window.alert("You must fill in your username!");
-                 } else {
-                    log("forgotten password - user " + username);
-                    rpcHandler.sendChangePasswordMail(username, dialogBox);
-                 }
-            }
-        } );
-
-        loginDialog.btnLoginGoogle.addClickHandler( new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                log("trying to log in through Google account");
-                    rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, dialogBox);
-               }
-          });
-
-        loginDialog.btnRegister.addClickHandler( new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                log("User decided to register, showing registration form");
-                dialogBox.hide();
-                showRegistrationForm();
-               }
-          });
-
-        loginDialog.btnCancel.addClickHandler( new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                log("LoginDialog closed by user hitting Cancel button");
-                dialogBox.hide();
-               }
-          });
-
-        loginDialog.setUsername(username);
-
-        dialogBox.setWidget(loginDialog);
-        dialogBox.setGlassEnabled(true);
-        dialogBox.center();
-    }
-
-     /**
-      * show a dialog enabling the user to
-      * log in directly or [this line maybe to be removed]
-      * via OpenID services
-      */
-    protected void showRegistrationForm() {
-
-         final DialogBox dialogBox = new DialogBox(false);
-        final RegistrationForm registrationForm = new RegistrationForm();
-
-        registrationForm.btnRegister.addClickHandler( new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                log("Trying to register user...");
-                // check data entered
-                if (registrationForm.checkForm()) {
-                    // invoke the registration
-                        rpcHandler.registerUser(registrationForm.getUsername(), registrationForm.getPassword(), registrationForm.getEmail(), dialogBox);
-                } else {
-                     log("errors in registration form");
-                     Window.alert("Please correct errors in registration form.");
-                     // TODO: tell the user what is wrong
-                }
-               }
-          });
-
-        registrationForm.btnCancel.addClickHandler( new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                log("RegistrationForm closed by user hitting Cancel button");
-                dialogBox.hide();
-               }
-          });
-
-        dialogBox.setWidget(registrationForm);
-        dialogBox.setGlassEnabled(true);
-        dialogBox.center();
-    }
-
-    protected void showChangePasswordForm() {
-        ChangePassword changePassword = new ChangePassword(this);
-        guiStructure.contentPanel.setStyleName("changePassword");
-        guiStructure.contentPanel.setWidget(changePassword);
-    }
-
-    protected void showAboutPage() {
-        activateMenuItem(guiStructure.about);
-        About about = new About();
-        guiStructure.contentPanel.setStyleName("about");
-        guiStructure.contentPanel.setWidget(about);
-    }
-
-     protected void please_log_in () {
-          logged_out ();
-          Window.alert("Please log in first.");
-          showLoginDialog();
-     }
-
-     protected void please_relog_in () {
-          logged_out ();
-          Window.alert("You have not logged in or your session has expired. Please log in.");
-          showLoginDialog();
-     }
-
-     protected void logged_in (String username) {
-        this.username = username;
-    	guiStructure.logged_in(username);
-        pageHandler.loadPage(true);
-     }
-
-     protected void logged_out () {
-        this.username = null;
-        guiStructure.logged_out();
-        pageHandler.loadPage(false);
-     }
-
-    protected void showWelcomePage() {
-        activateMenuItem(guiStructure.welcomePage);
-
-        WelcomeScreen welcomePage = new WelcomeScreen();
-
-
-        welcomePage.login.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                if (getSessionID() == null) {
-                    showLoginDialog();
-                } else {
-                    rpcHandler.logout();
-                }
-            }
-        });
-        welcomePage.register.addClickHandler( new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                showRegistrationForm();
-            }
-        });
-
-        welcomePage.about.addClickHandler( new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                showAboutPage();
-            }
-        });
-
-        guiStructure.contentPanel.setStyleName("welcoming");
-        guiStructure.contentPanel.setWidget(welcomePage);
-    }
-
-
-    public TranslationWorkspace getTranslationWorkspace() {
-        return workspace;
-    }
 
 }

@@ -779,11 +779,11 @@ With some consideration, we count precision as
 
 $$\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}},$$ and recall as $$\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}.$$
 
-That means -- precision is a percentage of movies, chosen by aligner, that are aligned correctly; recall is a percentage of movies, that \emph{can} be aligned (from manual aligning), that are aligned correctly.
+That means precision is a percentage of movies chosen by aligner that are aligned correctly; recall is a percentage of movies, that \emph{can} be aligned (from manual aligning), that are aligned correctly. Results for the algorithms are in table \ref{align_score}.
 
-With these definitions, precision and recall are as follows (\todo{sounds terrible}the numbers are percentages):
-
-\begin{tabular}{|l|l|l|l|} 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|c|c|c|} 
     \hline
     \textbf{approach} & \textbf{precision} & \textbf{recall} & \textbf{F1-measure} \\ \hline
     Baseline & 33 & 33 & 33 \\ \hline
@@ -791,17 +791,24 @@ With these definitions, precision and recall are as follows (\todo{sounds terrib
     6,000 best distance-based & 67 & 20 & 31 \\ \hline
     12,000 best distance-based & 76 & 53 & 63 \\ \hline
 \end{tabular}
+\end{center}
+
+\caption{Performance of the alignment algorithms (as percentage)}\label{align_score}
+\end{table}
 
 \subsubsection{Translation memory simulation result}
+
 We counted two percentages for each configuration - one was \emph{precision} -- that is, how many of the received translation results were correct -- and second we called \emph{coverage} -- that is, how many of the subtitle chunks received at least one good translation.
 
 We also counted a harmonized mean of those two.
 
-What also has to be noted here that the result counts are not evenly distributed -- on the more "popular" sentences like "I don't know", we might have hundreds of matches; we recieve only first 30 ones. This will, of course, skew the precision a bit (since we take only 30 chunks as received); however, it emulates the working of translation memory anyway.
+What also has to be noted here that the result counts are not evenly distributed -- on the more "popular" sentences like "I don't know", we might have hundreds of matches; we receive only first 30 ones. This will, of course, skew the precision a bit (since we take only 30 chunks as received); however, it emulates the working of translation memory anyway.
 
-Results are as follows:
+Results of the experiment are tabulated in \ref{tm_simulation}.
 
-\begin{tabular}{|p{7cm}|l|l|l|} 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|p{7cm}|c|c|c|} 
     \hline
     \textbf{approach} & \textbf{precision} & \textbf{coverage} & \textbf{mean} \\ \hline
     Baseline & 15 & 20 & 17 \\ \hline
@@ -815,6 +822,11 @@ Results are as follows:
     12,000 best distance-based & 85 & 24 & 38 \\ \hline
     Equality based file alignment with distance-based chunk alignment & 83 & 24 & 37 \\ \hline
 \end{tabular}
+\end{center}
+
+\caption{Performance of the alignment algorithms in the translation memory simulation}\label{tm_simulation}
+
+\end{table}
 
 We may notice that generally, when we allow more tolerance (the distance-based chunk alignment is more tolerant), we got more wrong translation pairs, however, some good translations can appear in chunks that were not translatable with the less tolerant alignment.
 
