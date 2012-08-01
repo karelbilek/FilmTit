@@ -581,6 +581,12 @@ public class Gui implements EntryPoint {
         guiStructure.contentPanel.setWidget(changePassword);
     }
 
+    protected void showAboutPage() {
+        About about = new About();
+        guiStructure.contentPanel.setStyleName("about");
+        guiStructure.contentPanel.setWidget(about);
+    }
+
      protected void please_log_in () {
           logged_out ();
           Window.alert("Please log in first.");

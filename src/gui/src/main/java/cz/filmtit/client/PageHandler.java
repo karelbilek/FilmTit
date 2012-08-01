@@ -183,8 +183,7 @@ public class PageHandler {
 	    		gui.createAuthenticationValidationWindow();
 				break;
 			case About:
-				// TODO show About window
-	    		Window.alert("TODO: show About window");
+	    		gui.showAboutPage();
 				break;
 			case TranslationWorkspace:
 				// load UserPage (to be shown if there is an error in loading TranslationWorkspace)
