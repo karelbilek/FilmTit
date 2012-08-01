@@ -1,5 +1,7 @@
 \section{Timeline}
 
+The following section describes the project development, progress and decision as we did through the time the the project was developed. After series of informal talk the project officially started in December 2011 and was submitted in September 2012.
+
 \subsection{Initial project meetings}
 
 \begin{itemize}
@@ -39,6 +41,15 @@
 	
 	The decision to use both Java and Scala showed to be a difficult decision. On the one hand, Scala allowed to write concise and efficient code, on the other hand most project members were not able to learn Scala sufficiently and hence used only Java. Although the interoperability between Scala and Java works well in most cases because both are based on the JVM, some problems remain. One of the problems of interoperability was, for example, that the implementation of the datatype \emph{List} that was created in Scala was not compatible with Google Web Toolkit, which expected a standard Java \emph{List} implementation.
 \end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{./figures/original_strucutre.pdf}
+\end{center}
+
+\caption{Scheme of the originally intended structure of work with the translation memory. It reflects the original User Space structure and also schematically the original client design.}
+
+\end{figure}
 
 
 \subsection{Acquiring parallel data}
@@ -80,6 +91,15 @@
 
 
 \subsection{GUI design decisions}
+
+\section{Evaluating the Development Process}
+
+One of the crucial decision for the project was the choice of technologies. Most of the technologies we used -- Maven, Scala, Hibernate, GWT -- were new to all of us and we also had not much experience with the other. Combining these technologies together was quite painful and would probably even for the ... This caused ... Generally, we can say that the fact that we were not too much familiar with the technology, we spent most of the time solving technical issues. There is quite a lot of research challenges, mostly in the fuzzy matching, which had to remain untouched due to that.
+
+On the other hand the choice of technologies appeared to be lucky that it probably saved a lot of work for us by the possibility to share implementation of class. Using the Scala language for the core also made the parallelization much easier.
+
+Late complex design changes ...
+
 
 
 

@@ -13,10 +13,12 @@ import org.openid4java.message.MessageException;
  */
 public class TestFilmtitBackendServer {
     @BeforeClass
-    public static void InitializeDatabase() {
-        DatabaseUtil.setDatabase();
-        ConfigurationSingleton.setConf(new Configuration("configuration.xml"));
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
+
 
     @Test
     public void testGetAutheticationURL() throws ConsumerException, MessageException {

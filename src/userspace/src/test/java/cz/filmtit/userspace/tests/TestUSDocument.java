@@ -1,5 +1,7 @@
 package cz.filmtit.userspace.tests;
 
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.Document;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.userspace.USDocument;
@@ -16,9 +18,14 @@ import static junit.framework.Assert.assertNotSame;
 
 public class TestUSDocument {
     @BeforeClass
-    public static void initializeDatabase() {
-        DatabaseUtil.setDatabase();
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
+
+
+    private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
 
     @Test
     public  void testUSDocumentConstructor() {
@@ -32,7 +39,7 @@ public class TestUSDocument {
 
     @Test
     public void testSaveAndLoadWithTranslationResults() {
-        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         // create a sample document and save it to the database to know the ID
         Document doc = new Document("Movie title", "cs");
@@ -43,7 +50,7 @@ public class TestUSDocument {
         sampleUSDocument.setTranslationGenerationTime(50);
 
         sampleUSDocument.saveToDatabase(dbSession);
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         // now add few sample chunks
         long documentID = sampleUSDocument.getDatabaseId();
@@ -56,9 +63,9 @@ public class TestUSDocument {
         sampleUSDocument.addTranslationResult(sampleTR3);
 
         // safe the translation results
-        dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         sampleUSDocument.saveToDatabase(dbSession);
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         // test if the translation results got the database IDs
         assertNotSame(Long.MIN_VALUE, sampleTR1.getDatabaseId());
@@ -66,12 +73,12 @@ public class TestUSDocument {
         assertNotSame(Long.MIN_VALUE, sampleTR3.getDatabaseId());
 
         // now load the document from database
-        dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List queryResult = dbSession.createQuery("select d from USDocument d where d.databaseId = " +
                 Long.toString(documentID)).list();
 
-        USHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
 
         assertEquals(1, queryResult.size());
         USDocument loadedDocument = (USDocument)(queryResult.get(0));
@@ -83,7 +90,7 @@ public class TestUSDocument {
         loadedDocument.loadChunksFromDb();
 
         // test if the loaded TranslationResults are the same as the saved ones
-        assertEquals(3, loadedDocument.getTranslationResults().size());
+        assertEquals(3, loadedDocument.getTranslationResultValues().size());
     }
 
     @Test(expected=UnsupportedOperationException.class)

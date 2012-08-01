@@ -35,8 +35,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static int LENGTH_OF_TOKEN = 10;
 
 
-    private static CoreHibernateUtil coreHibernateUtil = new CoreHibernateUtil();
-    private static USHibernateUtil usHibernateUtil = new USHibernateUtil();
+    private static CoreHibernateUtil coreHibernateUtil = CoreHibernateUtil.getInstance();
+    protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     private enum CheckUserEnum {
         UserName,
@@ -531,4 +531,3 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionId);
     }
 }
-

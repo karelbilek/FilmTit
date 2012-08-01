@@ -17,11 +17,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 
 import java.util.*;
 
-//lib-gwt-file imports:
-
-
-
-
 /**
  * Entry point for the FilmTit GWT web application,
  * including the GUI creation.
@@ -44,10 +39,10 @@ public class Gui implements EntryPoint {
 
      protected int counter = 0;
 
-     private FilmTitServiceHandler rpcHandler;
+     FilmTitServiceHandler rpcHandler;
      protected Document currentDocument;
      
-     private PageHandler pageHandler;
+     PageHandler pageHandler;
      
      private String sessionID;
      
@@ -91,14 +86,13 @@ public class Gui implements EntryPoint {
 
 		// RPC:
 		rpcHandler = new FilmTitServiceHandler(this);
-          
+    	
 		// page loading and switching
-		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);
+		pageHandler = new PageHandler(Window.Location.getParameter("page"), this);    	
 		pageHandler.setDocumentId(Window.Location.getParameter("documentId"));
-
+    	
         // check whether user is logged in or not
-        rpcHandler.checkSessionID();
-        
+        rpcHandler.checkSessionID();    	
     }
 
      void createGui() {
@@ -443,17 +437,24 @@ public class Gui implements EntryPoint {
       * @param logtext
       */
      public void log(String logtext) {
-        
-        if (start == 0) {
-            start = System.currentTimeMillis();
-        }
-        long diff = (System.currentTimeMillis() - start);
-        sb.append(diff);
-        sb.append(" : ");
-       
-        sb.append(logtext);
-        sb.append("\n");
-        guiStructure.txtDebug.setText(sb.toString());
+    	 if (guiStructure != null) {    		 
+	        if (start == 0) {
+	            start = System.currentTimeMillis();
+	        }
+	        long diff = (System.currentTimeMillis() - start);
+	        sb.append(diff);
+	        sb.append(" : ");
+	       
+	        sb.append(logtext);
+	        sb.append("\n");
+	        guiStructure.txtDebug.setText(sb.toString());
+    	 }
+    	 else {
+        	 // txtDebug not created
+    		 // but let's at least display the message in the statusbar
+    		 // (does not work in Firefox according to documentation)
+    		 Window.setStatus(logtext);
+    	 }
      }
      
      private void error(String errtext) {
@@ -495,12 +496,10 @@ public class Gui implements EntryPoint {
             public void onClick(ClickEvent event) {
                  String username = loginDialog.getUsername();
                  if (username.isEmpty()) {
-                      Window.alert("You must fill in your username!");
+                    Window.alert("You must fill in your username!");
                  } else {
-                     dialogBox.hide();
                     log("forgotten password - user " + username);
-                    //TODO: invoke RPC call
-                        //rpcHandler.forgotten_password(username);                      
+                    rpcHandler.sendChangePasswordMail(username, dialogBox);                      
                  }
             }
         } );
@@ -575,6 +574,18 @@ public class Gui implements EntryPoint {
         dialogBox.setGlassEnabled(true);
         dialogBox.center();
     }
+    
+    protected void showChangePasswordForm() {
+        ChangePassword changePassword = new ChangePassword(this);
+        guiStructure.contentPanel.setStyleName("changePassword");
+        guiStructure.contentPanel.setWidget(changePassword);
+    }
+
+    protected void showAboutPage() {
+        About about = new About();
+        guiStructure.contentPanel.setStyleName("about");
+        guiStructure.contentPanel.setWidget(about);
+    }
 
      protected void please_log_in () {
           logged_out ();
@@ -590,13 +601,13 @@ public class Gui implements EntryPoint {
      
      protected void logged_in (String username) {
         this.username = username;
-    	guiStructure.login.setText("Log out user " + username);
+    	guiStructure.logged_in(username);
         pageHandler.loadPage(true);
      }
      
      protected void logged_out () {
         this.username = null;
-        guiStructure.login.setText("Log in");
+        guiStructure.logged_out();
         pageHandler.loadPage(false);
      }
 

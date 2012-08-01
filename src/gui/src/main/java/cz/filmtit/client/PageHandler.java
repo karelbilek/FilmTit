@@ -78,7 +78,7 @@ public class PageHandler {
     		gui.createGui();
     	}
     	
-    	setPageToLoad(false);
+    	loadPage(false);    	
     }
     
     /**
@@ -105,7 +105,9 @@ public class PageHandler {
     
     /**
      * Determines the page to be loaded and loads it
-     * (unless it is already loaded).
+     * (unless it is already loaded),
+     * using the page set in the URL
+     * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
 	public void loadPage(boolean loggedIn) {
@@ -120,12 +122,14 @@ public class PageHandler {
      * @param suggestedPage page that should be loaded
      */
 	public void loadPage(boolean loggedIn, Page suggestedPage) {
-		setPageToLoad(loggedIn, pageToLoad);
+		setPageToLoad(loggedIn, suggestedPage);
 		loadPageToLoad();
 	}
 	
     /**
-     * Determines the page to be loaded.
+     * Determines the page to be loaded,
+     * using the page set in the URL
+     * in GET parameter "page".
      * @param loggedIn whether the user is logged in
      */
     void setPageToLoad(boolean loggedIn) {
@@ -160,6 +164,8 @@ public class PageHandler {
 			break;
 			
 		}
+    	
+		gui.log("Page to load set to " + pageToLoad);
     }
 
     /**
@@ -171,17 +177,19 @@ public class PageHandler {
 	    	switch (pageToLoad) {
 	    	
 	    	case ChangePassword:
-	    		// TODO show ChangePassword window
-	    		Window.alert("TODO: show ChangePassword window");
+	    		gui.showChangePasswordForm();
 				break;
 	    	case AuthenticationValidationWindow:
 	    		gui.createAuthenticationValidationWindow();
 				break;
 			case About:
-				// TODO show About window
-	    		Window.alert("TODO: show About window");
+	    		gui.showAboutPage();
 				break;
 			case TranslationWorkspace:
+				// load UserPage (to be shown if there is an error in loading TranslationWorkspace)
+				// TranslationWorkspace can only be loaded if user is logged in so we can use loggedIn = true
+				loadPage(true, Page.UserPage);
+				// try to load TranslationWorkspace
 		    	if (documentId == -1) {
 					gui.log("failure on loading document: documentId -1 is not valid!");
 					Window.alert("Cannnot load document - document ID (-1) is not valid!");
@@ -208,7 +216,8 @@ public class PageHandler {
 			gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
 		}
-		// else: pageToLoad already loaded
+		else {
+			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
+		}
 	}
-
 }

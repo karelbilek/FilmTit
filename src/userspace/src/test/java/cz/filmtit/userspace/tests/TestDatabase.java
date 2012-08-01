@@ -1,5 +1,7 @@
 package cz.filmtit.userspace.tests;
 
+import cz.filmtit.core.Configuration;
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
@@ -15,9 +17,13 @@ import org.junit.Test;
  */
 public class TestDatabase {
     @BeforeClass
-    public static void InitializeDatabase() {
-        DatabaseUtil.setDatabase();
+    public static void setupConfiguration() {
+        Configuration configuration = new Configuration("configuration.xml");
+        ConfigurationSingleton.setConf(configuration);
+        MockHibernateUtil.changeUtilsInAllClasses();
     }
+
+    private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
 
     /**
      * Runs multiple thread that works with database at the same moment.
@@ -28,7 +34,7 @@ public class TestDatabase {
             new DatabaseWorker().run();
         }
 
-        Session dbSession = USHibernateUtil.getSessionWithActiveTransaction();
+        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         dbSession.createQuery("delete from USTranslationResult");
         dbSession.getTransaction().commit();
     }
@@ -36,7 +42,7 @@ public class TestDatabase {
     private class DatabaseWorker extends Thread {
         @Override
         public void run() {
-            Session dbSession = USHibernateUtil.getSessionFactory().openSession();
+            Session dbSession = usHibernateUtil.getSessionFactory().openSession();
 
             for(int i = 0; i < 200; ++i) {
 
