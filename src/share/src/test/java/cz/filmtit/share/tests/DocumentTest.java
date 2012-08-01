@@ -10,22 +10,27 @@ package cz.filmtit.share.tests;
 
 
 import cz.filmtit.share.Document;
-import org.junit.BeforeClass;
+import cz.filmtit.share.Language;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
 public class DocumentTest {
-    private static Document doc;
-    @BeforeClass
-    public static void initializeDoc() {
-        doc = new Document("Test", "cs");
+    private Document doc = null;
+
+    private  void initializeDoc() {
+        doc = new Document("TestMovie", "cs");
         doc.setId(2012);
     }
 
+    public DocumentTest()
+    {
+        this.initializeDoc() ;
+    }
     @Test
     public void testSetId() {
 
+        if (doc == null) {initializeDoc();}  ;
         try{
           doc.setId(2013);
         }
@@ -38,9 +43,9 @@ public class DocumentTest {
 
     @Test
     public void testGetters() {
-       assertEquals("TestMovie",doc.getMovie().getTitle());
-       assertEquals("2012",doc.getMovie().getYear());
-       assertEquals("Czech",doc.getLanguage().getName());
+        if (doc == null) {initializeDoc();}  ;
+       assertEquals("TestMovie",doc.getTitle());
+       assertEquals(Language.fromCode("cs"),doc.getLanguage());
 
     }
 
