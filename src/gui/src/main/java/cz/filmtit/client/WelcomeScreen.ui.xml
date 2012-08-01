@@ -28,7 +28,7 @@
                             <b:Column size="4">
                                 <b:Heading size="6">About Filmtit</b:Heading>
                                 <b:Paragraph>Filmtit is an easy way to quickly translate SRT and SUB movie subtitle files.</b:Paragraph>
-                                <b:Button href="about">Read more »</b:Button>
+                                <b:Button ui:field="about">Read more »</b:Button>
                             </b:Column>
 
 

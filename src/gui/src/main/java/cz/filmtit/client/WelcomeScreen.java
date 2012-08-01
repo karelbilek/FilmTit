@@ -26,5 +26,7 @@ public class WelcomeScreen extends Composite {
     @UiField
     Button register;
 
+    @UiField
+    Button about;
 
 }
