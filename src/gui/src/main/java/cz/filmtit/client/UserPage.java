@@ -5,6 +5,7 @@ package cz.filmtit.client;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.cell.client.*;
+
 import java.util.List;
 import com.github.gwtbootstrap.client.ui.*;
 import com.google.gwt.core.client.GWT;
@@ -65,6 +66,19 @@ public class UserPage extends Composite {
 
         buttonClm.setFieldUpdater(guiEditUpdater);
 
+        // export button
+        com.google.gwt.user.cellview.client.Column<Document, String> exportSubtitlesButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
+            @Override
+            public String getValue(Document doc) {
+               return "Export";
+            }
+       };
+
+       exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
+           public void update(int index, Document doc, String value) {
+               gui.rpcHandler.exportSubtitles(doc.getId());
+           }
+       });
 
 
 
@@ -75,6 +89,7 @@ public class UserPage extends Composite {
         docTable.addColumn(doneClm, "Percent done");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
+        docTable.addColumn(exportSubtitlesButton, "Export");
       
         emptyLabel.setVisible(false);
         
