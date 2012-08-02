@@ -12,7 +12,7 @@
 
         <property name="ownerDatabaseId" type="long" column="userId" />
         
-        <many-to-one class="cz.filmtit.share.MediaSource" name="mediaSource" column="mediaSource" />
+        <many-to-one class="cz.filmtit.share.MediaSource" name="mediaSource" column="mediaSource" lazy="false" />
         
         <property name="spentOnThisTime" type="long" column="spentOnThisTime" />
         <property name="languageCode" type="java.lang.String" column="language" />
