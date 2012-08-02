@@ -87,11 +87,11 @@ public class Session {
         throw new UnsupportedOperationException("Once the database ID is set, it can't be changed.");
     }
 
-    public SessionState getState() {
-        return state;
+    private String getStateString() {
+        return state.toString();
     }
 
-    private void setState(SessionState state) {  }
+    private void setStateString(String stateString) {}
 
     public void logout() {
         state = SessionState.loggedOut;

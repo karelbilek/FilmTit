@@ -11,8 +11,16 @@ import org.junit.Test;
 import java.util.List;
 
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 public class TestUSUserLogin {
+
+    private static String name = "DefaultUser";
+    private static String pass = "filmtit";
+    private static String email = "filmtit@gmail.com";
+    private static String newPass = "filmtit2012";
+
+
     @BeforeClass
     public static void setupConfiguration() {
         Configuration configuration = new Configuration("configuration.xml");
@@ -35,9 +43,7 @@ public class TestUSUserLogin {
     @Test
     public void testRegistration() {
 
-        String name = "Pepa";
-        String pass = "hitman";
-        String email = "cechjoe@gmail.com";
+
      if (server ==null)  {CreateServer();};
 
 
@@ -54,17 +60,38 @@ public class TestUSUserLogin {
    @Test
     public void testLogin()
     {
-        String name = "Pepa";
-        String pass = "hitman";
-        String email = "cechjoe@gmail.com";
-        if (server ==null)  {CreateServer();};
-        if (server.simple_login(name,pass)!="")
-        {
-            server.registration(name,pass,email,null);
-        }
 
-        assertFalse(server.simple_login(name,pass)=="");
+      if (server ==null)  {CreateServer();};
+        if (server.simple_login(name,pass)!="")
+       {
+           server.registration(name,pass,email,null);
+       }
+       String session = server.simple_login(name, pass);
+
+
     }
+
+
+    @Test
+    public void testChangePass(){
+       String string_token = "test001";
+       if (server ==null)  {CreateServer();};
+       server.createTestChange(name,string_token);
+       server.changePassword(name,newPass,string_token);
+       String session = server.simple_login(name, newPass);
+       assertTrue("test pass",session != null);
+    }
+
+
+    @Test
+    public void testUrlChange(){
+
+        if (server ==null)  {CreateServer();};
+        USUser user = new USUser(name,pass,email,null);
+        server.sendChangePassMail(user);
+
+    }
+
 }
 
 

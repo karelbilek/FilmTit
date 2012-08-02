@@ -1,5 +1,4 @@
-
-package wtf;
+package cz.filmtit.client.applet;
 
 import java.io.File;
 import javax.swing.JApplet;
@@ -13,13 +12,12 @@ public class Main extends JApplet {
 
     @Override
     public void init() {
+        setSize(1,1);
         try {
             final Main m = this;
             SwingUtilities.invokeAndWait(new Runnable() {
 
                 public void run() {
-                    JLabel lbl = new JLabel("Vyberte soubor");
-                    add(lbl);
 
                     
                     JFrame frame = new JFrame();
@@ -32,13 +30,15 @@ public class Main extends JApplet {
 
                     if (o != null) {
                         try {
-                            o.call("loadFile", new String[]{selFile.getAbsolutePath()});
+                            o.call("setFileAddress", new String[]{selFile.getAbsolutePath()});
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     }
+                    stop();
                 }
             });
+            //GOTTA CATCH EM ALL!
         } catch (Exception e) {
             System.err.println("createGUI didn't complete successfully");
         }

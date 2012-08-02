@@ -1,12 +1,18 @@
 package cz.filmtit.client;
 
-import java.util.Iterator;
+import cz.filmtit.client.widgets.*;
+import java.util.*;
+import com.google.gwt.user.client.Window;
 
 import com.github.gwtbootstrap.client.ui.*;
+import org.vectomatic.file.FileUploadExt;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
+import com.github.gwtbootstrap.client.ui.ControlGroup;
 import com.google.gwt.user.client.ui.Widget;
 
 import com.google.gwt.core.client.*;
@@ -46,6 +52,8 @@ public class DocumentCreator extends Composite {
 	
 	public DocumentCreator(final Gui gui) {
 		initWidget(uiBinder.createAndBindUi(this));
+        
+        btnCreateDocument.setEnabled(false);
 
 		this.gui = gui;
 		
@@ -87,10 +95,42 @@ public class DocumentCreator extends Composite {
                 }
             });
 
+            btnApplet.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                /*if (widgetToRemove!=null) {
+                    Window.alert("snadmazu");
+                    try {
+                        widgetToRemove.hide();
+                    } catch (Exception e) {
+                        Window.alert(e.toString());
+                    }
+                }*/
+                FileLoadWidget.setDocumentCreator(DocumentCreator.this);
+                FileLoadWidget loadWidget = new FileLoadWidget();
+                bottomControlGroup.add(loadWidget);
+           }
+        });
             gui.guiStructure.contentPanel.setWidget(this);
             
             btnCreateDocument.setEnabled(false);
 	}
+
+
+    public void addressSet(FileLoadWidget widget, String address) {
+       
+       
+       try {
+         moviePath.setText(address);
+       } catch (Exception e){
+         Window.alert(e.toString());
+       }
+
+      // widgetToRemove = widget ;
+    }
+    
+    @UiField
+    ControlGroup bottomControlGroup;
 
     private void createDocumentFromText(String subtext) {
         gui.rpcHandler.createDocument(
@@ -140,12 +180,18 @@ public class DocumentCreator extends Composite {
     Label lblCreateProgress;
 
 
+    @UiField
+    Button btnApplet;
+
     public String getMoviePathOrNull() {
         if (moviePath.getText()==null || moviePath.getText().equals("")) {
             return null;
         }
         return moviePath.getText();
     }
+
+
+
 
     public String getTitle() {
         return txtTitle.getText();

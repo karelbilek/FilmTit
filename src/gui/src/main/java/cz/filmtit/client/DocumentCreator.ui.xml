@@ -48,9 +48,10 @@
 			</b:Fieldset>
 
                 <b:ControlGroup>
-                    <b:ControlLabel>Movie address on the disk: (tested on unixes only, window paths will need tweakinng with backslashes), empty = no movie</b:ControlLabel>
+                    <b:ControlLabel>Movie address on the disk:</b:ControlLabel>
                     <b:Controls>
                         <b:TextBox ui:field="moviePath"></b:TextBox>
+                        <b:Button ui:field="btnApplet">Load</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
 
@@ -76,7 +77,7 @@
             </b:Fieldset>
 
             <b:Fieldset>
-                <b:ControlGroup>
+                <b:ControlGroup ui:field="bottomControlGroup">
                     <b:Controls>
                         <b:Button type="PRIMARY" ui:field="btnCreateDocument">Create document</b:Button>
                         <b:Label ui:field="lblCreateProgress" visible="false"></b:Label>
