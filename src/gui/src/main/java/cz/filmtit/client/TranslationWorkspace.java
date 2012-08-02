@@ -118,7 +118,12 @@ public class TranslationWorkspace extends Composite {
      * @param index - index of the chunk in the chunk-list
      */
     public void showSource(TimedChunk chunk) {
-        ChunkIndex chunkIndex = chunk.getChunkIndex();
+        
+    	gui.log("showSource " + chunk);
+        
+    	try {
+    		
+    	ChunkIndex chunkIndex = chunk.getChunkIndex();
 
         Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
         timeslabel.setStyleName("chunk_timing");
@@ -140,6 +145,18 @@ public class TranslationWorkspace extends Composite {
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
+        
+    	}
+    	catch (Exception e) {
+    		gui.log(e.getLocalizedMessage());
+    		gui.log(e.toString());				
+			StackTraceElement[] st = e.getStackTrace();
+			for (StackTraceElement stackTraceElement : st) {
+				gui.log(stackTraceElement.toString());
+			}
+		}
+        
+    	gui.log("showSource " + chunk + " completed");
     }
 
 
@@ -157,7 +174,10 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(TranslationResult transresult) {
+		gui.log("showResult " + transresult);
         
+    	try {
+    		
         ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
         int index = indexes.get(chunkIndex);
 
@@ -165,6 +185,18 @@ public class TranslationWorkspace extends Composite {
         targetBoxes.get(index).removeStyleName("loading");
 
         gui.counter++;
+        
+		}
+		catch (Exception e) {
+			gui.log(e.getLocalizedMessage());
+			gui.log(e.toString());				
+			StackTraceElement[] st = e.getStackTrace();
+			for (StackTraceElement stackTraceElement : st) {
+				gui.log(stackTraceElement.toString());
+			}
+		}
+	    
+		gui.log("showResult " + transresult + " completed");
     }
 
 

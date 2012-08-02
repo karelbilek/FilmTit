@@ -247,8 +247,11 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
+    // TODO move to TranslationWorkspace
     protected void processTranslationResultList(List<TranslationResult> translations) {
 
+    	try {
+    	
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
@@ -258,6 +261,8 @@ public class Gui implements EntryPoint {
               TimedChunk sChunk = tr.getSourceChunk();
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
               String tChunk = tr.getUserTranslation();
+              
+              log("processing TrResult for " + sChunk);
 
               ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
@@ -267,16 +272,32 @@ public class Gui implements EntryPoint {
               workspace.showSource(sChunk);
 
               if (tChunk==null || tChunk.equals("")){
+                  log(sChunk + " has not yet been translated");
                  untranslatedOnes.add(sChunk);
               } else {
+                  log(sChunk + " has already been translated");
                  workspace.showResult(tr);
 
               }
           }
+          
+          log("all " + translations.size() + " trresults processed");
+          
           if (untranslatedOnes.size() > 0) {
+              log("sending " + untranslatedOnes.size() + " for translation");
             SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
             sendChunks.execute();
           }
+          
+    	}
+    	catch (Exception e) {
+			log(e.getLocalizedMessage());
+			log(e.toString());				
+			StackTraceElement[] st = e.getStackTrace();
+			for (StackTraceElement stackTraceElement : st) {
+				log(stackTraceElement.toString());
+			}
+		}
     }
 
      /**

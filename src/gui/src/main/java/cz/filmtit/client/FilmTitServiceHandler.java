@@ -55,13 +55,19 @@ public class FilmTitServiceHandler {
 
         AsyncCallback<Document> callback = new AsyncCallback<Document>() {
             public void onSuccess(final Document doc) {
+            	
+            	// prepare empty TranslationWorkspace
                 String moviePath = null; //TODO: player
                 gui.workspace = new TranslationWorkspace(gui, moviePath);
                 gui.setCurrentDocument(doc);
-
+                
+                // prepare the TranslationResults
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
-                int i = 0;
+                gui.log("There are " + results.size() + " TranslationResults in the document");
+                //int i = 0;
                 //for (TranslationResult t: results) {t.getSourceChunk().setIndex(i);}
+                
+                // show the TranslationResults
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
                                 gui.processTranslationResultList(results);

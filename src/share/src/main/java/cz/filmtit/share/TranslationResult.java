@@ -84,4 +84,12 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 		}
 		else return super.equals(that);
 	}
+	
+	/**
+	 * Prints out the source chunk surface form.
+	 */
+	@Override
+	public String toString() {
+		return sourceChunk.toString();
+	}
 }

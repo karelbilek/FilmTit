@@ -73,6 +73,9 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         }*/
     }
 
+    /**
+     * Displays the surface form of the Chunk.
+     */
     @Override
     public String toString() {
         return "Chunk[" + surfaceform + "]";
