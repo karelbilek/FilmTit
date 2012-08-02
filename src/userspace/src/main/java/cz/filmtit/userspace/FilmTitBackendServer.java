@@ -254,7 +254,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
-
         session.logout();
         activeSessions.remove(sessionID);
 
