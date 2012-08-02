@@ -119,8 +119,6 @@ public class Gui implements EntryPoint {
          return workspace;
      }
 
-     DocumentCreator docCreator = null;
-
     ///////////////////////////////////////
     //                                   //
     //      The "main()" of GUI          //
@@ -290,14 +288,13 @@ public class Gui implements EntryPoint {
      *
      * @param subtext - multiline text (of the whole subtitle file, typically) to parse
       */
-     protected void processText(String subtext) {
+     protected void processText(String subtext, String subformat) {
           // dump the input text into the debug-area:
           log("processing the following input:\n" + subtext + "\n");
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           // determine format (from corresponding radiobuttons) and choose parser:
-          String subformat = docCreator.getChosenSubFormat();
           Parser subtextparser;
           if (subformat == "sub") {  // i.e. ".sub" is checked
                subtextparser = new ParserSub();

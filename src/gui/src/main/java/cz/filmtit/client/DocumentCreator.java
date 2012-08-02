@@ -98,6 +98,7 @@ public class DocumentCreator extends Composite {
                 getMovieTitle(),
                 getChosenLanguage(),
                 subtext,
+                getChosenSubFormat(),
                 getMoviePathOrNull());
         // sets currentDocument and calls processText() on success
     }

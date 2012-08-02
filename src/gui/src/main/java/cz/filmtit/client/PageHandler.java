@@ -242,7 +242,7 @@ public class PageHandler {
 		    	}
 				break;
 			case DocumentCreator:
-				gui.docCreator = new DocumentCreator(gui);
+				new DocumentCreator(gui);
 				break;
 			case UserPage:
 				new UserPage(gui);

@@ -99,8 +99,8 @@ public class FilmTitServiceHandler {
     }
 
 	
-	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String moviePath) {
-		new CreateDocument(documentTitle, movieTitle, language, subtext, moviePath);
+	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String subformat, String moviePath) {
+		new CreateDocument(documentTitle, movieTitle, language, subtext, subformat, moviePath);
 	}
 	
 	public class CreateDocument extends Callable {
@@ -110,6 +110,7 @@ public class FilmTitServiceHandler {
         String movieTitle;
 		String language;
 		String subtext;
+        String subformat;
 		String moviePath;	
 		
 		// callback
@@ -132,7 +133,7 @@ public class FilmTitServiceHandler {
 
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                            	gui.processText(subtext);
+                            	gui.processText(subtext, subformat);
                             }
                         });
                     }
@@ -156,13 +157,14 @@ public class FilmTitServiceHandler {
 		
 		// constructor
 		public CreateDocument(String documentTitle, String movieTitle, String language,
-				String subtext, String moviePath) {
+				String subtext, String subformat, String moviePath) {
 			super();
 			
 			this.documentTitle = documentTitle;
             this.movieTitle = movieTitle;
 			this.language = language;
 			this.subtext = subtext;
+			this.subformat = subformat;
 			this.moviePath = moviePath;
 			
 			enqueue();
