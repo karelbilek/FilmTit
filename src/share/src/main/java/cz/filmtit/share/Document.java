@@ -12,6 +12,7 @@ public class Document implements IsSerializable, Serializable {
     private String title;
     private MediaSource movie;
     private Language language;
+    private long lastChange;
 
     private long userId = Long.MIN_VALUE;
 
@@ -72,6 +73,14 @@ public class Document implements IsSerializable, Serializable {
             throw  new UnsupportedOperationException("Once the owner ID is set, it cannot be changed.");
         }
         this.userId = userId;
+    }
+
+    public long getLastChange() {
+        return lastChange;
+    }
+
+    public void setLastChange(long lastChange) {
+        this.lastChange = lastChange;
     }
 
     public List<TranslationResult> getSortedTranslationResults() {
