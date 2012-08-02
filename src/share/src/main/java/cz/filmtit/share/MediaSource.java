@@ -60,7 +60,7 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
     @Override
     public String toString() {
         String str = title;
-        if (!year.equals("")) {
+        if (year != null && !year.equals("")) {
             str += " (" + year + ")";
         }
 
