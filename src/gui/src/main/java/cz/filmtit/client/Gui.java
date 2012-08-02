@@ -177,6 +177,47 @@ public class Gui implements EntryPoint {
     void error(String errtext) {
          log(errtext);
     }
+    
+    /**
+     * log and alert the exception
+     * @param e the exception
+     * @return the logged string
+     */
+    String exceptionCatcher(Throwable e) {
+    	// TODO: for production, this should be:
+    	// return exceptionCatcher(e, false, true)
+    	return exceptionCatcher(e, true, true);    	
+    }
+    
+    String exceptionCatcher(Throwable e, boolean alertIt) {
+    	return exceptionCatcher(e, alertIt, true);
+    }
+    
+    String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
+    	
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(e.getLocalizedMessage());
+    	sb.append('\n');
+    	sb.append(e.toString());
+    	sb.append('\n');
+		StackTraceElement[] st = e.getStackTrace();
+		for (StackTraceElement stackTraceElement : st) {
+	    	sb.append(stackTraceElement);
+	    	sb.append('\n');
+		}
+		
+		String result = sb.toString();
+		
+		if (logIt) {
+			log(result);
+		}
+		
+		if (alertIt) {
+			Window.alert("Exception caught!\n" + e + '\n' + e.getLocalizedMessage());
+		}
+		
+		return result;
+    }
 
 
     ///////////////////////////////////////
