@@ -165,7 +165,13 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
   }
 
   def getSuggestions(title: String): java.util.List[MediaSource] = {
-    new ArrayList((getMoviesByTitle(title) \ "result").children.map(getMediaSource).flatten)
+    val moviesFromFreebase: ArrayList[MediaSource] = new ArrayList((getMoviesByTitle(title) \ "result").children.map(getMediaSource).flatten)
+
+    val defaultMS = new MediaSource()
+    defaultMS.setTitle(title)
+    moviesFromFreebase.add(defaultMS)
+
+    moviesFromFreebase
   }
 
   def getMediaSource(jsonObject: JValue): Option[MediaSource] = {
