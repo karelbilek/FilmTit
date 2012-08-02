@@ -152,7 +152,7 @@ public class Session {
 
         //not saving it right away, because I do this in parallel, db doesn't like it
         //saveTranslationResult(document, usTranslationResult);
-        return usTranslationResult.getTranslationResult();
+        return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
@@ -228,8 +228,10 @@ public class Session {
         selected.generateMTSuggestions(TM);
         List<TranslationPair> l = new ArrayList<TranslationPair>();
         l.addAll( selected.getTranslationResult().getTmSuggestions());
+        selected.getTranslationResult().setTmSuggestions(null); // do not store suggestion in user space
         
-        saveTranslationResult(activeDocuments.get(documentId), selected);
+        // ... i think nothing change from the us view
+        //saveTranslationResult(activeDocuments.get(documentId), selected);
         return l;
     }
 
