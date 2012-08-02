@@ -125,7 +125,7 @@ public class Emailer {
         try {
             // read configuration file
             input = new FileInputStream(
-                      new File("C:/Skola/Soft/FilmTit/src/configmail.xml")
+                      new File("configmail.xml")
                     );
             System.out.println(input);
             // setting config properties

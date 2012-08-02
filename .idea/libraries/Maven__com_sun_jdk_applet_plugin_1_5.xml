@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Maven: com.sun.jdk.applet:plugin:1.5">
+    <CLASSES>
+      <root url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/plugin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
