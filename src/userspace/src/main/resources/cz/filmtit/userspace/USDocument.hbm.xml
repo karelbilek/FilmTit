@@ -18,6 +18,7 @@
         <property name="languageCode" type="java.lang.String" column="language" />
         <property name="translationGenerationTime" type="long" column="translationGenerationTime" />
         <property name="finished" type="boolean" column="finished" />
+        <property name="lastChange" type="long" column="lastChange" />
 
     </class>
 

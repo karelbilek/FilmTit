@@ -159,6 +159,14 @@ public class USDocument extends DatabaseObject {
         translationResults.put(i, tr);
     }
 
+    public long getLastChange() {
+        return document.getLastChange();
+    }
+
+    public void setLastChange(long lastChange) {
+        document.setLastChange(lastChange);
+    }
+
     /**
      * Loads the translationResults from User Space database if there are some
      */

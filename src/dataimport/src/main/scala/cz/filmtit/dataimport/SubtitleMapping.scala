@@ -31,7 +31,6 @@ class SubtitleMapping(val conf:Configuration, val checkForExistenceAndLanguages:
     var counter = 1
     Source.fromFile(mappingFile).getLines() foreach
       { line =>
-        println(counter)
         counter+=1
         val data = line.split("\t")
         val filmID = data(0)

@@ -7,7 +7,6 @@ import gnu.trove.map.hash.TObjectLongHashMap
 import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 import collection.mutable.{ListBuffer, HashSet}
-import cz.filmtit.core.io.data.MediaSourceFactory
 import scala.collection.JavaConverters._
 
 
