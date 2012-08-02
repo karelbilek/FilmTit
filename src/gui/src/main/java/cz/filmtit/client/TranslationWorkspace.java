@@ -119,7 +119,7 @@ public class TranslationWorkspace extends Composite {
      */
     public void showSource(TimedChunk chunk) {
         
-    	gui.log("showSource " + chunk);
+    	//gui.log("showSource " + chunk);
         
     	try {
     		
@@ -148,15 +148,10 @@ public class TranslationWorkspace extends Composite {
         
     	}
     	catch (Exception e) {
-    		gui.log(e.getLocalizedMessage());
-    		gui.log(e.toString());				
-			StackTraceElement[] st = e.getStackTrace();
-			for (StackTraceElement stackTraceElement : st) {
-				gui.log(stackTraceElement.toString());
-			}
+			gui.exceptionCatcher(e);
 		}
         
-    	gui.log("showSource " + chunk + " completed");
+    	//gui.log("showSource " + chunk + " completed");
     }
 
 
@@ -174,7 +169,7 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(TranslationResult transresult) {
-		gui.log("showResult " + transresult);
+		//gui.log("showResult " + transresult);
         
     	try {
     		
@@ -188,15 +183,10 @@ public class TranslationWorkspace extends Composite {
         
 		}
 		catch (Exception e) {
-			gui.log(e.getLocalizedMessage());
-			gui.log(e.toString());				
-			StackTraceElement[] st = e.getStackTrace();
-			for (StackTraceElement stackTraceElement : st) {
-				gui.log(stackTraceElement.toString());
-			}
+			gui.exceptionCatcher(e);
 		}
 	    
-		gui.log("showResult " + transresult + " completed");
+		//gui.log("showResult " + transresult + " completed");
     }
 
 

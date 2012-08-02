@@ -562,4 +562,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 		"What for? It's all on my webpage.\n";
 	}
 
+	@Override
+	public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).saveSourceChunks(chunks);
+	}
+
 }

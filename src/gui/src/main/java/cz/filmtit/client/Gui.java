@@ -304,7 +304,7 @@ public class Gui implements EntryPoint {
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
               String tChunk = tr.getUserTranslation();
               
-              log("processing TrResult for " + sChunk);
+              // log("processing TrResult for " + sChunk);
 
               ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
@@ -314,10 +314,10 @@ public class Gui implements EntryPoint {
               workspace.showSource(sChunk);
 
               if (tChunk==null || tChunk.equals("")){
-                  log(sChunk + " has not yet been translated");
+                  // log(sChunk + " has not yet been translated");
                  untranslatedOnes.add(sChunk);
               } else {
-                  log(sChunk + " has already been translated");
+                  // log(sChunk + " has already been translated");
                  workspace.showResult(tr);
 
               }
@@ -368,7 +368,6 @@ public class Gui implements EntryPoint {
           }
           log("subtitle format chosen: " + subformat);
 
-          //Window.alert("1");
           // parse:
           log("starting parsing");
           long startTime = System.currentTimeMillis();
@@ -376,7 +375,6 @@ public class Gui implements EntryPoint {
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           log("parsing finished in " + parsingTime + "ms");
-          //Window.alert("2");
 
           for (TimedChunk chunk : chunklist) {
               chunkmap.put(chunk.getChunkIndex(), chunk);
@@ -387,10 +385,15 @@ public class Gui implements EntryPoint {
 
           }
 
-          //Window.alert("3");
-
           // output the parsed chunks:
           log("parsed chunks: "+chunklist.size());
+          
+          // save the chunks
+          rpcHandler.saveSourceChunks(chunklist);
+          
+          log("called saveSourceChunks()");
+          
+          // now the user can close the browser, chunks are safely saved
 
           int size=50;
           int i = 0;
@@ -401,11 +404,9 @@ public class Gui implements EntryPoint {
             }
             i++;
           }
-//          Window.alert("4");
-
+          
           SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
           sendChunks.execute();
-  //        Window.alert("5");
      }
 
 

@@ -104,7 +104,6 @@ public class FilmTitServiceHandler {
 
     }
 
-	
 	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String subformat, String moviePath) {
 		new CreateDocument(documentTitle, movieTitle, language, subtext, subformat, moviePath);
 	}
@@ -181,6 +180,50 @@ public class FilmTitServiceHandler {
 		public void call() {
 			gui.log("Creating document " + documentTitle + "; its language is " + language);
 			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, callback);
+		}
+	}
+	
+	public void saveSourceChunks(List<TimedChunk> chunks) {
+		new SaveSourceChunks(chunks);
+	}
+
+	public class SaveSourceChunks extends Callable {
+		
+		// parameters
+		List<TimedChunk> chunks;
+		
+		// callback
+		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+			
+			public void onSuccess(Void o) {
+				gui.log("successfully saved the chunks!");
+				// Window.alert("successfully saved the chunks!");
+				// TODO get to TranslationWorkspace
+			}
+			
+			public void onFailure(Throwable caught) {
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					// TODO: repeat sending a few times, then ask user
+					gui.exceptionCatcher(caught);
+				}
+			}
+		};
+		
+		// constructor
+		public SaveSourceChunks(List<TimedChunk> chunks) {
+			super();
+			
+			this.chunks = chunks;
+
+			enqueue();
+		}
+
+		@Override
+		public void call() {
+            filmTitService.saveSourceChunks(gui.getSessionID(), chunks, callback);
 		}
 	}
 	
@@ -872,7 +915,6 @@ public class FilmTitServiceHandler {
 			filmTitService.validateAuthentication(authID, responseURL, callback);		
 		}
 	}
-
 
     public void getListOfDocuments(UserPage userpage) {
     	new GetListOfDocuments(userpage);
