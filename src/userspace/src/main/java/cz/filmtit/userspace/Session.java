@@ -155,6 +155,21 @@ public class Session {
         return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
+    /*
+    public Void saveSourceChunks(Collection<TimedChunk> chunks) throws InvalidDocumentIdException {
+		updateLastOperationTime();
+		List<USTranslationResult> usTranslationResults = new ArrayList<USTranslationResult>(chunks.size);
+		USDocument document;
+		for (TimedChunk chunk: chunks) {
+			document = getActiveDocument(chunk.getDocumentId());
+			USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+			usTranslationResult.setDocument(document);
+			usTranslationResults.add(usTranslationResult);
+		}
+		saveTranslationResults(document, usTranslationResults);
+    }
+    */
+    
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
