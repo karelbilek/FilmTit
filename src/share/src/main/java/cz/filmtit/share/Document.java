@@ -93,6 +93,10 @@ public class Document implements IsSerializable, Serializable {
      * @return Document without translation results.
      */
     public Document documentWithoutResults() {
+        if (translationResults == null || translationResults.size() == 0) {
+            return this;
+        }
+
         Document clone = new Document();
 
         clone.id = id;

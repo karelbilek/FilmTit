@@ -92,4 +92,16 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 	public String toString() {
 		return sourceChunk.toString();
 	}
+
+    public TranslationResult resultWithoutSuggestions() {
+         if (tmSuggestions == null || tmSuggestions.size() == 0) {
+             return this;
+         }
+
+        TranslationResult clone = new TranslationResult();
+        clone.selectedTranslationPairID = selectedTranslationPairID;
+        clone.sourceChunk = sourceChunk;
+        clone.userTranslation = userTranslation;
+        return clone;
+    }
 }
