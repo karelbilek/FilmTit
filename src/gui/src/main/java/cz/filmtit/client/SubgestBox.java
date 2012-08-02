@@ -155,7 +155,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             //replaceFakeWithReal();
             substitute.setText(userTranslation);
             this.setHTML(subgestBoxHTML(userTranslation));
-            updateVerticalSize();
+            //updateVerticalSize();
         }
     }
 

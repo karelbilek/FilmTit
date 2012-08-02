@@ -12,6 +12,7 @@ public class Document implements IsSerializable, Serializable {
     private String title;
     private MediaSource movie;
     private Language language;
+    private long lastChange;
 
     private long userId = Long.MIN_VALUE;
 
@@ -74,6 +75,14 @@ public class Document implements IsSerializable, Serializable {
         this.userId = userId;
     }
 
+    public long getLastChange() {
+        return lastChange;
+    }
+
+    public void setLastChange(long lastChange) {
+        this.lastChange = lastChange;
+    }
+
     public List<TranslationResult> getSortedTranslationResults() {
        List<TranslationResult> res = new ArrayList<TranslationResult>(translationResults.size());
        //sorted because treeset
@@ -93,6 +102,10 @@ public class Document implements IsSerializable, Serializable {
      * @return Document without translation results.
      */
     public Document documentWithoutResults() {
+        if (translationResults == null || translationResults.size() == 0) {
+            return this;
+        }
+
         Document clone = new Document();
 
         clone.id = id;

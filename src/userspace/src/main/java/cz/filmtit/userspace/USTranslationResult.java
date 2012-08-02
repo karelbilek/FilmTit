@@ -359,4 +359,10 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     public int compareTo(USTranslationResult other) {
         return translationResult.compareTo(other.getTranslationResult());
     }
+
+    public TranslationResult getResultCloneAndRemoveSuggestions() {
+        TranslationResult withSuggestions =  translationResult;
+        translationResult = translationResult.resultWithoutSuggestions();
+        return withSuggestions;
+    }
 }

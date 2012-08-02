@@ -4,14 +4,13 @@ package cz.filmtit.dataimport.database
 import cz.filmtit.dataimport.SubtitleMapping
 import collection.mutable.HashMap
 import io.Source
-import cz.filmtit.core.model.TranslationMemory
-import scala.util.Random
+import cz.filmtit.core.model.{MediaSourceFactory, TranslationMemory}
 import java.io._
 import java.nio.charset.MalformedInputException
 
 import cz.filmtit.share.{MediaSource, TranslationPair}
 import java.lang.System
-import cz.filmtit.core.io.data.MediaSourceFactory
+import cz.filmtit.core.io.data.FreebaseMediaSourceFactory
 import cz.filmtit.core.{Configuration, Factory}
 
 /**
@@ -22,26 +21,25 @@ class Import(val configuration: Configuration) {
 
 
   var subtitles = new SubtitleMapping(configuration, checkForExistenceAndLanguages=false)
-//  subtitles.load()
-  
+  val mediasourceFactory: MediaSourceFactory = new FreebaseMediaSourceFactory(configuration.freebaseKey)
 
   var hit = 0
   var miss = 0
 
-  var imdbCache = if( configuration.importIMDBCache.exists() ) {
-    System.err.println("Reading cached IMDB database from file...")
-    new ObjectInputStream(new FileInputStream(configuration.importIMDBCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
+  var mediasourceCache = if( configuration.importMediasourceCache.exists() ) {
+    System.err.println("Reading cached Media Source DB from file...")
+    new ObjectInputStream(new FileInputStream(configuration.importMediasourceCache)).readObject().asInstanceOf[HashMap[String, MediaSource]]
   } else {
     HashMap[String, MediaSource]()
   }
-  val imdbInitialSize = imdbCache.size
-  System.err.println("IMDB cache contains %d elements...".format(imdbInitialSize))
+  val imdbInitialSize = mediasourceCache.size
+  System.err.println("Media source cache contains %d elements...".format(imdbInitialSize))
 
 
   def writeIMDBCache() {
-    if (imdbInitialSize != imdbCache.size) {
-      System.err.println("Writing cached IMDB database to file...")
-      new ObjectOutputStream(new FileOutputStream(configuration.importIMDBCache)).writeObject(imdbCache)
+    if (imdbInitialSize != mediasourceCache.size) {
+      System.err.println("Writing Media Source cache to file...")
+      new ObjectOutputStream(new FileOutputStream(configuration.importMediasourceCache)).writeObject(mediasourceCache)
     }
   }
 
@@ -53,7 +51,7 @@ class Import(val configuration: Configuration) {
    * @return
    */
   def loadMediaSource(id: String): MediaSource = subtitles.getMediaSource(id) match {
-    case Some(mediaSource) => MediaSourceFactory.fromCachedIMDB(mediaSource.getTitle, mediaSource.getYear, imdbCache)
+    case Some(mediaSource) => mediasourceFactory.getCachedSuggestion(mediaSource.getTitle, mediaSource.getYear, mediasourceCache)
     case None => throw new IOException("No movie found in the DB for id "+id)
   }
 

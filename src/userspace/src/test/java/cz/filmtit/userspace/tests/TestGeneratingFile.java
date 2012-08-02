@@ -19,14 +19,11 @@ public class TestGeneratingFile {
 
     private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
 
-    void TestUSUserLogin()
+    void TestGeneratingFile()
     {
         CreateServer();
     }
-     public TestGeneratingFile()
-     {
 
-     }
 
 
     @Test
@@ -35,7 +32,7 @@ public class TestGeneratingFile {
         System.out.println("TestGenerate");
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         GenerateFile data = new GenerateFile();
-        data.GenerateFile(0, GenerateFile.FileType.SRT,dbSession);
+        data.generateFile(0, GenerateFile.FileType.SRT,dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
     }
 

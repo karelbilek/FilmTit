@@ -67,7 +67,7 @@ class Configuration(configurationFile: InputStream) {
 
   val dataFolder = new File((importXML \ "data_folder").text)
   val importBatchSize = (importXML \ "batch_size").text.toInt
-  val importIMDBCache = new File((importXML \ "imdb_cache").text)
+  val importMediasourceCache = new File((importXML \ "mediasource_cache").text)
   val subtitlesFolder = new File((importXML \ "subtitles_folder").text)
 
   def getSubtitleName(s:String) = subtitlesFolder+"/"+s+".gz"

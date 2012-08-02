@@ -33,9 +33,9 @@ public class GenerateFile {
 
 
 
-  public StringBuilder generateFile(int idDocument , FileType type, org.hibernate.Session session){
+  public StringBuilder generateFile(long idDocument , FileType type, org.hibernate.Session session){
         org.hibernate.Session dbSession = session;
-        List<USTranslationResult> TranslationResults = dbSession.createQuery("select d from USTraslationResult d where d.documentDatabaseId = :id_document")
+        List<USTranslationResult> TranslationResults = dbSession.createQuery("select d from USTranslationResult d where d.documentDatabaseId = :id_document")
                 .setParameter("id_document",idDocument).list(); //UPDATE hibernate  for more constraints
       //  List<USTranslationResult> TranslationResults = dbSession.createQuery("select d from USTranslationResult d").list(); //UPDATE hibernate  for more constraints
         System.out.println("Generate files");
@@ -56,7 +56,7 @@ public class GenerateFile {
             actualSub.addResult(result);
          }
         }
-
+        data.add(actualSub);
         StringBuilder content = generateText(type);
         return content;
     }

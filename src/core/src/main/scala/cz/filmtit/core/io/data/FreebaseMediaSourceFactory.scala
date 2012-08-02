@@ -7,11 +7,8 @@ import scala.collection.JavaConversions._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{MappingException, JsonParser}
 import cz.filmtit.core.model.MediaSourceFactory
-import java.util.{ArrayList, HashSet}
+import java.util.ArrayList
 import scala.Some
-import java.text.ParseException
-import cz.filmtit.core.io.data.FreebaseMediaSourceFactory._
-
 
 /**
  * @author Joachim Daiber
@@ -19,13 +16,19 @@ import cz.filmtit.core.io.data.FreebaseMediaSourceFactory._
 
 class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends MediaSourceFactory {
 
+  def this() {
+    this(null)
+  }
+
+  def urlApiKey = if (apiKey != null) "&key=" + apiKey else ""
+
   val tvShowPattern = "\"(.+)\" .+".r
   implicit val formats = net.liftweb.json.DefaultFormats
 
 
   def query(query: String): JValue = {
     val freebaseData = Source.fromURL(
-      "https://api.freebase.com/api/service/mqlread?query=%s&key=%s".format(URLEncoder.encode(query, "utf-8"), apiKey)
+      "https://api.freebase.com/api/service/mqlread?query=%s%s".format(URLEncoder.encode(query, "utf-8"), urlApiKey)
     ).getLines().mkString("")
 
     JsonParser.parse(freebaseData)
@@ -39,7 +42,7 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     try {
       yearFormat.format(fbDateFormat.parse(fbDate))
     } catch {
-      case e: ParseException => fbDate
+      case e: Exception => fbDate
     }
   }
 
@@ -52,12 +55,12 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
              "/film/film/initial_release_date": null,
              "/film/film/genre": [],
              "/common/topic/image": [{
-                 "id": null
+                 "id": null,
+                 "optional": true
                }]
             }
         } """.format(mid)
     )
-
 
     val ms = new MediaSource()
 
@@ -70,7 +73,7 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     try {
       ms.setYear(yearFromFB((result \ "result" \ "/film/film/initial_release_date").extract[String]))
     } catch {
-      case e: MappingException =>
+      case e: Exception =>
     }
 
     try {
@@ -98,7 +101,8 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
              "/tv/tv_program/air_date_of_first_episode": null,
              "/tv/tv_program/genre": [],
              "/common/topic/image": [{
-                 "id": null
+                 "id": null,
+                 "optional": true
                }]
             }
         } """.format(mid)
@@ -135,6 +139,25 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     Some(ms)
   }
 
+  def getSuggestion(title: String, year: String): MediaSource = {
+    var firstBest: MediaSource = null
+    for (result <- (getMoviesByTitle(title) \ "result").children) {
+      getMediaSource(result) match {
+        case Some(ms) => {
+          if (ms.getYear != null && ms.getYear.equals(year))
+            return ms
+          else if (firstBest == null)
+            firstBest = ms
+        }
+        case _ =>
+      }
+    }
+
+    if (firstBest != null)
+      firstBest
+    else
+      new MediaSource(title, year)
+  }
 
   def getSuggestions(title: String, year: String): java.util.List[MediaSource] = {
     val suggestions = getSuggestions(title)
@@ -142,46 +165,38 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
   }
 
   def getSuggestions(title: String): java.util.List[MediaSource] = {
+    val moviesFromFreebase: ArrayList[MediaSource] = new ArrayList((getMoviesByTitle(title) \ "result").children.map(getMediaSource).flatten)
 
+    val defaultMS = new MediaSource()
+    defaultMS.setTitle(title)
+    moviesFromFreebase.add(defaultMS)
+
+    moviesFromFreebase
+  }
+
+  def getMediaSource(jsonObject: JValue): Option[MediaSource] = {
+    if ((jsonObject \ "notable" \ "id").equals(new JString("/film/film"))) {
+      mediaSourceFromFilm((jsonObject \ "mid").extract[String])
+    } else if ((jsonObject \ "notable" \ "id").equals(new JString("/tv/tv_program"))) {
+      mediaSourceFromTVShow((jsonObject \ "mid").extract[String])
+    } else {
+      None
+    }
+  }
+
+  def getMoviesByTitle(title: String): JValue = {
     val response = title match {
       case tvShowPattern(titleShow) => {
-        Source.fromURL("https://www.googleapis.com/freebase/v1/search?query=%s&limit=%d&indent=true&type=/tv/tv_program&key=%s".format(
-          URLEncoder.encode(titleShow, "utf-8"), n, apiKey)).getLines().mkString("")
+        Source.fromURL("https://www.googleapis.com/freebase/v1/search?query=%s&limit=%d&indent=true&filter=(any%%20type:/tv/tv_program)%s".format(
+          URLEncoder.encode(titleShow, "utf-8"), n, urlApiKey)).getLines().mkString("")
       }
       case _ => {
-        Source.fromURL("https://www.googleapis.com/freebase/v1/search?query=%s&limit=%d&indent=true&filter=(any%%20type:/tv/tv_program%%20type:/film/film)&key=%s".format(
-            URLEncoder.encode(title, "utf-8"), n, apiKey)).getLines().mkString("")
+        Source.fromURL("https://www.googleapis.com/freebase/v1/search?query=%s&limit=%d&indent=true&filter=(any%%20type:/tv/tv_program%%20type:/film/film)%s".format(
+          URLEncoder.encode(title, "utf-8"), n, urlApiKey)).getLines().mkString("")
       }
     }
 
-    val results = JsonParser.parse(response)
-
-    new ArrayList((results \ "result").children.map({ j: JValue =>
-      if ((j \ "notable" \ "id").equals(new JString("/film/film"))) {
-        mediaSourceFromFilm((j \ "mid").extract[String])
-      } else if ((j \ "notable" \ "id").equals(new JString("/tv/tv_program"))) {
-        mediaSourceFromTVShow((j \ "mid").extract[String])
-      } else {
-        None
-      }
-    }).asInstanceOf[List[Option[MediaSource]]].flatten)
+    JsonParser.parse(response)
   }
-
-
-}
-
-object FreebaseMediaSourceFactory {
-
-  def main (args: Array[String] ) {
-
-    val msFactory = new FreebaseMediaSourceFactory("AIzaSyAwxRw1yuNbtaVt7beMX7PJrewGl5b9Y10")
-    val best = msFactory.getSuggestions("Scrubs", "2001")
-
-    println(best)
-
-
-
-  }
-
 
 }

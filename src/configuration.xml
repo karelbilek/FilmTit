@@ -37,7 +37,7 @@
         <data_folder>/filmtit/data/aligned/</data_folder>
         <file_mediasource_mapping>/filmtit/data/files/export_final.txt</file_mediasource_mapping>
         <batch_size>100</batch_size>
-        <imdb_cache>/tmp/imdb_cache</imdb_cache>
+        <mediasource_cache>/tmp/mediasource_cache</mediasource_cache>
 
         <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
         <heldout>
@@ -56,6 +56,6 @@
         <searcher_timeout>60</searcher_timeout> <!--in seconds-->
 
     </core>
-    <freebase_key>AIzaSyDPvQ5sEfZWvWqrVODUyFiao17V9tDyo5k</freebase_key>
+    <freebase_key></freebase_key>
 
 </configuration>

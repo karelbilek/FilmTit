@@ -152,15 +152,30 @@ public class Session {
 
         //not saving it right away, because I do this in parallel, db doesn't like it
         //saveTranslationResult(document, usTranslationResult);
-        return usTranslationResult.getTranslationResult();
+        return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
+    /*
+    public Void saveSourceChunks(Collection<TimedChunk> chunks) throws InvalidDocumentIdException {
+		updateLastOperationTime();
+		List<USTranslationResult> usTranslationResults = new ArrayList<USTranslationResult>(chunks.size);
+		USDocument document;
+		for (TimedChunk chunk: chunks) {
+			document = getActiveDocument(chunk.getDocumentId());
+			USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+			usTranslationResult.setDocument(document);
+			usTranslationResults.add(usTranslationResult);
+		}
+		saveTranslationResults(document, usTranslationResults);
+    }
+    */
+    
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
-        
+
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
         
         if (tr==null) {
@@ -185,6 +200,8 @@ public class Session {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
         USDocument document = activeDocuments.get(documentId);
+        document.setLastChange(new Date().getTime());
+
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
         tr.setStartTime(newStartTime);
         saveTranslationResult(document, tr);
@@ -198,7 +215,8 @@ public class Session {
         if (!activeDocuments.containsKey(documentId)) {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
-        USDocument document = activeDocuments.get(documentId);
+        USDocument document = getActiveDocument(documentId);
+
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
         tr.setEndTime(newEndTime);
@@ -211,6 +229,7 @@ public class Session {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
+
         USTranslationResult translationResult = document.getTranslationResultForIndex(chunkIndex);
         translationResult.setText(text);
 
@@ -228,8 +247,10 @@ public class Session {
         selected.generateMTSuggestions(TM);
         List<TranslationPair> l = new ArrayList<TranslationPair>();
         l.addAll( selected.getTranslationResult().getTmSuggestions());
+        selected.getTranslationResult().setTmSuggestions(null); // do not store suggestion in user space
         
-        saveTranslationResult(activeDocuments.get(documentId), selected);
+        // ... i think nothing change from the us view
+        //saveTranslationResult(activeDocuments.get(documentId), selected);
         return l;
     }
 
@@ -331,6 +352,9 @@ public class Session {
         if (!activeDocuments.containsKey(documentID)) {
             throw new InvalidDocumentIdException("The session does not have an active document with such ID.");
         }
-        return activeDocuments.get(documentID);
+
+        USDocument document = activeDocuments.get(documentID);
+        document.setLastChange(new Date().getTime());
+        return document;
     }
 }
