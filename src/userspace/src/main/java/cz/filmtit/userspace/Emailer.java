@@ -14,8 +14,6 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 public class Emailer {
@@ -27,11 +25,12 @@ public class Emailer {
 
  public Emailer(String email , String subject , String message)
  {
+     fetchConfig();
      setData(email,subject,message);
  }
  public Emailer()
  {
-
+     fetchConfig();
  }
 
  public void setData(String email,String subject ,String message){
@@ -115,18 +114,13 @@ public class Emailer {
       return  !(this.email.isEmpty() || this.message.isEmpty() || this.header.isEmpty());
  }
 
-   static {
-       fetchConfig();
-   }
 
-    private static void fetchConfig() {
+    private void fetchConfig() {
         java.io.InputStream input = null;
 
         try {
             // read configuration file
-            input = new FileInputStream(
-                      new File("configmail.xml")
-                    );
+            input = Emailer.class.getResourceAsStream("/cz/filmtit/userspace/configmail.xml");
             System.out.println(input);
             // setting config properties
             configuration.loadFromXML(input);

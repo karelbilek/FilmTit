@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties/dtd">
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-    <comment> Mail Configuration </comment>
-    <entry key="mail.host">localhost</entry>
-    <entry key="mail.from">filmtit@filmtit.ufal.cz</entry>
-    <comment > Next properties which can be set</comment>
-    <entry key="mail.user">filmtit</entry>
-    <entry key="mail.stmp.port">25</entry>
-    <entry key="mail.userdata.user">filmtit@filmtit.cz</entry>
-    <entry key="mail.userdata.pass">filmtit</entry>
+    <comment/>
+    <entry key="mail.transport.protocol">smtps</entry>
+    <entry key="mail.smtps.port">465</entry>
+    <entry key="mail.smtps.host">smtp.gmail.com</entry>
+   <entry key="mail.smtps.starttls.enable">true</entry>
+    <entry key="mail.smtps.socketFactory.class">javax.net.ssl.SSLSocketFactory</entry>
+    <entry key="mail.smtps.socketFactory.port">465</entry>
+    <entry key="mail.smtps.auth">true</entry>
     <entry key="mail.filmtit.registrationSubject">Registration on Filmtit</entry>
-    <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>   \
+    <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>
     <entry key="mail.filmtit.registrationBody">
-        Congratulation, <br />
+        Congratulation,
         your email address was registered in Filmtit app
         with login : %userlogin% and pass : %userpass%
     </entry>
     <entry key="mail.filmtit.forgottenPassBody">
-        Hello, <br />
+        Hello,
         in FilmTit app we have request for change a password
         on account : %userlogin%
         you can change on this url : %changeurl%
     </entry>
-    <comment>mail.user=
-    # mail.store.protocol=
-    # mail.transport.protocol=
-    # mail.smtp.host=
-    # mail.smtp.user=
-    # mail.debug=
-    /comment>
+    <entry key="mail.filmtit.address">filmtit@gmail.com</entry>
+    <entry key="mail.filmtit.password">jkhrjj2012</entry>
 </properties>

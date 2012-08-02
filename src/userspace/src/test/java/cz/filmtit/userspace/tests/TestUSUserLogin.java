@@ -4,6 +4,7 @@ import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.userspace.FilmTitBackendServer;
 import cz.filmtit.userspace.USHibernateUtil;
+import cz.filmtit.userspace.USUser;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -88,7 +89,7 @@ public class TestUSUserLogin {
 
         if (server ==null)  {CreateServer();};
         USUser user = new USUser(name,pass,email,null);
-        server.sendChangePassMail(user);
+        server.sendChangePasswordMail(user);
 
     }
 
