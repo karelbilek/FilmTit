@@ -1,5 +1,6 @@
 package cz.filmtit.userspace.tests;
 
+
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;

@@ -12,31 +12,25 @@ The regular project meeting where we discussed mostly the organizational aspects
 \item graphical user interface,
 \end{itemize}
 
-who became separate Maven modules. Although we added further modules later, we consistently kept the initial project separation into \emph{Core}, \emph{Userspace} and \emph{GUI}. At the beginning we also assigned team members to the different part of project which remained surprisingly stable as well. 
+which became very soon separate Maven modules. Although we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different part of project which remained surprisingly stable as well. 
 
-Before receiving the data from OpenSubtitles.org we were also thinking about the source of data to fill the translation memory for the first time. There were several option -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL, using sentences from a general purpose parallel corpus or getting the data from a subtitle server.
+Before receiving the data from OpenSubtitles.org we were thinking about the source of data to fill the translation memory for the first time. There were several options -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL, using sentences from a general purpose parallel corpus or getting the data from a subtitle server.
 
-Another issue we widely discussed at the beginning was choosing the database system. The database beneath the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.
+From the very beginning we intended base the project on Java. Mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with it. We also decided to combine the code in Java and Scala programming languages and Apache Maven as a build manager.
 
+Much complicated was to agree on the technology of the client. There were many different opinions from writing the client in {\it PHP} with {\it Nette Framework} which some of us know, using the {\it JSP} to have all the code consistently in Java or even quite extreme idea to make the whole application as {\it Java Applet} (it was because of the intention to integrate the video player in the application). Finally we decided to use {\it Google Web Toolkit} which nobody of us had had any prior knowledge before, but it promised making the communication between server and client very easy.
 
-
-\begin{itemize}
-	\item We decided to base the project on the \emph{Java Virtual Machine}. Most parts should be written in Java and some parts would be written in the Scala programming language.
-	\item For dependency management, we decided to use Apache Maven.
-\end{itemize}
-
-\noindent\textbf{Discussion of the decisions}
-
-\begin{itemize}
-	\item We are generally satisfied with the decision to base the project on the JVM since both the usage of Google Web Toolkit and other modules, as well as the possibility to combine all parts of the project with Apache Maven were helpful. 
+After overcoming the problems connected with learning a new technology we became quite satisfied with the decisions because the usage of Google Web Toolkit and other modules, as well as the possibility to combine all parts of the project with Apache Maven were helpful despite making the project run in Maven was very painful for us and we spent unnecessarily a lot of time by solving this issues.
 	
-	The decision to use both Java and Scala showed to be a difficult decision. On the one hand, Scala allowed to write concise and efficient code, on the other hand most project members were not able to learn Scala sufficiently and hence used only Java. Although the interoperability between Scala and Java works well in most cases because both are based on the JVM, some problems remain. One of the problems of interoperability was, for example, that the implementation of the datatype \emph{List} that was created in Scala was not compatible with Google Web Toolkit, which expected a standard Java \emph{List} implementation.
-\end{itemize}
+The decision to use both Java and Scala appeared to be a bring quite a lot of complications. On the one hand, Scala allowed to write concise and efficient code, on the other hand most project members were not able to learn Scala sufficiently and hence used only Java. Although the interoperability between Scala and Java works well in most cases because both are based on the JVM, some problems remain. One of the problems of interoperability was, for example, that the implementation of the data type \emph{List} that was created in Scala was not compatible with Google Web Toolkit, which expected a standard Java \emph{List} implementation.
 
+\subsection{Early development process}
 
-\begin{itemize}
-	\item  Initially, the scripts for preparing the initial data were written in Perl and classes to import the data were in the \emph{Core} module. However, to be more consistent, we decided to move the data preparation and data import to a separate \emph{dataimport} module and re-wrote the Perl scripts in Scala.
-\end{itemize}
+Luckily for us we received very soon a database from the {\it opensubtitles.org} containing all the Czech and English subtitle file that were at the server at that time. Soon after that we started an alignment algorithm to retrieve the parallel data from the subtitle files (the process is described in section~\ref{sec:aligning_subtitles}) and enable us to start experiments that helped us to decide which database system could be used.
+
+Choosing appropriate database system was also intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.  We evaluated different DBMS and decided to use Postgres (see section~\ref{sec:dbms} for details).
+
+Originally, all the algorithms precessing the data we retrieved were implemented in Perl the and the code importing the data were in the \emph{Core} module implemented in Scala. Later, to be the code more consistent, we decided to move the data preparation and data import to a separate \emph{dataimport} module and re-implement the Perl scripts in Scala.
 
 \begin{figure}[h]
 \begin{center}
@@ -47,16 +41,9 @@ Another issue we widely discussed at the beginning was choosing the database sys
 
 \end{figure}
 
-\subsection{Database evaluations and choice of GUI framework}
-
-\begin{itemize}
-	\item We evaluated different DBMS and decided to use Postgres (see section~\ref{sec:dbms}).
-	\item We decided to use Google Web Toolkit for the GUI.
-
-\end{itemize}
-
-
 \subsection{Agreement on shared classes}
+
+After having implemented basics of everything ... Crucial moment 
 
 \begin{itemize}
 	\item We agreed on the shared classes that all parts of the project should use. For best compatibility between  \emph{Core}, \emph{Userspace} and the GWT-based \emph{GUI}, we decided to write all shared classes in Java.
