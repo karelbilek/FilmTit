@@ -111,6 +111,7 @@ public class Gui implements EntryPoint {
 
      protected void setCurrentDocument(Document currentDocument) {
           this.currentDocument = currentDocument;
+          pageHandler.setDocumentId(currentDocument.getId());
      }
 
      TranslationWorkspace workspace = null;

@@ -126,6 +126,7 @@ public class FilmTitServiceHandler {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
 				gui.setCurrentDocument(result.document);
 
+				gui.pageHandler.setPageUrl(Page.TranslationWorkspace);				
                 gui.workspace = new TranslationWorkspace(gui, moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
