@@ -56,6 +56,6 @@
         <searcher_timeout>60</searcher_timeout> <!--in seconds-->
 
     </core>
-    <freebase_key></freebase_key>
+    <freebase_key>AIzaSyDPvQ5sEfZWvWqrVODUyFiao17V9tDyo5k</freebase_key>
 
 </configuration>
