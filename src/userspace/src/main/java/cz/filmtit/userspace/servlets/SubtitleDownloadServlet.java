@@ -75,11 +75,12 @@ public class SubtitleDownloadServlet extends HttpServlet {
         try {  
             String s = backend.getSourceSubtitles(sessionId, docIdLong, 25L, type, way);
             response.setContentType(responseType);
-            response.setContentLength(s.length());
-            ServletOutputStream output = response.getOutputStream();
-            output.print(s);
-            output.flush();
-            output.close();
+            //response.setContentLength(s.length());
+            response.setHeader("Content-Disposition", "attachment; filename=export."+typeString + "; charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+
+           ServletOutputStream out =response.getOutputStream();
+           out.write(s.getBytes("UTF-8"));
         } catch (InvalidSessionIdException e) {
             writeError(response, "Invalid session id exception");
             return;

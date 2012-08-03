@@ -195,8 +195,13 @@ Comparable<TimedChunk> {
         return startTime;
     }
 
+    public static String chomp(String what) {
+        String r = what;
+        return r.replaceAll(" ", "");
+   }
+
     public void setStartTime(String startTime) {
-        this.startTime = startTime;
+        this.startTime = chomp(startTime);
     }
 
     public String getEndTime() {
@@ -204,7 +209,7 @@ Comparable<TimedChunk> {
     }
 
     public void setEndTime(String endTime) {
-        this.endTime = endTime;
+        this.endTime = chomp(endTime);
     }
 
     public int getPartNumber() {
