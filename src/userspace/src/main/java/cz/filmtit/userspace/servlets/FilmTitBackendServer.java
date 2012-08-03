@@ -1,5 +1,6 @@
-package cz.filmtit.userspace;
+package cz.filmtit.userspace.servlets;
 
+import cz.filmtit.userspace.*;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
