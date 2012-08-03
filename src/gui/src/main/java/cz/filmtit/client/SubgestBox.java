@@ -113,7 +113,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     boolean fullWidth;
 
     private String subgestBoxHTML(String content) {
-        return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }</style></head><body>" + content + "</body></html>";
+        return "<html><head><title></title></head><body style=\"font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }\">" + content + "</body></html>";
     }
 
 	public SubgestBox(ChunkIndex chunkIndex, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
