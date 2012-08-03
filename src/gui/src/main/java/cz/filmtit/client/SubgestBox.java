@@ -26,6 +26,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Chunk;
+import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationPair;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.annotations.Annotation;
@@ -116,9 +117,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         return "<html><head><title></title></head><body style=\"font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }\">" + content + "</body></html>";
     }
 
-	public SubgestBox(ChunkIndex chunkIndex, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
-		this.chunkIndex = chunkIndex;
-		this.translationResult = new TranslationResult();
+	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
+		this.chunkIndex = chunk.getChunkIndex();
+		this.translationResult = new TranslationResult(chunk);
         this.workspace = workspace;
         if (this.workspace == null) {
             gui.log("workspace for subgestbox is null!!!");

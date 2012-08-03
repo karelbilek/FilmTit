@@ -23,6 +23,11 @@ public class MockFilmTitBackendServer extends FilmTitBackendServer {
     protected void loadTranslationMemory() {
         Configuration config = new Configuration(new File("configuration.xml"));
         TM =  TestUtil.createTMWithDummyContent(config);
+        //TM = Factory.createTMFromConfiguration(
+        //        ConfigurationSingleton.conf(),
+        //        true, // readonly
+        //        false  // in memory
+        //);
     }
 
     /**

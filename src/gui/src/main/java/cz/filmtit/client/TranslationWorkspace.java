@@ -244,8 +244,7 @@ public class TranslationWorkspace extends Composite {
           for (TimedChunk chunk : chunklist) {
               chunkmap.put(chunk.getChunkIndex(), chunk);
               ChunkIndex chunkIndex = chunk.getChunkIndex();
-              TranslationResult tr = new TranslationResult();
-              tr.setSourceChunk(chunk);
+              TranslationResult tr = new TranslationResult(chunk);
               this.currentDocument.translationResults.put(chunkIndex, tr);
 
           }
@@ -326,6 +325,7 @@ public class TranslationWorkspace extends Composite {
       * @param transresult
       */
      public void submitUserTranslation(TranslationResult transresult) {
+    	  // assert transresult.getDocumentId() == currentDocument.getId();
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
           gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
@@ -341,41 +341,52 @@ public class TranslationWorkspace extends Composite {
      ///////////////////////////////////////
 
      class FakeSubgestIncrementalCommand implements RepeatingCommand {
-         LinkedList<TimedChunk> chunksToDisplay;
-         List<TimedChunk> chunksToTranslate;
+         LinkedList<TimedChunk> chunksToDisplay = new LinkedList<TimedChunk>();
+         List<TimedChunk> chunksToTranslate = new LinkedList<TimedChunk>();
          LinkedList<TranslationResult> resultsToDisplay = new LinkedList<TranslationResult>();
         
+         /**
+          * for a new document
+          * (all chunks are sent to be translated, none of the chunks has a translation yet)
+          * @param chunks all chunks
+          */
          public FakeSubgestIncrementalCommand(List<TimedChunk> chunks) {
-              this.chunksToDisplay = new LinkedList<TimedChunk>();
               this.chunksToDisplay.addAll(chunks);
-              this.chunksToTranslate = chunks;
+              this.chunksToTranslate.addAll(chunks);
          }
 
+         /**
+          * for an existing document
+          * @param chunksToDisplay <b>all</b> chunks (all chunks will be displayed first)
+          * @param chunksToTranslate chunks <b>without userTranslation</b> (TM will be queried for translation suggestions for these)
+          * @param resultsToDisplay TranslationResults containing chunks <b>with userTranslation</b> (no translation suggestions will be displayed for these)
+          */
          public FakeSubgestIncrementalCommand(List<TimedChunk> chunksToDisplay, List<TimedChunk> chunksToTranslate, List<TranslationResult> resultsToDisplay) {
-              this.chunksToDisplay = new LinkedList<TimedChunk>();
               this.chunksToDisplay.addAll(chunksToDisplay);
-              this.chunksToTranslate = chunksToTranslate;
-              this.resultsToDisplay = new LinkedList<TranslationResult>();
+              this.chunksToTranslate.addAll(chunksToTranslate);
               this.resultsToDisplay.addAll(resultsToDisplay);
           }
 
          @Override
          public boolean execute() {
-                if (chunksToDisplay.isEmpty()) {
-                    if (resultsToDisplay.isEmpty()) {
-                        gui.guiStructure.contentPanel.removeStyleName("parsing");
-                        startShowingTranslations(chunksToTranslate) ;
-                        return false;
-                    } else {
-                        TranslationResult result = resultsToDisplay.removeFirst();
-                        showResult(result);
-                        return true;
-                    }
-               } else {
-                    TimedChunk timedchunk = chunksToDisplay.removeFirst();
-                    showSource(timedchunk);
-                    return true;
-               }
+        	 // First, process chunksToDisplay
+             if (!chunksToDisplay.isEmpty()) {
+                 TimedChunk timedchunk = chunksToDisplay.removeFirst();
+                 showSource(timedchunk);
+                 return true;
+             }
+             // Then, process resultsToDisplay
+             else if (!resultsToDisplay.isEmpty()) {
+                 TranslationResult result = resultsToDisplay.removeFirst();
+                 showResult(result);
+                 return true;
+             }
+             // Finally, process chunksToTranslate
+             else {
+                 gui.guiStructure.contentPanel.removeStyleName("parsing");
+                 startShowingTranslations(chunksToTranslate) ;
+                 return false;
+             }
          }
      }
 
@@ -412,7 +423,7 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(chunkIndex, this, !isVideo, index+1);
+        SubgestBox targetbox = new SubgestBox(chunk, this, !isVideo, index+1);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
