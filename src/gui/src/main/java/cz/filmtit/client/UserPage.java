@@ -29,22 +29,23 @@ public class UserPage extends Composite {
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
 
-	private Gui gui;
+	private Gui gui = Gui.getGui();
 
-	public UserPage(final Gui gui) {
+	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-		this.gui = gui;
-		
         TextColumn<Document> nameClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
                 return doc.getTitle();
             }
         };
-        TextColumn<Document> yearClm = new TextColumn<Document>() {
+        TextColumn<Document> mSourceClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
+                if (doc.getMovie()==null) {
+                    return "";
+                }
                 return doc.getMovie().toString();
             }
         };
@@ -87,7 +88,7 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-               gui.rpcHandler.exportSubtitles(doc.getId());
+                    Window.Location.assign("/download/download?docId="+doc.getId()+"&sessionId="+gui.getSessionID()+"&type=srt&way=target");
            }
        });
 
@@ -96,7 +97,7 @@ public class UserPage extends Composite {
         
 
         docTable.addColumn(nameClm, "Document");
-        docTable.addColumn(yearClm, "Media source");
+        docTable.addColumn(mSourceClm, "Media");
         docTable.addColumn(doneClm, "Percent done");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");

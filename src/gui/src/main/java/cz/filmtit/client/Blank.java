@@ -12,9 +12,11 @@ public class Blank extends Composite {
 	interface BlankUiBinder extends UiBinder<Widget, Blank> {
 	}
 
-	public Blank(Gui gui) {
-		initWidget(uiBinder.createAndBindUi(this));
+	private Gui gui = Gui.getGui();
 	
+	public Blank() {
+		initWidget(uiBinder.createAndBindUi(this));
+		
         gui.guiStructure.contentPanel.setStyleName("blank");
         gui.guiStructure.contentPanel.setWidget(this);
 	}

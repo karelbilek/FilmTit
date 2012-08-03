@@ -42,14 +42,19 @@ public class MediaSelector extends Composite {
 
             // Add the contact image.
             sb.appendHtmlConstant("<tr><td rowspan='3' class='mediasource_thumb'>");
-            sb.appendHtmlConstant("<img src='" + value.getThumbnailURL() + "' />");
+
+            if (value.getThumbnailURL() != null)
+                sb.appendHtmlConstant("<img src='" + value.getThumbnailURL() + "' />");
+            else
+                sb.appendHtmlConstant("<div class='no_thumb'>?</div>");
+
             sb.appendHtmlConstant("</td>");
 
             // Add the name and address.
             sb.appendHtmlConstant("<td style='font-size:95%;'>");
-            sb.appendEscaped(value.getTitle());
+            sb.appendEscaped(value.toString());
             sb.appendHtmlConstant("</td></tr><tr><td>");
-            sb.appendEscaped(value.getYear());
+            sb.appendEscaped("");
             sb.appendHtmlConstant("</td></tr></table>");
         }
     }
@@ -72,13 +77,7 @@ public class MediaSelector extends Composite {
             }
         });
 
-
-
-
         this.suggestions = suggestions;
-
-
-
     }
 
     public void setSelected(MediaSource mediaSource) {

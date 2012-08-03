@@ -2,10 +2,13 @@ package cz.filmtit.client.applet;
 
 import java.io.File;
 import javax.swing.JApplet;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.JLabel;
+/*import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;*/
+
+import java.awt.*;
+
 import netscape.javascript.JSObject;
 
 public class Main extends JApplet {
@@ -18,19 +21,19 @@ public class Main extends JApplet {
             SwingUtilities.invokeAndWait(new Runnable() {
 
                 public void run() {
-
+                    Frame[] frames = Frame.getFrames();
                     
-                    JFrame frame = new JFrame();
+                    FileDialog fd = new FileDialog(frames[0], "Select a file",    FileDialog.LOAD);  
+                  
+                    fd.show();
 
-                    JFileChooser fc = new JFileChooser();
-                    fc.showOpenDialog(frame);
-                    File selFile = fc.getSelectedFile();
+                    String f = fd.getDirectory()+fd.getFile();
 
                     JSObject o = JSObject.getWindow(m);
 
-                    if (o != null) {
+                    if (f!=null && o != null) {
                         try {
-                            o.call("setFileAddress", new String[]{selFile.getAbsolutePath()});
+                            o.call("setFileAddress", new String[]{f});
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

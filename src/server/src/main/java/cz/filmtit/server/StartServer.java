@@ -1,6 +1,6 @@
 package cz.filmtit.server;
 
-import cz.filmtit.userspace.FilmTitBackendServer;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 
@@ -12,7 +12,8 @@ public class StartServer {
     public static FilmTitFrontendServer front;
 
     public static void main(String[] args) throws ClassNotFoundException {
-        
+       
+
         //dirty trick - initializing singleton
         ConfigurationSingleton.setConf(new Configuration(new File(args[0])));       
         

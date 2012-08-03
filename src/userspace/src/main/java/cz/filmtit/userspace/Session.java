@@ -140,6 +140,9 @@ public class Session {
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
+    /**
+     * Implements FilmTitService.getTranslationResults
+     */
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
         updateLastOperationTime();
         USDocument document = getActiveDocument(chunk.getDocumentId());
@@ -155,20 +158,23 @@ public class Session {
         return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
-    /*
-    public Void saveSourceChunks(Collection<TimedChunk> chunks) throws InvalidDocumentIdException {
+    public Void saveSourceChunks(List<TimedChunk> chunks) throws InvalidDocumentIdException {
 		updateLastOperationTime();
-		List<USTranslationResult> usTranslationResults = new ArrayList<USTranslationResult>(chunks.size);
-		USDocument document;
+		if (chunks.size() == 0) {
+			return null;
+		}
+		USDocument document = getActiveDocument(chunks.get(0).getDocumentId());
+		List<USTranslationResult> usTranslationResults = new ArrayList<USTranslationResult>(chunks.size());
 		for (TimedChunk chunk: chunks) {
-			document = getActiveDocument(chunk.getDocumentId());
+			// TODO: maybe we should check here that all of the chunks have the same documentId
 			USTranslationResult usTranslationResult = new USTranslationResult(chunk);
+			// TODO why does it not simply get the id from the chunk?
 			usTranslationResult.setDocument(document);
 			usTranslationResults.add(usTranslationResult);
 		}
 		saveTranslationResults(document, usTranslationResults);
+		return null;
     }
-    */
     
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
@@ -278,6 +284,20 @@ public class Session {
         return null;
     }
 
+
+    public boolean hasDocument(long id) {
+        
+
+        //TODO make this a set, not a list
+        for(USDocument usDocument : user.getOwnedDocuments()) {
+            if (usDocument.getDatabaseId() == id) {
+                return true;
+            }
+        }
+        return false;
+ 
+    }
+
     public List<Document> getListOfDocuments() {
         updateLastOperationTime();
         List<Document> result = new ArrayList<Document>();
@@ -289,6 +309,12 @@ public class Session {
         return result;
     }
 
+    /**
+     * Implements FilmTitService.loadDocument
+     * @param documentID
+     * @return the document, with the chunks loaded
+     * @throws InvalidDocumentIdException
+     */
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
         updateLastOperationTime();
         for (USDocument usDocument : user.getOwnedDocuments()) {
@@ -332,7 +358,9 @@ public class Session {
        saveTranslationResults(document, al);
     }
 
-    public void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
+    // TODO: not sure if "synchronized" is needed - used because of the following note in getTranslationResults:
+    // not saving it right away, because I do this in parallel, db doesn't like it
+    public synchronized void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         document.saveToDatabase(session);
 

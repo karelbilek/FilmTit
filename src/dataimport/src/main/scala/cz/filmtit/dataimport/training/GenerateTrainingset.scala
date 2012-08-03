@@ -1,7 +1,8 @@
 package cz.filmtit.dataimport.training
 
 import _root_.java.io.{FileOutputStream, PrintWriter, File}
-import cz.filmtit.userspace.{USTranslationResult, FilmTitBackendServer}
+//import cz.filmtit.userspace.{USTranslationResult, FilmTitBackendServer}
+import cz.filmtit.userspace.USTranslationResult
 import cz.filmtit.share.{TranslationPair, TranslationResult}
 import scala.collection.JavaConversions._
 import cz.filmtit.core.rank.ExactRanker

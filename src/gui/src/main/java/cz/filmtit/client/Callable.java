@@ -1,6 +1,8 @@
 package cz.filmtit.client;
 
 import cz.filmtit.share.*;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 
 /**
@@ -17,14 +19,14 @@ public abstract class Callable {
 	
 	static private int newId = 1;
 	
-	protected static FilmTitServiceAsync filmTitService;
+	protected static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
 	
-	protected static Gui gui;
-
 	protected static int windowsDisplayed;
 	
 	// non-static members
 	
+	protected Gui gui = Gui.getGui();
+
 	int id;
 
 	/**

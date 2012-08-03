@@ -23,8 +23,10 @@ public class RegistrationForm extends Composite {
 	interface RegistrationFormUiBinder extends
 			UiBinder<Widget, RegistrationForm> {
 	}
+	
+	private Gui gui = Gui.getGui();
 
-	public RegistrationForm(final Gui gui) {
+	public RegistrationForm() {
 		initWidget(uiBinder.createAndBindUi(this));
 
         final DialogBox dialogBox = new DialogBox(false);

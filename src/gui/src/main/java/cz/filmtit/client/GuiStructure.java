@@ -18,28 +18,28 @@ public class GuiStructure extends Composite {
 	interface GuiStructureUiBinder extends UiBinder<Widget, GuiStructure> {
 	}
 
-	public GuiStructure(final Gui gui) {
+	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-                  gui.showLoginDialog();
+            	 Gui.getGui().showLoginDialog();
              }
         });
 
         // top menu handlers
         logout.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	  gui.rpcHandler.logout();
+            	 Gui.getGui().rpcHandler.logout();
              }
         });
 
 		// the default layout is the logged out one
 		logged_out();
 		
-        gui.rootPanel = RootPanel.get();
-        gui.rootPanel.add(this, 0, 0);
+		RootPanel rootPanel = RootPanel.get();
+        rootPanel.add(this, 0, 0);
 
         allMenuItems = new Hyperlink[]{ documentCreator, about, welcomePage, userPage };
 		

@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import cz.filmtit.client.Gui.SendChunksCommand;
+import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -27,19 +27,6 @@ import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
 	
-	public FilmTitServiceHandler(Gui gui) {
-		
-		// the async service
-		Callable.filmTitService = GWT.create(FilmTitService.class);
-
-		// direct access
-		// to package-internal (and public) fields and methods
-		// of the active Gui instance
-		// is necessary to react to call results
-		// (because the RPC calls are asynchronous)
-		Callable.gui = gui;
-	}
-
 // disabled only to avoid duplicities, can be reenabled by uncommenting anytime if needed
 //    public void loadDocumentFromDB(Document document) {
 //        new LoadDocumentFromDB(document.getId());
@@ -58,8 +45,7 @@ public class FilmTitServiceHandler {
             	
             	// prepare empty TranslationWorkspace
                 String moviePath = null; //TODO: player
-                gui.workspace = new TranslationWorkspace(gui, moviePath);
-                gui.setCurrentDocument(doc);
+                final TranslationWorkspace workspace = new TranslationWorkspace(doc, moviePath);
                 
                 // prepare the TranslationResults
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
@@ -70,7 +56,7 @@ public class FilmTitServiceHandler {
                 // show the TranslationResults
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                                gui.processTranslationResultList(results);
+                                workspace.processTranslationResultList(results);
                             }
                         });
 
@@ -104,7 +90,6 @@ public class FilmTitServiceHandler {
 
     }
 
-	
 	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String subformat, String moviePath) {
 		new CreateDocument(documentTitle, movieTitle, language, subtext, subformat, moviePath);
 	}
@@ -124,10 +109,9 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(final DocumentResponse result) {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
-				gui.setCurrentDocument(result.document);
 
 				gui.pageHandler.setPageUrl(Page.TranslationWorkspace);				
-                gui.workspace = new TranslationWorkspace(gui, moviePath);
+				final TranslationWorkspace workspace = new TranslationWorkspace(result.document, moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
@@ -140,7 +124,7 @@ public class FilmTitServiceHandler {
 
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                            	gui.processText(subtext, subformat);
+                            	workspace.processText(subtext, subformat);
                             }
                         });
                     }
@@ -148,6 +132,8 @@ public class FilmTitServiceHandler {
                 dialogBox.setWidget(mediaSelector);
                 dialogBox.setGlassEnabled(true);
                 dialogBox.center();
+                dialogBox.setPopupPosition(dialogBox.getPopupLeft(), 100);
+
             }
 			
 			public void onFailure(Throwable caught) {
@@ -184,15 +170,60 @@ public class FilmTitServiceHandler {
 		}
 	}
 	
-	public void getTranslationResults(List<TimedChunk> chunks, Gui.SendChunksCommand command) {
-		new GetTranslationResults(chunks, command);
+	public void saveSourceChunks(List<TimedChunk> chunks) {
+		new SaveSourceChunks(chunks);
+	}
+
+	public class SaveSourceChunks extends Callable {
+		
+		// parameters
+		List<TimedChunk> chunks;
+		
+		// callback
+		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+			
+			public void onSuccess(Void o) {
+				gui.log("successfully saved the chunks!");
+				// Window.alert("successfully saved the chunks!");
+				// TODO get to TranslationWorkspace
+			}
+			
+			public void onFailure(Throwable caught) {
+				if (caught.getClass().equals(InvalidSessionIdException.class)) {
+					gui.please_relog_in();
+					// TODO: store user input to be used when user logs in
+				} else {
+					// TODO: repeat sending a few times, then ask user
+					gui.exceptionCatcher(caught);
+				}
+			}
+		};
+		
+		// constructor
+		public SaveSourceChunks(List<TimedChunk> chunks) {
+			super();
+			
+			this.chunks = chunks;
+
+			enqueue();
+		}
+
+		@Override
+		public void call() {
+            filmTitService.saveSourceChunks(gui.getSessionID(), chunks, callback);
+		}
+	}
+	
+	public void getTranslationResults(List<TimedChunk> chunks, SendChunksCommand command, TranslationWorkspace workspace) {
+		new GetTranslationResults(chunks, command, workspace);
 	}
 
 	public class GetTranslationResults extends Callable {
 		
 		// parameters
 		List<TimedChunk> chunks;
-		Gui.SendChunksCommand command;
+		SendChunksCommand command;
+		TranslationWorkspace workspace;
 		
 		// callback
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
@@ -201,7 +232,7 @@ public class FilmTitServiceHandler {
 				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
 				
 				// add to trlist to the correct position:
-				//Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				//Map<ChunkIndex, TranslationResult> translist = workspace.getCurrentDocument().translationResults;
 			
                 for (TranslationResult newresult:newresults){
 
@@ -212,7 +243,7 @@ public class FilmTitServiceHandler {
                     //not sure if this is needed
                     //translist.put(poi, newresult);
                     
-                    gui.getTranslationWorkspace().showResult(newresult);
+                    workspace.showResult(newresult);
                 }
                 command.execute();
 			}
@@ -236,14 +267,12 @@ public class FilmTitServiceHandler {
 		
 		// constructor
 		public GetTranslationResults(List<TimedChunk> chunks,
-				SendChunksCommand command) {
+				SendChunksCommand command, TranslationWorkspace workspace) {
 			super();
 			
 			this.chunks = chunks;
-
-
-
 			this.command = command;
+			this.workspace = workspace;
 			
 			enqueue();
 		}
@@ -351,8 +380,8 @@ public class FilmTitServiceHandler {
 	}
 
     public void checkSessionID() {
-		if (Callable.gui.getSessionID() == null) {
-			Callable.gui.logged_out();
+		if (Gui.getGui().getSessionID() == null) {
+			Gui.getGui().logged_out();
     	}
 		else {
 	    	new CheckSessionID();
@@ -873,7 +902,6 @@ public class FilmTitServiceHandler {
 		}
 	}
 
-
     public void getListOfDocuments(UserPage userpage) {
     	new GetListOfDocuments(userpage);
     }
@@ -921,49 +949,6 @@ public class FilmTitServiceHandler {
 
 	}
     
-    public void exportSubtitles (long documentID) {
-    	new ExportSubtitles(documentID);
-    }
-    
-    public class ExportSubtitles extends Callable {
 
-    	// parameters
-    	long documentID;
-    	
-    	// callback
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
-
-            @Override
-            public void onSuccess(String result) {
-                gui.log("received subtitle file of " + result.length() + " bytes");
-                gui.log("SHOWING FILE");
-                gui.log(result);
-                gui.log("END OF FILE");                
-                gui.log("received subtitle file of " + result.length() + " bytes");
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                gui.log("ERROR: failure on getting subtitle file!");
-            }
-
-        };
-    	
-    	
-		// constructor
-		public ExportSubtitles(long documentID) {
-			super();
-			
-			this.documentID = documentID;
-			
-			enqueue();
-		}
-    	    	
-		@Override
-		void call() {
-	        filmTitService.exportSubtitles(gui.getSessionID(), documentID, callback);
-		}
-
-    }
 	    
 }

@@ -25,8 +25,10 @@ public class LoginDialog extends Composite {
 
 	interface LoginDialogUiBinder extends UiBinder<Widget, LoginDialog> {
 	}
+	
+	private Gui gui = Gui.getGui();
 
-	public LoginDialog(String username, final Gui gui) {
+	public LoginDialog(String username) {
 		initWidget(uiBinder.createAndBindUi(this));
 
         final DialogBox dialogBox = new DialogBox(false);

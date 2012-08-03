@@ -20,34 +20,33 @@ import cz.filmtit.share.TimedChunk;
  *
  */
 public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, ValueChangeHandler<String>, BlurHandler {
-	Gui gui;
+	
+	private Gui gui = Gui.getGui();
     TranslationWorkspace workspace;
     VLCWidget vlcPlayer;
 
 
 	/**
 	 * Creates a new SubgestHandler.
-	 * @param gui - reference to the main Gui class (for more global possibilities)
 	 */
-	public SubgestHandler(Gui gui, VLCWidget vlcPlayer) {
-		this.gui = gui;
+	public SubgestHandler(TranslationWorkspace workspace, VLCWidget vlcPlayer) {
+		this.workspace = workspace;
         this.vlcPlayer = vlcPlayer;
         if (gui == null) {
             Window.alert("gui for handler is null during the constructor!!!");
         }
-        this.workspace = gui.getTranslationWorkspace();
   
 	}
 
-    public static TimedChunk getChunk(SubgestBox sb, Gui g) {
-        return g.getChunk(sb.getChunkIndex());
+    public static TimedChunk getChunk(SubgestBox sb, TranslationWorkspace workspace) {
+        return workspace.getChunk(sb.getChunkIndex());
     }
 
 	@Override
 	public void onFocus(FocusEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
             final SubgestBox subbox = (SubgestBox) event.getSource();
-            long time = getChunk(subbox, gui).getStartTimeLongNonZero();
+            long time = getChunk(subbox, workspace).getStartTimeLongNonZero();
             if (vlcPlayer != null) {
                 vlcPlayer.maybePlayWindow(time);
             }
@@ -55,7 +54,6 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
             subbox.loadSuggestions();
             // hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus (if any)
-            workspace = gui.getTranslationWorkspace();
             if (workspace == null) {
                 gui.log("workspace for handler is null when focusing!!!");
                 final Throwable throwable = new IllegalArgumentException("Hello");
@@ -89,14 +87,12 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 			}
 			// pressing Esc:
 			else if ( isThisKeyEvent(event, KeyCodes.KEY_ESCAPE) ) {
-                workspace = gui.getTranslationWorkspace();
 				// hide the suggestion widget corresponding to the SubgestBox
 				//   which previously had focus (PopupPanel does not hide on keyboard events)
 				workspace.deactivateSuggestionWidget();
 			}
 			// pressing Tab:
 			else if ( isThisKeyEvent(event, KeyCodes.KEY_TAB) ) {
-                workspace = gui.getTranslationWorkspace();
 				event.preventDefault(); // e.g. in Chrome, default is to insert TAB character in the textarea
                 workspace.deactivateSuggestionWidget();
 				SubgestBox subbox = (SubgestBox) event.getSource();
@@ -169,7 +165,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 
             // submitting only when the contents have changed
             if (subbox.textChanged()) {
-                gui.submitUserTranslation(subbox.getTranslationResult());
+                workspace.submitUserTranslation(subbox.getTranslationResult());
                 subbox.updateLastText();
             }
 
