@@ -1,7 +1,8 @@
 package cz.filmtit.share;
 
 import java.io.Serializable;
-
+import java.util.*;
+import cz.filmtit.share.annotations.*;
 
 public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable,
 Comparable<TimedChunk> {
@@ -24,11 +25,131 @@ Comparable<TimedChunk> {
     public TimedChunk() {
     	// nothing;    	
     }
-
+    
     public ChunkIndex getChunkIndex() {
         return chunkIndex;
     }
+
+    public boolean sameTimeAs(TimedChunk other) {
+        if (other==null) {
+            return false;
+        }        
+        return this.startTime.equals(other.startTime) && this.endTime.equals(other.endTime);
+    }
+
+    public boolean isSubTime() {
+        return !isSrtTime();
+    }
+
+    public boolean isSrtTime() {
+        return (this.getStartTime().contains(":"));
     
+    }
+
+    //this is immutable thing
+    public TimedChunk joinWith(TimedChunk other, FileType type) {
+        String joiner = getJoiner(type);
+        int size = this.getSurfaceForm().length() + joiner.length();
+        String joined = this.getSurfaceForm() + joiner + other.getSurfaceForm();
+        
+
+        ArrayList<Annotation> anots = new ArrayList<Annotation>(other.getAnnotations().size() + getAnnotations().size());
+        anots.addAll(this.getAnnotations());
+        for (Annotation a:other.getAnnotations()) {
+           anots.add(new Annotation(a.getType(), a.getBegin()+size, a.getEnd()+size));
+        }
+        return new TimedChunk(joined, this.getStartTime(), this.getEndTime(), anots);
+
+    }
+
+    public enum FileType{
+      SRT,
+      SUB,
+      TXT, //wtf is TXT format?
+    }
+
+    public String getJoiner(FileType ft) {
+        if (ft == FileType.SRT) {
+            return "\n";
+        } else if (ft == FileType.SUB) {
+            return "|";
+        } else {
+            return " ";
+        }
+    }
+
+    public StringBuilder getFileForm(FileType type, int order, double fps) {
+        switch (type) {
+            case SRT: return getSrtForm(order, fps);
+            case SUB: return getSubForm(fps);
+            case TXT: return new StringBuilder(this.getSurfaceForm()).append("\n");
+        }
+        return null; //<-should not happen
+    }
+
+    //TODO: newlines, dialogies
+    public StringBuilder getSubForm(double fps) {
+        return getSubTime(fps).append("{").append(getSurfaceForm()).append("}").append("\n");
+    }
+
+
+    //TODO: newlines, dialogies
+    public StringBuilder getSrtForm(int order, double fps) {
+        return new StringBuilder().append(order).append("\n").append(getSrtTime(fps)).append("\n").append(getSurfaceForm()).append("\n\n");
+    }
+
+    public StringBuilder getSubTime(double fps) {
+        return new StringBuilder("{").append(getSubStartTime(fps)).append("}{").append(getSubEndTime(fps)).append("}");
+    }
+    
+    public StringBuilder getSrtTime(double fps) {
+        return getSrtStartTime(fps).append("-->").append(getSrtEndTime(fps));
+    }
+
+    public StringBuilder getPartFormatedTime(boolean begin, boolean srt, double fps) {
+        String time = begin?getStartTime() : getEndTime();
+        boolean right = (srt == isSrtTime());
+        if (right) {
+            return new StringBuilder().append(time);
+        } else {
+            return srt?subTimeToSrt(time, fps):srtTimeToSub(time, fps);
+        }
+    }
+
+    public StringBuilder getSrtStartTime(double fps) {
+        return getPartFormatedTime(true, true, fps);   
+    }
+   
+    public StringBuilder getSubStartTime(double fps) {
+        return getPartFormatedTime(true, false, fps);   
+    }
+
+    public StringBuilder getSrtEndTime(double fps) {
+        return getPartFormatedTime(false, true, fps);   
+    }
+   
+    public StringBuilder getSubEndTime(double fps) {
+        return getPartFormatedTime(false, false, fps);   
+    }
+
+    public static StringBuilder srtTimeToSub(String time, double fps) {
+        double t = timeToLong(time);
+        double frame = t * fps / 1000;
+        Long framelong = (long) frame;
+        return new StringBuilder().append(framelong.toString());
+    }
+
+    public static StringBuilder subTimeToSrt(String frame, double fps) {
+        Double f = new Long(frame).doubleValue();
+        long allMillis = (long)(f*1000/fps);
+        long millis = allMillis % 1000;
+        long seconds = ((long)(allMillis / 1000)) % 60;
+        long minutes = ((long)(allMillis / (1000*60))) % 60;
+        long hours = ((long)(allMillis / (1000*60*60)));
+        return new StringBuilder().append(hours).append(":").append(minutes).append(":").append(seconds).append(".").append(millis);
+    }
+    
+    //working only with SRT
     public static long timeToLong(String time) {
         String[] times = time.split("[,:.]");
         Long hour = Long.valueOf(times[0].replaceAll(" ",""));
@@ -44,7 +165,14 @@ Comparable<TimedChunk> {
     public void setIndex(int index) {
         this.index=index;
     }*/
-    
+   
+    public TimedChunk(String surfaceForm, String startTime, String endTime, List<Annotation> annotations) {
+        super(surfaceForm, annotations);
+        this.startTime = startTime;
+        this.endTime = endTime;
+        
+    }
+ 
     public TimedChunk(String startTime, String endTime, int partNumber, String text, int id, long documentId) {
         super(text);
         this.startTime = startTime;

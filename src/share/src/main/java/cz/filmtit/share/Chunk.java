@@ -17,8 +17,6 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     private String surfaceform="";
     
-    //I do NOT want to create a constructor with list so scala doesn't add 
-    //its own implementation of java lists
     private List<Annotation> annotations;
 
     @GwtTransient
@@ -50,6 +48,11 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     public Chunk() {
     	// nothing
+    }
+
+    public Chunk(String surfaceform, List<Annotation> annotations) {
+        this.surfaceform = surfaceform.replace('\u0000',' ');
+        this.annotations=annotations;
     }
 
     
