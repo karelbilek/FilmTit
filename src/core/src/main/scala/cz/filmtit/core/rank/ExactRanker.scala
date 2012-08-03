@@ -2,6 +2,7 @@ package cz.filmtit.core.rank
 
 import org.apache.commons.lang3.StringUtils
 import cz.filmtit.share._
+import cz.filmtit.core.Utils.min
 import cz.filmtit.core.model.Patterns
 import scala.Double
 
@@ -13,65 +14,6 @@ import scala.Double
 
 class ExactRanker(val weights: List[Double] = List(0.091, 0.8441, 0.02163, 0.02163, 0.02163, 0.0)) extends BaseRanker {
 
-  val MIN_EDIT_DISTANCE = 1
-
-  def min(nums: Int*): Int = nums.min
-
-  def levenshteinSmallerN(str1: String, str2: String, minDistance: Int): Boolean = {
-
-    val lenStr1 = str1.length
-    val lenStr2 = str2.length
-
-    val d: Array[Array[Int]] = Array.ofDim(lenStr1 + 1, lenStr2 + 1)
-
-    for (i <- 0 to lenStr1) d(i)(0) = i
-    for (j <- 0 to lenStr2) d(0)(j) = j
-
-    for (i <- 1 to lenStr1) {
-      for (j <- 1 to lenStr2) {
-        val cost = if (str1(i - 1) == str2(j-1)) 0 else 1
-
-        d(i)(j) = min(
-          d(i-1)(j  ) + 1,     // deletion
-          d(i  )(j-1) + 1,     // insertion
-          d(i-1)(j-1) + cost   // substitution
-        )
-      }
-
-      if (d(i).min > MIN_EDIT_DISTANCE) {
-        return false
-      }
-
-    }
-
-    d(lenStr1)(lenStr2) <= MIN_EDIT_DISTANCE
-  }
-
-  def mergeSimilarResults(pairs: List[TranslationPair]): List[TranslationPair] = {
-
-    var pairsToBeRemoved = Set[Int]()
-
-    for (i <- (0 to pairs.size-1)) {
-      if (!pairsToBeRemoved.contains(i)) {
-        for (j <- (i+1 to pairs.size-1)) {
-          if (levenshteinSmallerN(pairs(i).getStringL2, pairs(j).getStringL2, MIN_EDIT_DISTANCE)) {
-            pairsToBeRemoved += j
-          }
-        }
-      }
-    }
-
-    var mergedPairs = List[TranslationPair]()
-    var i = 0
-    for (pair <- pairs) {
-      if (!pairsToBeRemoved.contains(i))
-        mergedPairs :+= pair
-      i += 1
-    }
-
-    mergedPairs
-  }
-
   override def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]): List[TranslationPair] = {
 
     val totalCount = pairs.map(_.getCount).sum
@@ -79,7 +21,7 @@ class ExactRanker(val weights: List[Double] = List(0.091, 0.8441, 0.02163, 0.021
       pair.setScore( getWeightedScore(getScores(chunk, mediaSource, pair, totalCount)) )
     }
 
-    mergeSimilarResults(pairs.sorted)
+    pairs.sorted
   }
 
   def rankOne(chunk: Chunk, mediaSource: MediaSource,  pair: TranslationPair): TranslationPair = pair

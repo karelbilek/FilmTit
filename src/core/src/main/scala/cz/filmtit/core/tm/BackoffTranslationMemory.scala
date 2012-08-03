@@ -1,6 +1,6 @@
 package cz.filmtit.core.tm
 
-import cz.filmtit.core.model.{TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
+import cz.filmtit.core.model.{TranslationPairMerger, TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
 import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
 import org.apache.commons.logging.LogFactory
@@ -9,6 +9,7 @@ import cz.filmtit.core.model.storage.{MediaStorage, TranslationPairStorage}
 import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper
 import cz.filmtit.share._
+import collection.mutable.ListBuffer
 
 
 /**
@@ -21,36 +22,17 @@ import cz.filmtit.share._
  */
 
 class BackoffTranslationMemory(
-  val searcher: TranslationPairSearcher,
   val l1:Language,
   val l2:Language,
-  val ranker: Option[TranslationPairRanker] = None,
-  val backoff: Option[TranslationMemory] = None,
-  val threshold: Double = 0.90,
+  val levels: List[BackoffLevel],
+  val merger: Option[TranslationPairMerger],
   val tokenizerl1: Option[TokenizerWrapper] = None,
   val tokenizerl2: Option[TokenizerWrapper] = None
-  ) extends TranslationMemory {
+) extends TranslationMemory {
 
-  val logger = LogFactory.getLog("BackoffTM[%s, %s]".format(
-    searcher match {
-      case s: TranslationPairSearcherWrapper => { "%s (%d concurrent instances)".format(s.searchers.head.getClass.getSimpleName, s.size) }
-      case s: TranslationPairSearcher => s.getClass.getSimpleName
-    },
-    ranker match {
-      case Some(r) => r.getClass.getSimpleName
-      case None => "no ranker"
-    }
-  ))
+  val logger = LogFactory.getLog("BackoffTM")
 
-  logger.info("Backoff TM created.")
-
-  /**
-   * TODO: this is a bit confusing
-   *
-   * If the searcher extends BaseStorage, then it will also be a MediaStorage,
-   * hence the media storage for this TM will be the searcher
-   */
-  override val mediaStorage = searcher match {
+  override val mediaStorage = searchers.head match {
     case s: BaseStorage => s.asInstanceOf[MediaStorage]
     case _ => null
   }
@@ -61,88 +43,49 @@ class BackoffTranslationMemory(
         case _ => throw new Exception("Wrong tokenization language")
     }
 
-
-  def tokenize(pair:TranslationPair) {
-    tokenize(pair.getChunkL1, l1)
-    tokenize(pair.getChunkL2, l2)
-  }
-
-  def tokenize(chunk:Chunk, language:Language) {
-    if (!chunk.isTokenized) {
-       //foreach means "do if not None"
-        tokenizer(language).foreach {_.tokenize(chunk)}
-    }
-  }
-
-  def tokenizeForImport(pair:TranslationPair) {
-    tokenizeForImport(pair.getChunkL1, l1)
-    tokenizeForImport(pair.getChunkL2, l2)
-  }
-
-  def tokenizeForImport(chunk:Chunk, language:Language) {
-    chunk.setTokens(tokenizer(language).get.tokenizers(0).tokenize(chunk.getSurfaceForm))
-  }
-
-  def candidates(chunk: Chunk, language: Language, mediaSource: MediaSource)={
-    tokenize(chunk, language);
-    searcher.candidates(chunk, language)
-  }
-
-
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
     n: Int = 10, inner: Boolean = false): List[TranslationPair] = {
 
-    tokenize(chunk, language);
-    //Only on first level:
-    if (!inner)
-      logger.info( "n-best: (%s) %s".format(language, chunk) )
+    tokenize(chunk, language)
+    logger.info( "n-best: (%s) %s".format(language, chunk) )
 
-    val s1 = System.currentTimeMillis
-    val pairs: List[TranslationPair] = candidates(chunk, language, mediaSource)
-    val s2 = System.currentTimeMillis
+    var results = ListBuffer[TranslationPair]()
+    for (level: BackoffLevel <- this.levels) {
 
-    val ranked = ranker match {
-      case Some(r) => r.rank(chunk, null, pairs)
-      case None => pairs
-    }
-    val s3 = System.currentTimeMillis
+      val s1 = System.currentTimeMillis
+      val pairs = level.searcher.candidates(chunk, language)
+      val s2 = System.currentTimeMillis
 
-    logger.info( "Retrieved %d candidates (%dms), ranking: %dms, total: %dms, Chunk: %s"
-      .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
+      results ++= (level.ranker match {
+        case Some(r) => r.rank(chunk, mediaSource, pairs)
+        case None => pairs
+      }).filter(pair => pair.getScore >= level.threshold)
 
-    if ( ranked.take(n).exists(pair => pair.getScore >= threshold) )
-      ranked.take(n)
-    else
-      backoff match {
-        case Some(backoffTM) => 
-          backoffTM.nBest(chunk, language, mediaSource, n, inner=true)
-        case None => List[TranslationPair]()
+      val s3 = System.currentTimeMillis
+
+      logger.info( level.toString + ": retrieved %d candidates (%dms), ranking: %dms, total: %dms, Chunk: %s"
+        .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
+
+      if ( results.size >= n ) {
+        return merge(results, n)
       }
-  }
 
+    }
+
+    merge(results, n)
+  }
 
   def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
-  Option[TranslationPair] = {
+  Option[TranslationPair] = nBest(chunk, language, mediaSource).headOption
 
-    tokenize(chunk, language);
-    logger.info( "first-best: (%s) %s".format(language, chunk) )
 
-    val pairs: List[TranslationPair] = candidates(chunk, language, mediaSource)
-    val best = ranker match {
-      case Some(r) => r.best(chunk, null, pairs)
-      case None => pairs.headOption
+  def merge(results: Seq[TranslationPair], n: Int): List[TranslationPair] = {
+    merger match {
+      case Some(m) => m.merge(results.toList, n)
+      case None => results.toList.take(n)
     }
-
-    best match {
-      case Some(pair) if pair.getScore >= threshold => Some(pair)
-      case _ =>
-        backoff match {
-          case Some(backoffTM) => backoffTM.firstBest(chunk, language, mediaSource)
-          case None => None
-        }
-    }
-
   }
+
 
   def add(pairs: Array[TranslationPair]) {
 
@@ -150,8 +93,7 @@ class BackoffTranslationMemory(
     pairs.foreach{ p => tokenizeForImport(p) }
     logger.info( "Done." )
 
-    //If the searcher can be initialized with translation pairs, do it:
-    searcher match {
+    searchers.head match {
       case s: TranslationPairStorage => s.add(pairs)
       case s: TranslationPairSearcherWrapper => {
         s.searchers.head match {
@@ -165,11 +107,8 @@ class BackoffTranslationMemory(
   }
 
   def warmup() {
-
     logger.info("Warming up...")
-
-     //If the searcher can be warmed up, do it:
-     searcher match {
+    searchers.foreach(_ match {
        case s: TranslationPairStorage => s.warmup()
        case s: TranslationPairSearcherWrapper => {
          s.searchers.head match {
@@ -178,15 +117,14 @@ class BackoffTranslationMemory(
          }
        }
        case _ =>
-      }
-
-      if (backoff.isDefined) backoff.get.warmup()
+      })
   }
 
   def reindex() {
 
     //If the searcher can be reindexed, do it:
-    searcher match {
+    logger.info("Reindexing...")
+    searchers.foreach(_ match {
       case s: TranslationPairStorage => s.reindex()
       case s: TranslationPairSearcherWrapper => {
         s.searchers.head match {
@@ -195,16 +133,13 @@ class BackoffTranslationMemory(
         }
       }
       case _ =>
-    }
-
-    //If there is a backoff TM (there is either 0 or 1 backoff TM), reindex it
-    if (backoff.isDefined) backoff.get.reindex()
+    })
 
   }
 
   def reset() {
-    //If the searcher can be reset, do it:
-    searcher match {
+    logger.info("Reseting...")
+    searchers.foreach(_ match {
       case s: TranslationPairStorage => s.reset()
       case s: TranslationPairSearcherWrapper => {
         s.searchers.head match {
@@ -213,15 +148,14 @@ class BackoffTranslationMemory(
         }
       }
       case _ =>
-    }
-
+    })
   }
 
   def close() {
     tokenizerl1.foreach(_.close())
     tokenizerl2.foreach(_.close())
 
-    searcher match {
+    searchers.foreach(_ match {
       case s: TranslationPairStorage => s.close()
       case s: TranslationPairSearcherWrapper => {
         s.searchers.head match {
@@ -230,7 +164,21 @@ class BackoffTranslationMemory(
         }
       }
       case _ =>
+    })
+  }
+
+  private def tokenize(chunk:Chunk, language:Language) {
+    if (!chunk.isTokenized) {
+       //foreach means "do if not None"
+        tokenizer(language).foreach {_.tokenize(chunk)}
     }
   }
+
+  private def tokenizeForImport(pair:TranslationPair) {
+    pair.getChunkL1.setTokens(tokenizer(l1).get.tokenizers(0).tokenize(pair.getChunkL1.getSurfaceForm))
+    pair.getChunkL2.setTokens(tokenizer(l2).get.tokenizers(0).tokenize(pair.getChunkL2.getSurfaceForm))
+  }
+
+  def searchers = levels.map(_.searcher)
 }
 

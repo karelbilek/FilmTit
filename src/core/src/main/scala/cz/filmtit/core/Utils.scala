@@ -22,4 +22,6 @@ object Utils {
 
   implicit def chunkFromString(surfaceform: String): Chunk = new Chunk(surfaceform)
 
+  def min(nums: Int*): Int = nums.min
+
 }
