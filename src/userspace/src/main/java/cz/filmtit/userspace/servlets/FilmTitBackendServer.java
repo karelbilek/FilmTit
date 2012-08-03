@@ -1,10 +1,8 @@
 package cz.filmtit.userspace.servlets;
 
-import cz.filmtit.userspace.*;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.core.CoreHibernateUtil;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
@@ -13,6 +11,7 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.userspace.*;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -32,11 +31,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
-    private static int SESSION_ID_LENGHT = 47;
+    private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
 
-
-    private static CoreHibernateUtil coreHibernateUtil = CoreHibernateUtil.getInstance();
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     private enum CheckUserEnum {
@@ -82,9 +79,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         usHibernateUtil.closeAndCommitSession(dbSession);
 
-        // initialize also the core part of hibernate
-        dbSession = coreHibernateUtil.getSessionWithActiveTransaction();
-        coreHibernateUtil.closeAndCommitSession(dbSession);
 
         System.err.println("FilmTitBackendServer started fine!");
     }
@@ -227,7 +221,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             Authentication authentication = authenticatedSessions.get(authID);
             authenticatingSessions.remove(authID);
             // USUser user = createUser(authentication);          create user from auth information (select or create in db)
-            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
             Session session = new Session(null); //= createSession(newSessionID,user)      create session with user
             activeSessions.put(newSessionID, session);
 
@@ -245,7 +239,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 return  "";
             }
             else {
-                String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+                String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
                 Session session = new Session(user);
                 activeSessions.put(newSessionID, session);
                 return newSessionID;
