@@ -132,6 +132,8 @@ public class FilmTitServiceHandler {
                 dialogBox.setWidget(mediaSelector);
                 dialogBox.setGlassEnabled(true);
                 dialogBox.center();
+                dialogBox.setPopupPosition(dialogBox.getPopupLeft(), 100);
+
             }
 			
 			public void onFailure(Throwable caught) {

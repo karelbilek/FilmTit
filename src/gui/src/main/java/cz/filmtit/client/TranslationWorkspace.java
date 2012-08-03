@@ -148,6 +148,8 @@ public class TranslationWorkspace extends Composite {
          
         gui.guiStructure.contentPanel.setWidget(this);
         gui.guiStructure.contentPanel.setStyleName("translating");
+        gui.guiStructure.contentPanel.addStyleName("parsing");
+
         
 	}
 
@@ -239,6 +241,8 @@ public class TranslationWorkspace extends Composite {
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           gui.log("parsing finished in " + parsingTime + "ms");
+          gui.guiStructure.contentPanel.removeStyleName("parsing");
+
 
           for (TimedChunk chunk : chunklist) {
               chunkmap.put(chunk.getChunkIndex(), chunk);
