@@ -27,20 +27,22 @@ public class GenerateFile {
     private static String ARROW = "-->";
     private List<TimeResult> data ;
 
+
+
+
      public GenerateFile() {
          data = new ArrayList<TimeResult>();
      }
 
 
 
-  public StringBuilder generateFile(long idDocument , FileType type, org.hibernate.Session session){
+  public StringBuilder generateFile(long idDocument , GenerateLang  direction,org.hibernate.Session session){
         org.hibernate.Session dbSession = session;
-        List<USTranslationResult> TranslationResults = dbSession.createQuery("select d from USTranslationResult d where d.documentDatabaseId = :id_document")
-                .setParameter("id_document",idDocument).list(); //UPDATE hibernate  for more constraints
+        List<USTranslationResult> TranslationResults = dbSession.createQuery("select d from USTranslationResult d where d.documentDatabaseId = '"+idDocument+"'").list(); //UPDATE hibernate  for more constraints
       //  List<USTranslationResult> TranslationResults = dbSession.createQuery("select d from USTranslationResult d").list(); //UPDATE hibernate  for more constraints
         System.out.println("Generate files");
         TimeResult actualSub = null;
-
+        System.out.println(TranslationResults.size() + " vysledku");
         for (USTranslationResult result : TranslationResults)
         {
 
@@ -49,15 +51,16 @@ public class GenerateFile {
                  data.add(actualSub);
              };
 
-             actualSub = new TimeResult(result);
+             actualSub = new TimeResult(result,direction);
          }
          else{
-            System.out.println("Pridani do zaznamu");
-            actualSub.addResult(result);
+
+            actualSub.addResult(result,direction);
          }
         }
         data.add(actualSub);
-        StringBuilder content = generateText(type);
+      System.out.println("Generate stringbuilder");
+        StringBuilder content = generateTextSRT();
         return content;
     }
      private StringBuilder generateText(FileType type)
@@ -84,15 +87,26 @@ public class GenerateFile {
 
   private  class TimeResult
   {
-
       String startString;
       String endString;
-      StringBuilder text;
+      StringBuilder text = null;
+      GenerateLang type;
+      int  lineLenght = 50;
 
-      public  TimeResult(USTranslationResult s){
+      public  TimeResult(USTranslationResult s, GenerateLang type){
             startString = s.getStartTime();
             endString = s.getEndTime();
-            text  = new StringBuilder(s.getText());
+            this.type = type;
+            text  = new StringBuilder(getResultText(s));
+      }
+
+      public  TimeResult(USTranslationResult s, GenerateLang type, int lineLenght){
+          startString = s.getStartTime();
+          endString = s.getEndTime();
+          this.type = type;
+          this.lineLenght = lineLenght;
+          text  = new StringBuilder();
+          addText(getResultText(s));
       }
 
       public boolean inSameTime(USTranslationResult s){
@@ -100,9 +114,10 @@ public class GenerateFile {
          return  ((startString.compareTo(s.getStartTime())==0) && (endString.compareTo( s.getEndTime())==0 ));
       }
 
-      public void addResult(USTranslationResult s){
+      public void addResult(USTranslationResult s, GenerateLang type){
           text.append(s.getText());
       }
+
 
       public String getEndString() {
           return endString;
@@ -113,7 +128,43 @@ public class GenerateFile {
       }
 
       public StringBuilder getText() {
+          StringBuilder returnData = new StringBuilder();
+          if (text.length() > this.lineLenght)
+          {
+            int  lastPosition = 0;
+            int  actual = 0;
+             while ((actual = text.lastIndexOf(" ",lastPosition + this.lineLenght - 15))!=-1)
+             {
+               if (actual != lastPosition) {
+                   returnData.append(LINE);
+               }
+               returnData.append(this.text.subSequence(lastPosition,actual));
+               lastPosition = actual;
+             }
+              returnData.append(LINE);
+              returnData.append(this.text.substring(lastPosition));
+          }
           return text;
       }
+
+      private String getResultText(USTranslationResult r){
+          String tmp = null;
+          if (this.type == GenerateLang.ORIG){
+           tmp = r.getText();
+          }
+          else{
+            tmp = r.getUserTranslation();
+          }
+          if (tmp == null) {return "";};
+          return tmp;
+      }
+      private void addText(String t){
+
+          this.text.append(t);
+      }
+
+
+
+
   }
 }

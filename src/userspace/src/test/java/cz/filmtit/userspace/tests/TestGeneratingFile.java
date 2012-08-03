@@ -32,7 +32,7 @@ public class TestGeneratingFile {
         System.out.println("TestGenerate");
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         GenerateFile data = new GenerateFile();
-        data.generateFile(0, GenerateFile.FileType.SRT,dbSession);
+        data.generateFile(1,GenerateFile.GenerateLang.TRANS,dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
     }
 

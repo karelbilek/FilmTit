@@ -23,6 +23,7 @@ public class Emailer {
      private String header;
      private String message;
 
+
  public Emailer(String email , String subject , String message)
  {
      fetchConfig();
@@ -37,7 +38,10 @@ public class Emailer {
      this.email= email;
      this.message= message;
      this.header = subject;
+
  }
+
+
 
  public boolean  send(){
      if (isFilled())
