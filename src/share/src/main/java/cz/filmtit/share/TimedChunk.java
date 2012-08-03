@@ -103,7 +103,7 @@ Comparable<TimedChunk> {
     }
     
     public StringBuilder getSrtTime(double fps) {
-        return getSrtStartTime(fps).append("-->").append(getSrtEndTime(fps));
+        return getSrtStartTime(fps).append(" --> ").append(getSrtEndTime(fps));
     }
 
     public StringBuilder getPartFormatedTime(boolean begin, boolean srt, double fps) {

@@ -18,7 +18,7 @@
 
   <servlet>
     <servlet-name>FilmTitBackendServer</servlet-name>
-    <servlet-class>cz.filmtit.userspace.FilmTitBackendServer</servlet-class>
+    <servlet-class>cz.filmtit.userspace.servlets.FilmTitBackendServer</servlet-class>
   </servlet>
   
   <servlet-mapping>

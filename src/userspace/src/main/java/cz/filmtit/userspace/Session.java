@@ -284,6 +284,20 @@ public class Session {
         return null;
     }
 
+
+    public boolean hasDocument(long id) {
+        
+
+        //TODO make this a set, not a list
+        for(USDocument usDocument : user.getOwnedDocuments()) {
+            if (usDocument.getDatabaseId() == id) {
+                return true;
+            }
+        }
+        return false;
+ 
+    }
+
     public List<Document> getListOfDocuments() {
         updateLastOperationTime();
         List<Document> result = new ArrayList<Document>();

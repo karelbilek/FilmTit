@@ -24,18 +24,11 @@ public class FilmTitFrontendServer {
  
   public FilmTitFrontendServer(int port) {
 
-    org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
-    SocketConnector connector = new SocketConnector();
- 
-    //This I copied from web, not sure what it does
-    connector.setMaxIdleTime(1000 * 60 * 60);
-    connector.setSoLingerTime(-1);
-    connector.setPort(port);
-    server.setConnectors(new Connector[] { connector });
+    org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(port);
+    URL location;
 
-   URL location;
 
-//a little hack, this will have to be deleted in actual code
+    //a little hack, for running from maven/class alone
     if (FilmTitFrontendServer.class.getResource("FilmTitFrontendServer.class").toString().startsWith("jar:")) {
 
         //running from shaded jar
@@ -53,6 +46,8 @@ public class FilmTitFrontendServer {
         }
     }
 
+
+    //======first servlet - .html, .css
     WebAppContext frontContext = new WebAppContext();
     frontContext.setServer(server);
     frontContext.setContextPath("/");
@@ -60,22 +55,30 @@ public class FilmTitFrontendServer {
     frontContext.setWar(location.toExternalForm());
 
 
+    //=====second servlet - RPC server
     //I call it backend, but it still has the "gui" URL
     final ServletContextHandler backContext = new ServletContextHandler(server, "/gui", ServletContextHandler.SESSIONS);
     
-                     //I use trick with config singleton to get config loaded there
+     //I use trick with config singleton to get config loaded there    
     FilmTitBackendServer backend = new FilmTitBackendServer();
-    
     backContext.addServlet(new ServletHolder(backend), "/filmtit");
 
-    //another servlet for subtitles
-    final ServletContextHandler subDownloadContext = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+   
+    //======third servlet - for subtitles
+    final ServletContextHandler subDownloadContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+    subDownloadContext.setContextPath("/download");
     subDownloadContext.addServlet(new ServletHolder(new SubtitleDownloadServlet(backend)), "/download");
 
 
+    //======setting up everything
     ContextHandlerCollection contexts = new ContextHandlerCollection();
-    contexts.setHandlers(new Handler[] { backContext, frontContext, subDownloadContext });
+    contexts.setHandlers(new Handler[] { backContext, frontContext, subDownloadContext});
     server.setHandler(contexts);
+
+    
+
+
+
 
     try {
       server.start();

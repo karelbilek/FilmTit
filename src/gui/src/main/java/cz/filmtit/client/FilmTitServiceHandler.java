@@ -987,8 +987,8 @@ public class FilmTitServiceHandler {
     	    	
 		@Override
 		void call() {
-	        filmTitService.exportSubtitles(gui.getSessionID(), documentID, callback);
-		}
+		    Window.alert("NOTHING TO SEE HERE MOVE ALONG");
+        }
 
     }
 	    
