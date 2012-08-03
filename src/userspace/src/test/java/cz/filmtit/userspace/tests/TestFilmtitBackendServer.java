@@ -2,7 +2,7 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.userspace.FilmTitBackendServer;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openid4java.consumer.ConsumerException;
