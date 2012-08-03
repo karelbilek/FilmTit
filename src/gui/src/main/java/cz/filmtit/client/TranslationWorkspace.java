@@ -2,7 +2,7 @@ package cz.filmtit.client;
 
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
-
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -172,8 +172,9 @@ public class TranslationWorkspace extends Composite {
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
-
-
+          List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
+          List<TranslationResult> results = new LinkedList<TranslationResult>();
+        
           for (TranslationResult tr:translations) {
               TimedChunk sChunk = tr.getSourceChunk();
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
@@ -183,28 +184,22 @@ public class TranslationWorkspace extends Composite {
 
               ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
-
               this.currentDocument.translationResults.put(chunkIndex, tr);
 
-              showSource(sChunk);
+              allChunks.add(sChunk);
+
+//              showSource(sChunk);
 
               if (tChunk==null || tChunk.equals("")){
                   // log(sChunk + " has not yet been translated");
                  untranslatedOnes.add(sChunk);
               } else {
                   // log(sChunk + " has already been translated");
-                 showResult(tr);
-
+                 results.add(tr);
               }
           }
-          
-          gui.log("all " + translations.size() + " trresults processed");
-          
-          if (untranslatedOnes.size() > 0) {
-        	  gui.log("sending " + untranslatedOnes.size() + " for translation");
-            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
-            sendChunks.execute();
-          }
+         
+          Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(allChunks, untranslatedOnes, results));
           
     }
 
@@ -236,13 +231,15 @@ public class TranslationWorkspace extends Composite {
 
           // parse:
           gui.log("starting parsing");
+          //Window.alert("starting parsing");
           long startTime = System.currentTimeMillis();
           List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           gui.log("parsing finished in " + parsingTime + "ms");
-          gui.guiStructure.contentPanel.removeStyleName("parsing");
 
+          
+          //Window.alert("finished parsing");
 
           for (TimedChunk chunk : chunklist) {
               chunkmap.put(chunk.getChunkIndex(), chunk);
@@ -252,26 +249,22 @@ public class TranslationWorkspace extends Composite {
               this.currentDocument.translationResults.put(chunkIndex, tr);
 
           }
+          
+          //Window.alert("finished hashmap");
+          
 
           // output the parsed chunks:
           gui.log("parsed chunks: "+chunklist.size());
           
           // save the chunks
-          gui.rpcHandler.saveSourceChunks(chunklist);
+          gui.rpcHandler.saveSourceChunks(chunklist, this);
           
           gui.log("called saveSourceChunks()");
           
           // now the user can close the browser, chunks are safely saved
+     }
 
-          int size=50;
-          int i = 0;
-          for (TimedChunk timedchunk : chunklist) {
-            showSource(timedchunk);
-            if (i%size==0) {
-              //  Window.alert("another "+i);
-            }
-            i++;
-          }
+     public void startShowingTranslations(List<TimedChunk> chunklist) {
           
           SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
           sendChunks.execute();
@@ -286,7 +279,9 @@ public class TranslationWorkspace extends Composite {
           LinkedList<TimedChunk> chunks;
 
           public SendChunksCommand(List<TimedChunk> chunks) {
+               //Window.alert("wtf");
                this.chunks = new LinkedList<TimedChunk>(chunks);
+               //Window.alert("Chunks je velky "+chunks.size());
           }
 
         //exponential window
@@ -302,22 +297,25 @@ public class TranslationWorkspace extends Composite {
 
         public boolean execute() {
                if (chunks.isEmpty()) {
+                    //Window.alert("chunks is empty");
                     return false;
                } else {
-                List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
+                    List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
                     for (int i = 0; i < exponential; i++) {
-                    if (!chunks.isEmpty()){
-                        TimedChunk timedchunk = chunks.removeFirst();
+                        if (!chunks.isEmpty()){
+                            TimedChunk timedchunk = chunks.removeFirst();
                             sentTimedchunks.add(timedchunk);
+                        }
                     }
-                }
-                sendChunks(sentTimedchunks);
-                   exponential = exponential*2;
-                return true;
+                    //Window.alert("chunk neni empty, posilam "+sentTimedchunks.size());
+                    sendChunks(sentTimedchunks);
+                    exponential = exponential*2;
+                    return true;
                }
           }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
+              //Window.alert("HAHA spoustim sendChunks");
         	  gui.rpcHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
           }
      }
@@ -342,6 +340,49 @@ public class TranslationWorkspace extends Composite {
      //                                   //
      ///////////////////////////////////////
 
+     class FakeSubgestIncrementalCommand implements RepeatingCommand {
+         LinkedList<TimedChunk> chunksToDisplay;
+         List<TimedChunk> chunksToTranslate;
+         LinkedList<TranslationResult> resultsToDisplay = new LinkedList<TranslationResult>();
+        
+         public FakeSubgestIncrementalCommand(List<TimedChunk> chunks) {
+              this.chunksToDisplay = new LinkedList<TimedChunk>();
+              this.chunksToDisplay.addAll(chunks);
+              this.chunksToTranslate = chunks;
+         }
+
+         public FakeSubgestIncrementalCommand(List<TimedChunk> chunksToDisplay, List<TimedChunk> chunksToTranslate, List<TranslationResult> resultsToDisplay) {
+              this.chunksToDisplay = new LinkedList<TimedChunk>();
+              this.chunksToDisplay.addAll(chunksToDisplay);
+              this.chunksToTranslate = chunksToTranslate;
+              this.resultsToDisplay = new LinkedList<TranslationResult>();
+              this.resultsToDisplay.addAll(resultsToDisplay);
+          }
+
+         @Override
+         public boolean execute() {
+                if (chunksToDisplay.isEmpty()) {
+                    if (resultsToDisplay.isEmpty()) {
+                        gui.guiStructure.contentPanel.removeStyleName("parsing");
+                        startShowingTranslations(chunksToTranslate) ;
+                        return false;
+                    } else {
+                        TranslationResult result = resultsToDisplay.removeFirst();
+                        showResult(result);
+                        return true;
+                    }
+               } else {
+                    TimedChunk timedchunk = chunksToDisplay.removeFirst();
+                    showSource(timedchunk);
+                    return true;
+               }
+         }
+     }
+
+     public void showSources(List<TimedChunk> chunks) {
+        Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(chunks));
+     }
+
      /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
      * the chunk text and an empty (fake)subgestbox. 
@@ -352,9 +393,6 @@ public class TranslationWorkspace extends Composite {
      */
     public void showSource(TimedChunk chunk) {
         
-//    	gui.log("showSource " + chunk);        
-//    	try {
-    		
     	ChunkIndex chunkIndex = chunk.getChunkIndex();
 
         Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
@@ -368,6 +406,7 @@ public class TranslationWorkspace extends Composite {
                         //+1 because of the header
         table.setWidget(index + 1, TIMES_COLNUMBER, timeslabel);
 
+        
         //html because of <br />
         Label sourcelabel = new HTML(chunk.getGUIForm());
         sourcelabel.setStyleName("chunk_l1");
@@ -378,11 +417,6 @@ public class TranslationWorkspace extends Composite {
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
         
-//    	}
-//    	catch (Exception e) {
-//			gui.exceptionCatcher(e);
-//		}      
-//    	gui.log("showSource " + chunk + " completed");
     }
 
 
@@ -400,20 +434,14 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(TranslationResult transresult) {
-//		gui.log("showResult " + transresult);
-//    	try {
-    		
+    	
+
         ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
         int index = indexes.get(chunkIndex);
 
         targetBoxes.get(index).getFather().setTranslationResult(transresult);
         targetBoxes.get(index).removeStyleName("loading");
 
-//		}
-//		catch (Exception e) {
-//			gui.exceptionCatcher(e);
-//		}    
-//		gui.log("showResult " + transresult + " completed");
     }
 
 

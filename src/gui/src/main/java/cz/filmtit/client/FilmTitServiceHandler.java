@@ -133,7 +133,7 @@ public class FilmTitServiceHandler {
                 dialogBox.setGlassEnabled(true);
                 dialogBox.center();
                 dialogBox.setPopupPosition(dialogBox.getPopupLeft(), 100);
-
+                
             }
 			
 			public void onFailure(Throwable caught) {
@@ -170,14 +170,15 @@ public class FilmTitServiceHandler {
 		}
 	}
 	
-	public void saveSourceChunks(List<TimedChunk> chunks) {
-		new SaveSourceChunks(chunks);
+	public void saveSourceChunks(List<TimedChunk> chunks, TranslationWorkspace workspace) {
+		new SaveSourceChunks(chunks, workspace);
 	}
 
 	public class SaveSourceChunks extends Callable {
 		
 		// parameters
 		List<TimedChunk> chunks;
+        TranslationWorkspace workspace;
 		
 		// callback
 		AsyncCallback<Void> callback = new AsyncCallback<Void>() {
@@ -186,7 +187,8 @@ public class FilmTitServiceHandler {
 				gui.log("successfully saved the chunks!");
 				// Window.alert("successfully saved the chunks!");
 				// TODO get to TranslationWorkspace
-			}
+                workspace.showSources(chunks);
+            }
 			
 			public void onFailure(Throwable caught) {
 				if (caught.getClass().equals(InvalidSessionIdException.class)) {
@@ -200,10 +202,11 @@ public class FilmTitServiceHandler {
 		};
 		
 		// constructor
-		public SaveSourceChunks(List<TimedChunk> chunks) {
+		public SaveSourceChunks(List<TimedChunk> chunks, TranslationWorkspace workspace) {
 			super();
 			
 			this.chunks = chunks;
+            this.workspace = workspace;
 
 			enqueue();
 		}
@@ -234,16 +237,11 @@ public class FilmTitServiceHandler {
 				// add to trlist to the correct position:
 				//Map<ChunkIndex, TranslationResult> translist = workspace.getCurrentDocument().translationResults;
 			
-                for (TranslationResult newresult:newresults){
+                for (TranslationResult newresult:newresults) {
 
-                    //int index = newresult.getSourceChunk().getIndex();
                     ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
-                   
-
-                    //not sure if this is needed
-                    //translist.put(poi, newresult);
-                    
                     workspace.showResult(newresult);
+                
                 }
                 command.execute();
 			}

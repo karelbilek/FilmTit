@@ -3,6 +3,7 @@ package cz.filmtit.userspace.tests;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.userspace.*;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.hibernate.SessionFactory;
 import org.hibernate.service.ServiceRegistryBuilder;
 
