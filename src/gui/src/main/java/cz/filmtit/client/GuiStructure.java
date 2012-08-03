@@ -18,20 +18,20 @@ public class GuiStructure extends Composite {
 	interface GuiStructureUiBinder extends UiBinder<Widget, GuiStructure> {
 	}
 
-	public GuiStructure(final Gui gui) {
+	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-                  gui.showLoginDialog();
+            	 Gui.getGui().showLoginDialog();
              }
         });
 
         // top menu handlers
         logout.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	  gui.rpcHandler.logout();
+            	 Gui.getGui().rpcHandler.logout();
              }
         });
 

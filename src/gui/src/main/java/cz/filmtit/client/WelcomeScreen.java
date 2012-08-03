@@ -19,9 +19,11 @@ public class WelcomeScreen extends Composite {
 	interface WelcomeScreenUiBinder extends UiBinder<Widget, WelcomeScreen> {
 	}
 
-	public WelcomeScreen(final Gui gui) {
+	private Gui gui = Gui.getGui();
+	
+	public WelcomeScreen() {
 		initWidget(uiBinder.createAndBindUi(this));
-
+		
 		gui.guiStructure.activateMenuItem(gui.guiStructure.welcomePage);
 
         login.addClickHandler(new ClickHandler() {

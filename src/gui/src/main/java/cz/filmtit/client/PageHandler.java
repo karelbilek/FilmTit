@@ -43,10 +43,7 @@ public class PageHandler {
     /**
      * Provides access to the gui.
      */
-    private Gui gui;
-    
-    private GuiStructure guiStructure;
-    
+    private Gui gui = Gui.getGui();    
 
     /**
      * Various pages to be set and created.
@@ -65,10 +62,7 @@ public class PageHandler {
 		Settings
     }
     
-    public PageHandler (Gui gui) {
-    	
-    	this.gui = gui;
-    	guiStructure = gui.guiStructure;
+    public PageHandler () {
     	
     	History.addValueChangeHandler(historyChangeHandler);
     	
@@ -76,7 +70,7 @@ public class PageHandler {
 		
         // base of GUI is created for every "full" window
     	if (pageUrl != Page.AuthenticationValidationWindow) {
-    		gui.guiStructure = new GuiStructure(gui);
+    		gui.guiStructure = new GuiStructure();
     	}
 		
 		setDocumentIdFromGETOrCookie();
@@ -220,16 +214,16 @@ public class PageHandler {
 	    	switch (pageToLoad) {
 	    	
 	    	case Blank:
-	    		new Blank(gui);
+	    		new Blank();
 				break;
 	    	case ChangePassword:
-	    		new ChangePassword(gui);
+	    		new ChangePassword();
 				break;
 	    	case AuthenticationValidationWindow:
-	    		new AuthenticationValidationWindow(gui);
+	    		new AuthenticationValidationWindow();
 				break;
 			case About:
-	    		new About(gui);
+	    		new About();
 				break;
 			case TranslationWorkspace:
 		    	if (documentId == -1) {
@@ -242,16 +236,16 @@ public class PageHandler {
 		    	}
 				break;
 			case DocumentCreator:
-				new DocumentCreator(gui);
+				new DocumentCreator();
 				break;
 			case UserPage:
-				new UserPage(gui);
+				new UserPage();
 				break;				
 			case WelcomeScreen:
-				new WelcomeScreen(gui);
+				new WelcomeScreen();
 				break;
 			case Settings:
-				new Settings(gui);
+				new Settings();
 				break;
 	
 			// no other situation should happen

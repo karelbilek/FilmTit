@@ -34,8 +34,8 @@ public class TranslationWorkspace extends Composite {
      */
     public final int id;
     
-    Gui gui;
-
+	private Gui gui = Gui.getGui();
+	
     ///////////////////////////////////////
     //                                   //
     //      Current document             //
@@ -98,7 +98,7 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
-    public TranslationWorkspace(Gui gui, Document doc, String path) {
+    public TranslationWorkspace(Document doc, String path) {
         initWidget(uiBinder.createAndBindUi(this));
 
         // 0 <= id < Integer.MAX_VALUE
@@ -106,7 +106,6 @@ public class TranslationWorkspace extends Composite {
         gui.currentWorkspaceId = id;
         
         isVideo = path!=null;
-        this.gui = gui;
         
         setCurrentDocument(doc);
 
@@ -127,7 +126,7 @@ public class TranslationWorkspace extends Composite {
             table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
             table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
             table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
-            this.subgestHandler = new SubgestHandler(this.gui, this, null);
+            this.subgestHandler = new SubgestHandler(this, null);
             translationHPanel.setCellWidth(scrollPanel, "100%");
             translationHPanel.setCellWidth(emptyPanel, "0%");            
          } else {
@@ -135,7 +134,7 @@ public class TranslationWorkspace extends Composite {
             table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "246px");
             table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER, "240px");
             vlcPlayer = new VLCWidget(path, 400, 225);
-            this.subgestHandler = new SubgestHandler(this.gui, this, vlcPlayer);
+            this.subgestHandler = new SubgestHandler(this, vlcPlayer);
             hPanel.add(vlcPlayer);
             translationHPanel.setCellWidth(scrollPanel, "60%");
             translationHPanel.setCellWidth(emptyPanel, "40%");            
@@ -370,7 +369,7 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(chunkIndex, gui, TranslationWorkspace.this, !isVideo, index+1);
+        SubgestBox targetbox = new SubgestBox(chunkIndex, this, !isVideo, index+1);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);

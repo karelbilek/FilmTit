@@ -21,12 +21,10 @@ public class AuthenticationValidationWindow extends Composite {
 			UiBinder<Widget, AuthenticationValidationWindow> {
 	}
 
-	public AuthenticationValidationWindow(final Gui gui) {
+	private Gui gui = Gui.getGui();
+	
+	public AuthenticationValidationWindow() {
 		initWidget(uiBinder.createAndBindUi(this));
-
-        // ----------------------------------------------- //
-        // --- AuthenticationValidationWindow creation --- //
-        // ----------------------------------------------- //
 
 		RootPanel rootPanel = RootPanel.get();
 		rootPanel.add(this, 0, 0);

@@ -24,16 +24,15 @@ public class ChangePassword extends Composite {
 	interface ChangePasswordUiBinder extends UiBinder<Widget, ChangePassword> {
 	}
 	
-	private Gui gui;
+	private Gui gui = Gui.getGui();
 	
 	private String username;
 	
 	private String token;
 	
-	public ChangePassword(Gui gui) {
+	public ChangePassword() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		this.gui = gui;
 		username = Window.Location.getParameter("username");
 		token = Window.Location.getParameter("token");
 		

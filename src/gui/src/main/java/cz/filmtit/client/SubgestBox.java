@@ -46,7 +46,7 @@ import java.util.Map;
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private ChunkIndex chunkIndex;
 	private TranslationResult translationResult;
-	private Gui gui;
+	private Gui gui = Gui.getGui();
     private TranslationWorkspace workspace;
 	private PopupPanel suggestPanel;
     private Widget suggestionWidget;
@@ -116,10 +116,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }</style></head><body>" + content + "</body></html>";
     }
 
-	public SubgestBox(ChunkIndex chunkIndex, Gui gui, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
+	public SubgestBox(ChunkIndex chunkIndex, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
 		this.chunkIndex = chunkIndex;
 		this.translationResult = new TranslationResult();
-		this.gui = gui;
         this.workspace = workspace;
         if (this.workspace == null) {
             gui.log("workspace for subgestbox is null!!!");

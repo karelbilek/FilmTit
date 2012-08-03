@@ -20,17 +20,16 @@ import cz.filmtit.share.TimedChunk;
  *
  */
 public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, ValueChangeHandler<String>, BlurHandler {
-	Gui gui;
+	
+	private Gui gui = Gui.getGui();
     TranslationWorkspace workspace;
     VLCWidget vlcPlayer;
 
 
 	/**
 	 * Creates a new SubgestHandler.
-	 * @param gui - reference to the main Gui class (for more global possibilities)
 	 */
-	public SubgestHandler(Gui gui, TranslationWorkspace workspace, VLCWidget vlcPlayer) {
-		this.gui = gui;
+	public SubgestHandler(TranslationWorkspace workspace, VLCWidget vlcPlayer) {
 		this.workspace = workspace;
         this.vlcPlayer = vlcPlayer;
         if (gui == null) {

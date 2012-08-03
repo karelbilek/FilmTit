@@ -48,15 +48,13 @@ public class DocumentCreator extends Composite {
 	interface DocumentCreatorUiBinder extends UiBinder<Widget, DocumentCreator> {
 	}
 
-	private Gui gui;
+	private Gui gui = Gui.getGui();
 	
-	public DocumentCreator(final Gui gui) {
+	public DocumentCreator() {
 		initWidget(uiBinder.createAndBindUi(this));
         
         btnCreateDocument.setEnabled(false);
 
-		this.gui = gui;
-		
 		gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
 
         // --- file reading interface via lib-gwt-file --- //

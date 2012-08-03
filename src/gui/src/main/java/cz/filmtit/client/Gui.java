@@ -120,10 +120,10 @@ public class Gui implements EntryPoint {
     	Gui.gui = this;
 
 		// RPC:
-		rpcHandler = new FilmTitServiceHandler(this);
+		rpcHandler = new FilmTitServiceHandler();
 
 		// page loading and switching
-		pageHandler = new PageHandler(this);
+		pageHandler = new PageHandler();
 
         // check whether user is logged in or not
         rpcHandler.checkSessionID();
@@ -232,14 +232,14 @@ public class Gui implements EntryPoint {
      * @param username
      */
 	protected void showLoginDialog(String username) {
-	    LoginDialog loginDialog = new LoginDialog(username, this);
+	    LoginDialog loginDialog = new LoginDialog(username);
 	}
 
     /**
      * show the registration dialog
      */
     protected void showRegistrationForm() {
-        RegistrationForm registrationForm = new RegistrationForm(this);
+        RegistrationForm registrationForm = new RegistrationForm();
     }
 
     protected void please_log_in () {

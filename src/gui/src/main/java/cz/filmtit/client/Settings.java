@@ -13,7 +13,9 @@ public class Settings extends Composite {
 	interface SettingsUiBinder extends UiBinder<Widget, Settings> {
 	}
 
-	public Settings(Gui gui) {
+	private Gui gui = Gui.getGui();
+	
+	public Settings() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		//gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);

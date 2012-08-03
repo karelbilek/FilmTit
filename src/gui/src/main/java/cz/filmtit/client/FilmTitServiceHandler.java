@@ -27,19 +27,6 @@ import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
 	
-	public FilmTitServiceHandler(Gui gui) {
-		
-		// the async service
-		Callable.filmTitService = GWT.create(FilmTitService.class);
-
-		// direct access
-		// to package-internal (and public) fields and methods
-		// of the active Gui instance
-		// is necessary to react to call results
-		// (because the RPC calls are asynchronous)
-		Callable.gui = gui;
-	}
-
 // disabled only to avoid duplicities, can be reenabled by uncommenting anytime if needed
 //    public void loadDocumentFromDB(Document document) {
 //        new LoadDocumentFromDB(document.getId());
@@ -58,7 +45,7 @@ public class FilmTitServiceHandler {
             	
             	// prepare empty TranslationWorkspace
                 String moviePath = null; //TODO: player
-                final TranslationWorkspace workspace = new TranslationWorkspace(gui, doc, moviePath);
+                final TranslationWorkspace workspace = new TranslationWorkspace(doc, moviePath);
                 
                 // prepare the TranslationResults
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
@@ -124,7 +111,7 @@ public class FilmTitServiceHandler {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
 
 				gui.pageHandler.setPageUrl(Page.TranslationWorkspace);				
-				final TranslationWorkspace workspace = new TranslationWorkspace(gui, result.document, moviePath);
+				final TranslationWorkspace workspace = new TranslationWorkspace(result.document, moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
@@ -391,8 +378,8 @@ public class FilmTitServiceHandler {
 	}
 
     public void checkSessionID() {
-		if (Callable.gui.getSessionID() == null) {
-			Callable.gui.logged_out();
+		if (Gui.getGui().getSessionID() == null) {
+			Gui.getGui().logged_out();
     	}
 		else {
 	    	new CheckSessionID();

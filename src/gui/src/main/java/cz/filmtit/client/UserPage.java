@@ -29,13 +29,11 @@ public class UserPage extends Composite {
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
 
-	private Gui gui;
+	private Gui gui = Gui.getGui();
 
-	public UserPage(final Gui gui) {
+	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-		this.gui = gui;
-		
         TextColumn<Document> nameClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
