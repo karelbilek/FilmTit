@@ -20,6 +20,10 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
         sourceChunk = new TimedChunk();
     }
 
+    public TranslationResult(TimedChunk sourceChunk) {
+        this.sourceChunk = sourceChunk;
+    }
+
     public int getChunkId() {
         return sourceChunk.getId();
     }
