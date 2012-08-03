@@ -172,8 +172,9 @@ public class TranslationWorkspace extends Composite {
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
-
-
+          List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
+          List<TranslationResult> results = new LinkedList<TranslationResult>();
+        
           for (TranslationResult tr:translations) {
               TimedChunk sChunk = tr.getSourceChunk();
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
@@ -183,28 +184,22 @@ public class TranslationWorkspace extends Composite {
 
               ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
-
               this.currentDocument.translationResults.put(chunkIndex, tr);
 
-              showSource(sChunk);
+              allChunks.add(sChunk);
+
+//              showSource(sChunk);
 
               if (tChunk==null || tChunk.equals("")){
                   // log(sChunk + " has not yet been translated");
                  untranslatedOnes.add(sChunk);
               } else {
                   // log(sChunk + " has already been translated");
-                 showResult(tr);
-
+                 results.add(tr);
               }
           }
-          
-          gui.log("all " + translations.size() + " trresults processed");
-          
-          if (untranslatedOnes.size() > 0) {
-        	  gui.log("sending " + untranslatedOnes.size() + " for translation");
-            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
-            sendChunks.execute();
-          }
+         
+          Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(allChunks, untranslatedOnes, results));
           
     }
 
@@ -242,7 +237,6 @@ public class TranslationWorkspace extends Composite {
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           gui.log("parsing finished in " + parsingTime + "ms");
-          gui.guiStructure.contentPanel.removeStyleName("parsing");
 
           
           //Window.alert("finished parsing");
@@ -347,23 +341,38 @@ public class TranslationWorkspace extends Composite {
      ///////////////////////////////////////
 
      class FakeSubgestIncrementalCommand implements RepeatingCommand {
-         LinkedList<TimedChunk> chunks;
-         List<TimedChunk> chunksOrig;
+         LinkedList<TimedChunk> chunksToDisplay;
+         List<TimedChunk> chunksToTranslate;
+         LinkedList<TranslationResult> resultsToDisplay = new LinkedList<TranslationResult>();
         
          public FakeSubgestIncrementalCommand(List<TimedChunk> chunks) {
-              this.chunks = new LinkedList<TimedChunk>();
-              this.chunks.addAll(chunks);
-              this.chunksOrig = chunks;
+              this.chunksToDisplay = new LinkedList<TimedChunk>();
+              this.chunksToDisplay.addAll(chunks);
+              this.chunksToTranslate = chunks;
          }
 
+         public FakeSubgestIncrementalCommand(List<TimedChunk> chunksToDisplay, List<TimedChunk> chunksToTranslate, List<TranslationResult> resultsToDisplay) {
+              this.chunksToDisplay = new LinkedList<TimedChunk>();
+              this.chunksToDisplay.addAll(chunksToDisplay);
+              this.chunksToTranslate = chunksToTranslate;
+              this.resultsToDisplay = new LinkedList<TranslationResult>();
+              this.resultsToDisplay.addAll(resultsToDisplay);
+          }
 
          @Override
          public boolean execute() {
-                if (chunks.isEmpty()) {
-                    startShowingTranslations(chunksOrig) ;
-                    return false;
+                if (chunksToDisplay.isEmpty()) {
+                    if (resultsToDisplay.isEmpty()) {
+                        gui.guiStructure.contentPanel.removeStyleName("parsing");
+                        startShowingTranslations(chunksToTranslate) ;
+                        return false;
+                    } else {
+                        TranslationResult result = resultsToDisplay.removeFirst();
+                        showResult(result);
+                        return true;
+                    }
                } else {
-                    TimedChunk timedchunk = chunks.removeFirst();
+                    TimedChunk timedchunk = chunksToDisplay.removeFirst();
                     showSource(timedchunk);
                     return true;
                }
@@ -425,7 +434,8 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(TranslationResult transresult) {
-    		
+    	
+
         ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
         int index = indexes.get(chunkIndex);
 
