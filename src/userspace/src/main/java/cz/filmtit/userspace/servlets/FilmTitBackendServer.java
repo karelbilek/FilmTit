@@ -225,18 +225,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public String getSessionID(long authID) {
         if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
             Authentication authentication = authenticatedSessions.get(authID);
-            authenticatingSessions.remove(authID);
+            authenticatedSessions.remove(authID);
             // USUser user = createUser(authentication);          create user from auth information (select or create in db)
-            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
-            Session session = new Session(null); //= createSession(newSessionID,user)      create session with user
-            activeSessions.put(newSessionID, session);
-
-            return newSessionID;
+            return simpleLogin(authID);
         }
         return null;
     }
      @Override
-    public String simple_login(String username, String password) {
+    public String simpleLogin(String username, String password) {
 
             System.out.println("CheckUser");
             USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
@@ -245,12 +241,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 return  "";
             }
             else {
-                String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
-                Session session = new Session(user);
-                activeSessions.put(newSessionID, session);
-                return newSessionID;
+               return generateSession(user);
             }
 
+    }
+
+    private String simpleLogin(long authID){
+        USUser user = checkUser(authID);
+        if (user!=null)
+        {
+           return generateSession(user);
+        }
+        return  "";
     }
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
@@ -282,8 +284,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public Boolean changePassword(String user  , String pass, String string_token)
-    {
+    public Boolean changePassword(String user  , String pass, String string_token){
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
         ChangePassToken token = activeTokens.get(user);
 
@@ -393,6 +394,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return true;
     }
 
+
     /*end test zone*/
     private String forgotUrl(USUser user ){
           // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
@@ -410,10 +412,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Get hash of string
      * if return same string like input - problem with algortithm
      */
-
-
     private String pass_hash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
+    }
+    /**
+     *  generatin session;
+     *
+     */
+    private String generateSession(USUser user){
+        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+        Session session = new Session(user);
+        activeSessions.put(newSessionID, session);
+        return newSessionID;
     }
 
     /**
@@ -422,7 +432,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *     CheckName - return first user of given name
      *     CheckNamePass - return user with given name and pass
      */
-    private  USUser checkUser(String username , String password, CheckUserEnum type){
+    private USUser checkUser(String username , String password, CheckUserEnum type){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
@@ -457,6 +467,21 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return succesUser;
     }
 
+    private USUser checkUser(long authID){
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+
+        List UserResult = dbSession.createQuery("select d from USUser d where d.openid like :openid")
+                .setParameter("openid",String.valueOf(authID)).list(); //UPDATE hibernate  for more constraints
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        if (UserResult.size() > 1){
+            throw new ExceptionInInitializerError("Two users with same authId");
+        }
+        if (UserResult.size() == 0){
+           return null;
+        }
+        return (USUser)UserResult.get(0);
+    }
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
