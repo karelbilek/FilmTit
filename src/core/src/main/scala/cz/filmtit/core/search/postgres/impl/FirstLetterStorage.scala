@@ -21,8 +21,6 @@ class FirstLetterStorage(
   l1: Language,
   l2: Language,
   connection: Connection,
-  tokenizerL1: TokenizerWrapper,
-  tokenizerL2: TokenizerWrapper,
   useInMemoryDB: Boolean = false
 ) extends BaseSignatureStorage(
   l1,
@@ -33,19 +31,10 @@ class FirstLetterStorage(
   useInMemoryDB
 ) {
 
-  def tokenizer(l:Language) = l match {
-     case `l1`=>tokenizerL1
-     case `l2`=>tokenizerL2
-     case _=>throw new Exception("Wrong tokenizer language")
-  }
-
   /**
    * Use the lowercased first letter of each word in the sentence as the signature.
    */
   override def signature(chunk: Chunk, language: Language): Signature = {
-    if (!chunk.isTokenized) {
-        tokenizer(language).tokenize(chunk)
-    }
     val tokens: Array[String] = chunk.getTokens
 
     tokens map {

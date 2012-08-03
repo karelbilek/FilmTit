@@ -2,7 +2,8 @@ package cz.filmtit.core
 
 import concurrency.tokenizer.TokenizerWrapper
 import concurrency.searcher.TranslationPairSearcherWrapper
-import cz.filmtit.core.tm.BackoffTranslationMemory
+import merge.LevenshteinMerger
+import tm.{BackoffLevel, BackoffTranslationMemory}
 import cz.filmtit.core.model.names.NERecognizer
 
 import cz.filmtit.core.model.TranslationMemory
@@ -11,7 +12,7 @@ import cz.filmtit.core.Utils.t2mapper
 
 import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
-import cz.filmtit.core.search.postgres.impl.{NEStorage, FirstLetterStorage}
+import search.postgres.impl.{FulltextStorage, NEStorage, FirstLetterStorage}
 import cz.filmtit.share.annotations.AnnotationType
 import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
 import org.apache.commons.logging.LogFactory
@@ -64,9 +65,9 @@ object Factory {
   }
 
   def createNERecognizersFromConfiguration(configuration: Configuration, wrapperl1:TokenizerWrapper, wrapperl2:TokenizerWrapper) = {
-    (createNERecognizers(configuration.l1, configuration, wrapperl1), 
-    createNERecognizers(configuration.l2, configuration, wrapperl2))
-    
+    (createNERecognizers(configuration.l1, configuration, wrapperl1),
+      createNERecognizers(configuration.l2, configuration, wrapperl2))
+
   }
 
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
@@ -83,10 +84,10 @@ object Factory {
   }
 
   def createTMFromConfiguration(
-    configuration: Configuration,
-    readOnly: Boolean = true,
-    useInMemoryDB: Boolean = false) : TranslationMemory = 
-   
+                                 configuration: Configuration,
+                                 readOnly: Boolean = true,
+                                 useInMemoryDB: Boolean = false) : TranslationMemory =
+
     createTM(
       configuration.l1, configuration.l2,
       if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly),
@@ -94,8 +95,8 @@ object Factory {
       useInMemoryDB,
       configuration.maxNumberOfConcurrentSearchers,
       configuration.searcherTimeout
-  )
-  
+    )
+
 
   def createTM(
     l1: Language, l2: Language,
@@ -104,55 +105,28 @@ object Factory {
     useInMemoryDB: Boolean = false,
     maxNumberOfConcurrentSearchers: Int,
     searcherTimeout: Int
-    ): TranslationMemory = {
+  ): TranslationMemory = {
 
     val csTokenizerWrapper = createTokenizerWrapper(Language.CS, configuration)
     val enTokenizerWrapper = createTokenizerWrapper(Language.EN, configuration)
 
+    var levels = List[BackoffLevel]()
+
+    //First level exact matching
+    val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB)
+    levels ::= new BackoffLevel(flSearcher, Some(new ExactRanker()), 0.7)
+
+    //Second level: Full text search
+    val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
+    levels ::= new BackoffLevel(fulltextSearcher, Some(new ExactRanker()), 0.0)
+
     //Third level: Moses
-   
-   val mosesSearchers = (1 to 30).map { _ =>
-      new MosesServerSearcher(
-        Language.EN,
-        Language.CS,
-        configuration.mosesURL)
+    val mosesSearchers = (1 to 30).map { _ =>
+      new MosesServerSearcher(Language.EN, Language.CS, configuration.mosesURL)
     }.toList
- 
-    
-    
-    val mtTM = new BackoffTranslationMemory(
-      new TranslationPairSearcherWrapper(mosesSearchers, 30*60),
-      Language.EN,
-      Language.CS,
-      threshold = 0.7
-    )
+    levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7)
 
-    val neSearchers = (1 to maxNumberOfConcurrentSearchers).map { _ =>
-      val recognizers = createNERecognizersFromConfiguration(configuration, csTokenizerWrapper, enTokenizerWrapper)
-      new NEStorage(Language.EN, Language.CS, connection, recognizers._1, recognizers._2, useInMemoryDB)
-    }.toList
-
-    //Second level fuzzy matching with NER:
-    val neTM = new BackoffTranslationMemory(
-      new TranslationPairSearcherWrapper(neSearchers, searcherTimeout),
-      Language.EN,
-      Language.CS,
-       Some(new FuzzyNERanker()),
-      threshold = 0.2,
-      backoff = Some(mtTM)
-    )
-
-    //First level exact matching with backoff to fuzzy matching:
-    new BackoffTranslationMemory(
-      new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB),
-      l1=Language.EN,
-      l2=Language.CS,
-      ranker= Some(new ExactRanker()),
-      threshold = 0.8,
-      backoff = Some(mtTM),
-      tokenizerl1= Some(enTokenizerWrapper),
-      tokenizerl2 = Some(csTokenizerWrapper)
-    )
+    new BackoffTranslationMemory(Language.EN, Language.CS, levels.reverse, Some(new LevenshteinMerger()), Some(enTokenizerWrapper), Some(csTokenizerWrapper))
   }
 
 
@@ -228,8 +202,8 @@ object Factory {
   }
 
   def createTokenizerWrapper(language:Language, conf:Configuration) = {
-      val tokenizers = (0 to 10).par.map{_=>createTokenizer_(language, conf)}
-      new TokenizerWrapper(tokenizers, conf.searcherTimeout)
+    val tokenizers = (0 to 10).par.map{_=>createTokenizer_(language, conf)}
+    new TokenizerWrapper(tokenizers, conf.searcherTimeout)
 
   }
 }

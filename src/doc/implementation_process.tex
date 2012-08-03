@@ -28,7 +28,7 @@ The decision to use both Java and Scala appeared to be a bring quite a lot of co
 
 Luckily for us we received very soon a database from the {\it opensubtitles.org} containing all the Czech and English subtitle file that were at the server at that time. Soon after that we started an alignment algorithm to retrieve the parallel data from the subtitle files (the process is described in section~\ref{sec:aligning_subtitles}) and enable us to start experiments that helped us to decide which database system could be used.
 
-Choosing appropriate database system was also intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.  We evaluated different DBMS and decided to use Postgres (see section~\ref{sec:dbms} for details).
+Choosing appropriate database system was also intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.  We evaluated different DBMS and decided to use Postgres (see section~\ref{sec:dbms} for details). Not having any experience with the object-relation mapping libraries in Java we started to us {\it Hibernate} based on the Internet forums and advice of our colleagues.
 
 Originally, all the algorithms precessing the data we retrieved were implemented in Perl the and the code importing the data were in the \emph{Core} module implemented in Scala. Later, to be the code more consistent, we decided to move the data preparation and data import to a separate \emph{dataimport} module and re-implement the Perl scripts in Scala.
 
@@ -37,24 +37,35 @@ Originally, all the algorithms precessing the data we retrieved were implemented
 \includegraphics{./figures/original_strucutre.pdf}
 \end{center}
 
-\caption{Scheme of the originally intended structure of work with the translation memory. It reflects the original User Space structure and also schematically the original client design.}
+\caption{Scheme of the originally intended structure of work with the translation memory. It reflects the original User Space structure and also schematically the original client design.}\label{fig:original_scheme}
 
 \end{figure}
 
-\subsection{Agreement on shared classes}
+\subsection{Introducing the shared classes}
 
-After having implemented basics of everything ... Crucial moment 
+After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order run a first snapshot of the application. This was happening approximately in March 2012.
 
-\begin{itemize}
-	\item We agreed on the shared classes that all parts of the project should use. For best compatibility between  \emph{Core}, \emph{Userspace} and the GWT-based \emph{GUI}, we decided to write all shared classes in Java.
-\end{itemize}
+At this stage we found out that we are not fully taking advantage of using the Java technologies for all parts of project and decided to totally redesign the User Space and Client parts.
+
+Originally we wanted to keep the traditional translation memory structure where each sentence can have several matches and these matches can have several translations in the memory as is depicted in the figure \ref{fig:original_scheme}. Anyway, this scheme did not reflect much the way we worked with the data in the that time -- suitable matches were provided from the table of translation pairs based on indexes built over the table. Moreover, the were very few matches having more different translations in the data and the design of the GUI of the application was a little bit confusing because it used to place the text of matches to prominent place despite the user is not as concerned about the matches as he is about the actual translation suggestions. This lead to a scheme which is depicted in figure \ref{fig:new_scheme}.
+
+\begin{figure}
+\begin{center}
+\end{center}
+\caption{Current scheme of the work with translation memory.}
+\end{figure}
+
+We agreed on the shared classes that all parts of the project should use.  We more or less adopted the design of the class from the core and started to use in the whole project. This step required to re-implement the classes from Scala to Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}.
+
+We started the work on the project with new design soon, anyway it started the period of the biggest struggle with technologies. It took almost two months to have a first running version of the application.
+
+The very first version of the application was a page where it was possible to upload a subtitle file do the translation without any possibility load an already saved subtitle document or download a result of the translation. without any sessions, user, it was just a page, where you edit the subtitles. Implementing this was a big change ....
 
 
-\noindent\textbf{Discussion of the decision}
 
-\begin{itemize}
-	\item It showed to be an important decision to agree on the shared classes early in the project since it made the cooperation between the modules easier and less verbose.
-\end{itemize}
+
+From the late view it appeared to be an important decision to agree on the shared classes which made the cooperation between the modules easier and less verbose. 
+ At that time MyMemory and IMDB.com, later changed...
 
 
 \subsection{Core design decisions}
