@@ -3,6 +3,7 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.core.Factory;
 import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
@@ -48,6 +49,7 @@ public class TestSession {
     public TestSession() {
         Configuration config = new Configuration(new File("configuration.xml"));
         TM = cz.filmtit.core.tests.TestUtil.createTMWithDummyContent(config);
+                //Factory.createTMFromConfiguration(ConfigurationSingleton.conf(), true, false);
         mediaSourceFactory = new FreebaseMediaSourceFactory(config.freebaseKey(), 10);
 
     }

@@ -29,6 +29,13 @@ public class TestUSTranslationResult {
 
 
     private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
+    TranslationMemory TM;
+
+    public TestUSTranslationResult() {
+        Configuration conf = new Configuration(new File("configuration.xml"));
+        TM = TestUtil.createTMWithDummyContent(conf);
+            //Factory.createTMFromConfiguration(ConfigurationSingleton.conf(), true, false);
+    }
 
     @Test
     public void testDatabaseSaveAndLoad() {
@@ -96,10 +103,6 @@ public class TestUSTranslationResult {
 
     @Test
     public void testGenerateMTSuggestions() {
-
-        Configuration conf = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = TestUtil.createTMWithDummyContent(conf);
-
         USDocument document = new USDocument(new Document("Hannah and Her Sisters", "en"), null);
 
         USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1,
@@ -112,9 +115,6 @@ public class TestUSTranslationResult {
 
     @Test
     public void testProvidingFeedback() {
-        Configuration config = new Configuration(new File("configuration.xml"));
-        TranslationMemory TM = TestUtil.createTMWithDummyContent(config);
-
         org.hibernate.Session dbSession = usHibernateUtil.getSessionFactory().openSession();
         dbSession.beginTransaction();
 
