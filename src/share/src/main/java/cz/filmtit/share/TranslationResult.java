@@ -1,5 +1,6 @@
 package cz.filmtit.share;
 
+import cz.filmtit.share.annotations.Annotation;
 import java.io.Serializable;
 import java.util.List;
 import java.util.LinkedList;
@@ -42,6 +43,16 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
     public void setTmSuggestions(List<TranslationPair> tmSuggestions) {
         this.tmSuggestions = tmSuggestions;
     }
+
+
+    //TODO: arbitrary newlines
+    //TODO: dialogues
+    public TimedChunk getUserTranslationAsChunk() {
+        TimedChunk source = this.getSourceChunk();
+        TimedChunk tc = new TimedChunk(this.getUserTranslation(), source.getStartTime(), source.getEndTime(), new LinkedList<Annotation>());
+        return tc;
+    }
+
 
     public String getUserTranslation() {
         return userTranslation;

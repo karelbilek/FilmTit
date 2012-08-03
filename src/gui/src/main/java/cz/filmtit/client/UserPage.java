@@ -40,9 +40,12 @@ public class UserPage extends Composite {
                 return doc.getTitle();
             }
         };
-        TextColumn<Document> yearClm = new TextColumn<Document>() {
+        TextColumn<Document> mSourceClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
+                if (doc.getMovie()==null) {
+                    return "";
+                }
                 return doc.getMovie().toString();
             }
         };
@@ -85,7 +88,7 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-               gui.rpcHandler.exportSubtitles(doc.getId());
+                    Window.Location.assign("/download/download?docId="+doc.getId()+"&sessionId="+gui.getSessionID()+"&type=srt&way=target");
            }
        });
 
@@ -94,7 +97,7 @@ public class UserPage extends Composite {
         
 
         docTable.addColumn(nameClm, "Document");
-        docTable.addColumn(yearClm, "Media source");
+        docTable.addColumn(mSourceClm, "Media");
         docTable.addColumn(doneClm, "Percent done");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");

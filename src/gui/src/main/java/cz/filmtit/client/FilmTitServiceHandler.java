@@ -949,49 +949,6 @@ public class FilmTitServiceHandler {
 
 	}
     
-    public void exportSubtitles (long documentID) {
-    	new ExportSubtitles(documentID);
-    }
-    
-    public class ExportSubtitles extends Callable {
 
-    	// parameters
-    	long documentID;
-    	
-    	// callback
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
-
-            @Override
-            public void onSuccess(String result) {
-                gui.log("received subtitle file of " + result.length() + " bytes");
-                gui.log("SHOWING FILE");
-                gui.log(result);
-                gui.log("END OF FILE");                
-                gui.log("received subtitle file of " + result.length() + " bytes");
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                gui.log("ERROR: failure on getting subtitle file!");
-            }
-
-        };
-    	
-    	
-		// constructor
-		public ExportSubtitles(long documentID) {
-			super();
-			
-			this.documentID = documentID;
-			
-			enqueue();
-		}
-    	    	
-		@Override
-		void call() {
-	        filmTitService.exportSubtitles(gui.getSessionID(), documentID, callback);
-		}
-
-    }
 	    
 }

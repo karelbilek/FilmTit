@@ -4,7 +4,8 @@ import cz.filmtit.core.Configuration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import cz.filmtit.userspace.FilmTitBackendServer;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
+import cz.filmtit.userspace.servlets.SubtitleDownloadServlet;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -23,18 +24,11 @@ public class FilmTitFrontendServer {
  
   public FilmTitFrontendServer(int port) {
 
-    org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
-    SocketConnector connector = new SocketConnector();
- 
-    //This I copied from web, not sure what it does
-    connector.setMaxIdleTime(1000 * 60 * 60);
-    connector.setSoLingerTime(-1);
-    connector.setPort(port);
-    server.setConnectors(new Connector[] { connector });
+    org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(port);
+    URL location;
 
-   URL location;
 
-//a little hack, this will have to be deleted in actual code
+    //a little hack, for running from maven/class alone
     if (FilmTitFrontendServer.class.getResource("FilmTitFrontendServer.class").toString().startsWith("jar:")) {
 
         //running from shaded jar
@@ -52,26 +46,39 @@ public class FilmTitFrontendServer {
         }
     }
 
-      WebAppContext front_context = new WebAppContext();
-    front_context.setServer(server);
-    front_context.setContextPath("/");
-    front_context.setDescriptor(location.toExternalForm() + "WEB-INF/web.xml");
+
+    //======first servlet - .html, .css
+    WebAppContext frontContext = new WebAppContext();
+    frontContext.setServer(server);
+    frontContext.setContextPath("/");
+    frontContext.setDescriptor(location.toExternalForm() + "WEB-INF/web.xml");
+    frontContext.setWar(location.toExternalForm());
 
 
-    
-
-    front_context.setWar(location.toExternalForm());
-
-
+    //=====second servlet - RPC server
     //I call it backend, but it still has the "gui" URL
-    final ServletContextHandler back_context = new ServletContextHandler(server, "/gui", ServletContextHandler.SESSIONS);
+    final ServletContextHandler backContext = new ServletContextHandler(server, "/gui", ServletContextHandler.SESSIONS);
     
-                                                //I use the trick with singleton
-    back_context.addServlet(new ServletHolder(new FilmTitBackendServer()), "/filmtit");
+     //I use trick with config singleton to get config loaded there    
+    FilmTitBackendServer backend = new FilmTitBackendServer();
+    backContext.addServlet(new ServletHolder(backend), "/filmtit");
 
+   
+    //======third servlet - for subtitles
+    final ServletContextHandler subDownloadContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+    subDownloadContext.setContextPath("/download");
+    subDownloadContext.addServlet(new ServletHolder(new SubtitleDownloadServlet(backend)), "/download");
+
+
+    //======setting up everything
     ContextHandlerCollection contexts = new ContextHandlerCollection();
-    contexts.setHandlers(new Handler[] { back_context, front_context });
+    contexts.setHandlers(new Handler[] { backContext, frontContext, subDownloadContext});
     server.setHandler(contexts);
+
+    
+
+
+
 
     try {
       server.start();
