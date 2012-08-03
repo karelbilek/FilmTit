@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import cz.filmtit.client.Gui.SendChunksCommand;
+import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -58,8 +58,7 @@ public class FilmTitServiceHandler {
             	
             	// prepare empty TranslationWorkspace
                 String moviePath = null; //TODO: player
-                gui.workspace = new TranslationWorkspace(gui, moviePath);
-                gui.setCurrentDocument(doc);
+                final TranslationWorkspace workspace = new TranslationWorkspace(gui, doc, moviePath);
                 
                 // prepare the TranslationResults
                 final List<TranslationResult> results  = doc.getSortedTranslationResults();
@@ -70,7 +69,7 @@ public class FilmTitServiceHandler {
                 // show the TranslationResults
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                                gui.processTranslationResultList(results);
+                                workspace.processTranslationResultList(results);
                             }
                         });
 
@@ -123,10 +122,9 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(final DocumentResponse result) {
 				gui.log("DocumentResponse arrived, showing dialog with MediaSource suggestions...");
-				gui.setCurrentDocument(result.document);
 
 				gui.pageHandler.setPageUrl(Page.TranslationWorkspace);				
-                gui.workspace = new TranslationWorkspace(gui, moviePath);
+				final TranslationWorkspace workspace = new TranslationWorkspace(gui, result.document, moviePath);
                 
                 final DialogBox dialogBox = new DialogBox(false);
                 final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
@@ -139,7 +137,7 @@ public class FilmTitServiceHandler {
 
                         Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                             public void execute() {
-                            	gui.processText(subtext, subformat);
+                            	workspace.processText(subtext, subformat);
                             }
                         });
                     }
@@ -227,15 +225,16 @@ public class FilmTitServiceHandler {
 		}
 	}
 	
-	public void getTranslationResults(List<TimedChunk> chunks, Gui.SendChunksCommand command) {
-		new GetTranslationResults(chunks, command);
+	public void getTranslationResults(List<TimedChunk> chunks, SendChunksCommand command, TranslationWorkspace workspace) {
+		new GetTranslationResults(chunks, command, workspace);
 	}
 
 	public class GetTranslationResults extends Callable {
 		
 		// parameters
 		List<TimedChunk> chunks;
-		Gui.SendChunksCommand command;
+		SendChunksCommand command;
+		TranslationWorkspace workspace;
 		
 		// callback
 		AsyncCallback<List<TranslationResult>> callback = new AsyncCallback<List<TranslationResult>>() {
@@ -244,7 +243,7 @@ public class FilmTitServiceHandler {
 				gui.log("successfully received " + newresults.size() + " TranslationResults!");				
 				
 				// add to trlist to the correct position:
-				//Map<ChunkIndex, TranslationResult> translist = gui.getCurrentDocument().translationResults;
+				//Map<ChunkIndex, TranslationResult> translist = workspace.getCurrentDocument().translationResults;
 			
                 for (TranslationResult newresult:newresults){
 
@@ -255,7 +254,7 @@ public class FilmTitServiceHandler {
                     //not sure if this is needed
                     //translist.put(poi, newresult);
                     
-                    gui.getTranslationWorkspace().showResult(newresult);
+                    workspace.showResult(newresult);
                 }
                 command.execute();
 			}
@@ -279,14 +278,12 @@ public class FilmTitServiceHandler {
 		
 		// constructor
 		public GetTranslationResults(List<TimedChunk> chunks,
-				SendChunksCommand command) {
+				SendChunksCommand command, TranslationWorkspace workspace) {
 			super();
 			
 			this.chunks = chunks;
-
-
-
 			this.command = command;
+			this.workspace = workspace;
 			
 			enqueue();
 		}

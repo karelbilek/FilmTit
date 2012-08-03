@@ -1,6 +1,8 @@
 package cz.filmtit.client;
 
 import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.Random;
+
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -11,6 +13,9 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import cz.filmtit.share.*;
+import cz.filmtit.share.parsing.Parser;
+import cz.filmtit.share.parsing.ParserSrt;
+import cz.filmtit.share.parsing.ParserSub;
 
 import java.util.*;
 
@@ -22,7 +27,43 @@ public class TranslationWorkspace extends Composite {
 	interface TranslationWorkspaceUiBinder extends UiBinder<Widget, TranslationWorkspace> {
 	}
 
+    /**
+     * Identifies this instance of workspace.
+     * Used because translation results must be bound to a workspace instance
+     * and invalidated if that instance is closed.
+     */
+    public final int id;
+    
     Gui gui;
+
+    ///////////////////////////////////////
+    //                                   //
+    //      Current document             //
+    //                                   //
+    ///////////////////////////////////////
+    
+    protected Document currentDocument;
+
+    public Document getCurrentDocument() {
+         return currentDocument;
+    }
+
+    protected void setCurrentDocument(Document currentDocument) {
+         this.currentDocument = currentDocument;
+         gui.pageHandler.setDocumentId(currentDocument.getId());
+    }
+    
+    protected Map<ChunkIndex, TimedChunk> chunkmap;
+
+    public TimedChunk getChunk(ChunkIndex chunkIndex) {
+       return chunkmap.get(chunkIndex);
+    }
+
+    ///////////////////////////////////////
+    //                                   //
+    //      Display fields               //
+    //                                   //
+    ///////////////////////////////////////
 
     protected SubgestHandler subgestHandler;
 
@@ -37,13 +78,37 @@ public class TranslationWorkspace extends Composite {
 
     private boolean isVideo=false;
 
+    VLCWidget vlcPlayer;
 
-    public TranslationWorkspace(Gui gui, String path) {
+    // UI binder fields
+    @UiField
+    ScrollPanel scrollPanel;
+    @UiField
+    SimplePanel emptyPanel;
+	@UiField
+    FlexTable table;
+    @UiField
+    HorizontalPanel hPanel;
+    @UiField
+    HorizontalPanel translationHPanel;
+   
+    ///////////////////////////////////////
+    //                                   //
+    //      Initialization               //
+    //                                   //
+    ///////////////////////////////////////
+
+    public TranslationWorkspace(Gui gui, Document doc, String path) {
         initWidget(uiBinder.createAndBindUi(this));
 
+        // 0 <= id < Integer.MAX_VALUE
+        id = Random.nextInt(Integer.MAX_VALUE);
+        gui.currentWorkspaceId = id;
+        
         isVideo = path!=null;
-
         this.gui = gui;
+        
+        setCurrentDocument(doc);
 
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
         this.indexes = new HashMap<ChunkIndex, Integer>();
@@ -62,7 +127,7 @@ public class TranslationWorkspace extends Composite {
             table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
             table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
             table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
-            this.subgestHandler = new SubgestHandler(this.gui, null);
+            this.subgestHandler = new SubgestHandler(this.gui, this, null);
             translationHPanel.setCellWidth(scrollPanel, "100%");
             translationHPanel.setCellWidth(emptyPanel, "0%");            
          } else {
@@ -70,7 +135,7 @@ public class TranslationWorkspace extends Composite {
             table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "246px");
             table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER, "240px");
             vlcPlayer = new VLCWidget(path, 400, 225);
-            this.subgestHandler = new SubgestHandler(this.gui, vlcPlayer);
+            this.subgestHandler = new SubgestHandler(this.gui, this, vlcPlayer);
             hPanel.add(vlcPlayer);
             translationHPanel.setCellWidth(scrollPanel, "60%");
             translationHPanel.setCellWidth(emptyPanel, "40%");            
@@ -88,28 +153,193 @@ public class TranslationWorkspace extends Composite {
 	}
 
     
-    VLCWidget vlcPlayer;
-
-    @UiField
-    ScrollPanel scrollPanel;
-    @UiField
-    SimplePanel emptyPanel;
-
-
-	@UiField
-    FlexTable table;
-
-  
-    @UiField
-    HorizontalPanel hPanel;
- 
-    @UiField
-    HorizontalPanel translationHPanel;
-   
    
     int lastIndex = 0;
 
+    ///////////////////////////////////////
+    //                                   //
+    //      Action methods               //
+    //                                   //
+    ///////////////////////////////////////
+
     /**
+     * Goes through TranslationResults of an already existing document
+     * and loads translation results for the untranslated ones.
+     */
+    protected void processTranslationResultList(List<TranslationResult> translations) {
+
+          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+
+          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
+
+
+          for (TranslationResult tr:translations) {
+              TimedChunk sChunk = tr.getSourceChunk();
+              chunkmap.put(sChunk.getChunkIndex(), sChunk);
+              String tChunk = tr.getUserTranslation();
+              
+              // log("processing TrResult for " + sChunk);
+
+              ChunkIndex chunkIndex = sChunk.getChunkIndex();
+
+
+              this.currentDocument.translationResults.put(chunkIndex, tr);
+
+              showSource(sChunk);
+
+              if (tChunk==null || tChunk.equals("")){
+                  // log(sChunk + " has not yet been translated");
+                 untranslatedOnes.add(sChunk);
+              } else {
+                  // log(sChunk + " has already been translated");
+                 showResult(tr);
+
+              }
+          }
+          
+          gui.log("all " + translations.size() + " trresults processed");
+          
+          if (untranslatedOnes.size() > 0) {
+        	  gui.log("sending " + untranslatedOnes.size() + " for translation");
+            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
+            sendChunks.execute();
+          }
+          
+    }
+
+     /**
+      * Parse the given text in the subtitle format of choice (by the radiobuttons)
+      * into this.chunklist (List<TimedChunk>).
+      * Currently verbosely outputting both input text, format
+      * and output chunks into the debug-area,
+      * also "reloads" the CellBrowser interface accordingly.
+     *
+     * @param subtext - multiline text (of the whole subtitle file, typically) to parse
+      */
+     protected void processText(String subtext, String subformat) {
+          // dump the input text into the debug-area:
+    	 gui.log("processing the following input:\n" + subtext + "\n");
+
+          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+
+          // determine format (from corresponding radiobuttons) and choose parser:
+          Parser subtextparser;
+          if (subformat == "sub") {  // i.e. ".sub" is checked
+               subtextparser = new ParserSub();
+          }
+          else {  // i.e. ".srt" is checked
+               assert subformat == "srt" : "One of the subtitle formats must be chosen.";
+               subtextparser = new ParserSrt();
+          }
+          gui.log("subtitle format chosen: " + subformat);
+
+          // parse:
+          gui.log("starting parsing");
+          long startTime = System.currentTimeMillis();
+          List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
+          long endTime = System.currentTimeMillis();
+          long parsingTime = endTime - startTime;
+          gui.log("parsing finished in " + parsingTime + "ms");
+
+          for (TimedChunk chunk : chunklist) {
+              chunkmap.put(chunk.getChunkIndex(), chunk);
+              ChunkIndex chunkIndex = chunk.getChunkIndex();
+              TranslationResult tr = new TranslationResult();
+              tr.setSourceChunk(chunk);
+              this.currentDocument.translationResults.put(chunkIndex, tr);
+
+          }
+
+          // output the parsed chunks:
+          gui.log("parsed chunks: "+chunklist.size());
+          
+          // save the chunks
+          gui.rpcHandler.saveSourceChunks(chunklist);
+          
+          gui.log("called saveSourceChunks()");
+          
+          // now the user can close the browser, chunks are safely saved
+
+          int size=50;
+          int i = 0;
+          for (TimedChunk timedchunk : chunklist) {
+            showSource(timedchunk);
+            if (i%size==0) {
+              //  Window.alert("another "+i);
+            }
+            i++;
+          }
+          
+          SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
+          sendChunks.execute();
+     }
+
+     /**
+      * Requests TranslationResults for the chunks,
+      * sending them in groups to compromise between responsiveness and effectiveness.
+      */
+     class SendChunksCommand {
+
+          LinkedList<TimedChunk> chunks;
+
+          public SendChunksCommand(List<TimedChunk> chunks) {
+               this.chunks = new LinkedList<TimedChunk>(chunks);
+          }
+
+        //exponential window
+        //
+        //a "trick" - first subtitle goes in a single request so it's here soonest without wait
+        //then the next two
+        //then the next four
+        //then next eight
+        //so the first 15 subtitles arrive as quickly as possible
+        //but we also want as little requests as possible -> the "window" is
+        //exponentially growing
+        int exponential = 1;
+
+        public boolean execute() {
+               if (chunks.isEmpty()) {
+                    return false;
+               } else {
+                List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
+                    for (int i = 0; i < exponential; i++) {
+                    if (!chunks.isEmpty()){
+                        TimedChunk timedchunk = chunks.removeFirst();
+                            sentTimedchunks.add(timedchunk);
+                    }
+                }
+                sendChunks(sentTimedchunks);
+                   exponential = exponential*2;
+                return true;
+               }
+          }
+
+          private void sendChunks(List<TimedChunk> timedchunks) {
+        	  gui.rpcHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
+          }
+     }
+
+
+     /**
+      * Send the given translation result as a "user-feedback" to the userspace
+      * @param transresult
+      */
+     public void submitUserTranslation(TranslationResult transresult) {
+          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
+          gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
+
+          ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
+          gui.rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
+                                          transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+     }
+
+     ///////////////////////////////////////
+     //                                   //
+     //      Display methods              //
+     //                                   //
+     ///////////////////////////////////////
+
+     /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
      * the chunk text and an empty (fake)subgestbox. 
      *
@@ -119,9 +349,8 @@ public class TranslationWorkspace extends Composite {
      */
     public void showSource(TimedChunk chunk) {
         
-    	//gui.log("showSource " + chunk);
-        
-    	try {
+//    	gui.log("showSource " + chunk);        
+//    	try {
     		
     	ChunkIndex chunkIndex = chunk.getChunkIndex();
 
@@ -141,17 +370,16 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(chunkIndex, gui, !isVideo, index+1);
+        SubgestBox targetbox = new SubgestBox(chunkIndex, gui, TranslationWorkspace.this, !isVideo, index+1);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
         
-    	}
-    	catch (Exception e) {
-			gui.exceptionCatcher(e);
-		}
-        
-    	//gui.log("showSource " + chunk + " completed");
+//    	}
+//    	catch (Exception e) {
+//			gui.exceptionCatcher(e);
+//		}      
+//    	gui.log("showSource " + chunk + " completed");
     }
 
 
@@ -169,9 +397,8 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(TranslationResult transresult) {
-		//gui.log("showResult " + transresult);
-        
-    	try {
+//		gui.log("showResult " + transresult);
+//    	try {
     		
         ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
         int index = indexes.get(chunkIndex);
@@ -179,14 +406,11 @@ public class TranslationWorkspace extends Composite {
         targetBoxes.get(index).getFather().setTranslationResult(transresult);
         targetBoxes.get(index).removeStyleName("loading");
 
-        gui.counter++;
-        
-		}
-		catch (Exception e) {
-			gui.exceptionCatcher(e);
-		}
-	    
-		//gui.log("showResult " + transresult + " completed");
+//		}
+//		catch (Exception e) {
+//			gui.exceptionCatcher(e);
+//		}    
+//		gui.log("showResult " + transresult + " completed");
     }
 
 

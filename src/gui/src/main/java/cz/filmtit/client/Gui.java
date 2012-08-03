@@ -36,9 +36,18 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
+	/**
+	 * a singleton representing the Gui instance
+	 */
+	private static Gui gui;
 	
-	// Handlers
-	
+	/**
+	 * a singleton representing the Gui instance
+	 */
+	public static Gui getGui() {
+		return gui;
+	}
+
 	/**
 	 * handles especially the menu
 	 */
@@ -83,8 +92,13 @@ public class Gui implements EntryPoint {
          return sessionID;
     }
     
-    // Other fields - some of them will probably be moved some place else
+    // Other fields
 
+    /**
+     * id of the active workspace
+     */
+    int currentWorkspaceId = -1;
+    
     @SuppressWarnings("deprecation")
     public static Date getDateIn1Year() {
         // cookies should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
@@ -92,42 +106,18 @@ public class Gui implements EntryPoint {
         in1year.setYear(in1year.getYear() + 1);
     	return in1year;
     }
-    
-     protected Map<ChunkIndex, TimedChunk> chunkmap;
-
-     public TimedChunk getChunk(ChunkIndex chunkIndex) {
-        return chunkmap.get(chunkIndex);
-     }
-
-     protected RootPanel rootPanel;
-
-     protected int counter = 0;
-
-     protected Document currentDocument;
-
-     public Document getCurrentDocument() {
-          return currentDocument;
-     }
-
-     protected void setCurrentDocument(Document currentDocument) {
-          this.currentDocument = currentDocument;
-          pageHandler.setDocumentId(currentDocument.getId());
-     }
-
-     TranslationWorkspace workspace = null;
-     
-     public TranslationWorkspace getTranslationWorkspace() {
-         return workspace;
-     }
 
     ///////////////////////////////////////
     //                                   //
     //      The "main()" of GUI          //
     //                                   //
     ///////////////////////////////////////
-    
+
     @Override
     public void onModuleLoad() {
+    	
+    	// set the Gui singleton
+    	Gui.gui = this;
 
 		// RPC:
 		rpcHandler = new FilmTitServiceHandler(this);
@@ -283,187 +273,4 @@ public class Gui implements EntryPoint {
         pageHandler.loadPage();
     }
     
-    ///////////////////////////////////////
-    //                                   //
-    //      Some mess remaining...       //
-    //                                   //
-    ///////////////////////////////////////
-    
-    // TODO move to TranslationWorkspace
-    protected void processTranslationResultList(List<TranslationResult> translations) {
-
-    	try {
-    	
-          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
-
-          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
-
-
-          for (TranslationResult tr:translations) {
-              TimedChunk sChunk = tr.getSourceChunk();
-              chunkmap.put(sChunk.getChunkIndex(), sChunk);
-              String tChunk = tr.getUserTranslation();
-              
-              // log("processing TrResult for " + sChunk);
-
-              ChunkIndex chunkIndex = sChunk.getChunkIndex();
-
-
-              this.currentDocument.translationResults.put(chunkIndex, tr);
-
-              workspace.showSource(sChunk);
-
-              if (tChunk==null || tChunk.equals("")){
-                  // log(sChunk + " has not yet been translated");
-                 untranslatedOnes.add(sChunk);
-              } else {
-                  // log(sChunk + " has already been translated");
-                 workspace.showResult(tr);
-
-              }
-          }
-          
-          log("all " + translations.size() + " trresults processed");
-          
-          if (untranslatedOnes.size() > 0) {
-              log("sending " + untranslatedOnes.size() + " for translation");
-            SendChunksCommand sendChunks = new SendChunksCommand(untranslatedOnes);
-            sendChunks.execute();
-          }
-          
-    	}
-    	catch (Exception e) {
-			log(e.getLocalizedMessage());
-			log(e.toString());				
-			StackTraceElement[] st = e.getStackTrace();
-			for (StackTraceElement stackTraceElement : st) {
-				log(stackTraceElement.toString());
-			}
-		}
-    }
-
-     /**
-      * Parse the given text in the subtitle format of choice (by the radiobuttons)
-      * into this.chunklist (List<TimedChunk>).
-      * Currently verbosely outputting both input text, format
-      * and output chunks into the debug-area,
-      * also "reloads" the CellBrowser interface accordingly.
-     *
-     * @param subtext - multiline text (of the whole subtitle file, typically) to parse
-      */
-     protected void processText(String subtext, String subformat) {
-          // dump the input text into the debug-area:
-          log("processing the following input:\n" + subtext + "\n");
-
-          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
-
-          // determine format (from corresponding radiobuttons) and choose parser:
-          Parser subtextparser;
-          if (subformat == "sub") {  // i.e. ".sub" is checked
-               subtextparser = new ParserSub();
-          }
-          else {  // i.e. ".srt" is checked
-               assert subformat == "srt" : "One of the subtitle formats must be chosen.";
-               subtextparser = new ParserSrt();
-          }
-          log("subtitle format chosen: " + subformat);
-
-          // parse:
-          log("starting parsing");
-          long startTime = System.currentTimeMillis();
-          List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
-          long endTime = System.currentTimeMillis();
-          long parsingTime = endTime - startTime;
-          log("parsing finished in " + parsingTime + "ms");
-
-          for (TimedChunk chunk : chunklist) {
-              chunkmap.put(chunk.getChunkIndex(), chunk);
-              ChunkIndex chunkIndex = chunk.getChunkIndex();
-              TranslationResult tr = new TranslationResult();
-              tr.setSourceChunk(chunk);
-              this.currentDocument.translationResults.put(chunkIndex, tr);
-
-          }
-
-          // output the parsed chunks:
-          log("parsed chunks: "+chunklist.size());
-          
-          // save the chunks
-          rpcHandler.saveSourceChunks(chunklist);
-          
-          log("called saveSourceChunks()");
-          
-          // now the user can close the browser, chunks are safely saved
-
-          int size=50;
-          int i = 0;
-          for (TimedChunk timedchunk : chunklist) {
-            workspace.showSource(timedchunk);
-            if (i%size==0) {
-              //  Window.alert("another "+i);
-            }
-            i++;
-          }
-          
-          SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
-          sendChunks.execute();
-     }
-
-
-
-     class SendChunksCommand {
-
-          LinkedList<TimedChunk> chunks;
-
-          public SendChunksCommand(List<TimedChunk> chunks) {
-               this.chunks = new LinkedList<TimedChunk>(chunks);
-          }
-
-        //exponential window
-        //
-        //a "trick" - first subtitle goes in a single request so it's here soonest without wait
-        //then the next two
-        //then the next four
-        //then next eight
-        //so the first 15 subtitles arrive as quickly as possible
-        //but we also want as little requests as possible -> the "window" is
-        //exponentially growing
-        int exponential = 1;
-
-        public boolean execute() {
-               if (chunks.isEmpty()) {
-                    return false;
-               } else {
-                List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
-                    for (int i = 0; i < exponential; i++) {
-                    if (!chunks.isEmpty()){
-                        TimedChunk timedchunk = chunks.removeFirst();
-                            sentTimedchunks.add(timedchunk);
-                    }
-                }
-                sendChunks(sentTimedchunks);
-                   exponential = exponential*2;
-                return true;
-               }
-          }
-
-          private void sendChunks(List<TimedChunk> timedchunks) {
-               rpcHandler.getTranslationResults(timedchunks, this);
-          }
-     }
-
-
-     /**
-      * Send the given translation result as a "user-feedback" to the userspace
-      * @param transresult
-      */
-     public void submitUserTranslation(TranslationResult transresult) {
-          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
-          log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
-
-          ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-          rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
-                                          transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
-     }
-
 }

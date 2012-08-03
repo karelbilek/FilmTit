@@ -116,11 +116,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         return "<html><head><style type='text/css'>body{ font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }</style></head><body>" + content + "</body></html>";
     }
 
-	public SubgestBox(ChunkIndex chunkIndex, Gui gui, boolean fullWidth, int tabIndex) {
+	public SubgestBox(ChunkIndex chunkIndex, Gui gui, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
 		this.chunkIndex = chunkIndex;
 		this.translationResult = new TranslationResult();
 		this.gui = gui;
-        this.workspace = gui.getTranslationWorkspace();
+        this.workspace = workspace;
         if (this.workspace == null) {
             gui.log("workspace for subgestbox is null!!!");
         }

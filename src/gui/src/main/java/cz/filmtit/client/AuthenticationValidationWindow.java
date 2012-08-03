@@ -28,11 +28,9 @@ public class AuthenticationValidationWindow extends Composite {
         // --- AuthenticationValidationWindow creation --- //
         // ----------------------------------------------- //
 
-        gui.rootPanel = RootPanel.get();
-        //rootPanel.setSize("800", "600");
-
-        // --- loading the uibinder-defined structure of the page --- //
-        gui.rootPanel.add(this, 0, 0);
+		RootPanel rootPanel = RootPanel.get();
+		rootPanel.add(this, 0, 0);
+		
       btnCancel.addClickHandler( new ClickHandler() {
              @Override
              public void onClick(ClickEvent event) {
