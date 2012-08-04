@@ -12,6 +12,7 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.userspace.*;
+
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -38,7 +39,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private enum CheckUserEnum {
         UserName,
-        UserNamePass
+        UserNamePass,
+        OpenId
     }
 
     protected TranslationMemory TM;
@@ -200,19 +202,35 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
         //authentication.getIdentity() <- this will be as user identification
 
+    	System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
+    	
         try {
             AuthData authData = authenticatingSessions.get(authID);
-            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
-            Authentication authentication;
-            authentication = manager.getAuthentication(request,authData.Mac_key, authData.endpoint.getAlias());
+            
+            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);            
+            Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
+            
+            // if no exception was thrown, everything is OK
             authenticatedSessions.put(authID,authentication);
+            return true;
 
-
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (UnsupportedEncodingException e) {
+        	System.out.print("UnsupportedEncodingException caught in validateAuthentication() - ");
+        	System.out.println(e);
             return false;
         }
-
-        return null;
+        catch (org.expressme.openid.OpenIdException e) {
+        	System.out.print("OpenIdException caught in validateAuthentication() - ");
+        	System.out.println(e);
+			return false;
+		}
+        catch (Exception e) {
+        	System.out.print("Exception caught in validateAuthentication() - ");
+        	System.out.println(e);
+			return false;
+		}
+        
     }
 
     @Override
@@ -220,11 +238,41 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
             Authentication authentication = authenticatedSessions.get(authID);
             authenticatingSessions.remove(authID);
+            
+            // old stuff from Jindra:
             // USUser user = createUser(authentication);          create user from auth information (select or create in db)
-            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
-            Session session = new Session(null); //= createSession(newSessionID,user)      create session with user
-            activeSessions.put(newSessionID, session);
+            // String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
+            // Session session = new Session(null); //= createSession(newSessionID,user)      create session with user
+            // activeSessions.put(newSessionID, session);
 
+            // new temporary stuff from rudolf
+            String openid = authentication.getIdentity();
+            String email = authentication.getEmail();
+            // TODO generate a username
+            // register the user
+            // TODO check by openid!!! not by name or password
+            USUser user = checkUser(email, null, CheckUserEnum.UserName);
+            if (user == null) {
+            	// not registered => register
+                Random r = new Random();
+                int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
+                String password = Integer.toString(pin);
+                boolean registrationSuccessful = registration(email, password, email, openid);
+                if (registrationSuccessful) {
+                	System.out.println("Registered a user with openid '" + openid
+                			+ "' and email " + email + "; generated a password " + password);
+                } else {
+                	System.out.println("User '" + email + "is already registered.");
+                }
+                
+                user = checkUser(email, null, CheckUserEnum.UserName);
+                assert user != null;
+            }
+            // log the user in
+            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
+            Session session = new Session(user);
+            activeSessions.put(newSessionID, session);
+            
             return newSessionID;
         }
         return null;
@@ -260,6 +308,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
          USUser check = checkUser(name,pass,CheckUserEnum.UserName);
          if (check == null){
+        	 // good, there is no user with the given name
              String hash = pass_hash(pass);
              USUser user = new USUser(name,hash,email,openId);
 
@@ -271,8 +320,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
              sendRegistrationMail(user,pass);
              usHibernateUtil.closeAndCommitSession(dbSession);
              return true;
+         } else {
+        	 // bad, there is already a user with the given name
+        	 return false;
          }
-        return false;
     }
 
     @Override

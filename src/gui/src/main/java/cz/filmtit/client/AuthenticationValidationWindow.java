@@ -37,11 +37,13 @@ public class AuthenticationValidationWindow extends Composite {
              }
         });
 
+    	paraValidation.setText("Processing authentication data...");
+    	
         // get authentication data
-      paraValidation.setText("Processing authentication data...");
-        // response URL
-        String responseURL = Window.Location.getQueryString();
-        // String responseURL = Window.Location.getParameter("responseURL");
+        
+      	// response URL
+        String responseURL = Window.Location.getHref();
+        
         // auhID
         long authID = 0;
         String authIDstring = Window.Location.getParameter("authID");
@@ -49,12 +51,13 @@ public class AuthenticationValidationWindow extends Composite {
              authID = Long.parseLong(authIDstring);
         }
         catch (Exception e) {
-             // TODO: handle exception
-             Window.alert("Cannot parse authID " + authIDstring + " as a number! " + e.getLocalizedMessage());
+             paraValidation.setText("Cannot parse authID '" + authIDstring + "' as a number! " + e);
+             Window.alert("Cannot parse authID '" + authIDstring + "' as a number!");
+             return;
         }
 
         // send RPC
-        paraValidation.setText("Validating authentication data for authID " + authID + "...");
+        paraValidation.setText("Validating authentication data for authID '" + authID + "'...");
         gui.rpcHandler.validateAuthentication (responseURL, authID, this);
     }
 	
@@ -71,4 +74,24 @@ public class AuthenticationValidationWindow extends Composite {
 	
     @UiField
 	Button btnCancel;
+
+	public void loggedIn() {
+		paraValidation.setText("Logged in successfully! You can now close this window.");
+		// TODO: If user logged in for the first time, we need to create a username for him.
+		// We can ask him to choose one, or we can just generate one from the data we get from the openid.
+		btnCancel.setText("Close");
+		close();
+	}
+
+	public void logInFailed() {
+		paraValidation.setText("Not logged in! Authentication validation failed.");
+		btnCancel.setText("Close");
+	}
+
+	public void logInFailed(Throwable caught) {
+		paraValidation.setText("Not logged in! Authentication validation failed: " + caught);
+		btnCancel.setText("Close");
+	}
+	
+	
 }
