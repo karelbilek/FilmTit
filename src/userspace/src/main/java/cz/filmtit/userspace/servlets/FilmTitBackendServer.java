@@ -472,7 +472,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
                 .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
-   usHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
         USUser succesUser = null;
         int count= 0;
         if (type == CheckUserEnum.UserNamePass)
@@ -531,7 +531,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 catch (Exception e) {}
             }
         }
-    }
+   }
 
 
 
@@ -540,7 +540,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         public Endpoint endpoint;
     }
 
-   public class ChangePassToken{
+    public class ChangePassToken{
 
         private String token;
         private Date  validTo;
@@ -611,9 +611,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type, ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
         Document document = getSessionIfCan(sessionID).loadDocument(documentID);
         return new ChunkStringGenerator(document, type, fps, converter).toString();
-	}
+        }
 
-	@Override
+    @Override
 	public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
 	}

@@ -41,6 +41,8 @@ Originally, all the algorithms precessing the data we retrieved were implemented
 
 \end{figure}
 
+We started to solve very soon the video playback in the browser which we expected to be a really challenging issue. ... we thought about flash, creating application wrapper where an web would be included ...
+
 \subsection{Introducing the shared classes}
 
 After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order run a first snapshot of the application. This was happening approximately in March 2012.
@@ -51,32 +53,32 @@ Originally we wanted to keep the traditional translation memory structure where 
 
 \begin{figure}
 \begin{center}
+\includegraphics{./figures/current_strucutre.pdf}
 \end{center}
-\caption{Current scheme of the work with translation memory.}
+\caption{Current scheme of the work with translation memory.}\label{fig:new_scheme}
 \end{figure}
 
 We agreed on the shared classes that all parts of the project should use.  We more or less adopted the design of the class from the core and started to use in the whole project. This step required to re-implement the classes from Scala to Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}.
 
 We started the work on the project with new design soon, anyway it started the period of the biggest struggle with technologies. It took almost two months to have a first running version of the application.
 
-The very first version of the application was a page where it was possible to upload a subtitle file do the translation without any possibility load an already saved subtitle document or download a result of the translation. without any sessions, user, it was just a page, where you edit the subtitles. Implementing this was a big change ....
+The very first version of the application was a page where it was possible to upload a subtitle file do the translation without any possibility load an already saved subtitle document or download a result of the translation. without any sessions, user, it was just a page, where you edit the subtitles. At that time we used machine translation from the MyMemory service which is in fact Google Translate, anyway there is a limited acces per IP address, so it became obvious the we would have to change the source of machine translation. We used API of IMDB.com, to receive information about movies but the movie meta data was not used in the evaluation the matches at that time.
 
+From the later view it appeared to be an important decision to agree on the shared classes which made the cooperation between the modules easier and less verbose. 
 
+\subsection{???}
 
+Sessions, logging, troubles with OpenID, trying JOpenID, openid4java 
 
-From the late view it appeared to be an important decision to agree on the shared classes which made the cooperation between the modules easier and less verbose. 
- At that time MyMemory and IMDB.com, later changed...
+Use our own Moses trained on the subtitle data we have from opensubtitles
 
+\subsection{Final Development}
 
-\subsection{Core design decisions}
+Optimizations required: better to throw away 
 
+Found many technical issues: e.g. necessary to be able to stop loading generating the suggestions on the server at the moment
 
-
-\subsection{User Space design decisions}
-
-
-
-\subsection{GUI design decisions}
+We left to the end a lot issues which we considered to be only minor technical 
 
 \section{Evaluating the Development Process}
 
@@ -85,6 +87,8 @@ One of the crucial decision for the project was the choice of technologies. Most
 On the other hand the choice of technologies appeared to be lucky that it probably saved a lot of work for us by the possibility to share implementation of class. Using the Scala language for the core also made the parallelization much easier.
 
 Despite we spent quite a lot of time by the discussions how the structure of the project we didn't avoid a radical change of the design of the application 4 months after the project started. Nearly the whole User Space code had to be dropped and it was also necessary to totally remake the client components existing so far.
+
+A bottleneck of the development process was also that not all of us were familiar with all of the technologies. It happened many times that somebody could not continue developing a particular part of the project and had to wait for an other team member to fix the issue even though it may have been just changing a single attribute in the Hibernate mapping.
 
 
 

@@ -206,7 +206,6 @@ public class Session {
             throw new InvalidDocumentIdException("Not existing document ID.");
         }
         USDocument document = activeDocuments.get(documentId);
-        document.setLastChange(new Date().getTime());
 
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
         tr.setStartTime(newStartTime);
@@ -253,10 +252,8 @@ public class Session {
         selected.generateMTSuggestions(TM);
         List<TranslationPair> l = new ArrayList<TranslationPair>();
         l.addAll( selected.getTranslationResult().getTmSuggestions());
-        selected.getTranslationResult().setTmSuggestions(null); // do not store suggestion in user space
-        
-        // ... i think nothing change from the us view
-        //saveTranslationResult(activeDocuments.get(documentId), selected);
+        selected.getTranslationResult().setTmSuggestions(null); // do not store suggestion in the user space
+
         return l;
     }
 
@@ -362,13 +359,13 @@ public class Session {
     // not saving it right away, because I do this in parallel, db doesn't like it
     public synchronized void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        document.saveToDatabase(session);
+        document.saveToDatabaseJustDocument(session);
 
         for (USTranslationResult tr : results) {
             document.addOrReplaceTranslationResult(tr);
-            tr.saveToDatabase(session); 
-                        
+            tr.saveToDatabase(session);
         }
+
         usHibernateUtil.closeAndCommitSession(session);
     }
 
