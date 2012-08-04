@@ -167,12 +167,28 @@ public class USDocument extends DatabaseObject {
         translationResults.put(i, tr);
     }
 
-    public long getLastChange() {
+    private long getLastChange() {
         return document.getLastChange();
     }
 
     public void setLastChange(long lastChange) {
         document.setLastChange(lastChange);
+    }
+
+    private int getTotalChunksCount() {
+        return document.getTotalChunksCount();
+    }
+
+    private void setTotalChunksCount(int totalChunksCount) {
+        document.setTotalChunksCount(totalChunksCount);
+    }
+
+    public int getTranslatedChunksCount() {
+        return document.getTranslatedChunksCount();
+    }
+
+    public void setTranslatedChunksCount(int translatedChunksCount) {
+        document.setTranslatedChunksCount(translatedChunksCount);
     }
 
     /**
@@ -202,7 +218,7 @@ public class USDocument extends DatabaseObject {
         for (Map.Entry<ChunkIndex, USTranslationResult> usResult : translationResults.entrySet()) {
             document.getTranslationResults().put(usResult.getKey(), usResult.getValue().getTranslationResult());
         }
-
+        document.setTotalChunksCount(translationResults.size());
     }
 
     /**
@@ -235,13 +251,15 @@ public class USDocument extends DatabaseObject {
     }
 
     public void addTranslationResult(USTranslationResult translationResult) {
-        addOrReplaceTranslationResult(translationResult);   
+        addOrReplaceTranslationResult(translationResult);
+        document.setTotalChunksCount(translationResults.size());
     }
 
     public void addOrReplaceTranslationResult(USTranslationResult usTranslationResult) {
         ChunkIndex chunkIndex = usTranslationResult.getTranslationResult().getSourceChunk().getChunkIndex();
         translationResults.put(chunkIndex, usTranslationResult);
         document.getTranslationResults().put(chunkIndex, usTranslationResult.getTranslationResult());
+        document.setTotalChunksCount(translationResults.size());
     }
 
     public void replaceTranslationResult(USTranslationResult usTranslationResult) {

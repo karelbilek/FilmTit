@@ -12,7 +12,6 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.userspace.*;
-
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;

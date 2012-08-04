@@ -19,6 +19,8 @@
         <property name="translationGenerationTime" type="long" column="translationGenerationTime" />
         <property name="finished" type="boolean" column="finished" />
         <property name="lastChange" type="long" column="lastChange" />
+        <property name="totalChunksCount" type="int" column="totalChunksCount" />
+        <property name="translatedChunksCount" type="int" column="translatedChunksCount" />
 
     </class>
 

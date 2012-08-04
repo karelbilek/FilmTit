@@ -1,24 +1,25 @@
 package cz.filmtit.client;
 
 
-
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.cell.client.*;
-
-import java.util.List;
-import com.github.gwtbootstrap.client.ui.*;
+import com.github.gwtbootstrap.client.ui.Button;
+import com.github.gwtbootstrap.client.ui.Label;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.Widget;
-
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 
 public class UserPage extends Composite {
@@ -52,13 +53,15 @@ public class UserPage extends Composite {
         TextColumn<Document> doneClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return "TODO %";
+                return Double.toString(Math.round(doc.getTranslatedChunksCount() / doc.getTotalChunksCount()));
             }
         };
         TextColumn<Document> lastEditedClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return "TODO";
+                Date lastChange = new Date(doc.getLastChange());
+                DateFormat formatter = new SimpleDateFormat("dd/MM/yyy HH:mm");
+                return formatter.format(lastChange);
             }
         };
 

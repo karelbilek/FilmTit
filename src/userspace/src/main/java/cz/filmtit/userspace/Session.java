@@ -183,9 +183,13 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
+
+        if ((tr.getUserTranslation() == null || tr.getUserTranslation().equals("")) &&
+                (userTranslation != null && !userTranslation.equals("") )) {
+            document.setTranslatedChunksCount(document.getTranslatedChunksCount() + 1);
+        }
         
         if (tr==null) {
-            
             String s = ("TranslationResult is null for index "+chunkIndex +", document has id : "+document.getDatabaseId()+", translationresults : "+document.getTranslationResultKeys());
            throw new RuntimeException(s);
 
@@ -283,8 +287,6 @@ public class Session {
 
 
     public boolean hasDocument(long id) {
-        
-
         //TODO make this a set, not a list
         for(USDocument usDocument : user.getOwnedDocuments()) {
             if (usDocument.getDatabaseId() == id) {
