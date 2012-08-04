@@ -89,11 +89,13 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
      * @return Comma separated list of genres.
      */
     private String getGenresString() {
-        StringBuilder genresBuilder = new StringBuilder();
-        for (String genre : genres) {
-            genresBuilder.append(genre + ",");
+        StringBuilder genresBuilder = new StringBuilder("");
+        if (genres!=null) {
+            for (String genre : genres) {
+                genresBuilder.append(genre + ",");
+            }
+            genresBuilder.deleteCharAt(genresBuilder.length() - 1); // removes last comma
         }
-        genresBuilder.deleteCharAt(genresBuilder.length() - 1); // removes last comma
         return genresBuilder.toString();
     }
 
