@@ -44,12 +44,13 @@ public class TestUSUserLogin {
 
     }
 
+
     @Test
     public void testLogin() {
-        if (server.simple_login(name,pass)!="") {
+        if (server.simpleLogin(name,pass)!="") {
             server.registration(name,pass,email,null);
         }
-        String session = server.simple_login(name, pass);
+        String session = server.simpleLogin(name, pass);
     }
 
 
@@ -58,7 +59,7 @@ public class TestUSUserLogin {
        String string_token = "test001";
        server.createTestChange(name,string_token);
        server.changePassword(name,newPass,string_token);
-       String session = server.simple_login(name, newPass);
+       String session = server.simpleLogin(name, newPass);
        assertTrue("test pass",session != null);
     }
 
