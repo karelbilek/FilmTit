@@ -12,17 +12,18 @@
 		<b:Form type="HORIZONTAL" ui:field="movieInfoForm">
 			<b:Fieldset>
 
-                <b:ControlGroup>
-                    <b:ControlLabel>Document title:</b:ControlLabel>
-                    <b:Controls>
-                        <b:TextBox ui:field="txtTitle"></b:TextBox>
-                    </b:Controls>
-                </b:ControlGroup>
 
                 <b:ControlGroup>
                     <b:ControlLabel>Title of the movie or the TV show:</b:ControlLabel>
                     <b:Controls>
                         <b:TextBox ui:field="txtMovieTitle"></b:TextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Document title:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="txtTitle"></b:TextBox>
                     </b:Controls>
                 </b:ControlGroup>
 

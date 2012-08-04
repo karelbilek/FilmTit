@@ -19,6 +19,7 @@ public class USUser extends DatabaseObject {
     String password;
     String email;
     String openId;
+    boolean permanentlyLoggedId;
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
      * in the application.
@@ -145,6 +146,13 @@ public class USUser extends DatabaseObject {
         this.email = email;
     }
 
+    public boolean isPermanentlyLoggedId() {
+        return permanentlyLoggedId;
+    }
+
+    public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
+        this.permanentlyLoggedId = permanentlyLoggedId;
+    }
 
     /**
      * Sets the set of document ID which are active at the time a session is terminated.

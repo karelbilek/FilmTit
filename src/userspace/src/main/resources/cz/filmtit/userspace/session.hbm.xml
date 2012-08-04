@@ -10,8 +10,8 @@
             <generator class="native"/>
         </id>
 
-        <property name="sessionStart" type="long" column="valid_from" />
-        <property name="lastOperationTime" type="long" column="valid_to" />
+        <property name="sessionStart" type="long" column="startTime" />
+        <property name="lastOperationTime" type="long" column="endTime" />
         <property name="userDatabaseId"  type="long" column="userId" />
         <property name="stateString" type="java.lang.String" column="state" />
     </class>

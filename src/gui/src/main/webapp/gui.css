@@ -253,3 +253,7 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
     color: #ffffff;
     text-decoration: none;
 }
+
+.copying_title {
+    color: #D1D1D1 !important;
+}

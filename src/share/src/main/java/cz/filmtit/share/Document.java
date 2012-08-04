@@ -13,6 +13,8 @@ public class Document implements IsSerializable, Serializable {
     private MediaSource movie;
     private Language language;
     private long lastChange;
+    private int totalChunksCount;
+    private int translatedChunksCount;
 
     private long userId = Long.MIN_VALUE;
 
@@ -81,6 +83,22 @@ public class Document implements IsSerializable, Serializable {
 
     public void setLastChange(long lastChange) {
         this.lastChange = lastChange;
+    }
+
+    public int getTotalChunksCount() {
+        return totalChunksCount;
+    }
+
+    public void setTotalChunksCount(int totalChunksCount) {
+        this.totalChunksCount = totalChunksCount;
+    }
+
+    public int getTranslatedChunksCount() {
+        return translatedChunksCount;
+    }
+
+    public void setTranslatedChunksCount(int translatedChunksCount) {
+        this.translatedChunksCount = translatedChunksCount;
     }
 
     public List<TranslationResult> getSortedTranslationResults() {
