@@ -20,7 +20,7 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     this(null)
   }
 
-  def urlApiKey = if (apiKey != null) "&key=" + apiKey else ""
+  def urlApiKey = if (apiKey != null && !apiKey.equals("")) "&key=" + apiKey else ""
 
   val tvShowPattern = "\"(.+)\" .+".r
   implicit val formats = net.liftweb.json.DefaultFormats

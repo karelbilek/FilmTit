@@ -13,13 +13,13 @@ class FulltextStorage(
   l1: Language,
   l2: Language,
   connection: Connection,
-  hssql: Boolean = false
+  useInMemoryDB: Boolean = false
 ) extends BaseStorage(
   l1,
   l2,
   TranslationSource.INTERNAL_FUZZY,
   connection,
-  hssql
+  useInMemoryDB
 ) {
 
   override def warmup() {}

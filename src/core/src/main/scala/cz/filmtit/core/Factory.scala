@@ -37,7 +37,7 @@ object Factory {
 
   def createInMemoryConnection(): Connection = {
     Class.forName("org.hsqldb.jdbcDriver")
-    DriverManager.getConnection("jdbc:hsqldb:mem:filmtitdb", "sa", "")
+    DriverManager.getConnection("jdbc:hsqldb:mem:filmtitdb;sql.syntax_pgs=true;check_props=true", "sa", "")
   }
 
   def createConnection(configuration: Configuration, readOnly: Boolean = true): Connection = {
@@ -113,12 +113,14 @@ object Factory {
     var levels = List[BackoffLevel]()
 
     //First level exact matching
-    val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB)
+    val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB)
     levels ::= new BackoffLevel(flSearcher, Some(new ExactRanker()), 0.7)
 
     //Second level: Full text search
-    val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
-    levels ::= new BackoffLevel(fulltextSearcher, Some(new ExactRanker()), 0.0)
+    if (!useInMemoryDB) {
+      val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
+      levels ::= new BackoffLevel(fulltextSearcher, Some(new ExactRanker()), 0.0)
+    }
 
     //Third level: Moses
     val mosesSearchers = (1 to 30).map { _ =>
