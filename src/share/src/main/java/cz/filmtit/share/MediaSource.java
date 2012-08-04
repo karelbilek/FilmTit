@@ -46,7 +46,10 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
     }
 
     public Set<String> getGenres() {
-        return genres;
+        if (genres == null)
+            return new HashSet<String>();
+        else
+            return genres;
     }
 
     public Long getId() {
