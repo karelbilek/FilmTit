@@ -3,6 +3,8 @@ package cz.filmtit.client;
 import java.util.Iterator;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -43,7 +45,12 @@ public class PageHandler {
     /**
      * Provides access to the gui.
      */
-    private Gui gui = Gui.getGui();    
+    private Gui gui = Gui.getGui();
+
+    /**
+     * whether to try to log in the user by saved sessionID
+     */
+	public final boolean doCheckSessionID;    
 
     /**
      * Various pages to be set and created.
@@ -66,17 +73,56 @@ public class PageHandler {
     	
     	History.addValueChangeHandler(historyChangeHandler);
     	
-    	pageUrl = string2page(History.getToken());
-		
-        // base of GUI is created for every "full" window
-    	if (pageUrl != Page.AuthenticationValidationWindow) {
+    	pageUrl = getPageFromURL();
+
+    	if ( isFullPage(pageUrl) ) {
+    		
+            // base of GUI is created
     		gui.guiStructure = new GuiStructure();
+            
+    		// say what we got
+        	gui.log("Parsed URL and identified page " + pageUrl);
+        	
+            // set documentId if it is provided
+    		setDocumentIdFromGETOrCookie();
+        	
+    		// load a Blank page before checkSessionId returns
+    		loadBlankPage();
+            
+    		doCheckSessionID = true;
+    		
+    	} else {
+    		
+    		// do not do any funny stuff, just load the page
+    		loadPage();
+    		
+    		doCheckSessionID = false;
+    		
     	}
-		
-		setDocumentIdFromGETOrCookie();
-    	
-		// load a Blank page before checkSessionId returns
-		loadBlankPage();
+    }
+    
+    /**
+     * Deterimines whether page is a full page with menu etc.
+     * @param page
+     * @return
+     */
+    private boolean isFullPage(Page page) {
+    	return (page != Page.AuthenticationValidationWindow);
+	}
+
+    /**
+     * Get the page requested in URL.
+     * Supports both ?page=Page and #Page
+     * @return the page requested if possible, or Page.None
+     */
+	private Page getPageFromURL () {
+    	// first try #Page
+    	Page page = string2page(History.getToken());
+    	if (page == Page.None) {
+    		// also try ?page=Page
+    		page = string2page(Window.Location.getParameter("page"));
+    	}
+    	return page;
     }
     
 	/**

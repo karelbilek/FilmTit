@@ -1,10 +1,8 @@
 package cz.filmtit.userspace.servlets;
 
-import cz.filmtit.userspace.*;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.core.CoreHibernateUtil;
 import cz.filmtit.core.Factory;
 import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
@@ -13,6 +11,8 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.userspace.*;
+
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -35,13 +35,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static int SESSION_ID_LENGHT = 47;
     private static int LENGTH_OF_TOKEN = 10;
 
-
-    private static CoreHibernateUtil coreHibernateUtil = CoreHibernateUtil.getInstance();
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     private enum CheckUserEnum {
         UserName,
-        UserNamePass
+        UserNamePass,
+        OpenId
     }
 
     protected TranslationMemory TM;
@@ -82,9 +81,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         usHibernateUtil.closeAndCommitSession(dbSession);
 
-        // initialize also the core part of hibernate
-        dbSession = coreHibernateUtil.getSessionWithActiveTransaction();
-        coreHibernateUtil.closeAndCommitSession(dbSession);
 
         System.err.println("FilmTitBackendServer started fine!");
     }
@@ -206,31 +202,53 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
         //authentication.getIdentity() <- this will be as user identification
 
+    	System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
+    	
         try {
             AuthData authData = authenticatingSessions.get(authID);
-            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
-            Authentication authentication;
-            authentication = manager.getAuthentication(request,authData.Mac_key, authData.endpoint.getAlias());
+            
+            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);            
+            Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
+            
+            // if no exception was thrown, everything is OK
             authenticatedSessions.put(authID,authentication);
+            return true;
 
-
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (UnsupportedEncodingException e) {
+        	System.out.print("UnsupportedEncodingException caught in validateAuthentication() - ");
+        	System.out.println(e);
             return false;
         }
-
-        return null;
+        catch (org.expressme.openid.OpenIdException e) {
+        	System.out.print("OpenIdException caught in validateAuthentication() - ");
+        	System.out.println(e);
+			return false;
+		}
+        catch (Exception e) {
+        	System.out.print("Exception caught in validateAuthentication() - ");
+        	System.out.println(e);
+			return false;
+		}
+        
     }
 
     @Override
     public String getSessionID(long authID) {
+        Authentication authentication = authenticatedSessions.get(authID);
+        String openid = authentication.getIdentity();
         if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
-            if (checkUser(authID) == null)
+            if (checkUser(openid) == null)
             {
-                registration(authID);
+                if (!(registration(authID))){
+                 return null;
+                }
             }
-            Authentication authentication = authenticatedSessions.get(authID);
-            authenticatedSessions.remove(authID);
-            return simpleLogin(authID,authentication);
+
+
+            authenticatingSessions.remove(authID);
+            return simpleLogin(openid,authentication);
+
         }
         return null;
     }
@@ -249,8 +267,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     }
 
-    public String simpleLogin(long authID,Authentication authentication) {
-        USUser user = checkUser(authID);
+    public String simpleLogin(String openId,Authentication authentication) {
+        USUser user = checkUser(openId);
         if (user!=null && (user.getEmail() == authentication.getEmail()))
         {
            return generateSession(user);
@@ -290,18 +308,42 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
              sendRegistrationMail(user,pass);
              usHibernateUtil.closeAndCommitSession(dbSession);
              return true;
+         } else {
+        	 // bad, there is already a user with the given name
+        	 return false;
          }
-        return false;
     }
 
-    public Boolean  registration(long  authID)
-    {
+    public Boolean  registration(long  authID){
        Authentication data = authenticatedSessions.get(authID);
+
        if (data != null){
-           return registration(data.getFirstname(),null,data.getEmail(),String.valueOf(authID));
+
+
+           Random r = new Random();
+           int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
+           String password = Integer.toString(pin);
+           String name = getUniqName(data.getEmail());
+           return registration(data.getFirstname(),password,data.getEmail(),data.getIdentity());
 
        }
        return false;
+    }
+
+    private String getUniqName(String email)
+    {
+        String name = email.substring(0,email.indexOf('@'));
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+
+        List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
+                .setParameter("username",name+'%').list(); //UPDATE hibernate  for more constraints
+        usHibernateUtil.closeAndCommitSession(dbSession);
+        int count = UserResult.size();
+        if (count > 0)
+        {
+            return new StringBuilder(name).append(count).toString();
+        }
+        return name;
     }
     @Override
     public Boolean changePassword(String user  , String pass, String string_token){
@@ -485,12 +527,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return succesUser;
     }
 
-    private USUser checkUser(long authID){
+    private USUser checkUser(String openid){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-
-        List UserResult = dbSession.createQuery("select d from USUser d where d.openid like :openid")
-                .setParameter("openid",String.valueOf(authID)).list(); //UPDATE hibernate  for more constraints
+        List UserResult = new ArrayList(0);
+        try {
+         UserResult = dbSession.createQuery("select d from USUser d where d.openid like :openid")
+                .setParameter("openid",openid).list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
+        }
+        catch (ExceptionInInitializerError ex)
+        {
+            System.out.print("Problem s dotazem");
+        }
 
         if (UserResult.size() > 1){
             throw new ExceptionInInitializerError("Two users with same authId");
@@ -529,7 +577,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 catch (Exception e) {}
             }
         }
-    }
+   }
 
 
 
@@ -538,7 +586,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         public Endpoint endpoint;
     }
 
-   public class ChangePassToken{
+    public class ChangePassToken{
 
         private String token;
         private Date  validTo;
@@ -609,9 +657,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type, ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
         Document document = getSessionIfCan(sessionID).loadDocument(documentID);
         return new ChunkStringGenerator(document, type, fps, converter).toString();
-	}
+        }
 
-	@Override
+    @Override
 	public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
 	}

@@ -418,6 +418,7 @@ public class FilmTitServiceHandler {
     	
 		@Override
 		public void call() {
+			gui.log("Checking sessionID " + sessionID);
             filmTitService.checkSessionID(sessionID, callback);
 		}
     }
@@ -758,15 +759,20 @@ public class FilmTitServiceHandler {
 			
 			public void onSuccess(String result) {
 				if (result != null) {
+					gui.log("A session ID received successfully! SessionId = " + result);
 					// stop polling
 					sessionIDPolling = false;
 					sessionIDPollingDialogBox.hide();
 					// we now have a session ID
 					gui.setSessionID(result);
-					// TODO: put some username
-					gui.logged_in("");
+					// we have to get the username
+					checkSessionID();
+					// gui.logged_in("");
 				}
-				// else continue polling
+				else {
+					gui.log("no session ID received");
+					// and continue polling
+				}
 			}
 			
 			public void onFailure(Throwable caught) {
@@ -806,6 +812,7 @@ public class FilmTitServiceHandler {
                     sessionIDPollingDialogBox.hide();
 				}
 			});
+            // TODO: call() if gets focus
             sessionIDPollingDialogBox.setWidget(dialog);
             sessionIDPollingDialogBox.setGlassEnabled(true);
             sessionIDPollingDialogBox.center();			
@@ -828,7 +835,7 @@ public class FilmTitServiceHandler {
 				}
 			};
 			
-			Scheduler.get().scheduleFixedDelay(poller, 2000);
+			Scheduler.get().scheduleFixedDelay(poller, 500);
 		}
 
 		@Override
@@ -855,21 +862,16 @@ public class FilmTitServiceHandler {
 		AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 			
 			public void onSuccess(Boolean result) {
-				// TODO say OK and close the window
 				if (result) {
-					authenticationValidationWindow.paraValidation.setText("Logged in successfully! You can now close this window.");
-					Window.alert("Logged in successfully! You can now close this window.");					
+					authenticationValidationWindow.loggedIn();
 				}
 				else {
-					authenticationValidationWindow.paraValidation.setText("Not logged in! Authentication validation failed.");
-					Window.alert("Not logged in! Authentication validation failed.");
+					authenticationValidationWindow.logInFailed();
 				}
 			}
 			
 			public void onFailure(Throwable caught) {
-				// TODO say error
-				authenticationValidationWindow.paraValidation.setText("Not logged in! Authentication validation failed: " + caught.getLocalizedMessage());
-				Window.alert(caught.getLocalizedMessage());
+				authenticationValidationWindow.logInFailed(caught);
 			}
 		};
 		

@@ -44,7 +44,7 @@ public class USDocument extends DatabaseObject {
     public USDocument() {
         document = new Document();
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
-        ownerDatabaseId = 0; 
+        ownerDatabaseId = 0;
     }
 
     public long getOwnerDatabaseId() {
@@ -133,6 +133,14 @@ public class USDocument extends DatabaseObject {
     protected MediaSource getMovie() {
         return document.getMovie();
     }
+
+    private String getTitle() {
+        return document.getTitle();
+    }
+
+    private void setTitle(String title) {
+        document.setTitle(title);
+    }
     
     public Set<ChunkIndex> getTranslationResultKeys() {
         return translationResults.keySet();
@@ -213,6 +221,13 @@ public class USDocument extends DatabaseObject {
                 translationResult.saveToDatabase(dbSession);
             }
         }
+    }
+
+    public void saveToDatabaseJustDocument(Session dbSession) {
+        if (document.getMovie() != null) {
+            dbSession.saveOrUpdate(document.getMovie());
+        }
+        saveJustObject(dbSession);
     }
 
     public void deleteFromDatabase(Session dbSession) {
