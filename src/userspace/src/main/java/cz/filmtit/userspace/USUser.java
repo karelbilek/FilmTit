@@ -122,10 +122,10 @@ public class USUser extends DatabaseObject {
     }
 
     public String getOpenId() {
-        return user.getId();
+        return openId;
     }
     private void setOpenId(String id) {
-        user.setId(id);
+        openId = id;
     }
 
     public Set<Long> getActiveDocumentIDs() {

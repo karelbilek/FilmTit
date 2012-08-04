@@ -30,24 +30,10 @@ public class TestUSUserLogin {
     }
 
     private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
-    FilmTitBackendServer server = null;
-     void TestUSUserLogin()
-     {
-        CreateServer();
-     }
-
-    void CreateServer()
-    {
-        server = new MockFilmTitBackendServer();
-    }
+    FilmTitBackendServer server = new MockFilmTitBackendServer();
 
     @Test
     public void testRegistration() {
-
-
-     if (server ==null)  {CreateServer();};
-
-
        server.registration(name, pass, email, null);
 
        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -58,25 +44,18 @@ public class TestUSUserLogin {
 
     }
 
-   @Test
-    public void testLogin()
-    {
-
-      if (server ==null)  {CreateServer();};
-        if (server.simple_login(name,pass)!="")
-       {
-           server.registration(name,pass,email,null);
-       }
-       String session = server.simple_login(name, pass);
-
-
+    @Test
+    public void testLogin() {
+        if (server.simple_login(name,pass)!="") {
+            server.registration(name,pass,email,null);
+        }
+        String session = server.simple_login(name, pass);
     }
 
 
     @Test
     public void testChangePass(){
        String string_token = "test001";
-       if (server ==null)  {CreateServer();};
        server.createTestChange(name,string_token);
        server.changePassword(name,newPass,string_token);
        String session = server.simple_login(name, newPass);
@@ -86,13 +65,7 @@ public class TestUSUserLogin {
 
     @Test
     public void testUrlChange(){
-
-        if (server ==null)  {CreateServer();};
         USUser user = new USUser(name,pass,email,null);
         server.sendChangePasswordMail(user);
-
     }
-
 }
-
-
