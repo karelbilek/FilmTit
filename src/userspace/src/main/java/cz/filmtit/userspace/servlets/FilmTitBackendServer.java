@@ -12,7 +12,6 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.userspace.*;
-
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -205,13 +204,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     	System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
     	
         try {
+
             AuthData authData = authenticatingSessions.get(authID);
-            
-            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);            
+
+            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
+
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
             
             // if no exception was thrown, everything is OK
             authenticatedSessions.put(authID,authentication);
+            System.out.print("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
         }
@@ -235,45 +237,45 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String getSessionID(long authID) {
-        Authentication authentication = authenticatedSessions.get(authID);
-        String openid = authentication.getIdentity();
-        if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
-            if (checkUser(openid) == null)
-            {
-                if (!(registration(authID))){
-                 return null;
+             Authentication authentication = authenticatedSessions.get(authID);
+             authenticatedSessions.remove(authID);
+
+                if ( authentication!= null) {
+                    String openid = extractOpenId(authentication.getIdentity());
+                    if (checkUser(openid) == null)
+                    {
+                        if (!(registration(openid,authentication))){
+                         throw new ExceptionInInitializerError("Registration failed");
+                        }
+
+                    }
+                 return simpleLogin(openid);
+
                 }
-            }
 
-
-            authenticatingSessions.remove(authID);
-            return simpleLogin(openid,authentication);
-
-        }
         return null;
     }
-     @Override
+
+    @Override
     public String simpleLogin(String username, String password) {
 
-            System.out.println("CheckUser");
+
             USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
-            if (user == null)
-            {
+            if (user == null){
                 return  "";
             }
             else {
                return generateSession(user);
             }
+     }
 
-    }
+    public String simpleLogin(String openId) {
 
-    public String simpleLogin(String openId,Authentication authentication) {
         USUser user = checkUser(openId);
-        if (user!=null && (user.getEmail() == authentication.getEmail()))
-        {
-           return generateSession(user);
+        if (user!=null){
+            return generateSession(user);
         }
-        return  "";
+        return "";
     }
 
     @Override
@@ -291,22 +293,19 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
          USUser check = checkUser(name,pass,CheckUserEnum.UserName);
          if (check == null){
              USUser user = null;
-             if (pass == null && openId != null)
-             {
-                 // empty pass - validation with openId
-                 user = new USUser(name,"",email,openId);
-             } else {
+
               // pass validation
               String hash = pass_hash(pass);
               user = new USUser(name,hash,email,openId);
-             }
+
           // create hibernate session
              org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-             System.out.println("Registration");
+
           // save into db
              user.saveToDatabase(dbSession);
-             sendRegistrationMail(user,pass);
+
              usHibernateUtil.closeAndCommitSession(dbSession);
+             sendRegistrationMail(user,pass);
              return true;
          } else {
         	 // bad, there is already a user with the given name
@@ -314,24 +313,24 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
          }
     }
 
-    public Boolean  registration(long  authID){
-       Authentication data = authenticatedSessions.get(authID);
+    public Boolean  registration(String openId,Authentication data){
 
        if (data != null){
-
-
            Random r = new Random();
            int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
            String password = Integer.toString(pin);
            String name = getUniqName(data.getEmail());
-           return registration(data.getFirstname(),password,data.getEmail(),data.getIdentity());
-
-       }
+           return registration(name,password,data.getEmail(),openId);
+         }
        return false;
     }
 
-    private String getUniqName(String email)
-    {
+    private String extractOpenId(String url){
+        String id = url.substring(url.indexOf("?id")+4); // ..oi/id?id=*****
+        return id;
+    }
+
+    private String getUniqName(String email){
         String name = email.substring(0,email.indexOf('@'));
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
@@ -531,7 +530,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         List UserResult = new ArrayList(0);
         try {
-         UserResult = dbSession.createQuery("select d from USUser d where d.openid like :openid")
+         UserResult = dbSession.createQuery("select d from USUser d where d.openId like :openid")
                 .setParameter("openid",openid).list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         }
