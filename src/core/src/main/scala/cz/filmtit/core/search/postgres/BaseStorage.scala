@@ -36,8 +36,12 @@ with MediaStorage {
   var chunkSourceMappingTable = "translationpairs_mediasources"
   var mediasourceTable = "mediasources"
 
-  var serialDataType = if (useInMemoryDB) {"IDENTITY"} else {"SERIAL"}
-  var textDataType = if (useInMemoryDB) {"LONGVARCHAR"} else {"TEXT"}
+  /**
+   * In the case that we want to use a database that is not compatible with postgres,
+   * these two variables have to be changed into the SQL-compliant datatype:
+   */
+  var serialDataType = "SERIAL"
+  var textDataType = "TEXT"
   
   var maxCandidates = 200
 
