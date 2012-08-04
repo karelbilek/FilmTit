@@ -31,7 +31,7 @@ public class TestDatabase {
     @Test
     public void testMultiThreading() {
         for (int i = 0; i < 20; ++i) {
-            new DatabaseWorker().run();
+            new DatabaseWorker(i).run();
         }
 
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -40,13 +40,19 @@ public class TestDatabase {
     }
 
     private class DatabaseWorker extends Thread {
+        DatabaseWorker(int count) {
+            this.count = count;
+        }
+
+        int count;
+
         @Override
         public void run() {
             Session dbSession = usHibernateUtil.getSessionFactory().openSession();
 
             for(int i = 0; i < 200; ++i) {
 
-                USTranslationResult sampleResult = new USTranslationResult(new TimedChunk("001", "002", 1, "Sample chunk", 5, 0));
+                USTranslationResult sampleResult = new USTranslationResult(new TimedChunk("001", "002", 1, "Sample chunk", i, count));
 
                 dbSession.buildLockRequest(LockOptions.UPGRADE);
                 dbSession.beginTransaction();

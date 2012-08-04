@@ -222,10 +222,16 @@ public class TestSession {
             session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
         }
 
+        List<TimedChunk> timedChunks = new ArrayList<TimedChunk>();
         List<TranslationResult> clientTRList = new ArrayList<TranslationResult>();
         for (int i = 0; i < 9; ++i) {
             TimedChunk sampleTimedChunk = new TimedChunk("00:0" + i + ":00,000", "00:0" + (i + 1) + ":01,000", 0,
                     loremIpsum.getWords(5,5), i, clientDocument.getId());
+            timedChunks.add(sampleTimedChunk);
+        }
+        session.saveSourceChunks(timedChunks);
+
+        for (TimedChunk sampleTimedChunk : timedChunks) {
             TranslationResult serverRespond = session.getTranslationResults(sampleTimedChunk, TM);
             clientTRList.add(serverRespond);
         }

@@ -10,15 +10,19 @@
             <generator class="native"/>
         </id>
 
+        <properties name="uniq" unique="true">
+            <property name="documentDatabaseId" type="long" column="documentId" />
+            <property name="sharedId" type="int" column="sharedId" />
+            <property name="partNumber" type="int" column="partNumber" />
+        </properties>
+
         <!-- name, type, column -->
         <property name="text" type="text" column="text"/>
-        <property name="documentDatabaseId" type="long" column="documentId" />
         <property name="startTime" type="java.lang.String" column="startTime" />
         <property name="endTime" type="java.lang.String" column="endTime" />
-        <property name="partNumber" type="int" column="partNumber" />
         <property name="userTranslation" type="text"  column="userTranslation" />
         <property name="selectedTranslationPairID" type="long" column="selectedTranslationPairID" />
-        <property name="sharedId" type="int" column="sharedId" />
+
         <property name="feedbackSent" type="boolean" column="feedbackSent" />
 
 
