@@ -1,19 +1,16 @@
 package cz.filmtit.client;
 
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.FrameElement;
-import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.regexp.shared.SplitResult;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.logical.shared.InitializeEvent;
+import com.google.gwt.event.logical.shared.InitializeHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
@@ -24,11 +21,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import cz.filmtit.share.ChunkIndex;
-import cz.filmtit.share.Chunk;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationPair;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 import cz.filmtit.share.annotations.Annotation;
 import cz.filmtit.share.annotations.AnnotationType;
 
@@ -114,7 +107,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     boolean fullWidth;
 
     private String subgestBoxHTML(String content) {
-        return "<html><head><title></title></head><body style=\"font-family:  Arial Unicode MS, Arial, sans-serif; font-size: small; color: #333; }\">" + content + "</body></html>";
+        return content;
     }
 
 	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
@@ -144,6 +137,18 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         } else {
             this.addStyleName("subgest_halfwidth");
         }
+
+        final RichTextArea richtext = this;
+        richtext.addInitializeHandler(new InitializeHandler() {
+            public void onInitialize(InitializeEvent ie) {
+                IFrameElement fe = (IFrameElement) richtext.getElement().cast();
+                Style s = fe.getContentDocument().getBody().getStyle();
+                s.setProperty("fontFamily", "Arial Unicode MS,Arial,sans-serif");
+                s.setProperty("fontSize", "small");
+                s.setColor("#333");
+            }
+        });
+
 	}
 	
     public void setTranslationResult(TranslationResult translationResult) {
