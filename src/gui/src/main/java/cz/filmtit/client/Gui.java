@@ -116,17 +116,27 @@ public class Gui implements EntryPoint {
     @Override
     public void onModuleLoad() {
     	
-    	// set the Gui singleton
-    	Gui.gui = this;
-
-		// RPC:
-		rpcHandler = new FilmTitServiceHandler();
-
-		// page loading and switching
-		pageHandler = new PageHandler();
-
-        // check whether user is logged in or not
-        rpcHandler.checkSessionID();
+    	try {
+	    	
+	    	// set the Gui singleton
+	    	Gui.gui = this;
+	
+			// RPC:
+			rpcHandler = new FilmTitServiceHandler();
+	
+			// page loading and switching
+			pageHandler = new PageHandler();
+			
+			if (pageHandler.doCheckSessionID) {
+	    		// check whether user is logged in or not
+	    		gui.rpcHandler.checkSessionID();
+			}
+            
+    	}
+    	catch (Exception e) {
+			exceptionCatcher(e);
+		}
+		
     }
 
     
@@ -186,8 +196,6 @@ public class Gui implements EntryPoint {
     String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
     	
     	StringBuilder sb = new StringBuilder();
-    	sb.append(e.getLocalizedMessage());
-    	sb.append('\n');
     	sb.append(e.toString());
     	sb.append('\n');
 		StackTraceElement[] st = e.getStackTrace();
@@ -255,6 +263,7 @@ public class Gui implements EntryPoint {
     }
 
     protected void logged_in (String username) {
+    	log("User " + username + " is logged in.");
     	// login state fields
     	loggedIn = true;
     	this.username = username;
@@ -264,6 +273,7 @@ public class Gui implements EntryPoint {
     }
 
     protected void logged_out () {
+    	log("User is logged out.");
     	// login state fields
     	loggedIn = false;
         username = null;
