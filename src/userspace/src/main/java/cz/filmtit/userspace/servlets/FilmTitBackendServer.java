@@ -224,10 +224,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public String getSessionID(long authID) {
         if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
+            if (checkUser(authID) == null)
+            {
+                registration(authID);
+            }
             Authentication authentication = authenticatedSessions.get(authID);
             authenticatedSessions.remove(authID);
-            // USUser user = createUser(authentication);          create user from auth information (select or create in db)
-            return simpleLogin(authID);
+            return simpleLogin(authID,authentication);
         }
         return null;
     }
@@ -246,14 +249,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     }
 
-    private String simpleLogin(long authID){
+    public String simpleLogin(long authID,Authentication authentication) {
         USUser user = checkUser(authID);
-        if (user!=null)
+        if (user!=null && (user.getEmail() == authentication.getEmail()))
         {
            return generateSession(user);
         }
         return  "";
     }
+
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
@@ -268,9 +272,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
          USUser check = checkUser(name,pass,CheckUserEnum.UserName);
          if (check == null){
-             String hash = pass_hash(pass);
-             USUser user = new USUser(name,hash,email,openId);
-
+             USUser user = null;
+             if (pass == null && openId != null)
+             {
+                 // empty pass - validation with openId
+                 user = new USUser(name,"",email,openId);
+             } else {
+              // pass validation
+              String hash = pass_hash(pass);
+              user = new USUser(name,hash,email,openId);
+             }
           // create hibernate session
              org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
              System.out.println("Registration");
@@ -283,6 +294,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
+    public Boolean  registration(long  authID)
+    {
+       Authentication data = authenticatedSessions.get(authID);
+       if (data != null){
+           return registration(data.getFirstname(),null,data.getEmail(),String.valueOf(authID));
+
+       }
+       return false;
+    }
     @Override
     public Boolean changePassword(String user  , String pass, String string_token){
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
@@ -383,8 +403,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Only test reason
      */
-    public void createTestChange(String login , String token)
-    {
+    public void createTestChange(String login , String token){
         activeTokens.put(login,new ChangePassToken(token));
     }
 
@@ -416,7 +435,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
     }
     /**
-     *  generatin session;
+     *  generate session;
      *
      */
     private String generateSession(USUser user){
@@ -437,7 +456,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
                 .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
-   usHibernateUtil.closeAndCommitSession(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
         USUser succesUser = null;
         int count= 0;
         if (type == CheckUserEnum.UserNamePass)
@@ -462,7 +481,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             {
                 succesUser=(USUser)UserResult.get(0);
             }
-
         }
         return succesUser;
     }

@@ -1,7 +1,5 @@
 package cz.filmtit.client;
 
-import com.github.gwtbootstrap.client.ui.*;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -11,19 +9,12 @@ import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.VerticalPanel;
-
-import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 
-import java.util.Map;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
 	
@@ -646,7 +637,7 @@ public class FilmTitServiceHandler {
 
 		@Override
 		public void call() {
-	        filmTitService.simple_login(username, password, callback);
+	        filmTitService.simpleLogin(username, password, callback);
 		}
     }
 
