@@ -7,6 +7,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -16,8 +17,6 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -60,8 +59,7 @@ public class UserPage extends Composite {
             @Override
             public String getValue(Document doc) {
                 Date lastChange = new Date(doc.getLastChange());
-                DateFormat formatter = new SimpleDateFormat("dd/MM/yyy HH:mm");
-                return formatter.format(lastChange);
+                return DateTimeFormat.getFormat("dd/MM/yyy HH:mm").format(lastChange);
             }
         };
 
