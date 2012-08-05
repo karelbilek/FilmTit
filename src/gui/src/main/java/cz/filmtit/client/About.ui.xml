@@ -3,18 +3,12 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
          	 xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<g:HTMLPanel>
-	
-        <b:Heading size="3">About FilmTit</b:Heading>
-        
-        <b:Heading size="6">TODO</b:Heading>
-        <b:Paragraph>Lorem imsum dolor sit amet consequetuor...</b:Paragraph>
-	   
-        <b:Heading size="6">TODO</b:Heading>
-        <b:Paragraph>Lorem imsum dolor sit amet consequetuor...</b:Paragraph>
-       
-        <b:Heading size="6">TODO</b:Heading>
-        <b:Paragraph>Lorem imsum dolor sit amet consequetuor...</b:Paragraph>
-       
+
+        <b:PageHeader>About FilmTit</b:PageHeader>
+
+        <b:Heading size="6">What is FilmTit?</b:Heading>
+        <b:Paragraph>Filmtit is an easy way to quickly translate SRT and SUB movie subtitle files.</b:Paragraph>
+
         <b:Paragraph>&copy; the filmtit group</b:Paragraph>
        
 	</g:HTMLPanel>

@@ -5,52 +5,61 @@
 
     <g:HTMLPanel>
 
-        <b:Heading size="3">Login</b:Heading>
+        <b:Modal ui:field="dialogBox" title="Login" backdrop="STATIC" keyboard="true" animation="true">
 
-        <b:Form type="HORIZONTAL" ui:field="loginForm">
-            <b:Fieldset>
+            <b:Form type="HORIZONTAL" ui:field="loginForm">
+                <b:Fieldset>
 
-                <b:ControlGroup>
-                    <b:ControlLabel>User name:</b:ControlLabel>
-                    <b:Controls>
-                        <b:TextBox ui:field="txtUsername"></b:TextBox>
-                    </b:Controls>
-                </b:ControlGroup>
+                    <b:ControlGroup>
+                        <b:ControlLabel>User name:</b:ControlLabel>
+                        <b:Controls>
+                            <b:TextBox ui:field="txtUsername"></b:TextBox>
+                        </b:Controls>
+                    </b:ControlGroup>
 
-                <b:ControlGroup>
-                    <b:ControlLabel>Password:</b:ControlLabel>
-                    <b:Controls>
-                        <b:PasswordTextBox ui:field="txtPassword"></b:PasswordTextBox>
-                    </b:Controls>
-                </b:ControlGroup>
+                    <b:ControlGroup>
+                        <b:ControlLabel>Password:</b:ControlLabel>
+                        <b:Controls>
+                            <b:PasswordTextBox ui:field="txtPassword"></b:PasswordTextBox>
+                        </b:Controls>
+                    </b:ControlGroup>
 
-                <b:ControlGroup>
-                    <b:Controls>
-                        <b:Button ui:field="btnLogin" type="PRIMARY">Login</b:Button>
-                        <b:Button ui:field="btnRegister">Registration form</b:Button>
-                    </b:Controls>
-                </b:ControlGroup>
-                
-                <b:ControlGroup>
-                    <b:Controls>
-                        <b:Button ui:field="btnForgottenPassword">Forgotten password</b:Button>
-                    </b:Controls>
-                </b:ControlGroup>
-                
-                <b:ControlGroup>
-                    <b:Controls>
-                        <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
-                    </b:Controls>
-                </b:ControlGroup>
-                
-                <b:ControlGroup>
-                    <b:Controls>
-                        <b:Button ui:field="btnCancel">Cancel</b:Button>
-                    </b:Controls>
-                </b:ControlGroup>
-                
-            </b:Fieldset>
-        </b:Form>
+
+                    <b:ModalFooter>
+
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnLogin" type="PRIMARY">Login</b:Button>
+                                <b:Button ui:field="btnRegister">Registration form</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnForgottenPassword">Forgotten password</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnCancel">Cancel</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                    </b:ModalFooter>
+
+                </b:Fieldset>
+            </b:Form>
+
+        </b:Modal>
+
     </g:HTMLPanel>
 
 </ui:UiBinder> 

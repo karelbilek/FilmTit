@@ -1,5 +1,9 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.Button;
+import com.github.gwtbootstrap.client.ui.Modal;
+import com.github.gwtbootstrap.client.ui.PasswordTextBox;
+import com.github.gwtbootstrap.client.ui.TextBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -7,13 +11,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.HasText;
-import com.github.gwtbootstrap.client.ui.PasswordTextBox;
-import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.SubmitButton;
-import com.github.gwtbootstrap.client.ui.TextBox;
 
 public class RegistrationForm extends Composite {
 
@@ -28,8 +26,6 @@ public class RegistrationForm extends Composite {
 
 	public RegistrationForm() {
 		initWidget(uiBinder.createAndBindUi(this));
-
-        final DialogBox dialogBox = new DialogBox(false);
 
         btnRegister.addClickHandler( new ClickHandler() {
                @Override
@@ -55,10 +51,11 @@ public class RegistrationForm extends Composite {
                }
           });
 
-        dialogBox.setWidget(this);
-        dialogBox.setGlassEnabled(true);
-        dialogBox.center();	
+        dialogBox.show();
 	}
+
+    @UiField
+    Modal dialogBox;
 
 	@UiField
 	TextBox txtEmail;

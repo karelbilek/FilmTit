@@ -5,9 +5,9 @@
 
 
 	<g:HTMLPanel styleName="user_page">
-        <b:Button type="PRIMARY" ui:field="btnDisplayCreator">Create a new document</b:Button>
+        <b:Button type="PRIMARY" ui:field="btnDisplayCreator" addStyleNames="new_document_button">Create a new document</b:Button>
 
-		<b:Heading size="3">Your documents</b:Heading>
+        <b:PageHeader subtext="Edit your subtitle files">Documents</b:PageHeader>
 
         <!--I have no idea how to make celltable in .xml-->
         <!--So I do the heavy work in .java-->

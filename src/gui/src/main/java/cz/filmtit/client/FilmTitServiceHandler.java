@@ -76,13 +76,13 @@ public class FilmTitServiceHandler {
     
    
 
-    public void registerUser(String username, String password, String email, DialogBox registrationForm) {
+    public void registerUser(String username, String password, String email, Modal registrationForm) {
     	new RegisterUser(username, password, email, registrationForm, this);
     }
     
     
     
-    public void sendChangePasswordMail (String username, DialogBox dialogBox) {
+    public void sendChangePasswordMail (String username, Modal dialogBox) {
     	new SendChangePasswordMail(username, dialogBox);
     }
     
@@ -111,7 +111,7 @@ public class FilmTitServiceHandler {
     }
     
 
-	public void getAuthenticationURL(AuthenticationServiceType serviceType, DialogBox loginDialogBox) {
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, Modal loginDialogBox) {
 		new GetAuthenticationURL(serviceType, loginDialogBox, this);
 	}
 	

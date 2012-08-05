@@ -3,12 +3,7 @@
 
 /** Example rules used by the template application (remove for your app) */
 .new_document {
-	background: white;
-	padding: 15px;
-	width: 600px;
 
-	
-	margin: 5px auto 0 auto;
 }
 .scrollPanel.creating_document {
 	background: #fcfcfc;
@@ -256,4 +251,11 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 
 .copying_title {
     color: #D1D1D1 !important;
+}
+
+.downloadButtons {
+	text-align: center;
+}
+.new_document_button {
+	float: right;
 }

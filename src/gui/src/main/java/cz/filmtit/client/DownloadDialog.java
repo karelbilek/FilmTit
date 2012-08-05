@@ -1,20 +1,17 @@
 package cz.filmtit.client;
 
-import cz.filmtit.share.*;
+import com.github.gwtbootstrap.client.ui.Button;
+import com.github.gwtbootstrap.client.ui.Modal;
+import com.github.gwtbootstrap.client.ui.RadioButton;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
-import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.TextBox;
-import com.github.gwtbootstrap.client.ui.RadioButton;
+import cz.filmtit.share.Document;
 //import com.google.gwt.user.client.ui.RadioButton;
 
 
@@ -30,22 +27,18 @@ public class DownloadDialog extends Composite {
 	private Gui gui = Gui.getGui();
     
     Document document;
-    DialogBox dialogBox;
 
 	public DownloadDialog(Document document) {
         initWidget(uiBinder.createAndBindUi(this));
         target.setChecked(true);
         this.document = document;
-        
-        dialogBox = new DialogBox(false);
+
         
         srtButton.addClickHandler(handlerForFormat("srt"));
         subButton.addClickHandler(handlerForFormat("sub"));
         txtButton.addClickHandler(handlerForFormat("txt"));
-        
-        dialogBox.setWidget(this);
-        dialogBox.setGlassEnabled(true);
-        dialogBox.center();
+
+        dialogBox.show();
 
 	}
 
@@ -72,6 +65,9 @@ public class DownloadDialog extends Composite {
             }
         };
     }
+
+    @UiField
+    Modal dialogBox;
 
     @UiField
     RadioButton source;

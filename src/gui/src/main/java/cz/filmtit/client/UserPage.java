@@ -53,7 +53,7 @@ public class UserPage extends Composite {
             @Override
             public String getValue(Document doc) {
                 return Double.toString(Math.round(10000 * doc.getTranslatedChunksCount() /
-                        doc.getTotalChunksCount()) / 100) + " %";
+                        doc.getTotalChunksCount()) / 100) + "%";
             }
         };
         TextColumn<Document> lastEditedClm = new TextColumn<Document>() {

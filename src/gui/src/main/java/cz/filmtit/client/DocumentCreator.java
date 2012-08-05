@@ -1,44 +1,26 @@
 package cz.filmtit.client;
 
-import cz.filmtit.client.widgets.*;
-import java.util.*;
-import com.google.gwt.user.client.Window;
-
 import com.github.gwtbootstrap.client.ui.*;
-import org.vectomatic.file.FileUploadExt;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
-import com.google.gwt.user.client.ui.SuggestBox;
-import com.github.gwtbootstrap.client.ui.ControlGroup;
-import com.google.gwt.user.client.ui.Widget;
-
-import com.google.gwt.core.client.*;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.GWT;
-
-import com.google.gwt.event.dom.client.*;
-
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-
-import com.google.gwt.cell.client.FieldUpdater;
-
-import cz.filmtit.share.*;
-import cz.filmtit.share.parsing.*;
-import cz.filmtit.client.SubgestBox.FakeSubgestBox;
-
-import org.vectomatic.file.FileUploadExt;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
+import com.google.gwt.user.client.ui.Widget;
+import cz.filmtit.client.widgets.FileLoadWidget;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
+import org.vectomatic.file.FileUploadExt;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 
-import java.util.*;
+import java.util.Iterator;
 
 
 public class DocumentCreator extends Composite {
@@ -55,7 +37,8 @@ public class DocumentCreator extends Composite {
 
 	public DocumentCreator() {
 		initWidget(uiBinder.createAndBindUi(this));
-        
+
+        
         btnCreateDocument.setEnabled(false);
 
 		gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
@@ -129,7 +112,8 @@ public class DocumentCreator extends Composite {
                 FileLoadWidget loadWidget = new FileLoadWidget();
                 bottomControlGroup.add(loadWidget);
            }
-        });
+        });
+
             gui.guiStructure.contentPanel.setWidget(this);
             
             btnCreateDocument.setEnabled(false);
@@ -149,7 +133,7 @@ public class DocumentCreator extends Composite {
     }
     
     @UiField
-    ControlGroup bottomControlGroup;
+    FormActions bottomControlGroup;
 
     private void createDocumentFromText(String subtext) {
         gui.rpcHandler.createDocument(

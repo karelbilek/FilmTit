@@ -1,22 +1,13 @@
 package cz.filmtit.client.callables;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
 
-import cz.filmtit.client.*;
-
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.rpc.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.core.client.*;
-import cz.filmtit.share.*;
-import java.util.*;
+import com.github.gwtbootstrap.client.ui.Modal;
+import cz.filmtit.client.Callable;
 
  public class SendChangePasswordMail extends Callable<Boolean> {
     	
     	// parameters
     	String username;
-    	DialogBox dialogBox;
+    	Modal dialogBox;
 
         @Override
         public String getName() {
@@ -44,7 +35,7 @@ import java.util.*;
 
 	    	
     	// constructor
-		public SendChangePasswordMail(String username, DialogBox dialogBox) {
+		public SendChangePasswordMail(String username, Modal dialogBox) {
 			super();
 			
 			this.username = username;

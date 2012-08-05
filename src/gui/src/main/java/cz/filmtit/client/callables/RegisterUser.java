@@ -1,16 +1,8 @@
 package cz.filmtit.client.callables;
-import com.google.gwt.user.client.*;
 
-import cz.filmtit.client.*;
-
-import com.google.gwt.user.client.ui.*;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.rpc.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.core.client.*;
-import cz.filmtit.share.*;
-import java.util.*;
+import com.github.gwtbootstrap.client.ui.Modal;
+import cz.filmtit.client.Callable;
+import cz.filmtit.client.FilmTitServiceHandler;
 
 public class RegisterUser extends Callable<Boolean> {
     	
@@ -18,7 +10,7 @@ public class RegisterUser extends Callable<Boolean> {
     	String username;
     	String password;
     	String email;
-    	DialogBox registrationForm;
+    	Modal registrationForm;
     	String openid = null;
         FilmTitServiceHandler handler;
 
@@ -46,7 +38,7 @@ public class RegisterUser extends Callable<Boolean> {
 
         // constructor
 		public RegisterUser(String username, String password, String email,
-				DialogBox registrationForm, FilmTitServiceHandler handler) {
+				Modal registrationForm, FilmTitServiceHandler handler) {
 			super();
 			
 			this.username = username;

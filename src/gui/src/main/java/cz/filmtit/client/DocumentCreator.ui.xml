@@ -5,12 +5,11 @@
              xmlns:lgf="urn:import:org.vectomatic.file">
 
 
-	<g:HTMLPanel styleName="new_document">
-	
-		<b:Heading size="3">Start a new subtitle document</b:Heading>
+    <g:HTMLPanel styleName="new_document">
+        <b:PageHeader subtext="Start a new subtitle document">New Document</b:PageHeader>
 
-		<b:Form type="HORIZONTAL" ui:field="movieInfoForm">
-			<b:Fieldset>
+        <b:Form type="HORIZONTAL" ui:field="movieInfoForm">
+            <b:Fieldset>
 
 
                 <b:ControlGroup>
@@ -37,16 +36,42 @@
                     </b:Controls>
                 </b:ControlGroup>
 
+
+            </b:Fieldset>
+
+
+            <b:Fieldset>
+                <b:Legend>Load subtitles file</b:Legend>
+
                 <b:ControlGroup>
-					<b:ControlLabel>Choose subtitle format:</b:ControlLabel>
-					<b:Controls>
-						<b:RadioButton ui:field="rdbFormatSrt" name="file format"
-								value="true">.srt</b:RadioButton>
-						<b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
-					</b:Controls>
-				</b:ControlGroup>
-					
-			</b:Fieldset>
+                    <b:ControlLabel>Subtitle file format:</b:ControlLabel>
+                    <b:Controls>
+                        <b:RadioButton ui:field="rdbFormatSrt" name="file format"
+                                       value="true">.srt</b:RadioButton>
+                        <b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Choose file encoding:</b:ControlLabel>
+                    <b:Controls>
+                        <b:RadioButton ui:field="rdbEncodingUtf8" name="file encoding"
+                                       value="true">UTF-8</b:RadioButton>
+                        <b:RadioButton ui:field="rdbEncodingWin" name="file encoding">windows-1250</b:RadioButton>
+                        <b:RadioButton ui:field="rdbEncodingIso" name="file encoding">iso-8859-2</b:RadioButton>
+                    </b:Controls>
+                </b:ControlGroup>
+                <b:ControlGroup>
+                    <b:Controls>
+                        <lgf:FileUploadExt ui:field="fileUpload" />
+                        <b:Label ui:field="lblUploadProgress" visible="false"></b:Label>
+                    </b:Controls>
+                </b:ControlGroup>
+            </b:Fieldset>
+
+
+            <b:Fieldset>
+                <b:Legend>Movie playback</b:Legend>
 
                 <b:ControlGroup>
                     <b:ControlLabel>Movie address on the disk:</b:ControlLabel>
@@ -55,38 +80,20 @@
                         <b:Button ui:field="btnApplet">Load</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
-
-
-		    <b:Fieldset>
-                <b:Heading size="4">Load subtitles from a file:</b:Heading>
-                <b:ControlGroup>
-                    <b:ControlLabel>Choose file encoding:</b:ControlLabel>
-                    <b:Controls>
-                        <b:RadioButton ui:field="rdbEncodingUtf8" name="file encoding"
-                            value="true">UTF-8</b:RadioButton>
-                        <b:RadioButton ui:field="rdbEncodingWin" name="file encoding">windows-1250</b:RadioButton>
-                        <b:RadioButton ui:field="rdbEncodingIso" name="file encoding">iso-8859-2</b:RadioButton>
-                    </b:Controls>
-                </b:ControlGroup>
-                <b:ControlGroup>
-                    <b:ControlLabel>Choose the file with subtitles:</b:ControlLabel>
-                    <b:Controls>
-                        <lgf:FileUploadExt ui:field="fileUpload" />
-                        <b:Label ui:field="lblUploadProgress" visible="false"></b:Label>
-                    </b:Controls>
-                </b:ControlGroup>
             </b:Fieldset>
 
+
+
             <b:Fieldset>
-                <b:ControlGroup ui:field="bottomControlGroup">
+                <b:FormActions ui:field="bottomControlGroup">
                     <b:Controls>
                         <b:Button type="PRIMARY" ui:field="btnCreateDocument">Create document</b:Button>
                         <b:Label ui:field="lblCreateProgress" visible="false"></b:Label>
                     </b:Controls>
-                </b:ControlGroup>
+                </b:FormActions>
             </b:Fieldset>
         </b:Form>
 
-	</g:HTMLPanel>
-	
+    </g:HTMLPanel>
+
 </ui:UiBinder> 
