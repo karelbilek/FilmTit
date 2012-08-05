@@ -12,13 +12,15 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
+import cz.filmtit.client.Dialog;
 import cz.filmtit.share.MediaSource;
 
 import java.util.List;
 
 
 
-public class MediaSelector extends Composite {
+public class MediaSelector extends Composite implements Dialog {
     private List<MediaSource> suggestions;
     private MediaSource selected;
 
@@ -97,4 +99,22 @@ public class MediaSelector extends Composite {
     public MediaSource getSelected() {
         return selected;
     }
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reactivateWithErrorMessage(String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

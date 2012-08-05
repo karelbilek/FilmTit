@@ -13,9 +13,10 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.Dialog;
 import cz.filmtit.client.Gui;
 
-public class RegistrationForm extends Composite {
+public class RegistrationForm extends Composite implements Dialog {
 
 	private static RegistrationFormUiBinder uiBinder = GWT
 			.create(RegistrationFormUiBinder.class);
@@ -127,4 +128,22 @@ public class RegistrationForm extends Composite {
         	return false;
         }
     }
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reactivateWithErrorMessage(String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -13,11 +13,12 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.Dialog;
 import cz.filmtit.client.Gui;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
-public class LoginDialog extends Composite {
+public class LoginDialog extends Composite implements Dialog {
 
 	private static LoginDialogUiBinder uiBinder = GWT
 			.create(LoginDialogUiBinder.class);
@@ -125,5 +126,23 @@ public class LoginDialog extends Composite {
     public String getPassword() {
         return txtPassword.getText();
     }
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reactivateWithErrorMessage(String message) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

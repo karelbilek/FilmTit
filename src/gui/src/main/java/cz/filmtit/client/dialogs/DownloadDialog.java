@@ -12,13 +12,14 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.Dialog;
 import cz.filmtit.client.Gui;
 import cz.filmtit.share.Document;
 //import com.google.gwt.user.client.ui.RadioButton;
 
 
 
-public class DownloadDialog extends Composite {
+public class DownloadDialog extends Composite implements Dialog {
 
 	private static DownloadDialogUiBinder uiBinder = GWT
 			.create(DownloadDialogUiBinder.class);
@@ -88,6 +89,24 @@ public class DownloadDialog extends Composite {
 
     @UiField
     Button txtButton;
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reactivateWithErrorMessage(String message) {
+		// TODO Auto-generated method stub
+		
+	}
     
 
 }
