@@ -50,7 +50,7 @@ import java.util.*;
 
 		@Override
 		public void call() {
-	        filmTitService.simple_login(username, password, this);
+	        filmTitService.simpleLogin(username, password, this);
 		}
     }
 
