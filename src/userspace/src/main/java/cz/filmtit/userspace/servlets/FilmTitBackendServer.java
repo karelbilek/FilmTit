@@ -31,7 +31,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
-    private static int SESSION_ID_LENGTH = 47;
+    private static int SESSION_ID_LENGHT = 47;
     private static int LENGTH_OF_TOKEN = 10;
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
@@ -113,6 +113,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         Session session = getSessionIfCan(sessionID);
 
         List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
+        session.saveAllTranslationResults(chunks.get(0).getDocumentId());
         return res;
     }
 
@@ -149,7 +150,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
             throws InvalidSessionIdException {
-         return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
+        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
     }
 
     public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
@@ -180,7 +181,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         configuration = ConfigurationSingleton.conf();
         String serverAddress = configuration.serverAddress();
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
-        
+
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
         AuthData authData = new AuthData();
@@ -200,98 +201,83 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
         //authentication.getIdentity() <- this will be as user identification
 
-    	System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
-    	
+        System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
+
         try {
+
             AuthData authData = authenticatingSessions.get(authID);
-            
-            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);            
+
+            HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
+
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
-            
+
             // if no exception was thrown, everything is OK
             authenticatedSessions.put(authID,authentication);
+            System.out.print("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
         }
         catch (UnsupportedEncodingException e) {
-        	System.out.print("UnsupportedEncodingException caught in validateAuthentication() - ");
-        	System.out.println(e);
+            System.out.print("UnsupportedEncodingException caught in validateAuthentication() - ");
+            System.out.println(e);
             return false;
         }
         catch (org.expressme.openid.OpenIdException e) {
-        	System.out.print("OpenIdException caught in validateAuthentication() - ");
-        	System.out.println(e);
-			return false;
-		}
+            System.out.print("OpenIdException caught in validateAuthentication() - ");
+            System.out.println(e);
+            return false;
+        }
         catch (Exception e) {
-        	System.out.print("Exception caught in validateAuthentication() - ");
-        	System.out.println(e);
-			return false;
-		}
-        
+            System.out.print("Exception caught in validateAuthentication() - ");
+            System.out.println(e);
+            return false;
+        }
+
     }
 
     @Override
     public String getSessionID(long authID) {
-        if (authenticatedSessions.containsKey(authID) && authenticatedSessions.get(authID) != null) {
-            Authentication authentication = authenticatedSessions.get(authID);
-            authenticatingSessions.remove(authID);
-            
-            // old stuff from Jindra:
-            // USUser user = createUser(authentication);          create user from auth information (select or create in db)
-            // String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
-            // Session session = new Session(null); //= createSession(newSessionID,user)      create session with user
-            // activeSessions.put(newSessionID, session);
+        Authentication authentication = authenticatedSessions.get(authID);
+        authenticatedSessions.remove(authID);
 
-            // new temporary stuff from rudolf
-            String openid = authentication.getIdentity();
-            String email = authentication.getEmail();
-            // TODO generate a username
-            // register the user
-            // TODO check by openid!!! not by name or password
-            USUser user = checkUser(email, null, CheckUserEnum.UserName);
-            if (user == null) {
-            	// not registered => register
-                Random r = new Random();
-                int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
-                String password = Integer.toString(pin);
-                boolean registrationSuccessful = registration(email, password, email, openid);
-                if (registrationSuccessful) {
-                	System.out.println("Registered a user with openid '" + openid
-                			+ "' and email " + email + "; generated a password " + password);
-                } else {
-                	System.out.println("User '" + email + "is already registered.");
+        if ( authentication!= null) {
+            String openid = extractOpenId(authentication.getIdentity());
+            if (checkUser(openid) == null)
+            {
+                if (!(registration(openid,authentication))){
+                    throw new ExceptionInInitializerError("Registration failed");
                 }
-                
-                user = checkUser(email, null, CheckUserEnum.UserName);
-                assert user != null;
+
             }
-            // log the user in
-            String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
-            Session session = new Session(user);
-            activeSessions.put(newSessionID, session);
-            
-            return newSessionID;
+            return simpleLogin(openid);
+
         }
+
         return null;
     }
-     @Override
-    public String simple_login(String username, String password) {
 
-            System.out.println("CheckUser");
-            USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
-            if (user == null)
-            {
-                return  "";
-            }
-            else {
-                String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
-                Session session = new Session(user);
-                activeSessions.put(newSessionID, session);
-                return newSessionID;
-            }
+    @Override
+    public String simpleLogin(String username, String password) {
 
+
+        USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
+        if (user == null){
+            return  "";
+        }
+        else {
+            return generateSession(user);
+        }
     }
+
+    public String simpleLogin(String openId) {
+
+        USUser user = checkUser(openId);
+        if (user!=null){
+            return generateSession(user);
+        }
+        return "";
+    }
+
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
@@ -302,31 +288,64 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
     @Override
     public Boolean  registration(String name ,  String pass  , String email, String openId) {
-          // create user
+        // create user
 
-         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
-         if (check == null){
-        	 // good, there is no user with the given name
-             String hash = pass_hash(pass);
-             USUser user = new USUser(name,hash,email,openId);
+        USUser check = checkUser(name,pass,CheckUserEnum.UserName);
+        if (check == null){
+            USUser user = null;
 
-          // create hibernate session
-             org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-             System.out.println("Registration");
-          // save into db
-             user.saveToDatabase(dbSession);
-             sendRegistrationMail(user,pass);
-             usHibernateUtil.closeAndCommitSession(dbSession);
-             return true;
-         } else {
-        	 // bad, there is already a user with the given name
-        	 return false;
-         }
+            // pass validation
+            String hash = pass_hash(pass);
+            user = new USUser(name,hash,email,openId);
+
+            // create hibernate session
+            org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+
+            // save into db
+            user.saveToDatabase(dbSession);
+
+            usHibernateUtil.closeAndCommitSession(dbSession);
+            sendRegistrationMail(user,pass);
+            return true;
+        } else {
+            // bad, there is already a user with the given name
+            return false;
+        }
     }
 
+    public Boolean  registration(String openId,Authentication data){
+
+        if (data != null){
+            Random r = new Random();
+            int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
+            String password = Integer.toString(pin);
+            String name = getUniqName(data.getEmail());
+            return registration(name,password,data.getEmail(),openId);
+        }
+        return false;
+    }
+
+    private String extractOpenId(String url){
+        String id = url.substring(url.indexOf("?id")+4); // ..oi/id?id=*****
+        return id;
+    }
+
+    private String getUniqName(String email){
+        String name = email.substring(0,email.indexOf('@'));
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+
+        List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
+                .setParameter("username",name+'%').list(); //UPDATE hibernate  for more constraints
+        usHibernateUtil.closeAndCommitSession(dbSession);
+        int count = UserResult.size();
+        if (count > 0)
+        {
+            return new StringBuilder(name).append(count).toString();
+        }
+        return name;
+    }
     @Override
-    public Boolean changePassword(String user  , String pass, String string_token)
-    {
+    public Boolean changePassword(String user  , String pass, String string_token){
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
         ChangePassToken token = activeTokens.get(user);
 
@@ -348,9 +367,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         Emailer email = new Emailer();
         if (user.getEmail()!=null) {
             return email.sendForgottenPassMail(
-                user.getEmail(),
-                user.getUserName(),
-                this.forgotUrl(user));
+                    user.getEmail(),
+                    user.getUserName(),
+                    this.forgotUrl(user));
         }
         return false;
 
@@ -361,9 +380,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         Emailer email = new Emailer();
         if (user.getEmail()!=null) {
             return email.sendRegistrationMail(
-                user.getEmail(),
-                user.getUserName(),
-                pass
+                    user.getEmail(),
+                    user.getUserName(),
+                    pass
             );
         }
         return false;
@@ -403,14 +422,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public String checkSessionID(String sessionID){
-       if (activeSessions.isEmpty()){
-           return null;     // no session at all
-       }
+        if (activeSessions.isEmpty()){
+            return null;     // no session at all
+        }
         Session s = activeSessions.get(sessionID);
         if (s == null) return null;   // not found sessionId
         return s.getUser().getUserName(); // return name of user who had  session
 
-     }
+    }
     @Override
     public Boolean sendChangePasswordMail(String username){
         USUser user = checkUser(username,null,CheckUserEnum.UserName);
@@ -425,8 +444,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Only test reason
      */
-    public void createTestChange(String login , String token)
-    {
+    public void createTestChange(String login , String token){
         activeTokens.put(login,new ChangePassToken(token));
     }
 
@@ -436,16 +454,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return true;
     }
 
+
     /*end test zone*/
     private String forgotUrl(USUser user ){
-          // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
+        // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
-          String templateUrl = configuration.serverAddress() + "/?username=%login%&token=%token%#ChangePassword";
-          String login = user.getUserName();
-          String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
-          ChangePassToken token = new ChangePassToken(_token);
-           String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
-          activeTokens.put(login,token);
+        String templateUrl = configuration.serverAddress() + "/?username=%login%&token=%token%#ChangePassword";
+        String login = user.getUserName();
+        String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
+        ChangePassToken token = new ChangePassToken(_token);
+        String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
+        activeTokens.put(login,token);
         return actualUrl;
     }
 
@@ -453,10 +472,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Get hash of string
      * if return same string like input - problem with algortithm
      */
-
-
     private String pass_hash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
+    }
+    /**
+     *  generate session;
+     *
+     */
+    private String generateSession(USUser user){
+        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+        Session session = new Session(user);
+        activeSessions.put(newSessionID, session);
+        return newSessionID;
     }
 
     /**
@@ -465,7 +492,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *     CheckName - return first user of given name
      *     CheckNamePass - return user with given name and pass
      */
-    private  USUser checkUser(String username , String password, CheckUserEnum type){
+    private USUser checkUser(String username , String password, CheckUserEnum type){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
@@ -495,11 +522,31 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             {
                 succesUser=(USUser)UserResult.get(0);
             }
-
         }
         return succesUser;
     }
 
+    private USUser checkUser(String openid){
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List UserResult = new ArrayList(0);
+        try {
+            UserResult = dbSession.createQuery("select d from USUser d where d.openId like :openid")
+                    .setParameter("openid",openid).list(); //UPDATE hibernate  for more constraints
+            usHibernateUtil.closeAndCommitSession(dbSession);
+        }
+        catch (ExceptionInInitializerError ex)
+        {
+            System.out.print("Problem s dotazem");
+        }
+
+        if (UserResult.size() > 1){
+            throw new ExceptionInInitializerError("Two users with same authId");
+        }
+        if (UserResult.size() == 0){
+            return null;
+        }
+        return (USUser)UserResult.get(0);
+    }
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
@@ -516,20 +563,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                     }
 
                 }
-                  for (String login : activeTokens.keySet())
-                  {
-                     ChangePassToken token =  activeTokens.get(login);
-                     if (!token.isValidTime())
-                     {
-                         activeTokens.remove(login);
-                     }
+                for (String login : activeTokens.keySet())
+                {
+                    ChangePassToken token =  activeTokens.get(login);
+                    if (!token.isValidTime())
+                    {
+                        activeTokens.remove(login);
+                    }
 
-                  }
+                }
                 try { Thread.sleep(60 * 1000); }
                 catch (Exception e) {}
             }
         }
-   }
+    }
 
 
 
@@ -548,20 +595,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
 
         public ChangePassToken(String token){
-               setToken(token);
-               // set validity of token now()+1h
-               Date actualDate = new Date();
-               Calendar cal = Calendar.getInstance();
-               cal.setTime(actualDate);
-               cal.add(Calendar.HOUR_OF_DAY,1);
-               setValidTo(cal.getTime());
-               active = true;
+            setToken(token);
+            // set validity of token now()+1h
+            Date actualDate = new Date();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(actualDate);
+            cal.add(Calendar.HOUR_OF_DAY,1);
+            setValidTo(cal.getTime());
+            active = true;
 
         }
 
         public boolean isValidToken(String token){
             // token is the same and its validity isn`t off
-              return ( (this.token.compareTo(token)==0) && (isValidTime()) && (this.active()));
+            return ( (this.token.compareTo(token)==0) && (isValidTime()) && (this.active()));
         }
 
         public boolean  isValidTime()
@@ -572,7 +619,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         public void deactivate()
         {
-             this.active = false;
+            this.active = false;
         }
         public Boolean active()
         {
@@ -589,7 +636,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public boolean canReadDocument(String sessionId, long documentId) {
-        
+
         try {
             Session session = getSessionIfCan(sessionId);
             return session.hasDocument(documentId);
@@ -605,15 +652,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         return activeSessions.get(sessionId);
     }
-	
+
     public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type, ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
         Document document = getSessionIfCan(sessionID).loadDocument(documentID);
         return new ChunkStringGenerator(document, type, fps, converter).toString();
-        }
+    }
 
     @Override
-	public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
+    public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
-	}
+    }
 
 }
