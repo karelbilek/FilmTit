@@ -1,17 +1,15 @@
 package cz.filmtit.client.callables;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
-
-import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.client.*;
-
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.rpc.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.core.client.*;
-import cz.filmtit.share.*;
-import java.util.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.DialogBox;
+import cz.filmtit.client.Callable;
+import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.client.MediaSelector;
+import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.TranslationWorkspace;
+import cz.filmtit.share.DocumentResponse;
 
 public class CreateDocument extends Callable<DocumentResponse> {
 

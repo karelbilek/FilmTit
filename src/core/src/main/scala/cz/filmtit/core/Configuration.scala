@@ -84,6 +84,7 @@ class Configuration(configurationFile: InputStream) {
   //Userspace:
   private val userspaceXML = XMLFile \ "userspace"
   val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
+  val permanentSessionTimeout (userspaceXML \ "")
   val serverAddress = (userspaceXML \ "server_address").text
 
 

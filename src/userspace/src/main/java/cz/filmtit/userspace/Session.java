@@ -93,6 +93,10 @@ public class Session {
 
     private void setStateString(String stateString) {}
 
+    public boolean isPermanent() {
+        return user.isPermanentlyLoggedId();
+    }
+
     public void logout() {
         state = SessionState.loggedOut;
         terminate();
@@ -185,7 +189,7 @@ public class Session {
 
         }
 
-        // update count of translated chunks
+        // update count of already translated chunks
         if ((tr.getUserTranslation() == null || tr.getUserTranslation().equals("")) &&
                 (userTranslation != null && !userTranslation.equals("") )) {
         	// increment if was empty and is not
@@ -193,7 +197,7 @@ public class Session {
         }
         else if ((tr.getUserTranslation() != null && !tr.getUserTranslation().equals("")) &&
                 (userTranslation == null || userTranslation.equals("") )) {
-        	// decrement if wasn't empty and now is
+        	// decrement if wasn't empty and now it is
             document.setTranslatedChunksCount(document.getTranslatedChunksCount() - 1);
         }
         

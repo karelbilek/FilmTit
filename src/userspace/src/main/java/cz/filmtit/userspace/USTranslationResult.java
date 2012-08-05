@@ -279,7 +279,6 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     }
 
     public void saveToDatabase(Session dbSession) {
-        System.out.println("us: Chci ulozit s indexem "+getSharedId());
         saveJustObject(dbSession);
     }
 

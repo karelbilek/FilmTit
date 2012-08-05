@@ -12,6 +12,8 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.userspace.*;
+import cz.filmtit.userspace.login.ChangePassToken;
+import cz.filmtit.userspace.login.AuthData;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -31,7 +33,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
-    private static int SESSION_ID_LENGHT = 47;
+    private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
+    private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
@@ -204,7 +207,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
 
         try {
-
             AuthData authData = authenticatingSessions.get(authID);
 
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
@@ -480,7 +482,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *
      */
     private String generateSession(USUser user){
-        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
         Session session = new Session(user);
         activeSessions.put(newSessionID, session);
         return newSessionID;
@@ -553,21 +555,23 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     class WatchSessionTimeOut extends Thread {
         public void run() {
             while(true) {
+                // removing already existing sessions  that timed out
                 for (String sessionID : activeSessions.keySet()) {
                     long now = new Date().getTime();
                     Session thisSession = activeSessions.get(sessionID);
-                    if (thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
+                    if ((thisSession.isPermanent() && thisSession.getLastOperationTime() + PERMANENT_SESSION_TIME_OUT_LIMIT < now)
+                            || thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
                         activeSessions.remove(thisSession.getUser());
                         thisSession.kill();
                         activeSessions.remove(sessionID);
                     }
 
                 }
-                for (String login : activeTokens.keySet())
-                {
+
+                // TODO: write what is this goods for
+                for (String login : activeTokens.keySet()) {
                     ChangePassToken token =  activeTokens.get(login);
-                    if (!token.isValidTime())
-                    {
+                    if (!token.isValidTime()) {
                         activeTokens.remove(login);
                     }
 
@@ -578,62 +582,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-
-
-    class AuthData {
-        public byte[] Mac_key;
-        public Endpoint endpoint;
-    }
-
-    public class ChangePassToken{
-
-        private String token;
-        private Date  validTo;
-        private Boolean active;
-        public String getToken() {
-            return token;
-        }
-
-        public ChangePassToken(String token){
-            setToken(token);
-            // set validity of token now()+1h
-            Date actualDate = new Date();
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(actualDate);
-            cal.add(Calendar.HOUR_OF_DAY,1);
-            setValidTo(cal.getTime());
-            active = true;
-
-        }
-
-        public boolean isValidToken(String token){
-            // token is the same and its validity isn`t off
-            return ( (this.token.compareTo(token)==0) && (isValidTime()) && (this.active()));
-        }
-
-        public boolean  isValidTime()
-        {
-            Date actual = new Date();
-            return ((validTo.compareTo(actual) > 0) && (this.active()));
-        }
-
-        public void deactivate()
-        {
-            this.active = false;
-        }
-        public Boolean active()
-        {
-            return this.active;
-        }
-        private void setValidTo(Date validTo) {
-            this.validTo = validTo;
-        }
-        private void setToken(String token) {
-            this.token = token;
-        }
-
-
-    }
 
     public boolean canReadDocument(String sessionId, long documentId) {
 
