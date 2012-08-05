@@ -3,7 +3,6 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.core.Factory;
 import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
@@ -39,11 +38,11 @@ public class TestSession {
         MockHibernateUtil.changeUtilsInAllClasses();
     }
 
-    LoremIpsum loremIpsum = new LoremIpsum();
-    TranslationMemory TM;
-    MediaSourceFactory mediaSourceFactory;
-
+    private LoremIpsum loremIpsum = new LoremIpsum();
+    private TranslationMemory TM;
     private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
+    private MediaSourceFactory mediaSourceFactory =
+            new FreebaseMediaSourceFactory(ConfigurationSingleton.getConf().freebaseKey(), 10);
 
 
     public TestSession() {
@@ -63,7 +62,7 @@ public class TestSession {
         assertNotNull(response.mediaSourceSuggestions);
         assertTrue(response.document.getId() != Long.MIN_VALUE);
 
-        testIfDocumentInActiveList(session, response.document.getId());
+        assertTrue(testIfDocumentInActiveList(session, response.document.getId()));
     }
 
     @Test
@@ -89,7 +88,7 @@ public class TestSession {
         assertEquals(documentToRetrieve.getDatabaseId(), retrievedDocument.getId());
 
         // get the active documents field by reflection and test if the document was loaded to
-        testIfDocumentInActiveList(session, documentToRetrieve.getDatabaseId());
+        assertTrue(testIfDocumentInActiveList(session, documentToRetrieve.getDatabaseId()));
     }
 
     @Test(expected = InvalidDocumentIdException.class)
@@ -223,10 +222,16 @@ public class TestSession {
             session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
         }
 
+        List<TimedChunk> timedChunks = new ArrayList<TimedChunk>();
         List<TranslationResult> clientTRList = new ArrayList<TranslationResult>();
         for (int i = 0; i < 9; ++i) {
             TimedChunk sampleTimedChunk = new TimedChunk("00:0" + i + ":00,000", "00:0" + (i + 1) + ":01,000", 0,
                     loremIpsum.getWords(5,5), i, clientDocument.getId());
+            timedChunks.add(sampleTimedChunk);
+        }
+        session.saveSourceChunks(timedChunks);
+
+        for (TimedChunk sampleTimedChunk : timedChunks) {
             TranslationResult serverRespond = session.getTranslationResults(sampleTimedChunk, TM);
             clientTRList.add(serverRespond);
         }
@@ -238,14 +243,54 @@ public class TestSession {
         //session.logout();
     }
 
+    @Test
+    public void testCloseDocument() throws InvalidDocumentIdException, NoSuchFieldException, IllegalAccessException {
+        Session session = new Session(getSampleUser());
+
+        session.loadDocument(firstGeneratedDocument.getDatabaseId());
+        assertTrue(testIfDocumentInActiveList(session, firstGeneratedDocument.getDatabaseId()));
+
+        session.closeDocument(firstGeneratedDocument.getDatabaseId());
+        assertFalse(testIfDocumentInActiveList(session, firstGeneratedDocument.getDatabaseId()));
+    }
+
+    @Test
+    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException {
+        Session session = new Session(getSampleUser());
+
+        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory);
+        long documentId = resp.document.getId();
+
+        // generate few chunks
+        List<TimedChunk> timedChunks = new ArrayList<TimedChunk>(32);
+        for (int i = 0; i < 32; ++i) {
+            timedChunks.add(new TimedChunk("00:00:00.000", "00:00:00.000", 0,
+                    loremIpsum.getWords(5, i), i, documentId));
+        }
+        session.saveSourceChunks(timedChunks);
+
+        Thread.sleep(2000l);
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List dbQuery =
+            dbSession.createQuery("select t from USTranslationResult t where t.documentDatabaseId = " + documentId).list();
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        assertEquals(32, dbQuery.size());
+    }
+
     /**
      * The first translation result generated in getSampleUser() method to be used in the test as
      * a sample translation result.
      */
     private USTranslationResult firstGeneratedTranslationResult = null;
 
+    private USDocument firstGeneratedDocument = null;
+
     private USUser getSampleUser() {
         firstGeneratedTranslationResult = null;
+        firstGeneratedDocument = null;
+
         USUser sampleUser = new USUser("Jindra the User");
         LoremIpsum loremIpsum = new LoremIpsum();
 
@@ -253,6 +298,10 @@ public class TestSession {
         for (int i = 0; i < 3; ++i) {
             USDocument usDocument = new USDocument(new Document("Test", "en"), null);
             long documentID = usDocument.getDatabaseId();
+
+            if (firstGeneratedDocument == null) {
+                firstGeneratedDocument = usDocument;
+            }
 
             for (int j = 0; j < 20; ++j) {
                 USTranslationResult translationResult = new USTranslationResult(
@@ -298,12 +347,13 @@ public class TestSession {
         }
     }
 
-    private void testIfDocumentInActiveList(Session session, long id) throws IllegalAccessException, NoSuchFieldException {
+    private boolean testIfDocumentInActiveList(Session session, long id) throws IllegalAccessException, NoSuchFieldException {
         Field activeDocumentsField = Session.class.getDeclaredField("activeDocuments");
         activeDocumentsField.setAccessible(true);
         Map<Long, USDocument> activeDocuments = (Map<Long, USDocument>)(activeDocumentsField.get(session));
 
-        assertTrue(activeDocuments.containsKey(id));
+        //assertTrue(activeDocuments.containsKey(id));
+        return activeDocuments.containsKey(id);
     }
 
     /**

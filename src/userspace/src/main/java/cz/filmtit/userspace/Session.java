@@ -147,14 +147,10 @@ public class Session {
         updateLastOperationTime();
         USDocument document = getActiveDocument(chunk.getDocumentId());
 
-        USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-        usTranslationResult.setDocument(document);
+        ChunkIndex index = chunk.getChunkIndex();
+        USTranslationResult usTranslationResult = document.getTranslationResultForIndex(index);
 
         usTranslationResult.generateMTSuggestions(TM);
-        document.addTranslationResult(usTranslationResult);
-
-        //not saving it right away, because I do this in parallel, db doesn't like it
-        //saveTranslationResult(document, usTranslationResult);
         return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 

@@ -38,7 +38,7 @@ public interface FilmTitService extends RemoteService {
     // - registration (true if successful)
     Boolean  registration(String name ,  String pass  , String email, String openId);
     // - login (returns session id on success, null in case of error (should throw an exception eventually))
-    String simple_login(String username, String password);
+    String simpleLogin(String username, String password);
     /**
      * change password in case of forgotten password;
      * user chooses a new password,

@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.github.gwtbootstrap.client.ui.ControlGroup;
@@ -50,12 +51,32 @@ public class DocumentCreator extends Composite {
 
 	private Gui gui = Gui.getGui();
 	
+    boolean copyingTitle = true;
+
 	public DocumentCreator() {
 		initWidget(uiBinder.createAndBindUi(this));
         
         btnCreateDocument.setEnabled(false);
 
 		gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
+        txtTitle.addStyleName("copying_title");
+
+        txtTitle.addKeyboardListener(new KeyboardListenerAdapter() {
+            public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+                if (copyingTitle) {
+                    copyingTitle = false;
+                    txtTitle.removeStyleName("copying_title");
+                }            
+            }
+        });
+
+        txtMovieTitle.addKeyboardListener(new KeyboardListenerAdapter() {
+            public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+                if (copyingTitle) {
+                    txtTitle.setText(txtMovieTitle.getText()+keyCode);
+                }            
+            }
+        });
 
         // --- file reading interface via lib-gwt-file --- //
             final FileReader freader = new FileReader();
@@ -146,6 +167,8 @@ public class DocumentCreator extends Composite {
 
 	@UiField
 	TextBox txtMovieTitle;
+
+
 
     @UiField
 	TextBox moviePath;
