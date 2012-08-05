@@ -1,22 +1,12 @@
 package cz.filmtit.client;
 
-import cz.filmtit.client.callables.*;
-import com.github.gwtbootstrap.client.ui.*;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Random;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
-import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
-import cz.filmtit.share.*;
-import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.client.callables.*;
+import cz.filmtit.share.AuthenticationServiceType;
+import cz.filmtit.share.ChunkIndex;
+import cz.filmtit.share.MediaSource;
+import cz.filmtit.share.TimedChunk;
 
 import java.util.List;
 
@@ -99,38 +89,7 @@ public class FilmTitServiceHandler {
 	}
 
 
-            public void onSuccess(String SessionID) {
-            	if (SessionID == null || SessionID.equals("")) {
-            		gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
-            		displayWindow("ERROR: simple login didn't succeed - incorrect username or password.");
-                    gui.showLoginDialog(username);
-            	} else {
-            		gui.log("logged in as " + username + " with session id " + SessionID);
-            		gui.setSessionID(SessionID);
-            		gui.logged_in(username);
-            	}
-            }
 
-            public void onFailure(Throwable caught) {
-            	gui.log("ERROR: simple login didn't succeed!");
-            }
-        };
-		
-        // constructor
-        public SimpleLogin(String username, String password) {
-			super();
-			
-			this.username = username;
-			this.password = password;
-
-	        enqueue();
-		}
-
-		@Override
-		public void call() {
-	        filmTitService.simpleLogin(username, password, callback);
-		}
-    }
     public void logout() {    	new Logout();
     }
     

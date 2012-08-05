@@ -340,7 +340,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         int count = UserResult.size();
         if (count > 0)
         {
-            return new StringBuilder(name).append(count).toString();
+            long num = count;
+            do {
+            String  newName = new StringBuilder(name).append(count).toString();
+            num = num << 2 ;
+            if (num < 0) {
+                count++;
+                num = count;
+            }
+            } while (checkUser(name,null,CheckUserEnum.UserName) != null);
         }
         return name;
     }
