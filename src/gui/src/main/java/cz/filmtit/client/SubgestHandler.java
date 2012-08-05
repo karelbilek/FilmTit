@@ -177,7 +177,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
     @Override
     public void onKeyUp(KeyUpEvent event) {
         if (event.getSource() instanceof SubgestBox) { // should be
-            gui.log("keyup caught on subgestbox");
+            // gui.log("keyup caught on subgestbox");
             final SubgestBox subbox = (SubgestBox) event.getSource();
             // recalculating number of lines and auto-resize:
             Scheduler.get().scheduleDeferred( new ScheduledCommand() {

@@ -181,24 +181,33 @@ public class Session {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
-
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
-        if ((tr.getUserTranslation() == null || tr.getUserTranslation().equals("")) &&
-                (userTranslation != null && !userTranslation.equals("") )) {
-            document.setTranslatedChunksCount(document.getTranslatedChunksCount() + 1);
-        }
-        
         if (tr==null) {
             String s = ("TranslationResult is null for index "+chunkIndex +", document has id : "+document.getDatabaseId()+", translationresults : "+document.getTranslationResultKeys());
            throw new RuntimeException(s);
 
         }
 
-
+        // update count of translated chunks
+        if ((tr.getUserTranslation() == null || tr.getUserTranslation().equals("")) &&
+                (userTranslation != null && !userTranslation.equals("") )) {
+        	// increment if was empty and is not
+            document.setTranslatedChunksCount(document.getTranslatedChunksCount() + 1);
+        }
+        else if ((tr.getUserTranslation() != null && !tr.getUserTranslation().equals("")) &&
+                (userTranslation == null || userTranslation.equals("") )) {
+        	// decrement if wasn't empty and now is
+            document.setTranslatedChunksCount(document.getTranslatedChunksCount() - 1);
+        }
+        
+        // set the translation
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
-        saveTranslationResult(activeDocuments.get(documentId), tr);
+        saveTranslationResult(document, tr);
+        
+        System.out.println("setUserTranslation: " + tr);
+        
         return null;
     }
 
@@ -322,7 +331,7 @@ public class Session {
                   activeDocuments.put(documentID, usDocument);
 
                   usDocument.loadChunksFromDb();
-
+                  
                   return  usDocument.getDocument();
               }
         }
@@ -351,6 +360,11 @@ public class Session {
         saveTranslationResults(document, results);
     }
 
+    /**
+     * Adds the given translation result to the document
+     * (or updates if it already exists - it is identified by ChunkIndex)
+     * and saves the updated document to the database.
+     */
     public void saveTranslationResult(USDocument document, USTranslationResult result) {
        ArrayList<USTranslationResult> al = new ArrayList<USTranslationResult>(1);
        al.add(result);
@@ -359,10 +373,18 @@ public class Session {
 
     // TODO: not sure if "synchronized" is needed - used because of the following note in getTranslationResults:
     // not saving it right away, because I do this in parallel, db doesn't like it
+    /**
+     * Adds the given translation results to the document
+     * (or updates if they already exist - they are identified by ChunkIndex)
+     * and saves the updated document to the database.
+     */
     public synchronized void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        
+        // save document because of changes in last edit time and translated chunks count
         document.saveToDatabaseJustDocument(session);
 
+        // save the translation results
         for (USTranslationResult tr : results) {
             document.addOrReplaceTranslationResult(tr);
             tr.saveToDatabase(session);

@@ -365,4 +365,9 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         translationResult = translationResult.resultWithoutSuggestions();
         return withSuggestions;
     }
+    
+    @Override
+    public String toString() {
+    	return getDatabaseId() + "#" + getTranslationResult().toString();
+    }
 }

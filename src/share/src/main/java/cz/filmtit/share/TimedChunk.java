@@ -284,4 +284,13 @@ Comparable<TimedChunk> {
 		}
 		else return super.equals(that);
 	}
+	
+    /**
+     * Displays the ChunkIndex and the surface form of the Chunk.
+     */
+    @Override
+    public String toString() {
+        return "TimedChunk[" + getChunkIndex() + ", " + getSurfaceForm() + "]";
+    }
+    
 }

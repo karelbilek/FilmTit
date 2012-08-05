@@ -326,7 +326,7 @@ public class TranslationWorkspace extends Composite {
       */
      public void submitUserTranslation(TranslationResult transresult) {
     	  // assert transresult.getDocumentId() == currentDocument.getId();
-          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
+          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getSourceChunk().getChunkIndex();
           gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();

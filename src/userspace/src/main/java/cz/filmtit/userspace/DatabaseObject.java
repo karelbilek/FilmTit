@@ -107,14 +107,14 @@ public abstract class DatabaseObject {
     }
 
     /**
-     * Deletes the object from the database including the whole structure which depends on the object,
+     * Saves the object to the database including the whole structure which depends on the object,
      *  no matter if it is included in the Hibernate mapping or not.
      * @param session A database session which is the operation happening in.
      */
     public abstract void saveToDatabase(Session session);
 
     /**
-     * Saves the object to the database including the whole structure which depends on the object,
+     * Deletes the object from the database including the whole structure which depends on the object,
      * no matter if it is included in the Hibernate mapping or not.
      * @param session A database session which is the operation happening in.
      */
