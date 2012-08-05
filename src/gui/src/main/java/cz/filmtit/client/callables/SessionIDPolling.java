@@ -3,6 +3,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.*;
+import cz.filmtit.client.dialogs.SessionIDPollingDialog;
 
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;

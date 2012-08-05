@@ -1,8 +1,13 @@
-package cz.filmtit.client;
+package cz.filmtit.client.pages;
 
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+
+import cz.filmtit.client.Gui;
+import cz.filmtit.client.subgestbox.SubgestBox;
+import cz.filmtit.client.subgestbox.SubgestHandler;
+import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;

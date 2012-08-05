@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.dialogs;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.cell.client.AbstractCell;

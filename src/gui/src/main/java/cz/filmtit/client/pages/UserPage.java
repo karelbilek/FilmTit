@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.pages;
 
 
 import com.github.gwtbootstrap.client.ui.Button;
@@ -14,6 +14,8 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
 

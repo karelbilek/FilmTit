@@ -16,6 +16,15 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import cz.filmtit.client.pages.About;
+import cz.filmtit.client.pages.AuthenticationValidationWindow;
+import cz.filmtit.client.pages.Blank;
+import cz.filmtit.client.pages.ChangePassword;
+import cz.filmtit.client.pages.DocumentCreator;
+import cz.filmtit.client.pages.GuiStructure;
+import cz.filmtit.client.pages.Settings;
+import cz.filmtit.client.pages.UserPage;
+import cz.filmtit.client.pages.WelcomeScreen;
 import cz.filmtit.share.Document;
 
 

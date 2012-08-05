@@ -1,6 +1,11 @@
 package cz.filmtit.client;
 
 import cz.filmtit.client.callables.*;
+import cz.filmtit.client.pages.AuthenticationValidationWindow;
+import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.pages.UserPage;
+import cz.filmtit.client.pages.TranslationWorkspace.SendChunksCommand;
+
 import com.github.gwtbootstrap.client.ui.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -16,7 +21,6 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;

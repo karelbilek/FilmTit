@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.pages;
 
 
 import com.github.gwtbootstrap.client.ui.TextArea;
@@ -9,6 +9,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import com.github.gwtbootstrap.client.ui.*;
+
+import cz.filmtit.client.Gui;
 
 
 public class GuiStructure extends Composite {
@@ -78,7 +80,7 @@ public class GuiStructure extends Composite {
     ScrollPanel contentPanel;
 	
 	@UiField
-	TextArea txtDebug;
+	public TextArea txtDebug;
 	
 	public void logged_in (String username) {
 		// login/logout link

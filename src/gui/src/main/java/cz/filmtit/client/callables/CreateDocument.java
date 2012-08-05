@@ -6,9 +6,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.DialogBox;
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.FilmTitServiceHandler;
-import cz.filmtit.client.MediaSelector;
 import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.client.TranslationWorkspace;
+import cz.filmtit.client.dialogs.MediaSelector;
+import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.share.DocumentResponse;
 
 public class CreateDocument extends Callable<DocumentResponse> {

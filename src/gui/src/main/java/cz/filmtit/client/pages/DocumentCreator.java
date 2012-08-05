@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.pages;
 
 import com.github.gwtbootstrap.client.ui.*;
 import com.google.gwt.core.client.GWT;
@@ -12,6 +12,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.Widget;
+
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.widgets.FileLoadWidget;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;

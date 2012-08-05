@@ -2,7 +2,9 @@ package cz.filmtit.client.widgets;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.Element;
-import cz.filmtit.client.DocumentCreator;
+
+import cz.filmtit.client.pages.DocumentCreator;
+
 import com.google.gwt.user.client.Window;
 
 

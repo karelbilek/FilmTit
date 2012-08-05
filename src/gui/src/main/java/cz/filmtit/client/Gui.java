@@ -15,7 +15,13 @@ import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
-import cz.filmtit.client.SubgestBox.FakeSubgestBox;
+import cz.filmtit.client.dialogs.DownloadDialog;
+import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.client.dialogs.RegistrationForm;
+import cz.filmtit.client.pages.GuiStructure;
+import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
+
 import com.google.gwt.cell.client.FieldUpdater;
 
 import java.util.*;
@@ -51,17 +57,17 @@ public class Gui implements EntryPoint {
 	/**
 	 * handles especially the menu
 	 */
-    GuiStructure guiStructure;
+    public GuiStructure guiStructure;
 
  	/**
  	 * handles RPC calls
  	 */
-    FilmTitServiceHandler rpcHandler;
+    public FilmTitServiceHandler rpcHandler;
 
  	/**
  	 * handles page switching
  	 */
-    PageHandler pageHandler;
+    public PageHandler pageHandler;
    
     public PageHandler getPageHandler() {
         return pageHandler;
@@ -69,7 +75,7 @@ public class Gui implements EntryPoint {
     
     // Login state fields
 
-    boolean loggedIn = false;
+    public boolean loggedIn = false;
     
     private String username;
 
@@ -100,7 +106,7 @@ public class Gui implements EntryPoint {
     /**
      * the current workspace
      */
-    TranslationWorkspace currentWorkspace;
+    public TranslationWorkspace currentWorkspace;
     
     @SuppressWarnings("deprecation")
     public static Date getDateIn1Year() {
@@ -177,7 +183,7 @@ public class Gui implements EntryPoint {
    	 }
     }
 
-    void error(String errtext) {
+    public void error(String errtext) {
          log(errtext);
     }
     
@@ -186,17 +192,17 @@ public class Gui implements EntryPoint {
      * @param e the exception
      * @return the logged string
      */
-    String exceptionCatcher(Throwable e) {
+    public String exceptionCatcher(Throwable e) {
     	// TODO: for production, this should be:
     	// return exceptionCatcher(e, false, true)
     	return exceptionCatcher(e, true, true);    	
     }
     
-    String exceptionCatcher(Throwable e, boolean alertIt) {
+    public String exceptionCatcher(Throwable e, boolean alertIt) {
     	return exceptionCatcher(e, alertIt, true);
     }
     
-    String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
+    public String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
     	
     	StringBuilder sb = new StringBuilder();
     	sb.append(e.toString());
