@@ -98,9 +98,9 @@ public class Gui implements EntryPoint {
     // Other fields
 
     /**
-     * id of the active workspace
+     * the current workspace
      */
-    int currentWorkspaceId = -1;
+    TranslationWorkspace currentWorkspace;
     
     @SuppressWarnings("deprecation")
     public static Date getDateIn1Year() {

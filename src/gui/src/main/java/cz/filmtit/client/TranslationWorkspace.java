@@ -34,6 +34,21 @@ public class TranslationWorkspace extends Composite {
      */
     public final int id;
     
+    /**
+     * Indicates that the user moved away from this workspace
+     * and that the loading of TranslationResults should be stopped
+     */
+    private boolean stopLoading = false;
+    
+	public void setStopLoading(boolean stopLoading) {
+		this.stopLoading = stopLoading;
+		gui.log("stopLoading set for the workspace");
+	}
+
+	public boolean getStopLoading() {
+		return stopLoading;
+	}
+
 	private Gui gui = Gui.getGui();
 	
     ///////////////////////////////////////
@@ -103,7 +118,7 @@ public class TranslationWorkspace extends Composite {
 
         // 0 <= id < Integer.MAX_VALUE
         id = Random.nextInt(Integer.MAX_VALUE);
-        gui.currentWorkspaceId = id;
+        gui.currentWorkspace = this;
         
         isVideo = path!=null;
         
@@ -161,7 +176,7 @@ public class TranslationWorkspace extends Composite {
 
     @Override
     public void onUnload() {
-        stopLoading = true;
+        setStopLoading(true);
     }
    
 
@@ -179,6 +194,10 @@ public class TranslationWorkspace extends Composite {
      */
     public void processTranslationResultList(List<TranslationResult> translations) {
 
+    	if (stopLoading) {
+    		return;
+    	}
+    	
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
@@ -408,8 +427,6 @@ public class TranslationWorkspace extends Composite {
          }
      }
      
-     public boolean stopLoading = false;
-    
      public void showSources(List<TimedChunk> chunks) {
         Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(chunks));
      }

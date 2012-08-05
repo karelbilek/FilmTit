@@ -27,10 +27,15 @@ import java.util.*;
 
 		@Override	
         public void onSuccessAfterLog(List<TranslationResult> newresults) {
+			
+            if (workspace.getStopLoading()) {
+            	return;
+            }
+
             for (TranslationResult newresult:newresults) {
 
                 ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
-                workspace.showResult(newresult);
+                workspace.showResult(newresult);                	
             
             }
             command.execute();

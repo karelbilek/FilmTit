@@ -257,6 +257,11 @@ public class PageHandler {
 	private void loadPageToLoad() {
 		if (pageToLoad != pageLoaded) {
 			
+			if (pageLoaded == Page.TranslationWorkspace) {
+				// unloading TranslationWorkspace
+				gui.currentWorkspace.setStopLoading(true);
+			}
+			
 	    	switch (pageToLoad) {
 	    	
 	    	case Blank:
