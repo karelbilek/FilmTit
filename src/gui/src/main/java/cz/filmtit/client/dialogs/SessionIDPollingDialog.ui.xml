@@ -3,7 +3,27 @@
 		     xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
 			 xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<g:HTMLPanel>
-        <b:Paragraph>Authentication in progress...</b:Paragraph>
-        <b:Button ui:field="btnCancel">Cancel</b:Button>	    
+        <b:Modal ui:field="dialogBox" title="Authenticating..." backdrop="STATIC" keyboard="true" animation="true" closeVisible="false">
+
+            <b:Form type="HORIZONTAL">
+            
+                <b:Paragraph>Authentication in progress...</b:Paragraph>
+                
+                <b:Fieldset>
+
+                    <b:ModalFooter>
+                    
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnCancel">Cancel</b:Button>        
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                    </b:ModalFooter>
+
+                </b:Fieldset>
+            </b:Form>
+
+        </b:Modal>
 	</g:HTMLPanel>
 </ui:UiBinder> 

@@ -1,15 +1,17 @@
 package cz.filmtit.client.dialogs;
 
+import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Widget;
-import com.github.gwtbootstrap.client.ui.Button;
 
-import cz.filmtit.client.Dialog;
+import cz.filmtit.client.callables.SessionIDPolling;
 
-public class SessionIDPollingDialog extends Composite implements Dialog {
+
+public class SessionIDPollingDialog extends Dialog {
 
 	private static SessionIDPollingDialogUiBinder uiBinder = GWT
 			.create(SessionIDPollingDialogUiBinder.class);
@@ -18,35 +20,26 @@ public class SessionIDPollingDialog extends Composite implements Dialog {
 			UiBinder<Widget, SessionIDPollingDialog> {
 	}
 
-	public SessionIDPollingDialog() {
+	SessionIDPolling sessionIDPolling;
+	
+	public SessionIDPollingDialog(SessionIDPolling sessionIDPolling) {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		// TODO: start polling with getSessionID()
-
+		this.sessionIDPolling = sessionIDPolling;
+		
+		dialogBox.show();
 	}
 	
     @UiField
     Button btnCancel;
 
-    public void addCancelClickHandler(com.google.gwt.event.dom.client.ClickHandler h) {
-        btnCancel.addClickHandler(h);
+    @UiHandler("btnCancel")
+    void btnCancelClick(ClickEvent e) {
+    	sessionIDPolling.stopSessionIDPolling();
+        close();
+        gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
     }
+        
+    // TODO: call() if gets focus
 
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void reactivateWithErrorMessage(String message) {
-		// TODO Auto-generated method stub
-		
-	}
 }

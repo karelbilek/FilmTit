@@ -1,7 +1,6 @@
 package cz.filmtit.client.dialogs;
 
 import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.RadioButton;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,17 +8,13 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
-import cz.filmtit.client.Dialog;
-import cz.filmtit.client.Gui;
 import cz.filmtit.share.Document;
-//import com.google.gwt.user.client.ui.RadioButton;
 
 
 
-public class DownloadDialog extends Composite implements Dialog {
+public class DownloadDialog extends Dialog {
 
 	private static DownloadDialogUiBinder uiBinder = GWT
 			.create(DownloadDialogUiBinder.class);
@@ -27,8 +22,6 @@ public class DownloadDialog extends Composite implements Dialog {
 	interface DownloadDialogUiBinder extends UiBinder<Widget, DownloadDialog> {
 	}
 	
-	private Gui gui = Gui.getGui();
-    
     Document document;
 
 	public DownloadDialog(Document document) {
@@ -70,9 +63,6 @@ public class DownloadDialog extends Composite implements Dialog {
     }
 
     @UiField
-    Modal dialogBox;
-
-    @UiField
     RadioButton source;
 
     @UiField
@@ -89,24 +79,5 @@ public class DownloadDialog extends Composite implements Dialog {
 
     @UiField
     Button txtButton;
-
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void reactivateWithErrorMessage(String message) {
-		// TODO Auto-generated method stub
-		
-	}
-    
 
 }

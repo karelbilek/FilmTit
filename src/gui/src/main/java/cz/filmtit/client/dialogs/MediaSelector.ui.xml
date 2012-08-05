@@ -5,11 +5,13 @@
              xmlns:c="urn:import:com.google.gwt.user.cellview.client">
 
     <g:HTMLPanel>
-        <b:WellForm>
-            <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>
-            <c:CellList ui:field="listbox" />
-            <b:Button ui:field="submitButton" type="PRIMARY">Submit</b:Button>
-        </b:WellForm>
+        <b:Modal ui:field="dialogBox" title="Select the movie" backdrop="STATIC" keyboard="true" animation="true" closeVisible="false">
+	        <b:WellForm>
+	            <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>
+	            <c:CellList ui:field="listbox" />
+	            <b:Button ui:field="submitButton" type="PRIMARY">Submit</b:Button>
+	        </b:WellForm>
+        </b:Modal>
     </g:HTMLPanel>
 
 </ui:UiBinder>

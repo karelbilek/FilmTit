@@ -3,6 +3,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.*;
+import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.SessionIDPollingDialog;
 
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
@@ -23,7 +24,7 @@ import java.util.*;
 		/**
 		 * dialog polling for session ID
 		 */
-		private DialogBox sessionIDPollingDialogBox;
+		private Dialog sessionIDPollingDialog;
 
 		/**
 		 * indicates whether polling for session ID is in progress
@@ -44,7 +45,7 @@ import java.util.*;
 					gui.log("A session ID received successfully! SessionId = " + result);
 					// stop polling
 					sessionIDPolling = false;
-					sessionIDPollingDialogBox.hide();
+					sessionIDPollingDialog.close();
 					// we now have a session ID
 					gui.setSessionID(result);
 					// we have to get the username
@@ -62,10 +63,10 @@ import java.util.*;
 				if(sessionIDPolling) {
 					// stop polling
 					sessionIDPolling = false;
-					sessionIDPollingDialogBox.hide();
+					sessionIDPollingDialog.close();
 					// say error
-					displayWindow(caught.getLocalizedMessage());
-					gui.log("failure on requesting session ID!");					
+					displayWindow("There was an error with your authentication. Message from the server: " + caught);
+					gui.log("failure on requesting session ID! " + caught);					
 				}
 			}
 		
@@ -85,20 +86,14 @@ import java.util.*;
 		 * open a dialog saying that we are waiting for the user to authenticate
 		 */
 		private void createDialog() {
+			sessionIDPollingDialog = new SessionIDPollingDialog(this);
+			/*
             sessionIDPollingDialogBox = new DialogBox(false);
             SessionIDPollingDialog dialog = new SessionIDPollingDialog();
-            dialog.addCancelClickHandler( new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					sessionIDPolling = false;
-                    gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
-                    sessionIDPollingDialogBox.hide();
-				}
-			});
-            // TODO: call() if gets focus
             sessionIDPollingDialogBox.setWidget(dialog);
             sessionIDPollingDialogBox.setGlassEnabled(true);
-            sessionIDPollingDialogBox.center();			
+            sessionIDPollingDialogBox.center();		
+            */	
 		}
 
 		private void startSessionIDPolling() {
@@ -121,6 +116,10 @@ import java.util.*;
 			Scheduler.get().scheduleFixedDelay(poller, 500);
 		}
 
+		public void stopSessionIDPolling() {
+			sessionIDPolling = false;
+		}
+		
 		@Override
 		public void call() {
 			if (sessionIDPolling) {

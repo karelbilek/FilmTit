@@ -1,6 +1,7 @@
 package cz.filmtit.client;
 
 import cz.filmtit.client.callables.*;
+import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.UserPage;
@@ -80,14 +81,14 @@ public class FilmTitServiceHandler {
     
    
 
-    public void registerUser(String username, String password, String email, Modal registrationForm) {
-    	new RegisterUser(username, password, email, registrationForm, this);
+    public void registerUser(String username, String password, String email, Dialog loginDialog) {
+    	new RegisterUser(username, password, email, loginDialog, this);
     }
     
     
     
-    public void sendChangePasswordMail (String username, Modal dialogBox) {
-    	new SendChangePasswordMail(username, dialogBox);
+    public void sendChangePasswordMail (String username, Dialog loginDialog) {
+    	new SendChangePasswordMail(username, loginDialog);
     }
     
    
@@ -104,9 +105,14 @@ public class FilmTitServiceHandler {
     }
     
   
-
-    public void simpleLogin(String username, String password) {
-    	new SimpleLogin(username, password);
+    /**
+     * Log in the user
+     * @param username
+     * @param password
+     * @param loginDialog can be null if we are "sure" the password is OK (i.e. after setting it)
+     */
+    public void simpleLogin(String username, String password, Dialog loginDialog) {
+    	new SimpleLogin(username, password, loginDialog);
 	}
 
 
@@ -115,8 +121,8 @@ public class FilmTitServiceHandler {
     }
     
 
-	public void getAuthenticationURL(AuthenticationServiceType serviceType, Modal loginDialogBox) {
-		new GetAuthenticationURL(serviceType, loginDialogBox, this);
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, Dialog loginDialog) {
+		new GetAuthenticationURL(serviceType, loginDialog, this);
 	}
 	
 	

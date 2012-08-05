@@ -65,7 +65,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
             // TODO: store user input to be used when user logs in
         } else {  
             gui.log("RPC FAILURE "+getName());
-            gui.exceptionCatcher(returned);            
+            gui.exceptionCatcher(returned, false);            
             onFailureAfterLog(returned);
         }
     }
