@@ -113,7 +113,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         Session session = getSessionIfCan(sessionID);
 
         List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
-        session.saveAllTranslationResults(chunks.get(0).getDocumentId());
+        //session.saveAllTranslationResults(chunks.get(0).getDocumentId());
         return res;
     }
 
