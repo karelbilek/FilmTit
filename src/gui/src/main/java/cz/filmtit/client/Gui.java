@@ -62,7 +62,10 @@ public class Gui implements EntryPoint {
  	 * handles page switching
  	 */
     PageHandler pageHandler;
-    
+   
+    public PageHandler getPageHandler() {
+        return pageHandler;
+    }
     
     // Login state fields
 
@@ -75,7 +78,7 @@ public class Gui implements EntryPoint {
     private static final String SESSIONID = "sessionID";
     
     // persistent session ID via cookies (set to null to unset)
-    protected void setSessionID(String newSessionID) {
+    public void setSessionID(String newSessionID) {
          if (newSessionID == null) {
               Cookies.removeCookie(SESSIONID);
          } else {
@@ -85,7 +88,7 @@ public class Gui implements EntryPoint {
     }
 
     // persistent session ID via cookies (null if not set)
-    protected String getSessionID() {
+    public String getSessionID() {
          if (sessionID == null) {
               sessionID = Cookies.getCookie(SESSIONID);
          }
@@ -229,7 +232,7 @@ public class Gui implements EntryPoint {
      * log in directly or [this line maybe to be removed]
      * via OpenID services
      */
-	protected void showLoginDialog() {
+	public void showLoginDialog() {
 		showLoginDialog("");
 	}
      
@@ -239,30 +242,30 @@ public class Gui implements EntryPoint {
      * via OpenID services
      * @param username
      */
-	protected void showLoginDialog(String username) {
+	public void showLoginDialog(String username) {
 	    LoginDialog loginDialog = new LoginDialog(username);
 	}
 
     /**
      * show the registration dialog
      */
-    protected void showRegistrationForm() {
+    public void showRegistrationForm() {
         RegistrationForm registrationForm = new RegistrationForm();
     }
 
-    protected void please_log_in () {
+    public void please_log_in () {
         logged_out ();
         Window.alert("Please log in first.");
         showLoginDialog();
     }
     
-    protected void please_relog_in () {
+    public void please_relog_in () {
         logged_out ();
         Window.alert("You have not logged in or your session has expired. Please log in.");
         showLoginDialog();
     }
 
-    protected void logged_in (String username) {
+    public void logged_in (String username) {
     	log("User " + username + " is logged in.");
     	// login state fields
     	loggedIn = true;
@@ -272,7 +275,7 @@ public class Gui implements EntryPoint {
     	pageHandler.loadPage();
     }
 
-    protected void logged_out () {
+    public void logged_out () {
     	log("User is logged out.");
     	// login state fields
     	loggedIn = false;

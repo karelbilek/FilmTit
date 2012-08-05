@@ -28,6 +28,9 @@ public class MediaSelector extends Composite {
     interface MediaSelectorUiBinder extends UiBinder<Widget, MediaSelector> {
     }
 
+    public void addSubmitButtonHandler(com.google.gwt.event.dom.client.ClickHandler h) {
+        submitButton.addClickHandler(h);
+    }
 
     static class MediaCell extends AbstractCell<MediaSource> {
 

@@ -25,5 +25,8 @@ public class SessionIDPollingDialog extends Composite {
 	
     @UiField
     Button btnCancel;
-	
+
+    public void addCancelClickHandler(com.google.gwt.event.dom.client.ClickHandler h) {
+        btnCancel.addClickHandler(h);
+    }
 }

@@ -42,18 +42,18 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
     
-    protected Document currentDocument;
+    public Document currentDocument;
 
     public Document getCurrentDocument() {
          return currentDocument;
     }
 
-    protected void setCurrentDocument(Document currentDocument) {
+    public void setCurrentDocument(Document currentDocument) {
          this.currentDocument = currentDocument;
          gui.pageHandler.setDocumentId(currentDocument.getId());
     }
     
-    protected Map<ChunkIndex, TimedChunk> chunkmap;
+    public Map<ChunkIndex, TimedChunk> chunkmap;
 
     public TimedChunk getChunk(ChunkIndex chunkIndex) {
        return chunkmap.get(chunkIndex);
@@ -65,7 +65,7 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
-    protected SubgestHandler subgestHandler;
+    public SubgestHandler subgestHandler;
 
     private HashMap<ChunkIndex, Integer> indexes;
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
@@ -152,22 +152,32 @@ public class TranslationWorkspace extends Composite {
 
         
 	}
-
     
+    ///////////////////////////////////////
+    //                                   //
+    //      Un-initialization            //
+    //                                   //
+    ///////////////////////////////////////
+
+    @Override
+    public void onUnload() {
+        stopLoading = true;
+    }
    
-    int lastIndex = 0;
 
     ///////////////////////////////////////
     //                                   //
     //      Action methods               //
     //                                   //
     ///////////////////////////////////////
+    
+    int lastIndex = 0;
 
     /**
      * Goes through TranslationResults of an already existing document
      * and loads translation results for the untranslated ones.
      */
-    protected void processTranslationResultList(List<TranslationResult> translations) {
+    public void processTranslationResultList(List<TranslationResult> translations) {
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
@@ -212,7 +222,7 @@ public class TranslationWorkspace extends Composite {
      *
      * @param subtext - multiline text (of the whole subtitle file, typically) to parse
       */
-     protected void processText(String subtext, String subformat) {
+     public void processText(String subtext, String subformat) {
           // dump the input text into the debug-area:
     	 gui.log("processing the following input:\n" + subtext + "\n");
 
@@ -273,7 +283,7 @@ public class TranslationWorkspace extends Composite {
       * Requests TranslationResults for the chunks,
       * sending them in groups to compromise between responsiveness and effectiveness.
       */
-     class SendChunksCommand {
+     public class SendChunksCommand {
 
           LinkedList<TimedChunk> chunks;
 
@@ -295,6 +305,10 @@ public class TranslationWorkspace extends Composite {
         int exponential = 1;
 
         public boolean execute() {
+               if (stopLoading) {
+                   return false;
+               }
+
                if (chunks.isEmpty()) {
                     //Window.alert("chunks is empty");
                     return false;
@@ -369,6 +383,10 @@ public class TranslationWorkspace extends Composite {
 
          @Override
          public boolean execute() {
+             if (stopLoading) {
+                return false;
+             }
+
         	 // First, process chunksToDisplay
              if (!chunksToDisplay.isEmpty()) {
                  TimedChunk timedchunk = chunksToDisplay.removeFirst();
@@ -389,7 +407,9 @@ public class TranslationWorkspace extends Composite {
              }
          }
      }
-
+     
+     public boolean stopLoading = false;
+    
      public void showSources(List<TimedChunk> chunks) {
         Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(chunks));
      }
@@ -539,7 +559,7 @@ public class TranslationWorkspace extends Composite {
     }-*/;
 
 
-    protected void setActiveSuggestionWidget(Widget w) {
+    public void setActiveSuggestionWidget(Widget w) {
         this.activeSuggestionWidget = w;
     }
 
@@ -547,7 +567,7 @@ public class TranslationWorkspace extends Composite {
     /**
      * Hide the currently active (visible) popup with suggestions
      */
-    protected void deactivateSuggestionWidget() {
+    public void deactivateSuggestionWidget() {
         Widget w = this.activeSuggestionWidget;
         if (w != null) {
             if (w instanceof PopupPanel) {
