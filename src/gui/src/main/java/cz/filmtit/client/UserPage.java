@@ -90,7 +90,11 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-                    Window.Location.assign("/download/download?docId="+doc.getId()+"&sessionId="+gui.getSessionID()+"&type=srt&way=target");
+                try {    
+                    gui.showDownloadDialog(doc);
+                } catch (Exception e) {
+                    Window.alert(e.toString());
+                }
            }
        });
 

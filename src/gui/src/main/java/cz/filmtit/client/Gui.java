@@ -246,6 +246,10 @@ public class Gui implements EntryPoint {
 	    LoginDialog loginDialog = new LoginDialog(username);
 	}
 
+    public void showDownloadDialog(Document document) {
+        new DownloadDialog(document);
+    }
+
     /**
      * show the registration dialog
      */
