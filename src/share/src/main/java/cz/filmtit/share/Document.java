@@ -131,6 +131,9 @@ public class Document implements IsSerializable, Serializable {
         clone.movie = movie;
         clone.title = title;
         clone.userId = userId;
+        clone.lastChange = lastChange;
+        clone.totalChunksCount = totalChunksCount;
+        clone.translatedChunksCount = translatedChunksCount;
 
         return clone;
     }
