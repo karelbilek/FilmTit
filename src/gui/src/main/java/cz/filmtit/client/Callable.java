@@ -1,6 +1,9 @@
 package cz.filmtit.client;
 
+import cz.filmtit.share.exceptions.*;
 import cz.filmtit.share.*;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.StatusCodeException;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -11,7 +14,7 @@ import com.google.gwt.user.client.Window;
  * and stored into a queue of active calls
  * so that it can be easily re-called on failure.
  */
-public abstract class Callable {
+public abstract class Callable<T> implements AsyncCallback<T> {
 	
 	// static members
 	
@@ -39,7 +42,33 @@ public abstract class Callable {
 	/**
 	 * invokes the RPC
 	 */
-	abstract void call();
+	abstract public void call();
+    abstract public String getName();
+    abstract public void onSuccessAfterLog(T returned);
+    
+    public void onFailureAfterLog(Throwable returned) {
+        displayWindow(returned.getLocalizedMessage());
+    }
+
+    @Override
+    public final void onSuccess(T returned) {
+        gui.log("RPC SUCCESS "+getName());
+        onSuccessAfterLog(returned);
+    }
+
+    @Override
+    public final void onFailure(Throwable returned) {
+        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
+            return;
+        } else if (returned.getClass().equals(InvalidSessionIdException.class)) {
+            gui.please_relog_in();
+            // TODO: store user input to be used when user logs in
+        } else {  
+            gui.log("RPC FAILURE "+getName());
+            gui.exceptionCatcher(returned);            
+            onFailureAfterLog(returned);
+        }
+    }
 	
 	/**
 	 * enqueues the object and invokes the RPC
