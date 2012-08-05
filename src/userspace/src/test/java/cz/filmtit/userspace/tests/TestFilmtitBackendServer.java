@@ -7,6 +7,7 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.userspace.ChunkStringGenerator;
 import cz.filmtit.userspace.IdGenerator;
 import cz.filmtit.userspace.Session;
 import cz.filmtit.userspace.USUser;
@@ -72,6 +73,7 @@ public class TestFilmtitBackendServer {
         // generate few chunks
         List<TimedChunk> timedChunks = generateTimedChunks(documentId);
 
+        server.saveSourceChunks(sessionId, timedChunks);
         List<TranslationResult> res = server.getTranslationResults(sessionId, timedChunks);
         assertEquals(timedChunks.size(), res.size());
     }
@@ -91,6 +93,52 @@ public class TestFilmtitBackendServer {
         GettingTranslationsRunner runner = new GettingTranslationsRunner(server, sessionId, chunks);
         runner.run();
 
+    }
+
+    @Test
+    public void testGetSourceSubtitlesSrt()
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
+        FilmTitBackendServer server = new MockFilmTitBackendServer();
+        Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
+        String sessionId = placeSessionToTheServer(server, session);
+
+        DocumentResponse resp = server.createNewDocument(sessionId, "Hannah and her sisters", "Hannah and her sisters", "en");
+        long documentId = resp.document.getId();
+
+        List<TimedChunk> chunks = new ArrayList<TimedChunk>();
+        chunks.add(new TimedChunk("00:02:20,859", "00:02:24,362", 0, "I dream about her.", 1, documentId));
+        chunks.add(new TimedChunk("00:02:25,405", "00:02:28,283", 0, "Oh, Lee. What am l gonna do?", 2, documentId));
+        chunks.add(new TimedChunk("00:02:29,409", "00:02:33,330", 0, "I hear myself mooning over you,", 3, documentId));
+        chunks.add(new TimedChunk("00:02:29,409", "00:02:33,330", 1, "and it's disgusting.", 4, documentId));
+
+        server.saveSourceChunks(sessionId, chunks);
+
+        String expectedSrtFile = "1\n" +
+                "00:02:20,859 --> 00:02:24,362\n" +
+                "I dream about her.\n" +
+                "\n" +
+                "2\n" +
+                "00:02:25,405 --> 00:02:28,283\n" +
+                "Oh, Lee. What am l gonna do?\n" +
+                "\n" +
+                "3\n" +
+                "00:02:29,409 --> 00:02:33,330\n" +
+                "I hear myself mooning over you,\n" +
+                "and it's disgusting.\n\n";
+        String actualSrtFile = server.getSourceSubtitles(sessionId, documentId, 25d, TimedChunk.FileType.SRT, ChunkStringGenerator.SOURCE_SIDE);
+        assertEquals(expectedSrtFile, actualSrtFile);
+
+        String expectedSubFile = "{3521}{3609}{I dream about her.}\n" +
+                "{3635}{3707}{Oh, Lee. What am l gonna do?}\n" +
+                "{3735}{3833}{I hear myself mooning over you,|and it's disgusting.}\n";
+        String actualSubFile = server.getSourceSubtitles(sessionId, documentId, 25d, TimedChunk.FileType.SUB, ChunkStringGenerator.SOURCE_SIDE);
+        assertEquals(expectedSubFile, actualSubFile);
+
+        String expectedTxtFile = "I dream about her.\n" +
+                "Oh, Lee. What am l gonna do?\n" +
+                "I hear myself mooning over you, and it's disgusting.\n";
+        String actualTxtFile = server.getSourceSubtitles(sessionId, documentId, 25d, TimedChunk.FileType.TXT, ChunkStringGenerator.SOURCE_SIDE);
+        assertEquals(expectedTxtFile, actualTxtFile);
     }
 
     private class GettingTranslationsRunner extends Thread {
@@ -138,7 +186,7 @@ public class TestFilmtitBackendServer {
         List<TimedChunk> timedChunks = new ArrayList<TimedChunk>(32);
         for (int i = 0; i < 32; ++i) {
             timedChunks.add(new TimedChunk("00:00:00.000", "00:00:00.000", 0,
-                    loremIpsum.getWords(5, i), i, documentId));
+                    loremIpsum.getWords(5, 1), i, documentId));
         }
         return timedChunks;
     }

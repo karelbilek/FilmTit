@@ -134,7 +134,7 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
-    private String getTitle() {
+    public String getTitle() {
         return document.getTitle();
     }
 
