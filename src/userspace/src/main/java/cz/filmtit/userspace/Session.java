@@ -397,7 +397,7 @@ public class Session {
         lastOperationTime = new Date().getTime();
     }
 
-    private USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
+    public USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
             throw new InvalidDocumentIdException("The session does not have an active document with such ID.");
         }

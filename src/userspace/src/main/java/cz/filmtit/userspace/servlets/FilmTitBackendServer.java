@@ -601,9 +601,34 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionId);
     }
 
-    public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type, ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
-        Document document = getSessionIfCan(sessionID).loadDocument(documentID);
+    /**
+     * Gets the string containing the subtitle file of given parameters from the document of given ID.
+     * @param sessionID  A valid session ID.
+     * @param documentID ID of the exported document
+     * @param fps        Frames per second (important for subrip format)
+     * @param type       Format of the subtitles
+     * @param converter  ???
+     * @return
+     * @throws InvalidSessionIdException
+     * @throws InvalidDocumentIdException
+     */
+    public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type,
+                                     ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
+        Document document = getSessionIfCan(sessionID).getActiveDocument(documentID).getDocument();
         return new ChunkStringGenerator(document, type, fps, converter).toString();
+    }
+
+    /**
+     * Gets an active document by ID.
+     * @param sessionID
+     * @param documentID
+     * @return
+     * @throws InvalidSessionIdException
+     * @throws InvalidDocumentIdException
+     */
+    public USDocument getActiveDocument(String sessionID, long documentID)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).getActiveDocument(documentID);
     }
 
     @Override
