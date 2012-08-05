@@ -33,7 +33,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
-    private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
+    private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
     private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
 
@@ -177,10 +177,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-
-        // TODO: Add the service type resolving   -  is enough send  name of service like enum
-        // lib is open source and we can added for example seznam or myid
-
         configuration = ConfigurationSingleton.conf();
         String serverAddress = configuration.serverAddress();
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
@@ -200,17 +196,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         //                  sec if you are not
         // if you are you can create authentication object which contains  information
         // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
-        //HttpServletRequest request = createRequest(responseURL);
-        //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
-        //authentication.getIdentity() <- this will be as user identification
 
         System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
 
         try {
             AuthData authData = authenticatingSessions.get(authID);
-
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
-
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
@@ -249,7 +240,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 if (!(registration(openid,authentication))){
                     throw new ExceptionInInitializerError("Registration failed");
                 }
-
             }
             return simpleLogin(openid);
 
@@ -260,8 +250,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String simpleLogin(String username, String password) {
-
-
         USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
         if (user == null){
             return  "";
@@ -272,9 +260,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public String simpleLogin(String openId) {
-
         USUser user = checkUser(openId);
-        if (user!=null){
+        if (user != null){
             return generateSession(user);
         }
         return "";
@@ -289,9 +276,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
     @Override
-    public Boolean  registration(String name ,  String pass  , String email, String openId) {
+    public Boolean registration(String name,  String pass, String email, String openId) {
         // create user
-
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
             USUser user = null;
@@ -315,7 +301,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    public Boolean  registration(String openId,Authentication data){
+    public Boolean registration(String openId,Authentication data){
 
         if (data != null){
             Random r = new Random();
@@ -378,7 +364,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public boolean sendRegistrationMail(USUser user , String pass){
-
         Emailer email = new Emailer();
         if (user.getEmail()!=null) {
             return email.sendRegistrationMail(
@@ -484,6 +469,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private String generateSession(USUser user){
         String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
         Session session = new Session(user);
+
+        // check if there isn't a session from the same user
+        for (String oldSessionId : activeSessions.keySet()) {
+            if (activeSessions.get(oldSessionId).getUserDatabaseId() == user.getDatabaseId()) {
+                Session sessionToRemove = activeSessions.get(oldSessionId);
+                sessionToRemove.terminateOnNewLogin();
+                activeSessions.remove(oldSessionId);
+            }
+        }
+
         activeSessions.put(newSessionID, session);
         return newSessionID;
     }
@@ -549,6 +544,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return (USUser)UserResult.get(0);
     }
+
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
@@ -584,7 +580,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
     public boolean canReadDocument(String sessionId, long documentId) {
-
         try {
             Session session = getSessionIfCan(sessionId);
             return session.hasDocument(documentId);

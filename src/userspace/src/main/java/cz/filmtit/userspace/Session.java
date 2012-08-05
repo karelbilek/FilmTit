@@ -102,6 +102,11 @@ public class Session {
         terminate();
     }
 
+    public void terminateOnNewLogin() {
+        state = SessionState.terminated;
+        terminate();
+    }
+
     /**
      * Terminates the session. Usually in the situation when the user open a new one.
      */
