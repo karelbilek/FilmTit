@@ -35,34 +35,19 @@ public class CreateDocument extends Callable<DocumentResponse> {
         }
 
 		@Override	
-        public void onSuccessAfterLog(final DocumentResponse result) {
+        public void onSuccessAfterLog(DocumentResponse result) {
 
             gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);				
             workspace = new TranslationWorkspace(result.document, moviePath);
             documentId = result.document.getId();
             
             new MediaSelector(result.mediaSourceSuggestions, this);
-//            final DialogBox loginDialog = new DialogBox(false);
-//            mediaSelector.addSubmitButtonHandler( new ClickHandler() {
-//                @Override
-//                public void onClick(ClickEvent event) {
-//                    loginDialog.hide();
-//                    handler.selectSource(result.document.getId(), mediaSelector.getSelected());
-//                    gui.log("document created successfully.");
-//
-//                    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-//                        public void execute() {
-//                            workspace.processText(subtext, subformat);
-//                        }
-//                    });
-//                }
-//            } );
-//            loginDialog.setWidget(mediaSelector);
-//            loginDialog.setGlassEnabled(true);
-//            loginDialog.center();
-            // TODO: removed now
-//            loginDialog.setPopupPosition(loginDialog.getPopupLeft(), 100);
             
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                public void execute() {
+                    workspace.processText(subtext, subformat);
+                }
+            });
         }
 		
 		/**
@@ -71,14 +56,7 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		 * @param selectedMediaSource
 		 */
 		public void selectSource(MediaSource selectedMediaSource) {
-            handler.selectSource(documentId, selectedMediaSource);
-            gui.log("document created successfully.");
-
-            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                public void execute() {
-                    workspace.processText(subtext, subformat);
-                }
-            });
+            handler.selectSource(documentId, selectedMediaSource, workspace);
 		}
        
 		

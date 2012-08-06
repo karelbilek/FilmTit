@@ -1,7 +1,9 @@
 package cz.filmtit.client.dialogs;
 
 import com.github.gwtbootstrap.client.ui.Modal;
+import com.github.gwtbootstrap.client.ui.event.HiddenEvent;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -23,10 +25,31 @@ public abstract class Dialog extends Composite {
     @UiField
 	Modal dialogBox;
     
+    @UiHandler("dialogBox")
+    final void modalClosed(HiddenEvent e) {
+    	if (!closedByClose) {
+    		onHide();
+    	}    	
+    }
+    
+    /**
+     * set to true right before the close() method closes the dialog
+     */
+    boolean closedByClose = false;
+    
+    /**
+     * Called when the dialog is closed directly by dialog.hide(), i.e. NOT with the close() method.
+     * Intended to handle the user clicking on the close cross or pressing Esc.
+     * @see Dialog.onClosing()
+     */
+    protected void onHide() {
+    	// nothing to do by default
+    }
+    
 	/**
 	 * Reference to the gui.
 	 */
-	protected Gui gui = Gui.getGui();
+	final protected Gui gui = Gui.getGui();
 	
 	// The methods have the simplest possible implementations and should be overridden whenever applicable.
 	
@@ -60,16 +83,30 @@ public abstract class Dialog extends Composite {
 	 * Activate the dialog again, showing an error message to the user.
 	 * @param message
 	 */
-	public void reactivateWithErrorMessage(String message) {
+	final public void reactivateWithErrorMessage(String message) {
 		reactivate();
 		showErrorMessage(message);		
 	}
 	
 	/**
-	 * Hide the dialog.
+	 * Hide the dialog, if not prevented by onClosing().
 	 */
-	public void close() {
-		dialogBox.hide();
+	final public void close() {
+		if (onClosing()) {
+			closedByClose = true;
+			dialogBox.hide();
+		}		
 	}
+	
+    /**
+     * Called when the dialog is closed with the close() method, i.e. NOT when the user presses Esc etc.
+     * @see Dialog.onHide()
+     * @return true if the closing should continue, false to stop it
+     */
+    protected boolean onClosing() {
+    	// nothing to do by default
+    	return true;
+    }
+	
 	
 }

@@ -64,8 +64,8 @@ public class FilmTitServiceHandler {
 	}
 
 	
-    public void selectSource(long documentID, MediaSource selectedMediaSource) {
-    	new SelectSource(documentID, selectedMediaSource);
+    public void selectSource(long documentID, MediaSource selectedMediaSource, TranslationWorkspace workspace) {
+    	new SelectSource(documentID, selectedMediaSource, workspace);
     }
 
     

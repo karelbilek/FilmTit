@@ -108,6 +108,11 @@ public class MediaSelector extends Dialog {
     	close();
     	createDocument.selectSource(getSelected());
     }
+    
+    @Override
+    protected void onHide() {
+    	createDocument.selectSource(null);
+    }
 
     private MediaSource getSelected() {
         return selected;

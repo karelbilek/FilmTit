@@ -29,6 +29,16 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	// non-static members
 	
 	protected Gui gui = Gui.getGui();
+	
+	/**
+	 * the time (in ms) after which the call fails with a timeout exception
+	 */
+	protected int timeout = 15000;
+	
+	/**
+	 * whether the call has timed out (it means that it is invalid)
+	 */
+	protected boolean timedOut = false;
 
 	int id;
 

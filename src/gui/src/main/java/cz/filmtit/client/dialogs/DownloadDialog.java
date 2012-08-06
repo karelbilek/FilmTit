@@ -57,7 +57,7 @@ public class DownloadDialog extends Dialog {
             @Override
             public void onClick(ClickEvent event) {
                 Window.Location.assign(generateUrl(detectWay(), format));
-                dialogBox.hide();
+                close();
             }
         };
     }
