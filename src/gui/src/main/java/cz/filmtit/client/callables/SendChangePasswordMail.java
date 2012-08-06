@@ -48,11 +48,13 @@ import cz.filmtit.client.dialogs.Dialog;
 			this.username = username;
 			this.loginDialog = loginDialog;
 			
+			// 20s
+			callTimeOut = 20000;
+			
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 			filmTitService.sendChangePasswordMail(username, this);
 		}    	
     }

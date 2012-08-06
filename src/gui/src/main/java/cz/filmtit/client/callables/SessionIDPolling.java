@@ -1,5 +1,6 @@
 package cz.filmtit.client.callables;
 import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.*;
@@ -54,9 +55,26 @@ import java.util.*;
 				}
 				else {
 					gui.log("no session ID received");
-					// and continue polling
+					// continue polling
+					new Poller();
 				}
 			}
+            
+            /**
+             * asks for sessionID <b>once</b>, 200ms after being created
+             */
+            class Poller extends Timer {
+            	
+            	public Poller() {
+					schedule(200);
+				}
+
+				@Override
+				public void run() {
+					enqueue();
+				}
+            	
+            }
 			
             @Override
 			public void onFailureAfterLog(Throwable caught) {
@@ -87,41 +105,38 @@ import java.util.*;
 		 */
 		private void createDialog() {
 			sessionIDPollingDialog = new SessionIDPollingDialog(this);
-			/*
-            sessionIDPollingDialogBox = new DialogBox(false);
-            SessionIDPollingDialog dialog = new SessionIDPollingDialog();
-            sessionIDPollingDialogBox.setWidget(dialog);
-            sessionIDPollingDialogBox.setGlassEnabled(true);
-            sessionIDPollingDialogBox.center();		
-            */	
 		}
 
 		private void startSessionIDPolling() {
 			sessionIDPolling = true;
 			
-			Scheduler.RepeatingCommand poller = new RepeatingCommand() {
-				
-				@Override
-				public boolean execute() {
-					if (sessionIDPolling) {
-						// enqueue();
-						call();			            
-						return true;
-					} else {
-						return false;
-					}
-				}
-			};
+			// 20s
+			callTimeOut = 20000;
 			
-			Scheduler.get().scheduleFixedDelay(poller, 500);
+			enqueue();
+			
+//			Scheduler.RepeatingCommand poller = new RepeatingCommand() {
+//				
+//				@Override
+//				public boolean execute() {
+//					if (sessionIDPolling) {
+//						enqueue();
+//						// call();
+//						return true;
+//					} else {
+//						return false;
+//					}
+//				}
+//			};
+//			
+//			Scheduler.get().scheduleFixedDelay(poller, 500);
 		}
 
 		public void stopSessionIDPolling() {
 			sessionIDPolling = false;
 		}
 		
-		@Override
-		public void call() {
+		@Override protected void call() {
 			if (sessionIDPolling) {
 				gui.log("asking for session ID with authID=" + authID);
 				filmTitService.getSessionID(authID, this);			

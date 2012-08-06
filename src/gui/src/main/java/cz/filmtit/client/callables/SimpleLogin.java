@@ -69,8 +69,7 @@ import java.util.*;
 	        enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 	        filmTitService.simpleLogin(username, password, this);
 		}
     }

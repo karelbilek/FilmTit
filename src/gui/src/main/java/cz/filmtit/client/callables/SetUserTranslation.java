@@ -43,8 +43,7 @@ public class SetUserTranslation extends Callable<Void> {
 	        enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 			filmTitService.setUserTranslation(gui.getSessionID(), chunkIndex,
 					documentId, userTranslation, chosenTranslationPair,
 					this);

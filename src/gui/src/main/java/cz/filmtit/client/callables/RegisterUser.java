@@ -53,11 +53,14 @@ public class RegisterUser extends Callable<Boolean> {
 			this.email = email;
 			this.loginDialog = registrationForm;
 			this.handler= handler;
+			
+			// 20s
+			callTimeOut = 20000;
+			
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 	        filmTitService.registration(username, password, email, openid, this);
 		}
     }

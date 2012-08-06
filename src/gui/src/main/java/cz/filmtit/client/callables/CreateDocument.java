@@ -76,8 +76,7 @@ public class CreateDocument extends Callable<DocumentResponse> {
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 			gui.log("Creating document " + documentTitle + "; its language is " + language);
 			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, this);
 		}

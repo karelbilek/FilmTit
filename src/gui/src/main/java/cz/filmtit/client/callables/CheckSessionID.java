@@ -53,8 +53,7 @@ public class CheckSessionID extends Callable<String> {
             }
     	}
     	
-		@Override
-		public void call() {
+		@Override protected void call() {
 			gui.log("Checking sessionID " + sessionID);
             filmTitService.checkSessionID(sessionID, this);
 		}

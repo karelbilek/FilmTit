@@ -52,11 +52,13 @@ import java.util.*;
 			this.command = command;
 			this.workspace = workspace;
 			
+			// 10s + 2s for each chunk
+			callTimeOut = 10000 + 2000 * chunks.size();
+			
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
             filmTitService.getTranslationResults(gui.getSessionID(), chunks, this);
 		}
 	}

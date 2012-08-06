@@ -58,8 +58,7 @@ import cz.filmtit.share.AuthenticationServiceType;
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 			authID = Random.nextInt();
 			filmTitService.getAuthenticationURL(authID, serviceType, this);
 		}

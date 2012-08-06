@@ -59,8 +59,7 @@ import com.google.gwt.user.client.*;
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 	        filmTitService.changePassword(username, password, token, this);
 		}
     }

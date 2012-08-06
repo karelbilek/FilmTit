@@ -48,11 +48,13 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
         
         documentId = id;
         
+		// 30s
+		callTimeOut = 30000;
+		
         enqueue();
     }
 
-    @Override
-    public void call() {
+    @Override protected void call() {
         filmTitService.loadDocument(gui.getSessionID(), documentId, this);
     }
 
