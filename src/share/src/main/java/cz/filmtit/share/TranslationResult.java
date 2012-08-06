@@ -105,7 +105,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 	 */
 	@Override
 	public String toString() {
-		return sourceChunk.toString();
+		return "TranslationResult[" + sourceChunk.toString() + "->" + userTranslation + "(" + selectedTranslationPairID + ")]";
 	}
 
     public TranslationResult resultWithoutSuggestions() {

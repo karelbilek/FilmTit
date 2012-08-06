@@ -24,10 +24,13 @@ class FulltextStorage(
 
   override def warmup() {}
 
+
+  val MIN_QUERY_LENGTH = 2
+
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val searchColumn = if(language.equals(l1)) "chunk_l1" else "chunk_l2"
     val l = language.getName.toLowerCase
-    val select = connection.prepareStatement("SELECT pair_id, chunk_l1, chunk_l2, ts_rank(to_tsvector('"+l+"', "+searchColumn+"), query) AS rank FROM "+pairTable+", plainto_tsquery('"+l+"', ?) query WHERE query @@ to_tsvector('"+l+"', "+searchColumn+") ORDER BY rank DESC LIMIT "+this.maxCandidates+";")
+    val select = connection.prepareStatement("SELECT pair_id, chunk_l1, chunk_l2, ts_rank(to_tsvector('"+l+"', "+searchColumn+"), query) AS rank FROM "+pairTable+", plainto_tsquery('"+l+"', ?) query WHERE query @@ to_tsvector('"+l+"', "+searchColumn+") AND numnode(query) >= "+MIN_QUERY_LENGTH+" ORDER BY rank DESC LIMIT "+this.maxCandidates+";")
     select.setString(1, chunk.getSurfaceForm)
 
     val rs = select.executeQuery()
@@ -41,7 +44,6 @@ class FulltextStorage(
 
     tps
   }
-
 
   override def name: String = "Translation pair storage using a full text index."
 

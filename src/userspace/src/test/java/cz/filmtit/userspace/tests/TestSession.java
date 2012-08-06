@@ -211,7 +211,6 @@ public class TestSession {
 
     @Test
     public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
-        // TODO: uncomment the test when the media sources will be solved
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
@@ -240,7 +239,7 @@ public class TestSession {
             session.setUserTranslation(tr.getSourceChunk().getChunkIndex(), tr.getDocumentId(), loremIpsum.getWords(5,5), 0);
         }
 
-        //session.logout();
+        session.logout();
     }
 
     @Test
@@ -352,7 +351,6 @@ public class TestSession {
         activeDocumentsField.setAccessible(true);
         Map<Long, USDocument> activeDocuments = (Map<Long, USDocument>)(activeDocumentsField.get(session));
 
-        //assertTrue(activeDocuments.containsKey(id));
         return activeDocuments.containsKey(id);
     }
 

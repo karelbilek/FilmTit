@@ -42,6 +42,7 @@ public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable
 
     @Override
     public String toString() {
+    	// TODO: I would prefer the reverse order (id|partNumber) but I don't want to change it because it might confuse the others. --Ruda
         return new Integer(partNumber).toString()+" | "+ new Integer(id).toString();
     }
 

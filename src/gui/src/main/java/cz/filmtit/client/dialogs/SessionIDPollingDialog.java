@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.dialogs;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;

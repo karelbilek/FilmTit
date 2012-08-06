@@ -1,8 +1,13 @@
-package cz.filmtit.client;
+package cz.filmtit.client.pages;
 
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+
+import cz.filmtit.client.Gui;
+import cz.filmtit.client.subgestbox.SubgestBox;
+import cz.filmtit.client.subgestbox.SubgestHandler;
+import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -34,6 +39,21 @@ public class TranslationWorkspace extends Composite {
      */
     public final int id;
     
+    /**
+     * Indicates that the user moved away from this workspace
+     * and that the loading of TranslationResults should be stopped
+     */
+    private boolean stopLoading = false;
+    
+	public void setStopLoading(boolean stopLoading) {
+		this.stopLoading = stopLoading;
+		gui.log("stopLoading set for the workspace");
+	}
+
+	public boolean getStopLoading() {
+		return stopLoading;
+	}
+
 	private Gui gui = Gui.getGui();
 	
     ///////////////////////////////////////
@@ -103,7 +123,7 @@ public class TranslationWorkspace extends Composite {
 
         // 0 <= id < Integer.MAX_VALUE
         id = Random.nextInt(Integer.MAX_VALUE);
-        gui.currentWorkspaceId = id;
+        gui.currentWorkspace = this;
         
         isVideo = path!=null;
         
@@ -161,7 +181,7 @@ public class TranslationWorkspace extends Composite {
 
     @Override
     public void onUnload() {
-        stopLoading = true;
+        setStopLoading(true);
     }
    
 
@@ -179,6 +199,10 @@ public class TranslationWorkspace extends Composite {
      */
     public void processTranslationResultList(List<TranslationResult> translations) {
 
+    	if (stopLoading) {
+    		return;
+    	}
+    	
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
@@ -340,7 +364,7 @@ public class TranslationWorkspace extends Composite {
       */
      public void submitUserTranslation(TranslationResult transresult) {
     	  // assert transresult.getDocumentId() == currentDocument.getId();
-          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getChunkId();
+          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getSourceChunk().getChunkIndex();
           gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
@@ -408,8 +432,6 @@ public class TranslationWorkspace extends Composite {
          }
      }
      
-     public boolean stopLoading = false;
-    
      public void showSources(List<TimedChunk> chunks) {
         Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(chunks));
      }

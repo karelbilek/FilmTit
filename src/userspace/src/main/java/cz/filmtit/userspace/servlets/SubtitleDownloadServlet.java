@@ -1,11 +1,20 @@
 package cz.filmtit.userspace.servlets;
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import cz.filmtit.share.*;
-import cz.filmtit.share.exceptions.*;
-import cz.filmtit.userspace.*;
+import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.share.TimedChunk;
+import cz.filmtit.share.exceptions.InvalidDocumentIdException;
+import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.userspace.ChunkStringGenerator;
+import cz.filmtit.userspace.USDocument;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.Normalizer;
 
 public class SubtitleDownloadServlet extends HttpServlet {
 
@@ -18,8 +27,7 @@ public class SubtitleDownloadServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-        
+        // reads the parameters from the http request
         String docId = request.getParameter("docId");
         String sessionId = request.getParameter("sessionId");
         String typeString = request.getParameter("type");
@@ -68,19 +76,47 @@ public class SubtitleDownloadServlet extends HttpServlet {
         } else if (wayString.equals("targetthrowback")) {
             way = ChunkStringGenerator.TARGET_SIDE_WITH_THROWBACK;
         } else {
-            writeError(response, "no such way as "+wayString);
+            writeError(response, "no such way as " + wayString);
             return;
         }
 
-        try {  
-            String s = backend.getSourceSubtitles(sessionId, docIdLong, 25L, type, way);
+        try {
+            // generate thi file name
+            USDocument document = backend.getActiveDocument(sessionId, docIdLong);
+
+            String fileName = Normalizer.normalize(document.getTitle(), Normalizer.Form.NFD); // split chars and accents
+            fileName = fileName.replaceAll("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+", ""); // removes accents
+            fileName = fileName.replaceAll("[^\\x00-\\x7f]", ""); // removes non ASCII characters
+            fileName = fileName.replaceAll("[|\\?\\*\\\\<>+/\\[\\]]+", ""); // removes not allowed characters
+            fileName = fileName.replaceAll(" ", "_"); // replace spaces by underscores
+
+            // solve the language code
+            String languageToFileName = null;
+            String language1 = ConfigurationSingleton.getConf().l1().getName();
+            String language2 = ConfigurationSingleton.getConf().l2().getName();
+
+            if (way == ChunkStringGenerator.SOURCE_SIDE) {
+                languageToFileName = document.getLanguageCode();
+            }
+            else {
+                if (document.getLanguageCode().equals(language1)) {
+                    languageToFileName = language2;
+                }
+                else {
+                    languageToFileName = language1;
+                }
+            }
+
+            fileName += "." + languageToFileName + "." + typeString; // adds the ending
+
+            // generate the actual content of the file
+            String fileContent = backend.getSourceSubtitles(sessionId, docIdLong, 25L, type, way);
             response.setContentType(responseType);
-            //response.setContentLength(s.length());
-            response.setHeader("Content-Disposition", "attachment; filename=export."+typeString + "; charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName + "; charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
 
-           ServletOutputStream out =response.getOutputStream();
-           out.write(s.getBytes("UTF-8"));
+           ServletOutputStream out = response.getOutputStream();
+           out.write(fileContent.getBytes("UTF-8"));
         } catch (InvalidSessionIdException e) {
             writeError(response, "Invalid session id exception");
             return;

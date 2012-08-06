@@ -1,0 +1,41 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client">
+
+    <g:HTMLPanel>
+
+        <b:Modal ui:field="dialogBox" title="Download subtitle file" backdrop="STATIC" keyboard="true" animation="true">
+
+            <b:Form type="HORIZONTAL" ui:field="downloadForm">
+
+
+                <b:Fieldset>
+
+                    <b:ControlGroup>
+                        <b:ControlLabel for="wayInput">What to save?</b:ControlLabel>
+                        <b:Controls>
+                            <b:RadioButton ui:field="target" name="way">Translated version</b:RadioButton>
+                            <b:RadioButton ui:field="targetthrowback" name="way">Translated with original where untranslated</b:RadioButton>
+                            <b:RadioButton ui:field="source" name="way">Source</b:RadioButton>
+                        </b:Controls>
+                    </b:ControlGroup>
+
+                    <b:ControlGroup>
+                        <b:ControlLabel>TODO: FPS</b:ControlLabel>
+                    </b:ControlGroup>
+                    <b:ControlGroup>
+                        <b:Controls styleName="downloadButtons">
+                            <b:Button size="LARGE" ui:field="srtButton">SRT</b:Button>
+                            <b:Button size="LARGE" ui:field="subButton">SUB</b:Button>
+                            <b:Button size="LARGE" ui:field="txtButton">TXT</b:Button>
+                        </b:Controls>
+                    </b:ControlGroup>
+
+                </b:Fieldset>
+            </b:Form>
+
+        </b:Modal>
+    </g:HTMLPanel>
+
+</ui:UiBinder> 

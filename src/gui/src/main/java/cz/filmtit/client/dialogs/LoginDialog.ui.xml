@@ -1,0 +1,65 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client">
+
+    <g:HTMLPanel>
+
+        <b:Modal ui:field="dialogBox" title="Login" backdrop="STATIC" keyboard="true" animation="true">
+
+            <b:Form type="HORIZONTAL" ui:field="loginForm">
+                <b:Fieldset>
+
+                    <b:ControlGroup>
+                        <b:ControlLabel>User name:</b:ControlLabel>
+                        <b:Controls>
+                            <b:TextBox ui:field="txtUsername"></b:TextBox>
+                        </b:Controls>
+                    </b:ControlGroup>
+
+                    <b:ControlGroup>
+                        <b:ControlLabel>Password:</b:ControlLabel>
+                        <b:Controls>
+                            <b:PasswordTextBox ui:field="txtPassword"></b:PasswordTextBox>
+                        </b:Controls>
+                    </b:ControlGroup>
+
+
+                    <b:ModalFooter>
+
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnLogin" type="PRIMARY">Login</b:Button>
+                                <b:Button ui:field="btnRegister">Registration form</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnForgottenPassword">Forgotten password</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                        <b:ControlGroup>
+                            <b:Controls>
+                                <b:Button ui:field="btnCancel">Cancel</b:Button>
+                            </b:Controls>
+                        </b:ControlGroup>
+
+                    </b:ModalFooter>
+
+                </b:Fieldset>
+            </b:Form>
+
+        </b:Modal>
+
+    </g:HTMLPanel>
+
+</ui:UiBinder> 

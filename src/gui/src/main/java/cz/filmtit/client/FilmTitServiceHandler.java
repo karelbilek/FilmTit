@@ -1,7 +1,23 @@
 package cz.filmtit.client;
 
+import cz.filmtit.client.callables.*;
+import cz.filmtit.client.pages.AuthenticationValidationWindow;
+import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.pages.UserPage;
+import cz.filmtit.client.pages.TranslationWorkspace.SendChunksCommand;
+
+import com.github.gwtbootstrap.client.ui.*;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DialogBox;
-import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
 import cz.filmtit.client.callables.*;
 import cz.filmtit.share.AuthenticationServiceType;
 import cz.filmtit.share.ChunkIndex;
@@ -59,13 +75,13 @@ public class FilmTitServiceHandler {
     
    
 
-    public void registerUser(String username, String password, String email, DialogBox registrationForm) {
+    public void registerUser(String username, String password, String email, Modal registrationForm) {
     	new RegisterUser(username, password, email, registrationForm, this);
     }
     
     
     
-    public void sendChangePasswordMail (String username, DialogBox dialogBox) {
+    public void sendChangePasswordMail (String username, Modal dialogBox) {
     	new SendChangePasswordMail(username, dialogBox);
     }
     
@@ -94,7 +110,7 @@ public class FilmTitServiceHandler {
     }
     
 
-	public void getAuthenticationURL(AuthenticationServiceType serviceType, DialogBox loginDialogBox) {
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, Modal loginDialogBox) {
 		new GetAuthenticationURL(serviceType, loginDialogBox, this);
 	}
 	

@@ -1,27 +1,18 @@
 package cz.filmtit.client.callables;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
 
-import cz.filmtit.client.*;
-
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.rpc.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.core.client.*;
-import cz.filmtit.share.*;
-import java.util.Map;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.SortedMap;
+import com.github.gwtbootstrap.client.ui.Modal;
+import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Window;
+import cz.filmtit.client.Callable;
+import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.share.AuthenticationServiceType;
 
 
 	public class GetAuthenticationURL extends Callable<String> {
 		
 		// parameters
 		AuthenticationServiceType serviceType;
-		DialogBox loginDialogBox;
+		Modal loginDialogBox;
 		/**
 		 * temporary ID for authentication
 		 */
@@ -48,7 +39,7 @@ import java.util.SortedMap;
 					
 		// constructor
 		public GetAuthenticationURL(AuthenticationServiceType serviceType,
-				DialogBox loginDialogBox, FilmTitServiceHandler handler) {
+				Modal loginDialogBox, FilmTitServiceHandler handler) {
 			super();
 			
             this.handler = handler;

@@ -3,7 +3,9 @@ import com.google.gwt.user.client.*;
 
 import cz.filmtit.client.*;
 
-import cz.filmtit.client.TranslationWorkspace.SendChunksCommand;
+import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.pages.TranslationWorkspace.SendChunksCommand;
+
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -27,10 +29,15 @@ import java.util.*;
 
 		@Override	
         public void onSuccessAfterLog(List<TranslationResult> newresults) {
+			
+            if (workspace.getStopLoading()) {
+            	return;
+            }
+
             for (TranslationResult newresult:newresults) {
 
                 ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
-                workspace.showResult(newresult);
+                workspace.showResult(newresult);                	
             
             }
             command.execute();

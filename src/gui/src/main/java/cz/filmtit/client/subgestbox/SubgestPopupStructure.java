@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.subgestbox;
 
 import com.github.gwtbootstrap.client.ui.Paragraph;
 import com.google.gwt.core.client.GWT;

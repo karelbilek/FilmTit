@@ -134,7 +134,7 @@ public class USDocument extends DatabaseObject {
         return document.getMovie();
     }
 
-    private String getTitle() {
+    public String getTitle() {
         return document.getTitle();
     }
 
@@ -250,11 +250,24 @@ public class USDocument extends DatabaseObject {
         deleteJustObject(dbSession);
     }
 
+    /**
+     * Adds the translation result to the document,
+     * replacing a possible translation result with the same ChunkIndex.
+     * @param translationResult
+     */
     public void addTranslationResult(USTranslationResult translationResult) {
         addOrReplaceTranslationResult(translationResult);
         document.setTotalChunksCount(translationResults.size());
     }
 
+    /**
+     * Puts the translation result into the list of translation results of the document
+     * (both the USDocument and the Document).
+     * The translation result is identified by the inner ChunkIndex;
+     * if a translation result with the same ChunkIndex already exists,
+     * it is replaced by this new one.
+     * @param usTranslationResult
+     */
     public void addOrReplaceTranslationResult(USTranslationResult usTranslationResult) {
         ChunkIndex chunkIndex = usTranslationResult.getTranslationResult().getSourceChunk().getChunkIndex();
         translationResults.put(chunkIndex, usTranslationResult);

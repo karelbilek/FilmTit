@@ -279,7 +279,6 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     }
 
     public void saveToDatabase(Session dbSession) {
-        System.out.println("us: Chci ulozit s indexem "+getSharedId());
         saveJustObject(dbSession);
     }
 
@@ -364,5 +363,10 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         TranslationResult withSuggestions =  translationResult;
         translationResult = translationResult.resultWithoutSuggestions();
         return withSuggestions;
+    }
+    
+    @Override
+    public String toString() {
+    	return getDatabaseId() + "#" + getTranslationResult().toString();
     }
 }

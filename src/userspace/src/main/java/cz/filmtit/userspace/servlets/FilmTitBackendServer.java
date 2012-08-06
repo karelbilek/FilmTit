@@ -12,6 +12,8 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.userspace.*;
+import cz.filmtit.userspace.login.ChangePassToken;
+import cz.filmtit.userspace.login.AuthData;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -31,7 +33,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 3546115L;
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
-    private static int SESSION_ID_LENGHT = 47;
+    private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
+    private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
@@ -113,7 +116,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         Session session = getSessionIfCan(sessionID);
 
         List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
-        session.saveAllTranslationResults(chunks.get(0).getDocumentId());
+        //session.saveAllTranslationResults(chunks.get(0).getDocumentId());
         return res;
     }
 
@@ -174,10 +177,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-
-        // TODO: Add the service type resolving   -  is enough send  name of service like enum
-        // lib is open source and we can added for example seznam or myid
-
         configuration = ConfigurationSingleton.conf();
         String serverAddress = configuration.serverAddress();
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
@@ -197,18 +196,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         //                  sec if you are not
         // if you are you can create authentication object which contains  information
         // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
-        //HttpServletRequest request = createRequest(responseURL);
-        //Authentication authentication = manager.getAuthentication(request, association.getRawMacKey());
-        //authentication.getIdentity() <- this will be as user identification
 
         System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
 
         try {
-
             AuthData authData = authenticatingSessions.get(authID);
-
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
-
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
@@ -247,7 +240,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 if (!(registration(openid,authentication))){
                     throw new ExceptionInInitializerError("Registration failed");
                 }
-
             }
             return simpleLogin(openid);
 
@@ -258,8 +250,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public String simpleLogin(String username, String password) {
-
-
         USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
         if (user == null){
             return  "";
@@ -270,9 +260,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public String simpleLogin(String openId) {
-
         USUser user = checkUser(openId);
-        if (user!=null){
+        if (user != null){
             return generateSession(user);
         }
         return "";
@@ -287,9 +276,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
     @Override
-    public Boolean  registration(String name ,  String pass  , String email, String openId) {
+    public Boolean registration(String name,  String pass, String email, String openId) {
         // create user
-
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
             USUser user = null;
@@ -313,7 +301,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    public Boolean  registration(String openId,Authentication data){
+    public Boolean registration(String openId,Authentication data){
 
         if (data != null){
             Random r = new Random();
@@ -384,7 +372,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     public boolean sendRegistrationMail(USUser user , String pass){
-
         Emailer email = new Emailer();
         if (user.getEmail()!=null) {
             return email.sendRegistrationMail(
@@ -488,8 +475,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *
      */
     private String generateSession(USUser user){
-        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGHT));
+        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
         Session session = new Session(user);
+
+        // check if there isn't a session from the same user
+        for (String oldSessionId : activeSessions.keySet()) {
+            if (activeSessions.get(oldSessionId).getUserDatabaseId() == user.getDatabaseId()) {
+                Session sessionToRemove = activeSessions.get(oldSessionId);
+                sessionToRemove.terminateOnNewLogin();
+                activeSessions.remove(oldSessionId);
+            }
+        }
+
         activeSessions.put(newSessionID, session);
         return newSessionID;
     }
@@ -555,27 +552,30 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return (USUser)UserResult.get(0);
     }
+
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
     class WatchSessionTimeOut extends Thread {
         public void run() {
             while(true) {
+                // removing already existing sessions  that timed out
                 for (String sessionID : activeSessions.keySet()) {
                     long now = new Date().getTime();
                     Session thisSession = activeSessions.get(sessionID);
-                    if (thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
+                    if ((thisSession.isPermanent() && thisSession.getLastOperationTime() + PERMANENT_SESSION_TIME_OUT_LIMIT < now)
+                            || thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
                         activeSessions.remove(thisSession.getUser());
                         thisSession.kill();
                         activeSessions.remove(sessionID);
                     }
 
                 }
-                for (String login : activeTokens.keySet())
-                {
+
+                // TODO: write what is this goods for
+                for (String login : activeTokens.keySet()) {
                     ChangePassToken token =  activeTokens.get(login);
-                    if (!token.isValidTime())
-                    {
+                    if (!token.isValidTime()) {
                         activeTokens.remove(login);
                     }
 
@@ -587,64 +587,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-
-    class AuthData {
-        public byte[] Mac_key;
-        public Endpoint endpoint;
-    }
-
-    public class ChangePassToken{
-
-        private String token;
-        private Date  validTo;
-        private Boolean active;
-        public String getToken() {
-            return token;
-        }
-
-        public ChangePassToken(String token){
-            setToken(token);
-            // set validity of token now()+1h
-            Date actualDate = new Date();
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(actualDate);
-            cal.add(Calendar.HOUR_OF_DAY,1);
-            setValidTo(cal.getTime());
-            active = true;
-
-        }
-
-        public boolean isValidToken(String token){
-            // token is the same and its validity isn`t off
-            return ( (this.token.compareTo(token)==0) && (isValidTime()) && (this.active()));
-        }
-
-        public boolean  isValidTime()
-        {
-            Date actual = new Date();
-            return ((validTo.compareTo(actual) > 0) && (this.active()));
-        }
-
-        public void deactivate()
-        {
-            this.active = false;
-        }
-        public Boolean active()
-        {
-            return this.active;
-        }
-        private void setValidTo(Date validTo) {
-            this.validTo = validTo;
-        }
-        private void setToken(String token) {
-            this.token = token;
-        }
-
-
-    }
-
     public boolean canReadDocument(String sessionId, long documentId) {
-
         try {
             Session session = getSessionIfCan(sessionId);
             return session.hasDocument(documentId);
@@ -661,9 +604,34 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return activeSessions.get(sessionId);
     }
 
-    public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type, ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
-        Document document = getSessionIfCan(sessionID).loadDocument(documentID);
+    /**
+     * Gets the string containing the subtitle file of given parameters from the document of given ID.
+     * @param sessionID  A valid session ID.
+     * @param documentID ID of the exported document
+     * @param fps        Frames per second (important for subrip format)
+     * @param type       Format of the subtitles
+     * @param converter  ???
+     * @return
+     * @throws InvalidSessionIdException
+     * @throws InvalidDocumentIdException
+     */
+    public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type,
+                                     ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
+        Document document = getSessionIfCan(sessionID).getActiveDocument(documentID).getDocument();
         return new ChunkStringGenerator(document, type, fps, converter).toString();
+    }
+
+    /**
+     * Gets an active document by ID.
+     * @param sessionID
+     * @param documentID
+     * @return
+     * @throws InvalidSessionIdException
+     * @throws InvalidDocumentIdException
+     */
+    public USDocument getActiveDocument(String sessionID, long documentID)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).getActiveDocument(documentID);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package cz.filmtit.client;
+package cz.filmtit.client.subgestbox;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
@@ -21,6 +21,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
+import cz.filmtit.client.Gui;
+import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.share.*;
 import cz.filmtit.share.annotations.Annotation;
 import cz.filmtit.share.annotations.AnnotationType;
