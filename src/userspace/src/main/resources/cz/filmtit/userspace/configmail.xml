@@ -5,7 +5,7 @@
     <entry key="mail.transport.protocol">smtps</entry>
     <entry key="mail.smtps.port">465</entry>
     <entry key="mail.smtps.host">smtp.gmail.com</entry>
-   <entry key="mail.smtps.starttls.enable">true</entry>
+    <entry key="mail.smtps.starttls.enable">true</entry>
     <entry key="mail.smtps.socketFactory.class">javax.net.ssl.SSLSocketFactory</entry>
     <entry key="mail.smtps.socketFactory.port">465</entry>
     <entry key="mail.smtps.auth">true</entry>

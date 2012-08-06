@@ -15,6 +15,8 @@ import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
+
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.client.dialogs.LoginDialog.Tab;
@@ -285,7 +287,22 @@ public class Gui implements EntryPoint {
     	pageHandler.loadPage();
     }
 
+    /**
+     * Change the state of the app to "logged out"
+     * the page URL will be kept (so that if the user logs back in,
+     * he will be shown the same page as before he logged out)
+     */
     public void logged_out () {
+    	logged_out(false);
+    }
+    
+    /**
+     * Change the state of the app to "logged out"
+     * @param goToWelcomeScreen if set to true, the page URL will be changed to WelcomeScreen;
+     * otherwise the URL will be kept (so that if the user logs back in,
+     * he will be shown the same page as before he logged out)
+     */
+    public void logged_out (boolean goToWelcomeScreen) {
     	log("User is logged out.");
     	// login state fields
     	loggedIn = false;
@@ -293,7 +310,11 @@ public class Gui implements EntryPoint {
         setSessionID(null);
         // actions
         guiStructure.logged_out();
-        pageHandler.loadPage();
+        if (goToWelcomeScreen) {
+        	pageHandler.loadPage(Page.WelcomeScreen);
+        } else {
+            pageHandler.loadPage();
+        }
     }
     
 }

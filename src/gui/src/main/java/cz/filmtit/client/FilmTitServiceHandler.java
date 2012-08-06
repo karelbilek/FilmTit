@@ -1,36 +1,18 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.Modal;
 import cz.filmtit.client.callables.*;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.TranslationWorkspace;
-import cz.filmtit.client.pages.UserPage;
 import cz.filmtit.client.pages.TranslationWorkspace.SendChunksCommand;
+import cz.filmtit.client.pages.UserPage;
+import cz.filmtit.share.AuthenticationServiceType;
+import cz.filmtit.share.ChunkIndex;
+import cz.filmtit.share.MediaSource;
+import cz.filmtit.share.TimedChunk;
 
-import com.github.gwtbootstrap.client.ui.*;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Random;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.VerticalPanel;
-
-import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.share.*;
-import cz.filmtit.share.exceptions.InvalidSessionIdException;
-
-import java.util.Map;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.SortedMap;
 
 public class FilmTitServiceHandler {
 	
@@ -116,8 +98,8 @@ public class FilmTitServiceHandler {
 	}
 
 
-    public void logout() {
-    	new Logout();
+
+    public void logout() {    	new Logout();
     }
     
 
