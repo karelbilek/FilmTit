@@ -23,7 +23,7 @@ public abstract class Dialog extends Composite {
 	 * The enclosing dialog box.
 	 */
     @UiField
-	Modal dialogBox;
+	MyModal dialogBox;
     
     @UiHandler("dialogBox")
     final void modalClosed(HiddenEvent e) {
@@ -31,7 +31,7 @@ public abstract class Dialog extends Composite {
     		onHide();
     	}    	
     }
-    
+
     /**
      * set to true right before the close() method closes the dialog
      */

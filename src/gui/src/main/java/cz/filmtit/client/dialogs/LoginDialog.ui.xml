@@ -1,11 +1,12 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
-             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client">
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client"
+             xmlns:my="urn:import:cz.filmtit.client.dialogs">
 
     <g:HTMLPanel>
 
-        <b:Modal ui:field="dialogBox" title="Login" backdrop="STATIC" keyboard="true" animation="false">
+        <my:MyModal ui:field="dialogBox" title="Login" backdrop="STATIC" keyboard="true">
 
 		    <b:NavTabs ui:field="tabs">
 			    <b:NavLink ui:field="tabLogin" active="true">Log in</b:NavLink>
@@ -141,7 +142,7 @@
                 </b:Fieldset>
             </b:Form>
             
-        </b:Modal>
+        </my:MyModal>
 
     </g:HTMLPanel>
 

@@ -2,10 +2,11 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-             xmlns:c="urn:import:com.google.gwt.user.cellview.client">
+             xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+             xmlns:my="urn:import:cz.filmtit.client.dialogs">
 
     <g:HTMLPanel>
-        <b:Modal ui:field="dialogBox" title="Select the movie or TV show" backdrop="STATIC" keyboard="true" animation="true" closeVisible="true">
+        <my:MyModal ui:field="dialogBox" title="Select the movie or TV show" backdrop="STATIC" keyboard="true" closeVisible="true">
 	        
 	        <b:WellForm>
 	            <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>
@@ -20,7 +21,7 @@
 	            </b:ControlGroup>
 	        </b:ModalFooter>
 	        
-        </b:Modal>
+        </my:MyModal>
     </g:HTMLPanel>
 
 </ui:UiBinder>
