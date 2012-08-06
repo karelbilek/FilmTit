@@ -5,6 +5,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
+import org.jboss.logging.Logger;
 
 public class USHibernateUtil {
     protected static USHibernateUtil instance = null;
@@ -25,6 +26,7 @@ public class USHibernateUtil {
     }
 
 
+    protected Logger logger = Logger.getLogger("HibernateUtil");
     protected SessionFactory sessionFactory = null;
     protected ServiceRegistry serviceRegistry;
 
@@ -52,7 +54,7 @@ public class USHibernateUtil {
         }
         catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            logger.error("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }

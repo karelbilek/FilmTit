@@ -5,6 +5,7 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
+import org.jboss.logging.Logger;
 
 import java.util.*;
 
@@ -20,6 +21,7 @@ public class Session {
     private long sessionStart;
     private long lastOperationTime;
     private SessionState state;
+    Logger logger = Logger.getLogger("Session");
     
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -47,7 +49,6 @@ public class Session {
             if (user.getActiveDocumentIDs().contains(document.getDatabaseId())) {
                 // load the document
                 activeDocuments.put(document.getDatabaseId(), document);
-                // load its chunks
             }
         }
     }
@@ -104,6 +105,7 @@ public class Session {
 
     public void terminateOnNewLogin() {
         state = SessionState.terminated;
+        logger.info("Previous session of " + user.getUserName() + "was terminated before creating a new one.");
         terminate();
     }
 
@@ -145,7 +147,8 @@ public class Session {
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);
 
         user.addDocument(usDocument);
-
+        logger.info("User " + user.getUserName() + " opened document " + usDocument.getDatabaseId() + " (" +
+                usDocument.getTitle() + ").");
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
@@ -210,9 +213,7 @@ public class Session {
         tr.setUserTranslation(userTranslation);
         tr.setSelectedTranslationPairID(chosenTranslationPairID);
         saveTranslationResult(document, tr);
-        
-        System.out.println("setUserTranslation: " + tr);
-        
+
         return null;
     }
 
@@ -336,7 +337,8 @@ public class Session {
                   activeDocuments.put(documentID, usDocument);
 
                   usDocument.loadChunksFromDb();
-                  
+                  logger.info("User " + user.getUserName() + " opened document " + documentID + " (" +
+                        usDocument.getTitle() + ").");
                   return  usDocument.getDocument();
               }
         }
@@ -350,7 +352,7 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         activeDocuments.remove(documentId);
-        
+        logger.info("User " + user.getUserName() + " closed document " + documentId + " (" + document.getTitle() + ")." );
         saveAllTranslationResults(document);
         return null;
     }
@@ -394,7 +396,6 @@ public class Session {
             document.addOrReplaceTranslationResult(tr);
             tr.saveToDatabase(session);
         }
-
         usHibernateUtil.closeAndCommitSession(session);
     }
 
@@ -404,6 +405,8 @@ public class Session {
 
     public USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
+            logger.error("Attempt to use non-existing document, user " + user.getUserName() + ", document ID "
+                    + documentID + ".");
             throw new InvalidDocumentIdException("The session does not have an active document with such ID.");
         }
 

@@ -230,17 +230,8 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * */
     public void setSharedId(int sharedId) {
         if (sharedId < 0) {
-                RuntimeException e = new RuntimeException("ShareID lesser than zero!");
-                
-                System.out.println("----error stacktrace---");
-
-                StackTraceElement[] st = e.getStackTrace();
-                for (StackTraceElement stackTraceElement : st) {
-                    System.out.println(stackTraceElement.toString());
-                }
-
-
-
+            RuntimeException e = new RuntimeException("ShareID lesser than zero!");
+            logger.error("SharedID is lesser than zero!");
             throw e;
         }
         translationResult.setChunkId(sharedId);

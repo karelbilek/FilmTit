@@ -12,12 +12,13 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.userspace.*;
-import cz.filmtit.userspace.login.ChangePassToken;
 import cz.filmtit.userspace.login.AuthData;
+import cz.filmtit.userspace.login.ChangePassToken;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
 import org.expressme.openid.OpenIdManager;
+import org.jboss.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -48,6 +49,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected TranslationMemory TM;
     protected MediaSourceFactory mediaSourceFactory;
     protected Configuration configuration;
+    private Logger logger = Logger.getLogger("FilmtitBackendServer");
 
     // AuthId which are in process
     private Map<Long, AuthData> authenticatingSessions =
@@ -84,7 +86,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         usHibernateUtil.closeAndCommitSession(dbSession);
 
 
-        System.err.println("FilmTitBackendServer started fine!");
+        logger.info("FilmtitBackendServer started fine!");
     }
 
     protected void loadTranslationMemory() {
@@ -197,8 +199,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // if you are you can create authentication object which contains  information
         // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
 
-        System.out.println("validateAuthentication(" + authID + "," + responseURL + ")\n");
-
         try {
             AuthData authData = authenticatingSessions.get(authID);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
@@ -206,23 +206,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             // if no exception was thrown, everything is OK
             authenticatedSessions.put(authID,authentication);
-            System.out.print("Testing User is Validate " + authID + " " +authentication.getEmail());
+            logger.info("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
         }
         catch (UnsupportedEncodingException e) {
-            System.out.print("UnsupportedEncodingException caught in validateAuthentication() - ");
-            System.out.println(e);
+            logger.error("UnsupportedEncodingException caught in validateAuthentication() - " + e.toString());
             return false;
         }
         catch (org.expressme.openid.OpenIdException e) {
-            System.out.print("OpenIdException caught in validateAuthentication() - ");
-            System.out.println(e);
+            logger.error("OpenIdException caught in validateAuthentication() - " + e.toString());
             return false;
         }
         catch (Exception e) {
-            System.out.print("Exception caught in validateAuthentication() - ");
-            System.out.println(e);
+            logger.error("Exception caught in validateAuthentication() - " + e.toString());
             return false;
         }
 
@@ -242,7 +239,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 }
             }
             return simpleLogin(openid);
-
         }
 
         return null;
@@ -255,6 +251,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return  "";
         }
         else {
+            Logger.getLogger("User " + user.getUserName() + "logged in.");
             return generateSession(user);
         }
     }
@@ -262,6 +259,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public String simpleLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
+            logger.info("User " + user.getUserName() + "logged in.");
             return generateSession(user);
         }
         return "";
@@ -271,6 +269,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
         session.logout();
+        logger.info("User " + session.getUser().getUserName() + "logged out.");
         activeSessions.remove(sessionID);
 
         return null;
@@ -293,7 +292,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             user.saveToDatabase(dbSession);
 
             usHibernateUtil.closeAndCommitSession(dbSession);
-            sendRegistrationMail(user,pass);
+            sendRegistrationMail(user, pass);
+            logger.info("Registered user" + user.getUserName());
             return true;
         } else {
             // bad, there is already a user with the given name
@@ -531,9 +531,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                     .setParameter("openid",openid).list(); //UPDATE hibernate  for more constraints
             usHibernateUtil.closeAndCommitSession(dbSession);
         }
-        catch (ExceptionInInitializerError ex)
-        {
-            System.out.print("Problem s dotazem");
+        catch (ExceptionInInitializerError ex) {
+            logger.warn("Problem with querying the users table.");
         }
 
         if (UserResult.size() > 1){
@@ -559,6 +558,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                             || thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
                         activeSessions.remove(thisSession.getUser());
                         thisSession.kill();
+                        logger.info("Session of user " + thisSession.getUser().getUserName() + "timed out.");
                         activeSessions.remove(sessionID);
                     }
 

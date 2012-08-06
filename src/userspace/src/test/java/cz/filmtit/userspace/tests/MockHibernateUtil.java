@@ -51,7 +51,7 @@ public class MockHibernateUtil extends USHibernateUtil {
         }
         catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            logger.error("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -77,7 +77,7 @@ public class MockHibernateUtil extends USHibernateUtil {
             try {
                 hbUtilField.set(null, getInstance());
             } catch (IllegalAccessException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                e.printStackTrace();
             }
         }
     }

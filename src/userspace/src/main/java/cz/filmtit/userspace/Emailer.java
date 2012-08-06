@@ -9,6 +9,8 @@ package cz.filmtit.userspace;
  */
 
 
+import org.jboss.logging.Logger;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -22,124 +24,123 @@ public class Emailer {
      private String email;
      private String header;
      private String message;
+    private Logger logger = Logger.getLogger("Emailer");
 
- public Emailer(String email , String subject , String message)
- {
-     fetchConfig();
-     setData(email,subject,message);
- }
- public Emailer()
- {
-     fetchConfig();
- }
-
- public void setData(String email,String subject ,String message){
-     this.email= email;
-     this.message= message;
-     this.header = subject;
- }
-
- public boolean  send(){
-     if (isFilled())
+     public Emailer(String email , String subject , String message) {
+         fetchConfig();
+         setData(email,subject,message);
+     }
+     public Emailer()
      {
-         // send mail;
-         javax.mail.Session session;
+         fetchConfig();
+     }
 
+     public void setData(String email,String subject ,String message){
+         this.email= email;
+         this.message= message;
+         this.header = subject;
+     }
 
-         System.out.println("Create session for mail login "+(String)configuration.getProperty("mail.filmtit.address") +" password"+ (String)configuration.getProperty("mail.filmtit.password"));
-         session = javax.mail.Session.getDefaultInstance(configuration, new javax.mail.Authenticator() {
-             protected PasswordAuthentication getPasswordAuthentication() {
-                 return new PasswordAuthentication((String)configuration.getProperty("mail.filmtit.address"), (String)configuration.getProperty("mail.filmtit.password"));
-             }
-         });
-         session.setDebug(true);
-         javax.mail.internet.MimeMessage message = new  javax.mail.internet.MimeMessage(session);
-         try {
-
-             message.addRecipient(
-                     Message.RecipientType.TO ,  new InternetAddress(this.email)
-             );
-             message.setFrom(new InternetAddress((String)configuration.getProperty("mail.filmtit.address")));
-             message.setSubject(this.header);
-             message.setText(this.message);
-
-             //TestGmail.send();
-
-             Transport transportSSL = session.getTransport();
-             transportSSL.connect((String)configuration.getProperty("mail.smtps.host"), Integer.parseInt(configuration.getProperty("mail.smtps.port")), (String)configuration.getProperty("mail.filmtit.address"), (String)configuration.getProperty("mail.filmtit.password")); // account used
-             transportSSL.sendMessage(message, message.getAllRecipients());
-             transportSSL.close();
-         } catch (MessagingException ex)
+     public boolean  send(){
+         if (isFilled())
          {
-             System.err.println("Cannot send mail " + ex);
+             // send mail;
+             javax.mail.Session session;
+
+
+             logger.info("Create session for mail login "+(String)configuration.getProperty("mail.filmtit.address") +" password"+ (String)configuration.getProperty("mail.filmtit.password"));
+             session = javax.mail.Session.getDefaultInstance(configuration, new javax.mail.Authenticator() {
+                 protected PasswordAuthentication getPasswordAuthentication() {
+                     return new PasswordAuthentication((String)configuration.getProperty("mail.filmtit.address"), (String)configuration.getProperty("mail.filmtit.password"));
+                 }
+             });
+             session.setDebug(true);
+             javax.mail.internet.MimeMessage message = new  javax.mail.internet.MimeMessage(session);
+             try {
+
+                 message.addRecipient(
+                         Message.RecipientType.TO ,  new InternetAddress(this.email)
+                 );
+                 message.setFrom(new InternetAddress((String)configuration.getProperty("mail.filmtit.address")));
+                 message.setSubject(this.header);
+                 message.setText(this.message);
+
+                 //TestGmail.send();
+
+                 Transport transportSSL = session.getTransport();
+                 transportSSL.connect((String)configuration.getProperty("mail.smtps.host"), Integer.parseInt(configuration.getProperty("mail.smtps.port")), (String)configuration.getProperty("mail.filmtit.address"), (String)configuration.getProperty("mail.filmtit.password")); // account used
+                 transportSSL.sendMessage(message, message.getAllRecipients());
+                 transportSSL.close();
+             } catch (MessagingException ex)
+             {
+                 logger.error("Cannot send mail " + ex);
+
+             }
+             return true;
 
          }
-         return true;
-
+         logger.warn("Not all data filed");
+         return false;
      }
-     System.out.println("Not all data filed");
-     return false;
- }
 
 
- public boolean sendRegistrationMail(String recipier , String login , String pass){
-     String messageTemp = (String)configuration.getProperty("mail.filmtit.registrationBody");
-     String message = messageTemp.replace("%userlogin%",login).replace("%userpass%",pass);
-     String subject = (String)configuration.getProperty("mail.filmtit.registrationSubject");
-     return sendMail(recipier, subject, message);
- }
+     public boolean sendRegistrationMail(String recipier , String login , String pass){
+         String messageTemp = (String)configuration.getProperty("mail.filmtit.registrationBody");
+         String message = messageTemp.replace("%userlogin%",login).replace("%userpass%",pass);
+         String subject = (String)configuration.getProperty("mail.filmtit.registrationSubject");
+         return sendMail(recipier, subject, message);
+     }
 
- public boolean sendForgottenPassMail(String recipier , String login , String url){
-        String messageTemp = (String)configuration.getProperty("mail.filmtit.forgottenPassBody");
-        String message = messageTemp.replace("%userlogin%",login).replace("%changeurl%",url);
-        String subject = (String)configuration.getProperty("mail.filmtit.forgottenPassSubject");
-        return sendMail(recipier,subject,message);
-  }
+     public boolean sendForgottenPassMail(String recipier , String login , String url){
+            String messageTemp = (String)configuration.getProperty("mail.filmtit.forgottenPassBody");
+            String message = messageTemp.replace("%userlogin%",login).replace("%changeurl%",url);
+            String subject = (String)configuration.getProperty("mail.filmtit.forgottenPassSubject");
+            return sendMail(recipier,subject,message);
+      }
 
 
 
 
- public boolean sendMail(String recipier ,  String header , String bodyMessage)
- {
-     setData(recipier,header,bodyMessage);
-     return send();
- }
+     public boolean sendMail(String recipier ,  String header , String bodyMessage)
+     {
+         setData(recipier,header,bodyMessage);
+         return send();
+     }
 
- private boolean isFilled()
- {
-       if (this.email == null || this.message==null || this.header==null)
-       {
-           return false;
-       }
-      return  !(this.email.isEmpty() || this.message.isEmpty() || this.header.isEmpty());
- }
+     private boolean isFilled()
+     {
+           if (this.email == null || this.message==null || this.header==null)
+           {
+               return false;
+           }
+          return  !(this.email.isEmpty() || this.message.isEmpty() || this.header.isEmpty());
+     }
 
 
-    private void fetchConfig() {
-        java.io.InputStream input = null;
+        private void fetchConfig() {
+            java.io.InputStream input = null;
 
-        try {
-            // read configuration file
-            input = Emailer.class.getResourceAsStream("/cz/filmtit/userspace/configmail.xml");
-            System.out.println(input);
-            // setting config properties
-            configuration.loadFromXML(input);
-            } catch (IOException e) {
-              System.err.println(e.toString());
-              System.err.println("Can`t open configmail.xml with mail configuration");
-            }
-
-         finally {
-            if (input != null) {
-                try {
-                    input.close();
+            try {
+                // read configuration file
+                input = Emailer.class.getResourceAsStream("/cz/filmtit/userspace/configmail.xml");
+                logger.info(input);
+                // setting config properties
+                configuration.loadFromXML(input);
                 } catch (IOException e) {
-                    System.err.print("Can`t close file with mail configuration");
+                logger.error("Can`t open configmail.xml with mail configuration");
+                }
+
+             finally {
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        logger.error("Can`t close file with mail configuration");
+                    }
                 }
             }
+
+
         }
-
-
-    }
 
 }

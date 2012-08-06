@@ -1,6 +1,7 @@
 package cz.filmtit.userspace;
 
 import org.hibernate.Session;
+import org.jboss.logging.Logger;
 
 /**
  * An object which is stored in the database. Contains the basic database functionality. Mostly
@@ -44,6 +45,8 @@ public abstract class DatabaseObject {
         return getSharedClassDatabaseId();
     }
 
+    Logger logger = Logger.getLogger("DatabaseObject");
+
     /**
      * Sets the database ID of the object if it has not been set so far. It is supposed
      * to be called almost exclusively from the Hibernate library and it not
@@ -79,12 +82,14 @@ public abstract class DatabaseObject {
             if (tr.getSharedId() < 0) {
                 RuntimeException e = new RuntimeException("object : ShareID lesser than zero!");
                 
-                System.out.println("----error stacktrace---");
-
+                StringBuilder errorBuilder = new StringBuilder();
                 StackTraceElement[] st = e.getStackTrace();
                 for (StackTraceElement stackTraceElement : st) {
-                    System.out.println(stackTraceElement.toString());
+                    errorBuilder.append(stackTraceElement.toString());
+                    errorBuilder.append("\n");
                 }
+
+                logger.error(errorBuilder.toString());
 
                 throw new RuntimeException("session id < 0");
             }
