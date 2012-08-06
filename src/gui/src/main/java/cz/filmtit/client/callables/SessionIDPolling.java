@@ -95,9 +95,13 @@ import java.util.*;
 			this.authID = authID;
 			this.handler=handler;
 
+			// 20s
+			callTimeOut = 20000;
+			
 			createDialog();
 			
-            startSessionIDPolling();
+			sessionIDPolling = true;
+            enqueue();
 		}
 		
 		/**
@@ -107,14 +111,11 @@ import java.util.*;
 			sessionIDPollingDialog = new SessionIDPollingDialog(this);
 		}
 
-		private void startSessionIDPolling() {
-			sessionIDPolling = true;
-			
-			// 20s
-			callTimeOut = 20000;
-			
-			enqueue();
-			
+//		private void startSessionIDPolling() {
+//			sessionIDPolling = true;
+//			
+//			enqueue();
+//			
 //			Scheduler.RepeatingCommand poller = new RepeatingCommand() {
 //				
 //				@Override
@@ -130,7 +131,7 @@ import java.util.*;
 //			};
 //			
 //			Scheduler.get().scheduleFixedDelay(poller, 500);
-		}
+//		}
 
 		public void stopSessionIDPolling() {
 			sessionIDPolling = false;
