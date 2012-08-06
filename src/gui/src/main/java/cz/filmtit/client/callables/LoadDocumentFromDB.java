@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.*;
 import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -26,7 +27,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
         
         // prepare empty TranslationWorkspace
         String moviePath = null; //TODO: player
-        final TranslationWorkspace workspace = new TranslationWorkspace(doc, moviePath);
+        final TranslationWorkspace workspace = new TranslationWorkspace(doc, moviePath, DocumentOrigin.FROM_DB);
         
         // prepare the TranslationResults
         final List<TranslationResult> results  = doc.getSortedTranslationResults();

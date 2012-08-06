@@ -9,6 +9,7 @@ import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.MediaSelector;
 import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.MediaSource;
 
@@ -38,7 +39,7 @@ public class CreateDocument extends Callable<DocumentResponse> {
         public void onSuccessAfterLog(DocumentResponse result) {
 
             gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);				
-            workspace = new TranslationWorkspace(result.document, moviePath);
+            workspace = new TranslationWorkspace(result.document, moviePath, DocumentOrigin.NEW);
             documentId = result.document.getId();
             
             new MediaSelector(result.mediaSourceSuggestions, this);
