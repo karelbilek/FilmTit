@@ -86,12 +86,30 @@ class Configuration(configurationFile: InputStream) {
   val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
   val permanentSessionTimeout = (userspaceXML \ "permanent_session_timeout_limit").text.toLong
   val serverAddress = (userspaceXML \ "server_address").text
+  //Userspace - mail  - configuration
+  val userspaceXMLmail = userspaceXML \ "mail"
+  val transportProtocol = (userspaceXMLmail \ "transport_protocol").text
+  val smtpsPort =  (userspaceXMLmail \ "smtps_port").text
+  val smtpsHost = (userspaceXMLmail \ "smtps_host").text
+  val smtpsStartTtlsEnable =  (userspaceXMLmail \ "smtps_startttls_enable").text
+  val smtpsSocketFactoryClass = (userspaceXMLmail \ "smtps_socketFactory_class").text
+  val smtpsSocketFactoryPort =  (userspaceXMLmail \ "smtps_socketFactory_port").text
+  val smtpsAuth = (userspaceXMLmail \ "smtps_auth").text
+  val filmtitAddress =  (userspaceXMLmail \ "filmtit_address").text
+  val filmtitPassword =  (userspaceXMLmail \ "filmtit_password").text
 
-
+  //Userspace - mail  - text templates
+  val filmtitRegistrationSubject =  (userspaceXMLmail \ "filmtit_registration_subject").text
+  val filmtitRegistrationBody =  (userspaceXMLmail \ "filmtit_registration_body").text
+  val filmtitForgottenPassSubject =  (userspaceXMLmail \ "filmtit_forgotten_pass_subject").text
+  val filmtitForgottenPassBody =  (userspaceXMLmail \ "filmtit_forgotten_pass_body").text
   //Core
   private val coreXML = XMLFile \ "core"
   var maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
   val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
 
   val freebaseKey: String = (XMLFile \ "freebase_key").text
+
+
+
 }
