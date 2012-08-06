@@ -108,6 +108,15 @@ class Configuration(configurationFile: InputStream) {
   var maxNumberOfConcurrentSearchers = (coreXML \ "max_number_of_concurrent_searchers").text.toInt
   val searcherTimeout:Int = (coreXML \ "searcher_timeout").text.toInt
 
+  val exactRankerWeights: List[Double] = (coreXML \ "ranking" \ "exact_ranker_weights").text.split(" ").map(_.toDouble).toList
+  val fuzzyRankerWeights: List[Double] = (coreXML \ "ranking" \ "fuzzy_ranker_weights").text.split(" ").map(_.toDouble).toList
+
+  val configMail =new java.util.HashMap[String,String]()
+  (userspaceXMLmail \ "properties" \ "entry") foreach( entry => {
+    val property = (entry \ "@key").text
+    configMail.put(property,entry.text)
+  })
+
   val freebaseKey: String = (XMLFile \ "freebase_key").text
 
 

@@ -32,9 +32,9 @@ object GenerateTrainingset {
 
     println("Got %d results".format(results.size))
 
-    val ranker = new ExactRanker()
+    val ranker = new ExactRanker(ConfigurationSingleton.getConf().exactRankerWeights)
 
-    exactOutputWriter.println("\"" + ranker.getScoreNames.mkString("\",\"") + "\"")
+    exactOutputWriter.println("\"" + (ranker.getScoreNames ::: List("class")).mkString("\",\"") + "\"")
     (0 to results.size - 1).foreach {
       i: Int =>
         val result = results.get(i)

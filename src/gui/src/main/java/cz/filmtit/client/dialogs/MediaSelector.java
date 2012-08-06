@@ -1,24 +1,27 @@
 package cz.filmtit.client.dialogs;
 
+import java.util.List;
+
 import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.CellList;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
+import cz.filmtit.client.callables.CreateDocument;
 import cz.filmtit.share.MediaSource;
 
-import java.util.List;
 
 
-
-public class MediaSelector extends Composite {
+public class MediaSelector extends Dialog {
     private List<MediaSource> suggestions;
     private MediaSource selected;
 
@@ -26,10 +29,6 @@ public class MediaSelector extends Composite {
     private static MediaSelectorUiBinder uiBinder = GWT.create(MediaSelectorUiBinder.class);
 
     interface MediaSelectorUiBinder extends UiBinder<Widget, MediaSelector> {
-    }
-
-    public void addSubmitButtonHandler(com.google.gwt.event.dom.client.ClickHandler h) {
-        submitButton.addClickHandler(h);
     }
 
     static class MediaCell extends AbstractCell<MediaSource> {
@@ -62,11 +61,16 @@ public class MediaSelector extends Composite {
         }
     }
 
-    public MediaSelector(List<MediaSource> suggestions) {
+    /**
+     * To be called on submit.
+     */
+    CreateDocument createDocument;
+    
+    public MediaSelector(List<MediaSource> suggestions, CreateDocument createDocument) {
         listbox = new CellList<MediaSource>(new MediaCell());
 
         initWidget(uiBinder.createAndBindUi(this));
-
+        
         listbox.addStyleName("mediasource_selector");
         listbox.setRowData(0, suggestions);
         listbox.setRowCount(suggestions.size());
@@ -79,22 +83,39 @@ public class MediaSelector extends Composite {
                 selected = selectionModel.getSelectedObject();
             }
         });
-
+        
         this.suggestions = suggestions;
+        this.createDocument = createDocument;
+
+        // TODO: to be added
+        // dialogBox.setPopupPosition(dialogBox.getPopupLeft(), 100);
+        
+        dialogBox.show();
     }
 
-    public void setSelected(MediaSource mediaSource) {
-        this.selected = mediaSource;
-    }
+//    public void setSelected(MediaSource mediaSource) {
+//        this.selected = mediaSource;
+//    }
 
     @UiField(provided = true)
     CellList<MediaSource> listbox;
 
     @UiField
-    //SubmitButton submitButton;
     Button submitButton;
+    
+    @UiHandler("submitButton")
+    void submitButtonClicked(ClickEvent e) {
+    	close();
+    	createDocument.selectSource(getSelected());
+    }
+    
+    @Override
+    protected void onHide() {
+    	createDocument.selectSource(null);
+    }
 
-    public MediaSource getSelected() {
+    private MediaSource getSelected() {
         return selected;
     }
+
 }

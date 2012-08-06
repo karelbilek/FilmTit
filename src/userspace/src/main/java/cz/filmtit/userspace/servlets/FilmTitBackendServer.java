@@ -572,7 +572,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
                 }
 
-                // TODO: write what is this goods for
+                // after ask to change a password
+                // you get token which is valid 1hour
+                // if you use it before limit became token invalid too
                 for (String login : activeTokens.keySet()) {
                     ChangePassToken token =  activeTokens.get(login);
                     if (!token.isValidTime()) {

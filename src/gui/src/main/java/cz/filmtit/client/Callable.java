@@ -6,6 +6,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 
 /**
@@ -29,8 +30,49 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	// non-static members
 	
 	protected Gui gui = Gui.getGui();
+	
+	protected Timer timeOutTimer;
+	
+	/**
+	 * whether the call has already returned
+	 */
+	protected boolean hasReturned = false;
+	
+	/**
+	 * sets hasReturned to true and cancels the timeout timer.
+	 */
+	public void setHasReturned() {
+		hasReturned = true;
+		timeOutTimer.cancel();
+	}
 
-	int id;
+	/**
+	 * whether the call has timed out (it means that it is invalid)
+	 */
+	protected boolean hasTimedOut = false;
+
+	/**
+	 * the time (in ms) after which the call fails with a timeout exception
+	 */
+	protected int callTimeOut = 10000;
+	
+	protected int id;
+	
+	protected int retriesOnStatusZero = 3;
+	
+	protected boolean retryOnStatusZero () {
+		retriesOnStatusZero--;
+		if (retriesOnStatusZero < 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * number of ms to wait to retry the call
+	 */
+	protected int waitToRetry = 10;
 
 	/**
 	 * creates the RPC
@@ -42,7 +84,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	/**
 	 * invokes the RPC
 	 */
-	abstract public void call();
+	protected abstract void call();
     abstract public String getName();
     abstract public void onSuccessAfterLog(T returned);
     
@@ -52,36 +94,122 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 
     @Override
     public final void onSuccess(T returned) {
-        gui.log("RPC SUCCESS "+getName());
-        onSuccessAfterLog(returned);
+    	setHasReturned();
+    	if (!hasTimedOut) {
+            gui.log("RPC SUCCESS "+getName());
+            onSuccessAfterLog(returned);
+    	} else {
+    		onTimedOutReturn(returned);
+    	}
     }
 
     @Override
     public final void onFailure(Throwable returned) {
-        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
-            return;
-        } else if (returned.getClass().equals(InvalidSessionIdException.class)) {
-            gui.please_relog_in();
-            // TODO: store user input to be used when user logs in
-        } else {  
-            gui.log("RPC FAILURE "+getName());
-            gui.exceptionCatcher(returned);            
-            onFailureAfterLog(returned);
-        }
+    	setHasReturned();
+    	if (!hasTimedOut) {
+	        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
+	            // this happens if there is no connection to the server, and reportedly in other cases as well
+	            if (retryOnStatusZero()) {
+		        	gui.log("RPC " + getName() + " returned with a status code 0, calling again...");
+		        	new EnqueueTimer(waitToRetry);
+		        	waitToRetry *= 10; // wait 10ms, 100ms, 1000ms...
+	            } else {
+		            gui.log("RPC FAILURE " + getName() + " (status code 0)");
+		            gui.exceptionCatcher(returned, false);            
+		            onFailureAfterLog(
+	            		new Throwable(
+		        			"There seems to be no response from the server, the server is probably down. " +
+		        			"Please try again later or ask the administrators.",
+		        			returned
+	        			)
+		            );
+	            }
+	        } else if (returned.getClass().equals(InvalidSessionIdException.class)) {
+	            gui.please_relog_in();
+	            // TODO: store user input to be used when user logs in
+	        } else {  
+	            gui.log("RPC FAILURE "+getName());
+	            gui.exceptionCatcher(returned, false);            
+	            onFailureAfterLog(returned);
+	        }
+    	} else {
+    		onTimedOutReturn(returned);
+    	}
+    }
+    
+    protected class CallTimer extends Timer {
+		/**
+		 * sets the timer to call timeOut() after callTimeOut miliseconds
+		 */
+    	public CallTimer() {
+			schedule(callTimeOut);
+		}
+		
+		@Override
+		public void run() {
+			timeOut();
+		}
+    }
+    
+    protected class EnqueueTimer extends Timer {
+		/**
+		 * sets the timer to call enqueue() after the given number of miliseconds
+		 */
+    	public EnqueueTimer(int ms) {
+			schedule(ms);
+		}
+		
+		@Override
+		public void run() {
+			enqueue();
+		}
+    }
+    
+	/**
+	 * sets the timer to call timeOut() after callTimeOut miliseconds
+	 */
+    final protected void setTimer() {
+    	if (timeOutTimer != null) {
+    		timeOutTimer.cancel();
+    	}
+    	timeOutTimer = new CallTimer();
+    }
+    
+    final protected void timeOut() {
+    	if (!hasReturned) {
+    		hasTimedOut = true;
+    		gui.log("RPC " + getName() + " TIMED OUT after " + callTimeOut + "ms");
+    	}
+    }
+    
+    protected void onTimeOut() {
+    	onFailure(new Throwable("The call timed out because the server didn't send a response for " + (callTimeOut/1000) + " seconds."));
     }
 	
+    final protected void onTimedOutReturn(Object returned) {
+        gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
+        onTimedOutReturnAfterLog(returned);
+    }
+    
+    protected void onTimedOutReturnAfterLog(Object returned) {
+		// ignore by default
+	}
+
 	/**
 	 * enqueues the object and invokes the RPC
 	 */
-	public void enqueue() {
+	public final void enqueue() {
 //		queue.put(id, this);
+		hasReturned = false;
+		hasTimedOut = false;
+		setTimer();
 		call();
 	}
 	
 	/**
 	 * called after successful completion of RPC
 	 */
-	public void dequeue() {
+	public final void dequeue() {
 //		queue.remove(id);
 	}
 	

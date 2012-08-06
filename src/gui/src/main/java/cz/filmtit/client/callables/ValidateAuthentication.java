@@ -50,11 +50,14 @@ import java.util.*;
 			this.authID = authID;
 			this.authenticationValidationWindow = authenticationValidationWindow;
 			
+			// 20s
+			callTimeOut = 20000;
+			
 			enqueue();
 		}
 				
 		@Override
-		public void call() {
+		protected void call() {
 			filmTitService.validateAuthentication(authID, responseURL, this);		
 		}
 	}

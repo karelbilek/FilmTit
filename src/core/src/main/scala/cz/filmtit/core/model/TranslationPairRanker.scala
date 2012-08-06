@@ -40,7 +40,7 @@ abstract class TranslationPairRanker {
   Option[TranslationPair] =
     pairs.map(pair => rankOne(chunk, mediaSource, pair)) match {
       case List()                                    => None
-      case x: List[TranslationPair] => Some(x.max.asInstanceOf[TranslationPair])
+      case x: List[TranslationPair] => Some(x.max)
     }
 
 

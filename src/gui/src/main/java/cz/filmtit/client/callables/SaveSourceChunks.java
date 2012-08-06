@@ -36,11 +36,13 @@ public class SaveSourceChunks extends Callable<Void> {
 			this.chunks = chunks;
             this.workspace = workspace;
 
+			// 10s + 0.1s for each chunk
+			callTimeOut = 10000 + 100 * chunks.size();
+			
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
             filmTitService.saveSourceChunks(gui.getSessionID(), chunks, this);
 		}
 }

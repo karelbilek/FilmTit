@@ -6,6 +6,10 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
@@ -46,22 +50,24 @@ public class DocumentCreator extends Composite {
 		gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
         txtTitle.addStyleName("copying_title");
 
-        txtTitle.addKeyboardListener(new KeyboardListenerAdapter() {
-            public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+        txtMovieTitle.addKeyUpHandler(new KeyUpHandler() {
+			@Override
+			public void onKeyUp(KeyUpEvent event) {
+                if (copyingTitle) {
+                    txtTitle.setText(txtMovieTitle.getText());
+                }            
+			}
+		});
+        
+        txtTitle.addKeyDownHandler(new KeyDownHandler() {
+			@Override
+			public void onKeyDown(KeyDownEvent event) {
                 if (copyingTitle) {
                     copyingTitle = false;
                     txtTitle.removeStyleName("copying_title");
                 }            
-            }
-        });
-
-        txtMovieTitle.addKeyboardListener(new KeyboardListenerAdapter() {
-            public void onKeyPress(Widget sender, char keyCode, int modifiers) {
-                if (copyingTitle) {
-                    txtTitle.setText(txtMovieTitle.getText()+keyCode);
-                }            
-            }
-        });
+			}
+		});
 
         // --- file reading interface via lib-gwt-file --- //
             final FileReader freader = new FileReader();
@@ -93,6 +99,7 @@ public class DocumentCreator extends Composite {
             btnCreateDocument.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                	btnCreateDocument.setEnabled(false);
                     lblCreateProgress.setVisible(true);
                     lblCreateProgress.setText("Creating the document...");
                     createDocumentFromText(freader.getStringResult());

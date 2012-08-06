@@ -14,7 +14,7 @@ import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
 import search.postgres.impl.{FulltextStorage, NEStorage, FirstLetterStorage}
 import cz.filmtit.share.annotations.AnnotationType
-import cz.filmtit.core.rank.{FuzzyNERanker, ExactRanker}
+import rank.{FuzzyRanker, FuzzyNERanker, ExactRanker}
 import org.apache.commons.logging.LogFactory
 import search.external.MosesServerSearcher
 //import search.external.MyMemorySearcher
@@ -114,12 +114,12 @@ object Factory {
 
     //First level exact matching
     val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB)
-    levels ::= new BackoffLevel(flSearcher, Some(new ExactRanker()), 0.7)
+    levels ::= new BackoffLevel(flSearcher, Some(new ExactRanker(configuration.exactRankerWeights)), 0.7)
 
     //Second level: Full text search
     if (!useInMemoryDB) {
       val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
-      levels ::= new BackoffLevel(fulltextSearcher, Some(new ExactRanker()), 0.0)
+      levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyRanker(configuration.fuzzyRankerWeights)), 0.0)
     }
 
     //Third level: Moses

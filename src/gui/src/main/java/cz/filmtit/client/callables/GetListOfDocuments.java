@@ -23,7 +23,6 @@ import java.util.*;
             return "getListOfDocuments";
         }
         
-
         @Override
         public void onSuccessAfterLog(List<Document> result) {
             gui.log("received " + result.size() + " documents");
@@ -43,12 +42,14 @@ import java.util.*;
 
 			this.userpage = userpage;
 			
+			// 20s
+			callTimeOut = 20000;
+			
 			enqueue();
 		}
         
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 	        filmTitService.getListOfDocuments(gui.getSessionID(), this);
 		}
 

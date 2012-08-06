@@ -297,11 +297,45 @@ public class TranslationWorkspace extends Composite {
           // now the user can close the browser, chunks are safely saved
      }
 
-     public void startShowingTranslations(List<TimedChunk> chunklist) {
+     SendChunksCommand sendChunksCommand;
+     
+     /**
+      * Creates the SendChunksCommand and, if possible, executes it
+      * @param chunklist
+      */
+     void startShowingTranslations(List<TimedChunk> chunklist) {
           
-          SendChunksCommand sendChunks = new SendChunksCommand(chunklist);
-          sendChunks.execute();
+          sendChunksCommand = new SendChunksCommand(chunklist);
+          startShowingTranslationsIfReady();
+          
      }
+     
+     /**
+      * Determines whether chunks can be sent for translation.
+      * Starts as 0,
+      * gets incremented from startShowingTranslations()
+      * and from SelectSource.onSuccessAfterLog()
+      * and when the value is 2, the chunks can be sent.
+      */
+     private byte readyToSendChunks = 0;
+     
+     /**
+      * Sends chunks for translation if everything is ready.
+      * Is called once from startShowingTranslations()
+      * (when the document is parsed and the source chunks and user translations are displayed)
+      * and once from SelectSource.onSuccessAfterLog()
+      * (when the MediaSource has been set).
+      */
+     synchronized public void startShowingTranslationsIfReady() {
+    	 // "synchronized" is here only for clarity, GWT ignores that as JS is single-threaded.
+    	 
+    	 readyToSendChunks++;
+    	 if(readyToSendChunks == 2) {
+             sendChunksCommand.execute();    		 
+    	 }
+    }
+    
+     
 
      /**
       * Requests TranslationResults for the chunks,
@@ -352,7 +386,7 @@ public class TranslationWorkspace extends Composite {
           }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
-              //Window.alert("HAHA spoustim sendChunks");
+              //Window.alert("HAHA spoustim sendChunksCommand");
         	  gui.rpcHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
           }
      }

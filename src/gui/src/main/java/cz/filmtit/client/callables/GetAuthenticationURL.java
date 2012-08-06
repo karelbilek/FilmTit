@@ -5,6 +5,7 @@ import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -12,7 +13,7 @@ import cz.filmtit.share.AuthenticationServiceType;
 		
 		// parameters
 		AuthenticationServiceType serviceType;
-		Modal loginDialogBox;
+		Dialog loginDialog;
 		/**
 		 * temporary ID for authentication
 		 */
@@ -24,33 +25,40 @@ import cz.filmtit.share.AuthenticationServiceType;
 		public String getName() {
             return "GetAuthenticationURL";
         }
-            @Override
-			public void onSuccessAfterLog(final String url) {
-				gui.log("Authentication URL arrived: " + url);
-				loginDialogBox.hide();
-				
-                // open the authenticationwindow
-				Window.open(url, "AuthenticationWindow", "width=400,height=500");
-				
-				// start polling for SessionID
-				new SessionIDPolling(authID, handler);				
-            }
+        
+        @Override
+		public void onSuccessAfterLog(final String url) {
+			gui.log("Authentication URL arrived: " + url);
+			loginDialog.close();
 			
+            // open the authenticationwindow
+			Window.open(url, "AuthenticationWindow", "width=400,height=500");
+			
+			// start polling for SessionID
+			new SessionIDPolling(authID, handler);				
+        }
+			
+        @Override
+        public void onFailureAfterLog(Throwable returned) {
+            loginDialog.reactivateWithErrorMessage("There was an error with opening the authentiaction page. " +
+            		"Please try again. " +
+                    "If problems persist, try contacting the administrators. " +
+                    "Error message from the server: " + returned);
+        }
 					
 		// constructor
 		public GetAuthenticationURL(AuthenticationServiceType serviceType,
-				Modal loginDialogBox, FilmTitServiceHandler handler) {
+				Dialog loginDialog, FilmTitServiceHandler handler) {
 			super();
 			
             this.handler = handler;
 			this.serviceType = serviceType;
-			this.loginDialogBox = loginDialogBox;
+			this.loginDialog = loginDialog;
 			
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 			authID = Random.nextInt();
 			filmTitService.getAuthenticationURL(authID, serviceType, this);
 		}

@@ -10,6 +10,7 @@ import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.MediaSelector;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.share.DocumentResponse;
+import cz.filmtit.share.MediaSource;
 
 public class CreateDocument extends Callable<DocumentResponse> {
 
@@ -21,6 +22,10 @@ public class CreateDocument extends Callable<DocumentResponse> {
         String subformat;
 		String moviePath;	
 		
+		// results to store before MediaSelector returns
+		long documentId;
+		TranslationWorkspace workspace;
+		
         FilmTitServiceHandler handler;
 
         @Override
@@ -30,33 +35,29 @@ public class CreateDocument extends Callable<DocumentResponse> {
         }
 
 		@Override	
-        public void onSuccessAfterLog(final DocumentResponse result) {
+        public void onSuccessAfterLog(DocumentResponse result) {
 
             gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);				
-            final TranslationWorkspace workspace = new TranslationWorkspace(result.document, moviePath);
+            workspace = new TranslationWorkspace(result.document, moviePath);
+            documentId = result.document.getId();
             
-            final DialogBox dialogBox = new DialogBox(false);
-            final MediaSelector mediaSelector = new MediaSelector(result.mediaSourceSuggestions);
-            mediaSelector.addSubmitButtonHandler( new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    dialogBox.hide();
-                    handler.selectSource(result.document.getId(), mediaSelector.getSelected());
-                    gui.log("document created successfully.");
-
-                    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                        public void execute() {
-                            workspace.processText(subtext, subformat);
-                        }
-                    });
+            new MediaSelector(result.mediaSourceSuggestions, this);
+            
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                public void execute() {
+                    workspace.processText(subtext, subformat);
                 }
-            } );
-            dialogBox.setWidget(mediaSelector);
-            dialogBox.setGlassEnabled(true);
-            dialogBox.center();
-            dialogBox.setPopupPosition(dialogBox.getPopupLeft(), 100);
-            
+            });
         }
+		
+		/**
+		 * Called by MediaSelector when MediaSource is selected
+		 * @param documentId
+		 * @param selectedMediaSource
+		 */
+		public void selectSource(MediaSource selectedMediaSource) {
+            handler.selectSource(documentId, selectedMediaSource, workspace);
+		}
        
 		
 		// constructor
@@ -75,8 +76,7 @@ public class CreateDocument extends Callable<DocumentResponse> {
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 			gui.log("Creating document " + documentTitle + "; its language is " + language);
 			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, this);
 		}

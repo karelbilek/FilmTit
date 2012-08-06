@@ -36,7 +36,7 @@ import com.google.gwt.user.client.*;
                 gui.log("changed password for user " + username);
                 gui.getPageHandler().loadBlankPage();
                 gui.getPageHandler().setPageUrl(Page.UserPage);
-                handler.simpleLogin(username, password);
+                handler.simpleLogin(username, password, null);
                 displayWindow("You successfully changed the password for your username '" + username + "'!");
             } else {
                 gui.log("ERROR: password change didn't succeed - token invalid");
@@ -59,8 +59,7 @@ import com.google.gwt.user.client.*;
 			enqueue();
 		}
 
-		@Override
-		public void call() {
+		@Override protected void call() {
 	        filmTitService.changePassword(username, password, token, this);
 		}
     }

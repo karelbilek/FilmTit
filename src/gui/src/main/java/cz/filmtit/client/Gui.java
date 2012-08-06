@@ -17,7 +17,7 @@ import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.client.dialogs.LoginDialog;
-import cz.filmtit.client.dialogs.RegistrationForm;
+import cz.filmtit.client.dialogs.LoginDialog.Tab;
 import cz.filmtit.client.pages.GuiStructure;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
@@ -249,7 +249,7 @@ public class Gui implements EntryPoint {
      * @param username
      */
 	public void showLoginDialog(String username) {
-	    LoginDialog loginDialog = new LoginDialog(username);
+	    new LoginDialog(username);
 	}
 
     public void showDownloadDialog(Document document) {
@@ -260,7 +260,7 @@ public class Gui implements EntryPoint {
      * show the registration dialog
      */
     public void showRegistrationForm() {
-        RegistrationForm registrationForm = new RegistrationForm();
+        new LoginDialog(Tab.Register);
     }
 
     public void please_log_in () {

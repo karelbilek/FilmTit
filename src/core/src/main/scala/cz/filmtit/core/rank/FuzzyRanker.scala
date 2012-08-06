@@ -2,7 +2,6 @@ package cz.filmtit.core.rank
 
 import org.apache.commons.lang3.StringUtils
 import cz.filmtit.share._
-import cz.filmtit.core.Utils.min
 import cz.filmtit.core.model.Patterns
 import scala.Double
 
@@ -10,13 +9,16 @@ import scala.Double
  * @author Joachim Daiber
  */
 
-class ExactRanker(weights: List[Double]) extends LinearInterpolationRanker(weights) {
+class FuzzyRanker(weights: List[Double]) extends LinearInterpolationRanker(weights) {
 
-  def getScoreNames = List("count", "edit_distance", "genres", "translation_length_penaltiy", "punctuation")
+  def getScoreNames = List("prior_score", "count", "edit_distance", "genres", "match_length_penaltiy", "translation_length_penaltiy", "punctuation")
 
   def getScores(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair, totalCount: Int): List[Double] = {
 
     List(
+
+      pair.getScore,
+
       //TranslationPair support
       (pair.getCount / totalCount.toDouble),
 
@@ -25,6 +27,13 @@ class ExactRanker(weights: List[Double]) extends LinearInterpolationRanker(weigh
 
       //Genre matches:
       genreMatches(mediaSource, pair),
+
+      //Length difference between query and source
+      if (pair.getStringL1.length < chunk.getSurfaceForm.length)
+        pair.getStringL1.length / chunk.getSurfaceForm.length.toDouble
+      else
+        chunk.getSurfaceForm.length / chunk.getSurfaceForm.length.toDouble
+      ,
 
       //Length difference between source and translation
       if (pair.getStringL1.length < pair.getStringL2.length)
@@ -41,7 +50,6 @@ class ExactRanker(weights: List[Double]) extends LinearInterpolationRanker(weigh
     )
   }
 
-  override def name = "Exact Levensthein-based ranking."
-
+  override def name = "Ranking for fuzzy matches."
 
 }

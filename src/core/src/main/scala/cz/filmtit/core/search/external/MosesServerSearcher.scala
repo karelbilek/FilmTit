@@ -33,22 +33,19 @@ object MosesServerSearcher {
   val spaceRegex = """\s+(\s)""".r
   val unkRegex = """\|UNK""".r
   val ntRegex = """ n &apos; t""".r
-
-
-  
-
 }
 
 class MosesServerSearcher(
   l1: Language,
   l2: Language,
-  url: java.net.URL
+  url: java.net.URL,
+  genericTranslationScore: Double = 0.7
   ) extends TranslationPairSearcher(l1, l2) {
 
-  val config = new XmlRpcClientConfigImpl();
-  config.setServerURL(url);
-  val client = new XmlRpcClient();
-  client.setConfig(config);
+  val config = new XmlRpcClientConfigImpl()
+  config.setServerURL(url)
+  val client = new XmlRpcClient()
+  client.setConfig(config)
 
   def getRawTranslation(source:String):String = {
     val mosesParams = new java.util.HashMap[String,String]()
@@ -69,10 +66,10 @@ class MosesServerSearcher(
                 case s:String=> s
                 case _ => throw new ClassCastException("Wrong type of result from moses")
             }
-            (Some(translation), None);
+            (Some(translation), None)
         } catch {
             case e:Exception=>
-            Thread.sleep(1000);
+            Thread.sleep(1000)
             (None, Some(e))
         }
    }.take(15).toIterable
@@ -92,11 +89,10 @@ class MosesServerSearcher(
     import MosesServerSearcher._
 
     if (sourceTokens.size ==0) {
-        return "";
+        return ""
     }
 
-    println("MOJZIS - chci "+sourceTokens);
-// capital letter at the beginning /can cause trouble in named entities, but what are you gonna do/
+    // capital letter at the beginning /can cause trouble in named entities, but what are you gonna do/
      val (wasCapitalizedSource, uncapitalizedTokens) = 
         if (MosesServerSearcher.capitalLetterRegex.findFirstIn(sourceTokens(0)).isDefined) {
             (true, sourceTokens(0).toLowerCase +: sourceTokens.tail)
@@ -135,8 +131,8 @@ class MosesServerSearcher(
        new TranslationPair(
           chunk,
           new Chunk(prepareAndSendToMoses(chunk.getTokens)),
-          TranslationSource.EXTERNAL_TM,
-          1
+          TranslationSource.EXTERNAL_MT,
+          genericTranslationScore
         )
     )
   }
