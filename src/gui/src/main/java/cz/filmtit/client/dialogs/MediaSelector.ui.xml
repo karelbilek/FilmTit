@@ -5,7 +5,7 @@
              xmlns:c="urn:import:com.google.gwt.user.cellview.client">
 
     <g:HTMLPanel>
-        <b:Modal ui:field="dialogBox" title="Select the movie" backdrop="STATIC" keyboard="true" animation="true" closeVisible="true">
+        <b:Modal ui:field="dialogBox" title="Select the movie or TV show" backdrop="STATIC" keyboard="true" animation="true" closeVisible="true">
 	        
 	        <b:WellForm>
 	            <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>

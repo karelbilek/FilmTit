@@ -53,6 +53,11 @@
     </userspace>
 
     <core>
+        <ranking>
+            <exact_ranker_weights>0.091 0.8441 0.02163 0.02163 0.02163</exact_ranker_weights>
+            <fuzzy_ranker_weights>0.3 0.3 0.08 0.08 0.08 0.08 0.08</fuzzy_ranker_weights>
+        </ranking>
+
         <max_number_of_concurrent_searchers>5</max_number_of_concurrent_searchers>
         <searcher_timeout>60</searcher_timeout> <!--in seconds-->
 
