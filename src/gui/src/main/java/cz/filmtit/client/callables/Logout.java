@@ -22,17 +22,17 @@ import java.util.*;
         
         @Override
         public void onSuccessAfterLog(Void o) {
-            gui.logged_out();
+            gui.logged_out(true);
         }
 
         @Override
         public void onFailureAfterLog(Throwable caught) {
             if (caught.getClass().equals(InvalidSessionIdException.class)) {
                 gui.log("already logged out");
-                gui.logged_out();
+                gui.logged_out(true);
             } else {
                 gui.log("ERROR: logout didn't succeed! Forcing local logout... " + caught.getLocalizedMessage());
-                gui.logged_out();
+                gui.logged_out(true);
             }
         }
     
