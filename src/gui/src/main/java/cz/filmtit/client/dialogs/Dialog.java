@@ -49,12 +49,20 @@ public abstract class Dialog extends Composite {
 	}
 	
 	/**
+	 * Show an error message to the user.
+	 * @param message
+	 */
+	public void showErrorMessage(String message) {
+		Window.alert(message);		
+	}
+
+	/**
 	 * Activate the dialog again, showing an error message to the user.
 	 * @param message
 	 */
 	public void reactivateWithErrorMessage(String message) {
 		reactivate();
-		Window.alert(message);		
+		showErrorMessage(message);		
 	}
 	
 	/**

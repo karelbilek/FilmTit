@@ -16,7 +16,9 @@
 		    
             <b:Form type="HORIZONTAL" ui:field="formLogin" visible="false">
                 <b:Fieldset>
-
+                    
+                    <b:Alert ui:field="alertLogin" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
+                    
                     <b:ControlGroup>
                         <b:ControlLabel>User name:</b:ControlLabel>
                         <b:Controls>
@@ -47,11 +49,13 @@
             <b:Form type="HORIZONTAL" ui:field="formOpenidLogin" visible="false">
                 <b:Fieldset>
 
-                        <b:ControlGroup>
-                            <b:Controls>
-                                <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
-                            </b:Controls>
-                        </b:ControlGroup>
+                    <b:Alert ui:field="alertOpenidLogin" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
+                    
+                    <b:ControlGroup>
+                        <b:Controls>
+                            <b:Button ui:field="btnLoginGoogle">Login via Google Account</b:Button>
+                        </b:Controls>
+                    </b:ControlGroup>
 
                 </b:Fieldset>
             </b:Form>
@@ -59,6 +63,8 @@
             <b:Form type="HORIZONTAL" ui:field="formRegister" visible="false">
                 <b:Fieldset>
 
+                    <b:Alert ui:field="alertRegister" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
+                    
                     <b:ControlGroup>
                         <b:ControlLabel>User name:</b:ControlLabel>
                         <b:Controls>
@@ -104,6 +110,8 @@
             <b:Form type="HORIZONTAL" ui:field="formForgottenPassword" visible="false">
                 <b:Fieldset>
 
+                    <b:Alert ui:field="alertForgottenPassword" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
+                    
                     <b:ControlGroup>
                         <b:ControlLabel>User name:</b:ControlLabel>
                         <b:Controls>

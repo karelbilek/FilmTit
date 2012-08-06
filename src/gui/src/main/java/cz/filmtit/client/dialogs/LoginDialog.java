@@ -1,5 +1,6 @@
 package cz.filmtit.client.dialogs;
 
+import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.NavLink;
@@ -124,6 +125,7 @@ public class LoginDialog extends Dialog {
 	private Tab activeTab = Tab.Login;
 	
 	private void switchTo(Tab tab) {
+		hideAlert();
 		propagateUsername(username(activeTab));
 		activateTab(tab);
 		showForm(tab);
@@ -212,7 +214,52 @@ public class LoginDialog extends Dialog {
 			txtFpwdUsername.setText(username);
 		}
 	}
+
+	//////////////////////////////////
+	//                              //
+	//        Error alerts          //
+	//                              //
+	//////////////////////////////////
 	
+	@Override
+	public void showErrorMessage(String message) {
+		alert(activeTab).setText(message);
+		alert(activeTab).setVisible(true);
+	}
+	
+	@Override
+	public void deactivate() {
+		hideAlert();
+		super.deactivate();
+	}
+	
+	/**
+	 * Hides the active alert if there is one.
+	 */
+	private void hideAlert() {
+		alert(activeTab).setVisible(false);
+	}
+	
+	/**
+	 * converts Tab to alert
+	 * @param tab
+	 * @return the Alert for the tab
+	 */
+	private Alert alert(Tab tab) {
+		switch (tab) {
+		case Login:
+			return alertLogin;
+		case OpenidLogin:
+			return alertOpenidLogin;
+		case Register:
+			return alertRegister;
+		case ForgottenPassword:
+			return alertForgottenPassword;
+		default:
+			return alertLogin;
+		}
+	}
+		
 	//////////////////////////////////
 	//                              //
 	//        Login form            //
@@ -221,6 +268,9 @@ public class LoginDialog extends Dialog {
 	
 	@UiField
 	Form formLogin;
+	
+	@UiField
+	Alert alertLogin;
 	
 	@UiField
 	TextBox txtLoginUsername;
@@ -270,6 +320,9 @@ public class LoginDialog extends Dialog {
 	Form formOpenidLogin;
 	
 	@UiField
+	Alert alertOpenidLogin;
+	
+	@UiField
 	Button btnLoginGoogle;
 	
 	@UiHandler("btnLoginGoogle")
@@ -288,6 +341,9 @@ public class LoginDialog extends Dialog {
 	
 	@UiField
 	Form formRegister;
+	
+	@UiField
+	Alert alertRegister;
 	
 	@UiField
 	TextBox txtRegEmail;
@@ -350,6 +406,9 @@ public class LoginDialog extends Dialog {
 	@UiField
 	Form formForgottenPassword;
 
+	@UiField
+	Alert alertForgottenPassword;
+	
 	@UiField
 	TextBox txtFpwdUsername;
 
