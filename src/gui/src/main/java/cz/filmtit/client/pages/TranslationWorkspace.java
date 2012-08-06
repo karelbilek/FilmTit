@@ -56,6 +56,10 @@ public class TranslationWorkspace extends Composite {
 
 	private Gui gui = Gui.getGui();
 	
+	public enum DocumentOrigin { NEW, FROM_DB }
+	
+	private DocumentOrigin documentOrigin;
+	
     ///////////////////////////////////////
     //                                   //
     //      Current document             //
@@ -118,7 +122,7 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
-    public TranslationWorkspace(Document doc, String path) {
+    public TranslationWorkspace(Document doc, String path, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
         // 0 <= id < Integer.MAX_VALUE
@@ -128,6 +132,22 @@ public class TranslationWorkspace extends Composite {
         isVideo = path!=null;
         
         setCurrentDocument(doc);
+        
+        this.documentOrigin = documentOrigin;
+        
+        // initialize readyToSendChunksSemaphore
+        switch (documentOrigin) {
+		case NEW:
+			// wait for everything to load and for selectSource to return
+			readyToSendChunksSemaphore = 2;
+			break;
+		case FROM_DB:
+			// only wait for everything to load
+			readyToSendChunksSemaphore = 1;
+		default:
+			assert false;
+			break;
+		}
 
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
         this.indexes = new HashMap<ChunkIndex, Integer>();
@@ -232,7 +252,7 @@ public class TranslationWorkspace extends Composite {
                  results.add(tr);
               }
           }
-         
+
           Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(allChunks, untranslatedOnes, results));
           
     }
@@ -311,13 +331,14 @@ public class TranslationWorkspace extends Composite {
      }
      
      /**
-      * Determines whether chunks can be sent for translation.
-      * Starts as 0,
-      * gets incremented from startShowingTranslations()
+      * Determines whether chunks can be sent for translation
+      * similarly to a Semaphore.
+      * Starts as a positive number,
+      * gets decremented from startShowingTranslations()
       * and from SelectSource.onSuccessAfterLog()
-      * and when the value is 2, the chunks can be sent.
+      * and when the value is 0, the chunks can be sent.
       */
-     private byte readyToSendChunks = 0;
+     private byte readyToSendChunksSemaphore;
      
      /**
       * Sends chunks for translation if everything is ready.
@@ -328,9 +349,9 @@ public class TranslationWorkspace extends Composite {
       */
      synchronized public void startShowingTranslationsIfReady() {
     	 // "synchronized" is here only for clarity, GWT ignores that as JS is single-threaded.
-    	 
-    	 readyToSendChunks++;
-    	 if(readyToSendChunks == 2) {
+
+    	 readyToSendChunksSemaphore--;
+    	 if (readyToSendChunksSemaphore <= 0) {
              sendChunksCommand.execute();    		 
     	 }
     }
