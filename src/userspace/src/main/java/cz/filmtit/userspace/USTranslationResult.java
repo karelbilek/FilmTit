@@ -1,5 +1,6 @@
 package cz.filmtit.userspace;
 
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.TimedChunk;
@@ -34,7 +35,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     private USDocument document;
 
-    private final static int MAX_SUGGESTIONS_COUNT = 25; // ConfigurationSingleton.getConf()
+    private final static int MAX_SUGGESTIONS_COUNT = ConfigurationSingleton.getConf().maximumSuggestionsCount();
 
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
@@ -260,7 +261,8 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         translationResult.setTmSuggestions(null);
 
         scala.collection.immutable.List<TranslationPair> TMResults =
-                TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(), 25, false);
+                TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(),
+                        MAX_SUGGESTIONS_COUNT, false);
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
         List<TranslationPair> javaList = new ArrayList<TranslationPair>(
