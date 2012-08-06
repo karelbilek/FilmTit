@@ -232,6 +232,9 @@ public class TranslationWorkspace extends Composite {
                  results.add(tr);
               }
           }
+
+          // have to increment it, because the SelectSource doesn't, since it isn't called when only editing
+          readyToSendChunks++;
          
           Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(allChunks, untranslatedOnes, results));
           
@@ -328,7 +331,7 @@ public class TranslationWorkspace extends Composite {
       */
      synchronized public void startShowingTranslationsIfReady() {
     	 // "synchronized" is here only for clarity, GWT ignores that as JS is single-threaded.
-    	 
+
     	 readyToSendChunks++;
     	 if(readyToSendChunks == 2) {
              sendChunksCommand.execute();    		 
