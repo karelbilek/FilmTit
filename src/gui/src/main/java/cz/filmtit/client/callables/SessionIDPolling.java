@@ -56,26 +56,10 @@ import java.util.*;
 				else {
 					gui.log("no session ID received");
 					// continue polling
-					new Poller();
+					new EnqueueTimer(300);
 				}
 			}
             
-            /**
-             * asks for sessionID <b>once</b>, 200ms after being created
-             */
-            class Poller extends Timer {
-            	
-            	public Poller() {
-					schedule(200);
-				}
-
-				@Override
-				public void run() {
-					enqueue();
-				}
-            	
-            }
-			
             @Override
 			public void onFailureAfterLog(Throwable caught) {
 				if(sessionIDPolling) {

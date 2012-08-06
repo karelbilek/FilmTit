@@ -56,7 +56,23 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected int callTimeOut = 10000;
 	
-	int id;
+	protected int id;
+	
+	protected int retriesOnStatusZero = 3;
+	
+	protected boolean retryOnStatusZero () {
+		retriesOnStatusZero--;
+		if (retriesOnStatusZero < 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * number of ms to wait to retry the call
+	 */
+	protected int waitToRetry = 10;
 
 	/**
 	 * creates the RPC
@@ -92,7 +108,22 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     	setHasReturned();
     	if (!hasTimedOut) {
 	        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
-	            return;
+	            // this happens if there is no connection to the server, and reportedly in other cases as well
+	            if (retryOnStatusZero()) {
+		        	gui.log("RPC " + getName() + " returned with a status code 0, calling again...");
+		        	new EnqueueTimer(waitToRetry);
+		        	waitToRetry *= 10; // wait 10ms, 100ms, 1000ms...
+	            } else {
+		            gui.log("RPC FAILURE " + getName() + " (status code 0)");
+		            gui.exceptionCatcher(returned, false);            
+		            onFailureAfterLog(
+	            		new Throwable(
+		        			"There seems to be no response from the server, the server is probably down. " +
+		        			"Please try again later or ask the administrators.",
+		        			returned
+	        			)
+		            );
+	            }
 	        } else if (returned.getClass().equals(InvalidSessionIdException.class)) {
 	            gui.please_relog_in();
 	            // TODO: store user input to be used when user logs in
@@ -111,8 +142,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		 * sets the timer to call timeOut() after callTimeOut miliseconds
 		 */
     	public CallTimer() {
-			super();
-			this.schedule(callTimeOut);
+			schedule(callTimeOut);
 		}
 		
 		@Override
@@ -121,10 +151,27 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		}
     }
     
+    protected class EnqueueTimer extends Timer {
+		/**
+		 * sets the timer to call enqueue() after the given number of miliseconds
+		 */
+    	public EnqueueTimer(int ms) {
+			schedule(ms);
+		}
+		
+		@Override
+		public void run() {
+			enqueue();
+		}
+    }
+    
 	/**
 	 * sets the timer to call timeOut() after callTimeOut miliseconds
 	 */
     final protected void setTimer() {
+    	if (timeOutTimer != null) {
+    		timeOutTimer.cancel();
+    	}
     	timeOutTimer = new CallTimer();
     }
     
@@ -153,6 +200,8 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	public final void enqueue() {
 //		queue.put(id, this);
+		hasReturned = false;
+		hasTimedOut = false;
 		setTimer();
 		call();
 	}
