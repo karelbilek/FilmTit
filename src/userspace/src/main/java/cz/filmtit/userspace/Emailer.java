@@ -9,15 +9,18 @@ package cz.filmtit.userspace;
  */
 
 
+import cz.filmtit.core.ConfigurationSingleton;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 public class Emailer {
-     private static Properties configuration = new Properties();
+
+     private  Properties configuration = new Properties();
 
      private String email;
      private String header;
@@ -118,27 +121,13 @@ public class Emailer {
     private void fetchConfig() {
         java.io.InputStream input = null;
 
-        try {
-            // read configuration file
-            input = Emailer.class.getResourceAsStream("/cz/filmtit/userspace/configmail.xml");
-            System.out.println(input);
-            // setting config properties
-            configuration.loadFromXML(input);
-            } catch (IOException e) {
-              System.err.println(e.toString());
-              System.err.println("Can`t open configmail.xml with mail configuration");
-            }
 
-         finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    System.err.print("Can`t close file with mail configuration");
-                }
-            }
-        }
-
+            // read configuration from configuration.xml
+            HashMap<String,String> mailconfig =  ConfigurationSingleton.conf().configMail();
+          for (String key : mailconfig.keySet() )
+          {
+            configuration.setProperty(key,mailconfig.get(key));
+          }
 
     }
 

@@ -1,6 +1,5 @@
 package cz.filmtit.client.callables;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
+import cz.filmtit.client.Callable;
 
 import cz.filmtit.client.*;
 import cz.filmtit.client.dialogs.Dialog;

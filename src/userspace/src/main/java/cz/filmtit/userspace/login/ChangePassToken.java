@@ -4,8 +4,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- *
- * What is it good for?
+ * Token which is send in email with url address and its validity
+ * now you want change pass but your token is valid only one our after asking change pass
+ * you can deactivate it after succesfull change
  *
  * @author Pepa
  */

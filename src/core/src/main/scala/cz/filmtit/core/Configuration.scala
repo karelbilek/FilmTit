@@ -86,6 +86,10 @@ class Configuration(configurationFile: InputStream) {
   val sessionTimeout = (userspaceXML \ "session_timeout_limit").text.toLong
   val permanentSessionTimeout = (userspaceXML \ "permanent_session_timeout_limit").text.toLong
   val serverAddress = (userspaceXML \ "server_address").text
+  //Userspace - mail  - configuration
+  val userspaceXMLmail = userspaceXML \ "mail"
+  val filmtitAddress =  (userspaceXMLmail \ "properties" \"filmtit_address").text
+  val filmtitPassword =  (userspaceXMLmail \ "properties" \"filmtit_password").text
 
 
   //Core
@@ -96,5 +100,14 @@ class Configuration(configurationFile: InputStream) {
   val exactRankerWeights: List[Double] = (coreXML \ "ranking" \ "exact_ranker_weights").text.split(" ").map(_.toDouble).toList
   val fuzzyRankerWeights: List[Double] = (coreXML \ "ranking" \ "fuzzy_ranker_weights").text.split(" ").map(_.toDouble).toList
 
+  val configMail =new java.util.HashMap[String,String]()
+  (userspaceXMLmail \ "properties" \ "entry") foreach( entry => {
+    val property = (entry \ "@key").text
+    configMail.put(property,entry.text)
+  })
+
   val freebaseKey: String = (XMLFile \ "freebase_key").text
+
+
+
 }
