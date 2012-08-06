@@ -282,7 +282,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * a feedback to the core. Used by Hibernate.
      * @return The sign value
      */
-    private boolean isFeedbackSent() {
+    public boolean isFeedbackSent() {
         return feedbackSent;
     }
 
@@ -315,24 +315,27 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
              USTranslationResult usResult = (USTranslationResult)tr;
              usResult.setFeedbackSent(true);
 
-             if (!involvedDocuments.containsKey(usResult.getDocumentDatabaseId()))
-             {
+             // if we haven't met the document before load it form the db
+             if (!involvedDocuments.containsKey(usResult.getDocumentDatabaseId())) {
                  List documentResult = dbSession.createQuery("select d from USDocument d " +
-                         "where d.databaseId = " +
-                         usResult.getDocumentDatabaseId()).list();
+                         "where d.databaseId = " + usResult.getDocumentDatabaseId()).list();
 
                  if (documentResult.size() == 1) {
                      involvedDocuments.put(usResult.getDocumentDatabaseId(),
                              (USDocument)documentResult.get(0));
                  }
-                 else {
-                     throw new RuntimeException("Referencing to not-existing document.");
-                 }
-
+                 else { throw new RuntimeException("Referencing to not-existing document."); }
              }
-             usResult.setDocument(involvedDocuments.get(usResult.getDocumentDatabaseId()));
+             USDocument resultsDocument = involvedDocuments.get(usResult.getDocumentDatabaseId());
+             usResult.setDocument(resultsDocument);
 
-             usResult.saveToDatabase(dbSession);
+             if (resultsDocument.isToBeDeleted()) { // delete the result if it's from document to be deleted
+                usResult.deleteFromDatabase(dbSession);
+             }
+             else { // otherwise just save the sign of having provided feedback
+                 usResult.saveToDatabase(dbSession);
+             }
+
              results.add(usResult);
          }
          usHibernateUtil.closeAndCommitSession(dbSession);

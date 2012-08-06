@@ -177,6 +177,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).closeDocument(documentId);
     }
 
+    public Void deleteDocument(String sessionID, long documentID)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).deleteDocument(documentID);
+    }
+
     @Override
     public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
         configuration = ConfigurationSingleton.conf();

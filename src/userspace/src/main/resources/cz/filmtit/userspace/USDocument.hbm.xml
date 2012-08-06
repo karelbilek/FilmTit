@@ -21,7 +21,7 @@
         <property name="lastChange" type="long" column="lastChange" />
         <property name="totalChunksCount" type="int" column="totalChunksCount" />
         <property name="translatedChunksCount" type="int" column="translatedChunksCount" />
-
+        <property name="toBeDeleted" type="boolean" column="toBeDeleted" />
     </class>
 
 </hibernate-mapping>

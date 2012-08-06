@@ -3,10 +3,7 @@ package cz.filmtit.userspace;
 import cz.filmtit.share.User;
 import org.hibernate.Session;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a user of the application in the user space. It is a wrapper of the User
@@ -28,7 +25,7 @@ public class USUser extends DatabaseObject {
      * @param email - The email of new user
      */
 
-    public USUser(String userName,String password , String email, String openId) {
+    public USUser(String userName, String password ,String email, String openId) {
 
 
         this.user = new User();
@@ -40,8 +37,8 @@ public class USUser extends DatabaseObject {
         this.email = email;
         this.openId = openId;
 
-        ownedDocuments = new ArrayList<USDocument>();
-        activeDocumentIDs = new HashSet<Long>();
+        ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
+        activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
@@ -62,8 +59,8 @@ public class USUser extends DatabaseObject {
         this.email = null;
         this.openId =null;
 
-        ownedDocuments = new ArrayList<USDocument>();
-        activeDocumentIDs = new HashSet<Long>();
+        ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
+        activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
 
     /**
@@ -79,7 +76,7 @@ public class USUser extends DatabaseObject {
      * A list of the documents owned by the user stored as the User Space wrappers of the
      * Document objects from the share namespace.
      */
-    private List<USDocument> ownedDocuments = null;
+    private Set<USDocument> ownedDocuments = null;
     /**
      * A set of IDs of documents which were active at the moment the user logged out (or was logged
      * out) last time. It is not kept up to date while a Session exists. It is updated at the moment
@@ -92,16 +89,16 @@ public class USUser extends DatabaseObject {
      * Gets the list of documents owned by this user.
      * @return List of USDocument objects wrapping the Document objects, but with empty suggestion lists
      */
-    public List<USDocument> getOwnedDocuments() {
+    public Set<USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
 
         if (ownedDocuments == null) {
-            ownedDocuments = new ArrayList<USDocument>();
+            ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
             org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
             // query the documents owned by the user
-            List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid")
-                    .setParameter("uid", getDatabaseId()).list();
+            List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid " +
+                    "and d.toBeDeleted = false").setParameter("uid", getDatabaseId()).list();
 
             // store it to the variable
             for (Object o : result) { ownedDocuments.add((USDocument)o); }

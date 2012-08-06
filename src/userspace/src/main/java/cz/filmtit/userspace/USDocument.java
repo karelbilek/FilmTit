@@ -21,6 +21,7 @@ public class USDocument extends DatabaseObject {
     private SortedMap<ChunkIndex, USTranslationResult> translationResults;
     private long workStartTime;
     private long translationGenerationTime;
+    private boolean toBeDeleted = false;
     private boolean finished;
 
     public USDocument(Document document, USUser user) {
@@ -189,6 +190,14 @@ public class USDocument extends DatabaseObject {
 
     public void setTranslatedChunksCount(int translatedChunksCount) {
         document.setTranslatedChunksCount(translatedChunksCount);
+    }
+
+    public boolean isToBeDeleted() {
+        return toBeDeleted;
+    }
+
+    public void setToBeDeleted(boolean toBeDeleted) {
+        this.toBeDeleted = toBeDeleted;
     }
 
     /**

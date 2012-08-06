@@ -82,7 +82,7 @@ public class TestFilmtitBackendServer {
     public void testCloseDocumentWhileGettingSuggestions()
             throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
+        Session session = new Session(new USUser("jindra1", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
 
         DocumentResponse resp = server.createNewDocument(sessionId, "Lost", "Lost", "en");
@@ -99,7 +99,7 @@ public class TestFilmtitBackendServer {
     public void testGetSourceSubtitlesSrt()
             throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
+        Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
 
         DocumentResponse resp = server.createNewDocument(sessionId, "Hannah and her sisters", "Hannah and her sisters", "en");

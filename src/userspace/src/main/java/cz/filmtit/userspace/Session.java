@@ -152,6 +152,23 @@ public class Session {
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
+
+    public Void deleteDocument(long documentId) throws InvalidDocumentIdException {
+        USDocument document = getActiveDocument(documentId);
+        user.getOwnedDocuments().remove(document);
+        document.setToBeDeleted(true);
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        // delete all document chunks that already provided feedback to the core
+        for (USTranslationResult result : document.getTranslationResultValues()) {
+            if (result.isFeedbackSent()) {
+                result.deleteFromDatabase(dbSession);
+            }
+        }
+        usHibernateUtil.closeAndCommitSession(dbSession);
+        return null;
+    }
+
     /**
      * Implements FilmTitService.getTranslationResults
      */

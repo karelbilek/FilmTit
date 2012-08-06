@@ -79,7 +79,7 @@ public class TestSession {
     @Test
     public void testLoadDocument() throws InvalidDocumentIdException, NoSuchFieldException, IllegalAccessException {
         USUser sampleUser = getSampleUser();
-        USDocument documentToRetrieve = sampleUser.getOwnedDocuments().get(0);
+        USDocument documentToRetrieve = firstGeneratedDocument;
 
         Session session = new Session(sampleUser);
         Document retrievedDocument = session.loadDocument(documentToRetrieve.getDatabaseId());
@@ -94,7 +94,7 @@ public class TestSession {
     @Test(expected = InvalidDocumentIdException.class)
     public void testLoadNonexistingDocument() throws InvalidDocumentIdException {
         USUser sampleUser = getSampleUser();
-        USDocument documentToRetrieve = sampleUser.getOwnedDocuments().get(0);
+        USDocument documentToRetrieve = firstGeneratedDocument;
 
         Session session = new Session(sampleUser);
         // TODO: should me done more elegantly
@@ -283,14 +283,14 @@ public class TestSession {
      * a sample translation result.
      */
     private USTranslationResult firstGeneratedTranslationResult = null;
-
     private USDocument firstGeneratedDocument = null;
+    private int sampleUsersCount = 0;
 
     private USUser getSampleUser() {
         firstGeneratedTranslationResult = null;
         firstGeneratedDocument = null;
 
-        USUser sampleUser = new USUser("Jindra the User");
+        USUser sampleUser = new USUser("Jindra the User no." + sampleUsersCount);
         LoremIpsum loremIpsum = new LoremIpsum();
 
 
@@ -330,6 +330,8 @@ public class TestSession {
             usDocument.saveToDatabase(dbSession);
             usHibernateUtil.closeAndCommitSession(dbSession);
         }
+
+        sampleUsersCount++;
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         sampleUser.saveToDatabase(dbSession);
