@@ -4,7 +4,7 @@
 			 xmlns:g="urn:import:com.google.gwt.user.client.ui"
              xmlns:my="urn:import:cz.filmtit.client.dialogs">
 	<g:HTMLPanel>
-        <my:MyModal ui:field="dialogBox" title="Authenticating..." backdrop="STATIC" keyboard="true" closeVisible="false">
+        <my:CustomModal ui:field="dialogBox" title="Authenticating..." backdrop="STATIC" keyboard="true" closeVisible="false">
 
             <b:Form type="HORIZONTAL">
             
@@ -25,6 +25,6 @@
                 </b:Fieldset>
             </b:Form>
 
-        </my:MyModal>
+        </my:CustomModal>
 	</g:HTMLPanel>
 </ui:UiBinder> 

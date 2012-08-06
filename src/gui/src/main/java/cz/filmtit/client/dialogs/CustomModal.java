@@ -7,8 +7,8 @@ import com.google.gwt.user.client.Window;
  * Adjustment of gwt-bootstrap's Modal component
  * - disabled animation for Opera browser
  */
-public class MyModal extends Modal {
-    public MyModal() {
+public class CustomModal extends Modal {
+    public CustomModal() {
         super();
         if (Window.Navigator.getUserAgent().matches(".*Opera.*")) {
             this.setAnimation(false);

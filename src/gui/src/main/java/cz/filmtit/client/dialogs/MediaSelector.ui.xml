@@ -6,7 +6,7 @@
              xmlns:my="urn:import:cz.filmtit.client.dialogs">
 
     <g:HTMLPanel>
-        <my:MyModal ui:field="dialogBox" title="Select the movie or TV show" backdrop="STATIC" keyboard="true" closeVisible="true">
+        <my:CustomModal ui:field="dialogBox" title="Select the movie or TV show" backdrop="STATIC" keyboard="true" closeVisible="true">
 	        
 	        <b:WellForm>
 	            <b:ControlLabel>Which one of these movies did you mean?</b:ControlLabel>
@@ -21,7 +21,7 @@
 	            </b:ControlGroup>
 	        </b:ModalFooter>
 	        
-        </my:MyModal>
+        </my:CustomModal>
     </g:HTMLPanel>
 
 </ui:UiBinder>

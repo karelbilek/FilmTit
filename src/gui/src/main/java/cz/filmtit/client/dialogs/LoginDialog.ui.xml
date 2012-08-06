@@ -6,7 +6,7 @@
 
     <g:HTMLPanel>
 
-        <my:MyModal ui:field="dialogBox" title="Login" backdrop="STATIC" keyboard="true">
+        <my:CustomModal ui:field="dialogBox" title="Login" backdrop="STATIC" keyboard="true">
 
 		    <b:NavTabs ui:field="tabs">
 			    <b:NavLink ui:field="tabLogin" active="true">Log in</b:NavLink>
@@ -142,7 +142,7 @@
                 </b:Fieldset>
             </b:Form>
             
-        </my:MyModal>
+        </my:CustomModal>
 
     </g:HTMLPanel>
 

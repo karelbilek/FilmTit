@@ -1,6 +1,5 @@
 package cz.filmtit.client.dialogs;
 
-import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.event.HiddenEvent;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -23,7 +22,7 @@ public abstract class Dialog extends Composite {
 	 * The enclosing dialog box.
 	 */
     @UiField
-	MyModal dialogBox;
+    CustomModal dialogBox;
     
     @UiHandler("dialogBox")
     final void modalClosed(HiddenEvent e) {

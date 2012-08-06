@@ -6,7 +6,7 @@
 
     <g:HTMLPanel>
 
-        <my:MyModal ui:field="dialogBox" title="Download subtitle file" backdrop="STATIC" keyboard="true">
+        <my:CustomModal ui:field="dialogBox" title="Download subtitle file" backdrop="STATIC" keyboard="true">
 
             <b:Form type="HORIZONTAL" ui:field="downloadForm">
 
@@ -36,7 +36,7 @@
                 </b:Fieldset>
             </b:Form>
 
-        </my:MyModal>
+        </my:CustomModal>
     </g:HTMLPanel>
 
 </ui:UiBinder> 
