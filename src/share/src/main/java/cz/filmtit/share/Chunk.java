@@ -15,9 +15,9 @@ import java.util.List;
  */
 public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-    private String surfaceform="";
+    private String surfaceForm = "";
     
-    private List<Annotation> annotations;
+    protected List<Annotation> annotations;
 
     @GwtTransient
     private String[] tokens = null;
@@ -50,25 +50,25 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     	// nothing
     }
 
-    public Chunk(String surfaceform, List<Annotation> annotations) {
-        this.surfaceform = surfaceform.replace('\u0000',' ');
+    public Chunk(String surfaceForm, List<Annotation> annotations) {
+        this.surfaceForm = surfaceForm.replace('\u0000',' ');
         this.annotations=annotations;
     }
 
     
-    public Chunk(String surfaceform) {
-        this.surfaceform = surfaceform.replace('\u0000',' ');
+    public Chunk(String surfaceForm) {
+        this.surfaceForm = surfaceForm.replace('\u0000',' ');
     }
 
     public String getSurfaceForm() {
-        return surfaceform;
+        return surfaceForm;
     }
 
     public void setSurfaceForm(String surfaceform) {
-        this.surfaceform = surfaceform.replace('\u0000', ' ');
-        /*if (this.surfaceform.equals(surfaceform)) { return; }
-        if (this.surfaceform == null || this.surfaceform.equals("")) {
-            this.surfaceform = surfaceform.replace('\u0000', ' ');
+        this.surfaceForm = surfaceform.replace('\u0000', ' ');
+        /*if (this.surfaceForm.equals(surfaceForm)) { return; }
+        if (this.surfaceForm == null || this.surfaceForm.equals("")) {
+            this.surfaceForm = surfaceForm.replace('\u0000', ' ');
         }
         else {
             //throw new IllegalAccessException("The chunk surface form can be set just once.");
@@ -81,7 +81,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
      */
     @Override
     public String toString() {
-        return "Chunk[" + surfaceform + "]";
+        return "Chunk[" + surfaceForm + "]";
     }
 
     @Override
@@ -91,12 +91,12 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
         Chunk chunk = (Chunk) o;
 
-        return surfaceform.equals(chunk.surfaceform);
+        return surfaceForm.equals(chunk.surfaceForm);
     }
 
     @Override
     public int hashCode() {
-        return surfaceform.hashCode();
+        return surfaceForm.hashCode();
     }
 
     public List<Annotation> getAnnotations() {

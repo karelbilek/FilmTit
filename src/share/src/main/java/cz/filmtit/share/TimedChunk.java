@@ -89,15 +89,46 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         return null; //<-should not happen
     }
 
-    //TODO: newlines, dialogies
     public StringBuilder getSubForm(double fps) {
-        return getSubTime(fps).append("{").append(getSurfaceForm()).append("}").append("\n");
+        // TODO: check if the annotations are resolved properly
+        String displayForm = getSurfaceForm();
+        if (annotations != null) {
+            for (Annotation annotation : annotations) {
+                switch (annotation.getType()) {
+                    case DIALOGUE:
+                        displayForm = displayForm.substring(0, annotation.getBegin()) + "- "
+                                + displayForm.substring(annotation.getBegin());
+                        break;
+                    case LINEBREAK:
+                        displayForm = displayForm.substring(0, annotation.getBegin()) + "|"
+                                + displayForm.substring(annotation.getBegin());
+                        break;
+                }
+            }
+        }
+
+        return getSubTime(fps).append("{").append(displayForm).append("}").append("\n");
     }
 
-
-    //TODO: newlines, dialogies
     public StringBuilder getSrtForm(int order, double fps) {
-        return new StringBuilder().append(order).append("\n").append(getSrtTime(fps)).append("\n").append(getSurfaceForm()).append("\n\n");
+        // TODO: check if the annotations are resolved properly
+        String displayForm = getSurfaceForm();
+        if (annotations != null) {
+            for (Annotation annotation : annotations) {
+                switch (annotation.getType()) {
+                    case DIALOGUE:
+                        displayForm = displayForm.substring(0, annotation.getBegin()) + "- "
+                                + displayForm.substring(annotation.getBegin());
+                        break;
+                    case LINEBREAK:
+                        displayForm = displayForm.substring(0, annotation.getBegin()) + "\n"
+                                + displayForm.substring(annotation.getBegin());
+                        break;
+                }
+            }
+        }
+
+        return new StringBuilder().append(order).append("\n").append(getSrtTime(fps)).append("\n").append(displayForm).append("\n\n");
     }
 
     public StringBuilder getSubTime(double fps) {

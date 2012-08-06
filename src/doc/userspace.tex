@@ -39,6 +39,8 @@ When a new document is created, the client application starts to send the batche
 
 User Space also provides feedback to the translation memory. A list of new translation the users have produced can be generated together with information which translation pair they used to post-edited is provided to the Data Import module which adds the new translation to the translation memory and use the data also for training the scoring of the suggestions. \todo{Add a reference to the place this is described}
 
+Export of the subtitle files is also solved in the User Space. It is described in more detail in section \ref{sec:export}.
+
 \section{Implementation Details}
 \subsection{The Data Types Overview}
 
@@ -66,4 +68,9 @@ The core also uses Hibernate for mapping the {\tt MediaSource} class (gathering 
 The mapping just reflects the data properties of classes. If the class is a wrapper of a shared class the getters and setters of the properties are bind to the wrapped objects properties.
 
 As was told before, the mapping of {\tt USDocument} does not include the list of Translation Results the document contains in order to be able to send the documents both with and without the translation results. It would be also possible to use the lazy Hibernate collection mapping, but it would cause problem at the time the object serialized.
+
+\section{Exporting subtitle files}
+\label{sec:export}
+
+TODO \todo{Write it}
 
