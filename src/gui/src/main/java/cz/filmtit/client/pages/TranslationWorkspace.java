@@ -144,6 +144,7 @@ public class TranslationWorkspace extends Composite {
 		case FROM_DB:
 			// only wait for everything to load
 			readyToSendChunksSemaphore = 1;
+            break;
 		default:
 			assert false;
 			break;
@@ -505,7 +506,6 @@ public class TranslationWorkspace extends Composite {
      *
      * We have to suppose these are coming in the same order as they appear in the source.
      * @param chunk - source-language chunk to show
-     * @param index - index of the chunk in the chunk-list
      */
     public void showSource(TimedChunk chunk) {
         
