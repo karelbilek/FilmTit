@@ -3,6 +3,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.*;
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 
@@ -42,6 +43,12 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
                     }
                 });
 
+    }
+    
+    @Override
+    public void onFailureAfterLog(Throwable returned) {
+    	// this call is invoked implicitly sometimes so we dont want to bother the user
+    	gui.pageHandler.loadPage(Page.UserPage);
     }
         
     public LoadDocumentFromDB(long id) {

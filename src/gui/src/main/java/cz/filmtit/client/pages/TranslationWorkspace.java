@@ -382,6 +382,11 @@ public class TranslationWorkspace extends Composite {
         //but we also want as little requests as possible -> the "window" is
         //exponentially growing
         int exponential = 1;
+        
+        /**
+         * The maximum size of the window
+         */
+        int expMax = 64;
 
         public boolean execute() {
                if (stopLoading) {
@@ -402,6 +407,9 @@ public class TranslationWorkspace extends Composite {
                     //Window.alert("chunk neni empty, posilam "+sentTimedchunks.size());
                     sendChunks(sentTimedchunks);
                     exponential = exponential*2;
+                    if (exponential > expMax) {
+                    	exponential = expMax;
+                    }
                     return true;
                }
           }

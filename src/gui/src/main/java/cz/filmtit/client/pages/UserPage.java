@@ -100,6 +100,21 @@ public class UserPage extends Composite {
            }
        });
 
+       // delete button
+       com.google.gwt.user.cellview.client.Column<Document, String> deleteButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
+           @Override
+           public String getValue(Document doc) {
+               return "Delete";
+           }
+       };
+       
+       deleteButton.setFieldUpdater(new FieldUpdater<Document, String>() {
+           public void update(int index, Document doc, String value) {
+        	   if (Window.confirm("Do you really want to delete the document " + doc.getTitle() + "?")) {
+        		   gui.rpcHandler.deleteDocument(doc.getId());
+        	   }
+           }
+       });
 
 
         
@@ -110,6 +125,7 @@ public class UserPage extends Composite {
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
         docTable.addColumn(exportSubtitlesButton, "Export");
+        docTable.addColumn(deleteButton, "Delete");
       
         emptyLabel.setVisible(false);
         
