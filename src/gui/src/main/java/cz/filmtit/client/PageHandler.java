@@ -200,8 +200,18 @@ public class PageHandler {
      * in GET parameter "page".
      */
 	public void loadPage() {
+		loadPage(false);
+	}
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded),
+     * using the page set in the URL
+     * in GET parameter "page".
+     */
+	public void loadPage(boolean evenIfAlreadyLoaded) {
 		setPageToLoad();
-		loadPageToLoad();
+		loadPageToLoad(evenIfAlreadyLoaded);
 	}
 	
     /**
@@ -264,7 +274,15 @@ public class PageHandler {
      * Loads the pageToLoad unless it is already loaded.
      */
 	private void loadPageToLoad() {
-		if (pageToLoad != pageLoaded) {
+		loadPageToLoad(false);
+	}
+	
+    /**
+     * Loads the pageToLoad.
+     * @param evenIfAlreadyLoaded reload the page if already loaded
+     */
+	private void loadPageToLoad(boolean evenIfAlreadyLoaded) {
+		if (pageToLoad != pageLoaded || evenIfAlreadyLoaded) {
 			
 			if (pageLoaded == Page.TranslationWorkspace) {
 				// unloading TranslationWorkspace
@@ -289,7 +307,7 @@ public class PageHandler {
 		    	if (documentId == -1) {
 		    		loadPage(Page.UserPage);
 					gui.log("failure on loading document: documentId -1 is not valid!");
-					Window.alert("Cannnot load document - document ID (-1) is not valid!");
+					// Window.alert("Cannnot load document - document ID (-1) is not valid!");
 		    	} else {
 					loadBlankPage();
 		            gui.rpcHandler.loadDocumentFromDB(documentId);
@@ -321,7 +339,14 @@ public class PageHandler {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
-
+	
+	/**
+	 * Reload the current page.
+	 */
+	public void refresh() {
+		setPageToLoad(pageLoaded);
+		loadPageToLoad(true);
+	}
 	
 	// DOCUMENT ID HANDLING	(for TranslationWorkspace)
 	

@@ -312,8 +312,9 @@ public class Gui implements EntryPoint {
         guiStructure.logged_out();
         if (goToWelcomeScreen) {
         	pageHandler.loadPage(Page.WelcomeScreen);
+        	pageHandler.refresh();
         } else {
-            pageHandler.loadPage();
+            pageHandler.loadPage(true);
         }
     }
     
