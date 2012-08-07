@@ -132,11 +132,7 @@ public class DocumentCreator extends Composite {
 
     public void addressSet(FileLoadWidget widget, String address) {
        
-       try {
-         moviePath.setText(address);
-       } catch (Exception e){
-         Window.alert(e.toString());
-       }
+		moviePath.setText(address);
 
       // widgetToRemove = widget ;
     }
