@@ -213,11 +213,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // if you are you can create authentication object which contains  information
         // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
 
-        // in progress login session is removed here
-        AuthData authData = authDataInProgress.get(authID);
-        authDataInProgress.remove(authID);
-
         try {
+            // in progress login session is removed here
+            AuthData authData = authDataInProgress.get(authID);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
@@ -239,32 +237,41 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             logger.error("Exception caught in validateAuthentication() - " + e.toString());
             return false;
         }
+        finally {
+            authDataInProgress.remove(authID);        	
+        }
 
     }
 
     @Override
     public String getSessionID(int authID) throws AuthenticationFailedException {
-        // if the authentication process has not been finished...
-        if (authDataInProgress.containsKey(authID)) {
-            return null;
-        }
-        // or if the if the authentication process was successful
-        else if (finisehdAuthentications.containsKey(authID)) {
-            Authentication authentication = finisehdAuthentications.get(authID);
-            finisehdAuthentications.remove(authID); // cancel the authentication session
+        if (finisehdAuthentications.containsKey(authID)) {
+            // the authentication process was successful
+        	
+        	// cancel the authentication session
+            Authentication authentication = finisehdAuthentications.remove(authID);
 
             String openid = extractOpenId(authentication.getIdentity());
+            
+            // check whether the user is registered
             if (checkUser(openid) == null) {
-                if (!(registration(openid,authentication))){
+            	boolean registrationSuccessful = registration(openid, authentication);
+            	if ( !registrationSuccessful ){
                     throw new ExceptionInInitializerError("Registration failed");
-                }
-
-            return openIDLogin(openid);
+                }            	
             }
+            // now the user is definitely registered
+            return openIDLogin(openid);
         }
-        // since it's neither in the in process table and the finished table,
-        // the authentication must have failed
-        throw new AuthenticationFailedException("Authentication failed.");
+        else if (authDataInProgress.containsKey(authID)) {
+            // the authentication process has not been finished...
+            return null;
+        }
+        else {
+            // since it's neither in the in process table nor the finished table,
+            // the authentication must have failed
+            throw new AuthenticationFailedException("Authentication failed.");
+        }
     }
 
     @Override
@@ -324,6 +331,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
+    /**
+     * Register the user with the given openId
+     * @param openId
+     * @param data
+     * @return true if registration is successful, false otherwise
+     */
     public Boolean registration(String openId, Authentication data){
 
         if (data != null){
@@ -333,7 +346,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             String name = getUniqueName(data.getEmail());
             return registration(name,password,data.getEmail(),openId);
         }
-        return false;
+        else {
+            return false;        	
+        }
     }
 
     private String extractOpenId(String url){
@@ -556,6 +571,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return succesUser;
     }
 
+    /**
+     * Check for a user with the given openid.
+     * @param openid
+     * @return The corresponding user if there is one, null if there is not.
+     */
     private USUser checkUser(String openid){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         List UserResult = new ArrayList(0);
