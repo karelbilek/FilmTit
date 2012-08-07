@@ -142,7 +142,8 @@ public class Document implements IsSerializable, Serializable, Comparable<Docume
     
     @Override
     public int compareTo(Document other) {
-        // return Long.compare(this.lastChange, other.lastChange);
+        if (this.lastChange > other.lastChange) { return 1; }
+        if (this.lastChange < other.lastChange) { return -1; }
         return 0;
     }
 }
