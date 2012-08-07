@@ -143,6 +143,7 @@ public class TranslationWorkspace extends Composite {
             case FROM_DB:
                 // only wait for everything to load
                 sourceSelected = true;    
+                break;
             default:
                 assert false;
                 break;
