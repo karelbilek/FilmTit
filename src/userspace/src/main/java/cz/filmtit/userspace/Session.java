@@ -337,6 +337,7 @@ public class Session {
             result.add(usDocument.getDocument().documentWithoutResults());
         }
 
+        Collections.sort(result);
         return result;
     }
 

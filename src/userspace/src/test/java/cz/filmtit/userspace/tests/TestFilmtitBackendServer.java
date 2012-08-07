@@ -22,6 +22,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * @author Jindřich Libovický
@@ -96,7 +98,7 @@ public class TestFilmtitBackendServer {
     }
 
     @Test
-    public void testGetSourceSubtitlesSrt()
+    public void testGetSourceSubtitlesExport()
             throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
@@ -141,6 +143,11 @@ public class TestFilmtitBackendServer {
         assertEquals(expectedTxtFile, actualTxtFile);
     }
 
+    @Test
+    public void testGetTargetSubtitlesExport() {
+        // TODO: implement it
+    }
+
     private class GettingTranslationsRunner extends Thread {
         private FilmTitBackendServer server;
         private String sessionId;
@@ -165,6 +172,27 @@ public class TestFilmtitBackendServer {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Test
+    public void testCancelingOldSessionOnRelogin() throws NoSuchFieldException, IllegalAccessException {
+        FilmTitBackendServer server = new MockFilmTitBackendServer();
+
+        // now get the table of active sessions
+        Field activeSessionsField = FilmTitBackendServer.class.getDeclaredField("activeSessions");
+        activeSessionsField.setAccessible(true);
+        Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
+
+        server.registration("user", "pass", "user@user.bflm", null);
+        String sessionId1 = server.simpleLogin("user", "pass");
+
+        assertTrue(activeSessions.size() == 1);
+        assertTrue(activeSessions.containsKey(sessionId1));
+
+        String sessionId2 = server.simpleLogin("user", "pass");
+        assertTrue(activeSessions.size() == 1);
+        assertFalse(activeSessions.containsKey(sessionId1));
+        assertTrue(activeSessions.containsKey(sessionId2));
     }
 
     private String placeSessionToTheServer(FilmTitBackendServer server, Session session)
