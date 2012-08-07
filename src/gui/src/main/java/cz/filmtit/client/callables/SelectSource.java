@@ -27,8 +27,6 @@ public class SelectSource extends Callable<Void> {
 
         @Override
         public void onSuccessAfterLog(Void o) {
-        	// startShowingTranslationsIfReady() must be called here, otherwise the translations will never be displayed!
-        	workspace.startShowingTranslationsIfReady();
         }
 
         // constructor
