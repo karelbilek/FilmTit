@@ -8,6 +8,7 @@ import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.AuthenticationFailedException;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -52,11 +53,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Logger logger = Logger.getLogger("FilmtitBackendServer");
 
     // AuthId which are in process
-    private Map<Long, AuthData> authenticatingSessions =
-            Collections.synchronizedMap(new HashMap<Long, AuthData>());
+    private Map<Integer, AuthData> authDataInProgress =
+            Collections.synchronizedMap(new HashMap<Integer, AuthData>());
     // AuthId which are authenticated but not activated
-    private Map<Long,Authentication> authenticatedSessions =
-            Collections.synchronizedMap(new HashMap<Long, Authentication>());
+    private Map<Integer,Authentication> finisehdAuthentications =
+            Collections.synchronizedMap(new HashMap<Integer, Authentication>());
     // Activated User
     private Map<String, Session> activeSessions =
             Collections.synchronizedMap(new HashMap<String,Session>());
@@ -182,35 +183,46 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).deleteDocument(documentID);
     }
 
-    @Override
-    public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-        configuration = ConfigurationSingleton.conf();
-        String serverAddress = configuration.serverAddress();
-        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
 
+    @Override
+    public LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType) {
+        // generate the unique authentication ID first
+        Random random = new Random();
+        int authID = random.nextInt();
+        while (authDataInProgress.containsKey(authID) || finisehdAuthentications.containsKey(authID)) {
+            authID = random.nextInt();
+        }
+
+        String serverAddress = ConfigurationSingleton.conf().serverAddress();
+
+        // sets everything necessary ... see the JOpenID page if you want to know details
+        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
         AuthData authData = new AuthData();
         authData.Mac_key = association.getRawMacKey();
         authData.endpoint = endpoint;
-        authenticatingSessions.put(authID, authData);
-        return manager.getAuthenticationUrl(endpoint,association);
+        authDataInProgress.put(authID, authData);
+        return new LoginSessionResponse(authID, manager.getAuthenticationUrl(endpoint,association));
     }
 
     @Override
-    public Boolean validateAuthentication(long authID, String responseURL) {
+    public Boolean validateAuthentication(int authID, String responseURL) {
         //  response url - one if you succesfull with login
         //                  sec if you are not
         // if you are you can create authentication object which contains  information
         // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
 
+        // in progress login session is removed here
+        AuthData authData = authDataInProgress.get(authID);
+        authDataInProgress.remove(authID);
+
         try {
-            AuthData authData = authenticatingSessions.get(authID);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
-            authenticatedSessions.put(authID, authentication);
+            finisehdAuthentications.put(authID, authentication);
             logger.info("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
@@ -231,22 +243,28 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public String getSessionID(long authID) {
-        Authentication authentication = authenticatedSessions.get(authID);
-        authenticatedSessions.remove(authID);
+    public String getSessionID(int authID) throws AuthenticationFailedException {
+        // if the authentication process has not been finished...
+        if (authDataInProgress.containsKey(authID)) {
+            return null;
+        }
+        // or if the if the authentication process was successful
+        else if (finisehdAuthentications.containsKey(authID)) {
+            Authentication authentication = finisehdAuthentications.get(authID);
+            finisehdAuthentications.remove(authID); // cancel the authentication session
 
-        if ( authentication!= null) {
             String openid = extractOpenId(authentication.getIdentity());
-            if (checkUser(openid) == null)
-            {
+            if (checkUser(openid) == null) {
                 if (!(registration(openid,authentication))){
                     throw new ExceptionInInitializerError("Registration failed");
                 }
-            }
-            return simpleLogin(openid);
-        }
 
-        return null;
+            return openIDLogin(openid);
+            }
+        }
+        // since it's neither in the in process table and the finished table,
+        // the authentication must have failed
+        throw new AuthenticationFailedException("Authentication failed.");
     }
 
     @Override
@@ -261,7 +279,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    public String simpleLogin(String openId) {
+    public String openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
             logger.info("User " + user.getUserName() + "logged in.");
