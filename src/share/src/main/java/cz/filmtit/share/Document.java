@@ -134,12 +134,15 @@ public class Document implements IsSerializable, Serializable, Comparable<Docume
         clone.lastChange = lastChange;
         clone.totalChunksCount = totalChunksCount;
         clone.translatedChunksCount = translatedChunksCount;
-
+        
         return clone;
     }
 
+    
+    
     @Override
     public int compareTo(Document other) {
-        return Long.compare(this.lastChange, other.lastChange);
+        // return Long.compare(this.lastChange, other.lastChange);
+        return 0;
     }
 }

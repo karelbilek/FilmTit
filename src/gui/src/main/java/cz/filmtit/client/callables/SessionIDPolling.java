@@ -62,6 +62,7 @@ import java.util.*;
             
             @Override
 			public void onFailureAfterLog(Throwable caught) {
+            	// TODO: expecting AuthenticationFailedException
 				if(sessionIDPolling) {
 					// stop polling
 					sessionIDPolling = false;

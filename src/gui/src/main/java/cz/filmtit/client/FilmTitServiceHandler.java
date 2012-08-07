@@ -110,7 +110,7 @@ public class FilmTitServiceHandler {
 	
 
 	    
-	public void validateAuthentication (String responseURL, long authID, AuthenticationValidationWindow authenticationValidationWindow) {
+	public void validateAuthentication (String responseURL, int authID, AuthenticationValidationWindow authenticationValidationWindow) {
 		new ValidateAuthentication(responseURL, authID, authenticationValidationWindow);
 	}
 	

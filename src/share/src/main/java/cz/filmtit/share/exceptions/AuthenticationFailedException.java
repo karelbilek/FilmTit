@@ -14,4 +14,6 @@ public class AuthenticationFailedException extends Exception implements Serializ
     public AuthenticationFailedException(String message) {
         super(message);
     }
+    
+    private AuthenticationFailedException() {}
 }

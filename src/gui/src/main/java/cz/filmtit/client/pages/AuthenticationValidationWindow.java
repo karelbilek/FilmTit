@@ -47,10 +47,10 @@ public class AuthenticationValidationWindow extends Composite {
         String responseURL = Window.Location.getHref();
         
         // auhID
-        long authID = 0;
+        int authID = 0;
         String authIDstring = Window.Location.getParameter("authID");
         try {
-             authID = Long.parseLong(authIDstring);
+             authID = Integer.parseInt(authIDstring);
         }
         catch (Exception e) {
              paraValidation.setText("Cannot parse authID '" + authIDstring + "' as a number! " + e);
