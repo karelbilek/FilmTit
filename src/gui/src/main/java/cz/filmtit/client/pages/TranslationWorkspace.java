@@ -115,7 +115,9 @@ public class TranslationWorkspace extends Composite {
     HorizontalPanel hPanel;
     @UiField
     HorizontalPanel translationHPanel;
-   
+  
+    private boolean sourceSelected = false;
+
     ///////////////////////////////////////
     //                                   //
     //      Initialization               //
@@ -132,6 +134,19 @@ public class TranslationWorkspace extends Composite {
         
         setCurrentDocument(doc);
         
+
+        switch (documentOrigin) {
+            case NEW:
+                // wait for everything to load and for selectSource to return
+                sourceSelected = false;
+                break;
+            case FROM_DB:
+                // only wait for everything to load
+                sourceSelected = true;    
+            default:
+                assert false;
+                break;
+        }
         
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
         this.indexes = new HashMap<ChunkIndex, Integer>();
@@ -296,16 +311,32 @@ public class TranslationWorkspace extends Composite {
 
      SendChunksCommand sendChunksCommand;
      
+     boolean translationStarted=false;
      /**
       * Creates the SendChunksCommand and, if possible, executes it
       * @param chunklist
       */
-     void startShowingTranslations(List<TimedChunk> chunklist) {
-          
-          sendChunksCommand = new SendChunksCommand(chunklist);
-          sendChunksCommand.execute();    		 
+     void prepareSendChunkCommand(List<TimedChunk> chunklist) {
+           
+           
+              sendChunksCommand = new SendChunksCommand(chunklist);
           
      }
+
+     public void setSourceSelectedTrue() {
+         this.sourceSelected = true;
+     }
+     public void startShowingTranslationsIfReady() {
+         if (sourceSelected) {
+            if (sendChunksCommand!=null) {
+               if (translationStarted == false) {
+                 sendChunksCommand.execute();
+                 translationStarted=true;
+               }
+            }
+         }
+     }
+     
         
 
      /**
@@ -438,7 +469,8 @@ public class TranslationWorkspace extends Composite {
      public void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
           Scheduler.get().scheduleIncremental(new ShowOriginalCommand(original));
           Scheduler.get().scheduleIncremental(new ShowUserTranslatedCommand(translated));
-          startShowingTranslations(untranslated) ; 
+          prepareSendChunkCommand(untranslated) ; 
+          startShowingTranslationsIfReady() ; 
      }
      public void showSources(List<TimedChunk> chunks) {
         dealWithChunks(chunks, new LinkedList<TranslationResult>(), chunks);

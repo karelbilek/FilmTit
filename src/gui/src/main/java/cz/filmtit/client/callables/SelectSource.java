@@ -27,6 +27,8 @@ public class SelectSource extends Callable<Void> {
 
         @Override
         public void onSuccessAfterLog(Void o) {
+            workspace.setSourceSelectedTrue();    
+        	workspace.startShowingTranslationsIfReady();
         }
 
         // constructor
