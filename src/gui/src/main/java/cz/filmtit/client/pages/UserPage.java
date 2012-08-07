@@ -93,11 +93,7 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-                try {    
-                    gui.showDownloadDialog(doc);
-                } catch (Exception e) {
-                    Window.alert(e.toString());
-                }
+        	   gui.showDownloadDialog(doc);
            }
        });
 
