@@ -62,11 +62,6 @@ public class Gui implements EntryPoint {
     public GuiStructure guiStructure;
 
  	/**
- 	 * handles RPC calls
- 	 */
-    public FilmTitServiceHandler rpcHandler;
-
- 	/**
  	 * handles page switching
  	 */
     public PageHandler pageHandler;
@@ -132,15 +127,12 @@ public class Gui implements EntryPoint {
 	    	// set the Gui singleton
 	    	Gui.gui = this;
 	
-			// RPC:
-			rpcHandler = new FilmTitServiceHandler();
-	
 			// page loading and switching
 			pageHandler = new PageHandler();
 			
 			if (pageHandler.doCheckSessionID) {
 	    		// check whether user is logged in or not
-	    		gui.rpcHandler.checkSessionID();
+	    		FilmTitServiceHandler.checkSessionID();
 			}
             
     	}

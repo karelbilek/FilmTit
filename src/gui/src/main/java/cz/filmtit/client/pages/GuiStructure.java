@@ -10,6 +10,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import com.github.gwtbootstrap.client.ui.*;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 
@@ -36,7 +37,7 @@ public class GuiStructure extends Composite {
         // top menu handlers
         logout.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	 Gui.getGui().rpcHandler.logout();
+            	 FilmTitServiceHandler.logout();
              }
         });
 

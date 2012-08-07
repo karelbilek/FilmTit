@@ -15,11 +15,6 @@ import cz.filmtit.share.LoginSessionResponse;
 		// parameters
 		AuthenticationServiceType serviceType;
 		Dialog loginDialog;
-		/**
-		 * temporary ID for authentication
-		 */
-        FilmTitServiceHandler handler;
-
 
         @Override
 		public String getName() {
@@ -38,7 +33,7 @@ import cz.filmtit.share.LoginSessionResponse;
 			Window.open(url, "AuthenticationWindow", "width=400,height=500");
 			
 			// start polling for SessionID
-			new SessionIDPolling(authID, handler);				
+			new SessionIDPolling(authID);
         }
 			
         @Override
@@ -51,10 +46,9 @@ import cz.filmtit.share.LoginSessionResponse;
 					
 		// constructor
 		public GetAuthenticationURL(AuthenticationServiceType serviceType,
-				Dialog loginDialog, FilmTitServiceHandler handler) {
+				Dialog loginDialog) {
 			super();
 			
-            this.handler = handler;
 			this.serviceType = serviceType;
 			this.loginDialog = loginDialog;
 			

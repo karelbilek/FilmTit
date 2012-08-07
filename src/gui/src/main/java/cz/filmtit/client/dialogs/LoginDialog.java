@@ -15,6 +15,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -289,7 +290,7 @@ public class LoginDialog extends Dialog {
     	
     	if (checkLoginForm(username, password)) {
             gui.log("trying to log in as user " + username);
-            gui.rpcHandler.simpleLogin(username, password, LoginDialog.this);
+            FilmTitServiceHandler.simpleLogin(username, password, LoginDialog.this);
     	}
 	}
 	
@@ -330,7 +331,7 @@ public class LoginDialog extends Dialog {
     	deactivate();
     	
 		gui.log("trying to log in through Google account");
-		gui.rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
+		FilmTitServiceHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
 	}
 	
 	//////////////////////////////////
@@ -370,7 +371,7 @@ public class LoginDialog extends Dialog {
     	
     	if (checkRegForm(username, password, passwordRepeat, email)) {
             gui.log("trying to register as user " + username);
-           	gui.rpcHandler.registerUser(username, password, email, LoginDialog.this);
+           	FilmTitServiceHandler.registerUser(username, password, email, LoginDialog.this);
     	}
 	}
 	
@@ -427,7 +428,7 @@ public class LoginDialog extends Dialog {
     	
     	if (checkFpwdForm(username)) {
 			gui.log("trying to send forgotten password email to user " + username);
-			gui.rpcHandler.sendChangePasswordMail(username, LoginDialog.this);
+			FilmTitServiceHandler.sendChangePasswordMail(username, LoginDialog.this);
     	}
 	}
 	
