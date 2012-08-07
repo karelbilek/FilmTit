@@ -129,9 +129,6 @@ public class UserPage extends Composite {
       
         emptyLabel.setVisible(false);
         
-        
-        
-        gui.guiStructure.activateMenuItem(gui.guiStructure.userPage);
 
         gui.guiStructure.contentPanel.setStyleName("users_page");
 

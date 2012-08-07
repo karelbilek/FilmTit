@@ -25,8 +25,6 @@ public class WelcomeScreen extends Composite {
 	public WelcomeScreen() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		gui.guiStructure.activateMenuItem(gui.guiStructure.welcomePage);
-
         login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (gui.loggedIn) {

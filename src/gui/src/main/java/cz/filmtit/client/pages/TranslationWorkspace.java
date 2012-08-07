@@ -5,6 +5,7 @@ import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
 import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
@@ -125,6 +126,9 @@ public class TranslationWorkspace extends Composite {
     public TranslationWorkspace(Document doc, String path, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
+        gui.pageHandler.setPageUrl(Page.TranslationWorkspace);
+        gui.guiStructure.activateMenuItem(Page.TranslationWorkspace);
+        
         id = Random.nextInt(Integer.MAX_VALUE);
         gui.currentWorkspace = this;
         
@@ -173,8 +177,6 @@ public class TranslationWorkspace extends Composite {
         gui.guiStructure.contentPanel.setWidget(this);
         gui.guiStructure.contentPanel.setStyleName("translating");
         gui.guiStructure.contentPanel.addStyleName("parsing");
-
-        
 	}
     
     ///////////////////////////////////////

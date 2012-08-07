@@ -334,12 +334,17 @@ public class PageHandler {
 
 			gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
+	    	
+	    	if (isFullPage(pageLoaded)) {
+		    	// set the correct menu item
+		    	gui.guiStructure.activateMenuItem(pageLoaded);
+	    	}
 		}
 		else {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
-	
+		
 	/**
 	 * Reload the current page.
 	 */

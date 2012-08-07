@@ -38,7 +38,6 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		@Override	
         public void onSuccessAfterLog(DocumentResponse result) {
 
-            gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);				
             workspace = new TranslationWorkspace(result.document, moviePath, DocumentOrigin.NEW);
             documentId = result.document.getId();
             
