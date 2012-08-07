@@ -476,13 +476,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-    /**
-     * Only test reason
-     */
-    public void createTestChange(String login , String token){
-        activeTokens.put(login,new ChangePassToken(token));
-    }
-
     private boolean sendMail(USUser user){
         Emailer email = new Emailer();
         //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
@@ -499,7 +492,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
         ChangePassToken token = new ChangePassToken(_token);
         String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
-        activeTokens.put(login,token);
+        activeTokens.put(login, token);
         return actualUrl;
     }
 
