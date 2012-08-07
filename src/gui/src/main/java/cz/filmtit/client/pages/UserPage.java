@@ -104,7 +104,7 @@ public class UserPage extends Composite {
        com.google.gwt.user.cellview.client.Column<Document, String> deleteButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
            @Override
            public String getValue(Document doc) {
-               return "Export";
+               return "Delete";
            }
        };
        
@@ -125,7 +125,7 @@ public class UserPage extends Composite {
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
         docTable.addColumn(exportSubtitlesButton, "Export");
-        docTable.addColumn(exportSubtitlesButton, "Delete");
+        docTable.addColumn(deleteButton, "Delete");
       
         emptyLabel.setVisible(false);
         
