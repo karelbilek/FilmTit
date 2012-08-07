@@ -121,6 +121,11 @@ public class FilmTitServiceHandler {
     }
 
 
+	public void deleteDocument(long id) {
+		new DeleteDocument(id);
+	}
+
+
     
 
 	    
