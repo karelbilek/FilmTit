@@ -456,13 +456,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public String checkSessionID(String sessionID){
-        if (activeSessions.isEmpty()){
-            return null;     // no session at all
+        if (activeSessions.containsKey(sessionID)) {
+            return activeSessions.get(sessionID).getUser().getUserName();
         }
-        Session s = activeSessions.get(sessionID);
-        if (s == null) return null;   // not found sessionId
-        return s.getUser().getUserName(); // return name of user who had  session
-
+        return null;
     }
 
     @Override
@@ -482,8 +479,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return true;
     }
 
-
-    /*end test zone*/
     private String forgotUrl(USUser user ){
         // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
