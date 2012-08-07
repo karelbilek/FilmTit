@@ -122,14 +122,18 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		        			"Please try again later or ask the administrators.",
 		        			returned
 	        			)
-		            );
+		            );		            
+		            // TODO: use some ping to find out whether user is offline
+		            // TODO: store user input to be used when user goes back online
 	            }
 	        } else if (returned.getClass().equals(InvalidSessionIdException.class)) {
 	            gui.please_relog_in();
 	            // TODO: store user input to be used when user logs in
 	        } else {  
-	            gui.log("RPC FAILURE "+getName());
-	            gui.exceptionCatcher(returned, false);            
+	            gui.log("RPC FAILURE " + getName() + "! " + returned.toString());
+	            // the stacktrace is actually hardly-ever useful for anything in these external exceptions
+	            // so probably the exception name and message is just enough
+	            // gui.exceptionCatcher(returned, false);
 	            onFailureAfterLog(returned);
 	        }
     	} else {

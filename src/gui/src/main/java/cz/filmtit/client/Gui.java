@@ -205,10 +205,13 @@ public class Gui implements EntryPoint {
     }
     
     public String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
-    	
-    	StringBuilder sb = new StringBuilder();
+    			
+		StringBuilder sb = new StringBuilder();
+		
+    	// exception name and message
     	sb.append(e.toString());
     	sb.append('\n');
+    	// exception stacktrace
 		StackTraceElement[] st = e.getStackTrace();
 		for (StackTraceElement stackTraceElement : st) {
 	    	sb.append(stackTraceElement);
@@ -218,13 +221,16 @@ public class Gui implements EntryPoint {
 		String result = sb.toString();
 		
 		if (logIt) {
+	    	// log exception name, message and stacktrace
 			log(result);
 		}
 		
 		if (alertIt) {
-			Window.alert("Exception caught!\n" + e + '\n' + e.getLocalizedMessage());
+	    	// alert exception name and message
+			Window.alert("Exception caught! \n" + e.toString());
 		}
 		
+    	// return exception name, message and stacktrace
 		return result;
     }
 
