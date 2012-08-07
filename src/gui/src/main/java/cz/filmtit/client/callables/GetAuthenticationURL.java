@@ -26,6 +26,7 @@ import cz.filmtit.share.AuthenticationServiceType;
             return "GetAuthenticationURL";
         }
         
+        // TODO: remove
         @Override
 		public void onSuccessAfterLog(final String url) {
 			gui.log("Authentication URL arrived: " + url);
@@ -37,6 +38,21 @@ import cz.filmtit.share.AuthenticationServiceType;
 			// start polling for SessionID
 			new SessionIDPolling(authID, handler);				
         }
+			
+//        // TODO: uncomment and finalize
+//        @Override
+//		public void onSuccessAfterLog(Object response) {
+//	    	String url = response.getURL();
+//	    	authID = response.getAuthID();
+//			gui.log("Authentication URL and authID arrived: " + authID + ", " + url);
+//			loginDialog.close();
+//			
+//            // open the authenticationwindow
+//			Window.open(url, "AuthenticationWindow", "width=400,height=500");
+//			
+//			// start polling for SessionID
+//			new SessionIDPolling(authID, handler);				
+//        }
 			
         @Override
         public void onFailureAfterLog(Throwable returned) {
