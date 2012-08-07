@@ -13,6 +13,8 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.AuthenticationFailedException;
+
 import java.util.*;
 
 	public class SessionIDPolling extends Callable<String> {
@@ -68,8 +70,13 @@ import java.util.*;
 					sessionIDPolling = false;
 					sessionIDPollingDialog.close();
 					// say error
-					displayWindow("There was an error with your authentication. Message from the server: " + caught);
-					gui.log("failure on requesting session ID! " + caught);					
+					if (caught instanceof AuthenticationFailedException) {
+						// Userspace throws that if the authentication fails in the usual way :-)
+						displayWindow("The OpenID login was not successful. Message from the server: " + caught.getLocalizedMessage());
+					} else {
+						// some unexpected exception
+						displayWindow("The OpenID login was not successful. Message from the server: " + caught);
+					}
 				}
 			}
 		
