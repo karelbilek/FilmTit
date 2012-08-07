@@ -210,7 +210,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
-            authenticatedSessions.put(authID,authentication);
+            authenticatedSessions.put(authID, authentication);
             logger.info("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
@@ -280,7 +280,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
     @Override
-    public Boolean registration(String name,  String pass, String email, String openId) {
+    public Boolean registration(String name, String pass, String email, String openId) {
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -306,13 +306,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    public Boolean registration(String openId,Authentication data){
+    public Boolean registration(String openId, Authentication data){
 
         if (data != null){
             Random r = new Random();
             int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
             String password = Integer.toString(pin);
-            String name = getUniqName(data.getEmail());
+            String name = getUniqueName(data.getEmail());
             return registration(name,password,data.getEmail(),openId);
         }
         return false;
@@ -323,7 +323,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return id;
     }
 
-    private String getUniqName(String email){
+    private String getUniqueName(String email){
         String name = email.substring(0,email.indexOf('@'));
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
@@ -345,6 +345,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return name;
     }
+
     @Override
     public Boolean changePassword(String user  , String pass, String string_token){
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
@@ -430,6 +431,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return s.getUser().getUserName(); // return name of user who had  session
 
     }
+
     @Override
     public Boolean sendChangePasswordMail(String username){
         USUser user = checkUser(username,null,CheckUserEnum.UserName);
