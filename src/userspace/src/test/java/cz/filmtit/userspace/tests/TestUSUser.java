@@ -2,6 +2,7 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -11,6 +12,11 @@ public class TestUSUser {
         Configuration configuration = new Configuration("configuration.xml");
         ConfigurationSingleton.setConf(configuration);
         MockHibernateUtil.changeUtilsInAllClasses();
+    }
+
+    @AfterClass
+    public static void clean() {
+        MockHibernateUtil.clearDatabase();
     }
 
 

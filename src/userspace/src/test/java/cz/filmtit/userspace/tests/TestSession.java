@@ -11,6 +11,7 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.userspace.*;
 import de.svenjacobs.loremipsum.LoremIpsum;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,6 +37,11 @@ public class TestSession {
         Configuration configuration = new Configuration("configuration.xml");
         ConfigurationSingleton.setConf(configuration);
         MockHibernateUtil.changeUtilsInAllClasses();
+    }
+
+    @AfterClass
+    public static void clean() {
+        MockHibernateUtil.clearDatabase();
     }
 
     private LoremIpsum loremIpsum = new LoremIpsum();

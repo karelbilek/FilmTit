@@ -13,6 +13,7 @@ import cz.filmtit.userspace.Session;
 import cz.filmtit.userspace.USUser;
 import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import de.svenjacobs.loremipsum.LoremIpsum;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openid4java.consumer.ConsumerException;
@@ -38,6 +39,11 @@ public class TestFilmtitBackendServer {
         MockHibernateUtil.changeUtilsInAllClasses();
     }
 
+    @AfterClass
+    public static void clean() {
+        MockHibernateUtil.clearDatabase();
+    }
+
     @Test
     public void testGetAutheticationURL() throws ConsumerException, MessageException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
@@ -47,7 +53,7 @@ public class TestFilmtitBackendServer {
     @Test(expected = InvalidSessionIdException.class)
     public void testSessionTimeOut() throws NoSuchFieldException, IllegalAccessException, InterruptedException, InvalidSessionIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
+        Session session = new Session(new USUser("jindrapinda", "pinda", "jindra@pinda.cz", null));
 
         // change the last operation time in session
         Field lastChangeField = null;
