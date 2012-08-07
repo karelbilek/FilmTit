@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Paragraph;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 
 public class AuthenticationValidationWindow extends Composite {
@@ -60,7 +61,7 @@ public class AuthenticationValidationWindow extends Composite {
 
         // send RPC
         paraValidation.setText("Validating authentication data for authID '" + authID + "'...");
-        gui.rpcHandler.validateAuthentication (responseURL, authID, this);
+        FilmTitServiceHandler.validateAuthentication (responseURL, authID, this);
     }
 	
 	/**

@@ -4,6 +4,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.subgestbox.SubgestBox;
@@ -305,7 +306,7 @@ public class TranslationWorkspace extends Composite {
           gui.log("parsed chunks: "+chunklist.size());
           
           // save the chunks
-          gui.rpcHandler.saveSourceChunks(chunklist, this);
+          FilmTitServiceHandler.saveSourceChunks(chunklist, this);
           
           gui.log("called saveSourceChunks()");
           
@@ -395,7 +396,7 @@ public class TranslationWorkspace extends Composite {
           }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
-        	  gui.rpcHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
+        	  FilmTitServiceHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
           }
      }
 
@@ -409,7 +410,7 @@ public class TranslationWorkspace extends Composite {
           gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-          gui.rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
+          FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
      }
 

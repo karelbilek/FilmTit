@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.widgets.FileLoadWidget;
 import org.vectomatic.file.File;
@@ -144,7 +145,7 @@ public class DocumentCreator extends Composite {
     FormActions bottomControlGroup;
 
     private void createDocumentFromText(String subtext) {
-        gui.rpcHandler.createDocument(
+        FilmTitServiceHandler.createDocument(
                 getTitle(),
                 getMovieTitle(),
                 getChosenLanguage(),

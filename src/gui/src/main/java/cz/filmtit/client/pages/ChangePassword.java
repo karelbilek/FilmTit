@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.Button;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.AuthenticationServiceType;
@@ -59,7 +60,7 @@ public class ChangePassword extends Composite {
 	@UiHandler("btnChangePassword")
 	void handleClick(ClickEvent e) {
 		if (checkForm()) {
-			gui.rpcHandler.changePassword(username, getPassword(), token);
+			FilmTitServiceHandler.changePassword(username, getPassword(), token);
 			gui.log("trying to change password for user " + username);
 		} else {
 			// TODO tell user what errors there are

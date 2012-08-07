@@ -27,8 +27,6 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		long documentId;
 		TranslationWorkspace workspace;
 		
-        FilmTitServiceHandler handler;
-
         @Override
         public String getName() {
             return "CreateDocument("+documentTitle+","+movieTitle+","+
@@ -56,16 +54,15 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		 * @param selectedMediaSource
 		 */
 		public void selectSource(MediaSource selectedMediaSource) {
-            handler.selectSource(documentId, selectedMediaSource, workspace);
+            FilmTitServiceHandler.selectSource(documentId, selectedMediaSource, workspace);
 		}
        
 		
 		// constructor
 		public CreateDocument(String documentTitle, String movieTitle, String language,
-				String subtext, String subformat, String moviePath, FilmTitServiceHandler handler) {
+				String subtext, String subformat, String moviePath) {
 			super();
 			
-            this.handler = handler;
 			this.documentTitle = documentTitle;
             this.movieTitle = movieTitle;
 			this.language = language;

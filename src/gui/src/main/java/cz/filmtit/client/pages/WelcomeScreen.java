@@ -9,6 +9,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 
@@ -28,7 +29,7 @@ public class WelcomeScreen extends Composite {
         login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (gui.loggedIn) {
-                	gui.rpcHandler.logout();
+                	FilmTitServiceHandler.logout();
                 } else {
                 	gui.showLoginDialog();
                 }

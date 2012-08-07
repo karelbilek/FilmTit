@@ -34,9 +34,6 @@ import java.util.*;
 		 */
 		private boolean sessionIDPolling = false;
 
-        FilmTitServiceHandler handler;
-
-
         @Override
 		public String getName() {
             return "sessionIDPolling("+authID+")";
@@ -52,7 +49,7 @@ import java.util.*;
 					// we now have a session ID
 					gui.setSessionID(result);
 					// we have to get the username
-					handler.checkSessionID();
+					FilmTitServiceHandler.checkSessionID();
 					// gui.logged_in("");
 				}
 				else {
@@ -81,11 +78,10 @@ import java.util.*;
 			}
 		
 		// constructor
-		public SessionIDPolling(int authID, FilmTitServiceHandler handler) {
+		public SessionIDPolling(int authID) {
 			super();
 			
 			this.authID = authID;
-			this.handler=handler;
 
 			// 20s
 			callTimeOut = 20000;
