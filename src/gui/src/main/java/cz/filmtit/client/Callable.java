@@ -21,7 +21,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	
 //	static private Dictionary<Integer, Callable> queue;
 	
-	static private int newId = 1;
+	// static private int newId = 1;
 	
 	protected static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
 	
@@ -56,7 +56,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected int callTimeOut = 10000;
 	
-	protected int id;
+	// protected int id;
 	
 	protected int retriesOnStatusZero = 3;
 	
@@ -78,7 +78,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 * creates the RPC
 	 */
 	public Callable() {
-		this.id = newId++;
+		// this.id = newId++;
 	}
 	
 	/**
@@ -234,4 +234,5 @@ public abstract class Callable<T> implements AsyncCallback<T> {
       //      gui.log("ERROR - message");
         }
     }
+        
 }
