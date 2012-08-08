@@ -270,7 +270,7 @@ public class TranslationWorkspace extends Composite {
       */
      public void processText(String subtext, String subformat) {
           // dump the input text into the debug-area:
-    	 gui.log("processing the following input:\n" + subtext + "\n");
+    	  // gui.log("processing the following input:\n" + subtext + "\n");
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
 
