@@ -205,6 +205,9 @@ public class TranslationWorkspace extends Composite {
     @Override
     public void onUnload() {
         setStopLoading(true);
+        sourceSelected = false;
+        translationStarted = false;
+        gui.guiStructure.contentPanel.removeStyleName("parsing");
     }
    
 
