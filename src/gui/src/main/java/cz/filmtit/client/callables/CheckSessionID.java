@@ -38,6 +38,11 @@ public class CheckSessionID extends Callable<String> {
         public void onFailureAfterLog(Throwable caught) {
             gui.logged_out();
         }
+        
+        @Override
+        protected void onProbablyOffline(Throwable returned) {
+            gui.logged_out();
+        }
 
         // constructor
     	public CheckSessionID() {

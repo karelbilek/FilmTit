@@ -47,6 +47,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     
     @Override
     public void onFailureAfterLog(Throwable returned) {
+    	// TODO: do this in a more clever way
     	// this call is invoked implicitly sometimes so we dont want to bother the user
     	gui.pageHandler.loadPage(Page.UserPage);
     }
