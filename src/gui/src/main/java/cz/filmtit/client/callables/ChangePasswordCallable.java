@@ -24,6 +24,7 @@ import com.google.gwt.user.client.*;
     	String username;
     	String password;
     	String token;
+        FilmTitServiceHandler handler;
 
         @Override
         public String getName() {
@@ -35,7 +36,7 @@ import com.google.gwt.user.client.*;
                 gui.log("changed password for user " + username);
                 gui.getPageHandler().loadBlankPage();
                 gui.getPageHandler().setPageUrl(Page.UserPage);
-                FilmTitServiceHandler.simpleLogin(username, password, null);
+                handler.simpleLogin(username, password, null);
                 displayWindow("You successfully changed the password for your username '" + username + "'!");
             } else {
                 gui.log("ERROR: password change didn't succeed - token invalid");
@@ -48,8 +49,9 @@ import com.google.gwt.user.client.*;
 
 
         // constructor
-		public ChangePasswordCallable(String username, String password, String token) {
+		public ChangePasswordCallable(String username, String password, String token, FilmTitServiceHandler handler) {
 			super();
+			this.handler = handler;
 			this.username = username;
 			this.password = password;
 			this.token = token;

@@ -10,9 +10,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import com.github.gwtbootstrap.client.ui.*;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
-import cz.filmtit.client.PageHandler.Page;
 
 
 public class GuiStructure extends Composite {
@@ -25,8 +23,6 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new Hyperlink[]{ documentCreator, about, welcomePage, userPage };
-		
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
@@ -37,7 +33,7 @@ public class GuiStructure extends Composite {
         // top menu handlers
         logout.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	 FilmTitServiceHandler.logout();
+            	 Gui.getGui().rpcHandler.logout();
              }
         });
 
@@ -47,60 +43,21 @@ public class GuiStructure extends Composite {
 		RootPanel rootPanel = RootPanel.get();
         rootPanel.add(this, 0, 0);
 
+        allMenuItems = new Hyperlink[]{ documentCreator, about, welcomePage, userPage };
+		
 	}
 	
-    ///////////////////////////////////////
-    //                                   //
-    //      Public state change methods  //
-    //                                   //
-    ///////////////////////////////////////
+	Hyperlink[] allMenuItems;
+
+	static final String ACTIVE = "active";
 	
-	/**
-	 * to be called when switching pages
-	 */
-	public void activateMenuItem(Page pageLoaded) {
-		deactivateAllMenuItems();
-		Hyperlink activeMenuItem = page2menuItem(pageLoaded);
-		if (activeMenuItem != null) {
-			activateMenuItem(activeMenuItem);			
-		}
-	}
-	
-	/**
-	 * to be called to switch the view from "logged out" to "logged in"
-	 */
-	public void logged_in (String username) {
-		// login/logout link
-		login.setVisible(false);
-		logout.setText("Log out user " + username);
-		logout.setVisible(true);
-		// visibility
-		welcomePage.setVisible(false);
-		userPage.setVisible(true);
-		documentCreator.setVisible(true);
-		// about.setVisible(true);
-	}
-	
-	/**
-	 * to be called to switch the view from "logged in" to "logged out"
-	 */
-	public void logged_out () {
-		// login/logout link
-		logout.setVisible(false);
-		login.setVisible(true);
-		// visibility
-		welcomePage.setVisible(true);
-		userPage.setVisible(false);
-		documentCreator.setVisible(false);
-		// about.setVisible(true);
-	}
-	
-    ///////////////////////////////////////
-    //                                   //
-    //      The pages in menu            //
-    //                                   //
-    ///////////////////////////////////////
-	
+	public void activateMenuItem(Hyperlink menuItem) {
+        for (Hyperlink item : allMenuItems) {
+            item.removeStyleName(ACTIVE);
+	    }
+	    menuItem.addStyleName(ACTIVE);
+    }
+
 	@UiField
 	Hyperlink welcomePage;
 
@@ -113,41 +70,6 @@ public class GuiStructure extends Composite {
 	@UiField
 	Hyperlink about;
 
-	Hyperlink[] allMenuItems;
-
-	private Hyperlink page2menuItem (Page page) {
-		switch (page) {
-		case About:
-			return about;
-		case WelcomeScreen:
-			return welcomePage;
-		case UserPage:
-			return userPage;
-		case DocumentCreator:
-			return documentCreator;
-		default:
-			return null;
-		}
-	}
-	
-	static final String ACTIVE = "active";
-	
-	private void deactivateAllMenuItems() {
-        for (Hyperlink item : allMenuItems) {
-            item.removeStyleName(ACTIVE);
-	    }
-    }
-
-	private void activateMenuItem(Hyperlink menuItem) {
-	    menuItem.addStyleName(ACTIVE);
-    }
-
-    ///////////////////////////////////////
-    //                                   //
-    //      Other things                 //
-    //                                   //
-    ///////////////////////////////////////
-	
 	@UiField
 	NavLink login;
 
@@ -160,4 +82,26 @@ public class GuiStructure extends Composite {
 	@UiField
 	public TextArea txtDebug;
 	
+	public void logged_in (String username) {
+		// login/logout link
+		login.setVisible(false);
+		logout.setText("Log out user " + username);
+		logout.setVisible(true);
+		// visibility
+		welcomePage.setVisible(false);
+		userPage.setVisible(true);
+		documentCreator.setVisible(true);
+		// about.setVisible(true);
+	}
+	
+	public void logged_out () {
+		// login/logout link
+		logout.setVisible(false);
+		login.setVisible(true);
+		// visibility
+		welcomePage.setVisible(true);
+		userPage.setVisible(false);
+		documentCreator.setVisible(false);
+		// about.setVisible(true);
+	}
 }

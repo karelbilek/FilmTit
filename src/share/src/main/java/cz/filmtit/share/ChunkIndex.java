@@ -2,20 +2,10 @@ package cz.filmtit.share;
 
 import java.io.Serializable;
 public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable, Serializable, Comparable<ChunkIndex> {
-    
-	int partNumber;
-
-    public int getPartNumber() {
-		return partNumber;
-	}
-
+    int partNumber;
     int id;
-    
-	public int getId() {
-		return id;
-	}
 
-	public ChunkIndex() {
+    public ChunkIndex() {
         partNumber=0;
         id=0;
     }

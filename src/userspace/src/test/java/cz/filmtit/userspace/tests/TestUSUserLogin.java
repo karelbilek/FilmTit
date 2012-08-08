@@ -2,20 +2,17 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USUser;
-import cz.filmtit.userspace.login.ChangePassToken;
-import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.hibernate.Session;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 public class TestUSUserLogin {
 
@@ -32,69 +29,44 @@ public class TestUSUserLogin {
         MockHibernateUtil.changeUtilsInAllClasses();
     }
 
-    @AfterClass
-    public static void clean() {
-        MockHibernateUtil.clearDatabase();
-    }
-
     private USHibernateUtil usHibernateUtil = MockHibernateUtil.getInstance();
     FilmTitBackendServer server = new MockFilmTitBackendServer();
 
     @Test
     public void testRegistration() {
-        server.registration(name, pass, email, null);
+       server.registration(name, pass, email, null);
 
-        Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        List userDbResult = dbSession.createQuery("select d from USUser d where d.userName ='"+name+"' ").list();
-        usHibernateUtil.closeAndCommitSession(dbSession);
+       Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+       List UserResult = dbSession.createQuery("select d from USUser d where d.userName ='"+name+"' ").list();
+       usHibernateUtil.closeAndCommitSession(dbSession);
 
-        USUser userFromDb = (USUser)userDbResult.get(0);
+       assertFalse(UserResult.size()==0);
 
-        assertFalse(userDbResult.size() == 0);
-        assertEquals(name, userFromDb.getUserName());
-        assertEquals(email, userFromDb.getEmail());
     }
 
 
     @Test
-    public void testLogin() throws NoSuchFieldException, IllegalAccessException {
-        // if not able to log in, register the user
-        if (server.simpleLogin(name,pass) != "") {
-            server.registration(name, pass, email, null);
+    public void testLogin() {
+        if (server.simpleLogin(name,pass)!="") {
+            server.registration(name,pass,email,null);
         }
-
-        // succesful login
-        String sessionId = server.simpleLogin(name, pass);
-        assertNotNull(sessionId);
-
-        // test if there is active session in the server
-        Field activeSessionsField = FilmTitBackendServer.class.getDeclaredField("activeSessions");
-        activeSessionsField.setAccessible(true);
-        Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
-        assertTrue(activeSessions.containsKey(sessionId));
-
-        MockHibernateUtil.clearDatabase(); // clear database to be able to use the same creditals again
+        String session = server.simpleLogin(name, pass);
     }
 
 
     @Test
-    public void testChangePass() throws NoSuchFieldException, IllegalAccessException {
-        String stringToken = "test001";
-
-        Field activeTokensField = FilmTitBackendServer.class.getDeclaredField("activeTokens");
-        activeTokensField.setAccessible(true);
-        Map<String, ChangePassToken> activeTokens = (Map<String, ChangePassToken>) activeTokensField.get(server);
-        activeTokens.put(name, new ChangePassToken(stringToken));
-
-        server.changePassword(name, newPass, stringToken);
-        String session = server.simpleLogin(name, newPass);
-        assertTrue("test pass", session != null);
+    public void testChangePass(){
+       String string_token = "test001";
+       server.createTestChange(name,string_token);
+       server.changePassword(name,newPass,string_token);
+       String session = server.simpleLogin(name, newPass);
+       assertTrue("test pass",session != null);
     }
 
 
-    @Test  // TODO: what is this good for?
+    @Test
     public void testUrlChange(){
-        USUser user = new USUser(name, pass, email, null);
+        USUser user = new USUser(name,pass,email,null);
         server.sendChangePasswordMail(user);
     }
 }

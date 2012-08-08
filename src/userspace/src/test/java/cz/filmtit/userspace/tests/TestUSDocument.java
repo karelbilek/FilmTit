@@ -8,7 +8,6 @@ import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
 import org.hibernate.Session;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,11 +22,6 @@ public class TestUSDocument {
         Configuration configuration = new Configuration("configuration.xml");
         ConfigurationSingleton.setConf(configuration);
         MockHibernateUtil.changeUtilsInAllClasses();
-    }
-
-    @AfterClass
-    public static void clean() {
-        MockHibernateUtil.clearDatabase();
     }
 
 

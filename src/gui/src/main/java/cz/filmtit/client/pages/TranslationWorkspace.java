@@ -4,9 +4,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
-import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
 import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
@@ -117,9 +115,7 @@ public class TranslationWorkspace extends Composite {
     HorizontalPanel hPanel;
     @UiField
     HorizontalPanel translationHPanel;
-  
-    private boolean sourceSelected = false;
-
+   
     ///////////////////////////////////////
     //                                   //
     //      Initialization               //
@@ -129,9 +125,7 @@ public class TranslationWorkspace extends Composite {
     public TranslationWorkspace(Document doc, String path, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
-        gui.pageHandler.setPageUrl(Page.TranslationWorkspace);
-        gui.guiStructure.activateMenuItem(Page.TranslationWorkspace);
-        
+        // 0 <= id < Integer.MAX_VALUE
         id = Random.nextInt(Integer.MAX_VALUE);
         gui.currentWorkspace = this;
         
@@ -139,21 +133,23 @@ public class TranslationWorkspace extends Composite {
         
         setCurrentDocument(doc);
         
-
-        switch (documentOrigin) {
-            case NEW:
-                // wait for everything to load and for selectSource to return
-                sourceSelected = false;
-                break;
-            case FROM_DB:
-                // only wait for everything to load
-                sourceSelected = true;    
-                break;
-            default:
-                assert false;
-                break;
-        }
+        this.documentOrigin = documentOrigin;
         
+        // initialize readyToSendChunksSemaphore
+        switch (documentOrigin) {
+		case NEW:
+			// wait for everything to load and for selectSource to return
+			readyToSendChunksSemaphore = 2;
+			break;
+		case FROM_DB:
+			// only wait for everything to load
+			readyToSendChunksSemaphore = 1;
+            break;
+		default:
+			assert false;
+			break;
+		}
+
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
         this.indexes = new HashMap<ChunkIndex, Integer>();
 
@@ -194,6 +190,8 @@ public class TranslationWorkspace extends Composite {
         gui.guiStructure.contentPanel.setWidget(this);
         gui.guiStructure.contentPanel.setStyleName("translating");
         gui.guiStructure.contentPanel.addStyleName("parsing");
+
+        
 	}
     
     ///////////////////////////////////////
@@ -237,6 +235,7 @@ public class TranslationWorkspace extends Composite {
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
               String tChunk = tr.getUserTranslation();
               
+              // log("processing TrResult for " + sChunk);
 
               ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
@@ -244,15 +243,18 @@ public class TranslationWorkspace extends Composite {
 
               allChunks.add(sChunk);
 
+//              showSource(sChunk);
 
               if (tChunk==null || tChunk.equals("")){
+                  // log(sChunk + " has not yet been translated");
                  untranslatedOnes.add(sChunk);
               } else {
+                  // log(sChunk + " has already been translated");
                  results.add(tr);
               }
           }
-          
-          dealWithChunks(allChunks, results, untranslatedOnes);
+
+          Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(allChunks, untranslatedOnes, results));
           
     }
 
@@ -284,6 +286,7 @@ public class TranslationWorkspace extends Composite {
 
           // parse:
           gui.log("starting parsing");
+          //Window.alert("starting parsing");
           long startTime = System.currentTimeMillis();
           List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
           long endTime = System.currentTimeMillis();
@@ -291,6 +294,7 @@ public class TranslationWorkspace extends Composite {
           gui.log("parsing finished in " + parsingTime + "ms");
 
           
+          //Window.alert("finished parsing");
 
           for (TimedChunk chunk : chunklist) {
               chunkmap.put(chunk.getChunkIndex(), chunk);
@@ -300,13 +304,14 @@ public class TranslationWorkspace extends Composite {
 
           }
           
+          //Window.alert("finished hashmap");
           
 
           // output the parsed chunks:
           gui.log("parsed chunks: "+chunklist.size());
           
           // save the chunks
-          FilmTitServiceHandler.saveSourceChunks(chunklist, this);
+          gui.rpcHandler.saveSourceChunks(chunklist, this);
           
           gui.log("called saveSourceChunks()");
           
@@ -315,33 +320,44 @@ public class TranslationWorkspace extends Composite {
 
      SendChunksCommand sendChunksCommand;
      
-     boolean translationStarted=false;
      /**
       * Creates the SendChunksCommand and, if possible, executes it
       * @param chunklist
       */
-     void prepareSendChunkCommand(List<TimedChunk> chunklist) {
-           
-           
-              sendChunksCommand = new SendChunksCommand(chunklist);
+     void startShowingTranslations(List<TimedChunk> chunklist) {
+          
+          sendChunksCommand = new SendChunksCommand(chunklist);
+          startShowingTranslationsIfReady();
           
      }
-
-     public void setSourceSelectedTrue() {
-         this.sourceSelected = true;
-     }
-     public void startShowingTranslationsIfReady() {
-         if (sourceSelected) {
-            if (sendChunksCommand!=null) {
-               if (translationStarted == false) {
-                 sendChunksCommand.execute();
-                 translationStarted=true;
-               }
-            }
-         }
-     }
      
-        
+     /**
+      * Determines whether chunks can be sent for translation
+      * similarly to a Semaphore.
+      * Starts as a positive number,
+      * gets decremented from startShowingTranslations()
+      * and from SelectSource.onSuccessAfterLog()
+      * and when the value is 0, the chunks can be sent.
+      */
+     private byte readyToSendChunksSemaphore;
+     
+     /**
+      * Sends chunks for translation if everything is ready.
+      * Is called once from startShowingTranslations()
+      * (when the document is parsed and the source chunks and user translations are displayed)
+      * and once from SelectSource.onSuccessAfterLog()
+      * (when the MediaSource has been set).
+      */
+     synchronized public void startShowingTranslationsIfReady() {
+    	 // "synchronized" is here only for clarity, GWT ignores that as JS is single-threaded.
+
+    	 readyToSendChunksSemaphore--;
+    	 if (readyToSendChunksSemaphore <= 0) {
+             sendChunksCommand.execute();    		 
+    	 }
+    }
+    
+     
 
      /**
       * Requests TranslationResults for the chunks,
@@ -352,7 +368,9 @@ public class TranslationWorkspace extends Composite {
           LinkedList<TimedChunk> chunks;
 
           public SendChunksCommand(List<TimedChunk> chunks) {
+               //Window.alert("wtf");
                this.chunks = new LinkedList<TimedChunk>(chunks);
+               //Window.alert("Chunks je velky "+chunks.size());
           }
 
         //exponential window
@@ -377,6 +395,7 @@ public class TranslationWorkspace extends Composite {
                }
 
                if (chunks.isEmpty()) {
+                    //Window.alert("chunks is empty");
                     return false;
                } else {
                     List<TimedChunk> sentTimedchunks = new ArrayList<TimedChunk>(exponential);
@@ -386,6 +405,7 @@ public class TranslationWorkspace extends Composite {
                             sentTimedchunks.add(timedchunk);
                         }
                     }
+                    //Window.alert("chunk neni empty, posilam "+sentTimedchunks.size());
                     sendChunks(sentTimedchunks);
                     exponential = exponential*2;
                     if (exponential > expMax) {
@@ -396,7 +416,8 @@ public class TranslationWorkspace extends Composite {
           }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
-        	  FilmTitServiceHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
+              //Window.alert("HAHA spoustim sendChunksCommand");
+        	  gui.rpcHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
           }
      }
 
@@ -406,11 +427,12 @@ public class TranslationWorkspace extends Composite {
       * @param transresult
       */
      public void submitUserTranslation(TranslationResult transresult) {
+    	  // assert transresult.getDocumentId() == currentDocument.getId();
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getSourceChunk().getChunkIndex();
           gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-          FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
+          gui.rpcHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
      }
 
@@ -420,64 +442,62 @@ public class TranslationWorkspace extends Composite {
      //                                   //
      ///////////////////////////////////////
 
-     class ShowUserTranslatedCommand implements RepeatingCommand {
-        LinkedList<TranslationResult> resultsToDisplay = new LinkedList<TranslationResult>();
-
-        public ShowUserTranslatedCommand(List<TranslationResult> chunks) {
-            this.resultsToDisplay.addAll(chunks);
-        }
-
-        @Override
-        public boolean execute() {
-             if (stopLoading) {
-                return false;
-             }
-
-             if (!resultsToDisplay.isEmpty()) {
-                 TranslationResult result = resultsToDisplay.removeFirst();
-                 showResult(result);
-                 return true;
-             }
-             return false;
-        }
-     }
-
-     class ShowOriginalCommand implements RepeatingCommand {
+     class FakeSubgestIncrementalCommand implements RepeatingCommand {
          LinkedList<TimedChunk> chunksToDisplay = new LinkedList<TimedChunk>();
+         List<TimedChunk> chunksToTranslate = new LinkedList<TimedChunk>();
+         LinkedList<TranslationResult> resultsToDisplay = new LinkedList<TranslationResult>();
         
          /**
           * for a new document
           * (all chunks are sent to be translated, none of the chunks has a translation yet)
           * @param chunks all chunks
           */
-         public ShowOriginalCommand(List<TimedChunk> chunks) {
+         public FakeSubgestIncrementalCommand(List<TimedChunk> chunks) {
               this.chunksToDisplay.addAll(chunks);
+              this.chunksToTranslate.addAll(chunks);
          }
 
-        @Override
+         /**
+          * for an existing document
+          * @param chunksToDisplay <b>all</b> chunks (all chunks will be displayed first)
+          * @param chunksToTranslate chunks <b>without userTranslation</b> (TM will be queried for translation suggestions for these)
+          * @param resultsToDisplay TranslationResults containing chunks <b>with userTranslation</b> (no translation suggestions will be displayed for these)
+          */
+         public FakeSubgestIncrementalCommand(List<TimedChunk> chunksToDisplay, List<TimedChunk> chunksToTranslate, List<TranslationResult> resultsToDisplay) {
+              this.chunksToDisplay.addAll(chunksToDisplay);
+              this.chunksToTranslate.addAll(chunksToTranslate);
+              this.resultsToDisplay.addAll(resultsToDisplay);
+          }
+
+         @Override
          public boolean execute() {
              if (stopLoading) {
                 return false;
              }
 
+        	 // First, process chunksToDisplay
              if (!chunksToDisplay.isEmpty()) {
                  TimedChunk timedchunk = chunksToDisplay.removeFirst();
                  showSource(timedchunk);
                  return true;
              }
-             return false;
+             // Then, process resultsToDisplay
+             else if (!resultsToDisplay.isEmpty()) {
+                 TranslationResult result = resultsToDisplay.removeFirst();
+                 showResult(result);
+                 return true;
+             }
+             // Finally, process chunksToTranslate
+             else {
+                 gui.guiStructure.contentPanel.removeStyleName("parsing");
+                 startShowingTranslations(chunksToTranslate) ;
+                 return false;
+             }
          }
      }
-    
-
-     public void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
-          Scheduler.get().scheduleIncremental(new ShowOriginalCommand(original));
-          Scheduler.get().scheduleIncremental(new ShowUserTranslatedCommand(translated));
-          prepareSendChunkCommand(untranslated) ; 
-          startShowingTranslationsIfReady() ; 
-     }
+     
      public void showSources(List<TimedChunk> chunks) {
-        dealWithChunks(chunks, new LinkedList<TranslationResult>(), chunks);
+        Scheduler.get().scheduleIncremental(new FakeSubgestIncrementalCommand(chunks));
      }
 
      /**
@@ -486,7 +506,6 @@ public class TranslationWorkspace extends Composite {
      *
      * We have to suppose these are coming in the same order as they appear in the source.
      * @param chunk - source-language chunk to show
-     * @param index - index of the chunk in the chunk-list
      */
     public void showSource(TimedChunk chunk) {
         
@@ -530,26 +549,14 @@ public class TranslationWorkspace extends Composite {
      * Add the given TranslationResult to the current listing interface.
      * @param transresult - the TranslationResult to be shown
      */
-    public void showResult(final TranslationResult transresult) {
-            
-        ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-        
-        if (!indexes.containsKey(chunkIndex)) {
-            //try it again after some time
-             new com.google.gwt.user.client.Timer() { 
-                @Override
-                public void run() { 
-                    showResult(transresult); 
-                } 
-            }.schedule(400); 
-        } else {
-            
-            //index is there -> insert result
-            int index = indexes.get(chunkIndex);
+    public void showResult(TranslationResult transresult) {
+    	
 
-            targetBoxes.get(index).getFather().setTranslationResult(transresult);
-            targetBoxes.get(index).removeStyleName("loading");
-        }
+        ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
+        int index = indexes.get(chunkIndex);
+
+        targetBoxes.get(index).getFather().setTranslationResult(transresult);
+        targetBoxes.get(index).removeStyleName("loading");
 
     }
 

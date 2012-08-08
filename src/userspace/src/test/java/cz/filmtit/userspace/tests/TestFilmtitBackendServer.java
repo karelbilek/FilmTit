@@ -13,7 +13,6 @@ import cz.filmtit.userspace.Session;
 import cz.filmtit.userspace.USUser;
 import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import de.svenjacobs.loremipsum.LoremIpsum;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openid4java.consumer.ConsumerException;
@@ -23,8 +22,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * @author Jindřich Libovický
@@ -39,11 +36,6 @@ public class TestFilmtitBackendServer {
         MockHibernateUtil.changeUtilsInAllClasses();
     }
 
-    @AfterClass
-    public static void clean() {
-        MockHibernateUtil.clearDatabase();
-    }
-
     @Test
     public void testGetAutheticationURL() throws ConsumerException, MessageException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
@@ -53,7 +45,7 @@ public class TestFilmtitBackendServer {
     @Test(expected = InvalidSessionIdException.class)
     public void testSessionTimeOut() throws NoSuchFieldException, IllegalAccessException, InterruptedException, InvalidSessionIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Session session = new Session(new USUser("jindrapinda", "pinda", "jindra@pinda.cz", null));
+        Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
 
         // change the last operation time in session
         Field lastChangeField = null;
@@ -104,7 +96,7 @@ public class TestFilmtitBackendServer {
     }
 
     @Test
-    public void testGetSourceSubtitlesExport()
+    public void testGetSourceSubtitlesSrt()
             throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
@@ -147,32 +139,6 @@ public class TestFilmtitBackendServer {
                 "I hear myself mooning over you, and it's disgusting.\n";
         String actualTxtFile = server.getSourceSubtitles(sessionId, documentId, 25d, TimedChunk.FileType.TXT, ChunkStringGenerator.SOURCE_SIDE);
         assertEquals(expectedTxtFile, actualTxtFile);
-    }
-
-    @Test
-    public void testGetTargetSubtitlesExport() {
-        // TODO: implement it
-    }
-
-    @Test
-    public void testCancelingOldSessionOnRelogin() throws NoSuchFieldException, IllegalAccessException {
-        FilmTitBackendServer server = new MockFilmTitBackendServer();
-
-        // now get the table of active sessions
-        Field activeSessionsField = FilmTitBackendServer.class.getDeclaredField("activeSessions");
-        activeSessionsField.setAccessible(true);
-        Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
-
-        server.registration("user", "pass", "user@user.bflm", null);
-        String sessionId1 = server.simpleLogin("user", "pass");
-
-        assertTrue(activeSessions.size() == 1);
-        assertTrue(activeSessions.containsKey(sessionId1));
-
-        String sessionId2 = server.simpleLogin("user", "pass");
-        assertTrue(activeSessions.size() == 1);
-        assertFalse(activeSessions.containsKey(sessionId1));
-        assertTrue(activeSessions.containsKey(sessionId2));
     }
 
     private class GettingTranslationsRunner extends Thread {

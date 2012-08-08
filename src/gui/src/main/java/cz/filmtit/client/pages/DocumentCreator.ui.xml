@@ -87,7 +87,7 @@
             <b:Fieldset>
                 <b:FormActions ui:field="bottomControlGroup">
                     <b:Controls>
-                        <b:Button type="PRIMARY" ui:field="btnCreateDocument" enabled="false">Create document</b:Button>
+                        <b:Button type="PRIMARY" ui:field="btnCreateDocument">Create document</b:Button>
                         <b:Label ui:field="lblCreateProgress" visible="false"></b:Label>
                     </b:Controls>
                 </b:FormActions>

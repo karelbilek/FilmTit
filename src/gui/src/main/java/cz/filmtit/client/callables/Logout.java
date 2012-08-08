@@ -35,12 +35,6 @@ import java.util.*;
                 gui.logged_out(true);
             }
         }
-        
-        @Override
-        protected void onProbablyOffline(Throwable returned) {
-            gui.log("ERROR: logout didn't succeed - probably offline! Forcing local logout... " + returned.getLocalizedMessage());
-            gui.logged_out(true);
-        }
     
         // constructor
 		public Logout() {

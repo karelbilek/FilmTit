@@ -27,6 +27,8 @@ import cz.filmtit.client.pages.UserPage;
 import cz.filmtit.client.pages.WelcomeScreen;
 import cz.filmtit.share.Document;
 
+
+
 /**
  * Handles loading and switching of pages.
  * @author rur
@@ -308,7 +310,7 @@ public class PageHandler {
 					// Window.alert("Cannnot load document - document ID (-1) is not valid!");
 		    	} else {
 					loadBlankPage();
-		            FilmTitServiceHandler.loadDocumentFromDB(documentId);
+		            gui.rpcHandler.loadDocumentFromDB(documentId);
 		    	}
 				break;
 			case DocumentCreator:
@@ -332,17 +334,12 @@ public class PageHandler {
 
 			gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
-	    	
-	    	if (isFullPage(pageLoaded)) {
-		    	// set the correct menu item
-		    	gui.guiStructure.activateMenuItem(pageLoaded);
-	    	}
 		}
 		else {
 			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
-		
+	
 	/**
 	 * Reload the current page.
 	 */

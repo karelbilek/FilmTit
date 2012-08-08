@@ -12,7 +12,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Paragraph;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 
 public class AuthenticationValidationWindow extends Composite {
@@ -48,10 +47,10 @@ public class AuthenticationValidationWindow extends Composite {
         String responseURL = Window.Location.getHref();
         
         // auhID
-        int authID = 0;
+        long authID = 0;
         String authIDstring = Window.Location.getParameter("authID");
         try {
-             authID = Integer.parseInt(authIDstring);
+             authID = Long.parseLong(authIDstring);
         }
         catch (Exception e) {
              paraValidation.setText("Cannot parse authID '" + authIDstring + "' as a number! " + e);
@@ -61,7 +60,7 @@ public class AuthenticationValidationWindow extends Composite {
 
         // send RPC
         paraValidation.setText("Validating authentication data for authID '" + authID + "'...");
-        FilmTitServiceHandler.validateAuthentication (responseURL, authID, this);
+        gui.rpcHandler.validateAuthentication (responseURL, authID, this);
     }
 	
 	/**

@@ -17,7 +17,6 @@ import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 
 import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.client.callables.SetUserTranslation;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.client.dialogs.LoginDialog.Tab;
@@ -61,6 +60,11 @@ public class Gui implements EntryPoint {
 	 * handles especially the menu
 	 */
     public GuiStructure guiStructure;
+
+ 	/**
+ 	 * handles RPC calls
+ 	 */
+    public FilmTitServiceHandler rpcHandler;
 
  	/**
  	 * handles page switching
@@ -123,18 +127,25 @@ public class Gui implements EntryPoint {
     @Override
     public void onModuleLoad() {
     	
-    	// handle all uncaught exceptions
-    	GWT.setUncaughtExceptionHandler(new ExceptionHandler(true, true));
-    	
-    	// set the Gui singleton
-    	Gui.gui = this;
-
-		// page loading and switching
-		pageHandler = new PageHandler();
-		
-		if (pageHandler.doCheckSessionID) {
-    		// check whether user is logged in or not
-    		FilmTitServiceHandler.checkSessionID();
+    	try {
+	    	
+	    	// set the Gui singleton
+	    	Gui.gui = this;
+	
+			// RPC:
+			rpcHandler = new FilmTitServiceHandler();
+	
+			// page loading and switching
+			pageHandler = new PageHandler();
+			
+			if (pageHandler.doCheckSessionID) {
+	    		// check whether user is logged in or not
+	    		gui.rpcHandler.checkSessionID();
+			}
+            
+    	}
+    	catch (Exception e) {
+			exceptionCatcher(e);
 		}
 		
     }
@@ -172,8 +183,6 @@ public class Gui implements EntryPoint {
    		 // (does not work in Firefox according to documentation)
    		 Window.setStatus(logtext);
    	 }
-   	 // also log to development console
-   	 GWT.log(logtext);
     }
 
     public void error(String errtext) {
@@ -223,23 +232,6 @@ public class Gui implements EntryPoint {
 		
     	// return exception name, message and stacktrace
 		return result;
-    }
-    
-    private class ExceptionHandler implements GWT.UncaughtExceptionHandler {
-
-    	boolean alertExceptions;
-    	boolean logExceptions;
-    	
-		private ExceptionHandler(boolean alertExceptions, boolean logExceptions) {
-			this.alertExceptions = alertExceptions;
-			this.logExceptions = logExceptions;
-		}
-
-		@Override
-		public void onUncaughtException(Throwable e) {
-			exceptionCatcher(e, alertExceptions, logExceptions);
-		}
-    	
     }
 
 
@@ -299,8 +291,6 @@ public class Gui implements EntryPoint {
         // actions
     	guiStructure.logged_in(username);
     	pageHandler.loadPage();
-    	
-    	SetUserTranslation.setOnline(true);
     }
 
     /**

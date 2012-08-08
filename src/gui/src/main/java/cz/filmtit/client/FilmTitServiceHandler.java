@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.Modal;
 import cz.filmtit.client.callables.*;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
@@ -13,43 +14,45 @@ import cz.filmtit.share.TimedChunk;
 
 import java.util.List;
 
-/**
- * A static class that provides access to Remote Procedure Calls to the FilmTit server.
- * @author rur
- *
- */
-public final class FilmTitServiceHandler {
+public class FilmTitServiceHandler {
 	
 // disabled only to avoid duplicities, can be reenabled by uncommenting anytime if needed
 //    public void loadDocumentFromDB(Document document) {
 //        new LoadDocumentFromDB(document.getId());
 //    }
 
-    static public void loadDocumentFromDB(long documentId) {
+    public void loadDocumentFromDB(long documentId) {
         new LoadDocumentFromDB(documentId);    		
     }
 
-    static public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String subformat, String moviePath) {
-		new CreateDocument(documentTitle, movieTitle, language, subtext, subformat, moviePath);
+
+	public void createDocument(String documentTitle, String movieTitle, String language, String subtext, String subformat, String moviePath) {
+		new CreateDocument(documentTitle, movieTitle, language, subtext, subformat, moviePath, this);
 	}
 	
-    static public void saveSourceChunks(List<TimedChunk> chunks, TranslationWorkspace workspace) {
+	
+	public void saveSourceChunks(List<TimedChunk> chunks, TranslationWorkspace workspace) {
 		new SaveSourceChunks(chunks, workspace);
 	}
 
-    static public void getTranslationResults(List<TimedChunk> chunks, SendChunksCommand command, TranslationWorkspace workspace) {
+	
+	public void getTranslationResults(List<TimedChunk> chunks, SendChunksCommand command, TranslationWorkspace workspace) {
 		new GetTranslationResults(chunks, command, workspace);
 	}
 
-    static public void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPair) {
+	
+	public void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPair) {
 		new SetUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPair);
 	}
 
-    static public void selectSource(long documentID, MediaSource selectedMediaSource, TranslationWorkspace workspace) {
+	
+    public void selectSource(long documentID, MediaSource selectedMediaSource, TranslationWorkspace workspace) {
     	new SelectSource(documentID, selectedMediaSource, workspace);
     }
 
-    static public void checkSessionID() {
+    
+
+    public void checkSessionID() {
 		if (Gui.getGui().getSessionID() == null) {
 			Gui.getGui().logged_out();
     	}
@@ -58,14 +61,19 @@ public final class FilmTitServiceHandler {
         }
     }
     
-    static public void registerUser(String username, String password, String email, Dialog loginDialog) {
-    	new RegisterUser(username, password, email, loginDialog);
+   
+
+    public void registerUser(String username, String password, String email, Dialog loginDialog) {
+    	new RegisterUser(username, password, email, loginDialog, this);
     }
     
-    static public void sendChangePasswordMail (String username, Dialog loginDialog) {
+    
+    
+    public void sendChangePasswordMail (String username, Dialog loginDialog) {
     	new SendChangePasswordMail(username, loginDialog);
     }
     
+   
     /**
      * change password in case of forgotten password;
      * user chooses a new password,
@@ -74,40 +82,51 @@ public final class FilmTitServiceHandler {
      * @param password
      * @param token
      */
-    static public void changePassword(String username, String password, String token) {
-    	new ChangePasswordCallable(username, password, token);
+    public void changePassword(String username, String password, String token) {
+    	new ChangePasswordCallable(username, password, token, this);
     }
     
+  
     /**
      * Log in the user
      * @param username
      * @param password
      * @param loginDialog can be null if we are "sure" the password is OK (i.e. after setting it)
      */
-    static public void simpleLogin(String username, String password, Dialog loginDialog) {
+    public void simpleLogin(String username, String password, Dialog loginDialog) {
     	new SimpleLogin(username, password, loginDialog);
 	}
 
-    static public void logout() {    	new Logout();
+
+
+    public void logout() {    	new Logout();
     }
     
-    static public void getAuthenticationURL(AuthenticationServiceType serviceType, Dialog loginDialog) {
-		new GetAuthenticationURL(serviceType, loginDialog);
+
+	public void getAuthenticationURL(AuthenticationServiceType serviceType, Dialog loginDialog) {
+		new GetAuthenticationURL(serviceType, loginDialog, this);
 	}
 	
-    static public void validateAuthentication (String responseURL, int authID, AuthenticationValidationWindow authenticationValidationWindow) {
+	
+
+	    
+	public void validateAuthentication (String responseURL, long authID, AuthenticationValidationWindow authenticationValidationWindow) {
 		new ValidateAuthentication(responseURL, authID, authenticationValidationWindow);
 	}
 	
-    static public void getListOfDocuments(UserPage userpage) {
+
+
+    public void getListOfDocuments(UserPage userpage) {
     	new GetListOfDocuments(userpage);
     }
 
-    static public void deleteDocument(long id) {
+
+	public void deleteDocument(long id) {
 		new DeleteDocument(id);
 	}
-	
-    private FilmTitServiceHandler() {
-    	assert false : "FilmTitServiceHandler is a static class";
-    }
+
+
+    
+
+	    
 }

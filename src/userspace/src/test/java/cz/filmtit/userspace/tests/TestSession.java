@@ -11,7 +11,6 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.userspace.*;
 import de.svenjacobs.loremipsum.LoremIpsum;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,11 +36,6 @@ public class TestSession {
         Configuration configuration = new Configuration("configuration.xml");
         ConfigurationSingleton.setConf(configuration);
         MockHibernateUtil.changeUtilsInAllClasses();
-    }
-
-    @AfterClass
-    public static void clean() {
-        MockHibernateUtil.clearDatabase();
     }
 
     private LoremIpsum loremIpsum = new LoremIpsum();
@@ -282,53 +276,6 @@ public class TestSession {
         usHibernateUtil.closeAndCommitSession(dbSession);
 
         assertEquals(32, dbQuery.size());
-    }
-
-    /**
-     * Tests the standard deletion of a document. First a half of the translation results are marked as if they
-     * have already sent feedback to the core. Then the delete method is called. It is tested that the deletion
-     * sign was set and the deleted document does not appear in the list provided to the client. Then it is tested
-     * if the chunks that already sent the feedback were deleted.
-     */
-    @Test
-    public void testDeleteDocument()
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InvalidDocumentIdException {
-        Session session = new Session(getSampleUser());
-
-        // originally there 3 documents
-        List<Document> originallyDocuments = session.getListOfDocuments();
-        assertEquals(3, originallyDocuments.size());
-
-        session.loadDocument(firstGeneratedDocument.getDatabaseId());
-
-        // each document of the sample user has 20 sample chunks ...
-        //  ... simulate feedback has been sent from 10 of them
-        USDocument document = firstGeneratedDocument;
-        int feedbackedResults = 0;
-        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        for (USTranslationResult result : document.getTranslationResultValues()) {
-            Method feedBackSentSetter = USTranslationResult.class.getDeclaredMethod("setFeedbackSent", boolean.class);
-            feedBackSentSetter.setAccessible(true);
-            feedBackSentSetter.invoke(result, true);
-            result.saveToDatabase(dbSession);
-
-            feedbackedResults++;
-            if (feedbackedResults >= 10) { break; }
-        }
-        usHibernateUtil.closeAndCommitSession(dbSession);
-
-        session.deleteDocument(firstGeneratedDocument.getDatabaseId());
-
-        // test if it disappeared from the list of users documents
-        List<Document> afterDeleteDocuments = session.getListOfDocuments();
-        assertEquals(2, afterDeleteDocuments.size());
-        assertTrue(firstGeneratedDocument.isToBeDeleted());
-
-        dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        List resultsFromDb = dbSession.createQuery("select r from USTranslationResult r where r.documentDatabaseId = :did")
-                .setParameter("did", firstGeneratedDocument.getDatabaseId()).list();
-        usHibernateUtil.closeAndCommitSession(dbSession);
-        assertEquals(10, resultsFromDb.size());
     }
 
     /**

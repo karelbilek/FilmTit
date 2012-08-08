@@ -47,7 +47,6 @@
     </import>
 
     <userspace>
-        <maximum_suggestions_count>25</maximum_suggestions_count>
         <session_timeout_limit>3600000</session_timeout_limit>
         <permanent_session_timeout_limit>1209600000</permanent_session_timeout_limit>
         <server_address>http://localhost:8080</server_address>

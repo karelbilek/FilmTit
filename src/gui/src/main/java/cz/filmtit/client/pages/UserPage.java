@@ -15,7 +15,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
@@ -93,7 +92,11 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-        	   gui.showDownloadDialog(doc);
+                try {    
+                    gui.showDownloadDialog(doc);
+                } catch (Exception e) {
+                    Window.alert(e.toString());
+                }
            }
        });
 
@@ -108,7 +111,7 @@ public class UserPage extends Composite {
        deleteButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
         	   if (Window.confirm("Do you really want to delete the document " + doc.getTitle() + "?")) {
-        		   FilmTitServiceHandler.deleteDocument(doc.getId());
+        		   gui.rpcHandler.deleteDocument(doc.getId());
         	   }
            }
        });
@@ -126,11 +129,14 @@ public class UserPage extends Composite {
       
         emptyLabel.setVisible(false);
         
+        
+        
+        gui.guiStructure.activateMenuItem(gui.guiStructure.userPage);
 
         gui.guiStructure.contentPanel.setStyleName("users_page");
 
         gui.log("getting list of documents...");
-        FilmTitServiceHandler.getListOfDocuments(this);
+        gui.rpcHandler.getListOfDocuments(this);
 
 
 

@@ -7,33 +7,35 @@ import cz.filmtit.client.Callable;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.share.AuthenticationServiceType;
-import cz.filmtit.share.LoginSessionResponse;
 
 
-	public class GetAuthenticationURL extends Callable<LoginSessionResponse> {
+	public class GetAuthenticationURL extends Callable<String> {
 		
 		// parameters
 		AuthenticationServiceType serviceType;
 		Dialog loginDialog;
+		/**
+		 * temporary ID for authentication
+		 */
+		private int authID;
+        FilmTitServiceHandler handler;
+
 
         @Override
 		public String getName() {
             return "GetAuthenticationURL";
         }
         
-        // TODO: uncomment and finalize
         @Override
-		public void onSuccessAfterLog(LoginSessionResponse response) {
-	    	String url = response.getOpenIDURL();
-	    	int authID = response.getAuthID();
-			gui.log("Authentication URL and authID arrived: " + authID + ", " + url);
+		public void onSuccessAfterLog(final String url) {
+			gui.log("Authentication URL arrived: " + url);
 			loginDialog.close();
 			
-            // open the authentication window
+            // open the authenticationwindow
 			Window.open(url, "AuthenticationWindow", "width=400,height=500");
 			
 			// start polling for SessionID
-			new SessionIDPolling(authID);
+			new SessionIDPolling(authID, handler);				
         }
 			
         @Override
@@ -46,9 +48,10 @@ import cz.filmtit.share.LoginSessionResponse;
 					
 		// constructor
 		public GetAuthenticationURL(AuthenticationServiceType serviceType,
-				Dialog loginDialog) {
+				Dialog loginDialog, FilmTitServiceHandler handler) {
 			super();
 			
+            this.handler = handler;
 			this.serviceType = serviceType;
 			this.loginDialog = loginDialog;
 			
@@ -56,7 +59,8 @@ import cz.filmtit.share.LoginSessionResponse;
 		}
 
 		@Override protected void call() {
-			filmTitService.getAuthenticationURL(serviceType, this);
+			authID = Random.nextInt();
+			filmTitService.getAuthenticationURL(authID, serviceType, this);
 		}
 	}
 

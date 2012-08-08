@@ -17,7 +17,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.Widget;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.widgets.FileLoadWidget;
 import org.vectomatic.file.File;
@@ -44,10 +43,11 @@ public class DocumentCreator extends Composite {
 
 	public DocumentCreator() {
 		initWidget(uiBinder.createAndBindUi(this));
-		
-		
-		// movie title copying
-		
+
+        
+        btnCreateDocument.setEnabled(false);
+
+		gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
         txtTitle.addStyleName("copying_title");
 
         txtMovieTitle.addKeyUpHandler(new KeyUpHandler() {
@@ -69,46 +69,44 @@ public class DocumentCreator extends Composite {
 			}
 		});
 
-        
         // --- file reading interface via lib-gwt-file --- //
-        
-        final FileReader freader = new FileReader();
-        freader.addLoadEndHandler(new LoadEndHandler() {
-            @Override
-            public void onLoadEnd(LoadEndEvent event) {
-                lblUploadProgress.setText("File uploaded successfully.");
-                btnCreateDocument.setEnabled(true);
-                //log(subtext);
-            }
-        });
-
-        fileUpload.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                //log(fileUpload.getFilename());
-                lblUploadProgress.setVisible(true);
-                lblUploadProgress.setText("Uploading the file...");
-                FileList fl = fileUpload.getFiles();
-                Iterator<File> fit = fl.iterator();
-                if (fit.hasNext()) {
-                    freader.readAsText(fit.next(), getChosenEncoding());
-                } else {
-                    gui.error("No file chosen.\n");
+            final FileReader freader = new FileReader();
+            freader.addLoadEndHandler(new LoadEndHandler() {
+                @Override
+                public void onLoadEnd(LoadEndEvent event) {
+                    lblUploadProgress.setText("File uploaded successfully.");
+                    btnCreateDocument.setEnabled(true);
+                    //log(subtext);
                 }
-            }
-        });
+            });
 
-        btnCreateDocument.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-            	btnCreateDocument.setEnabled(false);
-                lblCreateProgress.setVisible(true);
-                lblCreateProgress.setText("Creating the document...");
-                createDocumentFromText(freader.getStringResult());
-            }
-        });
+            fileUpload.addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {
+                    //log(fileUpload.getFilename());
+                    lblUploadProgress.setVisible(true);
+                    lblUploadProgress.setText("Uploading the file...");
+                    FileList fl = fileUpload.getFiles();
+                    Iterator<File> fit = fl.iterator();
+                    if (fit.hasNext()) {
+                        freader.readAsText(fit.next(), getChosenEncoding());
+                    } else {
+                        gui.error("No file chosen.\n");
+                    }
+                }
+            });
 
-        btnApplet.addClickHandler(new ClickHandler() {
+            btnCreateDocument.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                	btnCreateDocument.setEnabled(false);
+                    lblCreateProgress.setVisible(true);
+                    lblCreateProgress.setText("Creating the document...");
+                    createDocumentFromText(freader.getStringResult());
+                }
+            });
+
+            btnApplet.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 /*if (widgetToRemove!=null) {
@@ -125,14 +123,20 @@ public class DocumentCreator extends Composite {
            }
         });
 
-        
-        gui.guiStructure.contentPanel.setWidget(this);
+            gui.guiStructure.contentPanel.setWidget(this);
+            
+            btnCreateDocument.setEnabled(false);
 	}
 
 
     public void addressSet(FileLoadWidget widget, String address) {
        
-		moviePath.setText(address);
+       
+       try {
+         moviePath.setText(address);
+       } catch (Exception e){
+         Window.alert(e.toString());
+       }
 
       // widgetToRemove = widget ;
     }
@@ -141,7 +145,7 @@ public class DocumentCreator extends Composite {
     FormActions bottomControlGroup;
 
     private void createDocumentFromText(String subtext) {
-        FilmTitServiceHandler.createDocument(
+        gui.rpcHandler.createDocument(
                 getTitle(),
                 getMovieTitle(),
                 getChosenLanguage(),
