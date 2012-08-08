@@ -17,6 +17,7 @@ import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.SetUserTranslation;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.client.dialogs.LoginDialog.Tab;
@@ -298,6 +299,8 @@ public class Gui implements EntryPoint {
         // actions
     	guiStructure.logged_in(username);
     	pageHandler.loadPage();
+    	
+    	SetUserTranslation.setOnline(true);
     }
 
     /**
