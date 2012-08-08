@@ -462,6 +462,7 @@ public class TranslationWorkspace extends Composite {
                  showSource(timedchunk);
                  return true;
              }
+             gui.guiStructure.contentPanel.removeStyleName("parsing");
              return false;
          }
      }
