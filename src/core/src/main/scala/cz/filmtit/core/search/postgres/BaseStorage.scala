@@ -231,7 +231,7 @@ with MediaStorage {
     pairMediaSourceMappings.clear()
 
     connection.createStatement().execute(
-        (("CREATE INDEX count_idx ON %s USING btree(pair_count DESC);")
+        (("CREATE INDEX count_idx ON %s(pair_count DESC);")
           .format(pairTable))
     )
 
@@ -291,5 +291,8 @@ with MediaStorage {
     stmt.getResultSet.getLong("source_id")
   }
 
+  override def close() {
+    connection.close()
+  }
 }
 

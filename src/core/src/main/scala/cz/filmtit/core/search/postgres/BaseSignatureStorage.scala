@@ -235,8 +235,4 @@ with SignatureTranslationPairStorage {
     candidates.toList
   }
 
-  override def close() {
-    connection.close()
-  }
-
 }
