@@ -4,9 +4,6 @@ import cz.filmtit.share.TranslationPair
 
 /**
  * @author Joachim Daiber
- *
- *
- *
  */
 
 abstract class TranslationPairMerger {

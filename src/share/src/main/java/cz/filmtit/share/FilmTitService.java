@@ -2,6 +2,7 @@ package cz.filmtit.share;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import cz.filmtit.share.exceptions.AuthenticationFailedException;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -16,7 +17,13 @@ public interface FilmTitService extends RemoteService {
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
-    //String exportSubtitles(String sessionID, long documentID);
+    List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException;
+    Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
+    Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
+    public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException;
+    public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException;
     
     // Subtitles handling
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
@@ -30,9 +37,9 @@ public interface FilmTitService extends RemoteService {
 
     // Logging in methods
     // - Prepared for using JOpenID
-    String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
-    Boolean validateAuthentication(long authID, String responseURL);
-    String getSessionID(long authID);
+    LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);
+    Boolean validateAuthentication(int authID, String responseURL);
+    String getSessionID(int authID) throws AuthenticationFailedException;
     
     // Simple login
     // - registration (true if successful)
@@ -63,9 +70,7 @@ public interface FilmTitService extends RemoteService {
 
     // Method signatures prepared for the moment we'll have users and session:
 
-    List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException;
-    Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
-    Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
+
     public Void deleteDocument(String sessionID, long documentID)
             throws InvalidSessionIdException, InvalidDocumentIdException;
     Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)

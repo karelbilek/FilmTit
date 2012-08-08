@@ -57,7 +57,6 @@ with SignatureTranslationPairStorage {
     )
 
 
-
     if (!useInMemoryDB)
       connection.setAutoCommit(false)
 
@@ -68,7 +67,7 @@ with SignatureTranslationPairStorage {
     )
 
     selStmt.setFetchSize(FETCH_SIZE)
-    selStmt.execute("SELECT * FROM %s ;".format(pairTable))
+    selStmt.execute("SELECT * FROM %s ORDER BY pair_count DESC;".format(pairTable))
 
     log.info("Creating chunk signatures...")
 
@@ -168,8 +167,8 @@ with SignatureTranslationPairStorage {
    */
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
 
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.pair_id = chunks.pair_id WHERE sigs.signature_l1 = ? LIMIT %d;".format(signatureTable, pairTable, maxCandidates))
-    val mediaSourceSelect = connection.prepareStatement("SELECT source_id FROM %s WHERE pair_id = ?;".format(chunkSourceMappingTable))
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.pair_id = chunks.pair_id WHERE sigs.signature_l1 = ? LIMIT %s;".format(signatureTable, pairTable, maxCandidates))
+    val mediaSourceSelect = connection.prepareStatement("SELECT * FROM %s as mapping LEFT JOIN %s AS ms ON mapping.source_id = ms.source_id WHERE pair_id = ?;".format(chunkSourceMappingTable, mediasourceTable))
 
     //Use the signature function of the specific storage:
     select.setString(1, signature(chunk, language).surfaceform)
@@ -212,12 +211,13 @@ with SignatureTranslationPairStorage {
       mediaSourceSelect.setLong(1, pairID)
       mediaSourceSelect.execute()
 
-      val mediaSourceIDs: List[Int] = {
-        val s = ListBuffer[Int]()
-        while(mediaSourceSelect.getResultSet.next()) {
-          s += mediaSourceSelect.getResultSet.getInt("source_id")
-        }
-        s.toList
+      val mediaSources = new java.util.ArrayList[MediaSource]()
+      while(mediaSourceSelect.getResultSet.next()) {
+        new MediaSource(
+          mediaSourceSelect.getResultSet.getString("title"),
+          mediaSourceSelect.getResultSet.getString("year"),
+          mediaSourceSelect.getResultSet.getString("genres")
+        )
       }
 
       //Add the candidate to the list of candidates
@@ -225,7 +225,7 @@ with SignatureTranslationPairStorage {
                 chunkL1,
                 chunkL2,
                 source,
-                new java.util.ArrayList(mediaSourceIDs.map(getMediaSource).toList)
+                mediaSources
               )
       tp.setCount(count)
       tp.setId(pairID)
@@ -233,10 +233,6 @@ with SignatureTranslationPairStorage {
     }
 
     candidates.toList
-  }
-
-  override def close() {
-    connection.close()
   }
 
 }

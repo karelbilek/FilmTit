@@ -43,7 +43,7 @@ with MediaStorage {
   var serialDataType = "SERIAL"
   var textDataType = "TEXT"
   
-  var maxCandidates = 200
+  var maxCandidates = 100
 
   /**
    * Drop all tables from the database and recreate them.
@@ -214,11 +214,11 @@ with MediaStorage {
           addedPairs.foreach( pair => pairIDCache.remove(pair) )
 
           if (!(autoCommit)) {
-            System.err.println("Database error in current batch, switching to auto-commit mode.");
+            System.err.println("Database error in current batch, switching to auto-commit mode.")
             addVerbose(translationPairs, autoCommit=true)
             return;
           } else {
-            System.err.println("Single insert failed, skipping it..." + translationPair);
+            System.err.println("Single insert failed, skipping it..." + translationPair)
             e.printStackTrace()
           }
 
@@ -227,14 +227,16 @@ with MediaStorage {
     }
   }
 
-    System.err.println("Clearing pair<->MS set.");
+    System.err.println("Clearing pair<->MS set.")
     pairMediaSourceMappings.clear()
 
-    //Commit the changes to the database:
+    connection.createStatement().execute(
+        (("CREATE INDEX count_idx ON %s(pair_count DESC);")
+          .format(pairTable))
+    )
 
     if ( !autoCommit )
       connection.commit()
-
 
 
 
@@ -289,5 +291,8 @@ with MediaStorage {
     stmt.getResultSet.getLong("source_id")
   }
 
+  override def close() {
+    connection.close()
+  }
 }
 

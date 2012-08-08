@@ -46,13 +46,16 @@ class FirstLetterStorage(
     if (!chunk.isTokenized) {
         tokenizer(language).tokenize(chunk)
     }
-    val tokens: Array[String] = chunk.getTokens
+
+    val tokens: Array[String] = chunk.getTokens filter {
+      case Patterns.punctuation() => false
+      case _ => true
+    }
 
     tokens map {
       token =>
         token match {
           case Patterns.number() => '0'
-          case Patterns.punctuation() => null
           case _ => {
             token.take(
               tokens.size match {

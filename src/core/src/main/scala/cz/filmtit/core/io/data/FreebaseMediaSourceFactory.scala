@@ -1,5 +1,8 @@
 package cz.filmtit.core.io.data
 
+import javax.net.ssl.{TrustManager, X509TrustManager, HttpsURLConnection, SSLContext}
+import javax.security.cert
+import java.security.cert.X509Certificate
 import cz.filmtit.share.MediaSource
 import io.Source
 import java.net.URLEncoder
@@ -15,6 +18,9 @@ import scala.Some
  */
 
 class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends MediaSourceFactory {
+
+  //Allow Freebase to be queried without SSL negotation
+  FreebaseMediaSourceFactory.allowSSLCertificate()
 
   def this() {
     this(null)
@@ -197,6 +203,35 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     }
 
     JsonParser.parse(response)
+  }
+
+}
+
+object FreebaseMediaSourceFactory {
+
+  /**
+   * Beware: This tells Java URL to trust any HTTPS certificate, use with caution!
+   */
+  def allowSSLCertificate() {
+    val trustAllCerts = Array[TrustManager](
+      new X509TrustManager() {
+        def getAcceptedIssuers(): Array[X509Certificate] = null
+
+        def checkClientTrusted(certs: Array[X509Certificate], authType: String) {
+        }
+        def checkServerTrusted(certs: Array[X509Certificate], authType: String) {
+        }
+      }
+    )
+
+    // Install the all-trusting trust manager
+    try {
+      val sc = SSLContext.getInstance("SSL")
+      sc.init(null, trustAllCerts, new java.security.SecureRandom())
+      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory())
+    } catch {
+      case e: Exception =>
+    }
   }
 
 }

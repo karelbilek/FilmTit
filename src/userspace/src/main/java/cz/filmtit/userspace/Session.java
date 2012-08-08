@@ -152,21 +152,66 @@ public class Session {
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
-
     public Void deleteDocument(long documentId) throws InvalidDocumentIdException {
-        USDocument document = getActiveDocument(documentId);
+        USDocument document = null;
+        if (activeDocuments.containsKey(documentId)) {
+            document = activeDocuments.get(documentId);
+            activeDocuments.remove(documentId);
+        }
+        else  {
+            for (USDocument userDocument : user.getOwnedDocuments()) {
+                if (userDocument.getDatabaseId() == documentId) {
+                    document = userDocument;
+                    break;
+                }
+            }
+        }
+
         user.getOwnedDocuments().remove(document);
         document.setToBeDeleted(true);
 
-        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        // delete all document chunks that already provided feedback to the core
-        for (USTranslationResult result : document.getTranslationResultValues()) {
-            if (result.isFeedbackSent()) {
-                result.deleteFromDatabase(dbSession);
-            }
-        }
-        usHibernateUtil.closeAndCommitSession(dbSession);
+        // take care of the database and the translation results in separate thread
+        new DeleteDocumentRunner(document).run();
         return null;
+    }
+
+    /**
+     * A thread that performs the addition operation on the document deletion. It deletes the document from
+     * the database all the document's translation results that has already provided feedback to the core
+     * and if they are no translation results left it it deletes the
+     */
+    private class DeleteDocumentRunner extends Thread {
+        USDocument document;
+
+        public DeleteDocumentRunner(USDocument document) {
+            this.document = document;
+        }
+
+        public void run() {
+            // if it wasn't an active document, translation results need to be loaded
+            if (document.getTranslationResultValues() == null) {
+                document.loadChunksFromDb();
+            }
+
+            org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+            // delete all document chunks that already provided feedback to the core
+            boolean deleteDocument = true;
+            if (document.getTranslationResultValues() != null) {
+                // check each result ...
+                for (USTranslationResult result : document.getTranslationResultValues()) {
+                    if (result.isFeedbackSent()) { // feedback provided => delete from db
+                        result.deleteFromDatabase(dbSession);
+                    }
+                    else { // there's a result that hasn't provided => don't delete the document
+                        deleteDocument = false;
+                    }
+                }
+            }
+
+            if  (deleteDocument) {
+                document.deleteFromDatabase(dbSession);
+            }
+            usHibernateUtil.closeAndCommitSession(dbSession);}
     }
 
     /**
@@ -205,6 +250,11 @@ public class Session {
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
+        // TODO I need to be able to access any of my documents, not only the ones I loaded
+        if (!activeDocuments.containsKey(documentId)) {
+        	loadDocument(documentId);
+        }
+        
         USDocument document = getActiveDocument(documentId);
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
@@ -337,6 +387,7 @@ public class Session {
             result.add(usDocument.getDocument().documentWithoutResults());
         }
 
+        Collections.sort(result);
         return result;
     }
 
@@ -348,6 +399,7 @@ public class Session {
      */
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
         updateLastOperationTime();
+        // WTF?!?!?! Do you REALLY have to iterate over all documents to find the one I want?!?!?!
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
 
@@ -373,7 +425,27 @@ public class Session {
         saveAllTranslationResults(document);
         return null;
     }
-    
+
+    public Void changeDocumentTitle(long documentId, String newTitle) throws InvalidDocumentIdException {
+        updateLastOperationTime();
+
+        USDocument document = getActiveDocument(documentId);
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        document.setTitle(newTitle);
+        document.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        return null;
+    }
+
+    public List<MediaSource> changeMovieTitle (long documentId, String newMovieTitle,  MediaSourceFactory mediaSourceFactory)
+            throws InvalidDocumentIdException {
+        updateLastOperationTime();
+
+        USDocument document = getActiveDocument(documentId);
+        return mediaSourceFactory.getSuggestions(newMovieTitle);
+    }
 
     public void saveAllTranslationResults(long l) {
         saveAllTranslationResults(activeDocuments.get(l));

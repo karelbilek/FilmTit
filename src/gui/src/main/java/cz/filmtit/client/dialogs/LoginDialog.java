@@ -1,12 +1,6 @@
 package cz.filmtit.client.dialogs;
 
-import com.github.gwtbootstrap.client.ui.Alert;
-import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.Form;
-import com.github.gwtbootstrap.client.ui.NavLink;
-import com.github.gwtbootstrap.client.ui.NavTabs;
-import com.github.gwtbootstrap.client.ui.PasswordTextBox;
-import com.github.gwtbootstrap.client.ui.TextBox;
+import com.github.gwtbootstrap.client.ui.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -15,6 +9,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -34,7 +29,6 @@ public class LoginDialog extends Dialog {
 	
 	/**
 	 * Open the LoginDialog, showing the Login tab
-	 * @param username
 	 */
 	public LoginDialog() {
 		this(null, Tab.Login);
@@ -279,17 +273,23 @@ public class LoginDialog extends Dialog {
     PasswordTextBox txtLoginPassword;
 
 	@UiField
-	Button btnLogin;
+    SubmitButton btnLogin;
+
+    @UiHandler("formLogin")
+    void formLoginSubmit(Form.SubmitEvent e) {
+/*
+    }
 	
 	@UiHandler("btnLogin")
 	void btnLoginClick(ClickEvent e) {
-    	deactivate();
+*/
+        deactivate();
     	String username = txtLoginUsername.getText();
     	String password = txtLoginPassword.getText();
     	
     	if (checkLoginForm(username, password)) {
             gui.log("trying to log in as user " + username);
-            gui.rpcHandler.simpleLogin(username, password, LoginDialog.this);
+            FilmTitServiceHandler.simpleLogin(username, password, LoginDialog.this);
     	}
 	}
 	
@@ -323,14 +323,14 @@ public class LoginDialog extends Dialog {
 	Alert alertOpenidLogin;
 	
 	@UiField
-	Button btnLoginGoogle;
-	
-	@UiHandler("btnLoginGoogle")
-	void btnLoginGoogleClick(ClickEvent e) {
-    	deactivate();
+	SubmitButton btnLoginGoogle;
+
+    @UiHandler("formOpenidLogin")
+    void formOpenidLoginSubmit(Form.SubmitEvent e) {
+        deactivate();
     	
 		gui.log("trying to log in through Google account");
-		gui.rpcHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
+		FilmTitServiceHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
 	}
 	
 	//////////////////////////////////
@@ -358,11 +358,11 @@ public class LoginDialog extends Dialog {
     PasswordTextBox txtRegPasswordRepeat;
 
 	@UiField
-	Button btnRegister;
-	
-	@UiHandler("btnRegister")
-	void btnRegisterClick(ClickEvent e) {
-    	deactivate();
+	SubmitButton btnRegister;
+
+    @UiHandler("formRegister")
+    void formRegisterSubmit(Form.SubmitEvent e) {
+        deactivate();
     	String username = txtRegUsername.getText();
     	String password = txtRegPassword.getText();
     	String passwordRepeat = txtRegPasswordRepeat.getText();
@@ -370,7 +370,7 @@ public class LoginDialog extends Dialog {
     	
     	if (checkRegForm(username, password, passwordRepeat, email)) {
             gui.log("trying to register as user " + username);
-           	gui.rpcHandler.registerUser(username, password, email, LoginDialog.this);
+           	FilmTitServiceHandler.registerUser(username, password, email, LoginDialog.this);
     	}
 	}
 	
@@ -417,17 +417,17 @@ public class LoginDialog extends Dialog {
 	// TextBox txtFpwdEmail;
 
 	@UiField
-	Button btnForgottenPassword;
-	
-	@UiHandler("btnForgottenPassword")
-	void btnForgottenPasswordClick(ClickEvent e) {
-    	deactivate();
+	SubmitButton btnForgottenPassword;
+
+    @UiHandler("formForgottenPassword")
+    void formForgottenPasswordSubmit(Form.SubmitEvent e) {
+        deactivate();
     	String username = txtFpwdUsername.getText();
     	// String email = txtFpwdEmail.getText();
     	
     	if (checkFpwdForm(username)) {
 			gui.log("trying to send forgotten password email to user " + username);
-			gui.rpcHandler.sendChangePasswordMail(username, LoginDialog.this);
+			FilmTitServiceHandler.sendChangePasswordMail(username, LoginDialog.this);
     	}
 	}
 	

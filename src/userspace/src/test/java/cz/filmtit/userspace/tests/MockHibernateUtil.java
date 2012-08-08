@@ -56,6 +56,15 @@ public class MockHibernateUtil extends USHibernateUtil {
         }
     }
 
+    public static void clearDatabase() {
+        org.hibernate.Session dbSession = getInstance().getSessionWithActiveTransaction();
+        dbSession.createQuery("delete from USUser").executeUpdate();
+        dbSession.createQuery("delete from USTranslationResult").executeUpdate();
+        dbSession.createQuery("delete from USDocument").executeUpdate();
+        dbSession.createQuery("delete from Session").executeUpdate();
+        getInstance().closeAndCommitSession(dbSession);
+    }
+
 
     public static void changeUtilsInAllClasses() {
         Configuration configuration = new Configuration("configuration.xml");

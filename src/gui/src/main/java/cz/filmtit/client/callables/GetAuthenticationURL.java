@@ -7,35 +7,33 @@ import cz.filmtit.client.Callable;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.share.AuthenticationServiceType;
+import cz.filmtit.share.LoginSessionResponse;
 
 
-	public class GetAuthenticationURL extends Callable<String> {
+	public class GetAuthenticationURL extends Callable<LoginSessionResponse> {
 		
 		// parameters
 		AuthenticationServiceType serviceType;
 		Dialog loginDialog;
-		/**
-		 * temporary ID for authentication
-		 */
-		private int authID;
-        FilmTitServiceHandler handler;
-
 
         @Override
 		public String getName() {
             return "GetAuthenticationURL";
         }
         
+        // TODO: uncomment and finalize
         @Override
-		public void onSuccessAfterLog(final String url) {
-			gui.log("Authentication URL arrived: " + url);
+		public void onSuccessAfterLog(LoginSessionResponse response) {
+	    	String url = response.getOpenIDURL();
+	    	int authID = response.getAuthID();
+			gui.log("Authentication URL and authID arrived: " + authID + ", " + url);
 			loginDialog.close();
 			
-            // open the authenticationwindow
+            // open the authentication window
 			Window.open(url, "AuthenticationWindow", "width=400,height=500");
 			
 			// start polling for SessionID
-			new SessionIDPolling(authID, handler);				
+			new SessionIDPolling(authID);
         }
 			
         @Override
@@ -48,10 +46,9 @@ import cz.filmtit.share.AuthenticationServiceType;
 					
 		// constructor
 		public GetAuthenticationURL(AuthenticationServiceType serviceType,
-				Dialog loginDialog, FilmTitServiceHandler handler) {
+				Dialog loginDialog) {
 			super();
 			
-            this.handler = handler;
 			this.serviceType = serviceType;
 			this.loginDialog = loginDialog;
 			
@@ -59,8 +56,7 @@ import cz.filmtit.share.AuthenticationServiceType;
 		}
 
 		@Override protected void call() {
-			authID = Random.nextInt();
-			filmTitService.getAuthenticationURL(authID, serviceType, this);
+			filmTitService.getAuthenticationURL(serviceType, this);
 		}
 	}
 

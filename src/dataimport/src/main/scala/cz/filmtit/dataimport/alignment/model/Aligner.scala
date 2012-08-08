@@ -50,7 +50,7 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
    *
    * @param mapping mapping of movie ID to subtitle files
    */
-   def align(mapping:SubtitleMapping, maxFiles:Int=0) {
+   def align(mapping:SubtitleMapping, maxFiles:Int=0, printDifferentSentenceLengths:Boolean=false) {
       
        println("vstup do mapping")
        val goodPairs = alignFiles(mapping, maxFiles)
@@ -72,7 +72,10 @@ class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkA
                      i => Writer.write(pw, processedChunk1(i), processedChunk2(i))
                    }
                 } else {
-                   Writer.write(pw,chunkPair._1, chunkPair._2);
+                    //writes BOTH sentences as is
+                   if (printDifferentSentenceLengths) {
+                       Writer.write(pw,chunkPair._1, chunkPair._2);
+                   }
                 }
            }
            pw.close() 
