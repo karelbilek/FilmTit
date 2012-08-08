@@ -22,7 +22,7 @@ import java.util.*;
 
 		// parameters
 		String responseURL;	
-		long authID;
+		int authID;
 		AuthenticationValidationWindow authenticationValidationWindow;
 
         @Override
@@ -42,7 +42,7 @@ import java.util.*;
 			
             
 		
-		public ValidateAuthentication(String responseURL, long authID,
+		public ValidateAuthentication(String responseURL, int authID,
 				AuthenticationValidationWindow authenticationValidationWindow) {
 			super();
 			

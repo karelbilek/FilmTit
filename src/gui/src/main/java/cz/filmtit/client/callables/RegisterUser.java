@@ -13,7 +13,6 @@ public class RegisterUser extends Callable<Boolean> {
     	String email;
     	Dialog loginDialog;
     	String openid = null;
-        FilmTitServiceHandler handler;
 
         @Override
         public String getName() {
@@ -26,7 +25,7 @@ public class RegisterUser extends Callable<Boolean> {
             if (result) {
                 loginDialog.close();
                 gui.log("registered as " + username);
-                handler.simpleLogin(username, password, null);
+                FilmTitServiceHandler.simpleLogin(username, password, null);
                 displayWindow("You successfully registered with the username '" + username + "'!");
             } else {
                 // TODO: bool means unavailable username, right? Or are there other reasons for failing?
@@ -45,14 +44,13 @@ public class RegisterUser extends Callable<Boolean> {
 
         // constructor
 		public RegisterUser(String username, String password, String email,
-				Dialog registrationForm, FilmTitServiceHandler handler) {
+				Dialog registrationForm) {
 			super();
 			
 			this.username = username;
 			this.password = password;
 			this.email = email;
 			this.loginDialog = registrationForm;
-			this.handler= handler;
 			
 			// 20s
 			callTimeOut = 20000;

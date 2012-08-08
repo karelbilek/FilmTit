@@ -21,7 +21,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	
 //	static private Dictionary<Integer, Callable> queue;
 	
-	static private int newId = 1;
+	// static private int newId = 1;
 	
 	protected static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
 	
@@ -56,7 +56,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected int callTimeOut = 10000;
 	
-	protected int id;
+	// protected int id;
 	
 	protected int retriesOnStatusZero = 3;
 	
@@ -78,7 +78,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 * creates the RPC
 	 */
 	public Callable() {
-		this.id = newId++;
+		// this.id = newId++;
 	}
 	
 	/**
@@ -110,21 +110,14 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
 	            // this happens if there is no connection to the server, and reportedly in other cases as well
 	            if (retryOnStatusZero()) {
+	            	// try to send it again
 		        	gui.log("RPC " + getName() + " returned with a status code 0, calling again...");
 		        	new EnqueueTimer(waitToRetry);
 		        	waitToRetry *= 10; // wait 10ms, 100ms, 1000ms...
 	            } else {
-		            gui.log("RPC FAILURE " + getName() + " (status code 0)");
-		            gui.exceptionCatcher(returned, false);            
-		            onFailureAfterLog(
-	            		new Throwable(
-		        			"There seems to be no response from the server, the server is probably down. " +
-		        			"Please try again later or ask the administrators.",
-		        			returned
-	        			)
-		            );		            
-		            // TODO: use some ping to find out whether user is offline
-		            // TODO: store user input to be used when user goes back online
+	            	// stop trying, we might be offline
+	        		gui.log("RPC FAILURE " + getName() + " (status code 0)");
+		            onProbablyOffline(returned);
 	            }
 	        } else if (returned.getClass().equals(InvalidSessionIdException.class)) {
 	            gui.please_relog_in();
@@ -140,6 +133,17 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     		onTimedOutReturn(returned);
     	}
     }
+
+    protected void onProbablyOffline(Throwable returned) {
+		displayWindow(
+				"There seems to be no response from the server. " +
+				"Either your computer is offline " +
+				"or the server is down or overloaded. " +
+				"Please try again later or ask the administrators."
+			);
+		// TODO: use some ping to find out whether user is offline
+		// TODO: store user input to be used when user goes back online
+	}
     
     protected class CallTimer extends Timer {
 		/**
@@ -183,6 +187,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     	if (!hasReturned) {
     		hasTimedOut = true;
     		gui.log("RPC " + getName() + " TIMED OUT after " + callTimeOut + "ms");
+    		onTimeOut();
     	}
     }
     
@@ -234,4 +239,5 @@ public abstract class Callable<T> implements AsyncCallback<T> {
       //      gui.log("ERROR - message");
         }
     }
+        
 }

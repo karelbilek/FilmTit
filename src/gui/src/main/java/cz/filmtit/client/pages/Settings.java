@@ -20,7 +20,6 @@ public class Settings extends Composite {
 	public Settings() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		//gui.guiStructure.activateMenuItem(gui.guiStructure.documentCreator);
 		gui.guiStructure.contentPanel.setStyleName("settings");
         gui.guiStructure.contentPanel.setWidget(this);
 		
