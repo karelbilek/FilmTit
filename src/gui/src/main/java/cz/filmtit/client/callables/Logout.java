@@ -38,7 +38,7 @@ import java.util.*;
         
         @Override
         protected void onProbablyOffline(Throwable returned) {
-            gui.log("ERROR: logout didn't succeed - probably offline! Forcing local logout... " + caught.getLocalizedMessage());
+            gui.log("ERROR: logout didn't succeed - probably offline! Forcing local logout... " + returned.getLocalizedMessage());
             gui.logged_out(true);
         }
     
