@@ -205,6 +205,11 @@ public class Session {
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
+        // TODO I need to be able to access any of my documents, not only the ones I loaded
+        if (!activeDocuments.containsKey(documentId)) {
+        	loadDocument(documentId);
+        }
+        
         USDocument document = getActiveDocument(documentId);
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
@@ -337,6 +342,7 @@ public class Session {
             result.add(usDocument.getDocument().documentWithoutResults());
         }
 
+        Collections.sort(result);
         return result;
     }
 
@@ -348,6 +354,7 @@ public class Session {
      */
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
         updateLastOperationTime();
+        // WTF?!?!?! Do you REALLY have to iterate over all documents to find the one I want?!?!?!
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
 

@@ -8,6 +8,7 @@ import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.AuthenticationFailedException;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -52,11 +53,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Logger logger = Logger.getLogger("FilmtitBackendServer");
 
     // AuthId which are in process
-    private Map<Long, AuthData> authenticatingSessions =
-            Collections.synchronizedMap(new HashMap<Long, AuthData>());
+    private Map<Integer, AuthData> authDataInProgress =
+            Collections.synchronizedMap(new HashMap<Integer, AuthData>());
     // AuthId which are authenticated but not activated
-    private Map<Long,Authentication> authenticatedSessions =
-            Collections.synchronizedMap(new HashMap<Long, Authentication>());
+    private Map<Integer,Authentication> finisehdAuthentications =
+            Collections.synchronizedMap(new HashMap<Integer, Authentication>());
     // Activated User
     private Map<String, Session> activeSessions =
             Collections.synchronizedMap(new HashMap<String,Session>());
@@ -182,35 +183,44 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).deleteDocument(documentID);
     }
 
-    @Override
-    public String getAuthenticationURL(long authID, AuthenticationServiceType serviceType) {
-        configuration = ConfigurationSingleton.conf();
-        String serverAddress = configuration.serverAddress();
-        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
 
+    @Override
+    public LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType) {
+        // generate the unique authentication ID first
+        Random random = new Random();
+        int authID = random.nextInt();
+        while (authDataInProgress.containsKey(authID) || finisehdAuthentications.containsKey(authID)) {
+            authID = random.nextInt();
+        }
+
+        String serverAddress = ConfigurationSingleton.conf().serverAddress();
+
+        // sets everything necessary ... see the JOpenID page if you want to know details
+        manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
         Endpoint endpoint = manager.lookupEndpoint("Google");
         Association association = manager.lookupAssociation(endpoint);
         AuthData authData = new AuthData();
         authData.Mac_key = association.getRawMacKey();
         authData.endpoint = endpoint;
-        authenticatingSessions.put(authID, authData);
-        return manager.getAuthenticationUrl(endpoint,association);
+        authDataInProgress.put(authID, authData);
+        return new LoginSessionResponse(authID, manager.getAuthenticationUrl(endpoint,association));
     }
 
     @Override
-    public Boolean validateAuthentication(long authID, String responseURL) {
+    public Boolean validateAuthentication(int authID, String responseURL) {
         //  response url - one if you succesfull with login
         //                  sec if you are not
         // if you are you can create authentication object which contains  information
         // using http://code.google.com/p/jopenid/source/browse/trunk/JOpenId/src/test/java/org/expressme/openid/MainServlet.java?r=111&spec=svn111
 
         try {
-            AuthData authData = authenticatingSessions.get(authID);
+            // in progress login session is removed here
+            AuthData authData = authDataInProgress.get(authID);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
-            authenticatedSessions.put(authID,authentication);
+            finisehdAuthentications.put(authID, authentication);
             logger.info("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
@@ -227,26 +237,41 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             logger.error("Exception caught in validateAuthentication() - " + e.toString());
             return false;
         }
+        finally {
+            authDataInProgress.remove(authID);        	
+        }
 
     }
 
     @Override
-    public String getSessionID(long authID) {
-        Authentication authentication = authenticatedSessions.get(authID);
-        authenticatedSessions.remove(authID);
+    public String getSessionID(int authID) throws AuthenticationFailedException {
+        if (finisehdAuthentications.containsKey(authID)) {
+            // the authentication process was successful
+        	
+        	// cancel the authentication session
+            Authentication authentication = finisehdAuthentications.remove(authID);
 
-        if ( authentication!= null) {
             String openid = extractOpenId(authentication.getIdentity());
-            if (checkUser(openid) == null)
-            {
-                if (!(registration(openid,authentication))){
+            
+            // check whether the user is registered
+            if (checkUser(openid) == null) {
+            	boolean registrationSuccessful = registration(openid, authentication);
+            	if ( !registrationSuccessful ){
                     throw new ExceptionInInitializerError("Registration failed");
-                }
+                }            	
             }
-            return simpleLogin(openid);
+            // now the user is definitely registered
+            return openIDLogin(openid);
         }
-
-        return null;
+        else if (authDataInProgress.containsKey(authID)) {
+            // the authentication process has not been finished...
+            return null;
+        }
+        else {
+            // since it's neither in the in process table nor the finished table,
+            // the authentication must have failed
+            throw new AuthenticationFailedException("Authentication failed.");
+        }
     }
 
     @Override
@@ -261,7 +286,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    public String simpleLogin(String openId) {
+    public String openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
             logger.info("User " + user.getUserName() + "logged in.");
@@ -280,7 +305,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
     @Override
-    public Boolean registration(String name,  String pass, String email, String openId) {
+    public Boolean registration(String name, String pass, String email, String openId) {
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -306,16 +331,24 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    public Boolean registration(String openId,Authentication data){
+    /**
+     * Register the user with the given openId
+     * @param openId
+     * @param data
+     * @return true if registration is successful, false otherwise
+     */
+    public Boolean registration(String openId, Authentication data){
 
         if (data != null){
             Random r = new Random();
             int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
             String password = Integer.toString(pin);
-            String name = getUniqName(data.getEmail());
+            String name = getUniqueName(data.getEmail());
             return registration(name,password,data.getEmail(),openId);
         }
-        return false;
+        else {
+            return false;        	
+        }
     }
 
     private String extractOpenId(String url){
@@ -323,7 +356,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return id;
     }
 
-    private String getUniqName(String email){
+    private String getUniqueName(String email){
         String name = email.substring(0,email.indexOf('@'));
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
@@ -345,6 +378,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return name;
     }
+
     @Override
     public Boolean changePassword(String user  , String pass, String string_token){
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
@@ -422,14 +456,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public String checkSessionID(String sessionID){
-        if (activeSessions.isEmpty()){
-            return null;     // no session at all
+        if (activeSessions.containsKey(sessionID)) {
+            return activeSessions.get(sessionID).getUser().getUserName();
         }
-        Session s = activeSessions.get(sessionID);
-        if (s == null) return null;   // not found sessionId
-        return s.getUser().getUserName(); // return name of user who had  session
-
+        return null;
     }
+
     @Override
     public Boolean sendChangePasswordMail(String username){
         USUser user = checkUser(username,null,CheckUserEnum.UserName);
@@ -441,21 +473,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-    /**
-     * Only test reason
-     */
-    public void createTestChange(String login , String token){
-        activeTokens.put(login,new ChangePassToken(token));
-    }
-
     private boolean sendMail(USUser user){
         Emailer email = new Emailer();
         //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
         return true;
     }
 
-
-    /*end test zone*/
     private String forgotUrl(USUser user ){
         // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
@@ -464,7 +487,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
         ChangePassToken token = new ChangePassToken(_token);
         String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
-        activeTokens.put(login,token);
+        activeTokens.put(login, token);
         return actualUrl;
     }
 
@@ -536,6 +559,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return succesUser;
     }
 
+    /**
+     * Check for a user with the given openid.
+     * @param openid
+     * @return The corresponding user if there is one, null if there is not.
+     */
     private USUser checkUser(String openid){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         List UserResult = new ArrayList(0);

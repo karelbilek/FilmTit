@@ -2,6 +2,7 @@ package cz.filmtit.share;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import cz.filmtit.share.exceptions.AuthenticationFailedException;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
@@ -30,9 +31,9 @@ public interface FilmTitService extends RemoteService {
 
     // Logging in methods
     // - Prepared for using JOpenID
-    String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
-    Boolean validateAuthentication(long authID, String responseURL);
-    String getSessionID(long authID);
+    LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);
+    Boolean validateAuthentication(int authID, String responseURL);
+    String getSessionID(int authID) throws AuthenticationFailedException;
     
     // Simple login
     // - registration (true if successful)

@@ -13,6 +13,8 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.AuthenticationFailedException;
+
 import java.util.*;
 
 	public class SessionIDPolling extends Callable<String> {
@@ -32,9 +34,6 @@ import java.util.*;
 		 */
 		private boolean sessionIDPolling = false;
 
-        FilmTitServiceHandler handler;
-
-
         @Override
 		public String getName() {
             return "sessionIDPolling("+authID+")";
@@ -50,7 +49,7 @@ import java.util.*;
 					// we now have a session ID
 					gui.setSessionID(result);
 					// we have to get the username
-					handler.checkSessionID();
+					FilmTitServiceHandler.checkSessionID();
 					// gui.logged_in("");
 				}
 				else {
@@ -62,22 +61,27 @@ import java.util.*;
             
             @Override
 			public void onFailureAfterLog(Throwable caught) {
+            	// TODO: expecting AuthenticationFailedException
 				if(sessionIDPolling) {
 					// stop polling
 					sessionIDPolling = false;
 					sessionIDPollingDialog.close();
 					// say error
-					displayWindow("There was an error with your authentication. Message from the server: " + caught);
-					gui.log("failure on requesting session ID! " + caught);					
+					if (caught instanceof AuthenticationFailedException) {
+						// Userspace throws that if the authentication fails in the usual way :-)
+						displayWindow("The OpenID login was not successful. Message from the server: " + caught.getLocalizedMessage());
+					} else {
+						// some unexpected exception
+						displayWindow("The OpenID login was not successful. Message from the server: " + caught);
+					}
 				}
 			}
 		
 		// constructor
-		public SessionIDPolling(int authID, FilmTitServiceHandler handler) {
+		public SessionIDPolling(int authID) {
 			super();
 			
 			this.authID = authID;
-			this.handler=handler;
 
 			// 20s
 			callTimeOut = 20000;
