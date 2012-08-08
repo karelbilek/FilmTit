@@ -456,13 +456,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public String checkSessionID(String sessionID){
-        if (activeSessions.isEmpty()){
-            return null;     // no session at all
+        if (activeSessions.containsKey(sessionID)) {
+            return activeSessions.get(sessionID).getUser().getUserName();
         }
-        Session s = activeSessions.get(sessionID);
-        if (s == null) return null;   // not found sessionId
-        return s.getUser().getUserName(); // return name of user who had  session
-
+        return null;
     }
 
     @Override
@@ -476,21 +473,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-    /**
-     * Only test reason
-     */
-    public void createTestChange(String login , String token){
-        activeTokens.put(login,new ChangePassToken(token));
-    }
-
     private boolean sendMail(USUser user){
         Emailer email = new Emailer();
         //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
         return true;
     }
 
-
-    /*end test zone*/
     private String forgotUrl(USUser user ){
         // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
@@ -499,7 +487,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
         ChangePassToken token = new ChangePassToken(_token);
         String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
-        activeTokens.put(login,token);
+        activeTokens.put(login, token);
         return actualUrl;
     }
 
