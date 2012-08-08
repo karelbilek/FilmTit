@@ -2,9 +2,9 @@ package cz.filmtit.userspace.tests;
 
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
-import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USUser;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.hibernate.Session;
 import org.junit.BeforeClass;
 import org.junit.Test;

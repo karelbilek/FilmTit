@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="cz.filmtit.userspace">
+
+    <class name="cz.filmtit.userspace.LogMessage" table="log">
+        <id name="databaseId" type="long" column="Id">
+            <generator class="native"/>
+        </id>
+
+        <property name="date" type="java.sql.Date" column="date" />
+        <property name="context" type="java.lang.String" column="context" />
+        <property name="messageType"  type="java.lang.Integer" column="type" />
+        <property name="message" type="java.lang.String" column="text" />
+    </class>
+
+</hibernate-mapping>

@@ -18,7 +18,6 @@ import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
 import org.expressme.openid.OpenIdManager;
-import org.jboss.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -49,7 +48,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected TranslationMemory TM;
     protected MediaSourceFactory mediaSourceFactory;
     protected Configuration configuration;
-    private Logger logger = Logger.getLogger("FilmtitBackendServer");
+    private USLogger logger =  USLogger.getInstance(); //Logger.getLogger("FilmtitBackendServer");
 
     // AuthId which are in process
     private Map<Long, AuthData> authenticatingSessions =
@@ -86,7 +85,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         usHibernateUtil.closeAndCommitSession(dbSession);
 
 
-        logger.info("FilmtitBackendServer started fine!");
+        logger.info("Userspace/server","FilmtitBackendServer started fine!");
     }
 
     protected void loadTranslationMemory() {
@@ -211,20 +210,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             // if no exception was thrown, everything is OK
             authenticatedSessions.put(authID,authentication);
-            logger.info("Testing User is Validate " + authID + " " +authentication.getEmail());
+            logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
         }
         catch (UnsupportedEncodingException e) {
-            logger.error("UnsupportedEncodingException caught in validateAuthentication() - " + e.toString());
+            logger.error("AuthenticationOpenId","UnsupportedEncodingException caught in validateAuthentication() - " + e.toString());
             return false;
         }
         catch (org.expressme.openid.OpenIdException e) {
-            logger.error("OpenIdException caught in validateAuthentication() - " + e.toString());
+            logger.error("AuthenticationOpenId","OpenIdException caught in validateAuthentication() - " + e.toString());
             return false;
         }
         catch (Exception e) {
-            logger.error("Exception caught in validateAuthentication() - " + e.toString());
+            logger.error("AuthenticationOpenId","Exception caught in validateAuthentication() - " + e.toString());
             return false;
         }
 
@@ -256,7 +255,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return  "";
         }
         else {
-            Logger.getLogger("User " + user.getUserName() + "logged in.");
+            logger.info("Login","User " + user.getUserName() + "logged in.");
             return generateSession(user);
         }
     }
@@ -264,7 +263,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public String simpleLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
-            logger.info("User " + user.getUserName() + "logged in.");
+            System.out.println("User " + user.getUserName() + "logged in.");
+            logger.info("Login","User " + user.getUserName() + "logged in.");
             return generateSession(user);
         }
         return "";
@@ -274,7 +274,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
         session.logout();
-        logger.info("User " + session.getUser().getUserName() + "logged out.");
+        logger.info("Login","User " + session.getUser().getUserName() + "logged out.");
         activeSessions.remove(sessionID);
 
         return null;
@@ -298,7 +298,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             usHibernateUtil.closeAndCommitSession(dbSession);
             sendRegistrationMail(user, pass);
-            logger.info("Registered user" + user.getUserName());
+            logger.info("Login","Registered user" + user.getUserName());
             return true;
         } else {
             // bad, there is already a user with the given name
@@ -334,13 +334,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         if (count > 0)
         {
             long num = count;
+            int round = 0;
             do {
             String  newName = new StringBuilder(name).append(count).toString();
             num = num << 2 ;
-            if (num < 0) {
-                count++;
-                num = count;
-            }
+            round++;
+                if (round > 63) {
+                    count++;
+                    num = count;
+                    round = 0;
+
+                }
             } while (checkUser(name,null,CheckUserEnum.UserName) != null);
         }
         return name;
@@ -453,9 +457,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
         return true;
     }
-
-
     /*end test zone*/
+
     private String forgotUrl(USUser user ){
         // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
@@ -545,7 +548,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             usHibernateUtil.closeAndCommitSession(dbSession);
         }
         catch (ExceptionInInitializerError ex) {
-            logger.warn("Problem with querying the users table.");
+            logger.warning("CheckUser","Problem with querying the users table.");
         }
 
         if (UserResult.size() > 1){
@@ -571,7 +574,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                             || thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
                         activeSessions.remove(thisSession.getUser());
                         thisSession.kill();
-                        logger.info("Session of user " + thisSession.getUser().getUserName() + "timed out.");
+                        logger.info("SessionTimeOut","Session of user " + thisSession.getUser().getUserName() + "timed out.");
                         activeSessions.remove(sessionID);
                     }
 
@@ -644,6 +647,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
+    }
+
+    public void logGuiMessage(USLogger.LevelLogEnum level, String context , String message ){
+          logger.log(level,"GUI-" + context , message);
     }
 
 }

@@ -9,7 +9,6 @@ package cz.filmtit.userspace;
  */
 
 import cz.filmtit.core.ConfigurationSingleton;
-import org.jboss.logging.Logger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -25,7 +24,7 @@ public class Emailer {
      private String email;
      private String header;
      private String message;
-    private Logger logger = Logger.getLogger("Emailer");
+     private USLogger logger = USLogger.getInstance();
 
      public Emailer(String email , String subject , String message) {
          fetchConfig();
@@ -48,14 +47,13 @@ public class Emailer {
              // send mail;
              javax.mail.Session session;
 
-
-             logger.info("Create session for mail login "+(String)configuration.getProperty("mail.filmtit.address") +" password"+ (String)configuration.getProperty("mail.filmtit.password"));
+             logger.info("Email","Create session for mail login "+(String)configuration.getProperty("mail.filmtit.address") +" password"+ (String)configuration.getProperty("mail.filmtit.password"));
              session = javax.mail.Session.getDefaultInstance(configuration, new javax.mail.Authenticator() {
                  protected PasswordAuthentication getPasswordAuthentication() {
                      return new PasswordAuthentication((String)configuration.getProperty("mail.filmtit.address"), (String)configuration.getProperty("mail.filmtit.password"));
                  }
              });
-             session.setDebug(true);
+
              javax.mail.internet.MimeMessage message = new  javax.mail.internet.MimeMessage(session);
              try {
 
@@ -80,7 +78,7 @@ public class Emailer {
          return true;
 
          }
-         logger.warn("Not all data filed");
+         logger.warning("Email","Not all data filed");
          return false;
         
  }

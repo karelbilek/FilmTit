@@ -77,6 +77,10 @@
                 <entry key="mail.filmtit.password">jkhrjj2012</entry>
             </properties>
         </mail>
+        <log>
+            <DbLevel>0</DbLevel>
+            <ConsoleLevel>0</ConsoleLevel>
+        </log>
     </userspace>
 
     <core>
