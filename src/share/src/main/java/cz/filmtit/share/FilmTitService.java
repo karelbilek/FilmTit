@@ -17,7 +17,13 @@ public interface FilmTitService extends RemoteService {
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
-    //String exportSubtitles(String sessionID, long documentID);
+    List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException;
+    Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
+    Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
+    public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException;
+    public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException;
     
     // Subtitles handling
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
@@ -64,9 +70,7 @@ public interface FilmTitService extends RemoteService {
 
     // Method signatures prepared for the moment we'll have users and session:
 
-    List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException;
-    Document loadDocument(String sessionID, long documentID) throws InvalidDocumentIdException, InvalidSessionIdException;
-    Void closeDocument(String sessionID, long documentId) throws InvalidSessionIdException, InvalidDocumentIdException;
+
     public Void deleteDocument(String sessionID, long documentID)
             throws InvalidSessionIdException, InvalidDocumentIdException;
     Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)

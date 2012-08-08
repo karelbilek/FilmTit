@@ -109,11 +109,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return TM;
     }
 
+    @Override
     public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).getTranslationResults(chunk, TM);
     }
 
+    @Override
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         Session session = getSessionIfCan(sessionID);
@@ -123,64 +125,88 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return res;
     }
 
+    @Override
     public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId,
                                    String userTranslation, long chosenTranslationPairID)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
     }
 
+    @Override
     public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
     }
 
+    @Override
     public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
         return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
+    @Override
     public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
         return getSessionIfCan(sessionID).changeText(chunkIndex, documentId, newText, TM);
     }
 
+    @Override
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
     }
 
+    @Override
     public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
     }
 
+    @Override
     public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
             throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
     }
 
+    @Override
     public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).selectSource(documentID, selectedMediaSource);
     }
 
+    @Override
     public List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).getListOfDocuments();
     }
 
+    @Override
     public Document loadDocument(String sessionID, long documentID)
             throws InvalidDocumentIdException, InvalidSessionIdException {
         return getSessionIfCan(sessionID).loadDocument(documentID);
     }
 
+    @Override
     public Void closeDocument(String sessionID, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).closeDocument(documentId);
     }
 
+    @Override
     public Void deleteDocument(String sessionID, long documentID)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).deleteDocument(documentID);
+    }
+
+    @Override
+    public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionId).changeDocumentTitle(documentID, newTitle);
+    }
+
+    @Override
+    public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return  getSessionIfCan(sessionId).changeMovieTitle(documentID, newMovieTitle, mediaSourceFactory);
     }
 
 

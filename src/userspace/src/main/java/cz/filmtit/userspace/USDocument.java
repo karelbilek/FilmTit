@@ -139,11 +139,12 @@ public class USDocument extends DatabaseObject {
         return document.getTitle();
     }
 
-    private void setTitle(String title) {
+    public void setTitle(String title) {
         document.setTitle(title);
     }
     
     public Set<ChunkIndex> getTranslationResultKeys() {
+        if (translationResults == null) { return null; }
         return translationResults.keySet();
     }
 
@@ -152,6 +153,7 @@ public class USDocument extends DatabaseObject {
     }
 
     public Collection<USTranslationResult> getTranslationResultValues() {
+        if (translationResults == null) { return null; }
         return translationResults.values();
     }
     
