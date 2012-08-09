@@ -35,6 +35,12 @@ public interface FilmTitService extends RemoteService {
     Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
     	throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
+    // User settings
+    public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException;
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException;
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException;
+    public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
+
     // Logging in methods
     // - Prepared for using JOpenID
     LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);

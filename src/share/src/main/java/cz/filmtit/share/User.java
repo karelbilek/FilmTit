@@ -3,11 +3,11 @@ package cz.filmtit.share;
 import java.util.List;
 
 public class User {
-    private String name;
-    private String email;
-    private boolean permanentlyLoggedIn;
-    private int maximumNumberOfSuggestions;
-    private boolean useMoses;
+    private volatile String name;
+    private volatile String email;
+    private volatile boolean permanentlyLoggedIn;
+    private volatile int maximumNumberOfSuggestions;
+    private volatile boolean useMoses;
 
     public List<Document> ownedDocuments;
 
@@ -47,7 +47,7 @@ public class User {
         this.maximumNumberOfSuggestions = maximumNumberOfSuggestions;
     }
 
-    public boolean isUseMoses() {
+    public boolean getUseMoses() {
         return useMoses;
     }
 

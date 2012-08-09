@@ -13,8 +13,8 @@ import java.util.*;
 public class USUser extends DatabaseObject {
     private User user;
 
-    private String password;
-    private String openId;
+    private volatile String password;
+    private volatile String openId;
 
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
@@ -25,9 +25,6 @@ public class USUser extends DatabaseObject {
      */
     public USUser(String userName, String password, String email, String openId) {
         this.user = new User();
-        user.setName(userName);
-
-
         user.setName(userName);
         this.password = password;
         user.setEmail(email);
@@ -133,7 +130,8 @@ public class USUser extends DatabaseObject {
     public String getEmail() {
         return user.getEmail();
     }
-    private void setEmail(String email) {
+
+    public void setEmail(String email) {
         user.setEmail(email);
     }
 
@@ -143,6 +141,22 @@ public class USUser extends DatabaseObject {
 
     public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
         user.setPermanentlyLoggedIn(permanentlyLoggedId);
+    }
+
+    public int getMaximumNumberOfSuggestions() {
+        return user.getMaximumNumberOfSuggestions();
+    }
+
+    public void setMaximumNumberOfSuggestions(int maximumNumberOfSuggestions) {
+        user.setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
+    }
+
+    public boolean getUseMoses() {
+         return user.getUseMoses();
+    }
+
+    public void setUseMoses(boolean useMoses) {
+        user.setUseMoses(useMoses);
     }
 
     /**

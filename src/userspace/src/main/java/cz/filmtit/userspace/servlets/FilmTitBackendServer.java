@@ -634,6 +634,21 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // USER SETTINGS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
+    }
+
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setEmail(email);
+    }
+
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setMaximumNumberOfSuggestions(number);
+    }
+
+    public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setUseMoses(useMoses);
+    }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
