@@ -89,6 +89,11 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     abstract public String getName();
     abstract public void onSuccessAfterLog(T returned);
     
+    /**
+     * Called when there is a generic error on return of the RPC.
+     * By default displays the error message using displayWindow().
+     * @param returned
+     */
     public void onFailureAfterLog(Throwable returned) {
         displayWindow(returned.getLocalizedMessage());
     }
