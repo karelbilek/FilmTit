@@ -382,6 +382,13 @@
         	<version>2.4</version>
         </dependency>
 
+        <dependency>
+        	<groupId>nz.ac.waikato.cms.weka</groupId>
+        	<artifactId>weka-stable</artifactId>
+        	<version>3.6.7</version>
+        </dependency>
+
+
   <!-- Java Mail API -->
 	<dependency>
 		<groupId>javax.mail</groupId>
