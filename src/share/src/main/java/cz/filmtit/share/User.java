@@ -1,8 +1,11 @@
 package cz.filmtit.share;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+import java.io.Serializable;
 import java.util.List;
 
-public class User {
+public class User implements Serializable, IsSerializable {
     private volatile String name;
     private volatile String email;
     private volatile boolean permanentlyLoggedIn;

@@ -28,6 +28,7 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
+        document.setLastChange(new Date().getTime());
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         
         //it should not be null, but I am lazy to rewrite the tests
