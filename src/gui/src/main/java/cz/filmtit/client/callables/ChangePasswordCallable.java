@@ -41,6 +41,7 @@ import com.google.gwt.user.client.*;
                 displayWindow("You successfully changed the password for your username '" + username + "'!");
             } else {
                 gui.log("ERROR: password change didn't succeed - token invalid");
+                Gui.getPageHandler().loadPage(Page.WelcomeScreen);
                 new LoginDialog(username, Tab.ForgottenPassword,
             			"Password change didn't succeed - the token is invalid, probably expired. " +
                         "Please try requesting a new password change token"

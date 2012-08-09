@@ -1,6 +1,8 @@
 package cz.filmtit.client.pages;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -40,12 +42,20 @@ public class ChangePassword extends Composite {
 		
 		if (username == null || token == null) {
 			gui.log("ERROR: username or token is null");
-			gui.pageHandler.loadPage(Page.WelcomeScreen);
 			Window.alert("Invalid parameters, cannot proceed!");
+			
+			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+				@Override
+				public void execute() {
+					Gui.getPageHandler().loadPage(Page.WelcomeScreen);
+				}
+			});
 		}
-
-        gui.guiStructure.contentPanel.setStyleName("changePassword");
-        gui.guiStructure.contentPanel.setWidget(this);	
+		else {
+	        gui.guiStructure.contentPanel.setStyleName("changePassword");
+	        gui.guiStructure.contentPanel.setWidget(this);	
+		}
+		
 	}
 
 	@UiField
