@@ -402,10 +402,8 @@ public class Session {
         // WTF?!?!?! Do you REALLY have to iterate over all documents to find the one I want?!?!?!
         for (USDocument usDocument : user.getOwnedDocuments()) {
               if (usDocument.getDatabaseId() == documentID) {
-
-                  activeDocuments.put(documentID, usDocument);
-
                   usDocument.loadChunksFromDb();
+                  activeDocuments.put(documentID, usDocument);
                   logger.info("User " + user.getUserName() + " opened document " + documentID + " (" +
                         usDocument.getTitle() + ").");
                   return  usDocument.getDocument();

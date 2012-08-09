@@ -15,11 +15,12 @@
         <property name="email" type="java.lang.String" column="email" />
         <property name="openId" type="java.lang.String" column="openid" />
         <property name="permanentlyLoggedId" type="boolean" column="permanentLogin" />
+        <property name="activeDocumentsIdsAsString" type="text" column="activeDocuments" />
 
-        <set name="activeDocumentIDs" table="ActiveDocumentIDs" lazy="false">
+        <!--<set name="activeDocumentIDs" table="ActiveDocumentIDs" cascade="remove" lazy="false">
             <key column="ActiveDocIdId" />
             <element column="ActiveDocId" type="java.lang.Long" />
-        </set>
+        </set> -->
 
     </class>
 

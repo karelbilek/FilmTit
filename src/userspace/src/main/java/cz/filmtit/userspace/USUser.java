@@ -11,12 +11,11 @@ import java.util.*;
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
-    User user;
-    String userName;
-    String password;
-    String email;
-    String openId;
-    boolean permanentlyLoggedId;
+    private User user;
+
+    private String password;
+    private String openId;
+
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
      * in the application.
@@ -24,17 +23,14 @@ public class USUser extends DatabaseObject {
      * @param password - The new password
      * @param email - The email of new user
      */
-
-    public USUser(String userName, String password ,String email, String openId) {
-
-
+    public USUser(String userName, String password, String email, String openId) {
         this.user = new User();
         user.setName(userName);
 
 
-        this.userName = userName;
+        user.setName(userName);
         this.password = password;
-        this.email = email;
+        user.setEmail(email);
         this.openId = openId;
 
         ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
@@ -48,15 +44,10 @@ public class USUser extends DatabaseObject {
      */
 
     public USUser(String userName) {
-
-
         this.user = new User();
         user.setName(userName);
 
-
-        this.userName = userName;
         this.password = null;
-        this.email = null;
         this.openId =null;
 
         ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
@@ -83,7 +74,6 @@ public class USUser extends DatabaseObject {
      * the session is terminated and everything is stored to the database.
      */
     private Set<Long> activeDocumentIDs;
-
 
     /**
      * Gets the list of documents owned by this user.
@@ -114,6 +104,7 @@ public class USUser extends DatabaseObject {
     public String getUserName() {
         return user.getName();
     }
+
     private void setUserName(String name) {
         user.setName(name);
     }
@@ -137,18 +128,18 @@ public class USUser extends DatabaseObject {
     }
 
     public String getEmail() {
-        return email;
+        return user.getEmail();
     }
     private void setEmail(String email) {
-        this.email = email;
+        user.setEmail(email);
     }
 
     public boolean isPermanentlyLoggedId() {
-        return permanentlyLoggedId;
+        return user.isPermanentlyLoggedIn();
     }
 
     public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
-        this.permanentlyLoggedId = permanentlyLoggedId;
+        user.setPermanentlyLoggedIn(permanentlyLoggedId);
     }
 
     /**
@@ -175,6 +166,27 @@ public class USUser extends DatabaseObject {
         deleteJustObject(dbSession);
         for (USDocument document : ownedDocuments) {
             document.deleteFromDatabase(dbSession);
+        }
+    }
+
+    private String getActiveDocumentsIdsAsString() {
+        StringBuilder listBuilder = new StringBuilder();
+        if (activeDocumentIDs != null && activeDocumentIDs.size() > 0) {
+            for (long id : activeDocumentIDs) {
+                listBuilder.append(Long.toString(id));
+                listBuilder.append(",");
+            }
+        }
+        return listBuilder.toString().replaceFirst(",$", "");
+    }
+
+    private void setActiveDocumentsIdsAsString(String activeDocumentsList) {
+        activeDocumentIDs = new HashSet<Long>();
+        String[] idStrings = activeDocumentsList.split(",");
+        for (String idString : idStrings) {
+            if (!idString.equals("")) {
+                activeDocumentIDs.add(Long.parseLong(idString));
+            }
         }
     }
 }
