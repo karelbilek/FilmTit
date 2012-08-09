@@ -52,8 +52,8 @@ import java.util.*;
 			this.command = command;
 			this.workspace = workspace;
 			
-			// 10s + 2s for each chunk
-			callTimeOut = 10000 + 2000 * chunks.size();
+			// 20s + 2s for each chunk
+			callTimeOut = 20000 + 2000 * chunks.size();
 			
 			enqueue();
 		}
