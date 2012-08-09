@@ -17,7 +17,7 @@ import cz.filmtit.share.exceptions.AuthenticationFailedException;
 
 import java.util.*;
 
-	public class SessionIDPolling extends Callable<String> {
+	public class SessionIDPolling extends Callable<SessionResponse> {
 
 		/**
 		 * temporary ID for authentication
@@ -40,14 +40,14 @@ import java.util.*;
         }
 
             @Override
-			public void onSuccessAfterLog(String result) {
-				if (result != null) {
-					gui.log("A session ID received successfully! SessionId = " + result);
+			public void onSuccessAfterLog(SessionResponse response) {
+				if (response != null) {
+					gui.log("A session ID received successfully! SessionId = " + response.sessionID);
 					// stop polling
 					sessionIDPolling = false;
 					sessionIDPollingDialog.close();
 					// we now have a session ID
-					gui.setSessionID(result);
+					gui.setSessionID(response.sessionID);
 					// we have to get the username
 					FilmTitServiceHandler.checkSessionID();
 					// gui.logged_in("");

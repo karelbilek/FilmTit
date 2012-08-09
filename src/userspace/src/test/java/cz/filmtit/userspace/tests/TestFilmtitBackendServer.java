@@ -164,12 +164,12 @@ public class TestFilmtitBackendServer {
         Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
 
         server.registration("user", "pass", "user@user.bflm", null);
-        String sessionId1 = server.simpleLogin("user", "pass");
+        String sessionId1 = server.simpleLogin("user", "pass").sessionID;
 
         assertTrue(activeSessions.size() == 1);
         assertTrue(activeSessions.containsKey(sessionId1));
 
-        String sessionId2 = server.simpleLogin("user", "pass");
+        String sessionId2 = server.simpleLogin("user", "pass").sessionID;
         assertTrue(activeSessions.size() == 1);
         assertFalse(activeSessions.containsKey(sessionId1));
         assertTrue(activeSessions.containsKey(sessionId2));

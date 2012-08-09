@@ -349,6 +349,7 @@ public class TestSession {
 
         for (int i = 0; i < 3; ++i) {
             USDocument usDocument = new USDocument(new Document("Test", "en"), null);
+            usDocument.setOwner(sampleUser);
             long documentID = usDocument.getDatabaseId();
 
             if (firstGeneratedDocument == null) {
@@ -444,5 +445,27 @@ public class TestSession {
             }
         }
         return changed;
+    }
+
+    @Test
+    public void testUserSettings() {
+        USUser user = getSampleUser();
+        Session session = new Session(user);
+
+        // test initial settings
+        assertEquals(ConfigurationSingleton.conf().maximumSuggestionsCount(), user.getMaximumNumberOfSuggestions());
+        assertEquals(true, user.getUseMoses());
+        assertEquals(false, user.isPermanentlyLoggedId());
+
+        session.setEmail("hu@hu.hu");
+        session.setMaximumNumberOfSuggestions(23);
+        session.setPermanentlyLoggedIn(true);
+        session.setUseMoses(false);
+
+        // test changed settings
+        assertEquals("hu@hu.hu", user.getEmail());
+        assertEquals(23, user.getMaximumNumberOfSuggestions());
+        assertEquals(false, user.getUseMoses());
+        assertEquals(true, user.isPermanentlyLoggedId());
     }
 }

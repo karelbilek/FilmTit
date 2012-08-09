@@ -17,6 +17,7 @@ public class USDocument extends DatabaseObject {
     private static final int ALLOWED_FUTURE_FOR_YEARS = 10;
 
     private volatile long ownerDatabaseId = 0;
+    private volatile USUser owner = null;
     private volatile Document document;
     private SortedMap<ChunkIndex, USTranslationResult> translationResults; // make sure it's a synchronized map
     private volatile long workStartTime;
@@ -27,7 +28,9 @@ public class USDocument extends DatabaseObject {
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
+        document.setLastChange(new Date().getTime());
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
+        owner = user;
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {
@@ -197,6 +200,14 @@ public class USDocument extends DatabaseObject {
 
     public void setToBeDeleted(boolean toBeDeleted) {
         this.toBeDeleted = toBeDeleted;
+    }
+
+    public USUser getOwner() {
+        return owner;
+    }
+
+    public void setOwner(USUser owner) {
+        this.owner = owner;
     }
 
     /**

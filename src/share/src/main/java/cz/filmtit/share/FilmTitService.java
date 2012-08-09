@@ -45,13 +45,13 @@ public interface FilmTitService extends RemoteService {
     // - Prepared for using JOpenID
     LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);
     Boolean validateAuthentication(int authID, String responseURL);
-    String getSessionID(int authID) throws AuthenticationFailedException;
+    SessionResponse getSessionID(int authID) throws AuthenticationFailedException;
     
     // Simple login
     // - registration (true if successful)
     Boolean  registration(String name ,  String pass  , String email, String openId);
     // - login (returns session id on success, null in case of error (should throw an exception eventually))
-    String simpleLogin(String username, String password);
+    SessionResponse simpleLogin(String username, String password);
     /**
      * change password in case of forgotten password;
      * user chooses a new password,
@@ -90,5 +90,5 @@ public interface FilmTitService extends RemoteService {
     Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
 
-    public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
+    public SessionResponse checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
 }

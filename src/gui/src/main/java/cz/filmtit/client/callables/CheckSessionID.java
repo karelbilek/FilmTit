@@ -13,7 +13,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 
  // TODO will probably return the whole Session object - now returns username or null
-public class CheckSessionID extends Callable<String> {
+public class CheckSessionID extends Callable<SessionResponse> {
     	
     	// parameters
     	String sessionID;
@@ -24,10 +24,10 @@ public class CheckSessionID extends Callable<String> {
         }
 
         @Override
-        public void onSuccessAfterLog(String username) {
-            if (username != null && username!="") {
-                gui.log("logged in as " + username + " with session id " + sessionID);
-                gui.logged_in(username);
+        public void onSuccessAfterLog(SessionResponse response) {
+            if (response != null) {
+                gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
+                gui.logged_in(response.userWithoutDocs.getName());
             } else {
                 gui.log("Warning: sessionID invalid.");
                 gui.logged_out();

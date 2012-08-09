@@ -1,6 +1,5 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import org.hibernate.Session;
@@ -28,8 +27,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * The document this translation result is part of.
      */
     private USDocument document;
-
-    private final static int MAX_SUGGESTIONS_COUNT = ConfigurationSingleton.getConf().maximumSuggestionsCount();
 
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
@@ -235,7 +232,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(),
-                        MAX_SUGGESTIONS_COUNT, false, new HashSet<TranslationSource>());
+                        document.getOwner().getMaximumNumberOfSuggestions(), false, new HashSet<TranslationSource>());
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
         List<TranslationPair> javaList = new ArrayList<TranslationPair>(

@@ -1,8 +1,11 @@
 package cz.filmtit.share;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+import java.io.Serializable;
 import java.util.List;
 
-public class User {
+public class User implements Serializable, IsSerializable {
     private volatile String name;
     private volatile String email;
     private volatile boolean permanentlyLoggedIn;
@@ -53,5 +56,17 @@ public class User {
 
     public void setUseMoses(boolean useMoses) {
         this.useMoses = useMoses;
+    }
+
+    public User getCloneWithoutDocuments() {
+        User clone = new User();
+
+        clone.name = name;
+        clone.email = email;
+        clone.permanentlyLoggedIn = permanentlyLoggedIn;
+        clone.maximumNumberOfSuggestions = maximumNumberOfSuggestions;
+        clone.useMoses = useMoses;
+
+        return clone;
     }
 }
