@@ -270,7 +270,7 @@ public class Gui implements EntryPoint {
     	Gui.guiStructure.logged_in(username);
     	Gui.pageHandler.loadPage();
     	
-    	SetUserTranslation.setOnline(true);
+    	LocalStorageHandler.setOnline(true);
     }
 
     /**
