@@ -182,10 +182,12 @@ public class USUser extends DatabaseObject {
 
     private void setActiveDocumentsIdsAsString(String activeDocumentsList) {
         activeDocumentIDs = new HashSet<Long>();
-        String[] idStrings = activeDocumentsList.split(",");
-        for (String idString : idStrings) {
-            if (!idString.equals("")) {
-                activeDocumentIDs.add(Long.parseLong(idString));
+        if (activeDocumentsList != null) {
+            String[] idStrings = activeDocumentsList.split(",");
+            for (String idString : idStrings) {
+                if (!idString.equals("")) {
+                    activeDocumentIDs.add(Long.parseLong(idString));
+                }
             }
         }
     }
