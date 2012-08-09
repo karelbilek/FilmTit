@@ -33,7 +33,7 @@ public class USUser extends DatabaseObject {
         user.setEmail(email);
         this.openId = openId;
 
-        ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
+        ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
     /**
@@ -50,7 +50,7 @@ public class USUser extends DatabaseObject {
         this.password = null;
         this.openId =null;
 
-        ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
+        ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
 
@@ -67,7 +67,7 @@ public class USUser extends DatabaseObject {
      * A list of the documents owned by the user stored as the User Space wrappers of the
      * Document objects from the share namespace.
      */
-    private Set<USDocument> ownedDocuments = null;
+    private Map<Long, USDocument> ownedDocuments = null;
     /**
      * A set of IDs of documents which were active at the moment the user logged out (or was logged
      * out) last time. It is not kept up to date while a Session exists. It is updated at the moment
@@ -79,11 +79,11 @@ public class USUser extends DatabaseObject {
      * Gets the list of documents owned by this user.
      * @return List of USDocument objects wrapping the Document objects, but with empty suggestion lists
      */
-    public Set<USDocument> getOwnedDocuments() {
+    public Map<Long, USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
 
         if (ownedDocuments == null) {
-            ownedDocuments = Collections.synchronizedSet(new HashSet<USDocument>());
+            ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
             org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
             // query the documents owned by the user
@@ -91,7 +91,10 @@ public class USUser extends DatabaseObject {
                     "and d.toBeDeleted = false").setParameter("uid", getDatabaseId()).list();
 
             // store it to the variable
-            for (Object o : result) { ownedDocuments.add((USDocument)o); }
+            for (Object o : result) {
+                USDocument doc = (USDocument)o;
+                ownedDocuments.put(doc.getDatabaseId(), doc);
+            }
             
             usHibernateUtil.closeAndCommitSession(session);
         }
@@ -154,8 +157,7 @@ public class USUser extends DatabaseObject {
     //adds document into server memory
     //it doesn't add it into database, it is added into database in document constructor
     public void addDocument(USDocument document) {
-        ownedDocuments.add(document);
-    //    document.setOwnerDatabaseId(databaseId);
+        ownedDocuments.put(document.getDatabaseId(), document);
     }
 
     public void saveToDatabase(Session dbSession) {
@@ -164,7 +166,7 @@ public class USUser extends DatabaseObject {
 
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
-        for (USDocument document : ownedDocuments) {
+        for (USDocument document : ownedDocuments.values()) {
             document.deleteFromDatabase(dbSession);
         }
     }

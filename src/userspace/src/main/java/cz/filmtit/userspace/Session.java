@@ -19,8 +19,8 @@ public class Session {
     private USUser user;
 
     private long sessionStart;
-    private long lastOperationTime;
-    private SessionState state;
+    private volatile long lastOperationTime;
+    private volatile SessionState state;
     Logger logger = Logger.getLogger("Session");
     
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
@@ -44,12 +44,8 @@ public class Session {
         this.user = user;
 
         // load the active documents and active translation results from the user object
-        for (USDocument document : user.getOwnedDocuments()) {
-            // if the document has been active the last time the session was terminated, ...
-            if (user.getActiveDocumentIDs().contains(document.getDatabaseId())) {
-                // load the document
-                activeDocuments.put(document.getDatabaseId(), document);
-            }
+        for (Long documentID : user.getActiveDocumentIDs()) {
+            activeDocuments.put(documentID, user.getOwnedDocuments().get(documentID));
         }
     }
 
@@ -98,12 +94,12 @@ public class Session {
         return user.isPermanentlyLoggedId();
     }
 
-    public synchronized void logout() {
+    public void logout() {
         state = SessionState.loggedOut;
         terminate();
     }
 
-    public synchronized void terminateOnNewLogin() {
+    public void terminateOnNewLogin() {
         state = SessionState.terminated;
         logger.info("Previous session of " + user.getUserName() + "was terminated before creating a new one.");
         terminate();
@@ -137,13 +133,13 @@ public class Session {
     /**
      * Kills the session when it times out.
      */
-    public synchronized void kill() {
+    public void kill() {
         state = SessionState.killed;
         terminate();
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-    // HANDLING USER
+    // HANDLING USERS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
@@ -165,19 +161,7 @@ public class Session {
     }
 
     public Void deleteDocument(long documentId) throws InvalidDocumentIdException {
-        USDocument document = null;
-        if (activeDocuments.containsKey(documentId)) {
-            document = activeDocuments.get(documentId);
-            activeDocuments.remove(documentId);
-        }
-        else  {
-            for (USDocument userDocument : user.getOwnedDocuments()) {
-                if (userDocument.getDatabaseId() == documentId) {
-                    document = userDocument;
-                    break;
-                }
-            }
-        }
+        USDocument document = getActiveDocument(documentId);
 
         user.getOwnedDocuments().remove(document);
         document.setToBeDeleted(true);
@@ -244,7 +228,7 @@ public class Session {
         updateLastOperationTime();
         List<Document> result = new ArrayList<Document>();
 
-        for(USDocument usDocument : user.getOwnedDocuments()) {
+        for(USDocument usDocument : user.getOwnedDocuments().values()) {
             result.add(usDocument.getDocument().documentWithoutResults());
         }
 
@@ -260,17 +244,15 @@ public class Session {
      */
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
         updateLastOperationTime();
-        // WTF?!?!?! Do you REALLY have to iterate over all documents to find the one I want?!?!?!
-        for (USDocument usDocument : user.getOwnedDocuments()) {
-            if (usDocument.getDatabaseId() == documentID) {
-                usDocument.loadChunksFromDb();
-                activeDocuments.put(documentID, usDocument);
-                logger.info("User " + user.getUserName() + " opened document " + documentID + " (" +
-                        usDocument.getTitle() + ").");
-                return  usDocument.getDocument();
-            }
-        }
 
+        if (user.getOwnedDocuments().containsKey(documentID)) {
+            USDocument usDocument = user.getOwnedDocuments().get(documentID);
+            usDocument.loadChunksFromDb();
+            activeDocuments.put(documentID, usDocument);
+            logger.info("User " + user.getUserName() + " opened document " + documentID + " (" +
+                    usDocument.getTitle() + ").");
+            return  usDocument.getDocument();
+        }
         throw new InvalidDocumentIdException("The user does not own a document with such ID.");
     }
 
@@ -456,12 +438,7 @@ public class Session {
     }
 
     public boolean hasDocument(long id) {
-        for(USDocument usDocument : user.getOwnedDocuments()) {
-            if (usDocument.getDatabaseId() == id) {
-                return true;
-            }
-        }
-        return false;
+        return user.getOwnedDocuments().containsKey(id);
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -505,19 +482,14 @@ public class Session {
         usHibernateUtil.closeAndCommitSession(session);
     }
 
-    private synchronized void updateLastOperationTime() {
+    private void updateLastOperationTime() {
         lastOperationTime = new Date().getTime();
     }
 
     public synchronized USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
             logger.info("Loading document " + documentID + "to memory.");
-
-            for (USDocument doc : user.getOwnedDocuments()) {
-                if (doc.getDatabaseId() == documentID) {
-                    activeDocuments.put(documentID, doc);
-                }
-            }
+            activeDocuments.put(documentID, user.getOwnedDocuments().get(documentID));
         }
 
         USDocument document = activeDocuments.get(documentID);
