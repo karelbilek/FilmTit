@@ -4,7 +4,11 @@ import java.util.List;
 
 public class User {
     private String name;
-    public String id;
+    private String email;
+    private boolean permanentlyLoggedIn;
+    private int maximumNumberOfSuggestions;
+    private boolean useMoses;
+
     public List<Document> ownedDocuments;
 
     public String getName() {
@@ -15,15 +19,39 @@ public class User {
         this.name = name;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public List<Document> getOwnedDocuments() {
         return ownedDocuments;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String emaString) {
+        this.email = emaString;
+    }
+
+    public boolean isPermanentlyLoggedIn() {
+        return permanentlyLoggedIn;
+    }
+
+    public void setPermanentlyLoggedIn(boolean permanentlyLoggedIn) {
+        this.permanentlyLoggedIn = permanentlyLoggedIn;
+    }
+
+    public int getMaximumNumberOfSuggestions() {
+        return maximumNumberOfSuggestions;
+    }
+
+    public void setMaximumNumberOfSuggestions(int maximumNumberOfSuggestions) {
+        this.maximumNumberOfSuggestions = maximumNumberOfSuggestions;
+    }
+
+    public boolean isUseMoses() {
+        return useMoses;
+    }
+
+    public void setUseMoses(boolean useMoses) {
+        this.useMoses = useMoses;
     }
 }

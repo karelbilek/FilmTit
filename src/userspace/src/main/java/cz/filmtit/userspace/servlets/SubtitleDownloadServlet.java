@@ -92,14 +92,14 @@ public class SubtitleDownloadServlet extends HttpServlet {
 
             // solve the language code
             String languageToFileName = null;
-            String language1 = ConfigurationSingleton.getConf().l1().getName();
-            String language2 = ConfigurationSingleton.getConf().l2().getName();
+            String language1 = ConfigurationSingleton.getConf().l1().getCode();
+            String language2 = ConfigurationSingleton.getConf().l2().getCode();
 
             if (way == ChunkStringGenerator.SOURCE_SIDE) {
-                languageToFileName = document.getLanguageCode();
+                languageToFileName = document.getLanguage().getName();
             }
             else {
-                if (document.getLanguageCode().equals(language1)) {
+                if (document.getLanguage().getName().equals(language1)) {
                     languageToFileName = language2;
                 }
                 else {

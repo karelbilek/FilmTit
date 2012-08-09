@@ -14,15 +14,15 @@ import java.util.*;
  */
 public class USDocument extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
-    private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
+    private static final int ALLOWED_FUTURE_FOR_YEARS = 10;
 
-    private long ownerDatabaseId=0;
-    private Document document;
-    private SortedMap<ChunkIndex, USTranslationResult> translationResults;
-    private long workStartTime;
-    private long translationGenerationTime;
-    private boolean toBeDeleted = false;
-    private boolean finished;
+    private volatile long ownerDatabaseId = 0;
+    private volatile Document document;
+    private SortedMap<ChunkIndex, USTranslationResult> translationResults; // make sure it's a synchronized map
+    private volatile long workStartTime;
+    private volatile long translationGenerationTime;
+    private volatile boolean toBeDeleted = false;
+    private volatile boolean finished;
 
     public USDocument(Document document, USUser user) {
         this.document = document;
@@ -52,10 +52,8 @@ public class USDocument extends DatabaseObject {
         return ownerDatabaseId;
     }
 
-    //this should not be run anywhere in regular code!
-    //it is here only for hibernate
     private void setOwnerDatabaseId(long ownerDatabaseId) throws Exception {
-        if (this.ownerDatabaseId!=0) {
+        if (this.ownerDatabaseId !=0 ) {
             throw new Exception("you should not reset the owner. It is " + this.ownerDatabaseId);
         }
         this.ownerDatabaseId = ownerDatabaseId;
@@ -77,8 +75,8 @@ public class USDocument extends DatabaseObject {
      * Gets the time spent on translating this subtitles valid right now.
      * @return The time spent on this subtitles in milliseconds.
      */
-    public long getSpentOnThisTime() {
-        return document.spentOnThisTime + (new Date()).getTime() - workStartTime;
+    private long getSpentOnThisTime() {
+        return document.getSpentOnThisTime() + (new Date()).getTime() - workStartTime;
     }
 
     /**
@@ -87,7 +85,7 @@ public class USDocument extends DatabaseObject {
      * @param spentOnThisTime New value of time spent on this document.
      */
     public void setSpentOnThisTime(long spentOnThisTime) {
-        document.spentOnThisTime = spentOnThisTime;
+        document.setSpentOnThisTime(spentOnThisTime);
         workStartTime = new Date().getTime();
     }
 
@@ -111,7 +109,7 @@ public class USDocument extends DatabaseObject {
         document.setMovie(movie);
     }
 
-    public long getTranslationGenerationTime() {
+    private long getTranslationGenerationTime() {
         return translationGenerationTime;
     }
 
@@ -158,7 +156,6 @@ public class USDocument extends DatabaseObject {
     }
     
     public USTranslationResult getTranslationResultForIndex(ChunkIndex i) {
-        //Collections.sort(translationResults);
         return translationResults.get(i);
     }
 
@@ -205,7 +202,7 @@ public class USDocument extends DatabaseObject {
     /**
      * Loads the translationResults from User Space database if there are some
      */
-    public void loadChunksFromDb() {
+    public synchronized void loadChunksFromDb() {
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
     
         // query the database for the translationResults
@@ -237,7 +234,7 @@ public class USDocument extends DatabaseObject {
      * or created.
      * @param dbSession  Opened database session.
      */
-    public void saveToDatabase(Session dbSession) {
+    public synchronized void saveToDatabase(Session dbSession) {
         if (document.getMovie() != null) {
             dbSession.saveOrUpdate(document.getMovie());
         }
@@ -257,7 +254,7 @@ public class USDocument extends DatabaseObject {
         saveJustObject(dbSession);
     }
 
-    public void deleteFromDatabase(Session dbSession) {
+    public synchronized void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
     }
 
@@ -279,7 +276,7 @@ public class USDocument extends DatabaseObject {
      * it is replaced by this new one.
      * @param usTranslationResult
      */
-    public void addOrReplaceTranslationResult(USTranslationResult usTranslationResult) {
+    public synchronized void addOrReplaceTranslationResult(USTranslationResult usTranslationResult) {
         ChunkIndex chunkIndex = usTranslationResult.getTranslationResult().getSourceChunk().getChunkIndex();
         translationResults.put(chunkIndex, usTranslationResult);
         document.getTranslationResults().put(chunkIndex, usTranslationResult.getTranslationResult());

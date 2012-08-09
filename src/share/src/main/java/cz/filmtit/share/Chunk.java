@@ -2,6 +2,7 @@ package cz.filmtit.share;
 
 import cz.filmtit.share.annotations.AnnotationType;
 import cz.filmtit.share.annotations.Annotation;
+import cz.filmtit.share.parsing.Parser;
 
 import com.google.gwt.user.client.rpc.GwtTransient;
 import java.io.Serializable;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-    private String surfaceForm = "";
+    private volatile String surfaceForm = "";
     
     protected List<Annotation> annotations;
 
@@ -62,6 +63,57 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     public String getSurfaceForm() {
         return surfaceForm;
+    }
+
+    public String getDatabaseForm() {
+        return getFormatedForm("- "," | ");
+    }
+
+    public void setDatabaseForm(String form) {
+        Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
+        setSurfaceForm(chunkInfo.string);
+        addAnnotations(chunkInfo.anots); 
+    }
+
+    public String getFormatedForm(String dashString, String newlineString) {
+        String displayForm = getSurfaceForm();
+        
+        //we are doing annots from left to right
+        //and if we move the string, we have to move the positions too
+        int movedAlready=0;
+
+        if (annotations != null) {
+            Collections.sort(annotations);
+            for (Annotation annotation : annotations)  {
+                int pos = annotation.getBegin() + movedAlready;
+                switch (annotation.getType()) {
+                    case DIALOGUE:
+                        displayForm = displayForm.substring(0, pos) + dashString
+                                + displayForm.substring(pos);
+                        movedAlready += dashString.length();
+                        break;
+                    case LINEBREAK:
+                        displayForm = displayForm.substring(0, pos) + newlineString
+                                + displayForm.substring(pos + 1);
+                        //+1 / -1, because in surfaceform, there is space after linebreak
+                        //but we don't want the space here
+                        movedAlready += newlineString.length() - 1;
+                        break;
+                }
+            }
+        }
+        
+
+        return displayForm;
+    }
+
+    public boolean isDialogue() {
+        for (Annotation annotation: annotations) {
+            if (annotation.getType() == AnnotationType.DIALOGUE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setSurfaceForm(String surfaceform) {
@@ -115,19 +167,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     }
  
     public String getGUIForm(){
-        String result = this.getSurfaceForm();
-        for (Annotation an:this.getAnnotations()) {
-            if (an.getType().equals(AnnotationType.LINEBREAK)){
-                int index = an.getBegin();
-                result = result.substring(0, index)+"<br />"+result.substring(index, result.length());
-            }
-        }
-        for (Annotation an:this.getAnnotations()) {
-            if (an.getType().equals(AnnotationType.DIALOGUE)){
-                result = "- "+result;
-            }
-        }
-        return result;     
+        return getFormatedForm("- ", "<br />");
     }
     
     public void addAnnotations(Collection<Annotation> annotations) {

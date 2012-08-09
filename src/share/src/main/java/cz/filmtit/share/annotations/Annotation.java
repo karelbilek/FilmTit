@@ -3,7 +3,7 @@ package cz.filmtit.share.annotations;
 import java.io.Serializable;
 
 
-public class Annotation implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
+public class Annotation implements com.google.gwt.user.client.rpc.IsSerializable, Serializable, Comparable<Annotation> {
     private AnnotationType type;
     // (zero-based) position of the first character of the annotated substring
     private int begin;
@@ -33,6 +33,13 @@ public class Annotation implements com.google.gwt.user.client.rpc.IsSerializable
 
     public int getEnd() {
         return end;
+    }
+
+    public int compareTo(Annotation other) {
+        return (begin - other.begin);
+
+        //this>other => begin > other.begin => compareTo>0
+
     }
 
 }

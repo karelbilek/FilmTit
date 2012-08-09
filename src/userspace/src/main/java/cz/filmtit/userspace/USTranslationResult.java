@@ -25,11 +25,11 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     /**
      * The shared object which is wrapped by the USTranslationResult.
      */
-    private TranslationResult translationResult;
+    private volatile TranslationResult translationResult;
     /**
      * A sign if the feedback to the core has been already provided.
      */
-    private boolean feedbackSent = false;
+    private volatile boolean feedbackSent = false;
     /**
      * The document this translation result is part of.
      */
@@ -125,7 +125,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @return Original text of the chunk.
      */
     public String getText() {
-        return translationResult.getSourceChunk().getSurfaceForm();
+        return translationResult.getSourceChunk().getDatabaseForm();
     }
 
     /**
@@ -136,12 +136,12 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setText(String text) {
         if (text == null)
             text = "";
-        translationResult.getSourceChunk().setSurfaceForm(text);
+        translationResult.getSourceChunk().setDatabaseForm(text);
     }
 
     /**
      * Gets the translation provided by the user.
-     * @return The user tranlsation.
+     * @return The user translation.
      */
     public String getUserTranslation() {
         return translationResult.getUserTranslation();
@@ -155,16 +155,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
         feedbackSent = false;
-        /*
-         *  THIS CAN'T BE HERE- we can't save it to database when it is use by hibernate setter
-         *  Hibernate will try to save it to database while we are loading it from database
-         *  
-         *  leading into needles saving to DB and more importantly - bugs, because it is in weird state
-         *
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
-        */
     }
 
     /**
@@ -200,17 +190,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
-
-        /*
-         *  THIS CAN'T BE HERE- we can't save it to database when it is use by hibernate setter
-         *  Hibernate will try to save it to database while we are loading it from database
-         *  
-         *  leading into needles saving to DB and more importantly - bugs, because it is in weird state
-         *
-Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
-        */
     }
 
     /**
@@ -253,7 +232,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * suggestions they are discarded.
      * @param TM An instance of Tranlsation Memory from the core.
      */
-    public void generateMTSuggestions(TranslationMemory TM) {
+    public synchronized void generateMTSuggestions(TranslationMemory TM) {
         if (TM == null) { return; }
 
         // TODO: ensure none of the potential previous suggestions is in the server cache collection
@@ -305,7 +284,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * and the chunks are ready to be deleted from the database.
      * @return  A list of unchecked translation results.
      */
-    public static List<USTranslationResult> getUncheckedResults() {
+    public synchronized static List<USTranslationResult> getUncheckedResults() {
          Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
 
@@ -357,7 +336,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         return translationResult.compareTo(other.getTranslationResult());
     }
 
-    public TranslationResult getResultCloneAndRemoveSuggestions() {
+    public synchronized TranslationResult getResultCloneAndRemoveSuggestions() {
         TranslationResult withSuggestions =  translationResult;
         translationResult = translationResult.resultWithoutSuggestions();
         return withSuggestions;

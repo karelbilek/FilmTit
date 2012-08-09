@@ -109,6 +109,68 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return TM;
     }
 
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // HANDLING DOCUMENTS
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+    @Override
+    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
+            throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
+    }
+
+    @Override
+    public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).selectSource(documentID, selectedMediaSource);
+    }
+
+    @Override
+    public List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).getListOfDocuments();
+    }
+
+    @Override
+    public Document loadDocument(String sessionID, long documentID)
+            throws InvalidDocumentIdException, InvalidSessionIdException {
+        return getSessionIfCan(sessionID).loadDocument(documentID);
+    }
+
+    @Override
+    public Void closeDocument(String sessionID, long documentId)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).closeDocument(documentId);
+    }
+
+    @Override
+    public Void deleteDocument(String sessionID, long documentID)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).deleteDocument(documentID);
+    }
+
+    @Override
+    public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionId).changeDocumentTitle(documentID, newTitle);
+    }
+
+    @Override
+    public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return  getSessionIfCan(sessionId).changeMovieTitle(documentID, newMovieTitle, mediaSourceFactory);
+    }
+
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // HANDLING TRANSLATION RESULTS
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+    @Override
+    public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).saveSourceChunks(chunks);
+    }
+
     @Override
     public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidDocumentIdException {
@@ -162,53 +224,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
     }
 
-    @Override
-    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
-            throws InvalidSessionIdException {
-        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
-    }
-
-    @Override
-    public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).selectSource(documentID, selectedMediaSource);
-    }
-
-    @Override
-    public List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException {
-        return getSessionIfCan(sessionID).getListOfDocuments();
-    }
-
-    @Override
-    public Document loadDocument(String sessionID, long documentID)
-            throws InvalidDocumentIdException, InvalidSessionIdException {
-        return getSessionIfCan(sessionID).loadDocument(documentID);
-    }
-
-    @Override
-    public Void closeDocument(String sessionID, long documentId)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).closeDocument(documentId);
-    }
-
-    @Override
-    public Void deleteDocument(String sessionID, long documentID)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).deleteDocument(documentID);
-    }
-
-    @Override
-    public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionId).changeDocumentTitle(documentID, newTitle);
-    }
-
-    @Override
-    public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return  getSessionIfCan(sessionId).changeMovieTitle(documentID, newMovieTitle, mediaSourceFactory);
-    }
-
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // LOGIN & REGISTRATION STUFF
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     @Override
     public LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType) {
@@ -330,6 +348,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         return null;
     }
+
     @Override
     public Boolean registration(String name, String pass, String email, String openId) {
         // create user
@@ -338,7 +357,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             USUser user = null;
 
             // pass validation
-            String hash = pass_hash(pass);
+            String hash = passHash(pass);
             user = new USUser(name,hash,email,openId);
 
             // create hibernate session
@@ -382,6 +401,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return id;
     }
 
+    // TODO : what is this good for
     private String getUniqueName(String email){
         String name = email.substring(0,email.indexOf('@'));
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -412,7 +432,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         if (usUser != null && token != null && token.isValidToken(string_token)){
 
-            usUser.setPassword(pass_hash(pass));
+            usUser.setPassword(passHash(pass));
             org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
             usUser.saveToDatabase(dbSession);
             usHibernateUtil.closeAndCommitSession(dbSession);
@@ -421,7 +441,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return false;
     }
-
 
     public Boolean sendChangePasswordMail(USUser user){
 
@@ -521,7 +540,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Get hash of string
      * if return same string like input - problem with algortithm
      */
-    private String pass_hash(String pass){
+    private String passHash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
     }
     /**
@@ -611,6 +630,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return (USUser)UserResult.get(0);
     }
 
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // USER SETTINGS
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
     /**
      * A thread that checks out whether the sessions should be timed out.
      */
@@ -695,9 +721,5 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).getActiveDocument(documentID);
     }
 
-    @Override
-    public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).saveSourceChunks(chunks);
-    }
 
 }

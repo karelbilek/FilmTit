@@ -1,5 +1,6 @@
 package cz.filmtit.client.subgestbox;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
@@ -17,6 +18,7 @@ import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RichTextArea;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -56,7 +58,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
     private FakeSubgestBox substitute=null;
     
-    public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
+    public class FakeSubgestBox extends TextArea implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox(int tabIndex) {
             SubgestBox.this.substitute = SubgestBox.FakeSubgestBox.this;
@@ -74,6 +76,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                     }
                 }
             });
+//            this.setHeight(getFather().getCorrectVerticalSize()+"px");
             this.setTabIndex(tabIndex);
             this.setStyleName("pre_subgestbox");
             this.addStyleName("loading");
@@ -82,6 +85,36 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             } else {
                 this.addStyleName("subgest_halfwidth");
             }        
+        }
+
+        public /*static */boolean stringHasMoreThanTwoLines(String s) {
+            int count =0;
+            int first = s.indexOf("\n",0);
+            if (first == -1) {
+                return false;
+            }
+            int second = s.indexOf("\n", first);
+            if (second == -1) {
+                return false;
+            }
+            return true;
+        }
+
+        public int lastVerticalSize;
+
+        public int verticalSize() {
+            String text = this.getText();
+            if (stringHasMoreThanTwoLines(text)) {
+                return this.getElement().getScrollHeight();
+            } else {
+                return 30;
+            }
+        }
+
+        public void updateVerticalSize() {
+            //Window.alert("JDU UPDATE FAKE VERTICAL SIZE "+ verticalSize());
+            this.setHeight(verticalSize()+"px");          
+            lastVerticalSize = verticalSize();
         }
 
         public SubgestBox getFather(){
@@ -110,6 +143,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     boolean fullWidth;
 
     private String subgestBoxHTML(String content) {
+        content = content.replaceAll("\n", "<br>");
         return content;
     }
 
@@ -151,6 +185,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                 s.setColor("#333");
             }
         });
+        
+    //    this.updateVerticalSize();
 
 	}
 	
@@ -162,6 +198,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         if (userTranslation != null && !userTranslation.equals("")) {
             //replaceFakeWithReal();
             substitute.setText(userTranslation);
+            substitute.updateVerticalSize();
             this.setHTML(subgestBoxHTML(userTranslation));
             //updateVerticalSize();
         }
@@ -361,12 +398,31 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         this.lastText = this.getText();
     }
 
-    public void updateVerticalSize() {
-        Document frameDoc = ((FrameElement) this.getElement().cast()).getContentDocument();
+    public Document getFrameDoc(){
+        return ((FrameElement) this.getElement().cast()).getContentDocument();
+    }
 
-        int newHeight = frameDoc.getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
-        if (newHeight != frameDoc.getClientHeight())
-        {
+
+    public int getCorrectVerticalSize() {
+        //if this happen right after replacing, it's wrong
+        //=> I will also have to take in the size of the substitute
+        
+        int newHeight = getFrameDoc().getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
+        int substituteSize = substitute.lastVerticalSize;
+        //Window.alert("new je "+newHeight+"subst je "+substituteSize);
+        if (newHeight>substituteSize) {
+            return newHeight;
+        } else {
+            return substituteSize;
+        }
+
+    }
+
+    public void updateVerticalSize() {
+         int newHeight = getCorrectVerticalSize();
+//         Window.alert("JDU UPDATE REAL VERTICAL SIZE "+newHeight);
+         
+         if (newHeight != getFrameDoc().getClientHeight()) {
             setHeight((newHeight) + "px");
             showSuggestions();
         }
