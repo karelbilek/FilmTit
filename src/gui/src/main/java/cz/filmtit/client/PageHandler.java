@@ -69,8 +69,6 @@ public class PageHandler {
     
     public PageHandler () {
     	
-    	History.addValueChangeHandler(historyChangeHandler);
-    	
     	getPageFromURL();
 
     	if ( isFullPage(pageUrl) ) {
@@ -147,20 +145,6 @@ public class PageHandler {
 		}    	
     }
 	
-    /**
-     * Reacts to user clicking the links in menu.
-     */
-	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
-		
-		@Override
-		public void onValueChange(ValueChangeEvent<String> event) {
-			// find out which page the user wants
-			pageUrl = string2page(event.getValue());
-			// load the page
-			loadPage(true);
-		}
-	};
-    
     /**
      * Sets page to be loaded,
      * changing the URL

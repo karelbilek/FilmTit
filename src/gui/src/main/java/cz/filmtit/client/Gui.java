@@ -65,9 +65,12 @@ public class Gui implements EntryPoint {
  	/**
  	 * handles page switching
  	 */
-    public PageHandler pageHandler;
+    public static PageHandler pageHandler;
    
-    public PageHandler getPageHandler() {
+ 	/**
+ 	 * handles page switching
+ 	 */
+    public static PageHandler getPageHandler() {
         return pageHandler;
     }
     
@@ -129,10 +132,10 @@ public class Gui implements EntryPoint {
     	// set the Gui singleton
     	Gui.gui = this;
 
-		// page loading and switching
-		pageHandler = new PageHandler();
+		// set the pageHandler singleton for page loading and switching
+		Gui.pageHandler = new PageHandler();
 		
-		if (pageHandler.doCheckSessionID) {
+		if (Gui.getPageHandler().doCheckSessionID) {
     		// check whether user is logged in or not
     		FilmTitServiceHandler.checkSessionID();
 		}

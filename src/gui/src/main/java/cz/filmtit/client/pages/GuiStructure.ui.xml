@@ -8,16 +8,16 @@
         <b:Navbar position="TOP">
             <b:Brand>Filmtit</b:Brand>
             <b:Nav>
-                <g:Hyperlink ui:field="welcomePage" targetHistoryToken="WelcomePage">Start</g:Hyperlink>
+                <b:NavLink ui:field="welcomePage" targetHistoryToken="WelcomePage">Start</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <g:Hyperlink ui:field="about" targetHistoryToken="About">About</g:Hyperlink>
+                <b:NavLink ui:field="about" targetHistoryToken="About">About</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <g:Hyperlink ui:field="userPage" targetHistoryToken="UserPage">Document list</g:Hyperlink>
+                <b:NavLink ui:field="userPage" targetHistoryToken="UserPage">Document list</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <g:Hyperlink ui:field="documentCreator" targetHistoryToken="DocumentCreator">New document</g:Hyperlink>
+                <b:NavLink ui:field="documentCreator" targetHistoryToken="DocumentCreator">New document</b:NavLink>
             </b:Nav>
 
             <b:Nav alignment="RIGHT">

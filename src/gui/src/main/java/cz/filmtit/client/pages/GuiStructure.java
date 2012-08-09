@@ -1,6 +1,7 @@
 package cz.filmtit.client.pages;
 
 
+import com.github.gwtbootstrap.client.ui.NavLink;
 import com.github.gwtbootstrap.client.ui.TextArea;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -25,7 +26,12 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new Hyperlink[]{ documentCreator, about, welcomePage, userPage };
+		allMenuItems = new NavLink[]{ documentCreator, about, welcomePage, userPage };
+		
+		documentCreator.addClickHandler(new MenuClickHandler(Page.DocumentCreator));
+		about.addClickHandler(new MenuClickHandler(Page.About));
+		welcomePage.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
+		userPage.addClickHandler(new MenuClickHandler(Page.UserPage));
 		
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
@@ -60,7 +66,7 @@ public class GuiStructure extends Composite {
 	 */
 	public void activateMenuItem(Page pageLoaded) {
 		deactivateAllMenuItems();
-		Hyperlink activeMenuItem = page2menuItem(pageLoaded);
+		NavLink activeMenuItem = page2menuItem(pageLoaded);
 		if (activeMenuItem != null) {
 			activateMenuItem(activeMenuItem);			
 		}
@@ -102,20 +108,42 @@ public class GuiStructure extends Composite {
     ///////////////////////////////////////
 	
 	@UiField
-	Hyperlink welcomePage;
+	NavLink welcomePage;
 
 	@UiField
-	Hyperlink userPage;
+	NavLink userPage;
 
 	@UiField
-	Hyperlink documentCreator;
+	NavLink documentCreator;
 
 	@UiField
-	Hyperlink about;
+	NavLink about;
+	
+	/**
+	 * Reacts to clicks on NavLinks.
+	 * Used instead of the Hyperlinks
+	 * because the Hyperlink handler does not fire
+	 * if the new page URL is the same as the old one.
+	 */
+	private class MenuClickHandler implements ClickHandler {
 
-	Hyperlink[] allMenuItems;
+		Page pageUrl;
+		
+		private MenuClickHandler(Page pageUrl) {
+			super();
+			this.pageUrl = pageUrl;
+		}
 
-	private Hyperlink page2menuItem (Page page) {
+		@Override
+		public void onClick(ClickEvent event) {
+			Gui.getPageHandler().loadPage(pageUrl, true);
+		}
+		
+	}
+
+	NavLink[] allMenuItems;
+
+	private NavLink page2menuItem (Page page) {
 		switch (page) {
 		case About:
 			return about;
@@ -130,16 +158,14 @@ public class GuiStructure extends Composite {
 		}
 	}
 	
-	static final String ACTIVE = "active";
-	
 	private void deactivateAllMenuItems() {
-        for (Hyperlink item : allMenuItems) {
-            item.removeStyleName(ACTIVE);
+        for (NavLink item : allMenuItems) {
+            item.setActive(false);
 	    }
     }
 
-	private void activateMenuItem(Hyperlink menuItem) {
-	    menuItem.addStyleName(ACTIVE);
+	private void activateMenuItem(NavLink menuItem) {
+	    menuItem.setActive(true);
     }
 
     ///////////////////////////////////////
