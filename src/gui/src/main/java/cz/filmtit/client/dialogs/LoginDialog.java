@@ -31,7 +31,7 @@ public class LoginDialog extends Dialog {
 	 * Open the LoginDialog, showing the Login tab
 	 */
 	public LoginDialog() {
-		this(null, Tab.Login);
+		this(null, Tab.Login, null);
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public class LoginDialog extends Dialog {
 	 * @param username
 	 */
 	public LoginDialog(String username) {
-		this(username, Tab.Login);
+		this(username, Tab.Login, null);
 	}
 	
 	/**
@@ -47,20 +47,49 @@ public class LoginDialog extends Dialog {
 	 * @param tab
 	 */
 	public LoginDialog(Tab tab) {
-		this(null, tab);
+		this(null, tab, null);
+	}
+	
+	/**
+	 * Open the LoginDialog, showing the given tab and error message.
+	 * @param tab
+	 */
+	public LoginDialog(Tab tab, String errorMessage) {
+		this(null, tab, errorMessage);
 	}
 	
 	/**
 	 * Open the LoginDialog, showing the given tab and prefilling the given username into the form.
 	 * @param username
-	 * @param tab
 	 */
 	public LoginDialog(String username, Tab tab) {
+		this(username, tab, null);
+	}
+	
+	/**
+	 * Open the LoginDialog, showing the Login tab and error message and prefilling the given username into the form.
+	 * @param username
+	 */
+	public LoginDialog(String username, String errorMessage) {
+		this(username, Tab.Login, errorMessage);
+	}
+	
+	/**
+	 * Open the LoginDialog, showing the given tab and prefilling the given username into the form.
+	 * @param username The username to prefill.
+	 * @param tab The tab to show.
+	 * @param errorMessage An optional error message to show to the user.
+	 */
+	public LoginDialog(String username, Tab tab, String errorMessage) {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		propagateUsername(username);
 		
         switchTo(tab);
+        
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+        	showErrorMessage(errorMessage);
+        }
         
         dialogBox.show();
 	}

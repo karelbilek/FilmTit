@@ -12,6 +12,8 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.client.dialogs.LoginDialog.Tab;
 
 public class WelcomeScreen extends Composite {
 
@@ -31,14 +33,14 @@ public class WelcomeScreen extends Composite {
                 if (gui.loggedIn) {
                 	FilmTitServiceHandler.logout();
                 } else {
-                	gui.showLoginDialog();
+                	new LoginDialog();
                 }
             }
         });
         register.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                gui.showRegistrationForm();
+                new LoginDialog(Tab.Register);
             }
         });
 

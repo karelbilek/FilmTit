@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
 
 import java.util.Date;
@@ -99,7 +100,7 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-        	   gui.showDownloadDialog(doc);
+        	   new DownloadDialog(doc);
            }
        });
 

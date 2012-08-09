@@ -3,6 +3,7 @@ import cz.filmtit.client.Callable;
 
 import cz.filmtit.client.*;
 import cz.filmtit.client.dialogs.Dialog;
+import cz.filmtit.client.dialogs.LoginDialog;
 
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -32,7 +33,7 @@ import java.util.*;
             		loginDialog.reactivateWithErrorMessage("Incorrect username or password - please try again.");            			
         		} else {
         			// this is weird, means that the password was set just before calling that, this shouldn't happen
-        			gui.showLoginDialog(username);
+        			new LoginDialog(username);
         		}
         	} else {
         		gui.setSessionID(SessionID);

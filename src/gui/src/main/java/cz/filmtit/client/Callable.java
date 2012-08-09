@@ -145,6 +145,10 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		// TODO: store user input to be used when user goes back online
 	}
     
+    /**
+     * Called when there is an error because the sessionID is invalid.
+     * Displays the login dialog by default.
+     */
 	protected void onInvalidSession() {
 		gui.please_relog_in();
 	}    

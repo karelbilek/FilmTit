@@ -252,46 +252,14 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
-    /**
-     * show a dialog enabling the user to
-     * log in directly or [this line maybe to be removed]
-     * via OpenID services
-     */
-	public void showLoginDialog() {
-		showLoginDialog("");
-	}
-     
-    /**
-     * show a dialog enabling the user to
-     * log in directly or [this line maybe to be removed]
-     * via OpenID services
-     * @param username
-     */
-	public void showLoginDialog(String username) {
-	    new LoginDialog(username);
-	}
-
-    public void showDownloadDialog(Document document) {
-        new DownloadDialog(document);
-    }
-
-    /**
-     * show the registration dialog
-     */
-    public void showRegistrationForm() {
-        new LoginDialog(Tab.Register);
-    }
-
     public void please_log_in () {
         logged_out ();
-        Window.alert("Please log in first.");
-        showLoginDialog();
+        new LoginDialog(username, "Please log in first.");
     }
     
     public void please_relog_in () {
         logged_out ();
-        Window.alert("You have not logged in or your session has expired. Please log in.");
-        showLoginDialog();
+        new LoginDialog(username, "You have not logged in or your session has expired. Please log in.");
     }
 
     public void logged_in (String username) {
