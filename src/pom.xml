@@ -78,7 +78,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
-                    <argLine>-Xmx1G -Xms512m</argLine>
+                    <argLine>-Xmx2G -Xms512m</argLine>
                  <!--   <useFile>true</useFile>  -->
 
                     <!-- Please note that Jenkins needs Surefire
