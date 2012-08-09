@@ -1,21 +1,10 @@
 package cz.filmtit.client;
 
-import java.util.Iterator;
-
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.RootPanel;
-
 import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
@@ -25,7 +14,6 @@ import cz.filmtit.client.pages.GuiStructure;
 import cz.filmtit.client.pages.Settings;
 import cz.filmtit.client.pages.UserPage;
 import cz.filmtit.client.pages.WelcomeScreen;
-import cz.filmtit.share.Document;
 
 /**
  * Handles loading and switching of pages.
@@ -41,6 +29,9 @@ public class PageHandler {
     
     /**
      * The page that should be loaded.
+     * Is set only by setPageToLoad()
+     * because some checks have to be done
+     * to determine which page can be safely loaded.
      */
     private Page pageToLoad = Page.None;
     
@@ -80,7 +71,7 @@ public class PageHandler {
     	
     	History.addValueChangeHandler(historyChangeHandler);
     	
-    	pageUrl = getPageFromURL();
+    	getPageFromURL();
 
     	if ( isFullPage(pageUrl) ) {
     		
@@ -117,19 +108,21 @@ public class PageHandler {
     	return (page != Page.AuthenticationValidationWindow);
 	}
 
+    // set pageUrl
+    
     /**
-     * Get the page requested in URL.
+     * Get the page requested in URL, setting pageUrl.
      * Supports both ?page=Page and #Page
      * @return the page requested if possible, or Page.None
      */
-	private Page getPageFromURL () {
+	private void getPageFromURL () {
     	// first try #Page
     	Page page = string2page(History.getToken());
     	if (page == Page.None) {
     		// also try ?page=Page
     		page = string2page(Window.Location.getParameter("page"));
     	}
-    	return page;
+    	pageUrl = page;
     }
     
 	/**
@@ -153,21 +146,6 @@ public class PageHandler {
 			}
 		}    	
     }
-    
-    /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded).
-     * Equivalent to:
-     *   setPageUrl(suggestedPage);
-     *   loadPage();
-     * @param suggestedPage page that should be loaded
-     */
-	public void loadPage(Page suggestedPage) {
-		History.newItem(suggestedPage.toString());
-		// invokes the historyChangeHandler
-			// sets pageUrl
-			// calls loadPage();
-	}
 	
     /**
      * Reacts to user clicking the links in menu.
@@ -179,39 +157,10 @@ public class PageHandler {
 			// find out which page the user wants
 			pageUrl = string2page(event.getValue());
 			// load the page
-			loadPage();
+			loadPage(true);
 		}
 	};
     
-	/**
-	 * loads a blank page without modifying the history
-	 */
-    public void loadBlankPage() {
-    	setPageToLoad(Page.Blank);
-    	loadPageToLoad();
-	}
-
-    /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded),
-     * using the page set in the URL
-     * in GET parameter "page".
-     */
-	public void loadPage() {
-		loadPage(false);
-	}
-	
-    /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded),
-     * using the page set in the URL
-     * in GET parameter "page".
-     */
-	public void loadPage(boolean evenIfAlreadyLoaded) {
-		setPageToLoad();
-		loadPageToLoad(evenIfAlreadyLoaded);
-	}
-	
     /**
      * Sets page to be loaded,
      * changing the URL
@@ -223,11 +172,73 @@ public class PageHandler {
 		this.pageUrl = pageUrl;
 		History.newItem(pageUrl.toString(), false);
     }
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded).
+     * Sets pageUrl.
+     * Equivalent to:
+     *   setPageUrl(suggestedPage);
+     *   loadPage();
+     * @param suggestedPage page that should be loaded
+     */
+	public void loadPage(Page suggestedPage) {
+		setPageUrl(suggestedPage);
+		loadPage();
+	}
+	
+    /**
+     * Determines the page to be loaded and loads it.
+     * Sets pageUrl.
+     * @param suggestedPage page that should be loaded
+     * @param evenIfAlreadyLoaded true to reload the page if it is already loaded, false not to
+     */
+	public void loadPage(Page suggestedPage, boolean evenIfAlreadyLoaded) {
+		setPageUrl(suggestedPage);
+		loadPage(evenIfAlreadyLoaded);
+	}
+	
+	// pageUrl -> suggestedPage
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded),
+     * using pageUrl (the page set in the URL
+     * in GET parameter "page").
+     */
+	public void loadPage() {
+		loadPage(false);
+	}
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded),
+     * using pageUrl (the page set in the URL
+     * in GET parameter "page").
+     */
+	public void loadPage(boolean evenIfAlreadyLoaded) {
+		setPageToLoad();
+		loadPageToLoad(evenIfAlreadyLoaded);
+	}
     
+	// set suggestedPage
+    
+	/**
+	 * Loads a blank page without modifying the history.
+	 * (Does not set pageUrl.)
+	 */
+    public void loadBlankPage() {
+    	setPageToLoad(Page.Blank);
+    	loadPageToLoad();
+	}
+
+	// suggestedPage -> pageToLoad
+	
     /**
      * Determines the page to be loaded,
-     * using the page set in the URL
-     * in GET parameter "page".
+     * using pageUrl (the page set in the URL
+     * in GET parameter "page").
+     * Sets pageToLoad.
      * @param loggedIn whether the user is logged in
      */
 	private void setPageToLoad() {
@@ -235,7 +246,7 @@ public class PageHandler {
     }
     
     /**
-     * Determines the page to be loaded.
+     * Determines the page to be loaded, sets pageToLoad.
      * @param loggedIn whether the user is logged in
      * @param suggestedPage the page that should be preferably loaded if possible
      */
@@ -267,9 +278,12 @@ public class PageHandler {
     	
 		gui.log("Page to load set to " + pageToLoad);
     }
+    
+    // pageToLoad -> pageLoaded    
 
     /**
      * Loads the pageToLoad unless it is already loaded.
+     * Sets pageLoaded.
      */
 	private void loadPageToLoad() {
 		loadPageToLoad(false);
@@ -277,6 +291,7 @@ public class PageHandler {
 	
     /**
      * Loads the pageToLoad.
+     * Sets pageLoaded.
      * @param evenIfAlreadyLoaded reload the page if already loaded
      */
 	private void loadPageToLoad(boolean evenIfAlreadyLoaded) {
