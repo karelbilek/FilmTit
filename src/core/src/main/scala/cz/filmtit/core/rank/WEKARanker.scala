@@ -14,8 +14,9 @@ abstract class WEKARanker(val modelFile: File)  extends BaseRanker {
   val classifier: Classifier = SerializationHelper.read(new FileInputStream(modelFile)).asInstanceOf[Classifier]
   val attributes = new FastVector()
   (getScoreNames ::: List("class")).foreach{ n: String => attributes.addElement(new Attribute(n)) }
-  val wekaPoints = new Instances("Dataset", attributes, 0)
 
+  val wekaPoints = new Instances("Dataset", attributes, 0)
+  wekaPoints.setClassIndex(wekaPoints.numAttributes()-1)
 
   override def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]): List[TranslationPair] = {
 
@@ -29,7 +30,12 @@ abstract class WEKARanker(val modelFile: File)  extends BaseRanker {
         case (s, i) => inst.setValue(i, s)
       }
 
-      pair.setScore( classifier.distributionForInstance(inst)(1) )
+      val score = classifier.distributionForInstance(inst) match {
+        case r: Array[Double] if r.length > 1  => r(1) //Result of classification
+        case r: Array[Double] if r.length == 1 => r(0) //Result of regression
+      }
+
+      pair.setScore( score )
     }
 
     pairs.sorted
