@@ -1,6 +1,6 @@
 package cz.filmtit.share;
 
-import cz.filmtit.share.annotations.Annotation;
+import cz.filmtit.share.annotations.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.LinkedList;
@@ -50,10 +50,13 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
 
     //TODO: arbitrary newlines
-    //TODO: dialogues
-    public TimedChunk getUserTranslationAsChunk() {
+    public TimedChunk getUserTranslationAsChunk(boolean isDialogue) {
         TimedChunk source = this.getSourceChunk();
         TimedChunk tc = new TimedChunk(this.getUserTranslation(), source.getStartTime(), source.getEndTime(), new LinkedList<Annotation>());
+        if (isDialogue) {
+            Annotation a = new Annotation(AnnotationType.DIALOGUE, 0, 0);
+            tc.addAnnotation(a);
+        }
         return tc;
     }
 

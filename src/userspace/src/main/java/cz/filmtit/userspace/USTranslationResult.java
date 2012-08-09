@@ -125,7 +125,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @return Original text of the chunk.
      */
     public String getText() {
-        return translationResult.getSourceChunk().getSurfaceForm();
+        return translationResult.getSourceChunk().getDatabaseForm();
     }
 
     /**
@@ -134,8 +134,14 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @throws IllegalAccessException
      */
     public void setText(String text) {
+<<<<<<< HEAD
         if (text == null) { text = ""; }
         translationResult.getSourceChunk().setSurfaceForm(text);
+=======
+        if (text == null)
+            text = "";
+        translationResult.getSourceChunk().setDatabaseForm(text);
+>>>>>>> fixing enters, dialogues
     }
 
     /**

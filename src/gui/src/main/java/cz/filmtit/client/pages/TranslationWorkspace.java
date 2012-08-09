@@ -525,8 +525,9 @@ public class TranslationWorkspace extends Composite {
         table.remove(fake);
         int id = indexes.get(chunkIndex);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
-
+        
         real.setFocus(true);
+        real.updateVerticalSize();
     }
 
 

@@ -38,6 +38,8 @@ public abstract class Parser {
     //temporary solution - ignore all HTML-like tags
 	public static final RegExp formatMatch = RegExp.compile("<[^>]*>", "g");
 	
+    public static final RegExp spacesMatch = RegExp.compile("\\s+", "g");
+	
     public abstract List<UnprocessedChunk> parseUnprocessed(String text);
 
 	public List<TimedChunk> parse(String text, long documentId, Language l) {
@@ -53,19 +55,19 @@ public abstract class Parser {
         }
         return result;
     }
-    
-   
-    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
-        
 
-        LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
-        
-        //separate into sentences
-        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), l);
-    	int partNumber = 1;
+    public static class ChunkInfo {
+        public String string;
+        public List<Annotation> anots;
+        public ChunkInfo(String sstring, List<Annotation> sanots){
+            string = sstring;
+            anots = sanots;
+        }
+    }
 
-        for (String chunkText : separatedText) {
+    public static ChunkInfo getChunkInfo(String chunkText) {
             chunkText = formatMatch.replace(chunkText, "");
+            chunkText = spacesMatch.replace(chunkText, " ");
         
             List<Annotation> annotations = new ArrayList<Annotation>();
             
@@ -97,9 +99,26 @@ public abstract class Parser {
                 sublineResult = sublineRegexp.exec(chunkText);
             }
 
+            ChunkInfo ch = new ChunkInfo(chunkText, annotations);
+            return ch;
+    }
+   
+    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
+        
+
+        LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
+        
+        //separate into sentences
+        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), l);
+    	int partNumber = 1;
+
+        for (String chunkText : separatedText) {
+             
+            ChunkInfo info = getChunkInfo(chunkText);
+
             //create a new timedchunk
-            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, chunkText, chunkId, documentId); 
-            newChunk.addAnnotations(annotations);            
+            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, info.string, chunkId, documentId); 
+            newChunk.addAnnotations(info.anots);            
             
             result.add( newChunk);
             partNumber++;

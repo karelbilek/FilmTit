@@ -63,8 +63,10 @@ public class ChunkStringGenerator {
     public static ResultToChunkConverter TARGET_SIDE_WITH_THROWBACK = new ResultToChunkConverter() {
         @Override
         public TimedChunk getChunk(TranslationResult result) {
+            boolean isDialogue = result.getSourceChunk().isDialogue();
+            
             if (result.getUserTranslation()!=null && !result.getUserTranslation().equals("")) {
-                return result.getUserTranslationAsChunk();
+                return result.getUserTranslationAsChunk(isDialogue);
             } else {
                 return result.getSourceChunk();
             }
@@ -74,8 +76,10 @@ public class ChunkStringGenerator {
     public static ResultToChunkConverter TARGET_SIDE = new ResultToChunkConverter() {
         @Override
         public TimedChunk getChunk(TranslationResult result) {
+            boolean isDialogue = result.getSourceChunk().isDialogue();
+
             if (result.getUserTranslation()!=null && !result.getUserTranslation().equals("")) {
-                return result.getUserTranslationAsChunk();
+                return result.getUserTranslationAsChunk(isDialogue);
             } else {
                 return null;
             }
