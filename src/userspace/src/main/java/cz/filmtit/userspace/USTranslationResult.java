@@ -25,7 +25,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     /**
      * The shared object which is wrapped by the USTranslationResult.
      */
-    private TranslationResult translationResult;
+    private volatile TranslationResult translationResult;
     /**
      * A sign if the feedback to the core has been already provided.
      */
@@ -134,14 +134,13 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @throws IllegalAccessException
      */
     public void setText(String text) {
-        if (text == null)
-            text = "";
+        if (text == null) { text = ""; }
         translationResult.getSourceChunk().setSurfaceForm(text);
     }
 
     /**
      * Gets the translation provided by the user.
-     * @return The user tranlsation.
+     * @return The user translation.
      */
     public String getUserTranslation() {
         return translationResult.getUserTranslation();

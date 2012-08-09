@@ -14,10 +14,10 @@ import java.util.*;
  */
 public class USDocument extends DatabaseObject {
     private static final int MINIMUM_MOVIE_YEAR = 1850;
-    private static final int ALLOWED_FUTURE_FOR_YEARS = 5;
+    private static final int ALLOWED_FUTURE_FOR_YEARS = 10;
 
-    private long ownerDatabaseId = 0;
-    private Document document;
+    private volatile long ownerDatabaseId = 0;
+    private volatile Document document;
     private SortedMap<ChunkIndex, USTranslationResult> translationResults; // make sure it's a synchronized map
     private volatile long workStartTime;
     private volatile long translationGenerationTime;
@@ -75,8 +75,8 @@ public class USDocument extends DatabaseObject {
      * Gets the time spent on translating this subtitles valid right now.
      * @return The time spent on this subtitles in milliseconds.
      */
-    public long getSpentOnThisTime() {
-        return document.spentOnThisTime + (new Date()).getTime() - workStartTime;
+    private long getSpentOnThisTime() {
+        return document.getSpentOnThisTime() + (new Date()).getTime() - workStartTime;
     }
 
     /**
@@ -85,7 +85,7 @@ public class USDocument extends DatabaseObject {
      * @param spentOnThisTime New value of time spent on this document.
      */
     public void setSpentOnThisTime(long spentOnThisTime) {
-        document.spentOnThisTime = spentOnThisTime;
+        document.setSpentOnThisTime(spentOnThisTime);
         workStartTime = new Date().getTime();
     }
 
@@ -109,7 +109,7 @@ public class USDocument extends DatabaseObject {
         document.setMovie(movie);
     }
 
-    public long getTranslationGenerationTime() {
+    private long getTranslationGenerationTime() {
         return translationGenerationTime;
     }
 
@@ -247,7 +247,7 @@ public class USDocument extends DatabaseObject {
         }
     }
 
-    public synchronized void saveToDatabaseJustDocument(Session dbSession) {
+    public void saveToDatabaseJustDocument(Session dbSession) {
         if (document.getMovie() != null) {
             dbSession.saveOrUpdate(document.getMovie());
         }

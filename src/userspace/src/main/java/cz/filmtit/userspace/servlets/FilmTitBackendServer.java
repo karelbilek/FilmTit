@@ -442,7 +442,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
-
     public Boolean sendChangePasswordMail(USUser user){
 
         Emailer email = new Emailer();

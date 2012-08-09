@@ -18,7 +18,7 @@ public class Session {
     private long databaseId = Long.MIN_VALUE;
     private USUser user;
 
-    private long sessionStart;
+    private volatile long sessionStart;
     private volatile long lastOperationTime;
     private volatile SessionState state;
     Logger logger = Logger.getLogger("Session");

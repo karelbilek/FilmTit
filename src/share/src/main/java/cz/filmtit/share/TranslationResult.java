@@ -11,7 +11,7 @@ import java.util.LinkedList;
  * Additionally, the translation from the user is present, for its storage and feedback.
  */
 public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult>, Serializable {
-    private volatile TimedChunk sourceChunk;
+    private TimedChunk sourceChunk;
     private volatile List<TranslationPair> tmSuggestions=new LinkedList<TranslationPair>();
     private volatile String userTranslation;
     private volatile long selectedTranslationPairID;

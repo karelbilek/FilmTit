@@ -9,9 +9,9 @@ import java.util.List;
 public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable,
         Serializable, Comparable<TimedChunk> {
 
-	private String startTime;
-    private String endTime;
-    private int partNumber;
+	private volatile String startTime;
+    private volatile String endTime;
+    private volatile int partNumber;
 
     public ChunkIndex chunkIndex;
 
