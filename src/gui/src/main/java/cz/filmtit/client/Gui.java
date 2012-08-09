@@ -60,7 +60,7 @@ public class Gui implements EntryPoint {
 	/**
 	 * handles especially the menu
 	 */
-    public GuiStructure guiStructure;
+    public static GuiStructure guiStructure;
 
  	/**
  	 * handles page switching
@@ -76,16 +76,24 @@ public class Gui implements EntryPoint {
     
     // Login state fields
 
-    public boolean loggedIn = false;
+    private static boolean loggedIn = false;
     
-    private String username;
+    public static boolean isLoggedIn() {
+		return loggedIn;
+	}
 
-    private String sessionID;
+	private static String username;
+
+    public static String getUsername() {
+		return username;
+	}
+
+	private static String sessionID;
     
     private static final String SESSIONID = "sessionID";
     
     // persistent session ID via cookies (set to null to unset)
-    public void setSessionID(String newSessionID) {
+    public static void setSessionID(String newSessionID) {
          if (newSessionID == null) {
               Cookies.removeCookie(SESSIONID);
          } else {
@@ -95,7 +103,7 @@ public class Gui implements EntryPoint {
     }
 
     // persistent session ID via cookies (null if not set)
-    public String getSessionID() {
+    public static String getSessionID() {
          if (sessionID == null) {
               sessionID = Cookies.getCookie(SESSIONID);
          }
@@ -107,7 +115,7 @@ public class Gui implements EntryPoint {
     /**
      * the current workspace
      */
-    public TranslationWorkspace currentWorkspace;
+    public static TranslationWorkspace currentWorkspace;
     
     @SuppressWarnings("deprecation")
     public static Date getDateIn1Year() {
@@ -117,6 +125,7 @@ public class Gui implements EntryPoint {
     	return in1year;
     }
 
+    
     ///////////////////////////////////////
     //                                   //
     //      The "main()" of GUI          //
@@ -149,25 +158,25 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
-    long start=0;
-    private StringBuilder sb = new StringBuilder();
+    private static long start=0;
+    private static StringBuilder logStringBuilder = new StringBuilder();
     /**
      * Output the given text in the debug textarea
     * with a timestamp relative to the first logging.
      * @param logtext
      */
-    public void log(String logtext) {
+    public static void log(String logtext) {
    	 if (guiStructure != null) {
 	        if (start == 0) {
 	            start = System.currentTimeMillis();
 	        }
 	        long diff = (System.currentTimeMillis() - start);
-	        sb.append(diff);
-	        sb.append(" : ");
+	        logStringBuilder.append(diff);
+	        logStringBuilder.append(" : ");
 
-	        sb.append(logtext);
-	        sb.append("\n");
-	        guiStructure.txtDebug.setText(sb.toString());
+	        logStringBuilder.append(logtext);
+	        logStringBuilder.append("\n");
+	        guiStructure.txtDebug.setText(logStringBuilder.toString());
    	 }
    	 else {
        	 // txtDebug not created
@@ -179,7 +188,7 @@ public class Gui implements EntryPoint {
    	 GWT.log(logtext);
     }
 
-    public void error(String errtext) {
+    public static void error(String errtext) {
          log(errtext);
     }
     
@@ -188,17 +197,17 @@ public class Gui implements EntryPoint {
      * @param e the exception
      * @return the logged string
      */
-    public String exceptionCatcher(Throwable e) {
+    public static String exceptionCatcher(Throwable e) {
     	// TODO: for production, this should be:
     	// return exceptionCatcher(e, false, true)
     	return exceptionCatcher(e, true, true);    	
     }
     
-    public String exceptionCatcher(Throwable e, boolean alertIt) {
+    public static String exceptionCatcher(Throwable e, boolean alertIt) {
     	return exceptionCatcher(e, alertIt, true);
     }
     
-    public String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
+    public static String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
     			
 		StringBuilder sb = new StringBuilder();
 		
@@ -252,24 +261,14 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
-    public void please_log_in () {
-        logged_out ();
-        new LoginDialog(username, "Please log in first.");
-    }
-    
-    public void please_relog_in () {
-        logged_out ();
-        new LoginDialog(username, "You have not logged in or your session has expired. Please log in.");
-    }
-
-    public void logged_in (String username) {
+    public static void logged_in (String username) {
     	log("User " + username + " is logged in.");
     	// login state fields
-    	loggedIn = true;
-    	this.username = username;
+    	Gui.loggedIn = true;
+    	Gui.username = username;
         // actions
-    	guiStructure.logged_in(username);
-    	pageHandler.loadPage();
+    	Gui.guiStructure.logged_in(username);
+    	Gui.pageHandler.loadPage();
     	
     	SetUserTranslation.setOnline(true);
     }
@@ -279,7 +278,7 @@ public class Gui implements EntryPoint {
      * the page URL will be kept (so that if the user logs back in,
      * he will be shown the same page as before he logged out)
      */
-    public void logged_out () {
+    public static void logged_out () {
     	logged_out(false);
     }
     
@@ -289,19 +288,19 @@ public class Gui implements EntryPoint {
      * otherwise the URL will be kept (so that if the user logs back in,
      * he will be shown the same page as before he logged out)
      */
-    public void logged_out (boolean goToWelcomeScreen) {
+    public static void logged_out (boolean goToWelcomeScreen) {
     	log("User is logged out.");
     	// login state fields
-    	loggedIn = false;
-        username = null;
-        setSessionID(null);
+    	Gui.loggedIn = false;
+    	Gui.username = null;
+    	Gui.setSessionID(null);
         // actions
-        guiStructure.logged_out();
+        Gui.guiStructure.logged_out();
         if (goToWelcomeScreen) {
-        	pageHandler.loadPage(Page.WelcomeScreen);
-        	pageHandler.refresh();
+        	Gui.pageHandler.loadPage(Page.WelcomeScreen);
+        	Gui.pageHandler.refresh();
         } else {
-            pageHandler.loadPage(true);
+        	Gui.pageHandler.loadPage(true);
         }
     }
     

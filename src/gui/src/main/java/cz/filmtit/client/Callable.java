@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.exceptions.*;
 import cz.filmtit.share.*;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -150,7 +151,8 @@ public abstract class Callable<T> implements AsyncCallback<T> {
      * Displays the login dialog by default.
      */
 	protected void onInvalidSession() {
-		gui.please_relog_in();
+        Gui.logged_out ();
+        new LoginDialog(Gui.getUsername(), "You have not logged in or your session has expired. Please log in.");
 	}    
     
     protected class CallTimer extends Timer {

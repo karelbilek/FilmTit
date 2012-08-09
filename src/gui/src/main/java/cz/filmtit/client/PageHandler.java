@@ -223,7 +223,6 @@ public class PageHandler {
      * using pageUrl (the page set in the URL
      * in GET parameter "page").
      * Sets pageToLoad.
-     * @param loggedIn whether the user is logged in
      */
 	private void setPageToLoad() {
 		setPageToLoad(pageUrl);
@@ -231,7 +230,6 @@ public class PageHandler {
     
     /**
      * Determines the page to be loaded, sets pageToLoad.
-     * @param loggedIn whether the user is logged in
      * @param suggestedPage the page that should be preferably loaded if possible
      */
     private void setPageToLoad(Page suggestedPage) {
@@ -250,12 +248,12 @@ public class PageHandler {
 		case TranslationWorkspace:
 		case DocumentCreator:
 		case Settings:
-			pageToLoad = gui.loggedIn ? suggestedPage : Page.WelcomeScreen;
+			pageToLoad = gui.isLoggedIn() ? suggestedPage : Page.WelcomeScreen;
 			break;
 
 		// all other situations: UserPage or WelcomeScreen
 		default:
-			pageToLoad = gui.loggedIn ? Page.UserPage : Page.WelcomeScreen;
+			pageToLoad = gui.isLoggedIn() ? Page.UserPage : Page.WelcomeScreen;
 			break;
 			
 		}

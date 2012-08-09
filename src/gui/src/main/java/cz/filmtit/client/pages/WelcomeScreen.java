@@ -30,7 +30,7 @@ public class WelcomeScreen extends Composite {
 		
         login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                if (gui.loggedIn) {
+                if (gui.isLoggedIn()) {
                 	FilmTitServiceHandler.logout();
                 } else {
                 	new LoginDialog();
