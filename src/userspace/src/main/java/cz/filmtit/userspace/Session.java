@@ -163,7 +163,8 @@ public class Session {
     public Void deleteDocument(long documentId) throws InvalidDocumentIdException {
         USDocument document = getActiveDocument(documentId);
 
-        user.getOwnedDocuments().remove(document);
+        user.getActiveDocumentIDs().remove(documentId);
+        user.getOwnedDocuments().remove(documentId);
         document.setToBeDeleted(true);
 
         // take care of the database and the translation results in separate thread

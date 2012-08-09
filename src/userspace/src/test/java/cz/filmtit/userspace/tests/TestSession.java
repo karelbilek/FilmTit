@@ -434,7 +434,7 @@ public class TestSession {
      */
     private USTranslationResult findTranslationResultInStructure(Session session, long documentId, ChunkIndex index) {
         USTranslationResult changed = null;
-        for (USDocument document : session.getUser().getOwnedDocuments()) {
+        for (USDocument document : session.getUser().getOwnedDocuments().values()) {
             if (document.getDatabaseId() == documentId) {
                 for (USTranslationResult result : document.getTranslationResultValues()) {
                     if (result.getChunkIndex().equals(index)) {
