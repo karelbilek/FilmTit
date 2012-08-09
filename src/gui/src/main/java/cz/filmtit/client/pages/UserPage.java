@@ -52,6 +52,12 @@ public class UserPage extends Composite {
                 return doc.getMovie().toString();
             }
         };
+        TextColumn<Document> languageClm = new TextColumn<Document>() {
+            @Override
+            public String getValue(Document doc) {
+                return doc.getLanguage().getName();
+            }
+        };
         TextColumn<Document> doneClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
@@ -117,8 +123,9 @@ public class UserPage extends Composite {
         
 
         docTable.addColumn(nameClm, "Document");
-        docTable.addColumn(mSourceClm, "Media");
-        docTable.addColumn(doneClm, "Percent done");
+        docTable.addColumn(mSourceClm, "Movie/TV Show");
+        docTable.addColumn(languageClm, "Language");
+        docTable.addColumn(doneClm, "Translated");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
         docTable.addColumn(exportSubtitlesButton, "Export");
