@@ -8,9 +8,6 @@ import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
 
 abstract class LinearInterpolationRanker(val weights: List[Double]) extends BaseRanker {
 
-  def getScoreNames: List[String]
-  def getScores(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair, totalCount: Int): List[Double]
-
   override def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]): List[TranslationPair] = {
 
     val totalCount = pairs.map(_.getCount).sum

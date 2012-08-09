@@ -12,11 +12,13 @@ import cz.filmtit.core.Utils.t2mapper
 
 import java.sql.{SQLException, DriverManager, Connection}
 import cz.filmtit.core.names.OpenNLPNameFinder
-import search.postgres.impl.{FulltextStorage, NEStorage, FirstLetterStorage}
+import search.postgres.impl.{PGFirstLetterStorage, FulltextStorage, NEStorage, FirstLetterStorage}
 import cz.filmtit.share.annotations.AnnotationType
-import rank.{FuzzyRanker, FuzzyNERanker, ExactRanker}
+import rank._
 import org.apache.commons.logging.LogFactory
 import search.external.MosesServerSearcher
+import scala.Some
+
 //import search.external.MyMemorySearcher
 import cz.filmtit.share.{Language, TranslationSource}
 import cz.filmtit.core.Factory._
@@ -114,19 +116,19 @@ object Factory {
 
     //First level exact matching
     val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB)
-    levels ::= new BackoffLevel(flSearcher, Some(new ExactRanker(configuration.exactRankerWeights)), 0.7)
+    levels ::= new BackoffLevel(flSearcher, Some(new ExactLRRanker(configuration.exactRankerWeights)), 0.7, TranslationSource.INTERNAL_EXACT)
 
     //Second level: Full text search
     if (!useInMemoryDB) {
       val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
-      levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyRanker(configuration.fuzzyRankerWeights)), 0.0)
+      levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyLRRanker(configuration.fuzzyRankerWeights)), 0.0, TranslationSource.INTERNAL_FUZZY)
     }
 
     //Third level: Moses
     val mosesSearchers = (1 to 30).map { _ =>
       new MosesServerSearcher(Language.EN, Language.CS, configuration.mosesURL)
     }.toList
-    levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7)
+    levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7, TranslationSource.EXTERNAL_MT)
 
     new BackoffTranslationMemory(Language.EN, Language.CS, levels.reverse, Some(new LevenshteinMerger()), Some(enTokenizerWrapper), Some(csTokenizerWrapper))
   }

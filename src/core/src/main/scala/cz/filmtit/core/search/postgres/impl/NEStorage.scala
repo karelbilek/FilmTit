@@ -15,9 +15,6 @@ import scala.collection.JavaConversions._
 /**
  * Translation pair storage using named entity types to identify names.
  *
- *
- *
- *
  * @author Joachim Daiber
  */
 

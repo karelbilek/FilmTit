@@ -2,12 +2,13 @@ package cz.filmtit.core.tm
 
 import cz.filmtit.core.model.{TranslationPairRanker, TranslationPairSearcher}
 import cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper
+import cz.filmtit.share.TranslationSource
 
 /**
  * @author Joachim Daiber
  */
 
-class BackoffLevel(val searcher: TranslationPairSearcher, val ranker: Option[TranslationPairRanker], val threshold: Double) {
+class BackoffLevel(val searcher: TranslationPairSearcher, val ranker: Option[TranslationPairRanker], val threshold: Double, val translationType: TranslationSource) {
 
 
   override def toString = "[%s, %s]".format(

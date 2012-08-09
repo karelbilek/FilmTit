@@ -30,7 +30,7 @@ class FulltextStorage(
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
     val searchColumn = if(language.equals(l1)) "chunk_l1" else "chunk_l2"
     val l = language.getName.toLowerCase
-    val select = connection.prepareStatement("SELECT pair_id, chunk_l1, chunk_l2, ts_rank(to_tsvector('"+l+"', "+searchColumn+"), query, 32 /* rank/(rank+1) */) AS rank FROM "+pairTable+", plainto_tsquery('"+l+"', ?) query WHERE query @@ to_tsvector('"+l+"', "+searchColumn+") AND numnode(query) >= "+MIN_QUERY_LENGTH+" ORDER BY rank DESC LIMIT "+this.maxCandidates+";")
+    val select = connection.prepareStatement("SELECT pair_id, chunk_l1, chunk_l2, pair_count, ts_rank(to_tsvector('"+l+"', "+searchColumn+"), query, 32 /* rank/(rank+1) */) AS rank FROM "+pairTable+", plainto_tsquery('"+l+"', ?) query WHERE query @@ to_tsvector('"+l+"', "+searchColumn+") AND numnode(query) >= "+MIN_QUERY_LENGTH+" ORDER BY rank DESC LIMIT "+this.maxCandidates+";")
     select.setString(1, chunk.getSurfaceForm)
 
     val rs = select.executeQuery()
@@ -38,7 +38,9 @@ class FulltextStorage(
 
     while (rs.next) {
       val tp = new TranslationPair(new Chunk(rs.getString("chunk_l1")), new Chunk(rs.getString("chunk_l2")), TranslationSource.INTERNAL_FUZZY)
+      tp.setId(rs.getInt("pair_id"))
       tp.setScore(rs.getDouble("rank"))
+      tp.setCount(rs.getInt("pair_count"))
       tps ::= tp
     }
 

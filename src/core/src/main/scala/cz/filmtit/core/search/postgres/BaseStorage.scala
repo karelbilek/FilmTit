@@ -43,7 +43,7 @@ with MediaStorage {
   var serialDataType = "SERIAL"
   var textDataType = "TEXT"
   
-  var maxCandidates = 100
+  var maxCandidates = 250
 
   /**
    * Drop all tables from the database and recreate them.

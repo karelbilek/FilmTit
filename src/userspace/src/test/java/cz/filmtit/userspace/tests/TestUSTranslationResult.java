@@ -9,6 +9,7 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
+import cz.filmtit.userspace.USUser;
 import org.hibernate.Session;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -110,6 +111,7 @@ public class TestUSTranslationResult {
     @Test
     public void testGenerateMTSuggestions() {
         USDocument document = new USDocument(new Document("Hannah and Her Sisters", "en"), null);
+        document.setOwner(new USUser("user"));
 
         USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1,
                 "Sample chunk", 5, document.getDatabaseId()));
@@ -126,8 +128,10 @@ public class TestUSTranslationResult {
 
         dbSession.createQuery("delete from USTranslationResult").executeUpdate();
 
+        USUser testUser = new USUser("user");
         Document doc = new Document("Movie title", "en");
         USDocument testDoc = new USDocument(doc, null);
+        testDoc.setOwner(testUser);
         testDoc.saveToDatabase(dbSession);
         dbSession.getTransaction().commit();
 

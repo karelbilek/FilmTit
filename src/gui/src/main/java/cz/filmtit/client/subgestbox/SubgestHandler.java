@@ -164,7 +164,7 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 		if (event.getSource() instanceof SubgestBox) { // should be
 			SubgestBox subbox = (SubgestBox) event.getSource();
 			//gui.log("pseudo-valuechange handled - new value:" + subbox.getText());
-			subbox.getTranslationResult().setUserTranslation(subbox.getText());
+			subbox.getTranslationResult().setUserTranslation(subbox.getTextWithNewlines());
 
             // submitting only when the contents have changed
             if (subbox.textChanged()) {

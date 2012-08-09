@@ -1,5 +1,6 @@
 package cz.filmtit.core.rank
 
+import _root_.java.io.File
 import org.apache.commons.lang3.StringUtils
 import cz.filmtit.share._
 import cz.filmtit.core.Utils.min
@@ -10,7 +11,7 @@ import scala.Double
  * @author Joachim Daiber
  */
 
-class ExactRanker(weights: List[Double]) extends LinearInterpolationRanker(weights) {
+trait ExactRanker extends BaseRanker {
 
   def getScoreNames = List("count", "edit_distance", "genres", "translation_length_penaltiy", "punctuation")
 
@@ -34,14 +35,13 @@ class ExactRanker(weights: List[Double]) extends LinearInterpolationRanker(weigh
       ,
 
       //Does final punctuation match?
-      pair.getStringL2.last match {
-        case Patterns.punctuation() if pair.getStringL2.last != chunk.getSurfaceForm.last => 0.0
-        case _ => 1.0
-      }
+      punctuationMatches(chunk.getSurfaceForm, pair.getStringL2)
     )
   }
 
   override def name = "Exact Levensthein-based ranking."
 
-
 }
+
+class ExactWekaRanker(modelFile: File) extends WEKARanker(modelFile) with ExactRanker
+class ExactLRRanker(weights: List[Double]) extends LinearInterpolationRanker(weights: List[Double]) with ExactRanker

@@ -142,6 +142,34 @@ public class Session {
     // HANDLING USERS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    // permanently logged in, email, maximumNumberOfSuggestions, useMoses
+    public Void setPermanentlyLoggedIn(boolean permanentlyLoggedIn) {
+        user.setPermanentlyLoggedId(permanentlyLoggedIn);
+        return null;
+    }
+
+    public Void setEmail(String email) {
+        //if (email.matches("^[_A-Za-z0-9-]+(\\\\.[_A-Za-z0-9-]+)*@" +
+        //        "[A-Za-z0-9]+(\\\\.[A-Za-z0-9]+)*(\\\\.[A-Za-z]{2,})$")) {
+        //
+        //}
+
+        user.setEmail(email);
+        saveUser();
+        return null;
+    }
+
+    public Void setMaximumNumberOfSuggestions(int number) {
+        user.setMaximumNumberOfSuggestions(number);
+        saveUser();
+        return null;
+    }
+
+    public Void setUseMoses(boolean useMoses) {
+        user.setUseMoses(useMoses);
+        saveUser();
+        return null;
+    }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // HANDLING DOCUMENTS
@@ -490,11 +518,17 @@ public class Session {
     public synchronized USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
             logger.info("Loading document " + documentID + "to memory.");
-            activeDocuments.put(documentID, user.getOwnedDocuments().get(documentID));
+            loadDocument(documentID);
         }
 
         USDocument document = activeDocuments.get(documentID);
         document.setLastChange(new Date().getTime());
         return document;
+    }
+
+    private synchronized void saveUser() {
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        user.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
     }
 }

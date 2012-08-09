@@ -44,13 +44,15 @@ class BackoffTranslationMemory(
     }
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-    n: Int = 10, inner: Boolean = false): List[TranslationPair] = {
+    n: Int = 10, inner: Boolean = false,
+    forbiddenSources: java.util.Set[TranslationSource] = java.util.Collections.emptySet[TranslationSource]
+  ): List[TranslationPair] = {
 
     tokenize(chunk, language)
     logger.info( "n-best: (%s) %s".format(language, chunk) )
 
     var results = ListBuffer[TranslationPair]()
-    for (level: BackoffLevel <- this.levels) {
+    for (level: BackoffLevel <- this.levels.filter({ l: BackoffLevel => !forbiddenSources.contains(l.translationType) })) {
 
       val s1 = System.currentTimeMillis
       val pairs = level.searcher.candidates(chunk, language)
@@ -67,15 +69,16 @@ class BackoffTranslationMemory(
         .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
 
       if ( results.size >= n ) {
-        return merge(results, n)
+        return merge(results.sorted, n)
       }
 
     }
 
-    merge(results, n)
+    merge(results.sorted, n)
   }
 
-  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
+  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
+                forbiddenSources: java.util.Set[TranslationSource] = java.util.Collections.emptySet[TranslationSource]):
   Option[TranslationPair] = nBest(chunk, language, mediaSource).headOption
 
 

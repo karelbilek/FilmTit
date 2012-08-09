@@ -1,5 +1,6 @@
 package cz.filmtit.core.rank
 
+import _root_.java.io.File
 import org.apache.commons.lang3.StringUtils
 import cz.filmtit.share._
 import cz.filmtit.core.model.Patterns
@@ -9,7 +10,7 @@ import scala.Double
  * @author Joachim Daiber
  */
 
-class FuzzyRanker(weights: List[Double]) extends LinearInterpolationRanker(weights) {
+trait FuzzyRanker extends BaseRanker {
 
   def getScoreNames = List("prior_score", "count", "edit_distance", "genres", "match_length_penaltiy", "translation_length_penaltiy", "punctuation")
 
@@ -17,7 +18,7 @@ class FuzzyRanker(weights: List[Double]) extends LinearInterpolationRanker(weigh
 
     List(
 
-      pair.getScore,
+      pair.getScore, //this is score assigned by the Postgres full text search
 
       //TranslationPair support
       (pair.getCount / totalCount.toDouble),
@@ -43,13 +44,12 @@ class FuzzyRanker(weights: List[Double]) extends LinearInterpolationRanker(weigh
       ,
 
       //Does final punctuation match?
-      pair.getStringL2.last match {
-        case Patterns.punctuation() if pair.getStringL2.last != chunk.getSurfaceForm.last => 0.0
-        case _ => 1.0
-      }
+      punctuationMatches(chunk.getSurfaceForm, pair.getStringL2)
     )
   }
 
   override def name = "Ranking for fuzzy matches."
-
 }
+
+class FuzzyWekaRanker(modelFile: File) extends WEKARanker(modelFile) with FuzzyRanker
+class FuzzyLRRanker(weights: List[Double]) extends LinearInterpolationRanker(weights: List[Double]) with FuzzyRanker

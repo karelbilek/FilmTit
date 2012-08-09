@@ -35,17 +35,23 @@ public interface FilmTitService extends RemoteService {
     Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
     	throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
+    // User settings
+    public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException;
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException;
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException;
+    public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
+
     // Logging in methods
     // - Prepared for using JOpenID
     LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);
     Boolean validateAuthentication(int authID, String responseURL);
-    String getSessionID(int authID) throws AuthenticationFailedException;
+    SessionResponse getSessionID(int authID) throws AuthenticationFailedException;
     
     // Simple login
     // - registration (true if successful)
     Boolean  registration(String name ,  String pass  , String email, String openId);
     // - login (returns session id on success, null in case of error (should throw an exception eventually))
-    String simpleLogin(String username, String password);
+    SessionResponse simpleLogin(String username, String password);
     /**
      * change password in case of forgotten password;
      * user chooses a new password,
@@ -84,5 +90,5 @@ public interface FilmTitService extends RemoteService {
     Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
 
-    public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
+    public SessionResponse checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
 }

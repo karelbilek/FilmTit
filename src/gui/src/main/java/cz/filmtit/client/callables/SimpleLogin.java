@@ -1,19 +1,10 @@
 package cz.filmtit.client.callables;
 import cz.filmtit.client.Callable;
-
-import cz.filmtit.client.*;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.share.SessionResponse;
 
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.rpc.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.core.client.*;
-import cz.filmtit.share.*;
-import java.util.*;
-
-    public class SimpleLogin extends Callable<String> {
+    public class SimpleLogin extends Callable<SessionResponse> {
     	
     	// parameters
     	String username;
@@ -26,8 +17,8 @@ import java.util.*;
         }
 
         @Override
-        public void onSuccessAfterLog(String SessionID) {
-        	if (SessionID == null || SessionID.equals("")) {
+        public void onSuccessAfterLog(SessionResponse response) {
+        	if (response == null) {
         		gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
         		if (loginDialog != null) {
             		loginDialog.reactivateWithErrorMessage("Incorrect username or password - please try again.");            			
@@ -36,8 +27,8 @@ import java.util.*;
         			new LoginDialog(username);
         		}
         	} else {
-        		gui.setSessionID(SessionID);
-        		gui.log("logged in as " + username + " with session id " + SessionID);
+        		gui.setSessionID(response.sessionID);
+        		gui.log("logged in as " + username + " with session id " + response.sessionID);
         		if (loginDialog != null) {
         			loginDialog.close();
         		}            		
