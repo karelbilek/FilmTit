@@ -100,9 +100,6 @@ public class PageHandler {
             // set documentId if it is provided
     		setDocumentIdFromGETOrCookie();
         	
-    		// load a Blank page before checkSessionId returns
-    		loadBlankPage();
-            
     		scrollToTop = false;
     		
     		doCheckSessionID = true;
@@ -330,9 +327,7 @@ public class PageHandler {
 		    	if (documentId == -1) {
 		    		loadPage(Page.UserPage);
 					gui.log("failure on loading document: documentId -1 is not valid!");
-					// Window.alert("Cannnot load document - document ID (-1) is not valid!");
 		    	} else {
-					loadBlankPage();
 		            FilmTitServiceHandler.loadDocumentFromDB(documentId);
 		    	}
 				break;
