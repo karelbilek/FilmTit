@@ -24,16 +24,19 @@ import java.util.*;
         public void onSuccessAfterLog(Void o) {
             gui.logged_out(true);
         }
-
+        
+        // all errors on log out are ignored...
+        
         @Override
         public void onFailureAfterLog(Throwable caught) {
-            if (caught.getClass().equals(InvalidSessionIdException.class)) {
-                gui.log("already logged out");
-                gui.logged_out(true);
-            } else {
-                gui.log("ERROR: logout didn't succeed! Forcing local logout... " + caught.getLocalizedMessage());
-                gui.logged_out(true);
-            }
+            gui.log("ERROR: logout didn't succeed! Forcing local logout... " + caught.getLocalizedMessage());
+            gui.logged_out(true);
+        }
+        
+        @Override
+        protected void onInvalidSession() {
+            gui.log("already logged out");
+            gui.logged_out(true);
         }
         
         @Override
