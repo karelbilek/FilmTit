@@ -50,6 +50,24 @@ public class PageHandler {
      */
 	public final boolean doCheckSessionID;    
 
+	/**
+	 * Whether to scroll to the top of the page on loadPageToLoad().
+	 * Set to false when the first page is loaded,
+	 * so that the view stays the same if user presses F5.
+	 */
+	private boolean scrollToTop = true;
+	
+	/**
+	 * Get value of scrollToTop
+	 * and reset it to the default value (true).
+	 * @return
+	 */
+	private boolean grabScrollToTop () {
+		boolean result = scrollToTop;
+		scrollToTop = true;
+		return result;
+	}
+	
     /**
      * Various pages to be set and created.
      * The 'None' page is used when no page is set.
@@ -85,6 +103,8 @@ public class PageHandler {
     		// load a Blank page before checkSessionId returns
     		loadBlankPage();
             
+    		scrollToTop = false;
+    		
     		doCheckSessionID = true;
     		
     	} else {
@@ -209,11 +229,13 @@ public class PageHandler {
     
 	/**
 	 * Loads a blank page without modifying the history.
-	 * (Does not set pageUrl.)
+	 * (Does not set pageUrl, preserves scrollToTop.)
 	 */
     public void loadBlankPage() {
+    	boolean scrollToTop = this.scrollToTop;
     	setPageToLoad(Page.Blank);
     	loadPageToLoad();
+    	this.scrollToTop = scrollToTop;
 	}
 
 	// suggestedPage -> pageToLoad
@@ -274,14 +296,20 @@ public class PageHandler {
     /**
      * Loads the pageToLoad.
      * Sets pageLoaded.
+     * Uses 
      * @param evenIfAlreadyLoaded reload the page if already loaded
      */
 	private void loadPageToLoad(boolean evenIfAlreadyLoaded) {
 		if (pageToLoad != pageLoaded || evenIfAlreadyLoaded) {
 			
+			// unloading TranslationWorkspace
 			if (pageLoaded == Page.TranslationWorkspace) {
-				// unloading TranslationWorkspace
 				gui.currentWorkspace.setStopLoading(true);
+			}
+			
+			// scroll to top if not prevented
+			if (grabScrollToTop()) {
+				Window.scrollTo(Window.getScrollLeft(), 0);
 			}
 			
 	    	switch (pageToLoad) {
