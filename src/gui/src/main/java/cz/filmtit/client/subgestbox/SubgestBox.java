@@ -1,5 +1,6 @@
 package cz.filmtit.client.subgestbox;
 
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
@@ -113,7 +114,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         public void updateVerticalSize() {
             //Window.alert("JDU UPDATE FAKE VERTICAL SIZE "+ verticalSize());
-            this.setHeight(verticalSize()+"px");          
+            this.setHeight(verticalSize() + "px");
             lastVerticalSize = verticalSize();
         }
 
@@ -389,6 +390,18 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	public TranslationResult getTranslationResult() {
 		return this.translationResult;
 	}
+
+    protected String getTextWithNewlines() {
+        String text = this.getHTML();
+        RegExp newlineTags = RegExp.compile("<p>|<div>|<br>", "g");
+        RegExp toClean = RegExp.compile("</p>|</div>|&nbsp;", "g");
+        RegExp newlineSequence = RegExp.compile("\n*");
+        text = newlineTags.replace(text, "\n");
+        text = toClean.replace(text, "");
+        text = newlineSequence.replace(text, "\n");
+        text = text.trim();
+        return text;
+    }
 
     protected boolean textChanged() {
         return !this.getText().equals(this.lastText);
