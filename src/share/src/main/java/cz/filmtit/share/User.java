@@ -54,4 +54,16 @@ public class User {
     public void setUseMoses(boolean useMoses) {
         this.useMoses = useMoses;
     }
+
+    public User getCloneWithoutDocuments() {
+        User clone = new User();
+
+        clone.name = name;
+        clone.email = email;
+        clone.permanentlyLoggedIn = permanentlyLoggedIn;
+        clone.maximumNumberOfSuggestions = maximumNumberOfSuggestions;
+        clone.useMoses = useMoses;
+
+        return clone;
+    }
 }

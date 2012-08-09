@@ -288,7 +288,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public String getSessionID(int authID) throws AuthenticationFailedException {
+    public SessionResponse getSessionID(int authID) throws AuthenticationFailedException {
         if (finisehdAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
@@ -319,24 +319,22 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public String simpleLogin(String username, String password) {
-        USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
-        if (user == null){
-            return  "";
-        }
+    public SessionResponse simpleLogin(String username, String password) {
+        USUser user = checkUser(username, password, CheckUserEnum.UserNamePass);
+        if (user == null){ return  null; }
         else {
             Logger.getLogger("User " + user.getUserName() + "logged in.");
-            return generateSession(user);
+            return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
     }
 
-    public String openIDLogin(String openId) {
+    public SessionResponse openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
             logger.info("User " + user.getUserName() + "logged in.");
-            return generateSession(user);
+            return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
-        return "";
+        return null;
     }
 
     @Override
@@ -500,9 +498,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Check if found sessionId is still active
      */
     @Override
-    public String checkSessionID(String sessionID){
+    public SessionResponse checkSessionID(String sessionID){
         if (activeSessions.containsKey(sessionID)) {
-            return activeSessions.get(sessionID).getUser().getUserName();
+            USUser user = activeSessions.get(sessionID).getUser();
+            return new SessionResponse(sessionID, user.sharedUserWithoutDocuments());
         }
         return null;
     }

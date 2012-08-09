@@ -1,5 +1,6 @@
 package cz.filmtit.userspace;
 
+import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.User;
 import org.hibernate.Session;
 
@@ -30,6 +31,10 @@ public class USUser extends DatabaseObject {
         user.setEmail(email);
         this.openId = openId;
 
+        setUseMoses(true);
+        setPermanentlyLoggedId(false);
+        setMaximumNumberOfSuggestions(ConfigurationSingleton.conf().maximumSuggestionsCount());
+
         ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
@@ -37,15 +42,17 @@ public class USUser extends DatabaseObject {
      * Creates a new user given his user name. It is used in cases a user logs for the first time
      * in the application.
      * @param userName The name of the new user.
-
      */
-
     public USUser(String userName) {
         this.user = new User();
         user.setName(userName);
 
         this.password = null;
-        this.openId =null;
+        this.openId = null;
+
+        setUseMoses(true);
+        setPermanentlyLoggedId(false);
+        setMaximumNumberOfSuggestions(ConfigurationSingleton.conf().maximumSuggestionsCount());
 
         ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
@@ -76,7 +83,7 @@ public class USUser extends DatabaseObject {
      * Gets the list of documents owned by this user.
      * @return List of USDocument objects wrapping the Document objects, but with empty suggestion lists
      */
-    public Map<Long, USDocument> getOwnedDocuments() {
+    public synchronized Map<Long, USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
 
         if (ownedDocuments == null) {
@@ -90,6 +97,7 @@ public class USUser extends DatabaseObject {
             // store it to the variable
             for (Object o : result) {
                 USDocument doc = (USDocument)o;
+                doc.setOwner(this);
                 ownedDocuments.put(doc.getDatabaseId(), doc);
             }
             
@@ -206,5 +214,9 @@ public class USUser extends DatabaseObject {
                 }
             }
         }
+    }
+
+    public User sharedUserWithoutDocuments() {
+        return user.getCloneWithoutDocuments();
     }
 }
