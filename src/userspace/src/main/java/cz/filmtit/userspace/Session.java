@@ -155,16 +155,19 @@ public class Session {
         //}
 
         user.setEmail(email);
+        saveUser();
         return null;
     }
 
     public Void setMaximumNumberOfSuggestions(int number) {
         user.setMaximumNumberOfSuggestions(number);
+        saveUser();
         return null;
     }
 
     public Void setUseMoses(boolean useMoses) {
         user.setUseMoses(useMoses);
+        saveUser();
         return null;
     }
 
@@ -521,5 +524,11 @@ public class Session {
         USDocument document = activeDocuments.get(documentID);
         document.setLastChange(new Date().getTime());
         return document;
+    }
+
+    private synchronized void saveUser() {
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        user.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
     }
 }

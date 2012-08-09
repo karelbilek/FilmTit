@@ -30,6 +30,7 @@ public class USDocument extends DatabaseObject {
         workStartTime = new Date().getTime();
         document.setLastChange(new Date().getTime());
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
+        owner = user;
         
         //it should not be null, but I am lazy to rewrite the tests
         if (user != null) {

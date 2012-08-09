@@ -89,7 +89,7 @@ public class TestUSUserLogin {
 
         server.changePassword(name, newPass, stringToken);
         SessionResponse response = server.simpleLogin(name, newPass);
-        assertTrue("test pass", response != null);
+        assertNotNull(response);
     }
 
 

@@ -16,11 +16,8 @@
         <property name="openId" type="java.lang.String" column="openid" />
         <property name="permanentlyLoggedId" type="boolean" column="permanentLogin" />
         <property name="activeDocumentsIdsAsString" type="text" column="activeDocuments" />
-
-        <!--<set name="activeDocumentIDs" table="ActiveDocumentIDs" cascade="remove" lazy="false">
-            <key column="ActiveDocIdId" />
-            <element column="ActiveDocId" type="java.lang.Long" />
-        </set> -->
+        <property name="useMoses" type="boolean" column="useMoses" />
+        <property name="maximumNumberOfSuggestions" type="int" column="maxSuggestions" />
 
     </class>
 
