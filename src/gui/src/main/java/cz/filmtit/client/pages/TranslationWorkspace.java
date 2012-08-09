@@ -34,12 +34,13 @@ public class TranslationWorkspace extends Composite {
 	interface TranslationWorkspaceUiBinder extends UiBinder<Widget, TranslationWorkspace> {
 	}
 
-    /**
-     * Identifies this instance of workspace.
-     * Used because translation results must be bound to a workspace instance
-     * and invalidated if that instance is closed.
-     */
-    public final int id;
+//    not used at the moment
+//    /**
+//     * Identifies this instance of workspace.
+//     * Used because translation results must be bound to a workspace instance
+//     * and invalidated if that instance is closed.
+//     */
+//    public final int id;
     
     /**
      * Indicates that the user moved away from this workspace
@@ -132,7 +133,7 @@ public class TranslationWorkspace extends Composite {
         gui.pageHandler.setPageUrl(Page.TranslationWorkspace);
         gui.guiStructure.activateMenuItem(Page.TranslationWorkspace);
         
-        id = Random.nextInt(Integer.MAX_VALUE);
+        // id = Random.nextInt(Integer.MAX_VALUE);
         gui.currentWorkspace = this;
         
         isVideo = path!=null;
