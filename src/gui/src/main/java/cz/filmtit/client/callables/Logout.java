@@ -22,29 +22,23 @@ import java.util.*;
         
         @Override
         public void onSuccessAfterLog(Void o) {
-            gui.logged_out(true);
+            Gui.logged_out(true);
         }
         
         // all errors on log out are ignored...
         
         @Override
-        public void onFailureAfterLog(Throwable caught) {
-            gui.log("ERROR: logout didn't succeed! Forcing local logout... " + caught.getLocalizedMessage());
-            gui.logged_out(true);
+        protected void onFinalError(String message) {
+            Gui.log("ERROR: logout didn't succeed! Forcing local logout... " + message);
+            Gui.logged_out(true);
         }
         
         @Override
         protected void onInvalidSession() {
-            gui.log("already logged out");
-            gui.logged_out(true);
+            Gui.log("already logged out");
+            Gui.logged_out(true);
         }
         
-        @Override
-        protected void onProbablyOffline(Throwable returned) {
-            gui.log("ERROR: logout didn't succeed - probably offline! Forcing local logout... " + returned.getLocalizedMessage());
-            gui.logged_out(true);
-        }
-    
         // constructor
 		public Logout() {
 			super();			

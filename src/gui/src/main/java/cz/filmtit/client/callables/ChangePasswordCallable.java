@@ -48,6 +48,12 @@ import com.google.gwt.user.client.*;
         			);
             }
         }
+        
+        @Override
+        protected void onFinalError(String message) {
+            Gui.getPageHandler().loadPage(Page.WelcomeScreen);
+            new LoginDialog(username, Tab.ForgottenPassword, message);
+        }
 
 
         // constructor

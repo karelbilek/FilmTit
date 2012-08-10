@@ -34,11 +34,11 @@ import cz.filmtit.client.dialogs.Dialog;
         }
 
         @Override
-        public void onFailureAfterLog(Throwable returned) {
+        protected void onFinalError(String message) {
             loginDialog.reactivateWithErrorMessage("There was an error sending password change email to you. " +
-        		"Please try again. " +
-                "If problems persist, try contacting the administrators. " +
-                "Error message from the server: " + returned);
+            		"Please try again. " +
+                    "If problems persist, try contacting the administrators. " +
+                    "Error message: " + message);
         }
 	    	
     	// constructor

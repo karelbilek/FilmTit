@@ -37,18 +37,18 @@ import cz.filmtit.share.SessionResponse;
         }
 
         @Override
-        public void onFailureAfterLog(Throwable returned) {
-            String message = "There was an error with logging in. " +
+        protected void onFinalError(String message) {
+            String fullMessage = "There was an error with logging in. " +
 	    		"Please try again. " +
 	            "If problems persist, try contacting the administrators. " +
-	            "Error message from the server: " + returned;
-        	if (loginDialog != null) {
-        		loginDialog.reactivateWithErrorMessage(message);
-        	} else {
-        		
-        	}
+	            "Error message from the server: " + message;
+	    	if (loginDialog != null) {
+	    		loginDialog.reactivateWithErrorMessage(fullMessage);
+	    	} else {
+	    		new LoginDialog(username, fullMessage);
+	    	}
         }
-            
+        
         // constructor
         public SimpleLogin(String username, String password, Dialog dialog) {
 			super();

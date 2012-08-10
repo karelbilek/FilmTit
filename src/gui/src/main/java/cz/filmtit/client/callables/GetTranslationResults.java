@@ -30,34 +30,46 @@ import java.util.*;
             return "GetTranslationResults (chunks size: "+chunks.size()+")";
         }
 
+        @Override
+        protected void onEachReturn(Object returned) {
+            workspace.removeGetTranslationsResultsCall(id);
+        }
+        
 		@Override	
         public void onSuccessAfterLog(List<TranslationResult> newresults) {
 			
             if (workspace.getStopLoading()) {
             	return;
             }
-            
-            workspace.removeGetTranslationsResultsCall(id);
-
-            for (TranslationResult newresult:newresults) {
-
-                ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
-                workspace.showResult(newresult);                	
-            
+            else {
+            	if (newresults == null || newresults.isEmpty() ||
+            			!newresults.get(0).getSourceChunk().isActive ||
+            			newresults.size() != chunks.size()) {
+            		// expected suggestions for all chunks but did not get them
+            		// try to retry
+            		if (!retry()) {
+            			// or say error
+            			displayWindow("Some of the translation suggestions did not arrive. " +
+            					"You can ignore this or you can try refreshing the page.");
+            		}
+            	}
+            	else {
+            		// got suggestions alright
+                    for (TranslationResult newresult:newresults) {
+                        ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
+                        workspace.showResult(newresult);                	
+                    }
+                    command.execute();
+            	}
             }
-            command.execute();
+            
         }
 		
 		@Override
-		public void onFailureAfterLog(Throwable returned) {
-			super.onFailureAfterLog(returned);
-            workspace.removeGetTranslationsResultsCall(id);
-		}
-		
-		@Override
-		protected void onProbablyOffline(Throwable returned) {
-			super.onProbablyOffline(returned);
-            workspace.removeGetTranslationsResultsCall(id);
+		protected void onFinalError(String message) {
+			displayWindow("Some of the translation suggestions did not arrive. " +
+				"You can ignore this or you can try refreshing the page. " +
+				"Error message: " + message);
 		}
 		
 		// constructor

@@ -13,6 +13,7 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import java.util.*;
 
 public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
@@ -47,11 +48,21 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     
     @Override
     public void onFailureAfterLog(Throwable returned) {
-    	// TODO: do this in a more clever way
-    	// this call is invoked implicitly sometimes so we dont want to bother the user
-    	gui.pageHandler.loadPage(Page.UserPage);
+    	if (returned instanceof InvalidDocumentIdException) {
+    		// ignore this one
+        	gui.pageHandler.loadPage(Page.UserPage);
+    	}
+    	else {
+    		super.onFailure(returned);
+    	}
     }
-        
+    
+    @Override
+    protected void onFinalError(String message) {
+    	gui.pageHandler.loadPage(Page.UserPage);
+    	super.onFinalError(message);
+    }
+    
     public LoadDocumentFromDB(long id) {
         super();
         

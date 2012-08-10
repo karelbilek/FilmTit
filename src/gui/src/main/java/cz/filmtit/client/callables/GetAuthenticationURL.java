@@ -37,11 +37,11 @@ import cz.filmtit.share.LoginSessionResponse;
         }
 			
         @Override
-        public void onFailureAfterLog(Throwable returned) {
+        protected void onFinalError(String message) {
             loginDialog.reactivateWithErrorMessage("There was an error with opening the authentiaction page. " +
             		"Please try again. " +
                     "If problems persist, try contacting the administrators. " +
-                    "Error message from the server: " + returned);
+                    "Error message: " + message);
         }
 					
 		// constructor

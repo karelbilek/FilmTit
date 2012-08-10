@@ -26,6 +26,12 @@ public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
     public void onSuccessAfterLog(Void o) {
         gui.pageHandler.refresh();
     }
+    
+    @Override
+    protected void onFinalError(String message) {
+    	Gui.getPageHandler().refresh();
+    	super.onFinalError(message);
+    }
         
     public DeleteDocument(long id) {
         super();

@@ -91,8 +91,8 @@ public class AuthenticationValidationWindow extends Composite {
 		btnCancel.setText("Close");
 	}
 
-	public void logInFailed(Throwable caught) {
-		paraValidation.setText("Not logged in! Authentication validation failed: " + caught);
+	public void logInFailed(String message) {
+		paraValidation.setText("Not logged in! Authentication validation failed: " + message);
 		btnCancel.setText("Close");
 	}
 	

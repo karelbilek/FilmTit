@@ -50,10 +50,10 @@ public class CreateDocument extends Callable<DocumentResponse> {
         }
 		
 		@Override
-		public void onFailureAfterLog(Throwable returned) {
+		protected void onFinalError(String message) {
 			// TODO: keep the document title
 			Gui.getPageHandler().refresh();
-			super.onFailureAfterLog(returned);
+			super.onFinalError(message);
 		}
 		
 		/**

@@ -35,12 +35,12 @@ public class RegisterUser extends Callable<Boolean> {
         }
 
         @Override
-        public void onFailureAfterLog(Throwable returned) {
+        protected void onFinalError(String message) {
             loginDialog.reactivateWithErrorMessage("There was an error with the registration. " +
             		"Please try again. " +
                     "If problems persist, try contacting the administrators. " +
-                    "Error message from the server: " + returned);
-        }
+                    "Error message: " + message);
+        };
 
         // constructor
 		public RegisterUser(String username, String password, String email,

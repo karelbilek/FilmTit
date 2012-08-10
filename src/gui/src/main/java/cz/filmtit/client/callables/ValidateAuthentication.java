@@ -15,11 +15,6 @@ import java.util.*;
 
 	public class ValidateAuthentication extends Callable<Boolean> {
 
-            @Override
-			public void onFailureAfterLog(Throwable caught) {
-				authenticationValidationWindow.logInFailed(caught);
-			}
-
 		// parameters
 		String responseURL;	
 		int authID;
@@ -30,15 +25,20 @@ import java.util.*;
             return "ValidateAuthentication";
         }
             
-            @Override
-			public void onSuccessAfterLog(Boolean result) {
-				if (result) {
-					authenticationValidationWindow.loggedIn();
-				}
-				else {
-					authenticationValidationWindow.logInFailed();
-				}
+        @Override
+		public void onSuccessAfterLog(Boolean result) {
+			if (result) {
+				authenticationValidationWindow.loggedIn();
 			}
+			else {
+				authenticationValidationWindow.logInFailed();
+			}
+		}
+        
+        @Override
+        protected void onFinalError(String message) {
+			authenticationValidationWindow.logInFailed(message);
+        }
 			
             
 		

@@ -12,7 +12,6 @@ import cz.filmtit.share.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 
- // TODO will probably return the whole Session object - now returns username or null
 public class CheckSessionID extends Callable<SessionResponse> {
     	
     	// parameters
@@ -33,19 +32,14 @@ public class CheckSessionID extends Callable<SessionResponse> {
                 gui.logged_out();
             }
         }
-
+        
         @Override
-        public void onFailureAfterLog(Throwable caught) {
+        protected void onInvalidSession() {
             gui.logged_out();
         }
         
         @Override
-        protected void onProbablyOffline(Throwable returned) {
-            gui.logged_out();
-        }
-        
-        @Override
-        protected void onTimeOut() {
+        protected void onFinalError(String message) {
             gui.logged_out();
         }
 
