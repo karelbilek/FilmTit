@@ -4,6 +4,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.HistoryListener;
 import com.google.gwt.user.client.Window;
 import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
@@ -87,6 +88,8 @@ public class PageHandler {
     
     public PageHandler () {
     	
+    	History.addValueChangeHandler(historyChangeHandler);
+    	
     	getPageFromURL();
 
     	if ( isFullPage(pageUrl) ) {
@@ -140,6 +143,19 @@ public class PageHandler {
     	pageUrl = page;
     }
     
+    /**
+	* Reacts to user going forward and backward.
+	*/
+	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			// find out which page the user wants
+			pageUrl = string2page(event.getValue());
+			// load the page
+			loadPage(true);
+		}
+	};
+	
 	/**
      * Converts String to Page.
      * Does not propagate any exceptions.
@@ -300,8 +316,8 @@ public class PageHandler {
 		if (pageToLoad != pageLoaded || evenIfAlreadyLoaded) {
 			
 			// unloading TranslationWorkspace
-			if (pageLoaded == Page.TranslationWorkspace) {
-				gui.currentWorkspace.setStopLoading(true);
+			if (pageLoaded == Page.TranslationWorkspace && Gui.currentWorkspace != null) {
+				Gui.currentWorkspace.setStopLoading(true);
 			}
 			
 			// scroll to top if not prevented
