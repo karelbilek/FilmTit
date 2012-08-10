@@ -188,6 +188,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             substitute.setText(userTranslation);
             substitute.updateVerticalSize();
             this.setHTML(subgestBoxHTML(userTranslation));
+            updateLastText();
             //updateVerticalSize();
         }
     }
@@ -404,11 +405,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     }
 
     protected boolean textChanged() {
-        return !this.getText().equals(this.lastText);
+        return !this.getTextWithNewlines().equals(this.lastText);
     }
 
     protected void updateLastText() {
-        this.lastText = this.getText();
+        this.lastText = this.getTextWithNewlines();
     }
 
     public Document getFrameDoc(){

@@ -56,7 +56,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Map<Integer, AuthData> authDataInProgress =
             Collections.synchronizedMap(new HashMap<Integer, AuthData>());
     // AuthId which are authenticated but not activated
-    private Map<Integer,Authentication> finisehdAuthentications =
+    private Map<Integer,Authentication> finishedAuthentications =
             Collections.synchronizedMap(new HashMap<Integer, Authentication>());
     // Activated User
     private Map<String, Session> activeSessions =
@@ -167,7 +167,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
     }
 
@@ -235,7 +235,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // generate the unique authentication ID first
         Random random = new Random();
         int authID = random.nextInt();
-        while (authDataInProgress.containsKey(authID) || finisehdAuthentications.containsKey(authID)) {
+        while (authDataInProgress.containsKey(authID) || finishedAuthentications.containsKey(authID)) {
             authID = random.nextInt();
         }
 
@@ -266,7 +266,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
-            finisehdAuthentications.put(authID, authentication);
+            finishedAuthentications.put(authID, authentication);
             logger.info("Testing User is Validate " + authID + " " +authentication.getEmail());
             return true;
 
@@ -291,11 +291,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public SessionResponse getSessionID(int authID) throws AuthenticationFailedException {
-        if (finisehdAuthentications.containsKey(authID)) {
+        if (finishedAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
         	// cancel the authentication session
-            Authentication authentication = finisehdAuthentications.remove(authID);
+            Authentication authentication = finishedAuthentications.remove(authID);
 
             String openid = extractOpenId(authentication.getIdentity());
             
