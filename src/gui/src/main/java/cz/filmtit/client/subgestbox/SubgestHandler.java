@@ -73,8 +73,20 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                 } );
             }
 			gui.log("tabindex of this: " + subbox.getTabIndex());
+
+            if (Window.Navigator.getUserAgent().matches(".*Firefox.*")) {
+                //gui.log("in firefox - scheduling resetting focus");
+                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        subbox.setFocus(true);
+                    }
+                });
+            }
+
 		}
 	}
+
 	
 	
 	@Override
