@@ -11,7 +11,9 @@ import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 
 import cz.filmtit.client.callables.SetUserTranslation;
+import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.GoingOfflineDialog;
+import cz.filmtit.client.dialogs.GoingOnlineDialog;
 
 public class LocalStorageHandler {
 
@@ -41,20 +43,25 @@ public class LocalStorageHandler {
 			Gui.log("All requests from local storage returned!");
 			Gui.getPageHandler().refresh();
 			if (failedCount == 0) {
-				Window.alert("All " + succeededCount + " items stored from Offline Mode " +
-				"have been successfully saved!");				
+				goingOnlineDialog.reactivateWithInfoMessage("All " + succeededCount + " items have been successfully saved!");
 			}
 			else {
 				StringBuilder sb = new StringBuilder();
-				sb.append(succeededCount);
-				sb.append(" items stored from Offline Mode have been successfully saved! However, ");
+				if (succeededCount > 0) {
+					sb.append(succeededCount);
+					sb.append(" items have been successfully saved!\n ");
+					sb.append("However, ");
+				}
+				else {
+					sb.append("No items saved! ");
+				}
 				sb.append(failedCount);
 				sb.append(" items could not be stored. Error message from the server: ");
 				for (Object error : failedMessages.keySet().toArray()) {
 					sb.append('\n');
 					sb.append(error);
 				}
-				Window.alert(sb.toString());
+				goingOnlineDialog.reactivateWithErrorMessage(sb.toString());
 			}
 		}
 	}
@@ -118,6 +125,16 @@ public class LocalStorageHandler {
 	 * Temporary queue of calls that failed because of the problems with connection to server.
 	 */
 	public static List<Storable> queue;
+	
+	/**
+	 * The objects that belong to the current user and should be uploaded.
+	 */
+	private static List<KeyValuePair> userObjects;
+
+	/**
+	 * The dialog that is used to issue commands on going online.
+	 */
+	private static Dialog goingOnlineDialog;
 
 	/**
 	 * Switch the online/offline mode.
@@ -135,18 +152,12 @@ public class LocalStorageHandler {
 			final int itemsNo = numberOfItemsInLocalStorage();
 			if (itemsNo > 0) {
 				Gui.log("Inspecting " + itemsNo + " items from local storage...");
-				List<KeyValuePair> objects = loadUserObjectsFromLocalStorage();
-				int count = (objects == null ? 0 : objects.size());
+				userObjects = loadUserObjectsFromLocalStorage();
+				int count = (userObjects == null ? 0 : userObjects.size());
 				Gui.log("Found " + count + " items from local storage.");
 											
 				if (count > 0) {
-					boolean loadItems = Window.confirm(
-							"There are " + count + " items stored in your browser " +
-							"from the Offline Mode. " +
-							"Do you want to upload them to the server now?");
-					if (loadItems) {
-						uploadUserObjects(objects);
-					}
+					goingOnlineDialog = new GoingOnlineDialog(count);
 				}
 			}
 		}
@@ -177,7 +188,7 @@ public class LocalStorageHandler {
 		queue.add(storableInError);
 		if (Storage.isLocalStorageSupported() && !offeredOfflineStorage) {
 			offeringOfflineStorage = true;
-			new GoingOfflineDialog();
+			goingOnlineDialog = new GoingOfflineDialog();
 		}
 		else {
 			Window.alert("There is no connection to the server. " +
@@ -187,6 +198,11 @@ public class LocalStorageHandler {
 					"but please do not fill in any new ones now as they would be lost. " +
 					"Please try again later when the connection to the server is available again.");
 		}
+	}
+	
+	public static void cancelledOfflineStorageOffer () {
+		offeringOfflineStorage = false;
+		offeredOfflineStorage = true;
 	}
 	
 	/**
@@ -259,20 +275,16 @@ public class LocalStorageHandler {
 		}
 	}
 	
-	private static void uploadUserObjects(final List<KeyValuePair> keyValuePairs) {
+	
+	public static void uploadUserObjects() {
 		
-		uploading = true;
-		yetToUpload = keyValuePairs.size();
-		succeededCount = 0;
-		failedCount = 0;
-		failedObjects = new LinkedList<Storable>();	
-		failedMessages = new HashMap<String, Integer>();
+		initUploadVariables(userObjects.size());
 		
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override
 			public void execute() {
 				// convert the objects
-				List<Storable> objects = convertToStorable(keyValuePairs);
+				List<Storable> objects = convertToStorable(userObjects);
 				// upload the objects
 				// TODO RepeatingCommand
 				for (Storable object : objects) {
@@ -282,6 +294,43 @@ public class LocalStorageHandler {
 			}
 		});
 		
+	}
+	
+	public static void retryUploadUserObjects() {
+		
+		final List<Storable> objects = new LinkedList<Storable>(failedObjects);
+		
+		initUploadVariables(objects.size());
+		
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				// upload the objects
+				// TODO RepeatingCommand
+				for (Storable object : objects) {
+					object.onLoadFromLocalStorage();
+				}
+				Gui.log("Sent " + objects.size() + " requests.");
+			}
+		});
+	}
+	
+	private static void initUploadVariables(int count) {
+		uploading = true;
+		yetToUpload = count;
+		succeededCount = 0;
+		failedCount = 0;
+		failedObjects = new LinkedList<Storable>();	
+		failedMessages = new HashMap<String, Integer>();
+	}
+	
+	public static void deleteFailedObjects() {
+		for (Storable failedObject : failedObjects) {
+			removeFromLocalStorage(failedObject);
+		}
+		failedObjects = null;
+		goingOnlineDialog.reactivateWithInfoMessage("All " + failedCount + " items have been deleted!");
+		// goingOnlineDialog.reactivateWithErrorMessage - not used
 	}
 	
 	/**
