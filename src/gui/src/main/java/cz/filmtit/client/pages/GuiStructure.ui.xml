@@ -29,8 +29,11 @@
 
         </b:Navbar>
 
+        <g:HTMLPanel ui:field="panelForVLC">
+        </g:HTMLPanel>
 
-        <div id="content">
+
+        <g:HTMLPanel styleName="content">
 
         <b:Row>
             <b:Column size="7">
@@ -42,7 +45,7 @@
             </b:Column>
         </b:Row>
 
-        </div>
+        </g:HTMLPanel>
         <div style="position:absolute; bottom:-50em; right:0">
         <b:FluidRow>
             <b:FluidRow>

@@ -18,8 +18,18 @@
 }
 
 
-.translationWorkspaceFixed {
+.fixedPlayer {
     position:fixed;
+    height:250px;
+    background:black;
+    text-align: center;
+    z-index:2;
+    top:40px;
+}
+
+
+.tableMoved {
+    margin-top: 230px;
 }
 
 
@@ -64,7 +74,7 @@ tr.header .gwt-Label {
 	padding-top: 15px;
 }
 
-#content {
+.content {
 	width: 1024px;
 	margin-left: auto;
 	margin-right: auto;

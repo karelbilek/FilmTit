@@ -1,5 +1,6 @@
 package cz.filmtit.client;
 
+import com.github.gwtbootstrap.client.ui.Row;
 import com.github.gwtbootstrap.client.ui.NavLink;
 import com.github.gwtbootstrap.client.ui.NavWidget;
 import com.google.gwt.core.client.*;
@@ -74,6 +75,10 @@ public class Gui implements EntryPoint {
         return pageHandler;
     }
     
+    public static HTMLPanel getPanelForVLC() {
+        return getGui().guiStructure.getPanelForVLC();
+    }
+
     // Login state fields
 
     private static boolean loggedIn = false;
@@ -312,5 +317,7 @@ public class Gui implements EntryPoint {
         	Gui.pageHandler.loadPage(true);
         }
     }
+
+
     
 }
