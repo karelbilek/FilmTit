@@ -697,8 +697,16 @@ public class TranslationWorkspace extends Composite {
         //scrollPanel.ensureVisible(subbox);
         //Window.alert("ensuring visible");
         //ensureVisibleInWindow(subbox.getElement());
-        Window.scrollTo(Window.getScrollLeft(),
-                getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() * 2 / 5);
+        Window.scrollTo(
+                Window.getScrollLeft(),
+                getScrollOffsetY(subbox.getElement())
+                        - getVideoHeight()
+                        - (Window.getClientHeight() - getVideoHeight()) * 2 / 5
+        );
+    }
+
+    private int getVideoHeight() {
+        return ( isVideo ? playerFixedPanel.getOffsetHeight() : 0 );
     }
 
     private native int getScrollOffsetY(Element e) /*-{
