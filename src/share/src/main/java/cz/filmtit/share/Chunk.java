@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
+	public boolean isActive = true;
+	
     private volatile String surfaceForm = "";
     
     protected List<Annotation> annotations;

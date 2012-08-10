@@ -8,6 +8,7 @@ import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import org.jboss.logging.Logger;
 
 import java.util.*;
+import cz.filmtit.userspace.*;
 
 /**
  * Represents a running session.
@@ -340,7 +341,37 @@ public class Session {
     }
 
     /**
-     * Implements FilmTitService.getTranslationResults
+     * Implements FilmTitService.getTranslationResults,
+     * calls ParallelHelper,
+     * ParallelHelper calls getTranslationResults().
+     */
+    public List<TranslationResult> getTranslationResultsParallel(List<TimedChunk> chunks, TranslationMemory TM) throws InvalidDocumentIdException {
+
+    	// set chunks active
+        if (chunks == null || chunks.isEmpty()) {
+        	return null;
+        }
+        else {
+            USDocument document = getActiveDocument(chunks.get(0).getDocumentId());
+
+            for (TimedChunk chunk : chunks) {
+                ChunkIndex index = chunk.getChunkIndex();
+                USTranslationResult usTranslationResult = document.getTranslationResultForIndex(index);
+                usTranslationResult.setChunkActive(true);
+    		}
+        }
+        // TODO: do not throw away document and usTranslationResult, pass them directly through ParallellHelper!
+        // (and change getTranslationResults() accordingly)
+        
+        // get the results
+        List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, this, TM);
+        //session.saveAllTranslationResults(chunks.get(0).getDocumentId());
+        return res;
+    }
+    
+    /**
+     * Implements FilmTitService.getTranslationResults,
+     * called by ParallelHelper.
      */
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
         updateLastOperationTime();
@@ -351,6 +382,27 @@ public class Session {
 
         usTranslationResult.generateMTSuggestions(TM);
         return usTranslationResult.getResultCloneAndRemoveSuggestions();
+    }
+
+    /**
+     * Implements FilmTitService.stopTranslationResults
+     * @param chunks
+     * @throws InvalidDocumentIdException
+     */
+    public Void stopTranslationResults(List<TimedChunk> chunks) throws InvalidDocumentIdException {
+        if (chunks == null || chunks.isEmpty()) {
+        	return null;
+        }
+        else {
+            USDocument document = getActiveDocument(chunks.get(0).getDocumentId());
+
+            for (TimedChunk chunk : chunks) {
+                ChunkIndex index = chunk.getChunkIndex();
+                document.getTranslationResultForIndex(index).setChunkActive(false);
+    		}
+            
+            return null;
+        }
     }
 
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)

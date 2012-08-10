@@ -337,4 +337,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public String toString() {
     	return getDatabaseId() + "#" + getTranslationResult().toString();
     }
+    
+    public void setChunkActive (boolean active) {
+    	translationResult.getSourceChunk().isActive = active;
+    }
 }

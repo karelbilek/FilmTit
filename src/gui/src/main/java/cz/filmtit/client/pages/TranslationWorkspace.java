@@ -8,6 +8,7 @@ import com.github.gwtbootstrap.client.ui.Row;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.GetTranslationResults;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
 import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
@@ -50,7 +51,7 @@ public class TranslationWorkspace extends Composite {
     private boolean stopLoading = false;
     
 	public void setStopLoading(boolean stopLoading) {
-		this.stopLoading = stopLoading;
+		this.stopLoading = true;
 		gui.log("stopLoading set for the workspace");
 	}
 
@@ -248,9 +249,22 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
+    private Map<Integer, GetTranslationResults> sentGetTranslationsResultsCalls = new HashMap<Integer, GetTranslationResults>();
+
+    public void addGetTranslationsResultsCall (int id, GetTranslationResults call) {
+    	sentGetTranslationsResultsCalls.put(id, call);
+    }
+    
+    public void removeGetTranslationsResultsCall (int id) {
+    	sentGetTranslationsResultsCalls.remove(id);
+    }
+    
     @Override
     public void onUnload() {
         setStopLoading(true);
+        for (GetTranslationResults getTranslationResults : sentGetTranslationsResultsCalls.values()) {
+			getTranslationResults.stop();
+		}
         sourceSelected = false;
         translationStarted = false;
         gui.guiStructure.contentPanel.removeStyleName("parsing");

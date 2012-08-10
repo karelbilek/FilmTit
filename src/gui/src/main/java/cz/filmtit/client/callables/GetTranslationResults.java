@@ -21,6 +21,9 @@ import java.util.*;
 		List<TimedChunk> chunks;
 		SendChunksCommand command;
 		TranslationWorkspace workspace;
+		
+		int id;
+		static int nextId = 0;
 	
         @Override
         public String getName() {
@@ -33,6 +36,8 @@ import java.util.*;
             if (workspace.getStopLoading()) {
             	return;
             }
+            
+            workspace.removeGetTranslationsResultsCall(id);
 
             for (TranslationResult newresult:newresults) {
 
@@ -42,7 +47,19 @@ import java.util.*;
             }
             command.execute();
         }
-        		
+		
+		@Override
+		public void onFailureAfterLog(Throwable returned) {
+			super.onFailureAfterLog(returned);
+            workspace.removeGetTranslationsResultsCall(id);
+		}
+		
+		@Override
+		protected void onProbablyOffline(Throwable returned) {
+			super.onProbablyOffline(returned);
+            workspace.removeGetTranslationsResultsCall(id);
+		}
+		
 		// constructor
 		public GetTranslationResults(List<TimedChunk> chunks,
 				SendChunksCommand command, TranslationWorkspace workspace) {
@@ -59,7 +76,13 @@ import java.util.*;
 		}
 
 		@Override protected void call() {
+			id = nextId++;
+			workspace.addGetTranslationsResultsCall(id, this);
             filmTitService.getTranslationResults(gui.getSessionID(), chunks, this);
+		}
+		
+		public void stop() {
+			new StopTranslationResults(chunks);
 		}
 	}
 

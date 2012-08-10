@@ -180,11 +180,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
             throws InvalidSessionIdException, InvalidDocumentIdException {
-        Session session = getSessionIfCan(sessionID);
+        return getSessionIfCan(sessionID).getTranslationResultsParallel(chunks, TM);
+    }
 
-        List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
-        //session.saveAllTranslationResults(chunks.get(0).getDocumentId());
-        return res;
+    @Override
+    public Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).stopTranslationResults(chunks);
     }
 
     @Override
