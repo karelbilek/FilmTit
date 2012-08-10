@@ -370,6 +370,7 @@ public class Session {
                 document.getTranslationResultForIndex(index).setChunkActive(false);
     		}
             
+            logger.info("!!! STOP TRANSLATION RESULTS !!! " + chunks.size() + " chunks");
             return null;
         }
     }
