@@ -89,7 +89,12 @@ public class Gui implements EntryPoint {
 	}
 
     public static String getUsername() {
-		return user.getName();
+		if (user != null) {
+	    	return user.getName();			
+		}
+		else {
+			return null;
+		}
 	}
 
 	private static String sessionID;
