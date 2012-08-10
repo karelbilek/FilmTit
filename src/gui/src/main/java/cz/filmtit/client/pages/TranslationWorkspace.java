@@ -4,6 +4,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
+import com.github.gwtbootstrap.client.ui.Row;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
@@ -106,6 +107,8 @@ public class TranslationWorkspace extends Composite {
     private boolean isVideo=false;
 
     VLCWidget vlcPlayer;
+    
+    HTMLPanel playerFixedPanel = null;
 
     // UI binder fields
     @UiField
@@ -114,8 +117,7 @@ public class TranslationWorkspace extends Composite {
     SimplePanel emptyPanel;
 	@UiField
     FlexTable table;
-    @UiField
-    HorizontalPanel hPanel;
+    
     @UiField
     HorizontalPanel translationHPanel;
   
@@ -168,24 +170,29 @@ public class TranslationWorkspace extends Composite {
         } );
 
         table.setWidth("100%");
-        if (!isVideo) {
-            table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-            table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
-            table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
-            this.subgestHandler = new SubgestHandler(this, null);
-            translationHPanel.setCellWidth(scrollPanel, "100%");
-            translationHPanel.setCellWidth(emptyPanel, "0%");            
-         } else {
-            table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "99px");
-            table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "246px");
-            table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER, "240px");
+        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
+        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
+        table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
+        translationHPanel.setCellWidth(scrollPanel, "100%");
+        translationHPanel.setCellWidth(emptyPanel, "0%");            
+
+        if (isVideo) {
+            HTMLPanel panelForVLC = Gui.getPanelForVLC();
+            playerFixedPanel = new HTMLPanel("");
+            
+            panelForVLC.add(playerFixedPanel);
+            playerFixedPanel.setWidth("100%");
+            playerFixedPanel.setHeight("250px");
+            playerFixedPanel.addStyleName("fixedPlayer");
+            table.addStyleName("tableMoved");
+            
             vlcPlayer = new VLCWidget(path, 400, 225);
             this.subgestHandler = new SubgestHandler(this, vlcPlayer);
-            hPanel.add(vlcPlayer);
-            translationHPanel.setCellWidth(scrollPanel, "60%");
-            translationHPanel.setCellWidth(emptyPanel, "40%");            
-       }
+            playerFixedPanel.add(vlcPlayer);
         
+        } else {
+            this.subgestHandler = new SubgestHandler(this, null);
+        }
         
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
         table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
@@ -209,6 +216,9 @@ public class TranslationWorkspace extends Composite {
         sourceSelected = false;
         translationStarted = false;
         gui.guiStructure.contentPanel.removeStyleName("parsing");
+        if (playerFixedPanel != null){
+            Gui.getPanelForVLC().remove(playerFixedPanel);
+        }
     }
    
 
@@ -514,7 +524,7 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(chunk, this, !isVideo, index+1);
+        SubgestBox targetbox = new SubgestBox(chunk, this, index+1);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);

@@ -81,11 +81,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             this.setTabIndex(tabIndex);
             this.setStyleName("pre_subgestbox");
             this.addStyleName("loading");
-            if (fullWidth) {
                 this.addStyleName("subgest_fullwidth");
-            } else {
-                this.addStyleName("subgest_halfwidth");
-            }        
         }
 
         public /*static */boolean stringHasMoreThanTwoLines(String s) {
@@ -141,14 +137,13 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		annotationColor.put(AnnotationType.PERSON,       "#ffff99");
 	};
 
-    boolean fullWidth;
 
     private String subgestBoxHTML(String content) {
         content = content.replaceAll("\n", "<br>");
         return content;
     }
 
-	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
+	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, int tabIndex) {
 		this.chunkIndex = chunk.getChunkIndex();
 		this.translationResult = new TranslationResult(chunk);
         this.workspace = workspace;
@@ -169,12 +164,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         //delaying loadSuggestions() for focus
 		//this.loadSuggestions();
-        this.fullWidth = fullWidth;
-        if (fullWidth) {
-            this.addStyleName("subgest_fullwidth");
-        } else {
-            this.addStyleName("subgest_halfwidth");
-        }
+        this.addStyleName("subgest_fullwidth");
 
         final RichTextArea richtext = this;
         richtext.addInitializeHandler(new InitializeHandler() {

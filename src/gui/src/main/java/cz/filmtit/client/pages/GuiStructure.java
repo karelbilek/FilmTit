@@ -108,6 +108,7 @@ public class GuiStructure extends Composite {
     //      The pages in menu            //
     //                                   //
     ///////////////////////////////////////
+
 	
 	@UiField
 	NavLink welcomePage;
@@ -188,4 +189,10 @@ public class GuiStructure extends Composite {
 	@UiField
 	public TextArea txtDebug;
 	
+    @UiField
+	HTMLPanel panelForVLC;
+
+    public HTMLPanel getPanelForVLC() {
+        return panelForVLC;
+    }
 }
