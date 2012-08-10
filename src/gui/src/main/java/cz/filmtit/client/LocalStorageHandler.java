@@ -208,6 +208,7 @@ public class LocalStorageHandler {
 	private static List<KeyValuePair> loadUserObjectsFromLocalStorage() {
 		if (isStorageSupported) {
 			List<KeyValuePair> objects = new LinkedList<KeyValuePair>();
+			List<KeyValuePair> corrupted = new LinkedList<KeyValuePair>();
 			// go through all items
 			for (int i = 0; i < storage.getLength(); i++) {
 				String key = storage.key(i);
@@ -225,9 +226,12 @@ public class LocalStorageHandler {
 					// else somebody elses object, just keep it
 				}
 				else {
-					Gui.log("Removing corrupted item " + key + ", " + storage.getItem(key));
-					storage.removeItem(key);
+					corrupted.add(new KeyValuePair(key, storage.getItem(key)));
 				}
+			}
+			for (KeyValuePair keyValuePair : corrupted) {
+				Gui.log("Removing corrupted item " + keyValuePair);
+				storage.removeItem(keyValuePair.getKey());
 			}
 			return objects;
 		}
