@@ -196,6 +196,14 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         return r;
     }
 
+    public long getStartTimeLong() {
+        return timeToLong(getStartTime());
+    }
+
+    public long getEndTimeLong() {
+        return timeToLong(getEndTime());
+    }
+
     public String getStartTime() {
         return startTime;
     }

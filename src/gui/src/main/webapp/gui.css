@@ -22,7 +22,6 @@
     position:fixed;
     height:250px;
     background:black;
-    text-align: center;
     z-index:2;
     top:40px;
 }
@@ -268,4 +267,43 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 }
 .new_document_button {
 	float: right;
+}
+
+
+.subtitleDisplayedLeft, .subtitleDisplayedRight {
+    width: 270px;
+    min-height: 10px;
+    color:white;
+    background: black;
+    position: relative;
+    top: 80px;
+    float:left;
+}
+
+.subtitleDisplayedLeft {
+    text-align:right;
+    margin-right:3px;
+}
+
+.subtitleDisplayedRight {
+    text-align:left;
+    margin-left:3px;
+}
+
+.vlcPlayerDisplayed {
+    float:left;
+}
+
+.fixedPlayerWrapper {
+    width:1000px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+
+.statusPanel {
+    clear: left;
+    width: 100%;
+    text-align: center;
+    color: white;
 }

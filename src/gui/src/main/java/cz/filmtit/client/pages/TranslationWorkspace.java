@@ -82,9 +82,23 @@ public class TranslationWorkspace extends Composite {
     }
     
     public Map<ChunkIndex, TimedChunk> chunkmap;
+    
+    //this is for quick time lookups for the subtitle displaying
+    //"logically" it should be double, but GWT is actually javascript
+    //and works faster with Doubles instead of Longs,
+    //which it emulates by strings or something
+    public TreeMap<Double, TranslationResult> reverseTimeMap;
 
     public TimedChunk getChunk(ChunkIndex chunkIndex) {
        return chunkmap.get(chunkIndex);
+    }
+
+    public Collection<TranslationResult> getChunkIndexesFrom(double start, double end) {
+        gui.log("Chci from "+start+" to "+end+ " A je jich "+reverseTimeMap.subMap(start, end).values().size()+" !");
+        if (reverseTimeMap== null) {
+            return new ArrayList<TranslationResult>();
+        }
+        return reverseTimeMap.subMap(start, end).values();
     }
 
     ///////////////////////////////////////
@@ -95,7 +109,7 @@ public class TranslationWorkspace extends Composite {
 
     public SubgestHandler subgestHandler;
 
-    private HashMap<ChunkIndex, Integer> indexes;
+    private Map<ChunkIndex, Integer> indexes;
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
     private Widget activeSuggestionWidget = null;
 
@@ -186,10 +200,34 @@ public class TranslationWorkspace extends Composite {
             playerFixedPanel.addStyleName("fixedPlayer");
             table.addStyleName("tableMoved");
             
-            vlcPlayer = new VLCWidget(path, 400, 225);
+            HTMLPanel fixedWrapper = new HTMLPanel("");
+            fixedWrapper.setWidth("984 px");
+
+
+            HTML leftLabel = new HTML("");
+            leftLabel.addStyleName("subtitleDisplayedLeft");
+            fixedWrapper.addStyleName("fixedPlayerWrapper");
+            fixedWrapper.add(leftLabel);
+
+
+            HTML rightLabel = new HTML("");
+            rightLabel.addStyleName("subtitleDisplayedRight");
+   
+            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, this);
+            vlcPlayer.addStyleName("vlcPlayerDisplayed"); 
             this.subgestHandler = new SubgestHandler(this, vlcPlayer);
-            playerFixedPanel.add(vlcPlayer);
-        
+            fixedWrapper.add(vlcPlayer);
+
+            fixedWrapper.add(rightLabel);
+           
+            HTMLPanel playerStatusPanel = new HTMLPanel("");
+            playerStatusPanel.add(new InlineLabel("[status, pause, replay will be here] "));
+            
+            fixedWrapper.add(playerStatusPanel);
+            playerStatusPanel.addStyleName("statusPanel");
+            
+            playerFixedPanel.add(fixedWrapper);
+
         } else {
             this.subgestHandler = new SubgestHandler(this, null);
         }
@@ -241,6 +279,7 @@ public class TranslationWorkspace extends Composite {
     	}
     	
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+          reverseTimeMap = new TreeMap<Double, TranslationResult>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
           List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
@@ -249,6 +288,8 @@ public class TranslationWorkspace extends Composite {
           for (TranslationResult tr:translations) {
               TimedChunk sChunk = tr.getSourceChunk();
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
+              reverseTimeMap.put((double)(sChunk.getStartTimeLong()), tr);
+
               String tChunk = tr.getUserTranslation();
               
 
@@ -284,6 +325,7 @@ public class TranslationWorkspace extends Composite {
     	  // gui.log("processing the following input:\n" + subtext + "\n");
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+          reverseTimeMap = new TreeMap<Double, TranslationResult>();
 
           // determine format (from corresponding radiobuttons) and choose parser:
           Parser subtextparser;
@@ -311,6 +353,7 @@ public class TranslationWorkspace extends Composite {
               ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult(chunk);
               this.currentDocument.translationResults.put(chunkIndex, tr);
+              reverseTimeMap.put((double)(chunk.getStartTimeLong()), tr);
 
           }
           
@@ -426,6 +469,8 @@ public class TranslationWorkspace extends Composite {
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
           FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+          
+          reverseTimeMap.put((double)(transresult.getSourceChunk().getStartTimeLong()), transresult);
      }
 
      ///////////////////////////////////////
@@ -541,6 +586,11 @@ public class TranslationWorkspace extends Composite {
         real.updateVerticalSize();
     }
 
+    public TranslationResult getTranslationResultForIndex(int id) {
+        SubgestBox sb = targetBoxes.get(id).getFather();
+        TranslationResult tr = sb.getTranslationResult();
+        return tr;
+    }
 
     /**
      * Add the given TranslationResult to the current listing interface.
