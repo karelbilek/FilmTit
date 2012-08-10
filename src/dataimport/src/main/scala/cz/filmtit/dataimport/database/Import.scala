@@ -121,7 +121,7 @@ class Import(val configuration: Configuration) {
         }
       }
       )
-
+    tm.finishImport()
 
     writeIMDBCache()
     tm.close()

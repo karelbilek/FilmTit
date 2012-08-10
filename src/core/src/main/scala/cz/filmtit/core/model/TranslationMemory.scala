@@ -39,6 +39,11 @@ trait TranslationMemory {
    */
   def reset()
 
+  /**
+   * Notify the TM to finish the import.
+   */
+  def finishImport()
+
 
   /**
    * Retrieve n (by default 10) best candidates for a Chunk c in language l,

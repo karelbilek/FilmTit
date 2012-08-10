@@ -115,6 +115,12 @@ with MediaStorage {
     }
   }
 
+  def finishImport() {
+    connection.createStatement().execute(
+        (("CREATE INDEX count_idx ON %s(pair_count DESC);")
+          .format(pairTable))
+    )
+  }
 
   /**
    * This is the only place where {TranslationPair}s are actually
@@ -230,15 +236,9 @@ with MediaStorage {
     System.err.println("Clearing pair<->MS set.")
     pairMediaSourceMappings.clear()
 
-    connection.createStatement().execute(
-        (("CREATE INDEX count_idx ON %s(pair_count DESC);")
-          .format(pairTable))
-    )
 
     if ( !autoCommit )
       connection.commit()
-
-
 
     }
 

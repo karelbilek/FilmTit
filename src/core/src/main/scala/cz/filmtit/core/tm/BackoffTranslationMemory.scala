@@ -109,6 +109,20 @@ class BackoffTranslationMemory(
 
   }
 
+  def finishImport() {
+    logger.info( "Finishing import..." )
+    searchers.head match {
+      case s: TranslationPairStorage => s.finishImport()
+      case s: TranslationPairSearcherWrapper => {
+        s.searchers.head match {
+          case s: TranslationPairStorage => s.finishImport()
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+  }
+
   def warmup() {
     logger.info("Warming up...")
     searchers.foreach(_ match {
