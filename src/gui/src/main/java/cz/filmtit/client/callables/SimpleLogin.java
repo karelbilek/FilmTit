@@ -32,7 +32,7 @@ import cz.filmtit.share.SessionResponse;
         		if (loginDialog != null) {
         			loginDialog.close();
         		}            		
-        		gui.logged_in(username);
+        		gui.logged_in(response.userWithoutDocs);
         	}
         }
 

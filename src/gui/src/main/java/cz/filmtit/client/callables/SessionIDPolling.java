@@ -48,9 +48,8 @@ import java.util.*;
 					sessionIDPollingDialog.close();
 					// we now have a session ID
 					gui.setSessionID(response.sessionID);
-					// we have to get the username
-					FilmTitServiceHandler.checkSessionID();
-					// gui.logged_in("");
+					// and a User
+	                gui.logged_in(response.userWithoutDocs);
 				}
 				else {
 					gui.log("no session ID received");

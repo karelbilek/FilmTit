@@ -82,10 +82,14 @@ public class Gui implements EntryPoint {
 		return loggedIn;
 	}
 
-	private static String username;
+	private static User user;
+
+    public static User getUser() {
+		return user;
+	}
 
     public static String getUsername() {
-		return username;
+		return user.getName();
 	}
 
 	private static String sessionID;
@@ -261,13 +265,13 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
-    public static void logged_in (String username) {
-    	log("User " + username + " is logged in.");
+    public static void logged_in (User user) {
+    	log("User " + user.getName() + " is logged in.");
     	// login state fields
     	Gui.loggedIn = true;
-    	Gui.username = username;
+    	Gui.user = user;
         // actions
-    	Gui.guiStructure.logged_in(username);
+    	Gui.guiStructure.logged_in(user);
     	Gui.pageHandler.loadPage();
     	
     	LocalStorageHandler.setOnline(true);
@@ -292,7 +296,7 @@ public class Gui implements EntryPoint {
     	log("User is logged out.");
     	// login state fields
     	Gui.loggedIn = false;
-    	Gui.username = null;
+    	Gui.user = null;
     	Gui.setSessionID(null);
         // actions
         Gui.guiStructure.logged_out();

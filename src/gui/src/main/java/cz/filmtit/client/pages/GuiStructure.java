@@ -15,6 +15,7 @@ import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.share.User;
 
 
 public class GuiStructure extends Composite {
@@ -76,10 +77,10 @@ public class GuiStructure extends Composite {
 	/**
 	 * to be called to switch the view from "logged out" to "logged in"
 	 */
-	public void logged_in (String username) {
+	public void logged_in (User user) {
 		// login/logout link
 		login.setVisible(false);
-		logout.setText("Log out user " + username);
+		logout.setText("Log out user " + user.getName());
 		logout.setVisible(true);
 		// visibility
 		welcomePage.setVisible(false);
