@@ -260,7 +260,7 @@ public class TestSession {
     }
 
     @Test
-    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException {
+    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException {
         Session session = new Session(getSampleUser());
 
         DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory);

@@ -5,6 +5,7 @@ import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.share.ChunkStringGenerator;
@@ -70,7 +71,7 @@ public class TestFilmtitBackendServer {
 
     @Test
     public void testParallelGetTranslationResults()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
@@ -105,7 +106,7 @@ public class TestFilmtitBackendServer {
 
     @Test
     public void testGetSourceSubtitlesExport()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);

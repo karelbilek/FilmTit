@@ -230,9 +230,12 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
 
+        Set<TranslationSource> disabledSources = new HashSet<TranslationSource>();
+        if (!document.getOwner().getUseMoses()) { disabledSources.add(TranslationSource.EXTERNAL_MT); }
+
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(),
-                        document.getOwner().getMaximumNumberOfSuggestions(), false, new HashSet<TranslationSource>());
+                        document.getOwner().getMaximumNumberOfSuggestions(), false, disabledSources);
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
         List<TranslationPair> javaList = new ArrayList<TranslationPair>(

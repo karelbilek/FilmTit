@@ -36,7 +36,6 @@ public class USUser extends DatabaseObject {
         setMaximumNumberOfSuggestions(ConfigurationSingleton.conf().maximumSuggestionsCount());
 
         ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
-        activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
@@ -55,7 +54,6 @@ public class USUser extends DatabaseObject {
         setMaximumNumberOfSuggestions(ConfigurationSingleton.conf().maximumSuggestionsCount());
 
         ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
-        activeDocumentIDs = Collections.synchronizedSet(new HashSet<Long>());
     }
 
     /**
@@ -64,7 +62,6 @@ public class USUser extends DatabaseObject {
     private USUser() {
         this.user = new User();
         ownedDocuments = null; //new ArrayList<USDocument>();
-        activeDocumentIDs = new HashSet<Long>();
     }
 
     /**
@@ -72,12 +69,6 @@ public class USUser extends DatabaseObject {
      * Document objects from the share namespace.
      */
     private Map<Long, USDocument> ownedDocuments = null;
-    /**
-     * A set of IDs of documents which were active at the moment the user logged out (or was logged
-     * out) last time. It is not kept up to date while a Session exists. It is updated at the moment
-     * the session is terminated and everything is stored to the database.
-     */
-    private Set<Long> activeDocumentIDs;
 
     /**
      * Gets the list of documents owned by this user.
@@ -85,7 +76,6 @@ public class USUser extends DatabaseObject {
      */
     public synchronized Map<Long, USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
-
         if (ownedDocuments == null) {
             ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
             org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
@@ -122,10 +112,6 @@ public class USUser extends DatabaseObject {
     }
     private void setOpenId(String id) {
         openId = id;
-    }
-
-    public Set<Long> getActiveDocumentIDs() {
-        return activeDocumentIDs;
     }
 
     public String getPassword() {
@@ -167,15 +153,6 @@ public class USUser extends DatabaseObject {
         user.setUseMoses(useMoses);
     }
 
-    /**
-     * Sets the set of document ID which are active at the time a session is terminated.
-     * Used by the Hibernate mapping.
-     * @param activeDocumentIDs
-     */
-    private void setActiveDocumentIDs(Set<Long> activeDocumentIDs) {
-        this.activeDocumentIDs = activeDocumentIDs;
-    }
-
     //adds document into server memory
     //it doesn't add it into database, it is added into database in document constructor
     public void addDocument(USDocument document) {
@@ -193,28 +170,6 @@ public class USUser extends DatabaseObject {
         }
     }
 
-    private String getActiveDocumentsIdsAsString() {
-        StringBuilder listBuilder = new StringBuilder();
-        if (activeDocumentIDs != null && activeDocumentIDs.size() > 0) {
-            for (long id : activeDocumentIDs) {
-                listBuilder.append(Long.toString(id));
-                listBuilder.append(",");
-            }
-        }
-        return listBuilder.toString().replaceFirst(",$", "");
-    }
-
-    private void setActiveDocumentsIdsAsString(String activeDocumentsList) {
-        activeDocumentIDs = new HashSet<Long>();
-        if (activeDocumentsList != null) {
-            String[] idStrings = activeDocumentsList.split(",");
-            for (String idString : idStrings) {
-                if (!idString.equals("")) {
-                    activeDocumentIDs.add(Long.parseLong(idString));
-                }
-            }
-        }
-    }
 
     public User sharedUserWithoutDocuments() {
         return user.getCloneWithoutDocuments();

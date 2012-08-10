@@ -27,7 +27,7 @@ public interface FilmTitService extends RemoteService {
     
     // Subtitles handling
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-    	throws InvalidSessionIdException, InvalidDocumentIdException;
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
