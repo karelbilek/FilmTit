@@ -51,6 +51,9 @@ public class TranslationWorkspace extends Composite {
     private boolean stopLoading = false;
     
 	public void setStopLoading(boolean stopLoading) {
+        for (GetTranslationResults getTranslationResults : sentGetTranslationsResultsCalls.values()) {
+			getTranslationResults.stop();
+		}
 		this.stopLoading = true;
 		gui.log("stopLoading set for the workspace");
 	}
@@ -262,9 +265,6 @@ public class TranslationWorkspace extends Composite {
     @Override
     public void onUnload() {
         setStopLoading(true);
-        for (GetTranslationResults getTranslationResults : sentGetTranslationsResultsCalls.values()) {
-			getTranslationResults.stop();
-		}
         sourceSelected = false;
         translationStarted = false;
         gui.guiStructure.contentPanel.removeStyleName("parsing");
