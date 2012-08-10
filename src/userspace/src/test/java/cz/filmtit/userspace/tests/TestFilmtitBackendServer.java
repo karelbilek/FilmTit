@@ -7,7 +7,7 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
-import cz.filmtit.userspace.ChunkStringGenerator;
+import cz.filmtit.share.ChunkStringGenerator;
 import cz.filmtit.userspace.IdGenerator;
 import cz.filmtit.userspace.Session;
 import cz.filmtit.userspace.USUser;
