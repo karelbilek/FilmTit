@@ -11,6 +11,7 @@ import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 
 import cz.filmtit.client.callables.SetUserTranslation;
+import cz.filmtit.client.dialogs.GoingOfflineDialog;
 
 public class LocalStorageHandler {
 
@@ -38,6 +39,7 @@ public class LocalStorageHandler {
 		if (yetToUpload == 0) {
 			uploading = false;
 			Gui.log("All requests from local storage returned!");
+			Gui.getPageHandler().refresh();
 			if (failedCount == 0) {
 				Window.alert("All " + succeededCount + " items stored from Offline Mode " +
 				"have been successfully saved!");				
@@ -98,14 +100,33 @@ public class LocalStorageHandler {
 		return uploading;
 	}
 
+	/**
+	 * Whether GoingOfflineDialog is currently open.
+	 */
 	private static boolean offeringOfflineStorage = false;
 	
 	public static boolean isOfferingOfflineStorage() {
 		return offeringOfflineStorage;
 	}
 	
+	/**
+	 * Whether GoingOfflineDialog has been shown to the user.
+	 */
+	private static boolean offeredOfflineStorage = false;
+	
+	/**
+	 * Temporary queue of calls that failed because of the problems with connection to server.
+	 */
 	public static List<Storable> queue;
 
+	/**
+	 * Switch the online/offline mode.
+	 * When going offline, the Offline Mode is initialized
+	 * and all Storables are saved into Local Storage instead of sending them to the server.
+	 * When going online, Local Storage is inspected for saved Storables,
+	 * and if some are found, the user is offered to upload them.
+	 * @param online
+	 */
 	public static void setOnline(boolean online) {
 		LocalStorageHandler.online = online;
 		
@@ -131,20 +152,14 @@ public class LocalStorageHandler {
 		}
 		else {
 			// going offline
+			offeringOfflineStorage = false;
+			offeredOfflineStorage = true;
 			if (Storage.isLocalStorageSupported()) {
+				Gui.guiStructure.offline_mode();
 				for (Storable storableInError : queue) {
 					storeInLocalStorage(storableInError);
 				}
 				queue = null;
-				// TODO: disable the menu etc.
-//				Window.alert("Welcome to Offline Mode! " +
-//						"You can continue with your translation, " +
-//						"all your input will be saved in your browser " +
-//						"even if you close it and turn off your computer. " +
-//						"(However, if you close the translation page, " +
-//						"you will not be able to reopen it until you go online again!) " +
-//						"Once you go back online, please log in and follow the instructions " +
-//						"that will appear.");
 			}
 			else {
 				Window.alert("Unfortunately, Offline Mode is not supported for your browser. " +
@@ -156,31 +171,21 @@ public class LocalStorageHandler {
 	}
 	
 	public static void offerOfflineStorage(Storable storableInError) {
-		boolean useOfflineStorage = false;
-		if (Storage.isLocalStorageSupported()) {
+		if (queue == null) {
 			queue = new LinkedList<Storable>();
-			queue.add(storableInError);
-			offeringOfflineStorage = true;
-			useOfflineStorage = Window.confirm(
-					"Either your computer is offline or the server is down. " +
-					"Do you want to go into Offline Mode? " +
-					"You can continue with your translations in Offline Mode, " +
-					"your work will be saved in your browser " +
-					"and uploaded to the server once you go online again."
-				);
-			offeringOfflineStorage = false;
 		}
-		
-		if (useOfflineStorage) {
-			setOnline(false);
+		queue.add(storableInError);
+		if (Storage.isLocalStorageSupported() && !offeredOfflineStorage) {
+			offeringOfflineStorage = true;
+			new GoingOfflineDialog();
 		}
 		else {
 			Window.alert("There is no connection to the server. " +
 					"It is not possible to continue with the translation at the moment. " +
-					"All translations you have done so far are safely stored on the server " +
-					"(except for the last one, '" + storableInError.toUserFriendlyString() + "') " +
+					"All translations you have done when online are safely stored on the server " +
+					"(except for the last one or two, including '" + storableInError.toUserFriendlyString() + "') " +
 					"but please do not fill in any new ones now as they would be lost. " +
-					"Please try again later.");
+					"Please try again later when the connection to the server is available again.");
 		}
 	}
 	

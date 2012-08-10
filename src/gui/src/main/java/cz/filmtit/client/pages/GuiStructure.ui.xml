@@ -6,7 +6,8 @@
     <g:HTMLPanel styleName="filmtit_container">
 
         <b:Navbar position="TOP">
-            <b:Brand>Filmtit</b:Brand>
+            <b:Brand ui:field="brand">FilmTit</b:Brand>
+            <b:Brand ui:field="brandOffline" visible="false">FilmTit in Offline Mode</b:Brand>
             <b:Nav>
                 <b:NavLink ui:field="welcomeScreen" targetHistoryToken="WelcomeScreen">Start</b:NavLink>
             </b:Nav>
@@ -14,17 +15,27 @@
                 <b:NavLink ui:field="about" targetHistoryToken="About">About</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="userPage" targetHistoryToken="UserPage">Document list</b:NavLink>
+                <b:NavLink ui:field="userPage" targetHistoryToken="UserPage" visible="false">Document list</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="documentCreator" targetHistoryToken="DocumentCreator">New document</b:NavLink>
+                <b:NavLink ui:field="documentCreator" targetHistoryToken="DocumentCreator" visible="false">New document</b:NavLink>
+            </b:Nav>
+            <b:Nav>
+                <b:NavText ui:field="offlineHint" visible="false">When you are online again, simply reopen or reload FilmTit (and log in).</b:NavText>
             </b:Nav>
 
+            
             <b:Nav alignment="RIGHT">
                 <b:NavLink ui:field="login">Log in</b:NavLink>
             </b:Nav>
             <b:Nav alignment="RIGHT">
                 <b:NavLink ui:field="logout">Log out</b:NavLink>
+            </b:Nav>
+            <b:Nav alignment="RIGHT">
+                <b:NavText ui:field="username" visible="false"></b:NavText>
+            </b:Nav>
+            <b:Nav alignment="RIGHT">
+                <b:NavLink ui:field="online" visible="false">Go online</b:NavLink>
             </b:Nav>
 
         </b:Navbar>

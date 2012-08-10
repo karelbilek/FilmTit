@@ -82,11 +82,18 @@ public class GuiStructure extends Composite {
 		login.setVisible(false);
 		logout.setText("Log out user " + user.getName());
 		logout.setVisible(true);
+		username.setText("User " + user.getName());
+		
 		// visibility
 		welcomeScreen.setVisible(false);
 		userPage.setVisible(true);
 		documentCreator.setVisible(true);
-		// about.setVisible(true);
+		about.setVisible(true);
+		
+		brand.setVisible(true);
+		brandOffline.setVisible(false);
+		offlineHint.setVisible(false);
+		username.setVisible(false);
 	}
 	
 	/**
@@ -100,7 +107,31 @@ public class GuiStructure extends Composite {
 		welcomeScreen.setVisible(true);
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
-		// about.setVisible(true);
+		about.setVisible(true);
+
+		brand.setVisible(true);
+		brandOffline.setVisible(false);
+		offlineHint.setVisible(false);
+		username.setVisible(false);
+	}
+	
+	/**
+	 * To be called when user enters the Offline Mode.
+	 */
+	public void offline_mode () {
+		// hide all links - they cannot be clicked anyway
+		logout.setVisible(false);
+		login.setVisible(false);
+		welcomeScreen.setVisible(false);
+		userPage.setVisible(false);
+		documentCreator.setVisible(false);
+		about.setVisible(false);
+		
+		// show Offline Mode texts
+		brand.setVisible(false);
+		brandOffline.setVisible(true);
+		offlineHint.setVisible(true);
+		username.setVisible(true);
 	}
 	
     ///////////////////////////////////////
@@ -178,10 +209,26 @@ public class GuiStructure extends Composite {
     ///////////////////////////////////////
 	
 	@UiField
+	Brand brand;
+	
+	@UiField
+	Brand brandOffline;
+	
+	@UiField
+	NavText offlineHint;
+	
+	@UiField
 	NavLink login;
 
 	@UiField
 	NavLink logout;
+
+	// TODO
+	@UiField
+	NavLink online;
+
+	@UiField
+	NavText username;
 
 	@UiField
     ScrollPanel contentPanel;
