@@ -1,5 +1,6 @@
 package cz.filmtit.client.subgestbox;
 
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
@@ -17,11 +18,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RichTextArea;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
@@ -350,7 +347,20 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
 	public void showSuggestions() {
         if(this.getSuggestions().size() > 0) {
-		    suggestPanel.showRelativeTo(this);
+		    //suggestPanel.showRelativeTo(this);
+            final UIObject relativeObject = this;
+            suggestPanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+                @Override
+                public void setPosition(int offsetWidth, int offsetHeight) {
+                    // Calculate left position for the popup
+                    int left = relativeObject.getAbsoluteLeft();
+                    // Calculate top position for the popup
+                    int top = relativeObject.getAbsoluteTop();
+                    // Position below the textbox:
+                    top += relativeObject.getOffsetHeight();
+                    suggestPanel.setPopupPosition(left, top);
+                }
+            });
 		    suggestionWidget.setWidth(this.getOffsetWidth() + "px");
         }
 	}
