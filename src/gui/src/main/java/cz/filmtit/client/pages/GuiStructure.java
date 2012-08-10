@@ -28,11 +28,11 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new NavLink[]{ documentCreator, about, welcomePage, userPage };
+		allMenuItems = new NavLink[]{ documentCreator, about, welcomeScreen, userPage };
 		
 		documentCreator.addClickHandler(new MenuClickHandler(Page.DocumentCreator));
 		about.addClickHandler(new MenuClickHandler(Page.About));
-		welcomePage.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
+		welcomeScreen.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
 		userPage.addClickHandler(new MenuClickHandler(Page.UserPage));
 		
         // top menu handlers
@@ -83,7 +83,7 @@ public class GuiStructure extends Composite {
 		logout.setText("Log out user " + user.getName());
 		logout.setVisible(true);
 		// visibility
-		welcomePage.setVisible(false);
+		welcomeScreen.setVisible(false);
 		userPage.setVisible(true);
 		documentCreator.setVisible(true);
 		// about.setVisible(true);
@@ -97,7 +97,7 @@ public class GuiStructure extends Composite {
 		logout.setVisible(false);
 		login.setVisible(true);
 		// visibility
-		welcomePage.setVisible(true);
+		welcomeScreen.setVisible(true);
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
 		// about.setVisible(true);
@@ -110,7 +110,7 @@ public class GuiStructure extends Composite {
     ///////////////////////////////////////
 	
 	@UiField
-	NavLink welcomePage;
+	NavLink welcomeScreen;
 
 	@UiField
 	NavLink userPage;
@@ -150,7 +150,7 @@ public class GuiStructure extends Composite {
 		case About:
 			return about;
 		case WelcomeScreen:
-			return welcomePage;
+			return welcomeScreen;
 		case UserPage:
 			return userPage;
 		case DocumentCreator:

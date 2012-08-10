@@ -8,7 +8,7 @@
         <b:Navbar position="TOP">
             <b:Brand>Filmtit</b:Brand>
             <b:Nav>
-                <b:NavLink ui:field="welcomePage" targetHistoryToken="WelcomePage">Start</b:NavLink>
+                <b:NavLink ui:field="welcomeScreen" targetHistoryToken="WelcomeScreen">Start</b:NavLink>
             </b:Nav>
             <b:Nav>
                 <b:NavLink ui:field="about" targetHistoryToken="About">About</b:NavLink>
