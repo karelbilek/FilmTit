@@ -18,15 +18,14 @@ import com.google.gwt.user.client.Window;
  */
 public abstract class Callable<T> implements AsyncCallback<T> {
 	
+
 	// static members
-	
-//	static private Dictionary<Integer, Callable> queue;
-	
-	// static private int newId = 1;
 	
 	protected static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
 	
 	protected static int windowsDisplayed;
+	
+	
 	
 	// non-static members
 	
@@ -57,8 +56,6 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected int callTimeOut = 10000;
 	
-	// protected int id;
-	
 	protected int retriesOnStatusZero = 3;
 	
 	protected boolean retryOnStatusZero () {
@@ -75,6 +72,10 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected int waitToRetry = 10;
 
+	
+	
+	// constructor
+	
 	/**
 	 * creates the RPC
 	 */
@@ -82,12 +83,20 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		// this.id = newId++;
 	}
 	
+	
+	
+	// methods that must be overriden
+	
 	/**
 	 * invokes the RPC
 	 */
 	protected abstract void call();
     abstract public String getName();
     abstract public void onSuccessAfterLog(T returned);
+    
+    
+    
+    // methods that can be overriden
     
     /**
      * Called when there is a generic error on return of the RPC.
@@ -98,6 +107,48 @@ public abstract class Callable<T> implements AsyncCallback<T> {
         displayWindow(returned.getLocalizedMessage());
     }
 
+    protected void onProbablyOffline(Throwable returned) {
+		displayWindow(
+				"There seems to be no response from the server. " +
+				"Either your computer is offline " +
+				"or the server is down or overloaded. " +
+				"Please try again later or ask the administrators."
+			);
+		// TODO: use some ping to find out whether user is offline
+		// TODO: store user input to be used when user goes back online
+	}
+    
+    /**
+     * Called when there is an error because the sessionID is invalid.
+     * Displays the login dialog by default.
+     */
+	protected void onInvalidSession() {
+        Gui.logged_out ();
+        new LoginDialog(Gui.getUsername(), "You have not logged in or your session has expired. Please log in.");
+	}    
+    
+	protected void onTimeOut() {
+		onFailure(new Throwable("The call timed out because the server didn't send a response for " + (callTimeOut/1000) + " seconds."));
+	}
+	
+    protected void onTimedOutReturnAfterLog(Object returned) {
+		// ignore by default
+	}
+
+	
+	
+    // final methods
+    
+	/**
+	 * enqueues the object and invokes the RPC
+	 */
+	public final void enqueue() {
+		hasReturned = false;
+		hasTimedOut = false;
+		setTimer();
+		call();
+	}
+	
     @Override
     public final void onSuccess(T returned) {
     	setHasReturned();
@@ -140,25 +191,51 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     	}
     }
 
-    protected void onProbablyOffline(Throwable returned) {
-		displayWindow(
-				"There seems to be no response from the server. " +
-				"Either your computer is offline " +
-				"or the server is down or overloaded. " +
-				"Please try again later or ask the administrators."
-			);
-		// TODO: use some ping to find out whether user is offline
-		// TODO: store user input to be used when user goes back online
-	}
+	/**
+	 * sets the timer to call timeOut() after callTimeOut miliseconds
+	 */
+    final protected void setTimer() {
+    	if (timeOutTimer != null) {
+    		timeOutTimer.cancel();
+    	}
+    	timeOutTimer = new CallTimer();
+    }
+    
+    final protected void timeOut() {
+    	if (!hasReturned) {
+    		hasTimedOut = true;
+    		gui.log("RPC " + getName() + " TIMED OUT after " + callTimeOut + "ms");
+    		onTimeOut();
+    	}
+    }
+    
+    final protected void onTimedOutReturn(Object returned) {
+        gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
+        onTimedOutReturnAfterLog(returned);
+    }
     
     /**
-     * Called when there is an error because the sessionID is invalid.
-     * Displays the login dialog by default.
+     * display a widow with an error message
+     * unless maximum number of error messages has been reached
+     * @param string
      */
-	protected void onInvalidSession() {
-        Gui.logged_out ();
-        new LoginDialog(Gui.getUsername(), "You have not logged in or your session has expired. Please log in.");
-	}    
+    public final void displayWindow(String message) {
+        if (windowsDisplayed < 10) {
+            windowsDisplayed++;
+            Window.alert(message);
+            if (windowsDisplayed==10) {
+                Window.alert("Last window displayed.");
+            }
+        } else {
+      //      gui.log("ERROR - message");
+        }
+    }
+    
+
+    
+    
+    
+    // timers
     
     protected class CallTimer extends Timer {
 		/**
@@ -188,71 +265,6 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		}
     }
     
-	/**
-	 * sets the timer to call timeOut() after callTimeOut miliseconds
-	 */
-    final protected void setTimer() {
-    	if (timeOutTimer != null) {
-    		timeOutTimer.cancel();
-    	}
-    	timeOutTimer = new CallTimer();
-    }
     
-    final protected void timeOut() {
-    	if (!hasReturned) {
-    		hasTimedOut = true;
-    		gui.log("RPC " + getName() + " TIMED OUT after " + callTimeOut + "ms");
-    		onTimeOut();
-    	}
-    }
     
-    protected void onTimeOut() {
-    	onFailure(new Throwable("The call timed out because the server didn't send a response for " + (callTimeOut/1000) + " seconds."));
-    }
-	
-    final protected void onTimedOutReturn(Object returned) {
-        gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
-        onTimedOutReturnAfterLog(returned);
-    }
-    
-    protected void onTimedOutReturnAfterLog(Object returned) {
-		// ignore by default
-	}
-
-	/**
-	 * enqueues the object and invokes the RPC
-	 */
-	public final void enqueue() {
-//		queue.put(id, this);
-		hasReturned = false;
-		hasTimedOut = false;
-		setTimer();
-		call();
-	}
-	
-	/**
-	 * called after successful completion of RPC
-	 */
-	public final void dequeue() {
-//		queue.remove(id);
-	}
-	
-    
-    /**
-     * display a widow with an error message
-     * unless maximum number of error messages has been reached
-     * @param string
-     */
-    public void displayWindow(String message) {
-        if (windowsDisplayed < 10) {
-            windowsDisplayed++;
-            Window.alert(message);
-            if (windowsDisplayed==10) {
-                Window.alert("Last window displayed.");
-            }
-        } else {
-      //      gui.log("ERROR - message");
-        }
-    }
-        
 }
