@@ -1,7 +1,9 @@
 package cz.filmtit.client;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -36,18 +38,46 @@ public class LocalStorageHandler {
 		if (yetToUpload == 0) {
 			uploading = false;
 			Gui.log("All requests from local storage returned!");
-			if (numberOfItemsInLocalStorage() == 0) {
-				Window.alert("All relevant items stored from Offline Mode " +
+			if (failedCount == 0) {
+				Window.alert("All " + succeededCount + " items stored from Offline Mode " +
 				"have been successfully saved!");				
 			}
 			else {
-				Window.alert("All relevant items stored from Offline Mode " +
-				"have been successfully saved! " +
-				"However, there are still " + numberOfItemsInLocalStorage() +
-				" items that could not be stored, " +
-				"probably because they belong to another user.");
+				StringBuilder sb = new StringBuilder();
+				sb.append(succeededCount);
+				sb.append(" items stored from Offline Mode have been successfully saved! However, ");
+				sb.append(failedCount);
+				sb.append(" items could not be stored. Error message from the server: ");
+				for (Object error : failedMessages.keySet().toArray()) {
+					sb.append('\n');
+					sb.append(error);
+				}
+				Window.alert(sb.toString());
 			}
 		}
+	}
+	
+	private static int succeededCount;
+	public static void SuccessOnLoadFromLocalStorage (Storable object) {
+		removeFromLocalStorage(object);
+		succeededCount++;
+		decrementYetToUpload();
+	}
+	
+	private static int failedCount;
+	private static List<Storable> failedObjects;
+	private static Map<String, Integer> failedMessages;
+	public static void FailureOnLoadFromLocalStorage (Storable object, String errorMessage) {
+		failedCount++;
+		failedObjects.add(object);
+		Integer count = failedMessages.get(errorMessage);
+		if (count != null) {
+			failedMessages.put(errorMessage, count+1);
+		}
+		else {
+			failedMessages.put(errorMessage, 1);			
+		}
+		decrementYetToUpload();
 	}
 	
 	/**
@@ -75,37 +105,19 @@ public class LocalStorageHandler {
 			// going online
 			final int itemsNo = numberOfItemsInLocalStorage();
 			if (itemsNo > 0) {
-				boolean loadItems = Window.confirm("Welcome online! " +
-						"There are " + itemsNo + " items stored in your browser " +
-						"from the Offline Mode. " +
-						"Do you want to upload them to the server now?");
-				if (loadItems) {
-					uploading = true;
-					Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-						@Override
-						public void execute() {
-							
-							Gui.log("Loading " + itemsNo + " items from local storage...");
-							List<Storable> objects = loadUserObjectsFromLocalStorage();
-							yetToUpload = objects.size();
-							Gui.log("Loaded " + yetToUpload + " items from local storage.");
-														
-							if (yetToUpload > 0) {
-								// TODO RepeatingCommand
-								for (Storable object : objects) {
-									object.onLoadFromLocalStorage();
-								}
-							}
-							else {
-								Window.alert("No items were stored. " +
-										"There are still " + numberOfItemsInLocalStorage() +
-										" items that could not be stored, " +
-										"probably because they belong to another user.");
-							}
-							
-							Gui.log("Sent " + yetToUpload + " requests.");
-						}
-					});
+				Gui.log("Inspecting " + itemsNo + " items from local storage...");
+				List<KeyValuePair> objects = loadUserObjectsFromLocalStorage();
+				int count = (objects == null ? 0 : objects.size());
+				Gui.log("Found " + count + " items from local storage.");
+											
+				if (count > 0) {
+					boolean loadItems = Window.confirm(
+							"There are " + count + " items stored in your browser " +
+							"from the Offline Mode. " +
+							"Do you want to upload them to the server now?");
+					if (loadItems) {
+						uploadUserObjects(objects);
+					}
 				}
 			}
 		}
@@ -193,9 +205,9 @@ public class LocalStorageHandler {
 	 * belonging to the current user
 	 * from the local storage.
 	 */
-	private static List<Storable> loadUserObjectsFromLocalStorage() {
+	private static List<KeyValuePair> loadUserObjectsFromLocalStorage() {
 		if (isStorageSupported) {
-			List<Storable> objects = new LinkedList<Storable>();
+			List<KeyValuePair> objects = new LinkedList<KeyValuePair>();
 			// go through all items
 			for (int i = 0; i < storage.getLength(); i++) {
 				String key = storage.key(i);
@@ -208,13 +220,13 @@ public class LocalStorageHandler {
 					// check username
 					if (username.equals(Gui.getUsername())) {
 						String value = storage.getItem(key);
-						Gui.log("Creating that item with value " + value);
-						Storable object = loadObject(key_without_username, value);
-						// check that object was successfully created
-						if (object != null) {
-							objects.add(object);
-						}
+						objects.add(new KeyValuePair(key_without_username, value));
 					}
+					// else somebody elses object, just keep it
+				}
+				else {
+					Gui.log("Removing corrupted item " + key + ", " + storage.getItem(key));
+					storage.removeItem(key);
 				}
 			}
 			return objects;
@@ -224,23 +236,73 @@ public class LocalStorageHandler {
 		}
 	}
 	
+	private static void uploadUserObjects(final List<KeyValuePair> keyValuePairs) {
+		
+		uploading = true;
+		yetToUpload = keyValuePairs.size();
+		succeededCount = 0;
+		failedCount = 0;
+		failedObjects = new LinkedList<Storable>();	
+		failedMessages = new HashMap<String, Integer>();
+		
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				// convert the objects
+				List<Storable> objects = convertToStorable(keyValuePairs);
+				// upload the objects
+				// TODO RepeatingCommand
+				for (Storable object : objects) {
+					object.onLoadFromLocalStorage();
+				}
+				Gui.log("Sent " + objects.size() + " requests.");
+			}
+		});
+		
+	}
+	
+	/**
+	 * Loads all objects
+	 * belonging to the current user
+	 * from the local storage.
+	 * The key must contain the class_id
+	 * and not contain the username.
+	 */
+	private static List<Storable> convertToStorable(List<KeyValuePair> keyValuePairs) {
+		List<Storable> objects = new LinkedList<Storable>();
+		// go through all items
+		for (KeyValuePair keyValuePair : keyValuePairs) {
+			Gui.log("Creating item " + keyValuePair);
+			Storable object = loadObject(keyValuePair);
+			// check that object was successfully created
+			if (object != null) {
+				objects.add(object);
+			}
+			else {
+				Gui.log("Removing corrupted item " + keyValuePair);
+				storage.removeItem(keyValuePair.getKey() + USERNAME_SEPARATOR + Gui.getUsername());
+			}
+		}
+		return objects;
+	}
+	
 	/**
 	 * Determines the class of the object and loads it.
-	 * @param key_with_class_id
-	 * @param value
+	 * The key must contain the class_id
+	 * and not contain the username.
 	 * @return The object on success, null otherwise.
 	 */
-	private static Storable loadObject(String key_with_class_id, String value) {
+	private static Storable loadObject(KeyValuePair keyValuePair) {
 		Storable object = null;
 		
-		String[] keyFields = key_with_class_id.split(CLASSID_SEPARATOR, 2);
+		String[] keyFields = keyValuePair.getKey().split(CLASSID_SEPARATOR, 2);
 		// check the key
 		if (keyFields.length == 2) {
 	    	String key = keyFields[0];
 	    	String classId = keyFields[1];
 	    	// class switch
 	    	if (classId.equals(SetUserTranslation.CLASS_ID)) {
-				object = SetUserTranslation.fromKeyValuePair(new KeyValuePair(key, value));
+				object = SetUserTranslation.fromKeyValuePair(new KeyValuePair(key, keyValuePair.getValue()));
 			}
 			// else if other class...
 		}
@@ -296,5 +358,5 @@ public class LocalStorageHandler {
 		keyBuilder.append(Gui.getUsername());
 		return keyBuilder.toString();
     }
-	
+
 }

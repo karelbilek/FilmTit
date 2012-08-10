@@ -31,8 +31,7 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
     @Override
     public void onSuccessAfterLog(Void o) {
     	if (LocalStorageHandler.isUploading()) {
-    		LocalStorageHandler.removeFromLocalStorage(this);
-    		LocalStorageHandler.decrementYetToUpload();
+    		LocalStorageHandler.SuccessOnLoadFromLocalStorage(this);
     	}
     }
     
@@ -106,7 +105,10 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 	}
 	
 	private void onOfflineOrTimeout() {
-		if (LocalStorageHandler.isOnline()) {
+		if (LocalStorageHandler.isUploading()) {
+			LocalStorageHandler.FailureOnLoadFromLocalStorage(this, "The connection to server is not working.");
+		}
+		else if (LocalStorageHandler.isOnline()) {
 			if (LocalStorageHandler.offerOfflineStorage()) {
 				LocalStorageHandler.storeInLocalStorage(this);				
 			}
@@ -116,6 +118,16 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 		}
 	}
 
+	@Override
+	public void onFailureAfterLog(Throwable returned) {
+		if (LocalStorageHandler.isUploading()) {
+			LocalStorageHandler.FailureOnLoadFromLocalStorage(this, returned.getLocalizedMessage());
+		}
+		else {
+			super.onFailureAfterLog(returned);
+		}
+	}
+	
 	@Override
 	public void onLoadFromLocalStorage() {
 		enqueue();
@@ -207,6 +219,12 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 			return null;
 		}
     }
+
+	
+    @Override
+	public String toUserFriendlyString() {
+		return this.userTranslation;
+	}
 
 }
 

@@ -127,10 +127,18 @@ public abstract class Callable<T> implements AsyncCallback<T> {
         new LoginDialog(Gui.getUsername(), "You have not logged in or your session has expired. Please log in.");
 	}    
     
+    /**
+     * Called when the call times out.
+     * Fallback to onFailure() by default.
+     */
 	protected void onTimeOut() {
 		onFailure(new Throwable("The call timed out because the server didn't send a response for " + (callTimeOut/1000) + " seconds."));
 	}
 	
+	/**
+	 * Called when the already timed out call returns.
+	 * Ignored by default.
+	 */
     protected void onTimedOutReturnAfterLog(Object returned) {
 		// ignore by default
 	}

@@ -18,18 +18,25 @@ public interface Storable {
 
 	/**
 	 * Invoked after the object is loaded from the local storage.
+	 * The method must ensure that <br>
+	 * LocalStorageHandler.SuccessOnLoadFromLocalStorage(this); <br>
+	 * or <br>
+	 * LocalStorageHandler.FailureOnLoadFromLocalStorage(this); <br>
+	 * gets called on success or error.
 	 */
 	void onLoadFromLocalStorage();
 	
 	/**
 	 * Get a string uniquely identifying the class.
-	 * The method must ensure that <br>
-	 * LocalStorageHandler.removeFromLocalStorage(this); <br>
-	 * LocalStorageHandler.decrementYetToUpload(); <br>
-	 * gets called on success or unrecoverble error.
 	 * @return
 	 */
 	String getClassID();
+	
+	/**
+	 * Create a string representing the object to be shown to the user.
+	 * @return
+	 */
+	String toUserFriendlyString();
 	
 	// Java cannot define static methods in interfaces
 	// static T fromKeyValuePair(KeyValuePair keyValuePair)
