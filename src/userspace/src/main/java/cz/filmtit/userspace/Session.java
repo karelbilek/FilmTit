@@ -42,11 +42,6 @@ public class Session {
         updateLastOperationTime();
         state = SessionState.active;
         this.user = user;
-
-        // load the active documents and active translation results from the user object
-        for (Long documentID : user.getActiveDocumentIDs()) {
-            activeDocuments.put(documentID, user.getOwnedDocuments().get(documentID));
-        }
     }
 
     public long getLastOperationTime() {
@@ -115,19 +110,6 @@ public class Session {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         session.save(this);
         usHibernateUtil.closeAndCommitSession(session);
-
-        user.getActiveDocumentIDs().clear();
-
-        session = usHibernateUtil.getSessionWithActiveTransaction();
-        for (USDocument activeDoc : activeDocuments.values()) {
-            activeDoc.saveToDatabase(session);
-            user.getActiveDocumentIDs().add(activeDoc.getDatabaseId());
-        }
-        usHibernateUtil.closeAndCommitSession(session);
-
-        session = usHibernateUtil.getSessionWithActiveTransaction();
-        user.saveToDatabase(session);
-        usHibernateUtil.closeAndCommitSession(session);
     }
 
     /**
@@ -149,11 +131,6 @@ public class Session {
     }
 
     public Void setEmail(String email) {
-        //if (email.matches("^[_A-Za-z0-9-]+(\\\\.[_A-Za-z0-9-]+)*@" +
-        //        "[A-Za-z0-9]+(\\\\.[A-Za-z0-9]+)*(\\\\.[A-Za-z]{2,})$")) {
-        //
-        //}
-
         user.setEmail(email);
         saveUser();
         return null;
@@ -191,7 +168,7 @@ public class Session {
     public Void deleteDocument(long documentId) throws InvalidDocumentIdException {
         USDocument document = getActiveDocument(documentId);
 
-        user.getActiveDocumentIDs().remove(documentId);
+        activeDocuments.remove(documentId);
         user.getOwnedDocuments().remove(documentId);
         document.setToBeDeleted(true);
 
@@ -273,16 +250,7 @@ public class Session {
      */
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
         updateLastOperationTime();
-
-        if (user.getOwnedDocuments().containsKey(documentID)) {
-            USDocument usDocument = user.getOwnedDocuments().get(documentID);
-            usDocument.loadChunksFromDb();
-            activeDocuments.put(documentID, usDocument);
-            logger.info("User " + user.getUserName() + " opened document " + documentID + " (" +
-                    usDocument.getTitle() + ").");
-            return  usDocument.getDocument();
-        }
-        throw new InvalidDocumentIdException("The user does not own a document with such ID.");
+        return getActiveDocument(documentID).getDocument();
     }
 
     public Void closeDocument(long documentId) throws InvalidDocumentIdException {
@@ -321,7 +289,8 @@ public class Session {
     // HANDLING TRANSLATION RESULTS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-    public Void saveSourceChunks(List<TimedChunk> chunks) throws InvalidDocumentIdException {
+    public Void saveSourceChunks(List<TimedChunk> chunks)
+            throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
         if (chunks.size() == 0) {
             return null;
@@ -329,9 +298,11 @@ public class Session {
         USDocument document = getActiveDocument(chunks.get(0).getDocumentId());
         List<USTranslationResult> usTranslationResults = new ArrayList<USTranslationResult>(chunks.size());
         for (TimedChunk chunk: chunks) {
-            // TODO: maybe we should check here that all of the chunks have the same documentId
+            if (chunk.getDocumentId() != document.getDatabaseId()) {
+                throw new InvalidChunkIdException("Mismatch in documents IDs of the chunks.");
+            }
+
             USTranslationResult usTranslationResult = new USTranslationResult(chunk);
-            // TODO why does it not simply get the id from the chunk?
             usTranslationResult.setDocument(document);
             usTranslationResults.add(usTranslationResult);
         }
@@ -340,7 +311,36 @@ public class Session {
     }
 
     /**
-     * Implements FilmTitService.getTranslationResults
+     * Implements FilmTitService.getTranslationResults,
+     * calls ParallelHelper,
+     * ParallelHelper calls getTranslationResults().
+     */
+    public List<TranslationResult> getTranslationResultsParallel(List<TimedChunk> chunks, TranslationMemory TM) throws InvalidDocumentIdException {
+
+    	// set chunks active
+        if (chunks == null || chunks.isEmpty()) {
+        	return null;
+        }
+        else {
+            USDocument document = getActiveDocument(chunks.get(0).getDocumentId());
+
+            for (TimedChunk chunk : chunks) {
+                ChunkIndex index = chunk.getChunkIndex();
+                USTranslationResult usTranslationResult = document.getTranslationResultForIndex(index);
+                usTranslationResult.setChunkActive(true);
+    		}
+        }
+        // TODO: do not throw away document and usTranslationResult, pass them directly through ParallellHelper!
+        // (and change getTranslationResults() accordingly)
+        
+        // get the results
+        List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, this, TM);
+        return res;
+    }
+    
+    /**
+     * Implements FilmTitService.getTranslationResults,
+     * called by ParallelHelper.
      */
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
         updateLastOperationTime();
@@ -353,15 +353,32 @@ public class Session {
         return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
+    /**
+     * Implements FilmTitService.stopTranslationResults
+     * @param chunks
+     * @throws InvalidDocumentIdException
+     */
+    public Void stopTranslationResults(List<TimedChunk> chunks) throws InvalidDocumentIdException {
+        if (chunks == null || chunks.isEmpty()) {
+        	return null;
+        }
+        else {
+            USDocument document = getActiveDocument(chunks.get(0).getDocumentId());
+
+            for (TimedChunk chunk : chunks) {
+                ChunkIndex index = chunk.getChunkIndex();
+                document.getTranslationResultForIndex(index).setChunkActive(false);
+    		}
+            
+            logger.info("!!! STOP TRANSLATION RESULTS !!! " + chunks.size() + " chunks");
+            return null;
+        }
+    }
+
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
-        // TODO I need to be able to access any of my documents, not only the ones I loaded
-        if (!activeDocuments.containsKey(documentId)) {
-        	loadDocument(documentId);
-        }
-        
         USDocument document = getActiveDocument(documentId);
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
 
@@ -395,9 +412,6 @@ public class Session {
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
-        if (!activeDocuments.containsKey(documentId)) {
-            throw new InvalidDocumentIdException("Not existing document ID.");
-        }
         USDocument document = activeDocuments.get(documentId);
 
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
@@ -410,9 +424,6 @@ public class Session {
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
-        if (!activeDocuments.containsKey(documentId)) {
-            throw new InvalidDocumentIdException("Not existing document ID.");
-        }
         USDocument document = getActiveDocument(documentId);
 
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
@@ -515,15 +526,27 @@ public class Session {
         lastOperationTime = new Date().getTime();
     }
 
-    public synchronized USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
+    public USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
             logger.info("Loading document " + documentID + "to memory.");
-            loadDocument(documentID);
+            loadDocumentIfNotActive(documentID);
         }
 
         USDocument document = activeDocuments.get(documentID);
         document.setLastChange(new Date().getTime());
         return document;
+    }
+
+    private synchronized USDocument loadDocumentIfNotActive(long documentID) throws InvalidDocumentIdException {
+        if (user.getOwnedDocuments().containsKey(documentID)) {
+            USDocument usDocument = user.getOwnedDocuments().get(documentID);
+            usDocument.loadChunksFromDb();
+            activeDocuments.put(documentID, usDocument);
+            logger.info("User " + user.getUserName() + " opened document " + documentID + " (" +
+                    usDocument.getTitle() + ").");
+            return  usDocument;
+        }
+        throw new InvalidDocumentIdException("User does not have document with such ID.");
     }
 
     private synchronized void saveUser() {

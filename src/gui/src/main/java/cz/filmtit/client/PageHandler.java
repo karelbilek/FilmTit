@@ -4,6 +4,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.HistoryListener;
 import com.google.gwt.user.client.Window;
 import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
@@ -50,6 +51,24 @@ public class PageHandler {
      */
 	public final boolean doCheckSessionID;    
 
+	/**
+	 * Whether to scroll to the top of the page on loadPageToLoad().
+	 * Set to false when the first page is loaded,
+	 * so that the view stays the same if user presses F5.
+	 */
+	private boolean scrollToTop = true;
+	
+	/**
+	 * Get value of scrollToTop
+	 * and reset it to the default value (true).
+	 * @return
+	 */
+	private boolean grabScrollToTop () {
+		boolean result = scrollToTop;
+		scrollToTop = true;
+		return result;
+	}
+	
     /**
      * Various pages to be set and created.
      * The 'None' page is used when no page is set.
@@ -69,6 +88,8 @@ public class PageHandler {
     
     public PageHandler () {
     	
+    	History.addValueChangeHandler(historyChangeHandler);
+    	
     	getPageFromURL();
 
     	if ( isFullPage(pageUrl) ) {
@@ -82,9 +103,8 @@ public class PageHandler {
             // set documentId if it is provided
     		setDocumentIdFromGETOrCookie();
         	
-    		// load a Blank page before checkSessionId returns
-    		loadBlankPage();
-            
+    		scrollToTop = false;
+    		
     		doCheckSessionID = true;
     		
     	} else {
@@ -123,6 +143,19 @@ public class PageHandler {
     	pageUrl = page;
     }
     
+    /**
+	* Reacts to user going forward and backward.
+	*/
+	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			// find out which page the user wants
+			pageUrl = string2page(event.getValue());
+			// load the page
+			loadPage(true);
+		}
+	};
+	
 	/**
      * Converts String to Page.
      * Does not propagate any exceptions.
@@ -209,11 +242,13 @@ public class PageHandler {
     
 	/**
 	 * Loads a blank page without modifying the history.
-	 * (Does not set pageUrl.)
+	 * (Does not set pageUrl, preserves scrollToTop.)
 	 */
     public void loadBlankPage() {
+    	boolean scrollToTop = this.scrollToTop;
     	setPageToLoad(Page.Blank);
     	loadPageToLoad();
+    	this.scrollToTop = scrollToTop;
 	}
 
 	// suggestedPage -> pageToLoad
@@ -274,14 +309,20 @@ public class PageHandler {
     /**
      * Loads the pageToLoad.
      * Sets pageLoaded.
+     * Uses 
      * @param evenIfAlreadyLoaded reload the page if already loaded
      */
 	private void loadPageToLoad(boolean evenIfAlreadyLoaded) {
 		if (pageToLoad != pageLoaded || evenIfAlreadyLoaded) {
 			
-			if (pageLoaded == Page.TranslationWorkspace) {
-				// unloading TranslationWorkspace
-				gui.currentWorkspace.setStopLoading(true);
+			// unloading TranslationWorkspace
+			if (pageLoaded == Page.TranslationWorkspace && Gui.currentWorkspace != null) {
+				Gui.currentWorkspace.setStopLoading(true);
+			}
+			
+			// scroll to top if not prevented
+			if (grabScrollToTop()) {
+				Window.scrollTo(Window.getScrollLeft(), 0);
 			}
 			
 	    	switch (pageToLoad) {
@@ -302,9 +343,7 @@ public class PageHandler {
 		    	if (documentId == -1) {
 		    		loadPage(Page.UserPage);
 					gui.log("failure on loading document: documentId -1 is not valid!");
-					// Window.alert("Cannnot load document - document ID (-1) is not valid!");
 		    	} else {
-					loadBlankPage();
 		            FilmTitServiceHandler.loadDocumentFromDB(documentId);
 		    	}
 				break;

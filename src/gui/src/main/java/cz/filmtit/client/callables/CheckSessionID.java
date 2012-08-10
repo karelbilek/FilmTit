@@ -27,7 +27,7 @@ public class CheckSessionID extends Callable<SessionResponse> {
         public void onSuccessAfterLog(SessionResponse response) {
             if (response != null) {
                 gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
-                gui.logged_in(response.userWithoutDocs.getName());
+                gui.logged_in(response.userWithoutDocs);
             } else {
                 gui.log("Warning: sessionID invalid.");
                 gui.logged_out();
@@ -41,6 +41,11 @@ public class CheckSessionID extends Callable<SessionResponse> {
         
         @Override
         protected void onProbablyOffline(Throwable returned) {
+            gui.logged_out();
+        }
+        
+        @Override
+        protected void onTimeOut() {
             gui.logged_out();
         }
 

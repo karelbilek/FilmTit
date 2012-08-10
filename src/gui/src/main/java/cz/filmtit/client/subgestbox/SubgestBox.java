@@ -1,5 +1,6 @@
 package cz.filmtit.client.subgestbox;
 
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
@@ -17,11 +18,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RichTextArea;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
@@ -81,11 +78,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             this.setTabIndex(tabIndex);
             this.setStyleName("pre_subgestbox");
             this.addStyleName("loading");
-            if (fullWidth) {
                 this.addStyleName("subgest_fullwidth");
-            } else {
-                this.addStyleName("subgest_halfwidth");
-            }        
         }
 
         public /*static */boolean stringHasMoreThanTwoLines(String s) {
@@ -141,14 +134,13 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		annotationColor.put(AnnotationType.PERSON,       "#ffff99");
 	};
 
-    boolean fullWidth;
 
     private String subgestBoxHTML(String content) {
         content = content.replaceAll("\n", "<br>");
         return content;
     }
 
-	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
+	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, int tabIndex) {
 		this.chunkIndex = chunk.getChunkIndex();
 		this.translationResult = new TranslationResult(chunk);
         this.workspace = workspace;
@@ -169,12 +161,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         //delaying loadSuggestions() for focus
 		//this.loadSuggestions();
-        this.fullWidth = fullWidth;
-        if (fullWidth) {
-            this.addStyleName("subgest_fullwidth");
-        } else {
-            this.addStyleName("subgest_halfwidth");
-        }
+        this.addStyleName("subgest_fullwidth");
 
         final RichTextArea richtext = this;
         richtext.addInitializeHandler(new InitializeHandler() {
@@ -201,6 +188,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             substitute.setText(userTranslation);
             substitute.updateVerticalSize();
             this.setHTML(subgestBoxHTML(userTranslation));
+            updateLastText();
             //updateVerticalSize();
         }
     }
@@ -360,7 +348,20 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
 	public void showSuggestions() {
         if(this.getSuggestions().size() > 0) {
-		    suggestPanel.showRelativeTo(this);
+		    //suggestPanel.showRelativeTo(this);
+            final UIObject relativeObject = this;
+            suggestPanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+                @Override
+                public void setPosition(int offsetWidth, int offsetHeight) {
+                    // Calculate left position for the popup
+                    int left = relativeObject.getAbsoluteLeft();
+                    // Calculate top position for the popup
+                    int top = relativeObject.getAbsoluteTop();
+                    // Position below the textbox:
+                    top += relativeObject.getOffsetHeight();
+                    suggestPanel.setPopupPosition(left, top);
+                }
+            });
 		    suggestionWidget.setWidth(this.getOffsetWidth() + "px");
         }
 	}
@@ -404,11 +405,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     }
 
     protected boolean textChanged() {
-        return !this.getText().equals(this.lastText);
+        return !this.getTextWithNewlines().equals(this.lastText);
     }
 
     protected void updateLastText() {
-        this.lastText = this.getText();
+        this.lastText = this.getTextWithNewlines();
     }
 
     public Document getFrameDoc(){

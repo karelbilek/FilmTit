@@ -15,6 +15,7 @@ import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.share.User;
 
 
 public class GuiStructure extends Composite {
@@ -27,11 +28,11 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new NavLink[]{ documentCreator, about, welcomePage, userPage };
+		allMenuItems = new NavLink[]{ documentCreator, about, welcomeScreen, userPage };
 		
 		documentCreator.addClickHandler(new MenuClickHandler(Page.DocumentCreator));
 		about.addClickHandler(new MenuClickHandler(Page.About));
-		welcomePage.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
+		welcomeScreen.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
 		userPage.addClickHandler(new MenuClickHandler(Page.UserPage));
 		
         // top menu handlers
@@ -76,16 +77,23 @@ public class GuiStructure extends Composite {
 	/**
 	 * to be called to switch the view from "logged out" to "logged in"
 	 */
-	public void logged_in (String username) {
+	public void logged_in (User user) {
 		// login/logout link
 		login.setVisible(false);
-		logout.setText("Log out user " + username);
+		logout.setText("Log out user " + user.getName());
 		logout.setVisible(true);
+		username.setText("User " + user.getName());
+		
 		// visibility
-		welcomePage.setVisible(false);
+		welcomeScreen.setVisible(false);
 		userPage.setVisible(true);
 		documentCreator.setVisible(true);
-		// about.setVisible(true);
+		about.setVisible(true);
+		
+		brand.setVisible(true);
+		brandOffline.setVisible(false);
+		offlineHint.setVisible(false);
+		username.setVisible(false);
 	}
 	
 	/**
@@ -96,10 +104,34 @@ public class GuiStructure extends Composite {
 		logout.setVisible(false);
 		login.setVisible(true);
 		// visibility
-		welcomePage.setVisible(true);
+		welcomeScreen.setVisible(true);
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
-		// about.setVisible(true);
+		about.setVisible(true);
+
+		brand.setVisible(true);
+		brandOffline.setVisible(false);
+		offlineHint.setVisible(false);
+		username.setVisible(false);
+	}
+	
+	/**
+	 * To be called when user enters the Offline Mode.
+	 */
+	public void offline_mode () {
+		// hide all links - they cannot be clicked anyway
+		logout.setVisible(false);
+		login.setVisible(false);
+		welcomeScreen.setVisible(false);
+		userPage.setVisible(false);
+		documentCreator.setVisible(false);
+		about.setVisible(false);
+		
+		// show Offline Mode texts
+		brand.setVisible(false);
+		brandOffline.setVisible(true);
+		offlineHint.setVisible(true);
+		username.setVisible(true);
 	}
 	
     ///////////////////////////////////////
@@ -107,9 +139,10 @@ public class GuiStructure extends Composite {
     //      The pages in menu            //
     //                                   //
     ///////////////////////////////////////
+
 	
 	@UiField
-	NavLink welcomePage;
+	NavLink welcomeScreen;
 
 	@UiField
 	NavLink userPage;
@@ -149,7 +182,7 @@ public class GuiStructure extends Composite {
 		case About:
 			return about;
 		case WelcomeScreen:
-			return welcomePage;
+			return welcomeScreen;
 		case UserPage:
 			return userPage;
 		case DocumentCreator:
@@ -176,10 +209,26 @@ public class GuiStructure extends Composite {
     ///////////////////////////////////////
 	
 	@UiField
+	Brand brand;
+	
+	@UiField
+	Brand brandOffline;
+	
+	@UiField
+	NavText offlineHint;
+	
+	@UiField
 	NavLink login;
 
 	@UiField
 	NavLink logout;
+
+	// TODO
+	@UiField
+	NavLink online;
+
+	@UiField
+	NavText username;
 
 	@UiField
     ScrollPanel contentPanel;
@@ -187,4 +236,10 @@ public class GuiStructure extends Composite {
 	@UiField
 	public TextArea txtDebug;
 	
+    @UiField
+	HTMLPanel panelForVLC;
+
+    public HTMLPanel getPanelForVLC() {
+        return panelForVLC;
+    }
 }

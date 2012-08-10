@@ -4,9 +4,11 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
+import com.github.gwtbootstrap.client.ui.Row;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.GetTranslationResults;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
 import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
@@ -49,7 +51,10 @@ public class TranslationWorkspace extends Composite {
     private boolean stopLoading = false;
     
 	public void setStopLoading(boolean stopLoading) {
-		this.stopLoading = stopLoading;
+        for (GetTranslationResults getTranslationResults : sentGetTranslationsResultsCalls.values()) {
+			getTranslationResults.stop();
+		}
+		this.stopLoading = true;
 		gui.log("stopLoading set for the workspace");
 	}
 
@@ -81,9 +86,23 @@ public class TranslationWorkspace extends Composite {
     }
     
     public Map<ChunkIndex, TimedChunk> chunkmap;
+    
+    //this is for quick time lookups for the subtitle displaying
+    //"logically" it should be double, but GWT is actually javascript
+    //and works faster with Doubles instead of Longs,
+    //which it emulates by strings or something
+    public TreeMap<Double, TranslationResult> reverseTimeMap;
 
     public TimedChunk getChunk(ChunkIndex chunkIndex) {
        return chunkmap.get(chunkIndex);
+    }
+
+    public Collection<TranslationResult> getChunkIndexesFrom(double start, double end) {
+        gui.log("Chci from "+start+" to "+end+ " A je jich "+reverseTimeMap.subMap(start, end).values().size()+" !");
+        if (reverseTimeMap== null) {
+            return new ArrayList<TranslationResult>();
+        }
+        return reverseTimeMap.subMap(start, end).values();
     }
 
     ///////////////////////////////////////
@@ -94,7 +113,7 @@ public class TranslationWorkspace extends Composite {
 
     public SubgestHandler subgestHandler;
 
-    private HashMap<ChunkIndex, Integer> indexes;
+    private Map<ChunkIndex, Integer> indexes;
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
     private Widget activeSuggestionWidget = null;
 
@@ -106,6 +125,8 @@ public class TranslationWorkspace extends Composite {
     private boolean isVideo=false;
 
     VLCWidget vlcPlayer;
+    
+    HTMLPanel playerFixedPanel = null;
 
     // UI binder fields
     @UiField
@@ -114,8 +135,7 @@ public class TranslationWorkspace extends Composite {
     SimplePanel emptyPanel;
 	@UiField
     FlexTable table;
-    @UiField
-    HorizontalPanel hPanel;
+    
     @UiField
     HorizontalPanel translationHPanel;
   
@@ -168,24 +188,53 @@ public class TranslationWorkspace extends Composite {
         } );
 
         table.setWidth("100%");
-        if (!isVideo) {
-            table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-            table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
-            table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
-            this.subgestHandler = new SubgestHandler(this, null);
-            translationHPanel.setCellWidth(scrollPanel, "100%");
-            translationHPanel.setCellWidth(emptyPanel, "0%");            
-         } else {
-            table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "99px");
-            table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "246px");
-            table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER, "240px");
-            vlcPlayer = new VLCWidget(path, 400, 225);
+        table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
+        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
+        table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
+        translationHPanel.setCellWidth(scrollPanel, "100%");
+        translationHPanel.setCellWidth(emptyPanel, "0%");            
+
+        if (isVideo) {
+            HTMLPanel panelForVLC = Gui.getPanelForVLC();
+            playerFixedPanel = new HTMLPanel("");
+            
+            panelForVLC.add(playerFixedPanel);
+            playerFixedPanel.setWidth("100%");
+            playerFixedPanel.setHeight("250px");
+            playerFixedPanel.addStyleName("fixedPlayer");
+            table.addStyleName("tableMoved");
+            
+            HTMLPanel fixedWrapper = new HTMLPanel("");
+            fixedWrapper.setWidth("984 px");
+
+
+            HTML leftLabel = new HTML("");
+            leftLabel.addStyleName("subtitleDisplayedLeft");
+            fixedWrapper.addStyleName("fixedPlayerWrapper");
+            fixedWrapper.add(leftLabel);
+
+
+            HTML rightLabel = new HTML("");
+            rightLabel.addStyleName("subtitleDisplayedRight");
+   
+            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, this);
+            vlcPlayer.addStyleName("vlcPlayerDisplayed"); 
             this.subgestHandler = new SubgestHandler(this, vlcPlayer);
-            hPanel.add(vlcPlayer);
-            translationHPanel.setCellWidth(scrollPanel, "60%");
-            translationHPanel.setCellWidth(emptyPanel, "40%");            
-       }
-        
+            fixedWrapper.add(vlcPlayer);
+
+            fixedWrapper.add(rightLabel);
+           
+            HTMLPanel playerStatusPanel = new HTMLPanel("");
+            playerStatusPanel.add(new InlineLabel("[status, pause, replay will be here] "));
+            
+            fixedWrapper.add(playerStatusPanel);
+            playerStatusPanel.addStyleName("statusPanel");
+            
+            playerFixedPanel.add(fixedWrapper);
+
+        } else {
+            this.subgestHandler = new SubgestHandler(this, null);
+        }
         
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
         table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
@@ -203,12 +252,25 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
+    private Map<Integer, GetTranslationResults> sentGetTranslationsResultsCalls = new HashMap<Integer, GetTranslationResults>();
+
+    public void addGetTranslationsResultsCall (int id, GetTranslationResults call) {
+    	sentGetTranslationsResultsCalls.put(id, call);
+    }
+    
+    public void removeGetTranslationsResultsCall (int id) {
+    	sentGetTranslationsResultsCalls.remove(id);
+    }
+    
     @Override
     public void onUnload() {
         setStopLoading(true);
         sourceSelected = false;
         translationStarted = false;
         gui.guiStructure.contentPanel.removeStyleName("parsing");
+        if (playerFixedPanel != null){
+            Gui.getPanelForVLC().remove(playerFixedPanel);
+        }
     }
    
 
@@ -231,6 +293,7 @@ public class TranslationWorkspace extends Composite {
     	}
     	
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+          reverseTimeMap = new TreeMap<Double, TranslationResult>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
           List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
@@ -239,6 +302,8 @@ public class TranslationWorkspace extends Composite {
           for (TranslationResult tr:translations) {
               TimedChunk sChunk = tr.getSourceChunk();
               chunkmap.put(sChunk.getChunkIndex(), sChunk);
+              reverseTimeMap.put((double)(sChunk.getStartTimeLong()), tr);
+
               String tChunk = tr.getUserTranslation();
               
 
@@ -274,6 +339,7 @@ public class TranslationWorkspace extends Composite {
     	  // gui.log("processing the following input:\n" + subtext + "\n");
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+          reverseTimeMap = new TreeMap<Double, TranslationResult>();
 
           // determine format (from corresponding radiobuttons) and choose parser:
           Parser subtextparser;
@@ -301,6 +367,7 @@ public class TranslationWorkspace extends Composite {
               ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult(chunk);
               this.currentDocument.translationResults.put(chunkIndex, tr);
+              reverseTimeMap.put((double)(chunk.getStartTimeLong()), tr);
 
           }
           
@@ -416,6 +483,8 @@ public class TranslationWorkspace extends Composite {
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
           FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+          
+          reverseTimeMap.put((double)(transresult.getSourceChunk().getStartTimeLong()), transresult);
      }
 
      ///////////////////////////////////////
@@ -491,7 +560,6 @@ public class TranslationWorkspace extends Composite {
      *
      * We have to suppose these are coming in the same order as they appear in the source.
      * @param chunk - source-language chunk to show
-     * @param index - index of the chunk in the chunk-list
      */
     public void showSource(TimedChunk chunk) {
         
@@ -514,7 +582,7 @@ public class TranslationWorkspace extends Composite {
         sourcelabel.setStyleName("chunk_l1");
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
-        SubgestBox targetbox = new SubgestBox(chunk, this, !isVideo, index+1);
+        SubgestBox targetbox = new SubgestBox(chunk, this, index+1);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
@@ -531,6 +599,11 @@ public class TranslationWorkspace extends Composite {
         real.updateVerticalSize();
     }
 
+    public TranslationResult getTranslationResultForIndex(int id) {
+        SubgestBox sb = targetBoxes.get(id).getFather();
+        TranslationResult tr = sb.getTranslationResult();
+        return tr;
+    }
 
     /**
      * Add the given TranslationResult to the current listing interface.
@@ -624,7 +697,16 @@ public class TranslationWorkspace extends Composite {
         //scrollPanel.ensureVisible(subbox);
         //Window.alert("ensuring visible");
         //ensureVisibleInWindow(subbox.getElement());
-        Window.scrollTo(Window.getScrollLeft(), getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() / 2);
+        Window.scrollTo(
+                Window.getScrollLeft(),
+                getScrollOffsetY(subbox.getElement())
+                        - getVideoHeight()
+                        - (Window.getClientHeight() - getVideoHeight()) * 2 / 5
+        );
+    }
+
+    private int getVideoHeight() {
+        return ( isVideo ? playerFixedPanel.getOffsetHeight() : 0 );
     }
 
     private native int getScrollOffsetY(Element e) /*-{
