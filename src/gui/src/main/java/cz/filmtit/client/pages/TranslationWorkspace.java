@@ -546,7 +546,6 @@ public class TranslationWorkspace extends Composite {
      *
      * We have to suppose these are coming in the same order as they appear in the source.
      * @param chunk - source-language chunk to show
-     * @param index - index of the chunk in the chunk-list
      */
     public void showSource(TimedChunk chunk) {
         
@@ -684,7 +683,8 @@ public class TranslationWorkspace extends Composite {
         //scrollPanel.ensureVisible(subbox);
         //Window.alert("ensuring visible");
         //ensureVisibleInWindow(subbox.getElement());
-        Window.scrollTo(Window.getScrollLeft(), getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() / 2);
+        Window.scrollTo(Window.getScrollLeft(),
+                getScrollOffsetY(subbox.getElement()) - Window.getClientHeight() * 2 / 5);
     }
 
     private native int getScrollOffsetY(Element e) /*-{
