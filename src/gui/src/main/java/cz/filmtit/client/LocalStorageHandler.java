@@ -85,6 +85,10 @@ public class LocalStorageHandler {
 	 */
 	private static boolean online = true;
 	
+	public static boolean isOnline() {
+		return online;
+	}
+
 	/**
 	 * Whether the user is now uploading data from offline mode.
 	 */
@@ -94,9 +98,13 @@ public class LocalStorageHandler {
 		return uploading;
 	}
 
-	public static boolean isOnline() {
-		return online;
+	private static boolean offeringOfflineStorage = false;
+	
+	public static boolean isOfferingOfflineStorage() {
+		return offeringOfflineStorage;
 	}
+	
+	public static List<Storable> queue;
 
 	public static void setOnline(boolean online) {
 		LocalStorageHandler.online = online;
@@ -124,15 +132,19 @@ public class LocalStorageHandler {
 		else {
 			// going offline
 			if (Storage.isLocalStorageSupported()) {
+				for (Storable storableInError : queue) {
+					storeInLocalStorage(storableInError);
+				}
+				queue = null;
 				// TODO: disable the menu etc.
-				Window.alert("Welcome to Offline Mode! " +
-						"You can continue with your translation, " +
-						"all your input will be saved in your browser " +
-						"even if you close it and turn off your computer. " +
-						"(However, if you close the translation page, " +
-						"you will not be able to reopen it until you go online again!) " +
-						"Once you go back online, please log in and follow the instructions " +
-						"that will appear.");
+//				Window.alert("Welcome to Offline Mode! " +
+//						"You can continue with your translation, " +
+//						"all your input will be saved in your browser " +
+//						"even if you close it and turn off your computer. " +
+//						"(However, if you close the translation page, " +
+//						"you will not be able to reopen it until you go online again!) " +
+//						"Once you go back online, please log in and follow the instructions " +
+//						"that will appear.");
 			}
 			else {
 				Window.alert("Unfortunately, Offline Mode is not supported for your browser. " +
@@ -143,9 +155,12 @@ public class LocalStorageHandler {
 		}
 	}
 	
-	public static boolean offerOfflineStorage() {
+	public static void offerOfflineStorage(Storable storableInError) {
 		boolean useOfflineStorage = false;
 		if (Storage.isLocalStorageSupported()) {
+			queue = new LinkedList<Storable>();
+			queue.add(storableInError);
+			offeringOfflineStorage = true;
 			useOfflineStorage = Window.confirm(
 					"Either your computer is offline or the server is down. " +
 					"Do you want to go into Offline Mode? " +
@@ -153,6 +168,7 @@ public class LocalStorageHandler {
 					"your work will be saved in your browser " +
 					"and uploaded to the server once you go online again."
 				);
+			offeringOfflineStorage = false;
 		}
 		
 		if (useOfflineStorage) {
@@ -162,12 +178,10 @@ public class LocalStorageHandler {
 			Window.alert("There is no connection to the server. " +
 					"It is not possible to continue with the translation at the moment. " +
 					"All translations you have done so far are safely stored on the server " +
-					"(except for the last one) " +
+					"(except for the last one, '" + storableInError.toUserFriendlyString() + "') " +
 					"but please do not fill in any new ones now as they would be lost. " +
 					"Please try again later.");
 		}
-		
-		return useOfflineStorage;
 	}
 	
 	/**

@@ -108,10 +108,11 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 		if (LocalStorageHandler.isUploading()) {
 			LocalStorageHandler.FailureOnLoadFromLocalStorage(this, "The connection to server is not working.");
 		}
+		else if (LocalStorageHandler.isOfferingOfflineStorage()) {
+			LocalStorageHandler.queue.add(this);
+		}
 		else if (LocalStorageHandler.isOnline()) {
-			if (LocalStorageHandler.offerOfflineStorage()) {
-				LocalStorageHandler.storeInLocalStorage(this);				
-			}
+			LocalStorageHandler.offerOfflineStorage(this);
 		}
 		else {
 			LocalStorageHandler.storeInLocalStorage(this);				
