@@ -13,6 +13,7 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
+
 import java.util.*;
 
 	public class GetTranslationResults extends Callable<List<TranslationResult>> {
@@ -49,7 +50,12 @@ import java.util.*;
             		// retry
             		hasReturned = false;
             		if (!retry()) {
-            			// or say error
+            			// cannot retry
+            			// tell workspace that these chunks won't arrive
+            			for (TimedChunk chunk : chunks) {
+                			workspace.noResult(chunk.getChunkIndex());
+						}
+            			// say error
             			displayWindow("Some of the translation suggestions did not arrive. " +
             					"You can ignore this or you can try refreshing the page.");
             		}

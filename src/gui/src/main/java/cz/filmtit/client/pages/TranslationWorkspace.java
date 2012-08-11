@@ -712,6 +712,28 @@ public class TranslationWorkspace extends Composite {
 
     }
 
+    /**
+     * Called to tell workspace that there will be no translation result.
+     * Removes the "loading" style from the boxes.
+     * @param chunkIndex
+     */
+    public void noResult(final ChunkIndex chunkIndex) {
+        
+        if (!indexes.containsKey(chunkIndex)) {
+            //try it again after some time
+             new com.google.gwt.user.client.Timer() { 
+                @Override
+                public void run() { 
+                    noResult(chunkIndex); 
+                } 
+            }.schedule(400); 
+        } else {
+            //index is there -> insert result
+            int index = indexes.get(chunkIndex);
+            targetBoxes.get(index).removeStyleName("loading");
+        }
+
+    }
 
     /**
      * Set the focus to the next SubgestBox in order.
