@@ -50,8 +50,8 @@ public final class FilmTitServiceHandler {
     }
 
     static public void checkSessionID() {
-		if (Gui.getGui().getSessionID() == null) {
-			Gui.getGui().logged_out();
+		if (Gui.getSessionID() == null) {
+			Gui.logged_out();
     	}
 		else {
 	    	new CheckSessionID();

@@ -2,6 +2,7 @@ package cz.filmtit.client.callables;
 
 import com.github.gwtbootstrap.client.ui.Modal;
 import cz.filmtit.client.Callable;
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.dialogs.Dialog;
 
  public class SendChangePasswordMail extends Callable<Boolean> {
@@ -20,11 +21,11 @@ import cz.filmtit.client.dialogs.Dialog;
         public void onSuccessAfterLog(Boolean result) {
             if (result) {
                 loginDialog.close();
-                gui.log("successful sendChangePasswordMail for " + username);
+                Gui.log("successful sendChangePasswordMail for " + username);
                 displayWindow("A link to password change page has been sent to your e-mail address.");
             } else {
                 // false = bad username or no email
-                gui.log("ERROR: sendChangePasswordMail didn't succeed, bad username or no email.");
+                Gui.log("ERROR: sendChangePasswordMail didn't succeed, bad username or no email.");
                 loginDialog.reactivateWithErrorMessage("There was an error sending password change email to you. " +
                         "Either the username '" + username + "' is not registered " +
                                 "or there is no e-mail address associated with it. " +

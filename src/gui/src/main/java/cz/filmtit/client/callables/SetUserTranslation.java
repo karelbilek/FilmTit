@@ -50,16 +50,16 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 
 	@Override protected void call() {
 		if (LocalStorageHandler.isOnline()) {
-			filmTitService.setUserTranslation(gui.getSessionID(), chunkIndex,
+			filmTitService.setUserTranslation(Gui.getSessionID(), chunkIndex,
 					documentId, userTranslation, chosenTranslationPair,
 					this);
 		}
 		else {
 			hasReturned = LocalStorageHandler.storeInLocalStorage(this);
 			if (hasReturned) {
-				gui.log("Saved to local storage: " + keyValuePair);
+				Gui.log("Saved to local storage: " + keyValuePair);
 			} else {
-				gui.log("ERROR: Cannot save to local storage: " + keyValuePair);
+				Gui.log("ERROR: Cannot save to local storage: " + keyValuePair);
 				displayWindow("ERROR: Cannot save to local storage: " + keyValuePair);
 			}
 		}

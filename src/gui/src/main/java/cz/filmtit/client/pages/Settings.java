@@ -15,13 +15,11 @@ public class Settings extends Composite {
 	interface SettingsUiBinder extends UiBinder<Widget, Settings> {
 	}
 
-	private Gui gui = Gui.getGui();
-	
 	public Settings() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		gui.guiStructure.contentPanel.setStyleName("settings");
-        gui.guiStructure.contentPanel.setWidget(this);
+		Gui.getGuiStructure().contentPanel.setStyleName("settings");
+        Gui.getGuiStructure().contentPanel.setWidget(this);
 		
 	}
 

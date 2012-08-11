@@ -4,15 +4,14 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.HistoryListener;
 import com.google.gwt.user.client.Window;
 import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
 import cz.filmtit.client.pages.ChangePassword;
 import cz.filmtit.client.pages.DocumentCreator;
-import cz.filmtit.client.pages.GuiStructure;
 import cz.filmtit.client.pages.Settings;
+import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.UserPage;
 import cz.filmtit.client.pages.WelcomeScreen;
 
@@ -42,14 +41,9 @@ public class PageHandler {
     private Page pageLoaded = Page.None;
     
     /**
-     * Provides access to the gui.
+     * whether to create the GuiStructure and try to log in the user by saved sessionID
      */
-    private Gui gui = Gui.getGui();
-
-    /**
-     * whether to try to log in the user by saved sessionID
-     */
-	public final boolean doCheckSessionID;    
+	public final boolean fullInitialization;    
 
 	/**
 	 * Whether to scroll to the top of the page on loadPageToLoad().
@@ -94,25 +88,22 @@ public class PageHandler {
 
     	if ( isFullPage(pageUrl) ) {
     		
-            // base of GUI is created
-    		gui.guiStructure = new GuiStructure();
-            
     		// say what we got
-        	gui.log("Parsed URL and identified page " + pageUrl);
+        	Gui.log("Parsed URL and identified page " + pageUrl);
         	
             // set documentId if it is provided
     		setDocumentIdFromGETOrCookie();
         	
     		scrollToTop = false;
     		
-    		doCheckSessionID = true;
+    		fullInitialization = true;
     		
     	} else {
     		
     		// do not do any funny stuff, just load the page
     		loadPage();
     		
-    		doCheckSessionID = false;
+    		fullInitialization = false;
     		
     	}
     }
@@ -172,7 +163,7 @@ public class PageHandler {
 				return Page.valueOf(pageString);				
 			}
 			catch (IllegalArgumentException e) {
-				gui.log("WARNING: page name " + pageString + " is not valid!");
+				Gui.log("WARNING: page name " + pageString + " is not valid!");
 				return Page.None;				
 			}
 		}    	
@@ -283,17 +274,17 @@ public class PageHandler {
 		case TranslationWorkspace:
 		case DocumentCreator:
 		case Settings:
-			pageToLoad = gui.isLoggedIn() ? suggestedPage : Page.WelcomeScreen;
+			pageToLoad = Gui.isLoggedIn() ? suggestedPage : Page.WelcomeScreen;
 			break;
 
 		// all other situations: UserPage or WelcomeScreen
 		default:
-			pageToLoad = gui.isLoggedIn() ? Page.UserPage : Page.WelcomeScreen;
+			pageToLoad = Gui.isLoggedIn() ? Page.UserPage : Page.WelcomeScreen;
 			break;
 			
 		}
     	
-		gui.log("Page to load set to " + pageToLoad);
+		Gui.log("Page to load set to " + pageToLoad);
     }
     
     // pageToLoad -> pageLoaded    
@@ -316,8 +307,8 @@ public class PageHandler {
 		if (pageToLoad != pageLoaded || evenIfAlreadyLoaded) {
 			
 			// unloading TranslationWorkspace
-			if (pageLoaded == Page.TranslationWorkspace && Gui.currentWorkspace != null) {
-				Gui.currentWorkspace.setStopLoading(true);
+			if (pageLoaded == Page.TranslationWorkspace && TranslationWorkspace.getCurrentWorkspace() != null) {
+				TranslationWorkspace.getCurrentWorkspace().setStopLoading(true);
 			}
 			
 			// scroll to top if not prevented
@@ -342,7 +333,7 @@ public class PageHandler {
 			case TranslationWorkspace:
 		    	if (documentId == -1) {
 		    		loadPage(Page.UserPage);
-					gui.log("failure on loading document: documentId -1 is not valid!");
+					Gui.log("failure on loading document: documentId -1 is not valid!");
 		    	} else {
 		            FilmTitServiceHandler.loadDocumentFromDB(documentId);
 		    	}
@@ -362,20 +353,20 @@ public class PageHandler {
 	
 			// no other situation should happen
 			default:
-				gui.log("ERROR: Cannot load the page " + pageToLoad);
+				Gui.log("ERROR: Cannot load the page " + pageToLoad);
 				return;
 	    	}
 
-			gui.log("Loaded page " + pageToLoad);
+			Gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
 	    	
 	    	if (isFullPage(pageLoaded)) {
 		    	// set the correct menu item
-		    	gui.guiStructure.activateMenuItem(pageLoaded);
+		    	Gui.getGuiStructure().activateMenuItem(pageLoaded);
 	    	}
 		}
 		else {
-			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
+			Gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
 		
@@ -449,12 +440,12 @@ public class PageHandler {
 		} else {
 			try {
 				documentId = Long.parseLong(id);
-				gui.log("documentId (" + documentId + ") acquired from parameter");
+				Gui.log("documentId (" + documentId + ") acquired from parameter");
 			}
 			catch (NumberFormatException e) {
 				// this is not OK, documentId parameter is set but is invalid
 				documentId = -1;
-				gui.log("WARNING: invalid documentId (" + id + ") set as parameter!");
+				Gui.log("WARNING: invalid documentId (" + id + ") set as parameter!");
 			}
 		}
 	}

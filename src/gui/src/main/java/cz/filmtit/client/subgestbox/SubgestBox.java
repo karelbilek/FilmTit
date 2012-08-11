@@ -43,7 +43,6 @@ import java.util.Map;
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private ChunkIndex chunkIndex;
 	private TranslationResult translationResult;
-	private Gui gui = Gui.getGui();
     private TranslationWorkspace workspace;
 	private PopupPanel suggestPanel;
     private Widget suggestionWidget;
@@ -145,7 +144,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		this.translationResult = new TranslationResult(chunk);
         this.workspace = workspace;
         if (this.workspace == null) {
-            gui.log("workspace for subgestbox is null!!!");
+            Gui.log("workspace for subgestbox is null!!!");
         }
 
         this.setHeight("36px");
@@ -321,7 +320,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
-					//gui.log("selection changed...");
+					//Gui.log("selection changed...");
 					//int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
 					translationResult.setSelectedTranslationPairID(selected.getId());
 					
@@ -371,7 +370,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         // expects that annotations are non-overlapping and ordered by their position
         // (should be)
         if (chunk.getAnnotations().size() > 0) {
-            gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
+            Gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
         }
         StringBuffer sb = new StringBuffer(chunk.getSurfaceForm());
         for (Annotation annotation : chunk.getAnnotations()) {

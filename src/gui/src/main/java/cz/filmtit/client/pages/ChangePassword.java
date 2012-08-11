@@ -4,13 +4,11 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.Button;
@@ -18,7 +16,6 @@ import com.github.gwtbootstrap.client.ui.Button;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.share.AuthenticationServiceType;
 
 public class ChangePassword extends Composite {
 
@@ -28,10 +25,7 @@ public class ChangePassword extends Composite {
 	interface ChangePasswordUiBinder extends UiBinder<Widget, ChangePassword> {
 	}
 	
-	private Gui gui = Gui.getGui();
-	
 	private String username;
-	
 	private String token;
 	
 	public ChangePassword() {
@@ -41,7 +35,7 @@ public class ChangePassword extends Composite {
 		token = Window.Location.getParameter("token");
 		
 		if (username == null || token == null) {
-			gui.log("ERROR: username or token is null");
+			Gui.log("ERROR: username or token is null");
 			Window.alert("Invalid parameters, cannot proceed!");
 			
 			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
@@ -52,8 +46,8 @@ public class ChangePassword extends Composite {
 			});
 		}
 		else {
-	        gui.guiStructure.contentPanel.setStyleName("changePassword");
-	        gui.guiStructure.contentPanel.setWidget(this);	
+	        Gui.getGuiStructure().contentPanel.setStyleName("changePassword");
+	        Gui.getGuiStructure().contentPanel.setWidget(this);	
 		}
 		
 	}
@@ -71,7 +65,7 @@ public class ChangePassword extends Composite {
 	void handleClick(ClickEvent e) {
 		if (checkForm()) {
 			FilmTitServiceHandler.changePassword(username, getPassword(), token);
-			gui.log("trying to change password for user " + username);
+			Gui.log("trying to change password for user " + username);
 		} else {
 			// TODO tell user what errors there are
 			Window.alert("Please correct the form!");

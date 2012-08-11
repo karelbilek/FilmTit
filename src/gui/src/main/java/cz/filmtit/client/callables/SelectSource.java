@@ -54,6 +54,6 @@ public class SelectSource extends Callable<Void> {
 		}
 
 		@Override protected void call() {
-	        filmTitService.selectSource( gui.getSessionID(), documentID, selectedMediaSource, this);
+	        filmTitService.selectSource( Gui.getSessionID(), documentID, selectedMediaSource, this);
 		}
 	}

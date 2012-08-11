@@ -34,13 +34,13 @@ import com.google.gwt.user.client.*;
 
         public void onSuccessAfterLog(Boolean result) {
             if (result) {
-                gui.log("changed password for user " + username);
+                Gui.log("changed password for user " + username);
                 Gui.getPageHandler().loadBlankPage();
                 Gui.getPageHandler().setPageUrl(Page.UserPage);
                 FilmTitServiceHandler.simpleLogin(username, password, null);
                 displayWindow("You successfully changed the password for your username '" + username + "'!");
             } else {
-                gui.log("ERROR: password change didn't succeed - token invalid");
+                Gui.log("ERROR: password change didn't succeed - token invalid");
                 Gui.getPageHandler().loadPage(Page.WelcomeScreen);
                 new LoginDialog(username, Tab.ForgottenPassword,
             			"Password change didn't succeed - the token is invalid, probably expired. " +

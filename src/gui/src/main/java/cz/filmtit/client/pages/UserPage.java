@@ -33,8 +33,6 @@ public class UserPage extends Composite {
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
 
-	private Gui gui = Gui.getGui();
-
 	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -135,9 +133,9 @@ public class UserPage extends Composite {
         emptyLabel.setVisible(false);
         
 
-        gui.guiStructure.contentPanel.setStyleName("users_page");
+        Gui.getGuiStructure().contentPanel.setStyleName("users_page");
 
-        gui.log("getting list of documents...");
+        Gui.log("getting list of documents...");
         FilmTitServiceHandler.getListOfDocuments(this);
 
 
@@ -145,20 +143,20 @@ public class UserPage extends Composite {
         btnDisplayCreator.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	gui.pageHandler.loadPage(Page.DocumentCreator);
+            	Gui.getPageHandler().loadPage(Page.DocumentCreator);
             }
 
         });
 
 
-        gui.guiStructure.contentPanel.setWidget(this);
+        Gui.getGuiStructure().contentPanel.setWidget(this);
 
       
 	}
 
     void editDocument(Document document) {
-    	gui.pageHandler.setDocumentId(document.getId());
-    	gui.pageHandler.loadPage(Page.TranslationWorkspace);
+    	Gui.getPageHandler().setDocumentId(document.getId());
+    	Gui.getPageHandler().loadPage(Page.TranslationWorkspace);
     }
 
     public void setDocuments(List<Document> documents) {

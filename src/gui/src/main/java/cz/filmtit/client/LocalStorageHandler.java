@@ -166,7 +166,7 @@ public class LocalStorageHandler {
 			offeringOfflineStorage = false;
 			offeredOfflineStorage = true;
 			if (Storage.isLocalStorageSupported()) {
-				Gui.guiStructure.offline_mode();
+				Gui.getGuiStructure().offline_mode();
 				for (Storable storableInError : queue) {
 					storeInLocalStorage(storableInError);
 				}

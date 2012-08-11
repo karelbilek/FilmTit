@@ -25,31 +25,31 @@ public class CheckSessionID extends Callable<SessionResponse> {
         @Override
         public void onSuccessAfterLog(SessionResponse response) {
             if (response != null) {
-                gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
-                gui.logged_in(response.userWithoutDocs);
+                Gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
+                Gui.logged_in(response.userWithoutDocs);
             } else {
-                gui.log("Warning: sessionID invalid.");
-                gui.logged_out();
+                Gui.log("Warning: sessionID invalid.");
+                Gui.logged_out();
             }
         }
         
         @Override
         protected void onInvalidSession() {
-            gui.logged_out();
+            Gui.logged_out();
         }
         
         @Override
         protected void onFinalError(String message) {
-            gui.logged_out();
+            Gui.logged_out();
         }
 
         // constructor
     	public CheckSessionID() {
     		super();
     		
-    		sessionID = gui.getSessionID();
+    		sessionID = Gui.getSessionID();
     		if (sessionID == null) {
-                gui.logged_out();
+                Gui.logged_out();
         		return;
         	}
     		else {
@@ -58,7 +58,7 @@ public class CheckSessionID extends Callable<SessionResponse> {
     	}
     	
 		@Override protected void call() {
-			gui.log("Checking sessionID " + sessionID);
+			Gui.log("Checking sessionID " + sessionID);
             filmTitService.checkSessionID(sessionID, this);
 		}
 }

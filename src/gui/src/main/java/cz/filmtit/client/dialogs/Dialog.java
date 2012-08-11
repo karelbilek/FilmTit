@@ -45,11 +45,6 @@ public abstract class Dialog extends Composite {
     	// nothing to do by default
     }
     
-	/**
-	 * Reference to the gui.
-	 */
-	final protected Gui gui = Gui.getGui();
-	
 	// The methods have the simplest possible implementations and should be overridden whenever applicable.
 	
 	/**

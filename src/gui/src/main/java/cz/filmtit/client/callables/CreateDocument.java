@@ -82,8 +82,8 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		}
 
 		@Override protected void call() {
-			gui.log("Creating document " + documentTitle + "; its language is " + language);
-			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, this);
+			Gui.log("Creating document " + documentTitle + "; its language is " + language);
+			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, this);
 		}
 	}
 

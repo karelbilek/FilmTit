@@ -51,7 +51,7 @@ public class SaveSourceChunks extends Callable<Void> {
 		}
 
 		@Override protected void call() {
-            filmTitService.saveSourceChunks(gui.getSessionID(), chunks, this);
+            filmTitService.saveSourceChunks(Gui.getSessionID(), chunks, this);
 		}
 }
 

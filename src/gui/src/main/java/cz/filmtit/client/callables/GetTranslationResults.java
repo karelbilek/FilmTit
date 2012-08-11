@@ -90,7 +90,7 @@ import java.util.*;
 		@Override protected void call() {
 			id = nextId++;
 			workspace.addGetTranslationsResultsCall(id, this);
-            filmTitService.getTranslationResults(gui.getSessionID(), chunks, this);
+            filmTitService.getTranslationResults(Gui.getSessionID(), chunks, this);
 		}
 		
 		public void stop() {

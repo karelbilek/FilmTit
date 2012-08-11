@@ -33,7 +33,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
         
         // prepare the TranslationResults
         final List<TranslationResult> results  = doc.getSortedTranslationResults();
-        gui.log("There are " + results.size() + " TranslationResults in the document");
+        Gui.log("There are " + results.size() + " TranslationResults in the document");
         //int i = 0;
         //for (TranslationResult t: results) {t.getSourceChunk().setIndex(i);}
         
@@ -50,7 +50,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     public void onFailureAfterLog(Throwable returned) {
     	if (returned instanceof InvalidDocumentIdException) {
     		// ignore this one
-        	gui.pageHandler.loadPage(Page.UserPage);
+        	Gui.getPageHandler().loadPage(Page.UserPage);
     	}
     	else {
     		super.onFailure(returned);
@@ -59,7 +59,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     
     @Override
     protected void onFinalError(String message) {
-    	gui.pageHandler.loadPage(Page.UserPage);
+    	Gui.getPageHandler().loadPage(Page.UserPage);
     	super.onFinalError(message);
     }
     
@@ -75,7 +75,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     }
 
     @Override protected void call() {
-        filmTitService.loadDocument(gui.getSessionID(), documentId, this);
+        filmTitService.loadDocument(Gui.getSessionID(), documentId, this);
     }
 
 }

@@ -29,8 +29,6 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	
 	// non-static members
 	
-	protected Gui gui = Gui.getGui();
-	
 	protected Timer timeOutTimer;
 	
 	/**

@@ -55,7 +55,7 @@ import java.util.*;
 		}
 
 		@Override protected void call() {
-            filmTitService.stopTranslationResults(gui.getSessionID(), chunks, this);
+            filmTitService.stopTranslationResults(Gui.getSessionID(), chunks, this);
 		}
 	}
 

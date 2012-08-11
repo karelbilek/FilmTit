@@ -13,7 +13,6 @@ import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Paragraph;
 
 import cz.filmtit.client.FilmTitServiceHandler;
-import cz.filmtit.client.Gui;
 
 public class AuthenticationValidationWindow extends Composite {
 
@@ -24,8 +23,6 @@ public class AuthenticationValidationWindow extends Composite {
 			UiBinder<Widget, AuthenticationValidationWindow> {
 	}
 
-	private Gui gui = Gui.getGui();
-	
 	public AuthenticationValidationWindow() {
 		initWidget(uiBinder.createAndBindUi(this));
 

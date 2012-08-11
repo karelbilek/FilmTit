@@ -46,7 +46,7 @@ import java.util.*;
 		}
 
 		@Override protected void call() {
-	        filmTitService.logout(gui.getSessionID(), this);
+	        filmTitService.logout(Gui.getSessionID(), this);
 		}
 	}
 
