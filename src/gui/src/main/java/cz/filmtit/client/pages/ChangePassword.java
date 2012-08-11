@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.Button;
+import com.github.gwtbootstrap.client.ui.SubmitButton;
 
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
@@ -63,7 +64,7 @@ public class ChangePassword extends Composite {
     PasswordTextBox txtPasswordRepeat;
 
 	@UiField
-	Button btnChangePassword;
+	SubmitButton btnChangePassword;
 	
 	@UiHandler("changePasswordForm")
 	void formSubmit(Form.SubmitEvent e) {
