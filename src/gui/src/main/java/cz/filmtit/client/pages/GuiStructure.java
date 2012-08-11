@@ -28,12 +28,13 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new NavLink[]{ documentCreator, about, welcomeScreen, userPage };
+		allMenuItems = new NavLink[]{ documentCreator, about, welcomeScreen, userPage, settings };
 		
 		documentCreator.addClickHandler(new MenuClickHandler(Page.DocumentCreator));
 		about.addClickHandler(new MenuClickHandler(Page.About));
 		welcomeScreen.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
 		userPage.addClickHandler(new MenuClickHandler(Page.UserPage));
+		settings.addClickHandler(new MenuClickHandler(Page.Settings));
 		
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
@@ -89,6 +90,7 @@ public class GuiStructure extends Composite {
 		userPage.setVisible(true);
 		documentCreator.setVisible(true);
 		about.setVisible(true);
+		settings.setVisible(true);
 		
 		brand.setVisible(true);
 		brandOffline.setVisible(false);
@@ -108,6 +110,7 @@ public class GuiStructure extends Composite {
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
 		about.setVisible(true);
+		settings.setVisible(false);
 
 		brand.setVisible(true);
 		brandOffline.setVisible(false);
@@ -126,6 +129,7 @@ public class GuiStructure extends Composite {
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
 		about.setVisible(false);
+		settings.setVisible(false);
 		
 		// show Offline Mode texts
 		brand.setVisible(false);
@@ -149,6 +153,9 @@ public class GuiStructure extends Composite {
 
 	@UiField
 	NavLink documentCreator;
+
+	@UiField
+	NavLink settings;
 
 	@UiField
 	NavLink about;
@@ -187,6 +194,8 @@ public class GuiStructure extends Composite {
 			return userPage;
 		case DocumentCreator:
 			return documentCreator;
+		case Settings:
+			return settings;
 		default:
 			return null;
 		}
