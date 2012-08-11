@@ -7,11 +7,14 @@ import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.GetTranslationResults;
+import cz.filmtit.client.callables.SetChunkTimes;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
 import cz.filmtit.client.widgets.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -560,6 +563,8 @@ public class TranslationWorkspace extends Composite {
         dealWithChunks(chunks, new LinkedList<TranslationResult>(), chunks);
      }
 
+     private Map<Integer, List<Label>> timeslabels = new HashMap<Integer, List<Label>>();
+     
      /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
      * the chunk text and an empty (fake)subgestbox. 
@@ -571,9 +576,18 @@ public class TranslationWorkspace extends Composite {
         
     	ChunkIndex chunkIndex = chunk.getChunkIndex();
 
+    	// create label
         Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
         timeslabel.setStyleName("chunk_timing");
-
+		timeslabel.addDoubleClickHandler(new TimeChangeHandler(chunk));
+		// add label to map
+		List<Label> timeslabelsWithThisTime = timeslabels.get(chunkIndex.getId());
+		if (timeslabelsWithThisTime == null) {
+			timeslabelsWithThisTime = new LinkedList<Label>();
+			timeslabels.put(chunkIndex.getId(), timeslabelsWithThisTime);
+		}
+		timeslabelsWithThisTime.add(timeslabel);
+		
         int index = lastIndex;
         lastIndex++;
 
@@ -595,6 +609,66 @@ public class TranslationWorkspace extends Composite {
         
     }
 
+    /**
+     * Used to change the time of a chunk.
+     * Also changes of all chunks with the same id
+     * (i.e. which are parts of the same chunk actually).
+     * Very rough and very TODO now.
+     */
+    class TimeChangeHandler implements DoubleClickHandler {
+
+    	private TimedChunk chunk;
+    	
+		private TimeChangeHandler(TimedChunk chunk) {
+			this.chunk = chunk;
+		}
+
+		@Override
+		public void onDoubleClick(DoubleClickEvent event) {
+			// TODO something nicer
+			// TODO: check values
+			// ask user for new values, showing the old ones
+			String newStartTime = Window.prompt(
+					"Start time of chunk " + chunk.getSurfaceForm(),
+					chunk.getStartTime());
+			String newEndTime = Window.prompt(
+					"End time of chunk " + chunk.getSurfaceForm(),
+					chunk.getEndTime());
+			// handle cancels
+			if (newStartTime == null) {
+				newStartTime = chunk.getStartTime();
+			}
+			if (newEndTime == null) {
+				newEndTime = chunk.getEndTime();
+			}
+			Gui.log("change times " + chunk + ": " + newStartTime + " - " + newEndTime);
+			// change values
+			if (!newStartTime.equals(chunk.getStartTime()) || !newEndTime.equals(chunk.getEndTime())) {
+				// change chunks
+				int id = chunk.getId();
+				int partNumber = 1;
+				ChunkIndex chunkIndex = new ChunkIndex(partNumber, id);
+				while (chunkmap.containsKey(chunkIndex)) {
+					// change chunk
+					TimedChunk cochunk = chunkmap.get(chunkIndex);
+					cochunk.setStartTime(newStartTime);
+					cochunk.setEndTime(newEndTime);
+					// RPC call
+					new SetChunkTimes(cochunk);
+					// move on
+					partNumber++;
+					chunkIndex = new ChunkIndex(partNumber, id);
+				}
+				// change labels
+				String newValue = chunk.getStartTime() + " - " + chunk.getEndTime();
+				List<Label> timeslabelsWithThisTime = timeslabels.get(id);
+				assert timeslabelsWithThisTime != null : "Each chunk must be there.";
+				for (Label label : timeslabelsWithThisTime) {
+					label.setText(newValue);
+				}
+			}
+		}
+    }
 
     public void replaceFake(ChunkIndex chunkIndex, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
