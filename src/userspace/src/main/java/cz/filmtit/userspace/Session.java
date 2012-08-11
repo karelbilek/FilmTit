@@ -69,6 +69,10 @@ public class Session {
         return user;
     }
 
+    public void setUser(USUser user) {
+        this.user = user;
+    }
+
     public long getUserDatabaseId() {
         return user.getDatabaseId();
     }

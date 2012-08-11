@@ -114,7 +114,7 @@ public class USUser extends DatabaseObject {
     public String getUserName() {
         return user.getName();
     }
-    private void setUserName(String name) {
+    public void setUserName(String name) {
         user.setName(name);
     }
 
@@ -139,7 +139,7 @@ public class USUser extends DatabaseObject {
     public String getEmail() {
         return email;
     }
-    private void setEmail(String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 

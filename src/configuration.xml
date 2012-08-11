@@ -82,6 +82,10 @@
             <DbLevel>0</DbLevel>
             <ConsoleLevel>0</ConsoleLevel>
         </log>
+        <openid>
+         <seznamcz>http://id.seznam.cz/yadis</seznamcz>
+         <nickname>sreg</nickname>
+        </openid>
     </userspace>
 
     <core>

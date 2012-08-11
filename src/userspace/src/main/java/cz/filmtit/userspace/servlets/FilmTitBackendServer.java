@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -222,14 +224,37 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         // sets everything necessary ... see the JOpenID page if you want to know details
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
-        Endpoint endpoint = manager.lookupEndpoint("Google");
-        Association association = manager.lookupAssociation(endpoint);
-        AuthData authData = new AuthData();
-        authData.Mac_key = association.getRawMacKey();
-        authData.endpoint = endpoint;
-        authDataInProgress.put(authID, authData);
-        return new LoginSessionResponse(authID, manager.getAuthenticationUrl(endpoint,association));
+        Endpoint endpoint = null;
+        if (serviceType == AuthenticationServiceType.SEZNAM){
+            endpoint = manager.lookupEndpoint("Google");
+        }
+        else if (serviceType == AuthenticationServiceType.YAHOO){
+            logger.debug("OpenID","Set yahoo endpoint");
+            endpoint  = manager.lookupEndpoint("Yahoo");
+
+        }
+        else if (serviceType == AuthenticationServiceType.GOOGLE){
+
+
+            logger.debug("OpenID","Seznam authentication endpoint");
+            logger.debug("OpenID-url",configuration.SeznamEndpoint() );
+
+
+            endpoint = manager.lookupEndpoint(configuration.SeznamEndpoint());
+            logger.debug("OpenEndpoint",endpoint.getUrl() +" "+ endpoint.getAlias() );
+        }
+        if (endpoint != null){
+            Association association = manager.lookupAssociation(endpoint);
+            AuthData authData = new AuthData();
+            authData.Mac_key = association.getRawMacKey();
+            authData.endpoint = endpoint;
+            authDataInProgress.put(authID, authData);
+            return new LoginSessionResponse(authID, manager.getAuthenticationUrl(endpoint,association));
+        }
+        logger.error("OpenId","Not supported Endpoint " +  serviceType.toString());
+        return null;
     }
+
 
     @Override
     public Boolean validateAuthentication(int authID, String responseURL) {
@@ -241,12 +266,21 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         try {
             // in progress login session is removed here
             AuthData authData = authDataInProgress.get(authID);
+            logger.debug("openid",authData.toString());
+            logger.debug("openid",responseURL);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
+            if (request == null ) logger.debug("openid/request","test");
+
+            logger.debug("Authentication",request.getParameter("openid.identity"));
+            //logger.debug("Authentication/URI",request.getRequestURI());
+
+
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
             finisehdAuthentications.put(authID, authentication);
-            logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " " +authentication.getEmail());
+            logger.info("Authentication",authentication.toString());
+            logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " "+authentication.getIdentity()  +" " +authentication.getEmail());
             return true;
 
         }
@@ -369,6 +403,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             Random r = new Random();
             int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
             String password = Integer.toString(pin);
+            logger.debug("registration/email",data.getEmail());
             String name = getUniqueName(data.getEmail());
             return registration(name,password,data.getEmail(),openId);
         }
@@ -383,6 +418,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     private String getUniqueName(String email){
+
         String name = email.substring(0,email.indexOf('@'));
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
@@ -425,6 +461,39 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return false;
     }
+
+    public Boolean updateUser(String user, String newLogin , String newMail){
+
+        USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
+
+        if (newLogin != null){
+            USUser check = checkUser(newLogin,"",CheckUserEnum.UserName);
+
+         if (check != null) return false; // exist user with login same like new login
+
+         usUser.setUserName(newLogin);
+        }
+        if (newMail != null){
+            usUser.setEmail(newMail);
+        }
+         // save into db
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction() ;
+        usUser.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        //change in session
+        for (String sessionID : activeSessions.keySet()) {
+            Session updateSessionUser = activeSessions.get(sessionID);
+            if (updateSessionUser != null){
+             if (updateSessionUser.getUser().getUserName() == user){
+                 updateSessionUser.setUser(usUser);
+             activeSessions.put(sessionID, updateSessionUser);
+             }
+           }
+        }
+        return true;
+    }
+
 
 
     public Boolean sendChangePasswordMail(USUser user){
@@ -614,6 +683,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return null;
         }
         return (USUser)UserResult.get(0);
+    }
+
+    private boolean checkEmail(String email) {
+        // star validate string  ^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$
+         String regex = "^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
+         Pattern pattern = Pattern.compile(regex);
+         Matcher matcher = pattern.matcher(email);
+         return matcher.matches();
     }
 
     /**

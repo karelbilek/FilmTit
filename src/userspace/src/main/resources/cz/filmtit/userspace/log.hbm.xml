@@ -10,10 +10,10 @@
             <generator class="native"/>
         </id>
 
-        <property name="date" type="java.sql.Date" column="date" />
+        <property name="date" type="timestamp" column="date" />
         <property name="context" type="java.lang.String" column="context" />
         <property name="messageType"  type="java.lang.Integer" column="type" />
-        <property name="message" type="java.lang.String" column="text" />
+        <property name="message" type="text" column="text" />
     </class>
 
 </hibernate-mapping>

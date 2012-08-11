@@ -28,7 +28,7 @@ public class TestUSUser {
    }
 
     @Test
-    public void testSaveUser()
+    public void testChangeUserName()
     {
         //USUser user  = new USUser();
 
