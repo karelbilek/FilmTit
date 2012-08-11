@@ -670,6 +670,47 @@ public class TranslationWorkspace extends Composite {
 		}
     }
 
+
+    /**
+     * Used to change the source of a chunk.
+     * Rough and probably TODO now.
+     */
+    class SourceChangeHandler implements DoubleClickHandler {
+
+    	private ChunkIndex chunkIndex;
+    	private Label label;
+    	
+		private SourceChangeHandler(TimedChunk chunk, Label label) {
+			this.chunkIndex = chunk.getChunkIndex();
+			this.label = label;
+		}
+
+		@Override
+		public void onDoubleClick(DoubleClickEvent event) {
+			// TODO probably something nicer than the prompt
+			
+			// init
+			TimedChunk chunk = chunkmap.get(chunkIndex);
+			String oldSource = chunk.getSurfaceForm();
+			
+			// ask user for new values, showing the old ones
+			String newSource = Window.prompt("Source text for this chunk:", oldSource);
+			
+			if (newSource == null || newSource.equals(oldSource)) {
+				// cancel or no change
+				return;
+			}
+			else {
+				// change the values
+				Gui.log("change source " + chunk + ": " + newSource);
+				chunk.setSurfaceForm(newSource);
+				label.setText(chunk.getGUIForm());
+				// TODO store
+				// TODO new suggestions
+			}
+		}
+    }
+    
     public void replaceFake(ChunkIndex chunkIndex, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
         int id = indexes.get(chunkIndex);
