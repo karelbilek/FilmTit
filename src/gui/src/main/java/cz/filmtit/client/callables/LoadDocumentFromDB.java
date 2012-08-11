@@ -68,9 +68,8 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
         
         documentId = id;
         
-		// 30s
-		callTimeOut = 30000;
-		
+        callTimeOut *= 2;
+        
         enqueue();
     }
 

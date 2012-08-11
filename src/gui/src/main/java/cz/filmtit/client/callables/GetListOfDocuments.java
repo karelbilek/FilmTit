@@ -42,9 +42,6 @@ import java.util.*;
 
 			this.userpage = userpage;
 			
-			// 20s
-			callTimeOut = 20000;
-			
 			enqueue();
 		}
         

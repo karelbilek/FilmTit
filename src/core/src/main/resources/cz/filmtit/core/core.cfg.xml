@@ -13,7 +13,7 @@
         </property>
         <property name="hibernate.connection.username">postgres</property>   <!-- overwritten in code -->
         <property name="hibernate.connection.password">postgres</property>   <!-- overwritten in code -->
-        <property name="hibernate.connection.pool_size">10</property>
+        <property name="hibernate.connection.pool_size">5</property>
         <property name="show_sql">false</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
         <!-- <property name="hibernate.hbm2ddl.auto">validate</property> -->

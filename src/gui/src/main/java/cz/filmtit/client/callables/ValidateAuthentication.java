@@ -50,9 +50,6 @@ import java.util.*;
 			this.authID = authID;
 			this.authenticationValidationWindow = authenticationValidationWindow;
 			
-			// 20s
-			callTimeOut = 20000;
-			
 			enqueue();
 		}
 				

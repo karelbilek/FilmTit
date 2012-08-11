@@ -53,9 +53,6 @@ public class RegisterUser extends Callable<Boolean> {
 			this.email = email;
 			this.loginDialog = registrationForm;
 			
-			// 20s
-			callTimeOut = 20000;
-			
 			enqueue();
 		}
 
