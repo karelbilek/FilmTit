@@ -207,10 +207,10 @@ public abstract class Callable<T> implements AsyncCallback<T> {
      * @param parameters
      * @return
      */
-    protected final String getName(Collection<Object> parameters) {
+    protected final String getNameWithParameters(Object... parameters) {
     	StringBuilder sb = new StringBuilder();
     	sb.append(getClassName());
-    	if (parameters != null && !parameters.isEmpty()) {
+    	if (parameters != null && parameters.length > 0) {
     		sb.append('(');
     		boolean prependComma = false;
     		for (Object object : parameters) {
