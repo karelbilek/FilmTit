@@ -74,6 +74,7 @@ public class User implements Serializable, IsSerializable {
     public User getCloneWithoutDocuments() {
         User clone = new User();
 
+        clone.id = id;
         clone.name = name;
         clone.email = email;
         clone.permanentlyLoggedIn = permanentlyLoggedIn;
