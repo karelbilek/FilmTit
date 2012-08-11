@@ -31,7 +31,7 @@ public class CreateDocument extends Callable<DocumentResponse> {
         @Override
         public String getName() {
             return "CreateDocument("+documentTitle+","+movieTitle+","+
-                        language+","+subtext+","+subformat+","+moviePath+")";
+                        language+","+subtext.length()+","+subformat+","+moviePath+")";
         }
 
 		@Override	
