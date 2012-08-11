@@ -1,5 +1,8 @@
 package cz.filmtit.client;
 
+import java.util.Collection;
+import java.util.List;
+
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.exceptions.*;
 import cz.filmtit.share.*;
@@ -68,15 +71,41 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	// methods that must be overriden
 	
 	/**
-	 * invokes the RPC
+	 * Invokes the call.
+	 * Not to be called directly, please use enqueue().
 	 */
 	protected abstract void call();
-    abstract public String getName();
+	
+	/**
+	 * Processes the result of a successful return of the call.
+	 * @param returned
+	 */
     abstract public void onSuccessAfterLog(T returned);
     
     
-    
+
     // methods that can be overriden
+    
+    /**
+     * The name shown in logs.
+     * Should typically have the form of ClassName(parameter1, parameter2).
+     * The default implementation is sufficient for calls with no parameters.
+     */
+    public String getName() {
+    	return getClassName();
+    }
+    
+    /**
+     * Returns the name of this class, without any packages etc.
+     * To be used in getName().
+     * Can be overridden especially
+     * if the real class name does not correspond to the name of the call
+     * as defined in FilmTitService.
+     */
+    protected String getClassName() {
+    	String fullClassName = this.getClass().getName();
+        return fullClassName.substring(fullClassName.lastIndexOf(".")+1);
+    }
     
 	/**
 	 * Called when the call returns,
@@ -168,6 +197,34 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     
 	
     // final methods
+    
+    /**
+     * Constructs the name of the call,
+     * in the form of ClassName(parameter1, parameter2),
+     * using getClassName() for ClassName and toString() on parameters.
+     * Should be used to implement getName()
+     * in case the call has some parameters.
+     * @param parameters
+     * @return
+     */
+    protected final String getName(Collection<Object> parameters) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(getClassName());
+    	if (parameters != null && !parameters.isEmpty()) {
+    		sb.append('(');
+    		boolean prependComma = false;
+    		for (Object object : parameters) {
+				if (prependComma) {
+					sb.append(',');
+				}
+				prependComma = true;
+				sb.append(object.toString());
+			}
+    		sb.append(')');
+    	}
+    	
+    	return sb.toString();
+    }
     
 	/**
 	 * Prepares the call to be invoked and invokes it.
