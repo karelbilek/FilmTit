@@ -89,7 +89,12 @@ public class DocumentCreator extends Composite {
                 FileList fl = fileUpload.getFiles();
                 Iterator<File> fit = fl.iterator();
                 if (fit.hasNext()) {
-                    freader.readAsText(fit.next(), getChosenEncoding());
+                    File file = fit.next();
+                    if (file.getSize() > 500000) {
+                        lblUploadProgress.setText("File too bix (maximum is 500 kB)");
+                    } else {
+                        freader.readAsText(file, getChosenEncoding());
+                    }
                 } else {
                     Gui.log("No file chosen.\n");
                 }
