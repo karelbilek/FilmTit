@@ -90,6 +90,8 @@ public abstract class Callable<T> implements AsyncCallback<T> {
      * The name shown in logs.
      * Should typically have the form of ClassName(parameter1, parameter2).
      * The default implementation is sufficient for calls with no parameters.
+     * An override is expected to have the form of: <br>
+     * <code>return getNameWithParameters(parameter1, parameter2);</code>
      */
     public String getName() {
     	return getClassName();

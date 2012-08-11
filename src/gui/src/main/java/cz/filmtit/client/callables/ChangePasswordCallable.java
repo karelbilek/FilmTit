@@ -29,7 +29,7 @@ import com.google.gwt.user.client.*;
 
         @Override
         public String getName() {
-            return "ChangePassword("+username+","+password+")";
+            return getNameWithParameters(username, password);
         }
 
         public void onSuccessAfterLog(Boolean result) {
