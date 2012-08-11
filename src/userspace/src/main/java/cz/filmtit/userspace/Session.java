@@ -5,9 +5,12 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
+import cz.filmtit.share.exceptions.InvalidValueException;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.jboss.logging.Logger;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Represents a running session.
@@ -22,7 +25,9 @@ public class Session {
     private volatile long lastOperationTime;
     private volatile SessionState state;
     Logger logger = Logger.getLogger("Session");
-    
+
+    private static final Pattern timingRegexp = Pattern.compile("[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}]");
+
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     enum SessionState {active, loggedOut, terminated, killed}
@@ -130,13 +135,20 @@ public class Session {
         return null;
     }
 
-    public Void setEmail(String email) {
+    public Void setEmail(String email) throws InvalidChunkIdException {
+        if (!FilmTitBackendServer.mailRegexp.matcher(email).matches()) {
+            throw new InvalidChunkIdException(email + "is not a valid email address.");
+        }
+
         user.setEmail(email);
         saveUser();
         return null;
     }
 
-    public Void setMaximumNumberOfSuggestions(int number) {
+    public Void setMaximumNumberOfSuggestions(int number) throws InvalidValueException {
+        if (number < 0 || number > 100) {
+            throw new InvalidValueException("The maximum number of suggestion must be a positive integer lesser than 100.");
+        }
         user.setMaximumNumberOfSuggestions(number);
         saveUser();
         return null;
@@ -427,8 +439,12 @@ public class Session {
     }
 
     public Void setChunkStartTime(ChunkIndex chunkIndex, long documentId, String newStartTime)
-            throws InvalidDocumentIdException, InvalidChunkIdException {
+            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         updateLastOperationTime();
+
+        if (!timingRegexp.matcher(newStartTime).matches()) {
+            throw new InvalidValueException("Wrong format of the timing.");
+        }
 
         USDocument document = activeDocuments.get(documentId);
 
@@ -439,8 +455,12 @@ public class Session {
     }
 
     public Void setChunkEndTime(ChunkIndex chunkIndex, long documentId, String newEndTime)
-            throws InvalidDocumentIdException, InvalidChunkIdException {
+            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         updateLastOperationTime();
+
+        if (!timingRegexp.matcher(newEndTime).matches()) {
+            throw new InvalidValueException("Wrong format of the timing.");
+        }
 
         USDocument document = getActiveDocument(documentId);
 

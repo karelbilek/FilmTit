@@ -9,6 +9,7 @@ import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
 import cz.filmtit.share.ChunkStringGenerator;
+import cz.filmtit.share.exceptions.InvalidValueException;
 import cz.filmtit.userspace.IdGenerator;
 import cz.filmtit.userspace.Session;
 import cz.filmtit.userspace.USUser;
@@ -156,7 +157,7 @@ public class TestFilmtitBackendServer {
     }
 
     @Test
-    public void testCancelingOldSessionOnRelogin() throws NoSuchFieldException, IllegalAccessException {
+    public void testCancelingOldSessionOnRelogin() throws NoSuchFieldException, IllegalAccessException, InvalidValueException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
 
         // now get the table of active sessions
