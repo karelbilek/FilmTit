@@ -474,6 +474,20 @@ public class TranslationWorkspace extends Composite {
                     return true;
                }
           }
+          
+          /**
+           * Called to tell that there will be no more results,
+           * probably because the browser is offline,
+           * so that for all the remaining chunks
+           * there is no point in requesting them
+           * or waiting for them.
+           */
+          public void noMoreResults() {
+        	  for (TimedChunk chunk : chunks) {
+				  noResult(chunk.getChunkIndex());
+			  }
+        	  chunks.clear();
+          }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
         	  FilmTitServiceHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
