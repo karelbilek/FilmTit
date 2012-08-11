@@ -33,6 +33,6 @@ abstract class TranslationPairSearcher(
    */
   def candidates(chunk: Chunk, language: Language): List[TranslationPair]
 
-  def close() {}
+  def close()
 
 }

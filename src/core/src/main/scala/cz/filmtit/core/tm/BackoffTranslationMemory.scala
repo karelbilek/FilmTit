@@ -1,5 +1,6 @@
 package cz.filmtit.core.tm
 
+import _root_.java.io.IOException
 import cz.filmtit.core.model.{TranslationPairMerger, TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
 import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
@@ -47,6 +48,11 @@ class BackoffTranslationMemory(
     n: Int = 10, inner: Boolean = false,
     forbiddenSources: java.util.Set[TranslationSource] = java.util.Collections.emptySet[TranslationSource]
   ): List[TranslationPair] = {
+
+
+    if(!chunk.isActive) {
+      List[TranslationPair]()
+    }
 
     tokenize(chunk, language)
     logger.info( "n-best: (%s) %s".format(language, chunk) )

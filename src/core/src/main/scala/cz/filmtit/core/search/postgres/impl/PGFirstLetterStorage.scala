@@ -59,6 +59,7 @@ class PGFirstLetterStorage(
   override def warmup() {}
 
   override def reindex() {
+    log.info("Reindexing...")
     connection.createStatement().execute(("DROP index IF EXISTS idx_firstletter_l1;" +
       "CREATE INDEX idx_firstletter_l1 ON %s (firstletter(chunk_l1), pair_count DESC);").format(pairTable))
     connection.createStatement().execute(("DROP index IF EXISTS idx_firstletter_l2;" +

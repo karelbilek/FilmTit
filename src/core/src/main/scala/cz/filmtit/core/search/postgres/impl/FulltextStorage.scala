@@ -50,6 +50,7 @@ class FulltextStorage(
   override def name: String = "Translation pair storage using a full text index."
 
   def reindex() {
+    log.info("Reindexing...")
     connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext_l1;" +
       "CREATE INDEX idx_fulltext_l1 ON %s USING gin(to_tsvector('%s', chunk_l1));").format(pairTable, l1.getName.toLowerCase))
     connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext_l2;" +

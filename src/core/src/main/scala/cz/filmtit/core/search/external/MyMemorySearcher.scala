@@ -94,4 +94,6 @@ class MyMemorySearcher(
     candidates.toList
   }
 
+  def close() {}
+
 }

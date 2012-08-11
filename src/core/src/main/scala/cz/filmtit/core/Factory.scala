@@ -115,7 +115,7 @@ object Factory {
     var levels = List[BackoffLevel]()
 
     //First level exact matching
-    val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB)
+    val flSearcher = new PGFirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB)
     levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
 
     //Second level: Full text search
