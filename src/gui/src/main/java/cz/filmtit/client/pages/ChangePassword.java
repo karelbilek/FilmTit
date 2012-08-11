@@ -10,6 +10,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.Button;
 
@@ -53,6 +54,9 @@ public class ChangePassword extends Composite {
 	}
 
 	@UiField
+	Form changePasswordForm;
+	
+	@UiField
     PasswordTextBox txtPassword;
 
 	@UiField
@@ -61,15 +65,28 @@ public class ChangePassword extends Composite {
 	@UiField
 	Button btnChangePassword;
 	
-	@UiHandler("btnChangePassword")
-	void handleClick(ClickEvent e) {
-		if (checkForm()) {
-			FilmTitServiceHandler.changePassword(username, getPassword(), token);
-			Gui.log("trying to change password for user " + username);
-		} else {
-			// TODO tell user what errors there are
-			Window.alert("Please correct the form!");
+	@UiHandler("changePasswordForm")
+	void formSubmit(Form.SubmitEvent e) {
+		if (activated) {
+			if (checkForm()) {
+				deactivate();
+				FilmTitServiceHandler.changePassword(username, getPassword(), token);
+				Gui.log("trying to change password for user " + username);
+			} else {
+				// TODO tell user what errors there are
+				Window.alert("Your password must have at least 3 characters " +
+						"and must be repeated correctly!");
+			}
 		}
+	}
+	
+	boolean activated = true;
+	
+	public void deactivate() {
+		activated = false;
+		txtPassword.setEnabled(false);
+		txtPasswordRepeat.setEnabled(false);
+		btnChangePassword.setEnabled(false);
 	}
 	
     public String getPassword() {
