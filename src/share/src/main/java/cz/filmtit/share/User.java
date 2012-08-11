@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class User implements Serializable, IsSerializable {
+    private volatile long id = Long.MIN_VALUE;
     private volatile String name;
     private volatile String email;
     private volatile boolean permanentlyLoggedIn;
@@ -13,6 +14,18 @@ public class User implements Serializable, IsSerializable {
     private volatile boolean useMoses;
 
     public List<Document> ownedDocuments;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        if (this.id == id) { return; }
+        if (this.id != Long.MIN_VALUE) {
+            throw new UnsupportedOperationException("Once the document ID is set, it cannot be changed.");
+        }
+        this.id = id;
+    }
 
     public String getName() {
         return name;
