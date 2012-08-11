@@ -50,9 +50,9 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	protected boolean hasTimedOut = false;
 
 	/**
-	 * the time (in ms) after which the call fails with a timeout exception (defaults to 10s)
+	 * the time (in ms) after which the call fails with a timeout exception (defaults to 30s)
 	 */
-	protected int callTimeOut = 10000;
+	protected int callTimeOut = 30000;
 	
 	/**
 	 * Number of allowed retries

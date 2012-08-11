@@ -49,9 +49,6 @@ import cz.filmtit.client.dialogs.Dialog;
 			this.username = username;
 			this.loginDialog = loginDialog;
 			
-			// 20s
-			callTimeOut = 20000;
-			
 			enqueue();
 		}
 
