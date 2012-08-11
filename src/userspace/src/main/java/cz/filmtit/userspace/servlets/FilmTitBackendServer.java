@@ -208,6 +208,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
+	@Override
+	public Void setChunkTimes(String sessionID, ChunkIndex chunkIndex,
+			long documentId, String newStartTime, String newEndTime)
+			throws InvalidSessionIdException, InvalidChunkIdException,
+			InvalidDocumentIdException {
+		
+		Session session = getSessionIfCan(sessionID);
+		session.setChunkStartTime(chunkIndex, documentId, newStartTime);
+		session.setChunkEndTime(chunkIndex, documentId, newEndTime);
+		return null;
+	}
+
     @Override
     public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {

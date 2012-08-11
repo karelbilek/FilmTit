@@ -246,9 +246,6 @@ public class USDocument extends DatabaseObject {
      * @param dbSession  Opened database session.
      */
     public synchronized void saveToDatabase(Session dbSession) {
-        if (document.getMovie() != null) {
-            dbSession.saveOrUpdate(document.getMovie());
-        }
         saveJustObject(dbSession);
 
         if (translationResults != null) {

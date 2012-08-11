@@ -25,11 +25,11 @@ import java.util.*;
         
         @Override
         public void onSuccessAfterLog(List<Document> result) {
-            gui.log("received " + result.size() + " documents");
+            Gui.log("received " + result.size() + " documents");
             
             userpage.setDocuments(result);
             for (Document d:result) {
-                gui.log("GUI Dalsi document. Ma "+d.getTranslationResults().size()+" prfku.");
+                Gui.log("GUI Dalsi document. Ma "+d.getTranslationResults().size()+" prfku.");
             }
         }
 
@@ -50,7 +50,7 @@ import java.util.*;
         
 
 		@Override protected void call() {
-	        filmTitService.getListOfDocuments(gui.getSessionID(), this);
+	        filmTitService.getListOfDocuments(Gui.getSessionID(), this);
 		}
 
 	}

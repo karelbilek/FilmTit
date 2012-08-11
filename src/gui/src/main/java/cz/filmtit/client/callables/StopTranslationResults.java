@@ -25,10 +25,22 @@ import java.util.*;
             return "StopTranslationResults (chunks size: "+chunks.size()+")";
         }
 
+        // ignore the errors, it does not matter that much if this one fails
+        
 		@Override	
         public void onSuccessAfterLog(Void o) {
 			// nothing
         }
+		
+		@Override
+		protected void onInvalidSession() {
+			// nothing
+		}
+		
+		@Override
+		protected void onFinalError(String message) {
+			// nothing
+		}
         		
 		// constructor
 		public StopTranslationResults(List<TimedChunk> chunks) {
@@ -43,7 +55,7 @@ import java.util.*;
 		}
 
 		@Override protected void call() {
-            filmTitService.stopTranslationResults(gui.getSessionID(), chunks, this);
+            filmTitService.stopTranslationResults(Gui.getSessionID(), chunks, this);
 		}
 	}
 

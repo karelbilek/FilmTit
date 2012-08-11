@@ -50,10 +50,10 @@ public class CreateDocument extends Callable<DocumentResponse> {
         }
 		
 		@Override
-		public void onFailureAfterLog(Throwable returned) {
+		protected void onFinalError(String message) {
 			// TODO: keep the document title
 			Gui.getPageHandler().refresh();
-			super.onFailureAfterLog(returned);
+			super.onFinalError(message);
 		}
 		
 		/**
@@ -82,8 +82,8 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		}
 
 		@Override protected void call() {
-			gui.log("Creating document " + documentTitle + "; its language is " + language);
-			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, this);
+			Gui.log("Creating document " + documentTitle + "; its language is " + language);
+			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, this);
 		}
 	}
 

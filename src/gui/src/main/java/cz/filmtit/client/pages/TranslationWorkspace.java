@@ -1,21 +1,20 @@
 package cz.filmtit.client.pages;
 
 import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
-import com.github.gwtbootstrap.client.ui.Row;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.GetTranslationResults;
+import cz.filmtit.client.callables.SetChunkTimes;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
-import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
 import cz.filmtit.client.widgets.*;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -45,6 +44,18 @@ public class TranslationWorkspace extends Composite {
 //    public final int id;
     
     /**
+     * the currently active workspace
+     */
+    private static TranslationWorkspace currentWorkspace;
+    
+    /**
+     * the currently active workspace
+     */
+    public static TranslationWorkspace getCurrentWorkspace() {
+		return currentWorkspace;
+	}
+
+	/**
      * Indicates that the user moved away from this workspace
      * and that the loading of TranslationResults should be stopped
      */
@@ -55,18 +66,16 @@ public class TranslationWorkspace extends Composite {
 			getTranslationResults.stop();
 		}
 		this.stopLoading = true;
-		gui.log("stopLoading set for the workspace");
+		Gui.log("stopLoading set for the workspace");
 	}
 
 	public boolean getStopLoading() {
 		return stopLoading;
 	}
 
-	private Gui gui = Gui.getGui();
-	
 	public enum DocumentOrigin { NEW, FROM_DB }
 	
-	private DocumentOrigin documentOrigin;
+	// private DocumentOrigin documentOrigin;
 	
     ///////////////////////////////////////
     //                                   //
@@ -82,7 +91,7 @@ public class TranslationWorkspace extends Composite {
 
     public void setCurrentDocument(Document currentDocument) {
          this.currentDocument = currentDocument;
-         gui.pageHandler.setDocumentId(currentDocument.getId());
+         Gui.getPageHandler().setDocumentId(currentDocument.getId());
     }
     
     public Map<ChunkIndex, TimedChunk> chunkmap;
@@ -98,7 +107,7 @@ public class TranslationWorkspace extends Composite {
     }
 
     public Collection<TranslationResult> getChunkIndexesFrom(double start, double end) {
-        gui.log("Chci from "+start+" to "+end+ " A je jich "+reverseTimeMap.subMap(start, end).values().size()+" !");
+        Gui.log("Chci from "+start+" to "+end+ " A je jich "+reverseTimeMap.subMap(start, end).values().size()+" !");
         if (reverseTimeMap== null) {
             return new ArrayList<TranslationResult>();
         }
@@ -150,11 +159,11 @@ public class TranslationWorkspace extends Composite {
     public TranslationWorkspace(Document doc, String path, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
-        gui.pageHandler.setPageUrl(Page.TranslationWorkspace);
-        gui.guiStructure.activateMenuItem(Page.TranslationWorkspace);
+        Gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);
+        Gui.getGuiStructure().activateMenuItem(Page.TranslationWorkspace);
         
         // id = Random.nextInt(Integer.MAX_VALUE);
-        gui.currentWorkspace = this;
+        currentWorkspace = this;
         
         isVideo = path!=null;
         
@@ -180,7 +189,7 @@ public class TranslationWorkspace extends Composite {
 
         scrollPanel.setStyleName("scrollPanel");
         // hiding the suggestion popup when scrolling the subtitle panel
-        gui.guiStructure.contentPanel.addScrollHandler( new ScrollHandler() {
+        Gui.getGuiStructure().contentPanel.addScrollHandler( new ScrollHandler() {
             @Override
             public void onScroll(ScrollEvent event) {
                 deactivateSuggestionWidget();
@@ -241,9 +250,9 @@ public class TranslationWorkspace extends Composite {
         table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
         table.getRowFormatter().setStyleName(0, "header");
          
-        gui.guiStructure.contentPanel.setWidget(this);
-        gui.guiStructure.contentPanel.setStyleName("translating");
-        gui.guiStructure.contentPanel.addStyleName("parsing");
+        Gui.getGuiStructure().contentPanel.setWidget(this);
+        Gui.getGuiStructure().contentPanel.setStyleName("translating");
+        Gui.getGuiStructure().contentPanel.addStyleName("parsing");
 	}
     
     ///////////////////////////////////////
@@ -267,7 +276,7 @@ public class TranslationWorkspace extends Composite {
         setStopLoading(true);
         sourceSelected = false;
         translationStarted = false;
-        gui.guiStructure.contentPanel.removeStyleName("parsing");
+        Gui.getGuiStructure().contentPanel.removeStyleName("parsing");
         if (playerFixedPanel != null){
             Gui.getPanelForVLC().remove(playerFixedPanel);
         }
@@ -336,7 +345,7 @@ public class TranslationWorkspace extends Composite {
       */
      public void processText(String subtext, String subformat) {
           // dump the input text into the debug-area:
-    	  // gui.log("processing the following input:\n" + subtext + "\n");
+    	  // Gui.log("processing the following input:\n" + subtext + "\n");
 
           chunkmap = new HashMap<ChunkIndex, TimedChunk>();
           reverseTimeMap = new TreeMap<Double, TranslationResult>();
@@ -350,15 +359,15 @@ public class TranslationWorkspace extends Composite {
                assert subformat == "srt" : "One of the subtitle formats must be chosen.";
                subtextparser = new ParserSrt();
           }
-          gui.log("subtitle format chosen: " + subformat);
+          Gui.log("subtitle format chosen: " + subformat);
 
           // parse:
-          gui.log("starting parsing");
+          Gui.log("starting parsing");
           long startTime = System.currentTimeMillis();
           List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
-          gui.log("parsing finished in " + parsingTime + "ms");
+          Gui.log("parsing finished in " + parsingTime + "ms");
 
           
 
@@ -374,12 +383,12 @@ public class TranslationWorkspace extends Composite {
           
 
           // output the parsed chunks:
-          gui.log("parsed chunks: "+chunklist.size());
+          Gui.log("parsed chunks: "+chunklist.size());
           
           // save the chunks
           FilmTitServiceHandler.saveSourceChunks(chunklist, this);
           
-          gui.log("called saveSourceChunks()");
+          Gui.log("called saveSourceChunks()");
           
           // now the user can close the browser, chunks are safely saved
      }
@@ -478,7 +487,7 @@ public class TranslationWorkspace extends Composite {
       */
      public void submitUserTranslation(TranslationResult transresult) {
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getSourceChunk().getChunkIndex();
-          gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
+          Gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
           FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
@@ -538,7 +547,7 @@ public class TranslationWorkspace extends Composite {
                  showSource(timedchunk);
                  return true;
              }
-             gui.guiStructure.contentPanel.removeStyleName("parsing");
+             Gui.getGuiStructure().contentPanel.removeStyleName("parsing");
              return false;
          }
      }
@@ -554,6 +563,8 @@ public class TranslationWorkspace extends Composite {
         dealWithChunks(chunks, new LinkedList<TranslationResult>(), chunks);
      }
 
+     private Map<Integer, List<Label>> timeslabels = new HashMap<Integer, List<Label>>();
+     
      /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
      * the chunk text and an empty (fake)subgestbox. 
@@ -565,9 +576,18 @@ public class TranslationWorkspace extends Composite {
         
     	ChunkIndex chunkIndex = chunk.getChunkIndex();
 
+    	// create label
         Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
         timeslabel.setStyleName("chunk_timing");
-
+		timeslabel.addDoubleClickHandler(new TimeChangeHandler(chunk));
+		// add label to map
+		List<Label> timeslabelsWithThisTime = timeslabels.get(chunkIndex.getId());
+		if (timeslabelsWithThisTime == null) {
+			timeslabelsWithThisTime = new LinkedList<Label>();
+			timeslabels.put(chunkIndex.getId(), timeslabelsWithThisTime);
+		}
+		timeslabelsWithThisTime.add(timeslabel);
+		
         int index = lastIndex;
         lastIndex++;
 
@@ -589,6 +609,66 @@ public class TranslationWorkspace extends Composite {
         
     }
 
+    /**
+     * Used to change the time of a chunk.
+     * Also changes of all chunks with the same id
+     * (i.e. which are parts of the same chunk actually).
+     * Very rough and very TODO now.
+     */
+    class TimeChangeHandler implements DoubleClickHandler {
+
+    	private TimedChunk chunk;
+    	
+		private TimeChangeHandler(TimedChunk chunk) {
+			this.chunk = chunk;
+		}
+
+		@Override
+		public void onDoubleClick(DoubleClickEvent event) {
+			// TODO something nicer
+			// TODO: check values
+			// ask user for new values, showing the old ones
+			String newStartTime = Window.prompt(
+					"Start time of chunk " + chunk.getSurfaceForm(),
+					chunk.getStartTime());
+			String newEndTime = Window.prompt(
+					"End time of chunk " + chunk.getSurfaceForm(),
+					chunk.getEndTime());
+			// handle cancels
+			if (newStartTime == null) {
+				newStartTime = chunk.getStartTime();
+			}
+			if (newEndTime == null) {
+				newEndTime = chunk.getEndTime();
+			}
+			Gui.log("change times " + chunk + ": " + newStartTime + " - " + newEndTime);
+			// change values
+			if (!newStartTime.equals(chunk.getStartTime()) || !newEndTime.equals(chunk.getEndTime())) {
+				// change chunks
+				int id = chunk.getId();
+				int partNumber = 1;
+				ChunkIndex chunkIndex = new ChunkIndex(partNumber, id);
+				while (chunkmap.containsKey(chunkIndex)) {
+					// change chunk
+					TimedChunk cochunk = chunkmap.get(chunkIndex);
+					cochunk.setStartTime(newStartTime);
+					cochunk.setEndTime(newEndTime);
+					// RPC call
+					new SetChunkTimes(cochunk);
+					// move on
+					partNumber++;
+					chunkIndex = new ChunkIndex(partNumber, id);
+				}
+				// change labels
+				String newValue = chunk.getStartTime() + " - " + chunk.getEndTime();
+				List<Label> timeslabelsWithThisTime = timeslabels.get(id);
+				assert timeslabelsWithThisTime != null : "Each chunk must be there.";
+				for (Label label : timeslabelsWithThisTime) {
+					label.setText(newValue);
+				}
+			}
+		}
+    }
 
     public void replaceFake(ChunkIndex chunkIndex, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);

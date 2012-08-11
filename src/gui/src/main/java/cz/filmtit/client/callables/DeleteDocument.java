@@ -24,7 +24,13 @@ public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
 
     @Override
     public void onSuccessAfterLog(Void o) {
-        gui.pageHandler.refresh();
+        Gui.getPageHandler().refresh();
+    }
+    
+    @Override
+    protected void onFinalError(String message) {
+    	Gui.getPageHandler().refresh();
+    	super.onFinalError(message);
     }
         
     public DeleteDocument(long id) {
@@ -36,7 +42,7 @@ public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
     }
 
     @Override protected void call() {
-        filmTitService.deleteDocument(gui.getSessionID(), documentId, this);
+        filmTitService.deleteDocument(Gui.getSessionID(), documentId, this);
     }
 
 }

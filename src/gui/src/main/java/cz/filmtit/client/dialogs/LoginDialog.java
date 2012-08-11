@@ -10,6 +10,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.client.Gui;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -317,7 +318,7 @@ public class LoginDialog extends Dialog {
     	String password = txtLoginPassword.getText();
     	
     	if (checkLoginForm(username, password)) {
-            gui.log("trying to log in as user " + username);
+            Gui.log("trying to log in as user " + username);
             FilmTitServiceHandler.simpleLogin(username, password, LoginDialog.this);
     	}
 	}
@@ -325,7 +326,6 @@ public class LoginDialog extends Dialog {
     private boolean checkLoginForm(String username, String password) {
     	boolean result = false;
     	
-    	// TODO use some nice Bootstrap things instead of the alerts
     	if (!checkUsername(username)) {
     		reactivateWithErrorMessage("You must fill in your username!");
     	}
@@ -358,7 +358,7 @@ public class LoginDialog extends Dialog {
     void formOpenidLoginSubmit(Form.SubmitEvent e) {
         deactivate();
     	
-		gui.log("trying to log in through Google account");
+		Gui.log("trying to log in through Google account");
 		FilmTitServiceHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
 	}
 	
@@ -398,7 +398,7 @@ public class LoginDialog extends Dialog {
     	String email = txtRegEmail.getText();
     	
     	if (checkRegForm(username, password, passwordRepeat, email)) {
-            gui.log("trying to register as user " + username);
+            Gui.log("trying to register as user " + username);
            	FilmTitServiceHandler.registerUser(username, password, email, LoginDialog.this);
     	}
 	}
@@ -406,7 +406,6 @@ public class LoginDialog extends Dialog {
     private boolean checkRegForm(String username, String password, String passwordRepeat, String email) {
     	boolean result = false;
     	
-    	// TODO use some nice Bootstrap things instead of the alerts
     	if (!checkUsername(username)) {
     		reactivateWithErrorMessage("You cannot use this username!");
     	}
@@ -455,7 +454,7 @@ public class LoginDialog extends Dialog {
     	// String email = txtFpwdEmail.getText();
     	
     	if (checkFpwdForm(username)) {
-			gui.log("trying to send forgotten password email to user " + username);
+			Gui.log("trying to send forgotten password email to user " + username);
 			FilmTitServiceHandler.sendChangePasswordMail(username, LoginDialog.this);
     	}
 	}
@@ -463,7 +462,6 @@ public class LoginDialog extends Dialog {
     private boolean checkFpwdForm(String username /*, String email*/) {
     	boolean result = false;
     	
-    	// TODO use some nice Bootstrap things instead of the alerts
     	if (!checkUsername(username)) {
     		reactivateWithErrorMessage("You must fill in your username!");
     	}

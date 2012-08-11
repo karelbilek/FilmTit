@@ -1,5 +1,6 @@
 package cz.filmtit.client.callables;
 import cz.filmtit.client.Callable;
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.SessionResponse;
@@ -19,7 +20,7 @@ import cz.filmtit.share.SessionResponse;
         @Override
         public void onSuccessAfterLog(SessionResponse response) {
         	if (response == null) {
-        		gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
+        		Gui.log("ERROR: simple login didn't succeed - incorrect username or password.");
         		if (loginDialog != null) {
             		loginDialog.reactivateWithErrorMessage("Incorrect username or password - please try again.");            			
         		} else {
@@ -27,28 +28,28 @@ import cz.filmtit.share.SessionResponse;
         			new LoginDialog(username);
         		}
         	} else {
-        		gui.setSessionID(response.sessionID);
-        		gui.log("logged in as " + username + " with session id " + response.sessionID);
+        		Gui.setSessionID(response.sessionID);
+        		Gui.log("logged in as " + username + " with session id " + response.sessionID);
         		if (loginDialog != null) {
         			loginDialog.close();
         		}            		
-        		gui.logged_in(response.userWithoutDocs);
+        		Gui.logged_in(response.userWithoutDocs);
         	}
         }
 
         @Override
-        public void onFailureAfterLog(Throwable returned) {
-            String message = "There was an error with logging in. " +
+        protected void onFinalError(String message) {
+            String fullMessage = "There was an error with logging in. " +
 	    		"Please try again. " +
 	            "If problems persist, try contacting the administrators. " +
-	            "Error message from the server: " + returned;
-        	if (loginDialog != null) {
-        		loginDialog.reactivateWithErrorMessage(message);
-        	} else {
-        		
-        	}
+	            "Error message from the server: " + message;
+	    	if (loginDialog != null) {
+	    		loginDialog.reactivateWithErrorMessage(fullMessage);
+	    	} else {
+	    		new LoginDialog(username, fullMessage);
+	    	}
         }
-            
+        
         // constructor
         public SimpleLogin(String username, String password, Dialog dialog) {
 			super();

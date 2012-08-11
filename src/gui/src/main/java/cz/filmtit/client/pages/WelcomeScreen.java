@@ -23,14 +23,12 @@ public class WelcomeScreen extends Composite {
 	interface WelcomeScreenUiBinder extends UiBinder<Widget, WelcomeScreen> {
 	}
 
-	private Gui gui = Gui.getGui();
-	
 	public WelcomeScreen() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
         login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                if (gui.isLoggedIn()) {
+                if (Gui.isLoggedIn()) {
                 	FilmTitServiceHandler.logout();
                 } else {
                 	new LoginDialog();
@@ -47,12 +45,12 @@ public class WelcomeScreen extends Composite {
         about.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	gui.pageHandler.loadPage(Page.About);
+            	Gui.getPageHandler().loadPage(Page.About);
             }
         });
 
-        gui.guiStructure.contentPanel.setStyleName("welcoming");
-        gui.guiStructure.contentPanel.setWidget(this);
+        Gui.getGuiStructure().contentPanel.setStyleName("welcoming");
+        Gui.getGuiStructure().contentPanel.setWidget(this);
 	}
 
 

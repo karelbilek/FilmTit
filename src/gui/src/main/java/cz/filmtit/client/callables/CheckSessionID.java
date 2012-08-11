@@ -12,7 +12,6 @@ import cz.filmtit.share.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 
- // TODO will probably return the whole Session object - now returns username or null
 public class CheckSessionID extends Callable<SessionResponse> {
     	
     	// parameters
@@ -26,36 +25,31 @@ public class CheckSessionID extends Callable<SessionResponse> {
         @Override
         public void onSuccessAfterLog(SessionResponse response) {
             if (response != null) {
-                gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
-                gui.logged_in(response.userWithoutDocs);
+                Gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
+                Gui.logged_in(response.userWithoutDocs);
             } else {
-                gui.log("Warning: sessionID invalid.");
-                gui.logged_out();
+                Gui.log("Warning: sessionID invalid.");
+                Gui.logged_out();
             }
         }
-
+        
         @Override
-        public void onFailureAfterLog(Throwable caught) {
-            gui.logged_out();
+        protected void onInvalidSession() {
+            Gui.logged_out();
         }
         
         @Override
-        protected void onProbablyOffline(Throwable returned) {
-            gui.logged_out();
-        }
-        
-        @Override
-        protected void onTimeOut() {
-            gui.logged_out();
+        protected void onFinalError(String message) {
+            Gui.logged_out();
         }
 
         // constructor
     	public CheckSessionID() {
     		super();
     		
-    		sessionID = gui.getSessionID();
+    		sessionID = Gui.getSessionID();
     		if (sessionID == null) {
-                gui.logged_out();
+                Gui.logged_out();
         		return;
         	}
     		else {
@@ -64,7 +58,7 @@ public class CheckSessionID extends Callable<SessionResponse> {
     	}
     	
 		@Override protected void call() {
-			gui.log("Checking sessionID " + sessionID);
+			Gui.log("Checking sessionID " + sessionID);
             filmTitService.checkSessionID(sessionID, this);
 		}
 }

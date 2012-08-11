@@ -223,7 +223,25 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        document.setMovie(selectedMediaSource);
+
+        List sourcesFromDb = dbSession.createQuery("select m from MediaSource m where m.title like '" +
+                selectedMediaSource.getTitle()+"' and m.year like '" + selectedMediaSource.getYear() + "'").list();
+
+        if (sourcesFromDb.size() == 0) {
+            dbSession.save(selectedMediaSource);
+            document.setMovie(selectedMediaSource);
+        }
+        else {
+            // if the media source is already in db, update it to the latest freebase version
+            MediaSource fromDb = (MediaSource) sourcesFromDb.get(0);
+            fromDb.setGenres(selectedMediaSource.getGenres());
+            fromDb.setThumbnailURL(selectedMediaSource.getThumbnailURL());
+            dbSession.update(fromDb);
+
+            document.setMovie(fromDb);
+        }
+
+
         document.saveToDatabase(dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
 
