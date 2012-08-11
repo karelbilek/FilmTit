@@ -72,6 +72,7 @@ public interface FilmTitService extends RemoteService {
      * @return true on success, false if username is incorrect or there is no email address
      */
     Boolean sendChangePasswordMail(String username);
+    Boolean sendChangePasswordMailByMail(String email);
     
     // - Logout
     Void logout(String sessionID) throws InvalidSessionIdException;
