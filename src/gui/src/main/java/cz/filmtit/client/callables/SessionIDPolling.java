@@ -54,6 +54,7 @@ import java.util.*;
 				else {
 					Gui.log("no session ID received");
 					// continue polling
+					hasReturned = false;
 					new EnqueueTimer(300);
 				}
 			}
