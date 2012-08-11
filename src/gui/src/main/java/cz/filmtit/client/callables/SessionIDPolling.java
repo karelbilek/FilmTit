@@ -93,9 +93,6 @@ import java.util.*;
 			
 			this.authID = authID;
 
-			// 20s
-			callTimeOut = 20000;
-			
 			createDialog();
 			
 			sessionIDPolling = true;

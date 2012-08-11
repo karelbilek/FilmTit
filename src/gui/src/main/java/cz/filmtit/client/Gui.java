@@ -79,6 +79,20 @@ public class Gui implements EntryPoint {
 		}
 	}
 
+    /**
+     * 
+     * @return The id of the user logged in,
+     * or -1 if there is none.
+     */
+    public static long getUserID() {
+		if (user != null) {
+	    	return user.getId();			
+		}
+		else {
+			return -1;
+		}
+	}
+
 	private static String sessionID;
     
     private static final String SESSIONID = "sessionID";

@@ -17,8 +17,6 @@ import cz.filmtit.client.dialogs.GoingOnlineDialog;
 
 public class LocalStorageHandler {
 
-    // TODO: a bunch of Dialogs instead of the Alerts and Confirms.
-	
 	// TODO: use a special object stored in the Storage as a descriptor of the data in the storage
 	// probably under the userID as the key
 	// (but beware because the user can modify the contents of the Storage)
@@ -219,19 +217,19 @@ public class LocalStorageHandler {
 	}
 
 	/**
-	 * a separator of username at the end of the key
+	 * a separator of userid at the end of the key
 	 */
-	public static final String USERNAME_SEPARATOR = "@";
+	public static final String USERID_SEPARATOR = "@";
 	
 	/**
-	 * a separator of class at the end of the key but before the username
+	 * a separator of class at the end of the key but before the user id
 	 */
 	public static final String CLASSID_SEPARATOR = ":";
 	
 	/**
 	 * A separator of the individual fields in the value,
 	 * and in the key
-	 * after class and username are stripped off
+	 * after class and user id are stripped off
 	 */
 	public static final String FIELDS_SEPARATOR = ";";
 	
@@ -248,15 +246,15 @@ public class LocalStorageHandler {
 			for (int i = 0; i < storage.getLength(); i++) {
 				String key = storage.key(i);
 				Gui.log("Found item with key " + key);
-				String[] keyFields = key.split(USERNAME_SEPARATOR, 2);
+				String[] keyFields = key.split(USERID_SEPARATOR, 2);
 				// check the key
 				if (keyFields.length == 2) {
-					String key_without_username = keyFields[0];
-					String username = keyFields[1];
-					// check username
-					if (username.equals(Gui.getUsername())) {
+					String key_without_userid = keyFields[0];
+					String userid = keyFields[1];
+					// check userid
+					if (userid.equals(Gui.getUserID())) {
 						String value = storage.getItem(key);
-						objects.add(new KeyValuePair(key_without_username, value));
+						objects.add(new KeyValuePair(key_without_userid, value));
 					}
 					// else somebody elses object, just keep it
 				}
@@ -338,7 +336,7 @@ public class LocalStorageHandler {
 	 * belonging to the current user
 	 * from the local storage.
 	 * The key must contain the class_id
-	 * and not contain the username.
+	 * and not contain the userid.
 	 */
 	private static List<Storable> convertToStorable(List<KeyValuePair> keyValuePairs) {
 		List<Storable> objects = new LinkedList<Storable>();
@@ -352,7 +350,7 @@ public class LocalStorageHandler {
 			}
 			else {
 				Gui.log("Removing corrupted item " + keyValuePair);
-				storage.removeItem(keyValuePair.getKey() + USERNAME_SEPARATOR + Gui.getUsername());
+				storage.removeItem(keyValuePair.getKey() + USERID_SEPARATOR + Gui.getUserID());
 			}
 		}
 		return objects;
@@ -361,7 +359,7 @@ public class LocalStorageHandler {
 	/**
 	 * Determines the class of the object and loads it.
 	 * The key must contain the class_id
-	 * and not contain the username.
+	 * and not contain the user id.
 	 * @return The object on success, null otherwise.
 	 */
 	private static Storable loadObject(KeyValuePair keyValuePair) {
@@ -417,7 +415,7 @@ public class LocalStorageHandler {
 	}
     
     /**
-     * Add class id and username to the key.
+     * Add class id and user id to the key.
      * @param key
      * @return
      */
@@ -426,8 +424,8 @@ public class LocalStorageHandler {
 		keyBuilder.append(key);
 		keyBuilder.append(CLASSID_SEPARATOR);
 		keyBuilder.append(classId);
-		keyBuilder.append(USERNAME_SEPARATOR);
-		keyBuilder.append(Gui.getUsername());
+		keyBuilder.append(USERID_SEPARATOR);
+		keyBuilder.append(Gui.getUserID());
 		return keyBuilder.toString();
     }
 

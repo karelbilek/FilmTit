@@ -44,8 +44,8 @@ public class SaveSourceChunks extends Callable<Void> {
 			this.chunks = chunks;
             this.workspace = workspace;
 
-			// 10s + 0.1s for each chunk
-			callTimeOut = 10000 + 100 * chunks.size();
+			// + 0.1s for each chunk
+			callTimeOut += 100 * chunks.size();
 			
 			enqueue();
 		}
