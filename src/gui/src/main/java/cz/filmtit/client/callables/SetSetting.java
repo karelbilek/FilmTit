@@ -14,8 +14,10 @@ public abstract class SetSetting<T> extends Callable<Void> {
 
 	@Override
 	public String getName() {
-		return this.getClass().toString() + "(" + setting.toString() + ")";
+		return getClassName() + "(" + setting.toString() + ")";
 	}
+	
+	abstract protected String getClassName();
     
     @Override
     public void onSuccessAfterLog(Void o) {
@@ -28,13 +30,18 @@ public abstract class SetSetting<T> extends Callable<Void> {
     }
     
     // constructor
+    /**
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitely!
+     */
     public SetSetting(T setting, Settings settingsPage) {
 		super();
 		
 		this.setting = setting;
 		this.settingsPage = settingsPage;
 
-        enqueue();
+		// do not enqueue on construction
+        // enqueue();
 	}
 
 }

@@ -17,5 +17,10 @@ public class SetMaximumNumberOfSuggestions extends SetSetting<Integer> {
 		filmTitService.setMaximumNumberOfSuggestions(Gui.getSessionID(), setting, this);
 	}
 
+	@Override
+	protected String getClassName() {
+		return "SetMaximumNumberOfSuggestions";
+	}
+
 }
 

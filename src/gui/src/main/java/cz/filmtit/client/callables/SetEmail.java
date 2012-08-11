@@ -17,5 +17,10 @@ public class SetEmail extends SetSetting<String> {
 		filmTitService.setEmail(Gui.getSessionID(), setting, this);
 	}
 
+	@Override
+	protected String getClassName() {
+		return "SetEmail";
+	}
+
 }
 

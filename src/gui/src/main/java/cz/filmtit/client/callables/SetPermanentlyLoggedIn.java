@@ -17,5 +17,10 @@ public class SetPermanentlyLoggedIn extends SetSetting<Boolean> {
 		filmTitService.setPermanentlyLoggedIn(Gui.getSessionID(), setting, this);
 	}
 
+	@Override
+	protected String getClassName() {
+		return "SetPermanentlyLoggedIn";
+	}
+
 }
 

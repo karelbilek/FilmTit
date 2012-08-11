@@ -15,17 +15,17 @@ import com.google.gwt.user.client.*;
 public class LoadSettings extends Callable<SessionResponse> {
     	
     	// parameters
-    	String sessionID;
     	ReceivesSettings settingsReceiver;
     	
         @Override
         public String getName() {
-            return "checkSessionID ("+sessionID+")";
+            return "LoadSettings";
         }
 
         @Override
         public void onSuccessAfterLog(SessionResponse response) {
             if (response != null) {
+        		Gui.resetUser(response.userWithoutDocs);
             	settingsReceiver.onSettingsReceived(response.userWithoutDocs);
             } else {
                 Gui.log("Warning: sessionID invalid.");

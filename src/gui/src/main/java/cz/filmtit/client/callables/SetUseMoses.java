@@ -17,5 +17,10 @@ public class SetUseMoses extends SetSetting<Boolean> {
 		filmTitService.setUseMoses(Gui.getSessionID(), setting, this);
 	}
 
+	@Override
+	protected String getClassName() {
+		return "SetUseMoses";
+	}
+
 }
 
