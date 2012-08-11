@@ -174,6 +174,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	public final void enqueue() {
 		if (!hasReturned) {
+            Gui.log("RPC ENQUEUE "+getName());
 			setTimer();
 			call();
 		}
