@@ -16,6 +16,7 @@
     <url-pattern>/gui/greet</url-pattern>
   </servlet-mapping>-->
 
+    <!--
   <servlet>
     <servlet-name>FilmTitBackendServer</servlet-name>
     <servlet-class>cz.filmtit.userspace.servlets.FilmTitBackendServer</servlet-class>
@@ -25,6 +26,7 @@
     <servlet-name>FilmTitBackendServer</servlet-name>
     <url-pattern>/gui/filmtit</url-pattern>
   </servlet-mapping>
+    -->
 
   <!-- Default page to serve -->
   <welcome-file-list>

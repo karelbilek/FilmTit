@@ -3,6 +3,8 @@ package cz.filmtit.client.callables;
 import cz.filmtit.client.*;
 import com.google.gwt.user.client.ui.*;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.client.dialogs.LoginDialog.Tab;
 
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -32,18 +34,25 @@ import com.google.gwt.user.client.*;
 
         public void onSuccessAfterLog(Boolean result) {
             if (result) {
-                gui.log("changed password for user " + username);
-                gui.getPageHandler().loadBlankPage();
-                gui.getPageHandler().setPageUrl(Page.UserPage);
+                Gui.log("changed password for user " + username);
+                Gui.getPageHandler().loadBlankPage();
+                Gui.getPageHandler().setPageUrl(Page.UserPage);
                 FilmTitServiceHandler.simpleLogin(username, password, null);
                 displayWindow("You successfully changed the password for your username '" + username + "'!");
             } else {
-                gui.log("ERROR: password change didn't succeed - token invalid");
-                gui.showLoginDialog(username);
-                displayWindow("ERROR: password change didn't succeed - the token is invalid, probably expired. " +
-                        "Please try requesting a new password change token" +
-                        "(by clicking the button labelled 'Forgotten password').");
+                Gui.log("ERROR: password change didn't succeed - token invalid");
+                Gui.getPageHandler().loadPage(Page.WelcomeScreen);
+                new LoginDialog(username, Tab.ForgottenPassword,
+            			"Password change didn't succeed - the token is invalid, probably expired. " +
+                        "Please try requesting a new password change token"
+        			);
             }
+        }
+        
+        @Override
+        protected void onFinalError(String message) {
+            Gui.getPageHandler().loadPage(Page.WelcomeScreen);
+            new LoginDialog(username, Tab.ForgottenPassword, message);
         }
 
 

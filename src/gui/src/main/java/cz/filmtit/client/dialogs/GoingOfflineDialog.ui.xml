@@ -1,0 +1,61 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client"
+             xmlns:my="urn:import:cz.filmtit.client.dialogs">
+
+    <g:HTMLPanel>
+
+        <my:CustomModal ui:field="dialogBox" title="Offline Mode" backdrop="STATIC" keyboard="true">
+
+            <b:Form type="HORIZONTAL" ui:field="goingOfflineForm">
+
+                <b:Paragraph>
+                    There is no connection to the server - 
+                    either your computer is offline or the server is down.
+                </b:Paragraph>
+                
+                <b:Paragraph>
+                    You can now continue with your translations in Offline Mode.
+                    Your work will be saved in your browser,
+                    even if you close the page or turn of your computer.
+                    (However, if you close the translation page,
+                    you will not be able to reopen it until you go online again!
+                    This is because in Offline Mode,
+                    FilmTit cannot check your login
+                    and load the translation suggestions from the server.)
+                    <!--
+                        TODO: Well, we could store the whole document and the suggestions,
+                        but this would only allow the user to navigate to another page within FilmTit...
+                        Once the user closes FilmTit, there is no way he can get it back offline I am afraid.
+                        I don't think this is useful at all, so I think it is not worth the work.
+                    -->
+                </b:Paragraph>
+                
+                <b:Paragraph>
+                    When you are online again,
+                    just reopen or reload FilmTit, log in if necessary,
+                    and your data from Offline Mode
+                    will be automatically uploaded to the server.
+                </b:Paragraph>
+
+                <b:Fieldset>
+                    
+                    <b:ModalFooter>
+
+	                    <b:ControlGroup>
+	                        <b:Controls>
+	                            <b:SubmitButton ui:field="offlineButton" type="PRIMARY">Turn on Offline Mode</b:SubmitButton>
+	                            <!-- <b:Button ui:field="cancelButton">Cancel</b:Button> -->
+	                        </b:Controls>
+	                    </b:ControlGroup>
+                    
+                    </b:ModalFooter>
+                    
+                </b:Fieldset>
+            </b:Form>
+
+        </my:CustomModal>
+    </g:HTMLPanel>
+
+</ui:UiBinder> 

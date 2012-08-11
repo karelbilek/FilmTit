@@ -12,8 +12,7 @@ import cz.filmtit.share.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 
- // TODO will probably return the whole Session object - now returns username or null
-public class CheckSessionID extends Callable<String> {
+public class CheckSessionID extends Callable<SessionResponse> {
     	
     	// parameters
     	String sessionID;
@@ -24,33 +23,33 @@ public class CheckSessionID extends Callable<String> {
         }
 
         @Override
-        public void onSuccessAfterLog(String username) {
-            if (username != null && username!="") {
-                gui.log("logged in as " + username + " with session id " + sessionID);
-                gui.logged_in(username);
+        public void onSuccessAfterLog(SessionResponse response) {
+            if (response != null) {
+                Gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
+                Gui.logged_in(response.userWithoutDocs);
             } else {
-                gui.log("Warning: sessionID invalid.");
-                gui.logged_out();
+                Gui.log("Warning: sessionID invalid.");
+                Gui.logged_out();
             }
-        }
-
-        @Override
-        public void onFailureAfterLog(Throwable caught) {
-            gui.logged_out();
         }
         
         @Override
-        protected void onProbablyOffline(Throwable returned) {
-            gui.logged_out();
+        protected void onInvalidSession() {
+            Gui.logged_out();
+        }
+        
+        @Override
+        protected void onFinalError(String message) {
+            Gui.logged_out();
         }
 
         // constructor
     	public CheckSessionID() {
     		super();
     		
-    		sessionID = gui.getSessionID();
+    		sessionID = Gui.getSessionID();
     		if (sessionID == null) {
-                gui.logged_out();
+                Gui.logged_out();
         		return;
         	}
     		else {
@@ -59,7 +58,7 @@ public class CheckSessionID extends Callable<String> {
     	}
     	
 		@Override protected void call() {
-			gui.log("Checking sessionID " + sessionID);
+			Gui.log("Checking sessionID " + sessionID);
             filmTitService.checkSessionID(sessionID, this);
 		}
 }

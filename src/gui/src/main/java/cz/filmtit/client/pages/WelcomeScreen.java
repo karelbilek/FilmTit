@@ -12,6 +12,8 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.client.dialogs.LoginDialog.Tab;
 
 public class WelcomeScreen extends Composite {
 
@@ -21,36 +23,34 @@ public class WelcomeScreen extends Composite {
 	interface WelcomeScreenUiBinder extends UiBinder<Widget, WelcomeScreen> {
 	}
 
-	private Gui gui = Gui.getGui();
-	
 	public WelcomeScreen() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
         login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                if (gui.loggedIn) {
+                if (Gui.isLoggedIn()) {
                 	FilmTitServiceHandler.logout();
                 } else {
-                	gui.showLoginDialog();
+                	new LoginDialog();
                 }
             }
         });
         register.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                gui.showRegistrationForm();
+                new LoginDialog(Tab.Register);
             }
         });
 
         about.addClickHandler( new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	gui.pageHandler.loadPage(Page.About);
+            	Gui.getPageHandler().loadPage(Page.About);
             }
         });
 
-        gui.guiStructure.contentPanel.setStyleName("welcoming");
-        gui.guiStructure.contentPanel.setWidget(this);
+        Gui.getGuiStructure().contentPanel.setStyleName("welcoming");
+        Gui.getGuiStructure().contentPanel.setWidget(this);
 	}
 
 

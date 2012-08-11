@@ -137,6 +137,6 @@ class MosesServerSearcher(
     )
   }
   
-  
+  def close() {}
 
 }

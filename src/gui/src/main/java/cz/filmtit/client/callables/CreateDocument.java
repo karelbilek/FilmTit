@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.DialogBox;
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.MediaSelector;
 import cz.filmtit.client.pages.TranslationWorkspace;
@@ -48,6 +49,13 @@ public class CreateDocument extends Callable<DocumentResponse> {
             });
         }
 		
+		@Override
+		protected void onFinalError(String message) {
+			// TODO: keep the document title
+			Gui.getPageHandler().refresh();
+			super.onFinalError(message);
+		}
+		
 		/**
 		 * Called by MediaSelector when MediaSource is selected
 		 * @param documentId
@@ -74,8 +82,8 @@ public class CreateDocument extends Callable<DocumentResponse> {
 		}
 
 		@Override protected void call() {
-			gui.log("Creating document " + documentTitle + "; its language is " + language);
-			filmTitService.createNewDocument(gui.getSessionID(), documentTitle, movieTitle, language, this);
+			Gui.log("Creating document " + documentTitle + "; its language is " + language);
+			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, this);
 		}
 	}
 

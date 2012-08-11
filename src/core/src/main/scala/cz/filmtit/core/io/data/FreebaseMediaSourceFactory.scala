@@ -48,7 +48,7 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     try {
       yearFormat.format(fbDateFormat.parse(fbDate))
     } catch {
-      case e: Exception => fbDate
+      case e: Exception => ""
     }
   }
 

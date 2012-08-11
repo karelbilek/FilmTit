@@ -38,8 +38,6 @@ public class DocumentCreator extends Composite {
 	interface DocumentCreatorUiBinder extends UiBinder<Widget, DocumentCreator> {
 	}
 
-	private Gui gui = Gui.getGui();
-	
     boolean copyingTitle = true;
 
 	public DocumentCreator() {
@@ -93,7 +91,7 @@ public class DocumentCreator extends Composite {
                 if (fit.hasNext()) {
                     freader.readAsText(fit.next(), getChosenEncoding());
                 } else {
-                    gui.error("No file chosen.\n");
+                    Gui.log("No file chosen.\n");
                 }
             }
         });
@@ -126,7 +124,7 @@ public class DocumentCreator extends Composite {
         });
 
         
-        gui.guiStructure.contentPanel.setWidget(this);
+        Gui.getGuiStructure().contentPanel.setWidget(this);
 	}
 
 

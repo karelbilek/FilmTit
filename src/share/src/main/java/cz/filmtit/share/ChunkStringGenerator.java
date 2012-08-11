@@ -1,4 +1,4 @@
-package cz.filmtit.userspace;
+package cz.filmtit.share;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,29 @@ public class ChunkStringGenerator {
          this.type = type;
          this.fps = fps;
          this.converter = converter;
+     }
+
+                   //will not care about time
+     public static String listWithSameTimeToString(List<TranslationResult> results, ResultToChunkConverter converter) {
+        if (results == null || results.size()==0) {
+            return "";
+        }
+
+        TimedChunk res=null;
+        for (TranslationResult r:results) {
+            TimedChunk chunk = converter.getChunk(r);
+            if (chunk!=null) {
+                if (res == null) {
+                    res = chunk;
+                } else {
+                    res = res.joinWith(chunk, TimedChunk.FileType.SRT);
+                }
+            }
+        }
+        if (res == null) {
+            return "";
+        }
+        return res.getFormatedForm("- ", "\n");
      }
 
      public String toString(){
@@ -63,8 +86,10 @@ public class ChunkStringGenerator {
     public static ResultToChunkConverter TARGET_SIDE_WITH_THROWBACK = new ResultToChunkConverter() {
         @Override
         public TimedChunk getChunk(TranslationResult result) {
+            boolean isDialogue = result.getSourceChunk().isDialogue();
+            
             if (result.getUserTranslation()!=null && !result.getUserTranslation().equals("")) {
-                return result.getUserTranslationAsChunk();
+                return result.getUserTranslationAsChunk(isDialogue);
             } else {
                 return result.getSourceChunk();
             }
@@ -74,8 +99,10 @@ public class ChunkStringGenerator {
     public static ResultToChunkConverter TARGET_SIDE = new ResultToChunkConverter() {
         @Override
         public TimedChunk getChunk(TranslationResult result) {
+            boolean isDialogue = result.getSourceChunk().isDialogue();
+
             if (result.getUserTranslation()!=null && !result.getUserTranslation().equals("")) {
-                return result.getUserTranslationAsChunk();
+                return result.getUserTranslationAsChunk(isDialogue);
             } else {
                 return null;
             }

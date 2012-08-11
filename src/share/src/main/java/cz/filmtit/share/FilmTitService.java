@@ -28,25 +28,33 @@ public interface FilmTitService extends RemoteService {
     
     // Subtitles handling
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-    	throws InvalidSessionIdException, InvalidDocumentIdException;
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
+    	throws InvalidSessionIdException, InvalidDocumentIdException;
+    Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
     	throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
+    // User settings
+    public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException;
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException;
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException;
+    public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
+
     // Logging in methods
     // - Prepared for using JOpenID
     LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);
     Boolean validateAuthentication(int authID, String responseURL);
-    String getSessionID(int authID) throws AuthenticationFailedException;
+    SessionResponse getSessionID(int authID) throws AuthenticationFailedException;
     
     // Simple login
     // - registration (true if successful)
     Boolean  registration(String name ,  String pass  , String email, String openId);
     // - login (returns session id on success, null in case of error (should throw an exception eventually))
-    String simpleLogin(String username, String password);
+    SessionResponse simpleLogin(String username, String password);
     /**
      * change password in case of forgotten password;
      * user chooses a new password,
@@ -77,7 +85,9 @@ public interface FilmTitService extends RemoteService {
     Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+    Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)
+    		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException;
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
@@ -85,5 +95,5 @@ public interface FilmTitService extends RemoteService {
     Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
 
-    public String checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
+    public SessionResponse checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
 }

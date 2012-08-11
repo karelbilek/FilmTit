@@ -1,33 +1,16 @@
 package cz.filmtit.client;
 
-import com.github.gwtbootstrap.client.ui.NavLink;
-import com.github.gwtbootstrap.client.ui.NavWidget;
-import com.google.gwt.core.client.*;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
+import java.util.Date;
 
-import cz.filmtit.share.*;
-import cz.filmtit.share.parsing.*;
-import org.vectomatic.file.File;
-import org.vectomatic.file.FileList;
-import org.vectomatic.file.FileReader;
-import org.vectomatic.file.events.LoadEndEvent;
-import org.vectomatic.file.events.LoadEndHandler;
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HTMLPanel;
 
 import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.client.callables.SetUserTranslation;
-import cz.filmtit.client.dialogs.DownloadDialog;
-import cz.filmtit.client.dialogs.LoginDialog;
-import cz.filmtit.client.dialogs.LoginDialog.Tab;
 import cz.filmtit.client.pages.GuiStructure;
-import cz.filmtit.client.pages.TranslationWorkspace;
-import cz.filmtit.client.subgestbox.SubgestBox.FakeSubgestBox;
-
-import com.google.gwt.cell.client.FieldUpdater;
-
-import java.util.*;
+import cz.filmtit.share.User;
 
 /**
  * Entry point for the FilmTit GWT web application,
@@ -46,43 +29,62 @@ public class Gui implements EntryPoint {
     ///////////////////////////////////////
     
 	/**
-	 * a singleton representing the Gui instance
+	 * handles especially the menu
 	 */
-	private static Gui gui;
-	
-	/**
-	 * a singleton representing the Gui instance
-	 */
-	public static Gui getGui() {
-		return gui;
-	}
+    private static GuiStructure guiStructure;
 
 	/**
 	 * handles especially the menu
 	 */
-    public GuiStructure guiStructure;
+ 	public static GuiStructure getGuiStructure() {
+		return guiStructure;
+	}
 
+	/**
+ 	 * handles page switching
+ 	 */
+    private static PageHandler pageHandler;
+   
  	/**
  	 * handles page switching
  	 */
-    public PageHandler pageHandler;
-   
-    public PageHandler getPageHandler() {
+    public static PageHandler getPageHandler() {
         return pageHandler;
     }
     
+    public static HTMLPanel getPanelForVLC() {
+        return guiStructure.getPanelForVLC();
+    }
+
     // Login state fields
 
-    public boolean loggedIn = false;
+    private static boolean loggedIn = false;
     
-    private String username;
+    public static boolean isLoggedIn() {
+		return loggedIn;
+	}
 
-    private String sessionID;
+	private static User user;
+
+    public static User getUser() {
+		return user;
+	}
+
+    public static String getUsername() {
+		if (user != null) {
+	    	return user.getName();			
+		}
+		else {
+			return null;
+		}
+	}
+
+	private static String sessionID;
     
     private static final String SESSIONID = "sessionID";
     
     // persistent session ID via cookies (set to null to unset)
-    public void setSessionID(String newSessionID) {
+    public static void setSessionID(String newSessionID) {
          if (newSessionID == null) {
               Cookies.removeCookie(SESSIONID);
          } else {
@@ -92,7 +94,7 @@ public class Gui implements EntryPoint {
     }
 
     // persistent session ID via cookies (null if not set)
-    public String getSessionID() {
+    public static String getSessionID() {
          if (sessionID == null) {
               sessionID = Cookies.getCookie(SESSIONID);
          }
@@ -101,11 +103,6 @@ public class Gui implements EntryPoint {
     
     // Other fields
 
-    /**
-     * the current workspace
-     */
-    public TranslationWorkspace currentWorkspace;
-    
     @SuppressWarnings("deprecation")
     public static Date getDateIn1Year() {
         // cookies should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
@@ -114,6 +111,7 @@ public class Gui implements EntryPoint {
     	return in1year;
     }
 
+    
     ///////////////////////////////////////
     //                                   //
     //      The "main()" of GUI          //
@@ -126,15 +124,17 @@ public class Gui implements EntryPoint {
     	// handle all uncaught exceptions
     	GWT.setUncaughtExceptionHandler(new ExceptionHandler(true, true));
     	
-    	// set the Gui singleton
-    	Gui.gui = this;
-
-		// page loading and switching
+		// set the pageHandler singleton for page loading and switching
 		pageHandler = new PageHandler();
 		
-		if (pageHandler.doCheckSessionID) {
+		if (getPageHandler().fullInitialization) {
+			
+            // base of GUI is created
+    		guiStructure = new GuiStructure();
+            
     		// check whether user is logged in or not
     		FilmTitServiceHandler.checkSessionID();
+    		
 		}
 		
     }
@@ -146,56 +146,55 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
-    long start=0;
-    private StringBuilder sb = new StringBuilder();
+    private static long start=0;
+    private static StringBuilder logStringBuilder = new StringBuilder();
     /**
      * Output the given text in the debug textarea
-    * with a timestamp relative to the first logging.
+     * with a timestamp relative to the first logging.
      * @param logtext
      */
-    public void log(String logtext) {
-   	 if (guiStructure != null) {
-	        if (start == 0) {
-	            start = System.currentTimeMillis();
-	        }
-	        long diff = (System.currentTimeMillis() - start);
-	        sb.append(diff);
-	        sb.append(" : ");
+     public static void log(String logtext) {
+         // assemble message
+    	 if (start == 0) {
+             start = System.currentTimeMillis();
+         }
+         long diff = (System.currentTimeMillis() - start);
+         logStringBuilder.append(diff);
+         logStringBuilder.append(" : ");
+         
+         logStringBuilder.append(logtext);
+         logStringBuilder.append("\n");
+         
+         // display message
+         if (guiStructure != null) {
+             guiStructure.txtDebug.setText(logStringBuilder.toString());
+         }
+         else {
+             // txtDebug not created
+             // but let's at least display the message in the statusbar
+             // (does not work in Firefox according to documentation)
+             Window.setStatus(logtext);
+         }
+         // also log to development console
+         GWT.log(logtext);
+     }
 
-	        sb.append(logtext);
-	        sb.append("\n");
-	        guiStructure.txtDebug.setText(sb.toString());
-   	 }
-   	 else {
-       	 // txtDebug not created
-   		 // but let's at least display the message in the statusbar
-   		 // (does not work in Firefox according to documentation)
-   		 Window.setStatus(logtext);
-   	 }
-   	 // also log to development console
-   	 GWT.log(logtext);
-    }
-
-    public void error(String errtext) {
-         log(errtext);
-    }
-    
     /**
      * log and alert the exception
      * @param e the exception
      * @return the logged string
      */
-    public String exceptionCatcher(Throwable e) {
+    public static String exceptionCatcher(Throwable e) {
     	// TODO: for production, this should be:
     	// return exceptionCatcher(e, false, true)
     	return exceptionCatcher(e, true, true);    	
     }
     
-    public String exceptionCatcher(Throwable e, boolean alertIt) {
+    public static String exceptionCatcher(Throwable e, boolean alertIt) {
     	return exceptionCatcher(e, alertIt, true);
     }
     
-    public String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
+    public static String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
     			
 		StringBuilder sb = new StringBuilder();
 		
@@ -249,58 +248,16 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
-    /**
-     * show a dialog enabling the user to
-     * log in directly or [this line maybe to be removed]
-     * via OpenID services
-     */
-	public void showLoginDialog() {
-		showLoginDialog("");
-	}
-     
-    /**
-     * show a dialog enabling the user to
-     * log in directly or [this line maybe to be removed]
-     * via OpenID services
-     * @param username
-     */
-	public void showLoginDialog(String username) {
-	    new LoginDialog(username);
-	}
-
-    public void showDownloadDialog(Document document) {
-        new DownloadDialog(document);
-    }
-
-    /**
-     * show the registration dialog
-     */
-    public void showRegistrationForm() {
-        new LoginDialog(Tab.Register);
-    }
-
-    public void please_log_in () {
-        logged_out ();
-        Window.alert("Please log in first.");
-        showLoginDialog();
-    }
-    
-    public void please_relog_in () {
-        logged_out ();
-        Window.alert("You have not logged in or your session has expired. Please log in.");
-        showLoginDialog();
-    }
-
-    public void logged_in (String username) {
-    	log("User " + username + " is logged in.");
+    public static void logged_in (User user) {
+    	Gui.log("User " + user.getName() + " is logged in.");
     	// login state fields
-    	loggedIn = true;
-    	this.username = username;
+    	Gui.loggedIn = true;
+    	Gui.user = user;
         // actions
-    	guiStructure.logged_in(username);
-    	pageHandler.loadPage();
+    	Gui.getGuiStructure().logged_in(user);
+    	Gui.pageHandler.loadPage();
     	
-    	SetUserTranslation.setOnline(true);
+    	LocalStorageHandler.setOnline(true);
     }
 
     /**
@@ -308,7 +265,7 @@ public class Gui implements EntryPoint {
      * the page URL will be kept (so that if the user logs back in,
      * he will be shown the same page as before he logged out)
      */
-    public void logged_out () {
+    public static void logged_out () {
     	logged_out(false);
     }
     
@@ -318,20 +275,22 @@ public class Gui implements EntryPoint {
      * otherwise the URL will be kept (so that if the user logs back in,
      * he will be shown the same page as before he logged out)
      */
-    public void logged_out (boolean goToWelcomeScreen) {
-    	log("User is logged out.");
+    public static void logged_out (boolean goToWelcomeScreen) {
+    	Gui.log("User is logged out.");
     	// login state fields
-    	loggedIn = false;
-        username = null;
-        setSessionID(null);
+    	Gui.loggedIn = false;
+    	Gui.user = null;
+    	Gui.setSessionID(null);
         // actions
-        guiStructure.logged_out();
+        Gui.getGuiStructure().logged_out();
         if (goToWelcomeScreen) {
-        	pageHandler.loadPage(Page.WelcomeScreen);
-        	pageHandler.refresh();
+        	Gui.pageHandler.loadPage(Page.WelcomeScreen);
+        	Gui.pageHandler.refresh();
         } else {
-            pageHandler.loadPage(true);
+        	Gui.pageHandler.loadPage(true);
         }
     }
+
+
     
 }

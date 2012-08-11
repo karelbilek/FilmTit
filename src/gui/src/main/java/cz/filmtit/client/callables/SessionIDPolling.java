@@ -17,7 +17,7 @@ import cz.filmtit.share.exceptions.AuthenticationFailedException;
 
 import java.util.*;
 
-	public class SessionIDPolling extends Callable<String> {
+	public class SessionIDPolling extends Callable<SessionResponse> {
 
 		/**
 		 * temporary ID for authentication
@@ -40,20 +40,19 @@ import java.util.*;
         }
 
             @Override
-			public void onSuccessAfterLog(String result) {
-				if (result != null) {
-					gui.log("A session ID received successfully! SessionId = " + result);
+			public void onSuccessAfterLog(SessionResponse response) {
+				if (response != null) {
+					Gui.log("A session ID received successfully! SessionId = " + response.sessionID);
 					// stop polling
 					sessionIDPolling = false;
 					sessionIDPollingDialog.close();
 					// we now have a session ID
-					gui.setSessionID(result);
-					// we have to get the username
-					FilmTitServiceHandler.checkSessionID();
-					// gui.logged_in("");
+					Gui.setSessionID(response.sessionID);
+					// and a User
+	                Gui.logged_in(response.userWithoutDocs);
 				}
 				else {
-					gui.log("no session ID received");
+					Gui.log("no session ID received");
 					// continue polling
 					new EnqueueTimer(300);
 				}
@@ -61,7 +60,6 @@ import java.util.*;
             
             @Override
 			public void onFailureAfterLog(Throwable caught) {
-            	// TODO: expecting AuthenticationFailedException
 				if(sessionIDPolling) {
 					// stop polling
 					sessionIDPolling = false;
@@ -76,6 +74,18 @@ import java.util.*;
 					}
 				}
 			}
+            
+            @Override
+            protected void onFinalError(String message) {
+				if(sessionIDPolling) {
+					// stop polling
+					sessionIDPolling = false;
+					sessionIDPollingDialog.close();
+					// say error
+					super.onFinalError(message);
+				}
+				// else ignore
+            }
 		
 		// constructor
 		public SessionIDPolling(int authID) {
@@ -127,7 +137,7 @@ import java.util.*;
 		
 		@Override protected void call() {
 			if (sessionIDPolling) {
-				gui.log("asking for session ID with authID=" + authID);
+				Gui.log("asking for session ID with authID=" + authID);
 				filmTitService.getSessionID(authID, this);			
 			}
 		}

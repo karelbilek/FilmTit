@@ -9,9 +9,9 @@ import java.util.List;
 public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable,
         Serializable, Comparable<TimedChunk> {
 
-	private String startTime;
-    private String endTime;
-    private int partNumber;
+	private volatile String startTime;
+    private volatile String endTime;
+    private volatile int partNumber;
 
     public ChunkIndex chunkIndex;
 
@@ -91,43 +91,15 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
 
     public StringBuilder getSubForm(double fps) {
         // TODO: check if the annotations are resolved properly
-        String displayForm = getSurfaceForm();
-        if (annotations != null) {
-            for (Annotation annotation : annotations) {
-                switch (annotation.getType()) {
-                    case DIALOGUE:
-                        displayForm = displayForm.substring(0, annotation.getBegin()) + "- "
-                                + displayForm.substring(annotation.getBegin());
-                        break;
-                    case LINEBREAK:
-                        displayForm = displayForm.substring(0, annotation.getBegin()) + "|"
-                                + displayForm.substring(annotation.getBegin());
-                        break;
-                }
-            }
-        }
+        String displayForm = getFormatedForm("- ", "|");
 
         return getSubTime(fps).append("{").append(displayForm).append("}").append("\n");
     }
 
     public StringBuilder getSrtForm(int order, double fps) {
         // TODO: check if the annotations are resolved properly
-        String displayForm = getSurfaceForm();
-        if (annotations != null) {
-            for (Annotation annotation : annotations) {
-                switch (annotation.getType()) {
-                    case DIALOGUE:
-                        displayForm = displayForm.substring(0, annotation.getBegin()) + "- "
-                                + displayForm.substring(annotation.getBegin());
-                        break;
-                    case LINEBREAK:
-                        displayForm = displayForm.substring(0, annotation.getBegin()) + "\n"
-                                + displayForm.substring(annotation.getBegin());
-                        break;
-                }
-            }
-        }
-
+        String displayForm = getFormatedForm("- ", "\n");
+       
         return new StringBuilder().append(order).append("\n").append(getSrtTime(fps)).append("\n").append(displayForm).append("\n\n");
     }
 
@@ -222,6 +194,14 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
             return 1;
         }
         return r;
+    }
+
+    public long getStartTimeLong() {
+        return timeToLong(getStartTime());
+    }
+
+    public long getEndTimeLong() {
+        return timeToLong(getEndTime());
     }
 
     public String getStartTime() {

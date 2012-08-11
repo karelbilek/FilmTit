@@ -5,9 +5,10 @@ import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidSessionIdException;
-import cz.filmtit.userspace.ChunkStringGenerator;
+import cz.filmtit.share.ChunkStringGenerator;
 import cz.filmtit.userspace.IdGenerator;
 import cz.filmtit.userspace.Session;
 import cz.filmtit.userspace.USUser;
@@ -70,7 +71,7 @@ public class TestFilmtitBackendServer {
 
     @Test
     public void testParallelGetTranslationResults()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
@@ -105,7 +106,7 @@ public class TestFilmtitBackendServer {
 
     @Test
     public void testGetSourceSubtitlesExport()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
@@ -164,12 +165,12 @@ public class TestFilmtitBackendServer {
         Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
 
         server.registration("user", "pass", "user@user.bflm", null);
-        String sessionId1 = server.simpleLogin("user", "pass");
+        String sessionId1 = server.simpleLogin("user", "pass").sessionID;
 
         assertTrue(activeSessions.size() == 1);
         assertTrue(activeSessions.containsKey(sessionId1));
 
-        String sessionId2 = server.simpleLogin("user", "pass");
+        String sessionId2 = server.simpleLogin("user", "pass").sessionID;
         assertTrue(activeSessions.size() == 1);
         assertFalse(activeSessions.containsKey(sessionId1));
         assertTrue(activeSessions.containsKey(sessionId2));

@@ -21,28 +21,57 @@ import java.util.*;
 		List<TimedChunk> chunks;
 		SendChunksCommand command;
 		TranslationWorkspace workspace;
+		
+		int id;
+		static int nextId = 0;
 	
         @Override
         public String getName() {
             return "GetTranslationResults (chunks size: "+chunks.size()+")";
         }
 
+        @Override
+        protected void onEachReturn(Object returned) {
+            workspace.removeGetTranslationsResultsCall(id);
+        }
+        
 		@Override	
         public void onSuccessAfterLog(List<TranslationResult> newresults) {
 			
             if (workspace.getStopLoading()) {
             	return;
             }
-
-            for (TranslationResult newresult:newresults) {
-
-                ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
-                workspace.showResult(newresult);                	
-            
+            else {
+            	if (newresults == null || newresults.isEmpty() ||
+            			!newresults.get(0).getSourceChunk().isActive ||
+            			newresults.size() != chunks.size()) {
+            		// expected suggestions for all chunks but did not get them
+            		// try to retry
+            		if (!retry()) {
+            			// or say error
+            			displayWindow("Some of the translation suggestions did not arrive. " +
+            					"You can ignore this or you can try refreshing the page.");
+            		}
+            	}
+            	else {
+            		// got suggestions alright
+                    for (TranslationResult newresult:newresults) {
+                        ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
+                        workspace.showResult(newresult);                	
+                    }
+                    command.execute();
+            	}
             }
-            command.execute();
+            
         }
-        		
+		
+		@Override
+		protected void onFinalError(String message) {
+			displayWindow("Some of the translation suggestions did not arrive. " +
+				"You can ignore this or you can try refreshing the page. " +
+				"Error message: " + message);
+		}
+		
 		// constructor
 		public GetTranslationResults(List<TimedChunk> chunks,
 				SendChunksCommand command, TranslationWorkspace workspace) {
@@ -52,14 +81,20 @@ import java.util.*;
 			this.command = command;
 			this.workspace = workspace;
 			
-			// 10s + 2s for each chunk
-			callTimeOut = 10000 + 2000 * chunks.size();
+			// 20s + 2s for each chunk
+			callTimeOut = 20000 + 2000 * chunks.size();
 			
 			enqueue();
 		}
 
 		@Override protected void call() {
-            filmTitService.getTranslationResults(gui.getSessionID(), chunks, this);
+			id = nextId++;
+			workspace.addGetTranslationsResultsCall(id, this);
+            filmTitService.getTranslationResults(Gui.getSessionID(), chunks, this);
+		}
+		
+		public void stop() {
+			new StopTranslationResults(chunks);
 		}
 	}
 

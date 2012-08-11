@@ -1,31 +1,19 @@
 package cz.filmtit.client;
 
-import java.util.Iterator;
-
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.RootPanel;
-
 import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
 import cz.filmtit.client.pages.ChangePassword;
 import cz.filmtit.client.pages.DocumentCreator;
-import cz.filmtit.client.pages.GuiStructure;
 import cz.filmtit.client.pages.Settings;
+import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.UserPage;
 import cz.filmtit.client.pages.WelcomeScreen;
-import cz.filmtit.share.Document;
 
 /**
  * Handles loading and switching of pages.
@@ -41,6 +29,9 @@ public class PageHandler {
     
     /**
      * The page that should be loaded.
+     * Is set only by setPageToLoad()
+     * because some checks have to be done
+     * to determine which page can be safely loaded.
      */
     private Page pageToLoad = Page.None;
     
@@ -50,15 +41,28 @@ public class PageHandler {
     private Page pageLoaded = Page.None;
     
     /**
-     * Provides access to the gui.
+     * whether to create the GuiStructure and try to log in the user by saved sessionID
      */
-    private Gui gui = Gui.getGui();
+	public final boolean fullInitialization;    
 
-    /**
-     * whether to try to log in the user by saved sessionID
-     */
-	public final boolean doCheckSessionID;    
-
+	/**
+	 * Whether to scroll to the top of the page on loadPageToLoad().
+	 * Set to false when the first page is loaded,
+	 * so that the view stays the same if user presses F5.
+	 */
+	private boolean scrollToTop = true;
+	
+	/**
+	 * Get value of scrollToTop
+	 * and reset it to the default value (true).
+	 * @return
+	 */
+	private boolean grabScrollToTop () {
+		boolean result = scrollToTop;
+		scrollToTop = true;
+		return result;
+	}
+	
     /**
      * Various pages to be set and created.
      * The 'None' page is used when no page is set.
@@ -80,30 +84,26 @@ public class PageHandler {
     	
     	History.addValueChangeHandler(historyChangeHandler);
     	
-    	pageUrl = getPageFromURL();
+    	getPageFromURL();
 
     	if ( isFullPage(pageUrl) ) {
     		
-            // base of GUI is created
-    		gui.guiStructure = new GuiStructure();
-            
     		// say what we got
-        	gui.log("Parsed URL and identified page " + pageUrl);
+        	Gui.log("Parsed URL and identified page " + pageUrl);
         	
             // set documentId if it is provided
     		setDocumentIdFromGETOrCookie();
         	
-    		// load a Blank page before checkSessionId returns
-    		loadBlankPage();
-            
-    		doCheckSessionID = true;
+    		scrollToTop = false;
+    		
+    		fullInitialization = true;
     		
     	} else {
     		
     		// do not do any funny stuff, just load the page
     		loadPage();
     		
-    		doCheckSessionID = false;
+    		fullInitialization = false;
     		
     	}
     }
@@ -117,21 +117,36 @@ public class PageHandler {
     	return (page != Page.AuthenticationValidationWindow);
 	}
 
+    // set pageUrl
+    
     /**
-     * Get the page requested in URL.
+     * Get the page requested in URL, setting pageUrl.
      * Supports both ?page=Page and #Page
      * @return the page requested if possible, or Page.None
      */
-	private Page getPageFromURL () {
+	private void getPageFromURL () {
     	// first try #Page
     	Page page = string2page(History.getToken());
     	if (page == Page.None) {
     		// also try ?page=Page
     		page = string2page(Window.Location.getParameter("page"));
     	}
-    	return page;
+    	pageUrl = page;
     }
     
+    /**
+	* Reacts to user going forward and backward.
+	*/
+	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
+		@Override
+		public void onValueChange(ValueChangeEvent<String> event) {
+			// find out which page the user wants
+			pageUrl = string2page(event.getValue());
+			// load the page
+			loadPage(true);
+		}
+	};
+	
 	/**
      * Converts String to Page.
      * Does not propagate any exceptions.
@@ -148,69 +163,11 @@ public class PageHandler {
 				return Page.valueOf(pageString);				
 			}
 			catch (IllegalArgumentException e) {
-				gui.log("WARNING: page name " + pageString + " is not valid!");
+				Gui.log("WARNING: page name " + pageString + " is not valid!");
 				return Page.None;				
 			}
 		}    	
     }
-    
-    /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded).
-     * Equivalent to:
-     *   setPageUrl(suggestedPage);
-     *   loadPage();
-     * @param suggestedPage page that should be loaded
-     */
-	public void loadPage(Page suggestedPage) {
-		History.newItem(suggestedPage.toString());
-		// invokes the historyChangeHandler
-			// sets pageUrl
-			// calls loadPage();
-	}
-	
-    /**
-     * Reacts to user clicking the links in menu.
-     */
-	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
-		
-		@Override
-		public void onValueChange(ValueChangeEvent<String> event) {
-			// find out which page the user wants
-			pageUrl = string2page(event.getValue());
-			// load the page
-			loadPage();
-		}
-	};
-    
-	/**
-	 * loads a blank page without modifying the history
-	 */
-    public void loadBlankPage() {
-    	setPageToLoad(Page.Blank);
-    	loadPageToLoad();
-	}
-
-    /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded),
-     * using the page set in the URL
-     * in GET parameter "page".
-     */
-	public void loadPage() {
-		loadPage(false);
-	}
-	
-    /**
-     * Determines the page to be loaded and loads it
-     * (unless it is already loaded),
-     * using the page set in the URL
-     * in GET parameter "page".
-     */
-	public void loadPage(boolean evenIfAlreadyLoaded) {
-		setPageToLoad();
-		loadPageToLoad(evenIfAlreadyLoaded);
-	}
 	
     /**
      * Sets page to be loaded,
@@ -223,20 +180,82 @@ public class PageHandler {
 		this.pageUrl = pageUrl;
 		History.newItem(pageUrl.toString(), false);
     }
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded).
+     * Sets pageUrl.
+     * Equivalent to:
+     *   setPageUrl(suggestedPage);
+     *   loadPage();
+     * @param suggestedPage page that should be loaded
+     */
+	public void loadPage(Page suggestedPage) {
+		setPageUrl(suggestedPage);
+		loadPage();
+	}
+	
+    /**
+     * Determines the page to be loaded and loads it.
+     * Sets pageUrl.
+     * @param suggestedPage page that should be loaded
+     * @param evenIfAlreadyLoaded true to reload the page if it is already loaded, false not to
+     */
+	public void loadPage(Page suggestedPage, boolean evenIfAlreadyLoaded) {
+		setPageUrl(suggestedPage);
+		loadPage(evenIfAlreadyLoaded);
+	}
+	
+	// pageUrl -> suggestedPage
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded),
+     * using pageUrl (the page set in the URL
+     * in GET parameter "page").
+     */
+	public void loadPage() {
+		loadPage(false);
+	}
+	
+    /**
+     * Determines the page to be loaded and loads it
+     * (unless it is already loaded),
+     * using pageUrl (the page set in the URL
+     * in GET parameter "page").
+     */
+	public void loadPage(boolean evenIfAlreadyLoaded) {
+		setPageToLoad();
+		loadPageToLoad(evenIfAlreadyLoaded);
+	}
     
+	// set suggestedPage
+    
+	/**
+	 * Loads a blank page without modifying the history.
+	 * (Does not set pageUrl, preserves scrollToTop.)
+	 */
+    public void loadBlankPage() {
+    	boolean scrollToTop = this.scrollToTop;
+    	setPageToLoad(Page.Blank);
+    	loadPageToLoad();
+    	this.scrollToTop = scrollToTop;
+	}
+
+	// suggestedPage -> pageToLoad
+	
     /**
      * Determines the page to be loaded,
-     * using the page set in the URL
-     * in GET parameter "page".
-     * @param loggedIn whether the user is logged in
+     * using pageUrl (the page set in the URL
+     * in GET parameter "page").
+     * Sets pageToLoad.
      */
 	private void setPageToLoad() {
 		setPageToLoad(pageUrl);
     }
     
     /**
-     * Determines the page to be loaded.
-     * @param loggedIn whether the user is logged in
+     * Determines the page to be loaded, sets pageToLoad.
      * @param suggestedPage the page that should be preferably loaded if possible
      */
     private void setPageToLoad(Page suggestedPage) {
@@ -255,21 +274,24 @@ public class PageHandler {
 		case TranslationWorkspace:
 		case DocumentCreator:
 		case Settings:
-			pageToLoad = gui.loggedIn ? suggestedPage : Page.WelcomeScreen;
+			pageToLoad = Gui.isLoggedIn() ? suggestedPage : Page.WelcomeScreen;
 			break;
 
 		// all other situations: UserPage or WelcomeScreen
 		default:
-			pageToLoad = gui.loggedIn ? Page.UserPage : Page.WelcomeScreen;
+			pageToLoad = Gui.isLoggedIn() ? Page.UserPage : Page.WelcomeScreen;
 			break;
 			
 		}
     	
-		gui.log("Page to load set to " + pageToLoad);
+		Gui.log("Page to load set to " + pageToLoad);
     }
+    
+    // pageToLoad -> pageLoaded    
 
     /**
      * Loads the pageToLoad unless it is already loaded.
+     * Sets pageLoaded.
      */
 	private void loadPageToLoad() {
 		loadPageToLoad(false);
@@ -277,14 +299,21 @@ public class PageHandler {
 	
     /**
      * Loads the pageToLoad.
+     * Sets pageLoaded.
+     * Uses 
      * @param evenIfAlreadyLoaded reload the page if already loaded
      */
 	private void loadPageToLoad(boolean evenIfAlreadyLoaded) {
 		if (pageToLoad != pageLoaded || evenIfAlreadyLoaded) {
 			
-			if (pageLoaded == Page.TranslationWorkspace) {
-				// unloading TranslationWorkspace
-				gui.currentWorkspace.setStopLoading(true);
+			// unloading TranslationWorkspace
+			if (pageLoaded == Page.TranslationWorkspace && TranslationWorkspace.getCurrentWorkspace() != null) {
+				TranslationWorkspace.getCurrentWorkspace().setStopLoading(true);
+			}
+			
+			// scroll to top if not prevented
+			if (grabScrollToTop()) {
+				Window.scrollTo(Window.getScrollLeft(), 0);
 			}
 			
 	    	switch (pageToLoad) {
@@ -304,10 +333,8 @@ public class PageHandler {
 			case TranslationWorkspace:
 		    	if (documentId == -1) {
 		    		loadPage(Page.UserPage);
-					gui.log("failure on loading document: documentId -1 is not valid!");
-					// Window.alert("Cannnot load document - document ID (-1) is not valid!");
+					Gui.log("failure on loading document: documentId -1 is not valid!");
 		    	} else {
-					loadBlankPage();
 		            FilmTitServiceHandler.loadDocumentFromDB(documentId);
 		    	}
 				break;
@@ -326,20 +353,20 @@ public class PageHandler {
 	
 			// no other situation should happen
 			default:
-				gui.log("ERROR: Cannot load the page " + pageToLoad);
+				Gui.log("ERROR: Cannot load the page " + pageToLoad);
 				return;
 	    	}
 
-			gui.log("Loaded page " + pageToLoad);
+			Gui.log("Loaded page " + pageToLoad);
 	    	pageLoaded = pageToLoad;
 	    	
 	    	if (isFullPage(pageLoaded)) {
 		    	// set the correct menu item
-		    	gui.guiStructure.activateMenuItem(pageLoaded);
+		    	Gui.getGuiStructure().activateMenuItem(pageLoaded);
 	    	}
 		}
 		else {
-			gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
+			Gui.log("Not loading page " + pageToLoad + " because it is already loaded.");
 		}
 	}
 		
@@ -413,12 +440,12 @@ public class PageHandler {
 		} else {
 			try {
 				documentId = Long.parseLong(id);
-				gui.log("documentId (" + documentId + ") acquired from parameter");
+				Gui.log("documentId (" + documentId + ") acquired from parameter");
 			}
 			catch (NumberFormatException e) {
 				// this is not OK, documentId parameter is set but is invalid
 				documentId = -1;
-				gui.log("WARNING: invalid documentId (" + id + ") set as parameter!");
+				Gui.log("WARNING: invalid documentId (" + id + ") set as parameter!");
 			}
 		}
 	}

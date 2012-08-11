@@ -12,6 +12,9 @@ class FuzzyNERanker extends BaseRanker {
 
   val lambdas = (0.95, 0.05)
 
+  def getScoreNames: List[String] = List()
+  def getScores(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair, totalCount: Int): List[Double] = List()
+
 
   /**
    * NE-based translation pairs should be ranked by their similarity

@@ -10,6 +10,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.client.Gui;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -31,7 +32,7 @@ public class LoginDialog extends Dialog {
 	 * Open the LoginDialog, showing the Login tab
 	 */
 	public LoginDialog() {
-		this(null, Tab.Login);
+		this(null, Tab.Login, null);
 	}
 	
 	/**
@@ -39,7 +40,7 @@ public class LoginDialog extends Dialog {
 	 * @param username
 	 */
 	public LoginDialog(String username) {
-		this(username, Tab.Login);
+		this(username, Tab.Login, null);
 	}
 	
 	/**
@@ -47,20 +48,49 @@ public class LoginDialog extends Dialog {
 	 * @param tab
 	 */
 	public LoginDialog(Tab tab) {
-		this(null, tab);
+		this(null, tab, null);
+	}
+	
+	/**
+	 * Open the LoginDialog, showing the given tab and error message.
+	 * @param tab
+	 */
+	public LoginDialog(Tab tab, String errorMessage) {
+		this(null, tab, errorMessage);
 	}
 	
 	/**
 	 * Open the LoginDialog, showing the given tab and prefilling the given username into the form.
 	 * @param username
-	 * @param tab
 	 */
 	public LoginDialog(String username, Tab tab) {
+		this(username, tab, null);
+	}
+	
+	/**
+	 * Open the LoginDialog, showing the Login tab and error message and prefilling the given username into the form.
+	 * @param username
+	 */
+	public LoginDialog(String username, String errorMessage) {
+		this(username, Tab.Login, errorMessage);
+	}
+	
+	/**
+	 * Open the LoginDialog, showing the given tab and prefilling the given username into the form.
+	 * @param username The username to prefill.
+	 * @param tab The tab to show.
+	 * @param errorMessage An optional error message to show to the user.
+	 */
+	public LoginDialog(String username, Tab tab, String errorMessage) {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		propagateUsername(username);
 		
         switchTo(tab);
+        
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+        	showErrorMessage(errorMessage);
+        }
         
         dialogBox.show();
 	}
@@ -288,7 +318,7 @@ public class LoginDialog extends Dialog {
     	String password = txtLoginPassword.getText();
     	
     	if (checkLoginForm(username, password)) {
-            gui.log("trying to log in as user " + username);
+            Gui.log("trying to log in as user " + username);
             FilmTitServiceHandler.simpleLogin(username, password, LoginDialog.this);
     	}
 	}
@@ -296,7 +326,6 @@ public class LoginDialog extends Dialog {
     private boolean checkLoginForm(String username, String password) {
     	boolean result = false;
     	
-    	// TODO use some nice Bootstrap things instead of the alerts
     	if (!checkUsername(username)) {
     		reactivateWithErrorMessage("You must fill in your username!");
     	}
@@ -329,7 +358,7 @@ public class LoginDialog extends Dialog {
     void formOpenidLoginSubmit(Form.SubmitEvent e) {
         deactivate();
     	
-		gui.log("trying to log in through Google account");
+		Gui.log("trying to log in through Google account");
 		FilmTitServiceHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
 	}
 	
@@ -369,7 +398,7 @@ public class LoginDialog extends Dialog {
     	String email = txtRegEmail.getText();
     	
     	if (checkRegForm(username, password, passwordRepeat, email)) {
-            gui.log("trying to register as user " + username);
+            Gui.log("trying to register as user " + username);
            	FilmTitServiceHandler.registerUser(username, password, email, LoginDialog.this);
     	}
 	}
@@ -377,7 +406,6 @@ public class LoginDialog extends Dialog {
     private boolean checkRegForm(String username, String password, String passwordRepeat, String email) {
     	boolean result = false;
     	
-    	// TODO use some nice Bootstrap things instead of the alerts
     	if (!checkUsername(username)) {
     		reactivateWithErrorMessage("You cannot use this username!");
     	}
@@ -426,7 +454,7 @@ public class LoginDialog extends Dialog {
     	// String email = txtFpwdEmail.getText();
     	
     	if (checkFpwdForm(username)) {
-			gui.log("trying to send forgotten password email to user " + username);
+			Gui.log("trying to send forgotten password email to user " + username);
 			FilmTitServiceHandler.sendChangePasswordMail(username, LoginDialog.this);
     	}
 	}
@@ -434,7 +462,6 @@ public class LoginDialog extends Dialog {
     private boolean checkFpwdForm(String username /*, String email*/) {
     	boolean result = false;
     	
-    	// TODO use some nice Bootstrap things instead of the alerts
     	if (!checkUsername(username)) {
     		reactivateWithErrorMessage("You must fill in your username!");
     	}

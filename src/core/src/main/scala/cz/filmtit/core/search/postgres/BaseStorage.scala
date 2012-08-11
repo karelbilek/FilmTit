@@ -43,7 +43,7 @@ with MediaStorage {
   var serialDataType = "SERIAL"
   var textDataType = "TEXT"
   
-  var maxCandidates = 100
+  var maxCandidates = 250
 
   /**
    * Drop all tables from the database and recreate them.
@@ -115,6 +115,12 @@ with MediaStorage {
     }
   }
 
+  def finishImport() {
+    connection.createStatement().execute(
+        (("CREATE INDEX count_idx ON %s(pair_count DESC);")
+          .format(pairTable))
+    )
+  }
 
   /**
    * This is the only place where {TranslationPair}s are actually
@@ -230,15 +236,9 @@ with MediaStorage {
     System.err.println("Clearing pair<->MS set.")
     pairMediaSourceMappings.clear()
 
-    connection.createStatement().execute(
-        (("CREATE INDEX count_idx ON %s(pair_count DESC);")
-          .format(pairTable))
-    )
 
     if ( !autoCommit )
       connection.commit()
-
-
 
     }
 

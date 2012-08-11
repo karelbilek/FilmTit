@@ -75,7 +75,7 @@ public abstract class DatabaseObject {
      * @param session A database transaction in which operation is done.
      *
      */
-    protected void saveJustObject(Session session) {
+    protected synchronized void saveJustObject(Session session) {
         if (this instanceof USTranslationResult) {
             USTranslationResult tr = (USTranslationResult) this;
             
@@ -109,7 +109,7 @@ public abstract class DatabaseObject {
      * included in the Hibernate mapping.
      * @param session A database session which is the operation happening in.
      */
-    protected void deleteJustObject(Session session) {
+    protected synchronized void deleteJustObject(Session session) {
         // object which is from the database, just cannot be removed
         if (!gotFromDb) { return; }
 

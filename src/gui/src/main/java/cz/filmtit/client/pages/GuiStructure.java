@@ -1,6 +1,7 @@
 package cz.filmtit.client.pages;
 
 
+import com.github.gwtbootstrap.client.ui.NavLink;
 import com.github.gwtbootstrap.client.ui.TextArea;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -13,6 +14,8 @@ import com.github.gwtbootstrap.client.ui.*;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.LoginDialog;
+import cz.filmtit.share.User;
 
 
 public class GuiStructure extends Composite {
@@ -25,12 +28,18 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new Hyperlink[]{ documentCreator, about, welcomePage, userPage };
+		allMenuItems = new NavLink[]{ documentCreator, about, welcomeScreen, userPage, settings };
+		
+		documentCreator.addClickHandler(new MenuClickHandler(Page.DocumentCreator));
+		about.addClickHandler(new MenuClickHandler(Page.About));
+		welcomeScreen.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
+		userPage.addClickHandler(new MenuClickHandler(Page.UserPage));
+		settings.addClickHandler(new MenuClickHandler(Page.Settings));
 		
         // top menu handlers
         login.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	 Gui.getGui().showLoginDialog();
+            	 new LoginDialog();
              }
         });
 
@@ -60,7 +69,7 @@ public class GuiStructure extends Composite {
 	 */
 	public void activateMenuItem(Page pageLoaded) {
 		deactivateAllMenuItems();
-		Hyperlink activeMenuItem = page2menuItem(pageLoaded);
+		NavLink activeMenuItem = page2menuItem(pageLoaded);
 		if (activeMenuItem != null) {
 			activateMenuItem(activeMenuItem);			
 		}
@@ -69,16 +78,24 @@ public class GuiStructure extends Composite {
 	/**
 	 * to be called to switch the view from "logged out" to "logged in"
 	 */
-	public void logged_in (String username) {
+	public void logged_in (User user) {
 		// login/logout link
 		login.setVisible(false);
-		logout.setText("Log out user " + username);
+		logout.setText("Log out user " + user.getName());
 		logout.setVisible(true);
+		username.setText("User " + user.getName());
+		
 		// visibility
-		welcomePage.setVisible(false);
+		welcomeScreen.setVisible(false);
 		userPage.setVisible(true);
 		documentCreator.setVisible(true);
-		// about.setVisible(true);
+		about.setVisible(true);
+		settings.setVisible(true);
+		
+		brand.setVisible(true);
+		brandOffline.setVisible(false);
+		offlineHint.setVisible(false);
+		username.setVisible(false);
 	}
 	
 	/**
@@ -89,10 +106,36 @@ public class GuiStructure extends Composite {
 		logout.setVisible(false);
 		login.setVisible(true);
 		// visibility
-		welcomePage.setVisible(true);
+		welcomeScreen.setVisible(true);
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
-		// about.setVisible(true);
+		about.setVisible(true);
+		settings.setVisible(false);
+
+		brand.setVisible(true);
+		brandOffline.setVisible(false);
+		offlineHint.setVisible(false);
+		username.setVisible(false);
+	}
+	
+	/**
+	 * To be called when user enters the Offline Mode.
+	 */
+	public void offline_mode () {
+		// hide all links - they cannot be clicked anyway
+		logout.setVisible(false);
+		login.setVisible(false);
+		welcomeScreen.setVisible(false);
+		userPage.setVisible(false);
+		documentCreator.setVisible(false);
+		about.setVisible(false);
+		settings.setVisible(false);
+		
+		// show Offline Mode texts
+		brand.setVisible(false);
+		brandOffline.setVisible(true);
+		offlineHint.setVisible(true);
+		username.setVisible(true);
 	}
 	
     ///////////////////////////////////////
@@ -100,46 +143,72 @@ public class GuiStructure extends Composite {
     //      The pages in menu            //
     //                                   //
     ///////////////////////////////////////
+
 	
 	@UiField
-	Hyperlink welcomePage;
+	NavLink welcomeScreen;
 
 	@UiField
-	Hyperlink userPage;
+	NavLink userPage;
 
 	@UiField
-	Hyperlink documentCreator;
+	NavLink documentCreator;
 
 	@UiField
-	Hyperlink about;
+	NavLink settings;
 
-	Hyperlink[] allMenuItems;
+	@UiField
+	NavLink about;
+	
+	/**
+	 * Reacts to clicks on NavLinks.
+	 * Used instead of the Hyperlinks
+	 * because the Hyperlink handler does not fire
+	 * if the new page URL is the same as the old one.
+	 */
+	private class MenuClickHandler implements ClickHandler {
 
-	private Hyperlink page2menuItem (Page page) {
+		Page pageUrl;
+		
+		private MenuClickHandler(Page pageUrl) {
+			super();
+			this.pageUrl = pageUrl;
+		}
+
+		@Override
+		public void onClick(ClickEvent event) {
+			Gui.getPageHandler().loadPage(pageUrl, true);
+		}
+		
+	}
+
+	NavLink[] allMenuItems;
+
+	private NavLink page2menuItem (Page page) {
 		switch (page) {
 		case About:
 			return about;
 		case WelcomeScreen:
-			return welcomePage;
+			return welcomeScreen;
 		case UserPage:
 			return userPage;
 		case DocumentCreator:
 			return documentCreator;
+		case Settings:
+			return settings;
 		default:
 			return null;
 		}
 	}
 	
-	static final String ACTIVE = "active";
-	
 	private void deactivateAllMenuItems() {
-        for (Hyperlink item : allMenuItems) {
-            item.removeStyleName(ACTIVE);
+        for (NavLink item : allMenuItems) {
+            item.setActive(false);
 	    }
     }
 
-	private void activateMenuItem(Hyperlink menuItem) {
-	    menuItem.addStyleName(ACTIVE);
+	private void activateMenuItem(NavLink menuItem) {
+	    menuItem.setActive(true);
     }
 
     ///////////////////////////////////////
@@ -149,10 +218,26 @@ public class GuiStructure extends Composite {
     ///////////////////////////////////////
 	
 	@UiField
+	Brand brand;
+	
+	@UiField
+	Brand brandOffline;
+	
+	@UiField
+	NavText offlineHint;
+	
+	@UiField
 	NavLink login;
 
 	@UiField
 	NavLink logout;
+
+	// TODO
+	@UiField
+	NavLink online;
+
+	@UiField
+	NavText username;
 
 	@UiField
     ScrollPanel contentPanel;
@@ -160,4 +245,10 @@ public class GuiStructure extends Composite {
 	@UiField
 	public TextArea txtDebug;
 	
+    @UiField
+	HTMLPanel panelForVLC;
+
+    public HTMLPanel getPanelForVLC() {
+        return panelForVLC;
+    }
 }

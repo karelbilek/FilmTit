@@ -5,6 +5,7 @@ import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.FilmTitServiceHandler;
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.share.AuthenticationServiceType;
 import cz.filmtit.share.LoginSessionResponse;
@@ -21,12 +22,11 @@ import cz.filmtit.share.LoginSessionResponse;
             return "GetAuthenticationURL";
         }
         
-        // TODO: uncomment and finalize
         @Override
 		public void onSuccessAfterLog(LoginSessionResponse response) {
 	    	String url = response.getOpenIDURL();
 	    	int authID = response.getAuthID();
-			gui.log("Authentication URL and authID arrived: " + authID + ", " + url);
+			Gui.log("Authentication URL and authID arrived: " + authID + ", " + url);
 			loginDialog.close();
 			
             // open the authentication window
@@ -37,11 +37,11 @@ import cz.filmtit.share.LoginSessionResponse;
         }
 			
         @Override
-        public void onFailureAfterLog(Throwable returned) {
+        protected void onFinalError(String message) {
             loginDialog.reactivateWithErrorMessage("There was an error with opening the authentiaction page. " +
             		"Please try again. " +
                     "If problems persist, try contacting the administrators. " +
-                    "Error message from the server: " + returned);
+                    "Error message: " + message);
         }
 					
 		// constructor

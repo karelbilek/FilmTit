@@ -10,6 +10,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.Gui;
 import cz.filmtit.share.Document;
 
 
@@ -49,7 +50,7 @@ public class DownloadDialog extends Dialog {
     }
 
     String generateUrl(String way, String format) {
-        return "/download/download?docId="+document.getId()+"&sessionId="+gui.getSessionID()+"&type="+format+"&way="+way;
+        return "/download/download?docId="+document.getId()+"&sessionId="+Gui.getSessionID()+"&type="+format+"&way="+way;
     }
 
     ClickHandler handlerForFormat(final String format) {

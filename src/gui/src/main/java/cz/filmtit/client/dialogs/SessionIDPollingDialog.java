@@ -8,6 +8,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Widget;
 
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.callables.SessionIDPolling;
 
 
@@ -37,7 +38,7 @@ public class SessionIDPollingDialog extends Dialog {
     void btnCancelClick(ClickEvent e) {
     	sessionIDPolling.stopSessionIDPolling();
         close();
-        gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
+        Gui.log("SessionIDPollingDialog closed by user hitting Cancel button");
     }
         
     // TODO: call() if gets focus

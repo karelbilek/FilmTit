@@ -1,9 +1,71 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-             xmlns:d="urn:import:com.google.gwt.dom.client"
-         	 xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<g:HTMLPanel>
-	   
-	</g:HTMLPanel>
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+
+
+    <g:HTMLPanel styleName="settings">
+        <b:PageHeader ui:field="header" subtext="Username">User Settings</b:PageHeader>
+
+        <b:Form type="HORIZONTAL" ui:field="settingsForm">
+            
+            <b:AlertBlock ui:field="alertInfo" type="INFO" close="false" animation="true" visible="false"></b:AlertBlock>
+            <b:AlertBlock ui:field="alertError" type="ERROR" close="false" animation="true" visible="false"></b:AlertBlock>
+
+            <b:Fieldset>
+                <b:Legend>Account and Logging in</b:Legend>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>E-mail address:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="setEmail"></b:TextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Stay logged in:</b:ControlLabel>
+                    <b:Controls>
+                        <b:CheckBox ui:field="setPermalogin"></b:CheckBox>
+                        <!--
+                        <b:ListBox ui:field="lsbPermalogin">
+                            <g:item id="standardLogin" value="false">1 hour (standard login)</g:item>
+                            <g:item id="permaLogin" value="true">1 month (permanent login)</g:item>
+                        </b:ListBox>
+                        -->
+                    </b:Controls>
+                </b:ControlGroup>
+
+            </b:Fieldset>
+
+            <b:Fieldset>
+                <b:Legend>Translation Workspace</b:Legend>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Maximum number of suggestions to show for each line:</b:ControlLabel>
+                    <b:Controls>
+                        <b:IntegerBox ui:field="setMaxSuggestions"></b:IntegerBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Include machine translation:</b:ControlLabel>
+                    <b:Controls>
+                        <b:CheckBox ui:field="setMoses"></b:CheckBox>
+                    </b:Controls>
+                </b:ControlGroup>
+                
+            </b:Fieldset>
+
+            <b:Fieldset>
+                <b:FormActions ui:field="bottomControlGroup">
+                    <b:Controls>
+                        <b:SubmitButton type="PRIMARY" ui:field="btnSave">Save</b:SubmitButton>
+                        <b:Button ui:field="btnReset">Reset</b:Button>
+                    </b:Controls>
+                </b:FormActions>
+            </b:Fieldset>
+        </b:Form>
+
+    </g:HTMLPanel>
+
 </ui:UiBinder> 

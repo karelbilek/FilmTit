@@ -3,13 +3,13 @@ package cz.filmtit.share;
 import java.io.Serializable;
 public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable, Serializable, Comparable<ChunkIndex> {
     
-	int partNumber;
+	private volatile int partNumber;
 
     public int getPartNumber() {
 		return partNumber;
 	}
 
-    int id;
+    private volatile int id;
     
 	public int getId() {
 		return id;

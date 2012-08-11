@@ -1,17 +1,10 @@
 package cz.filmtit.userspace;
 
-import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.model.TranslationMemory;
-import cz.filmtit.share.ChunkIndex;
-import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TranslationPair;
-import cz.filmtit.share.TranslationResult;
+import cz.filmtit.share.*;
 import org.hibernate.Session;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
@@ -25,17 +18,15 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     /**
      * The shared object which is wrapped by the USTranslationResult.
      */
-    private TranslationResult translationResult;
+    private volatile TranslationResult translationResult;
     /**
      * A sign if the feedback to the core has been already provided.
      */
-    private boolean feedbackSent = false;
+    private volatile boolean feedbackSent = false;
     /**
      * The document this translation result is part of.
      */
     private USDocument document;
-
-    private final static int MAX_SUGGESTIONS_COUNT = ConfigurationSingleton.getConf().maximumSuggestionsCount();
 
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
@@ -125,7 +116,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * @return Original text of the chunk.
      */
     public String getText() {
-        return translationResult.getSourceChunk().getSurfaceForm();
+        return translationResult.getSourceChunk().getDatabaseForm();
     }
 
     /**
@@ -136,12 +127,12 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setText(String text) {
         if (text == null)
             text = "";
-        translationResult.getSourceChunk().setSurfaceForm(text);
+        translationResult.getSourceChunk().setDatabaseForm(text);
     }
 
     /**
      * Gets the translation provided by the user.
-     * @return The user tranlsation.
+     * @return The user translation.
      */
     public String getUserTranslation() {
         return translationResult.getUserTranslation();
@@ -155,16 +146,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public void setUserTranslation(String userTranslation) {
         translationResult.setUserTranslation(userTranslation);
         feedbackSent = false;
-        /*
-         *  THIS CAN'T BE HERE- we can't save it to database when it is use by hibernate setter
-         *  Hibernate will try to save it to database while we are loading it from database
-         *  
-         *  leading into needles saving to DB and more importantly - bugs, because it is in weird state
-         *
-        Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
-        */
     }
 
     /**
@@ -200,17 +181,6 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
         translationResult.setSelectedTranslationPairID(selectedTranslationPairID);
-
-        /*
-         *  THIS CAN'T BE HERE- we can't save it to database when it is use by hibernate setter
-         *  Hibernate will try to save it to database while we are loading it from database
-         *  
-         *  leading into needles saving to DB and more importantly - bugs, because it is in weird state
-         *
-Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
-        saveToDatabase(dbSession);
-        HibernateUtil.closeAndCommitSession(dbSession);
-        */
     }
 
     /**
@@ -253,16 +223,19 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * suggestions they are discarded.
      * @param TM An instance of Tranlsation Memory from the core.
      */
-    public void generateMTSuggestions(TranslationMemory TM) {
+    public synchronized void generateMTSuggestions(TranslationMemory TM) {
         if (TM == null) { return; }
 
         // TODO: ensure none of the potential previous suggestions is in the server cache collection
         // dereference of current suggestion will force hibernate to remove them from the db as well
         translationResult.setTmSuggestions(null);
 
+        Set<TranslationSource> disabledSources = new HashSet<TranslationSource>();
+        if (!document.getOwner().getUseMoses()) { disabledSources.add(TranslationSource.EXTERNAL_MT); }
+
         scala.collection.immutable.List<TranslationPair> TMResults =
                 TM.nBest(translationResult.getSourceChunk(), document.getLanguage(), document.getMediaSource(),
-                        MAX_SUGGESTIONS_COUNT, false);
+                        document.getOwner().getMaximumNumberOfSuggestions(), false, disabledSources);
         // the retrieved Scala collection must be transformed to a Java collection
         // otherwise it cannot be iterated by the for loop
         List<TranslationPair> javaList = new ArrayList<TranslationPair>(
@@ -305,7 +278,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
      * and the chunks are ready to be deleted from the database.
      * @return  A list of unchecked translation results.
      */
-    public static List<USTranslationResult> getUncheckedResults() {
+    public synchronized static List<USTranslationResult> getUncheckedResults() {
          Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
 
@@ -357,7 +330,7 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
         return translationResult.compareTo(other.getTranslationResult());
     }
 
-    public TranslationResult getResultCloneAndRemoveSuggestions() {
+    public synchronized TranslationResult getResultCloneAndRemoveSuggestions() {
         TranslationResult withSuggestions =  translationResult;
         translationResult = translationResult.resultWithoutSuggestions();
         return withSuggestions;
@@ -366,5 +339,9 @@ Session dbSession = HibernateUtil.getSessionWithActiveTransaction();
     @Override
     public String toString() {
     	return getDatabaseId() + "#" + getTranslationResult().toString();
+    }
+    
+    public void setChunkActive (boolean active) {
+    	translationResult.getSourceChunk().isActive = active;
     }
 }

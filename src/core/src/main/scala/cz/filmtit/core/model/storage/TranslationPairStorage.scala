@@ -20,6 +20,9 @@ extends TranslationPairSearcher(l1, l2) {
   /**Reload indexes */
   def reindex()
 
+  /**Finish import */
+  def finishImport()
+
   /**Warmup*/
   def warmup()
 

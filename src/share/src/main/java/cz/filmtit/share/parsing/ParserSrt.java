@@ -30,8 +30,14 @@ public class ParserSrt extends Parser {
 	public List<UnprocessedChunk> parseUnprocessed(String text) {
 		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
 		
-		String[] lines = text.split(LINE_SEPARATOR);
-		
+		String[] lines;
+        if (text.equals("")) {
+            String[] lines2= {""};
+            lines=lines2;
+        } else {
+            lines = text.split(LINE_SEPARATOR);
+		}
+
 		//int number = 0;  // in-file numbering of the subtitle - not used at the moment
 		String startTime = EMPTY_STRING;
 		String endTime = EMPTY_STRING;

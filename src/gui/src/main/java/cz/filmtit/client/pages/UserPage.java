@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
 
 import java.util.Date;
@@ -31,8 +32,6 @@ public class UserPage extends Composite {
 
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
-
-	private Gui gui = Gui.getGui();
 
 	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -50,6 +49,12 @@ public class UserPage extends Composite {
                     return "";
                 }
                 return doc.getMovie().toString();
+            }
+        };
+        TextColumn<Document> languageClm = new TextColumn<Document>() {
+            @Override
+            public String getValue(Document doc) {
+                return doc.getLanguage().getName();
             }
         };
         TextColumn<Document> doneClm = new TextColumn<Document>() {
@@ -93,7 +98,7 @@ public class UserPage extends Composite {
 
        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
-        	   gui.showDownloadDialog(doc);
+        	   new DownloadDialog(doc);
            }
        });
 
@@ -117,8 +122,9 @@ public class UserPage extends Composite {
         
 
         docTable.addColumn(nameClm, "Document");
-        docTable.addColumn(mSourceClm, "Media");
-        docTable.addColumn(doneClm, "Percent done");
+        docTable.addColumn(mSourceClm, "Movie/TV Show");
+        docTable.addColumn(languageClm, "Language");
+        docTable.addColumn(doneClm, "Translated");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
         docTable.addColumn(exportSubtitlesButton, "Export");
@@ -127,9 +133,9 @@ public class UserPage extends Composite {
         emptyLabel.setVisible(false);
         
 
-        gui.guiStructure.contentPanel.setStyleName("users_page");
+        Gui.getGuiStructure().contentPanel.setStyleName("users_page");
 
-        gui.log("getting list of documents...");
+        Gui.log("getting list of documents...");
         FilmTitServiceHandler.getListOfDocuments(this);
 
 
@@ -137,20 +143,20 @@ public class UserPage extends Composite {
         btnDisplayCreator.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-            	gui.pageHandler.loadPage(Page.DocumentCreator);
+            	Gui.getPageHandler().loadPage(Page.DocumentCreator);
             }
 
         });
 
 
-        gui.guiStructure.contentPanel.setWidget(this);
+        Gui.getGuiStructure().contentPanel.setWidget(this);
 
       
 	}
 
     void editDocument(Document document) {
-    	gui.pageHandler.setDocumentId(document.getId());
-    	gui.pageHandler.loadPage(Page.TranslationWorkspace);
+    	Gui.getPageHandler().setDocumentId(document.getId());
+    	Gui.getPageHandler().loadPage(Page.TranslationWorkspace);
     }
 
     public void setDocuments(List<Document> documents) {

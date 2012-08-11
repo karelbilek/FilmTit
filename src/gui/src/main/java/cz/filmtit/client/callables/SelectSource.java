@@ -30,6 +30,12 @@ public class SelectSource extends Callable<Void> {
             workspace.setSourceSelectedTrue();    
         	workspace.startShowingTranslationsIfReady();
         }
+        
+        @Override
+        protected void onFinalError(String message) {
+	        // ignore, not having a media source is not tragical
+        	onSuccessAfterLog(null);
+        }
 
         // constructor
 		public SelectSource(long documentID, MediaSource selectedMediaSource, TranslationWorkspace workspace) {
@@ -48,6 +54,6 @@ public class SelectSource extends Callable<Void> {
 		}
 
 		@Override protected void call() {
-	        filmTitService.selectSource( gui.getSessionID(), documentID, selectedMediaSource, this);
+	        filmTitService.selectSource( Gui.getSessionID(), documentID, selectedMediaSource, this);
 		}
 	}

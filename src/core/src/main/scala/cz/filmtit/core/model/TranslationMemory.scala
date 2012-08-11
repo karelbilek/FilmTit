@@ -1,7 +1,8 @@
 package cz.filmtit.core.model
 
+import _root_.java.util
 import cz.filmtit.core.model.storage.MediaStorage
-import cz.filmtit.share.{Language, MediaSource, TranslationPair, Chunk}
+import cz.filmtit.share._
 
 /**
  * A Translation Memory.
@@ -38,6 +39,11 @@ trait TranslationMemory {
    */
   def reset()
 
+  /**
+   * Notify the TM to finish the import.
+   */
+  def finishImport()
+
 
   /**
    * Retrieve n (by default 10) best candidates for a Chunk c in language l,
@@ -50,7 +56,8 @@ trait TranslationMemory {
    * @return
    */
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-            n: Int = 10, inner: Boolean = false): List[TranslationPair]
+            n: Int = 10, inner: Boolean = false,
+            forbiddenSources: java.util.Set[TranslationSource] = util.Collections.emptySet[TranslationSource]): List[TranslationPair]
 
 
   /**
@@ -62,7 +69,8 @@ trait TranslationMemory {
    * @param mediaSource the media source from which the chunk is taken
    * @return
    */
-  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
+  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
+                forbiddenSources: java.util.Set[TranslationSource] = util.Collections.emptySet[TranslationSource]):
   Option[TranslationPair]
 
 

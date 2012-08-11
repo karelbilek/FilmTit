@@ -1,5 +1,6 @@
 package cz.filmtit.core.tm
 
+import _root_.java.io.IOException
 import cz.filmtit.core.model.{TranslationPairMerger, TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
 import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
@@ -44,13 +45,20 @@ class BackoffTranslationMemory(
     }
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
-    n: Int = 10, inner: Boolean = false): List[TranslationPair] = {
+    n: Int = 10, inner: Boolean = false,
+    forbiddenSources: java.util.Set[TranslationSource] = java.util.Collections.emptySet[TranslationSource]
+  ): List[TranslationPair] = {
+
+
+    if(!chunk.isActive) {
+      List[TranslationPair]()
+    }
 
     tokenize(chunk, language)
     logger.info( "n-best: (%s) %s".format(language, chunk) )
 
     var results = ListBuffer[TranslationPair]()
-    for (level: BackoffLevel <- this.levels) {
+    for (level: BackoffLevel <- this.levels.filter({ l: BackoffLevel => !forbiddenSources.contains(l.translationType) })) {
 
       val s1 = System.currentTimeMillis
       val pairs = level.searcher.candidates(chunk, language)
@@ -67,15 +75,16 @@ class BackoffTranslationMemory(
         .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
 
       if ( results.size >= n ) {
-        return merge(results, n)
+        return merge(results.sorted, n)
       }
 
     }
 
-    merge(results, n)
+    merge(results.sorted, n)
   }
 
-  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource):
+  def firstBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
+                forbiddenSources: java.util.Set[TranslationSource] = java.util.Collections.emptySet[TranslationSource]):
   Option[TranslationPair] = nBest(chunk, language, mediaSource).headOption
 
 
@@ -104,6 +113,20 @@ class BackoffTranslationMemory(
       case _ =>
     }
 
+  }
+
+  def finishImport() {
+    logger.info( "Finishing import..." )
+    searchers.head match {
+      case s: TranslationPairStorage => s.finishImport()
+      case s: TranslationPairSearcherWrapper => {
+        s.searchers.head match {
+          case s: TranslationPairStorage => s.finishImport()
+          case _ =>
+        }
+      }
+      case _ =>
+    }
   }
 
   def warmup() {

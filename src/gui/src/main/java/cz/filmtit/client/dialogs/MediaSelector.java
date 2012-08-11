@@ -87,9 +87,6 @@ public class MediaSelector extends Dialog {
         this.suggestions = suggestions;
         this.createDocument = createDocument;
 
-        // TODO: to be added
-        // dialogBox.setPopupPosition(dialogBox.getPopupLeft(), 100);
-        
         dialogBox.show();
     }
 

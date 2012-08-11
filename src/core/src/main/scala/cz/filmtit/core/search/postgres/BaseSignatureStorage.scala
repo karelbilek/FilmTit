@@ -166,8 +166,8 @@ with SignatureTranslationPairStorage {
    * @return
    */
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {
-
-    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.pair_id = chunks.pair_id WHERE sigs.signature_l1 = ? LIMIT %s;".format(signatureTable, pairTable, maxCandidates))
+    val sigColumn = if(language.equals(l1)) "signature_l1" else "signature_l2"
+    val select = connection.prepareStatement("SELECT * FROM %s AS sigs LEFT JOIN %s AS chunks ON sigs.pair_id = chunks.pair_id WHERE sigs.%s = ? LIMIT %s;".format(signatureTable, pairTable, sigColumn, maxCandidates))
     val mediaSourceSelect = connection.prepareStatement("SELECT * FROM %s as mapping LEFT JOIN %s AS ms ON mapping.source_id = ms.source_id WHERE pair_id = ?;".format(chunkSourceMappingTable, mediasourceTable))
 
     //Use the signature function of the specific storage:

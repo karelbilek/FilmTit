@@ -1,0 +1,35 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:com.github.gwtbootstrap.client.ui" xmlns:d="urn:import:com.google.gwt.dom.client"
+             xmlns:my="urn:import:cz.filmtit.client.dialogs">
+
+    <g:HTMLPanel>
+
+        <my:CustomModal ui:field="dialogBox" title="Upload data from Offline Mode" backdrop="STATIC" keyboard="true">
+
+            <b:Form type="HORIZONTAL" ui:field="goingOnlineForm">
+            
+                <b:Paragraph ui:field="paragraph"></b:Paragraph>
+
+                <b:AlertBlock ui:field="info" type="INFO" close="false" animation="true" visible="false"></b:AlertBlock>
+                
+                <b:AlertBlock ui:field="error" type="ERROR" close="false" animation="true" visible="false"></b:AlertBlock>
+                
+                <b:Fieldset>
+                    <b:ControlGroup>
+                        <b:Controls>
+                            <b:SubmitButton ui:field="uploadButton" type="PRIMARY">Upload Offline Mode data</b:SubmitButton>
+                            <b:Button ui:field="retryButton" visible="false">Retry uploading failed items</b:Button>
+                            <b:Button ui:field="deleteButton" type="DANGER" visible="false">Delete failed items</b:Button>
+                            <b:Button ui:field="closeButton" visible="false">Close</b:Button>
+                        </b:Controls>
+                    </b:ControlGroup>
+
+                </b:Fieldset>
+            </b:Form>
+
+        </my:CustomModal>
+    </g:HTMLPanel>
+
+</ui:UiBinder> 

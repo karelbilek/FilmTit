@@ -6,16 +6,11 @@
 
     <g:HTMLPanel>
 
-    <!--this is a little hack to have the player both fixed and on nice position on right-->
-    <g:HTMLPanel styleName="translationWorkspaceFixed">
+    <!--this is a little hack to have the player both fixed and on nice position on right - - >
+    <! - - g:HTMLPanel styleName="fixedPlayer" width="100%" height="300px" ui:field="playerFixedPanel">
     
-        <g:HorizontalPanel ui:field="hPanel" width="100%">
-            <g:cell width="60%">
-                <g:SimplePanel />
-                <!--this is purposedly empty-->
-            </g:cell>
-         </g:HorizontalPanel>
-    </g:HTMLPanel>
+                <! - -this is purposedly empty - - >
+    </g:HTMLPanel-->
 
 
     <g:HTMLPanel styleName="translationWorkspace">

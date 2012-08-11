@@ -14,13 +14,11 @@ public class About extends Composite {
 	interface AboutUiBinder extends UiBinder<Widget, About> {
 	}
 
-	private Gui gui = Gui.getGui();
-	
 	public About() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-		gui.guiStructure.contentPanel.setStyleName("about");
-		gui.guiStructure.contentPanel.setWidget(this);
+		Gui.getGuiStructure().contentPanel.setStyleName("about");
+		Gui.getGuiStructure().contentPanel.setWidget(this);
 	}
 
 }

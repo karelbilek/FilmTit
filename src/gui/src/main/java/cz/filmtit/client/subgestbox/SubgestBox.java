@@ -1,5 +1,8 @@
 package cz.filmtit.client.subgestbox;
 
+import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
@@ -15,10 +18,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RichTextArea;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
@@ -43,7 +43,6 @@ import java.util.Map;
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private ChunkIndex chunkIndex;
 	private TranslationResult translationResult;
-	private Gui gui = Gui.getGui();
     private TranslationWorkspace workspace;
 	private PopupPanel suggestPanel;
     private Widget suggestionWidget;
@@ -56,7 +55,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
     private FakeSubgestBox substitute=null;
     
-    public class FakeSubgestBox extends TextBox implements Comparable<FakeSubgestBox> {
+    public class FakeSubgestBox extends TextArea implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox(int tabIndex) {
             SubgestBox.this.substitute = SubgestBox.FakeSubgestBox.this;
@@ -74,14 +73,41 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                     }
                 }
             });
+//            this.setHeight(getFather().getCorrectVerticalSize()+"px");
             this.setTabIndex(tabIndex);
             this.setStyleName("pre_subgestbox");
             this.addStyleName("loading");
-            if (fullWidth) {
                 this.addStyleName("subgest_fullwidth");
+        }
+
+        public /*static */boolean stringHasMoreThanTwoLines(String s) {
+            int count =0;
+            int first = s.indexOf("\n",0);
+            if (first == -1) {
+                return false;
+            }
+            int second = s.indexOf("\n", first);
+            if (second == -1) {
+                return false;
+            }
+            return true;
+        }
+
+        public int lastVerticalSize;
+
+        public int verticalSize() {
+            String text = this.getText();
+            if (stringHasMoreThanTwoLines(text)) {
+                return this.getElement().getScrollHeight();
             } else {
-                this.addStyleName("subgest_halfwidth");
-            }        
+                return 30;
+            }
+        }
+
+        public void updateVerticalSize() {
+            //Window.alert("JDU UPDATE FAKE VERTICAL SIZE "+ verticalSize());
+            this.setHeight(verticalSize() + "px");
+            lastVerticalSize = verticalSize();
         }
 
         public SubgestBox getFather(){
@@ -107,18 +133,18 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		annotationColor.put(AnnotationType.PERSON,       "#ffff99");
 	};
 
-    boolean fullWidth;
 
     private String subgestBoxHTML(String content) {
+        content = content.replaceAll("\n", "<br>");
         return content;
     }
 
-	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, boolean fullWidth, int tabIndex) {
+	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, int tabIndex) {
 		this.chunkIndex = chunk.getChunkIndex();
 		this.translationResult = new TranslationResult(chunk);
         this.workspace = workspace;
         if (this.workspace == null) {
-            gui.log("workspace for subgestbox is null!!!");
+            Gui.log("workspace for subgestbox is null!!!");
         }
 
         this.setHeight("36px");
@@ -134,12 +160,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         //delaying loadSuggestions() for focus
 		//this.loadSuggestions();
-        this.fullWidth = fullWidth;
-        if (fullWidth) {
-            this.addStyleName("subgest_fullwidth");
-        } else {
-            this.addStyleName("subgest_halfwidth");
-        }
+        this.addStyleName("subgest_fullwidth");
 
         final RichTextArea richtext = this;
         richtext.addInitializeHandler(new InitializeHandler() {
@@ -151,6 +172,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                 s.setColor("#333");
             }
         });
+        
+    //    this.updateVerticalSize();
 
 	}
 	
@@ -162,7 +185,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         if (userTranslation != null && !userTranslation.equals("")) {
             //replaceFakeWithReal();
             substitute.setText(userTranslation);
+            substitute.updateVerticalSize();
             this.setHTML(subgestBoxHTML(userTranslation));
+            updateLastText();
             //updateVerticalSize();
         }
     }
@@ -295,7 +320,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
-					//gui.log("selection changed...");
+					//Gui.log("selection changed...");
 					//int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
 					translationResult.setSelectedTranslationPairID(selected.getId());
 					
@@ -322,7 +347,20 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
 	public void showSuggestions() {
         if(this.getSuggestions().size() > 0) {
-		    suggestPanel.showRelativeTo(this);
+		    //suggestPanel.showRelativeTo(this);
+            final UIObject relativeObject = this;
+            suggestPanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+                @Override
+                public void setPosition(int offsetWidth, int offsetHeight) {
+                    // Calculate left position for the popup
+                    int left = relativeObject.getAbsoluteLeft();
+                    // Calculate top position for the popup
+                    int top = relativeObject.getAbsoluteTop();
+                    // Position below the textbox:
+                    top += relativeObject.getOffsetHeight();
+                    suggestPanel.setPopupPosition(left, top);
+                }
+            });
 		    suggestionWidget.setWidth(this.getOffsetWidth() + "px");
         }
 	}
@@ -332,7 +370,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         // expects that annotations are non-overlapping and ordered by their position
         // (should be)
         if (chunk.getAnnotations().size() > 0) {
-            gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
+            Gui.log("current chunk has " + chunk.getAnnotations().size() + " annotations");
         }
         StringBuffer sb = new StringBuffer(chunk.getSurfaceForm());
         for (Annotation annotation : chunk.getAnnotations()) {
@@ -353,20 +391,51 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		return this.translationResult;
 	}
 
+    protected String getTextWithNewlines() {
+        String text = this.getHTML();
+        RegExp newlineTags = RegExp.compile("<p>|<div>|<br>", "g");
+        RegExp toClean = RegExp.compile("</p>|</div>|&nbsp;", "g");
+        RegExp newlineSequence = RegExp.compile("\n*");
+        text = newlineTags.replace(text, "\n");
+        text = toClean.replace(text, "");
+        text = newlineSequence.replace(text, "\n");
+        text = text.trim();
+        return text;
+    }
+
     protected boolean textChanged() {
-        return !this.getText().equals(this.lastText);
+        return !this.getTextWithNewlines().equals(this.lastText);
     }
 
     protected void updateLastText() {
-        this.lastText = this.getText();
+        this.lastText = this.getTextWithNewlines();
+    }
+
+    public Document getFrameDoc(){
+        return ((FrameElement) this.getElement().cast()).getContentDocument();
+    }
+
+
+    public int getCorrectVerticalSize() {
+        //if this happen right after replacing, it's wrong
+        //=> I will also have to take in the size of the substitute
+        
+        int newHeight = getFrameDoc().getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
+        int substituteSize = substitute.lastVerticalSize;
+        //Window.alert("new je "+newHeight+"subst je "+substituteSize);
+        if (newHeight>substituteSize) {
+            return newHeight;
+        } else {
+            return substituteSize;
+        }
+
     }
 
     public void updateVerticalSize() {
-        Document frameDoc = ((FrameElement) this.getElement().cast()).getContentDocument();
-
-        int newHeight = frameDoc.getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
-        if (newHeight != frameDoc.getClientHeight())
-        {
+         int newHeight = getCorrectVerticalSize();
+//         Window.alert("JDU UPDATE REAL VERTICAL SIZE "+newHeight);
+         
+         if (newHeight != getFrameDoc().getClientHeight()) {
             setHeight((newHeight) + "px");
             showSuggestions();
         }

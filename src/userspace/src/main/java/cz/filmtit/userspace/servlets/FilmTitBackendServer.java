@@ -57,7 +57,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private Map<Integer, AuthData> authDataInProgress =
             Collections.synchronizedMap(new HashMap<Integer, AuthData>());
     // AuthId which are authenticated but not activated
-    private Map<Integer,Authentication> finisehdAuthentications =
+    private Map<Integer,Authentication> finishedAuthentications =
             Collections.synchronizedMap(new HashMap<Integer, Authentication>());
     // Activated User
     private Map<String, Session> activeSessions =
@@ -110,58 +110,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return TM;
     }
 
-    @Override
-    public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).getTranslationResults(chunk, TM);
-    }
-
-    @Override
-    public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        Session session = getSessionIfCan(sessionID);
-
-        List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, session, TM);
-        //session.saveAllTranslationResults(chunks.get(0).getDocumentId());
-        return res;
-    }
-
-    @Override
-    public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId,
-                                   String userTranslation, long chosenTranslationPairID)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
-    }
-
-    @Override
-    public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
-    }
-
-    @Override
-    public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
-            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
-        return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
-    }
-
-    @Override
-    public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
-            throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
-        return getSessionIfCan(sessionID).changeText(chunkIndex, documentId, newText, TM);
-    }
-
-    @Override
-    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
-    }
-
-    @Override
-    public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
-            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
-        return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
-    }
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // HANDLING DOCUMENTS
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     @Override
     public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
@@ -211,12 +162,93 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // HANDLING TRANSLATION RESULTS
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+    @Override
+    public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+        return getSessionIfCan(sessionID).saveSourceChunks(chunks);
+    }
+
+    @Override
+    public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).getTranslationResults(chunk, TM);
+    }
+
+    @Override
+    public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).getTranslationResultsParallel(chunks, TM);
+    }
+
+    @Override
+    public Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
+            throws InvalidSessionIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).stopTranslationResults(chunks);
+    }
+
+    @Override
+    public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId,
+                                   String userTranslation, long chosenTranslationPairID)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
+    }
+
+    @Override
+    public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
+    }
+
+    @Override
+    public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
+            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
+    }
+
+	@Override
+	public Void setChunkTimes(String sessionID, ChunkIndex chunkIndex,
+			long documentId, String newStartTime, String newEndTime)
+			throws InvalidSessionIdException, InvalidChunkIdException,
+			InvalidDocumentIdException {
+		
+		Session session = getSessionIfCan(sessionID);
+		session.setChunkStartTime(chunkIndex, documentId, newStartTime);
+		session.setChunkEndTime(chunkIndex, documentId, newEndTime);
+		return null;
+	}
+
+    @Override
+    public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+            throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
+        return getSessionIfCan(sessionID).changeText(chunkIndex, documentId, newText, TM);
+    }
+
+    @Override
+    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+        return getSessionIfCan(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
+    }
+
+    @Override
+    public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+        return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
+    }
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // LOGIN & REGISTRATION STUFF
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
     @Override
     public LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType) {
         // generate the unique authentication ID first
         Random random = new Random();
         int authID = random.nextInt();
-        while (authDataInProgress.containsKey(authID) || finisehdAuthentications.containsKey(authID)) {
+        while (authDataInProgress.containsKey(authID) || finishedAuthentications.containsKey(authID)) {
             authID = random.nextInt();
         }
 
@@ -278,7 +310,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
-            finisehdAuthentications.put(authID, authentication);
+            finishedAuthentications.put(authID, authentication);
             logger.info("Authentication",authentication.toString());
             logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " "+authentication.getIdentity()  +" " +authentication.getEmail());
             return true;
@@ -303,12 +335,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public String getSessionID(int authID) throws AuthenticationFailedException {
-        if (finisehdAuthentications.containsKey(authID)) {
+    public SessionResponse getSessionID(int authID) throws AuthenticationFailedException {
+        if (finishedAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
         	// cancel the authentication session
-            Authentication authentication = finisehdAuthentications.remove(authID);
+            Authentication authentication = finishedAuthentications.remove(authID);
 
             String openid = extractOpenId(authentication.getIdentity());
             
@@ -334,25 +366,23 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public String simpleLogin(String username, String password) {
-        USUser user = checkUser(username,password,CheckUserEnum.UserNamePass);
-        if (user == null){
-            return  "";
-        }
+    public SessionResponse simpleLogin(String username, String password) {
+        USUser user = checkUser(username, password, CheckUserEnum.UserNamePass);
+        if (user == null){ return  null; }
         else {
             logger.info("Login","User " + user.getUserName() + "logged in.");
-            return generateSession(user);
+            return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
     }
 
-    public String openIDLogin(String openId) {
+    public SessionResponse openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
             System.out.println("User " + user.getUserName() + "logged in.");
             logger.info("Login","User " + user.getUserName() + "logged in.");
-            return generateSession(user);
+            return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
-        return "";
+        return null;
     }
 
     @Override
@@ -364,6 +394,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         return null;
     }
+
     @Override
     public Boolean registration(String name, String pass, String email, String openId) {
         // create user
@@ -372,7 +403,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             USUser user = null;
 
             // pass validation
-            String hash = pass_hash(pass);
+            String hash = passHash(pass);
             user = new USUser(name,hash,email,openId);
 
             // create hibernate session
@@ -417,6 +448,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return id;
     }
 
+    // TODO : what is this good for
     private String getUniqueName(String email){
 
         String name = email.substring(0,email.indexOf('@'));
@@ -452,7 +484,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
         if (usUser != null && token != null && token.isValidToken(string_token)){
 
-            usUser.setPassword(pass_hash(pass));
+            usUser.setPassword(passHash(pass));
             org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
             usUser.saveToDatabase(dbSession);
             usHibernateUtil.closeAndCommitSession(dbSession);
@@ -554,9 +586,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Check if found sessionId is still active
      */
     @Override
-    public String checkSessionID(String sessionID){
+    public SessionResponse checkSessionID(String sessionID){
         if (activeSessions.containsKey(sessionID)) {
-            return activeSessions.get(sessionID).getUser().getUserName();
+            USUser user = activeSessions.get(sessionID).getUser();
+            return new SessionResponse(sessionID, user.sharedUserWithoutDocuments());
         }
         return null;
     }
@@ -595,7 +628,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Get hash of string
      * if return same string like input - problem with algortithm
      */
-    private String pass_hash(String pass){
+    private String passHash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
     }
     /**
@@ -685,13 +718,27 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return (USUser)UserResult.get(0);
     }
 
-    private boolean checkEmail(String email) {
-        // star validate string  ^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$
-         String regex = "^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
-         Pattern pattern = Pattern.compile(regex);
-         Matcher matcher = pattern.matcher(email);
-         return matcher.matches();
+    private boolean checkEmail(String email) {        // star validate string  ^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$         String regex = "^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";         Pattern pattern = Pattern.compile(regex);         Matcher matcher = pattern.matcher(email);         return matcher.matches();    }    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // USER SETTINGS
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+    public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
     }
+
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setEmail(email);
+    }
+
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setMaximumNumberOfSuggestions(number);
+    }
+
+    public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).setUseMoses(useMoses);
+    }
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     /**
      * A thread that checks out whether the sessions should be timed out.
@@ -777,10 +824,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).getActiveDocument(documentID);
     }
 
-    @Override
-    public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks) throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).saveSourceChunks(chunks);
-    }
 
     public void logGuiMessage(USLogger.LevelLogEnum level, String context , String message ){
           logger.log(level,"GUI-" + context , message);
