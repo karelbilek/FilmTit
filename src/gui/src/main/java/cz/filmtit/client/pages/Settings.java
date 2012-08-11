@@ -20,10 +20,11 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.ReceivesSettings;
 import cz.filmtit.client.callables.*;
 import cz.filmtit.share.User;
 
-public class Settings extends Composite {
+public class Settings extends Composite implements ReceivesSettings {
 
 	private static SettingsUiBinder uiBinder = GWT
 			.create(SettingsUiBinder.class);
@@ -39,18 +40,13 @@ public class Settings extends Composite {
 		Gui.getGuiStructure().contentPanel.setStyleName("settings");
         Gui.getGuiStructure().contentPanel.setWidget(this);
         
-        // TODO: invoke a call for that
-        // deactivate()
-        // call something
-        
-        // TODO: to be removed
-        user = Gui.getUser();
-        header.setSubtext(user.getName());
-        setDefault();
+        // load settings
+		deactivate();
+		new LoadSettings(this);
 	}
 	
-	// TODO: call when the current User is received
-	public void getUserReturned (User user) {
+	@Override
+	public void onSettingsReceived(User user) {
 		this.user = user;
         header.setSubtext(user.getName());
         setDefault();
