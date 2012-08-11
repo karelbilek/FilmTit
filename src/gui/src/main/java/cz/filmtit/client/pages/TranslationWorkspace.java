@@ -6,6 +6,7 @@ import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.ChangeSourceChunk;
 import cz.filmtit.client.callables.GetTranslationResults;
 import cz.filmtit.client.callables.SetChunkTimes;
 import cz.filmtit.client.subgestbox.SubgestBox;
@@ -614,6 +615,7 @@ public class TranslationWorkspace extends Composite {
         //html because of <br />
         Label sourcelabel = new HTML(chunk.getGUIForm());
         sourcelabel.setStyleName("chunk_l1");
+        sourcelabel.addDoubleClickHandler(new SourceChangeHandler(chunk, sourcelabel));
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
         SubgestBox targetbox = new SubgestBox(chunk, this, index+1);
@@ -707,7 +709,7 @@ public class TranslationWorkspace extends Composite {
 			TimedChunk chunk = chunkmap.get(chunkIndex);
 			String oldSource = chunk.getSurfaceForm();
 			
-			// ask user for new values, showing the old ones
+			// ask user for new value, showing the old one
 			String newSource = Window.prompt("Source text for this chunk:", oldSource);
 			
 			if (newSource == null || newSource.equals(oldSource)) {
@@ -716,11 +718,12 @@ public class TranslationWorkspace extends Composite {
 			}
 			else {
 				// change the values
-				Gui.log("change source " + chunk + ": " + newSource);
-				chunk.setSurfaceForm(newSource);
+				// TODO: not sure which set*Form to use (there is no documentation and I am not the author)
+				chunk.setDatabaseForm(newSource);
 				label.setText(chunk.getGUIForm());
-				// TODO store
-				// TODO new suggestions
+				// this call brings a fresh translation result on return :-)
+				// which is then given directly to showResult()
+				new ChangeSourceChunk(chunk, newSource, TranslationWorkspace.this);
 			}
 		}
     }

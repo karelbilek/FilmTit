@@ -88,7 +88,7 @@ public interface FilmTitService extends RemoteService {
     		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)
     		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+    TranslationResult changeText(String sessionID, TimedChunk chunk, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException;
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;

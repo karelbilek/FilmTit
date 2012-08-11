@@ -221,9 +221,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 	}
 
     @Override
-    public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+    public TranslationResult changeText(String sessionID, TimedChunk chunk, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
-        return getSessionIfCan(sessionID).changeText(chunkIndex, documentId, newText, TM);
+        return getSessionIfCan(sessionID).changeText(chunk, newText, TM);
     }
 
     @Override
