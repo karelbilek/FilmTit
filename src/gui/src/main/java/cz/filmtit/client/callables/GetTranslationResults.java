@@ -46,7 +46,8 @@ import java.util.*;
             			!newresults.get(0).getSourceChunk().isActive ||
             			newresults.size() != chunks.size()) {
             		// expected suggestions for all chunks but did not get them
-            		// try to retry
+            		// retry
+            		hasReturned = false;
             		if (!retry()) {
             			// or say error
             			displayWindow("Some of the translation suggestions did not arrive. " +
