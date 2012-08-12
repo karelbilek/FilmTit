@@ -41,7 +41,7 @@ import java.util.Map;
  *
  */
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
-	private ChunkIndex chunkIndex;
+	private TimedChunk chunk;
 	private TranslationResult translationResult;
     private TranslationWorkspace workspace;
 	private PopupPanel suggestPanel;
@@ -50,7 +50,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     String lastText = "";
 
     void replaceFakeWithReal() {
-        workspace.replaceFake(chunkIndex, substitute, this);
+        workspace.replaceFake(chunk, substitute, this);
     }
 
     private FakeSubgestBox substitute=null;
@@ -140,7 +140,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     }
 
 	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, int tabIndex) {
-		this.chunkIndex = chunk.getChunkIndex();
+		this.chunk = chunk;
 		this.translationResult = new TranslationResult(chunk);
         this.workspace = workspace;
         if (this.workspace == null) {
@@ -192,8 +192,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         }
     }
 
-	public ChunkIndex getChunkIndex() {
-		return chunkIndex;
+	public TimedChunk getChunk() {
+		return chunk;
 	}
 	
 	public List<TranslationPair> getSuggestions() {

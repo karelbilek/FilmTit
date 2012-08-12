@@ -25,28 +25,26 @@ import cz.filmtit.share.TimedChunk;
 public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, ValueChangeHandler<String>, BlurHandler {
 	
     TranslationWorkspace workspace;
-    VLCWidget vlcPlayer;
+    //VLCWidget vlcPlayer;
 
 
 	/**
 	 * Creates a new SubgestHandler.
 	 */
-	public SubgestHandler(TranslationWorkspace workspace, VLCWidget vlcPlayer) {
+	public SubgestHandler(TranslationWorkspace workspace) {
 		this.workspace = workspace;
-        this.vlcPlayer = vlcPlayer;
+        //this.vlcPlayer = vlcPlayer;
 	}
 
-    public static TimedChunk getChunk(SubgestBox sb, TranslationWorkspace workspace) {
-        return workspace.getChunk(sb.getChunkIndex());
-    }
+
 
 	@Override
 	public void onFocus(FocusEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
             final SubgestBox subbox = (SubgestBox) event.getSource();
-            long time = getChunk(subbox, workspace).getStartTimeLongNonZero();
-            if (vlcPlayer != null) {
-                vlcPlayer.maybePlayWindow(time);
+            long time = subbox.getChunk().getStartTimeLongNonZero();
+            if (workspace.getVlcPlayer() != null) {
+                workspace.getVlcPlayer().maybePlayWindow(time);
             }
 
             subbox.loadSuggestions();

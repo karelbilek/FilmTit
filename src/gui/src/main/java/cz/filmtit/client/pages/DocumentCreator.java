@@ -137,7 +137,6 @@ public class DocumentCreator extends Composite {
        
 		moviePath.setText(address);
 
-      // widgetToRemove = widget ;
     }
     
     @UiField
