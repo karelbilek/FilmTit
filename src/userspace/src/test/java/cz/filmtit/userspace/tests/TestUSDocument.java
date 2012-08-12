@@ -7,6 +7,7 @@ import cz.filmtit.share.TimedChunk;
 import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USTranslationResult;
+import cz.filmtit.userspace.USUser;
 import org.hibernate.Session;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,12 +36,11 @@ public class TestUSDocument {
 
     @Test
     public  void testUSDocumentConstructor() {
-        Document doc = new Document("Movie title", "cs");
-        USDocument resultUSDocument = new USDocument(doc, null);
+        USUser user = new USUser("name");
+        Document doc = new Document("Movie title", "cs", "");
+        USDocument resultUSDocument = new USDocument(doc, user);
 
         assertEquals(resultUSDocument.getLanguageCode(), doc.getLanguage().getCode());
-
-        assertEquals(false,resultUSDocument.isFinished());
     }
 
     @Test
@@ -48,12 +48,9 @@ public class TestUSDocument {
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         // create a sample document and save it to the database to know the ID
-        Document doc = new Document("Movie title", "cs");
-        USDocument sampleUSDocument = new USDocument(doc, null);
-        sampleUSDocument.setFinished(false);
-
-        sampleUSDocument.setSpentOnThisTime(120);
-        sampleUSDocument.setTranslationGenerationTime(50);
+        USUser user = new USUser("name");
+        Document doc = new Document("Movie title", "cs", "");
+        USDocument sampleUSDocument = new USDocument(doc, user);
 
         sampleUSDocument.saveToDatabase(dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
@@ -101,8 +98,9 @@ public class TestUSDocument {
 
     @Test(expected=UnsupportedOperationException.class)
     public void testDatabaseImmutability() {
-        Document doc = new Document("Movie title", "cs");
-        USDocument resultUSDocument = new USDocument(doc, null);
+        USUser user = new USUser("name");
+        Document doc = new Document("Movie title", "cs", "");
+        USDocument resultUSDocument = new USDocument(doc, user);
 
         resultUSDocument.setDatabaseId(2001);
     }

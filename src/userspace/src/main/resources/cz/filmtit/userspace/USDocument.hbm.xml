@@ -14,15 +14,12 @@
         <property name="title" type="java.lang.String" column="title" />
         <many-to-one class="cz.filmtit.share.MediaSource" name="mediaSource" column="mediaSource" lazy="false" cascade="save-update"/>
         
-        <property name="spentOnThisTime" type="long" column="spentOnThisTime" />
         <property name="languageCode" type="java.lang.String" column="language" />
-        <property name="translationGenerationTime" type="long" column="translationGenerationTime" />
-        <property name="finished" type="boolean" column="finished" />
         <property name="lastChange" type="long" column="lastChange" />
         <property name="totalChunksCount" type="int" column="totalChunksCount" />
         <property name="translatedChunksCount" type="int" column="translatedChunksCount" />
         <property name="toBeDeleted" type="boolean" column="toBeDeleted" />
-        <property name="moviePath" type="java.lang.String" column="address" />
+        <property name="localMoviePath" type="java.lang.String" column="movieAddress" />
     </class>
 
 </hibernate-mapping>

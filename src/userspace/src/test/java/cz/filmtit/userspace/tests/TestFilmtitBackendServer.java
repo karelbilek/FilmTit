@@ -77,7 +77,7 @@ public class TestFilmtitBackendServer {
         Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
 
-        DocumentResponse resp = server.createNewDocument(sessionId, "Lost", "Lost", "en");
+        DocumentResponse resp = server.createNewDocument(sessionId, "Lost", "Lost", "en", "");
         long documentId = resp.document.getId();
 
         // generate few chunks
@@ -95,7 +95,7 @@ public class TestFilmtitBackendServer {
         Session session = new Session(new USUser("jindra1", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
 
-        DocumentResponse resp = server.createNewDocument(sessionId, "Lost", "Lost", "en");
+        DocumentResponse resp = server.createNewDocument(sessionId, "Lost", "Lost", "en", "");
         long documentId = resp.document.getId();
         List<TimedChunk> chunks = generateTimedChunks(documentId);
 
@@ -112,7 +112,7 @@ public class TestFilmtitBackendServer {
         Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
 
-        DocumentResponse resp = server.createNewDocument(sessionId, "Hannah and her sisters", "Hannah and her sisters", "en");
+        DocumentResponse resp = server.createNewDocument(sessionId, "Hannah and her sisters", "Hannah and her sisters", "en", "");
         long documentId = resp.document.getId();
 
         List<TimedChunk> chunks = new ArrayList<TimedChunk>();
