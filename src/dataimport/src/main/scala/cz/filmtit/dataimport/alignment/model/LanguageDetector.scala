@@ -1,5 +1,6 @@
 package cz.filmtit.dataimport.alignment.model
 
+import _root_.java.io.File
 import cz.filmtit.core.Configuration
 import com.cybozu.labs.langdetect.Detector
 import com.cybozu.labs.langdetect.DetectorFactory
@@ -15,8 +16,8 @@ object LanguageDetector {
    
    def init(conf:Configuration):Unit = {
         if (!loaded) {
-            val directory = conf.langProfileDir
-            DetectorFactory.loadProfile(directory.getCanonicalPath);
+            val directory = new File("dataimport/src/main/resources/language_profiles")
+            DetectorFactory.loadProfile(directory.getCanonicalPath)
             loaded=true
         }
         
@@ -34,7 +35,7 @@ object LanguageDetector {
                 
                 import scala.collection.JavaConverters._   
                 
-                val probabilities = detector.getProbabilities.asScala;
+                val probabilities = detector.getProbabilities.asScala
                 val language = probabilities.find{l=>l.lang == "cs" || l.lang=="en"}.map{recog=>Language.fromCode(recog.lang)}
 
                 language

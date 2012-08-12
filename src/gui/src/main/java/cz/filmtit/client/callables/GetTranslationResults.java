@@ -13,6 +13,7 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
+
 import java.util.*;
 
 	public class GetTranslationResults extends Callable<List<TranslationResult>> {
@@ -49,7 +50,15 @@ import java.util.*;
             		// retry
             		hasReturned = false;
             		if (!retry()) {
-            			// or say error
+            			// cannot retry
+            			
+            			// tell workspace that these chunks won't arrive
+            			for (TimedChunk chunk : chunks) {
+                			workspace.noResult(chunk.getChunkIndex());
+						}
+            			// request next translations
+            			command.execute();
+            			// say error
             			displayWindow("Some of the translation suggestions did not arrive. " +
             					"You can ignore this or you can try refreshing the page.");
             		}
@@ -57,9 +66,9 @@ import java.util.*;
             	else {
             		// got suggestions alright
                     for (TranslationResult newresult:newresults) {
-                        ChunkIndex poi = newresult.getSourceChunk().getChunkIndex();
                         workspace.showResult(newresult);                	
                     }
+        			// request next translations
                     command.execute();
             	}
             }
@@ -67,7 +76,42 @@ import java.util.*;
         }
 		
 		@Override
+		protected void onProbablyOffline(Throwable returned) {
+			// tell workspace not to expect any more results
+			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+				@Override
+				public void execute() {
+        			// tell workspace that these chunks won't arrive
+        			for (TimedChunk chunk : chunks) {
+            			workspace.noResult(chunk.getChunkIndex());
+					}
+        			// tell workspace that no other chunk translations will arrive either
+        			command.noMoreResults();
+				}
+			});
+			if (LocalStorageHandler.isOnline()) {
+				displayWindow("Some of the translation suggestions cannot arrive " +
+						"because there is no connection to the server, " +
+						"probably because you are offline. " +
+						"You can try refreshing the page once back online.");
+			}
+			else {
+				displayWindow("You went offline before some of the translation suggestions arrived. " +
+						"You can try refreshing the page once back online to get them, " +
+						"or you can just do without them.");
+			}
+		}
+		
+		@Override
 		protected void onFinalError(String message) {
+			// tell workspace that these chunks won't arrive
+			for (TimedChunk chunk : chunks) {
+    			workspace.noResult(chunk.getChunkIndex());
+			}
+			// TODO: request next translations or not based on the type of error
+			// request next translations
+			command.execute();
+			// say error
 			displayWindow("Some of the translation suggestions did not arrive. " +
 				"You can ignore this or you can try refreshing the page. " +
 				"Error message: " + message);

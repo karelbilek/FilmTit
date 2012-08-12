@@ -27,8 +27,6 @@ class Configuration(configurationFile: InputStream) {
   
   val mosesURL:java.net.URL = new java.net.URL("""http://"""+(XMLFile \ "mosesURL").text+"/RPC2")
 
-  val langProfileDir = new java.io.File((XMLFile \ "lang_detect_profiledir").text)
-
 
   //Languages:
   val l1 = Language.fromCode((XMLFile \ "l1").text)
