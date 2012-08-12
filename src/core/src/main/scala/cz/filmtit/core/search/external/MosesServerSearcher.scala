@@ -32,7 +32,8 @@ object MosesServerSearcher {
   val apostropheRegex = """'(\S)""".r
   val spaceRegex = """\s+(\s)""".r
   val unkRegex = """\|UNK""".r
-  val ntRegex = """ n &apos; t""".r
+  val ntRegex = """\s+n &apos;t""".r
+  val pureAposRegex = """ &apos; """.r
 }
 
 class MosesServerSearcher(
@@ -72,7 +73,7 @@ class MosesServerSearcher(
             Thread.sleep(1000)
             (None, Some(e))
         }
-   }.take(15).toIterable
+   }.take(4).toIterable
    
    val res = tries.find{_._1.isDefined}
    if (res.isDefined) {
@@ -105,9 +106,9 @@ class MosesServerSearcher(
      //scala sucks with regexes
      val toSend = ntRegex.replaceAllIn(
                     apostropheAfterRegex.replaceAllIn(
-                      apostropheRegex.replaceAllIn(joinedSource, """&apos; $1"""), 
+                      apostropheRegex.replaceAllIn(joinedSource, """&apos;$1"""), 
                     """$1 &apos;"""), 
-                  "n &apos; t");
+                  "n &apos;t");
 
      val translation = getRawTranslation(toSend) 
 
@@ -118,7 +119,7 @@ class MosesServerSearcher(
      } else {
         translationWithoutSpaces
      }
-     val resUnk = unkRegex.replaceAllIn(res, "")
+     val resUnk = pureAposRegex.replaceAllIn(unkRegex.replaceAllIn(res, ""), "'");
      resUnk
  
   }
@@ -131,7 +132,7 @@ class MosesServerSearcher(
        new TranslationPair(
           chunk,
           new Chunk(prepareAndSendToMoses(chunk.getTokens)),
-          TranslationSource.EXTERNAL_MT,
+          TranslationSource.MOSES,
           genericTranslationScore
         )
     )
