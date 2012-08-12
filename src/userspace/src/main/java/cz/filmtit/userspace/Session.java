@@ -6,7 +6,6 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidValueException;
-import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.jboss.logging.Logger;
 
 import java.util.*;
@@ -136,7 +135,7 @@ public class Session {
     }
 
     public Void setEmail(String email) throws InvalidValueException {
-        if (!FilmTitBackendServer.mailRegexp.matcher(email).matches()) {
+        if (!org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
             throw new InvalidValueException("'" + email + "' is not a valid email address.");
         }
 

@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.util.*;
-import java.util.regex.Pattern;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -36,8 +35,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
     private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
-    public final static Pattern mailRegexp = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@" +
-            "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -661,7 +658,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     private void validateEmail(String email) throws InvalidValueException {
-        if (!mailRegexp.matcher(email).matches()) {
+        if (org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
             throw new InvalidValueException("Email address " + email + "is not valid.");
         }
     }
