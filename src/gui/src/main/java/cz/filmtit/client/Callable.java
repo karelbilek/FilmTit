@@ -120,9 +120,12 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 * this method is called at the moment of its timeout
 	 * (and not when (if) it eventually returns).
 	 * Nothing done by default.
+	 * 
+	 * @return true if processing of the call should continue (the default),
+	 * false if it should be stopped
 	 */
-    protected void onEachReturn(Object returned) {
-    	// nothing by default
+    protected boolean onEachReturn(Object returned) {
+    	return true;
     }
     
     /**
@@ -249,12 +252,13 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		timeOutTimer.cancel();
     	if (!hasReturned) {
         	hasReturned = true;
-        	onEachReturn(returned);
             Gui.log("RPC SUCCESS "+getName());
-            onSuccessAfterLog(returned);
+        	if (onEachReturn(returned)) {
+                onSuccessAfterLog(returned);
+        	}
     	} else {
     		// has returned successfully for the second time
-            Gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
+            Gui.log("RPC TIMEOUT RETURN " + getName() + " (returned with " + returned + ")");
             onTimedOutReturnAfterLog(returned);
     	}
     }
@@ -263,26 +267,26 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	public final void onFailure(Throwable returned) {
 		timeOutTimer.cancel();
     	if (!hasReturned) {
-        	onEachReturn(returned);
-	        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
-	            // this happens if there is no connection to the server, and reportedly in other cases as well
-            	// try to send it again
-	            if (!retry()) {
-	            	// stop trying, we might be offline
-	        		Gui.log("RPC FAILURE " + getName() + " (status code 0)");
-		            onProbablyOffline(returned);
-	            }
-	        } else if (returned instanceof InvalidSessionIdException) {
-	        	// the user session is no longer valid
-	            onInvalidSession();
-	        } else {
-	        	// a "generic" failure
-	            Gui.log("RPC FAILURE " + getName() + "! " + returned.toString());
-	            onFailureAfterLog(returned);
-	        }
+            Gui.log("RPC FAILURE " + getName() + " WITH " + returned.toString());
+        	if (onEachReturn(returned)) {
+		        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
+		            // this happens if there is no connection to the server, and reportedly in other cases as well
+	            	// try to send it again
+		            if (!retry()) {
+		            	// stop trying, we might be offline
+			            onProbablyOffline(returned);
+		            }
+		        } else if (returned instanceof InvalidSessionIdException) {
+		        	// the user session is no longer valid
+		            onInvalidSession();
+		        } else {
+		        	// a "generic" failure
+		            onFailureAfterLog(returned);
+		        }
+        	}
     	} else {
     		// has failed after already having returned successfully
-            Gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
+            Gui.log("RPC TIMEOUT RETURN " + getName() + " (returned with " + returned + ")");
             onTimedOutReturnAfterLog(returned);
     	}
     }
@@ -293,11 +297,11 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected final boolean retry () {
 		if (retries <= 0) {
-        	Gui.log("RPC " + getName() + ": retry attempts exhausted");
+        	Gui.log("RPC NORETRY" + getName() + " (retry attempts exhausted)");
 			return false;
 		} else {
 			retries--;
-        	Gui.log("RPC " + getName() + ": new retry in " + waitToRetry + "ms (" + retries + " retries left)");
+        	Gui.log("RPC RETRY " + getName() + " IN " + waitToRetry + "ms (" + retries + " retries left)");
         	new EnqueueTimer(waitToRetry);
         	waitToRetry *= 10; // wait 5ms, 50ms, 0.5s, 5s
 			return true;
@@ -319,9 +323,10 @@ public abstract class Callable<T> implements AsyncCallback<T> {
      */
     final protected void timeOut() {
     	if (!hasReturned) {
-        	onEachReturn("TIMEOUT");
-    		Gui.log("RPC " + getName() + " TIMED OUT after " + callTimeOut + "ms");
-    		onTimeOut();
+    		Gui.log("RPC TIMEOUT " + getName() + " (after " + callTimeOut + "ms)");
+        	if (onEachReturn("TIMEOUT")) {
+        		onTimeOut();
+        	}
     	}
     	else {
     		assert false : "has already returned, so the timer should already have been cancelled";
