@@ -12,17 +12,26 @@ import java.util.*;
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
+    /**
+     * The wrapped shared object.
+     */
     private User user;
 
+    /**
+     * Hash of the user password. (In case user doesn't use open id.)
+     */
     private volatile String password;
+    /**
+     * Open ID identifier of the user.
+     */
     private volatile String openId;
 
     /**
-     * Creates a new user given his user name. It is used in cases a user logs for the first time
+     * Creates a new user given his user name and other credits. It is used in cases a user logs for the first time
      * in the application.
      * @param userName The name of the new user.
-     * @param password - The new password
-     * @param email - The email of new user
+     * @param password The new password
+     * @param email The email of new user
      */
     public USUser(String userName, String password, String email, String openId) {
         this.user = new User();
@@ -37,6 +46,7 @@ public class USUser extends DatabaseObject {
 
         ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
     }
+
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
      * in the application.
@@ -57,11 +67,11 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Default constructor used by Hibernate.
+     * Private default constructor used by Hibernate.
      */
     private USUser() {
         this.user = new User();
-        ownedDocuments = null; //new ArrayList<USDocument>();
+        ownedDocuments = null;
     }
 
     /**
@@ -145,32 +155,56 @@ public class USUser extends DatabaseObject {
         user.setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
     }
 
+    /**
+     * Gets the flag if the wants to include results of machine translation together with the suggestions.
+     * @return  Flag if the user wants machine translation.
+     */
     public boolean getUseMoses() {
          return user.getUseMoses();
     }
 
+    /**
+     * Sets the flag if the wants to include results of machine translation together with the suggestions.
+     * @param useMoses Flag if the user wants machine translation.
+     */
     public void setUseMoses(boolean useMoses) {
         user.setUseMoses(useMoses);
     }
 
-    //adds document into server memory
-    //it doesn't add it into database, it is added into database in document constructor
+    /**
+     * Adds a document to the in-memory collection of documents owned by the user. The document itself including
+     * it's connection to the user are saved to the already in the document constructor.
+     * @param document
+     */
     public void addDocument(USDocument document) {
         getOwnedDocuments().put(document.getDatabaseId(), document);
     }
 
+    /**
+     * Saves the user (not the document he owns) to the database.
+     * @param dbSession An active database session.
+     */
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
     }
 
+    /**
+     * Deletes the user from the database and marks all the document he own as ready to be deleted.
+     * @param dbSession An active database session.
+     */
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
         for (USDocument document : ownedDocuments.values()) {
-            document.deleteFromDatabase(dbSession);
+            document.setToBeDeleted(true);
+            document.saveToDatabase(dbSession);
         }
     }
 
-
+    /**
+     * Gets the wrapped user object clone without documents. It is used to send the client information about the
+     * user after user logs in.
+     * @return User object without documents.
+     */
     public User sharedUserWithoutDocuments() {
         return user.getCloneWithoutDocuments();
     }
