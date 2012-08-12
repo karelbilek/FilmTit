@@ -137,7 +137,7 @@ public class Session {
 
     public Void setEmail(String email) throws InvalidValueException {
         if (!FilmTitBackendServer.mailRegexp.matcher(email).matches()) {
-            throw new InvalidValueException(email + " is not a valid email address.");
+            throw new InvalidValueException("'" + email + "' is not a valid email address.");
         }
 
         user.setEmail(email);
@@ -147,7 +147,7 @@ public class Session {
 
     public Void setMaximumNumberOfSuggestions(int number) throws InvalidValueException {
         if (number < 0 || number > 100) {
-            throw new InvalidValueException("The maximum number of suggestion must be a positive integer lesser than 100.");
+            throw new InvalidValueException("The maximum number of suggestion must be a positive integer lesser than 100; '" + number + "' is incorrect.");
         }
         user.setMaximumNumberOfSuggestions(number);
         saveUser();
@@ -340,10 +340,10 @@ public class Session {
 
             // test the timing
             if (!timingRegexp.matcher(chunk.getStartTime()).matches()) {
-                throw new InvalidValueException("The start time value " + chunk.getStartTime() + " has wrong format.");
+                throw new InvalidValueException("The start time value '" + chunk.getStartTime() + "' has wrong format.");
             }
             if (!timingRegexp.matcher(chunk.getEndTime()).matches()) {
-                throw new InvalidValueException("The end time value " + chunk.getEndTime() + " has wrong format.");
+                throw new InvalidValueException("The end time value '" + chunk.getEndTime() + "' has wrong format.");
             }
 
 
@@ -458,7 +458,7 @@ public class Session {
         updateLastOperationTime();
 
         if (!timingRegexp.matcher(newStartTime).matches()) {
-            throw new InvalidValueException("Wrong format of the timing.");
+            throw new InvalidValueException("Wrong format of the timing '" + newStartTime + "'.");
         }
 
         USDocument document = activeDocuments.get(documentId);
@@ -474,7 +474,7 @@ public class Session {
         updateLastOperationTime();
 
         if (!timingRegexp.matcher(newEndTime).matches()) {
-            throw new InvalidValueException("Wrong format of the timing.");
+            throw new InvalidValueException("Wrong format of the timing '" + newEndTime + "'.");
         }
 
         USDocument document = getActiveDocument(documentId);
