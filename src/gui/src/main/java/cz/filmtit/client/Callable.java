@@ -32,27 +32,14 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	protected Timer timeOutTimer;
 	
 	/**
-	 * whether the call has already returned
+	 * whether the call has already returned successfully
 	 */
 	protected boolean hasReturned = false;
-	
-	/**
-	 * sets hasReturned to true and cancels the timeout timer.
-	 */
-	public void setHasReturned() {
-		hasReturned = true;
-		timeOutTimer.cancel();
-	}
 
 	/**
-	 * whether the call has timed out (it means that it is invalid)
+	 * the time (in ms) after which the call fails with a timeout exception (defaults to 30s)
 	 */
-	protected boolean hasTimedOut = false;
-
-	/**
-	 * the time (in ms) after which the call fails with a timeout exception (defaults to 10s)
-	 */
-	protected int callTimeOut = 10000;
+	protected int callTimeOut = 30000;
 	
 	/**
 	 * Number of allowed retries
@@ -160,17 +147,17 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     
     /**
      * Called when the call times out.
-     * Fallback to onFailureAfterLog() by default.
+     * Call onFinalError() by default.
      */
 	protected void onTimeOut() {
-		onFailureAfterLog(
-			new Throwable("The call timed out because the server didn't send a response for " + (callTimeOut/1000) + " seconds.")
-		);
+		onFinalError("The call timed out because the server didn't send a response for " + (callTimeOut/1000) + " seconds.");
 	}
 	
 	/**
-	 * Called when the already timed out call returns,
-	 * either successfully or not.
+	 * Called when a call returns,
+	 * either successfully or not,
+	 * after already having returned successfully once
+	 * (this can happen because of timeouts).
 	 * Ignored by default.
 	 */
     protected void onTimedOutReturnAfterLog(Object returned) {
@@ -186,20 +173,22 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 * Prepares the call to be invoked and invokes it.
 	 */
 	public final void enqueue() {
-		hasReturned = false;
-		hasTimedOut = false;
-		setTimer();
-		call();
+		if (!hasReturned) {
+			setTimer();
+			call();
+		}
 	}
 		
     @Override
     public final void onSuccess(T returned) {
-    	setHasReturned();
-    	if (!hasTimedOut) {
+		timeOutTimer.cancel();
+    	if (!hasReturned) {
+        	hasReturned = true;
         	onEachReturn(returned);
             Gui.log("RPC SUCCESS "+getName());
             onSuccessAfterLog(returned);
     	} else {
+    		// has returned successfully for the second time
             Gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
             onTimedOutReturnAfterLog(returned);
     	}
@@ -207,8 +196,8 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 
     @Override    
 	public final void onFailure(Throwable returned) {
-    	setHasReturned();
-    	if (!hasTimedOut) {
+		timeOutTimer.cancel();
+    	if (!hasReturned) {
         	onEachReturn(returned);
 	        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
 	            // this happens if there is no connection to the server, and reportedly in other cases as well
@@ -227,6 +216,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	            onFailureAfterLog(returned);
 	        }
     	} else {
+    		// has failed after already having returned successfully
             Gui.log("TIMED OUT RPC " + getName() + " RETURNED WITH " + returned);
             onTimedOutReturnAfterLog(returned);
     	}
@@ -265,9 +255,11 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     final protected void timeOut() {
     	if (!hasReturned) {
         	onEachReturn("TIMEOUT");
-    		hasTimedOut = true;
     		Gui.log("RPC " + getName() + " TIMED OUT after " + callTimeOut + "ms");
     		onTimeOut();
+    	}
+    	else {
+    		assert false : "has already returned, so the timer should already have been cancelled";
     	}
     }
     

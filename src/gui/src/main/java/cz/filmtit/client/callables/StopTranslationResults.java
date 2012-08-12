@@ -48,8 +48,8 @@ import java.util.*;
 			
 			this.chunks = chunks;
 			
-			// 20s + 2s for each chunk
-			callTimeOut = 20000 + 2000 * chunks.size();
+			// + 0.1s for each chunk
+			callTimeOut += 100 * chunks.size();
 			
 			enqueue();
 		}

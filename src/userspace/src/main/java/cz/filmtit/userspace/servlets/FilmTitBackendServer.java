@@ -444,11 +444,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     private String extractOpenId(String url){
-        String id = url.substring(url.indexOf("?id")+4); // ..oi/id?id=*****
+        String id = url.substring(url.indexOf("?id") + 4); // ..oi/id?id=*****
         return id;
     }
 
-    // TODO : what is this good for
+    // TODO : what is this good for ?
     private String getUniqueName(String email){
 
         String name = email.substring(0,email.indexOf('@'));
@@ -531,7 +531,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Boolean sendChangePasswordMail(USUser user){
 
         Emailer email = new Emailer();
-        if (user.getEmail()!=null) {
+        if (user.getEmail() != null) {
             return email.sendForgottenPassMail(
                     user.getEmail(),
                     user.getUserName(),
@@ -543,7 +543,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     public boolean sendRegistrationMail(USUser user , String pass){
         Emailer email = new Emailer();
-        if (user.getEmail()!=null) {
+        if (user.getEmail() != null) {
             return email.sendRegistrationMail(
                     user.getEmail(),
                     user.getUserName(),
@@ -594,11 +594,29 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
+    // Forgot password, but knows user name
     @Override
     public Boolean sendChangePasswordMail(String username){
-        USUser user = checkUser(username,null,CheckUserEnum.UserName);
+        USUser user = checkUser(username, null, CheckUserEnum.UserName);
         if (user != null){
             return sendChangePasswordMail(user);
+        }
+
+        return false;
+    }
+
+    // Forgot password, but knows email
+    @Override
+    public Boolean sendChangePasswordMailByMail(String email) {
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email = " + email).list();
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        if (usersWithSuchMail.size() == 0) { return false; }
+        else {
+            for (Object userObj : usersWithSuchMail) {
+                 sendChangePasswordMail((USUser)userObj);
+            }
         }
 
         return false;
@@ -612,7 +630,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
     /*end test zone*/
 
-    private String forgotUrl(USUser user ){
+    private String forgotUrl(USUser user){
         // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
         String templateUrl = configuration.serverAddress() + "/?username=%login%&token=%token%#ChangePassword";
@@ -661,35 +679,32 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private USUser checkUser(String username , String password, CheckUserEnum type){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
-        List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
+        List userDbResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
                 .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
-        USUser succesUser = null;
-        int count= 0;
-        if (type == CheckUserEnum.UserNamePass)
-        {
-            for (Object aUserResult : UserResult) {
+        USUser successUser = null;
+        int count = 0;
+        if (type == CheckUserEnum.UserNamePass) {
+            for (Object aUserResult : userDbResult) {
                 USUser user = (USUser) aUserResult;
                 if (BCrypt.checkpw(password, user.getPassword())) {
-                    succesUser = user;
+                    successUser = user;
                     count++;
                 }
             }
 
-            if (count > 1)
-            {
+            if (count > 1) {
                 throw new ExceptionInInitializerError("Two users with same name and passwords");
             }
         }
         else if (type == CheckUserEnum.UserName)
         {
             // check if exist user with name
-            if (!UserResult.isEmpty())
-            {
-                succesUser=(USUser)UserResult.get(0);
+            if (!userDbResult.isEmpty()) {
+                successUser=(USUser)userDbResult.get(0);
             }
         }
-        return succesUser;
+        return successUser;
     }
 
     /**
