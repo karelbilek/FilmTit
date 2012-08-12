@@ -168,11 +168,11 @@ public class TestSession {
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
 
         List<TranslationPair> originalSuggestion = trToUpdate.getTranslationResult().getTmSuggestions();
-        List<TranslationPair> newSuggestions =
-                session.changeText(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), "New text", TM);
+        TranslationResult result =
+                session.changeText(trToUpdate.getTranslationResult().getSourceChunk(), "New text", TM);
 
-        assertNotNull(newSuggestions);
-        assertTrue(originalSuggestion != newSuggestions);
+        assertNotNull(result);
+
 
         // test if the change appeared in the user space structure
         USTranslationResult changed = findTranslationResultInStructure(session,
