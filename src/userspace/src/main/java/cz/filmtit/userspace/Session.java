@@ -312,6 +312,12 @@ public class Session {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        document.setMovie(null);
+        document.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
         return mediaSourceFactory.getSuggestions(newMovieTitle);
     }
 
