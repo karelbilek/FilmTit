@@ -62,10 +62,6 @@ public final class FilmTitServiceHandler {
     	new RegisterUser(username, password, email, loginDialog);
     }
     
-    static public void sendChangePasswordMail (String username, Dialog loginDialog) {
-    	new SendChangePasswordMail(username, loginDialog);
-    }
-    
     /**
      * change password in case of forgotten password;
      * user chooses a new password,

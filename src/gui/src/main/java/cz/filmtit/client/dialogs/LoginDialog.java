@@ -11,6 +11,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.callables.SendChangePasswordMail;
+import cz.filmtit.client.callables.SendChangePasswordMailByMail;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -440,9 +442,8 @@ public class LoginDialog extends Dialog {
 	@UiField
 	TextBox txtFpwdUsername;
 
-	// TODO: also enable forgotten username retrieval with email address
-	// @UiField
-	// TextBox txtFpwdEmail;
+	@UiField
+	TextBox txtFpwdEmail;
 
 	@UiField
 	SubmitButton btnForgottenPassword;
@@ -451,30 +452,27 @@ public class LoginDialog extends Dialog {
     void formForgottenPasswordSubmit(Form.SubmitEvent e) {
         deactivate();
     	String username = txtFpwdUsername.getText();
-    	// String email = txtFpwdEmail.getText();
+    	String email = txtFpwdEmail.getText();
     	
-    	if (checkFpwdForm(username)) {
+    	if (checkEmailValidity(email)) {
+        	if (checkUsername(username)) {
+    			Gui.log("trying to send forgotten password email to user " + username);
+    			new SendChangePasswordMail(username, email, LoginDialog.this);
+        	}
+        	else {
+    			Gui.log("trying to send forgotten password email to " + email);
+    			new SendChangePasswordMailByMail(email, null, LoginDialog.this);
+        	}
+    	}
+    	else if (checkUsername(username)) {
 			Gui.log("trying to send forgotten password email to user " + username);
-			FilmTitServiceHandler.sendChangePasswordMail(username, LoginDialog.this);
+			new SendChangePasswordMail(username, null, LoginDialog.this);
+    	}
+    	else {
+    		reactivateWithErrorMessage("You must fill at least one of the fields!");
     	}
 	}
-	
-    private boolean checkFpwdForm(String username /*, String email*/) {
-    	boolean result = false;
-    	
-    	if (!checkUsername(username)) {
-    		reactivateWithErrorMessage("You must fill in your username!");
-    	}
-//    	else if (!checkEmailValidity(email)) {
-//    		reactivateWithErrorMessage("The e-mail address is invalid!");
-//    	}
-    	else {
-    		result = true;
-    	}
-    	
-    	return result;
-    }
-    
+	    
 	//////////////////////////////////
 	//                              //
 	//   Shared methods             //
