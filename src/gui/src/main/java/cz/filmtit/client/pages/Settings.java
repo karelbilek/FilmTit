@@ -1,5 +1,8 @@
 package cz.filmtit.client.pages;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.github.gwtbootstrap.client.ui.AlertBlock;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.CheckBox;
@@ -9,8 +12,6 @@ import com.github.gwtbootstrap.client.ui.PageHeader;
 import com.github.gwtbootstrap.client.ui.SubmitButton;
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -20,10 +21,11 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.ReceivesSettings;
 import cz.filmtit.client.callables.*;
 import cz.filmtit.share.User;
 
-public class Settings extends Composite {
+public class Settings extends Composite implements ReceivesSettings {
 
 	private static SettingsUiBinder uiBinder = GWT
 			.create(SettingsUiBinder.class);
@@ -39,18 +41,13 @@ public class Settings extends Composite {
 		Gui.getGuiStructure().contentPanel.setStyleName("settings");
         Gui.getGuiStructure().contentPanel.setWidget(this);
         
-        // TODO: invoke a call for that
-        // deactivate()
-        // call something
-        
-        // TODO: to be removed
-        user = Gui.getUser();
-        header.setSubtext(user.getName());
-        setDefault();
+        // load settings
+		deactivate();
+		new LoadSettings(this);
 	}
 	
-	// TODO: call when the current User is received
-	public void getUserReturned (User user) {
+	@Override
+	public void onSettingsReceived(User user) {
 		this.user = user;
         header.setSubtext(user.getName());
         setDefault();
@@ -63,8 +60,6 @@ public class Settings extends Composite {
 		setMaxSuggestions.setValue(user.getMaximumNumberOfSuggestions());
 		setMoses.setValue(user.getUseMoses());
 	}
-	
-	private int changedValues = 0;
 	
 	private int waitingFor = 0;
 	
@@ -89,48 +84,46 @@ public class Settings extends Composite {
 		success = 0;
 		error = 0;
 		errors = new StringBuilder();
+		List<SetSetting<?>> calls = new LinkedList<SetSetting<?>>();
 		
-		// save
+		// email
 		if (!user.getEmail().equals(setEmail.getValue())) {
-			changedValues++;
-			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-				@Override
-				public void execute() {
-					new SetEmail(setEmail.getValue(), Settings.this);
-				}
-			});
-		}
-		if (user.isPermanentlyLoggedIn() != setPermalogin.getValue()) {
-			changedValues++;
-			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-				@Override
-				public void execute() {
-					new SetPermanentlyLoggedIn(setPermalogin.getValue(), Settings.this);
-				}
-			});
-		}
-		if (setMaxSuggestions.getValue() != null && user.getMaximumNumberOfSuggestions() != setMaxSuggestions.getValue()) {
-			changedValues++;
-			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-				@Override
-				public void execute() {
-					new SetMaximumNumberOfSuggestions(setMaxSuggestions.getValue(), Settings.this);
-				}
-			});
-		}
-		if (user.getUseMoses() != setMoses.getValue()) {
-			changedValues++;
-			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-				@Override
-				public void execute() {
-					new SetUseMoses(setMoses.getValue(), Settings.this);
-				}
-			});
+			calls.add(
+				new SetEmail(setEmail.getValue(), Settings.this)
+			);
 		}
 		
-		if (changedValues > 0) {
-			waitingFor = changedValues;
+		// permalog
+		if (user.isPermanentlyLoggedIn() != setPermalogin.getValue()) {
+			calls.add(
+				new SetPermanentlyLoggedIn(setPermalogin.getValue(), Settings.this)
+			);
+		}
+		
+		// max suggestions
+		if (setMaxSuggestions.getValue() == null) {
+			setMaxSuggestions.setValue(user.getMaximumNumberOfSuggestions());
+		}
+		else if (user.getMaximumNumberOfSuggestions() != setMaxSuggestions.getValue()) {
+			calls.add(
+				new SetMaximumNumberOfSuggestions(setMaxSuggestions.getValue(), Settings.this)
+			);
+		}
+		
+		// moses
+		if (user.getUseMoses() != setMoses.getValue()) {
+			calls.add(
+				new SetUseMoses(setMoses.getValue(), Settings.this)
+			);
+		}
+		
+		// invoke the calls
+		if (!calls.isEmpty()) {
 			deactivate();
+			waitingFor = calls.size();
+			for (SetSetting<?> setSetting : calls) {
+				setSetting.enqueue();
+			}
 		}
 		else {
 			alertInfo.setText("Nothing to be saved!");
@@ -160,15 +153,23 @@ public class Settings extends Composite {
 	}
 	
 	private void allReturned() {
-		// TODO: request fresh User
-		reactivate();
 		if (error == 0) {
+			// reactivate
+			reactivate();
+			// say OK
 			alertInfo.setText("Settings successfully saved!");
 			alertInfo.setVisible(true);
+			// reload currently valid settings (good especially for resetting User in Gui)
+			new LoadSettings(this);
 		}
 		else {
+			// keep deactivated, activate when currently valid settings have been loaded
+			// deactivate();
+			// say error
 			alertError.setText(errors.toString());
 			alertError.setVisible(true);
+			// reload currently valid settings (to see what they actually are after these errors)
+			new LoadSettings(this);
 		}
 	}
 	

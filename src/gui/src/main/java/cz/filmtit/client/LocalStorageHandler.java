@@ -242,6 +242,7 @@ public class LocalStorageHandler {
 		if (isStorageSupported) {
 			List<KeyValuePair> objects = new LinkedList<KeyValuePair>();
 			List<KeyValuePair> corrupted = new LinkedList<KeyValuePair>();
+			String currentUserId = Long.toString(Gui.getUserID());
 			// go through all items
 			for (int i = 0; i < storage.getLength(); i++) {
 				String key = storage.key(i);
@@ -252,7 +253,7 @@ public class LocalStorageHandler {
 					String key_without_userid = keyFields[0];
 					String userid = keyFields[1];
 					// check userid
-					if (userid.equals(Gui.getUserID())) {
+					if ( userid.equals(currentUserId) ) {
 						String value = storage.getItem(key);
 						objects.add(new KeyValuePair(key_without_userid, value));
 					}

@@ -8,10 +8,7 @@ import cz.filmtit.core.io.data.FreebaseMediaSourceFactory;
 import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
-import cz.filmtit.share.exceptions.AuthenticationFailedException;
-import cz.filmtit.share.exceptions.InvalidChunkIdException;
-import cz.filmtit.share.exceptions.InvalidDocumentIdException;
-import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.share.exceptions.*;
 import cz.filmtit.userspace.*;
 import cz.filmtit.userspace.login.AuthData;
 import cz.filmtit.userspace.login.ChangePassToken;
@@ -39,6 +36,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
     private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
+    public final static Pattern mailRegexp = Pattern.compile("^[_A-Za-z0-9-]+(\\\\.[_A-Za-z0-9-]+)*@" +
+            "[A-Za-z0-9]+(\\\\.[A-Za-z0-9]+)*(\\\\.[A-Za-z]{2,})$");
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -199,21 +198,21 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
     }
 
     @Override
     public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
-            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException {
+            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
 	@Override
 	public Void setChunkTimes(String sessionID, ChunkIndex chunkIndex,
 			long documentId, String newStartTime, String newEndTime)
-			throws InvalidSessionIdException, InvalidChunkIdException,
-			InvalidDocumentIdException {
+            throws InvalidSessionIdException, InvalidChunkIdException,
+            InvalidDocumentIdException, InvalidValueException {
 		
 		Session session = getSessionIfCan(sessionID);
 		session.setChunkStartTime(chunkIndex, documentId, newStartTime);
@@ -222,9 +221,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 	}
 
     @Override
-    public List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+    public TranslationResult changeText(String sessionID, TimedChunk chunk, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
-        return getSessionIfCan(sessionID).changeText(chunkIndex, documentId, newText, TM);
+        return getSessionIfCan(sessionID).changeText(chunk, newText, TM);
     }
 
     @Override
@@ -336,7 +335,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public SessionResponse getSessionID(int authID) throws AuthenticationFailedException {
+    public SessionResponse getSessionID(int authID) throws AuthenticationFailedException, InvalidValueException {
         if (finishedAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
@@ -397,7 +396,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public Boolean registration(String name, String pass, String email, String openId) {
+    public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
+        validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -430,7 +430,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param data
      * @return true if registration is successful, false otherwise
      */
-    public Boolean registration(String openId, Authentication data){
+    public Boolean registration(String openId, Authentication data) throws InvalidValueException {
 
         if (data != null){
             Random r = new Random();
@@ -438,7 +438,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             String password = Integer.toString(pin);
             logger.debug("registration/email",data.getEmail());
             String name = getUniqueName(data.getEmail());
-            return registration(name,password,data.getEmail(),openId);
+            return registration(name, password, data.getEmail(), openId);
         }
         else {
             return false;        	
@@ -480,11 +480,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public Boolean changePassword(String user  , String pass, String string_token){
-        USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
-        ChangePassToken token = activeTokens.get(user);
+    public Boolean changePassword(String userName, String pass, String stringToken){
+        USUser usUser = checkUser(userName, "", CheckUserEnum.UserName);
+        ChangePassToken token = activeTokens.get(userName);
 
-        if (usUser != null && token != null && token.isValidToken(string_token)){
+        if (usUser != null && token != null && token.isValidToken(stringToken)){
 
             usUser.setPassword(passHash(pass));
             org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -609,7 +609,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     // Forgot password, but knows email
     @Override
-    public Boolean sendChangePasswordMailByMail(String email) {
+    public Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException {
+        validateEmail(email);
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email = " + email).list();
         usHibernateUtil.closeAndCommitSession(dbSession);
@@ -746,7 +747,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      return matcher.matches();
     }
 
-     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    private void validateEmail(String email) throws InvalidValueException {
+        if (!mailRegexp.matcher(email).matches()) {
+            throw new InvalidValueException("Email address " + email + "is not valid.");
+        }
+    }
     // USER SETTINGS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -754,11 +759,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
     }
 
-    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException {
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException {
         return getSessionIfCan(sessionID).setEmail(email);
     }
 
-    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException {
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setMaximumNumberOfSuggestions(number);
     }
 

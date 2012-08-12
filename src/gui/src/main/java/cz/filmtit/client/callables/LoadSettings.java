@@ -12,21 +12,21 @@ import cz.filmtit.share.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 
-public class CheckSessionID extends Callable<SessionResponse> {
+public class LoadSettings extends Callable<SessionResponse> {
     	
     	// parameters
-    	String sessionID;
+    	ReceivesSettings settingsReceiver;
     	
         @Override
         public String getName() {
-            return getNameWithParameters(sessionID);
+            return "LoadSettings";
         }
 
         @Override
         public void onSuccessAfterLog(SessionResponse response) {
             if (response != null) {
-                Gui.log("logged in as " + response.userWithoutDocs.getName() + " with session id " + response.sessionID);
-                Gui.logged_in(response.userWithoutDocs);
+        		Gui.resetUser(response.userWithoutDocs);
+            	settingsReceiver.onSettingsReceived(response.userWithoutDocs);
             } else {
                 Gui.log("Warning: sessionID invalid.");
                 Gui.logged_out();
@@ -44,21 +44,15 @@ public class CheckSessionID extends Callable<SessionResponse> {
         }
 
         // constructor
-    	public CheckSessionID() {
+    	public LoadSettings(ReceivesSettings settingsReceiver) {
     		super();
     		
-    		sessionID = Gui.getSessionID();
-    		if (sessionID == null) {
-                Gui.logged_out();
-        		return;
-        	}
-    		else {
-            	enqueue();
-            }
+    		this.settingsReceiver = settingsReceiver;
+    		
+        	enqueue();
     	}
     	
 		@Override protected void call() {
-			Gui.log("Checking sessionID " + sessionID);
-            filmTitService.checkSessionID(sessionID, this);
+            filmTitService.checkSessionID(Gui.getSessionID(), this);
 		}
 }

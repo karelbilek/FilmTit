@@ -262,6 +262,16 @@ public class Gui implements EntryPoint {
     //                                   //
     ///////////////////////////////////////
     
+	/**
+	 * To be called when the User object
+	 * representing the current user
+	 * has changed.
+	 */
+    public static void resetUser (User user) {
+    	Gui.user = user;
+    	Gui.getGuiStructure().logged_in(user);
+    }
+
     public static void logged_in (User user) {
     	Gui.log("User " + user.getName() + " is logged in.");
     	// login state fields

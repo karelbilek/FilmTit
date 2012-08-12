@@ -16,11 +16,6 @@ import java.util.*;
     public class Logout extends Callable<Void> {
     	
         @Override
-        public String getName() {
-            return "Logout";     //  :-)
-        }
-        
-        @Override
         public void onSuccessAfterLog(Void o) {
             Gui.logged_out(true);
         }

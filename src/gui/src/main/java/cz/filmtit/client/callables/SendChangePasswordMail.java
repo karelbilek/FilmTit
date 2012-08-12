@@ -9,6 +9,7 @@ import cz.filmtit.client.dialogs.Dialog;
     	
     	// parameters
     	String username;
+    	String email;
     	Dialog loginDialog;
 
         @Override
@@ -26,11 +27,17 @@ import cz.filmtit.client.dialogs.Dialog;
             } else {
                 // false = bad username or no email
                 Gui.log("ERROR: sendChangePasswordMail didn't succeed, bad username or no email.");
-                loginDialog.reactivateWithErrorMessage("There was an error sending password change email to you. " +
-                        "Either the username '" + username + "' is not registered " +
-                                "or there is no e-mail address associated with it. " +
-                                "Please check the username or register with a new one. " +
-                                "(You can also try to contact the administrators.)");
+            	if (email == null) {
+                    loginDialog.reactivateWithErrorMessage("There was an error sending password change email to you. " +
+                            "Either the username '" + username + "' is not registered " +
+                                    "or there is no e-mail address associated with it. " +
+                                    "Please check the username or register with a new one. " +
+                                    "You can also try filling in you e-mail address instead.");
+            	}
+            	else {
+                    Gui.log("Will retry with email " + email);
+            		new SendChangePasswordMailByMail(email, username, loginDialog);
+            	}
             }
         }
 
@@ -42,11 +49,17 @@ import cz.filmtit.client.dialogs.Dialog;
                     "Error message: " + message);
         }
 	    	
-    	// constructor
-		public SendChangePasswordMail(String username, Dialog loginDialog) {
+    	/**
+    	 * 
+    	 * @param username A username to which associated email address to try to send the password change link.
+    	 * @param email An email addres to try to use i {@link SendChangePasswordMailByMail} if this call fails.
+    	 * @param loginDialog
+    	 */
+		public SendChangePasswordMail(String username, String email, Dialog loginDialog) {
 			super();
 			
 			this.username = username;
+			this.email = email;
 			this.loginDialog = loginDialog;
 			
 			enqueue();

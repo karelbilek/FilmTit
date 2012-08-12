@@ -3,6 +3,7 @@ package cz.filmtit.userspace.tests;
 import cz.filmtit.core.Configuration;
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.SessionResponse;
+import cz.filmtit.share.exceptions.InvalidValueException;
 import cz.filmtit.userspace.USHibernateUtil;
 import cz.filmtit.userspace.USUser;
 import cz.filmtit.userspace.login.ChangePassToken;
@@ -42,7 +43,7 @@ public class TestUSUserLogin {
     FilmTitBackendServer server = new MockFilmTitBackendServer();
 
     @Test
-    public void testRegistration() {
+    public void testRegistration() throws InvalidValueException {
         server.registration(name, pass, email, null);
 
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -58,7 +59,7 @@ public class TestUSUserLogin {
 
 
     @Test
-    public void testLogin() throws NoSuchFieldException, IllegalAccessException {
+    public void testLogin() throws NoSuchFieldException, IllegalAccessException, InvalidValueException {
         // if not able to log in, register the user
         if (server.simpleLogin(name,pass) != null) {
             server.registration(name, pass, email, null);

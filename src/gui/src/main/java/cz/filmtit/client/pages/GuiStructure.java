@@ -76,6 +76,16 @@ public class GuiStructure extends Composite {
 	}
 	
 	/**
+	 * To be called when the User object
+	 * representing the current user
+	 * has changed.
+	 */
+	public void resetUser (User user) {
+		logout.setText("Log out user " + user.getName());
+		username.setText("User " + user.getName());
+	}
+	
+	/**
 	 * to be called to switch the view from "logged out" to "logged in"
 	 */
 	public void logged_in (User user) {

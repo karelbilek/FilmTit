@@ -9,6 +9,7 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
+import cz.filmtit.share.exceptions.InvalidValueException;
 import cz.filmtit.userspace.*;
 import de.svenjacobs.loremipsum.LoremIpsum;
 import org.junit.AfterClass;
@@ -132,7 +133,7 @@ public class TestSession {
     }
 
     @Test
-    public void testChangeStartAndEndTime() throws InvalidDocumentIdException, InvalidChunkIdException {
+    public void testChangeStartAndEndTime() throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
@@ -167,11 +168,11 @@ public class TestSession {
         session.loadDocument(trToUpdate.getDocumentDatabaseId());
 
         List<TranslationPair> originalSuggestion = trToUpdate.getTranslationResult().getTmSuggestions();
-        List<TranslationPair> newSuggestions =
-                session.changeText(trToUpdate.getChunkIndex(), trToUpdate.getDocumentDatabaseId(), "New text", TM);
+        TranslationResult result =
+                session.changeText(trToUpdate.getTranslationResult().getSourceChunk(), "New text", TM);
 
-        assertNotNull(newSuggestions);
-        assertTrue(originalSuggestion != newSuggestions);
+        assertNotNull(result);
+
 
         // test if the change appeared in the user space structure
         USTranslationResult changed = findTranslationResultInStructure(session,
@@ -448,7 +449,7 @@ public class TestSession {
     }
 
     @Test
-    public void testUserSettings() {
+    public void testUserSettings() throws InvalidValueException, InvalidChunkIdException {
         USUser user = getSampleUser();
         Session session = new Session(user);
 
@@ -468,4 +469,41 @@ public class TestSession {
         assertEquals(false, user.getUseMoses());
         assertEquals(true, user.isPermanentlyLoggedId());
     }
+
+    //changeDocumentTitle, changeMovieTitle
+
+    @Test
+    public void testChangeDocumentTitle() throws InvalidDocumentIdException {
+        USUser user = getSampleUser();
+        Session session = new Session(user);
+
+        USDocument document = firstGeneratedDocument;
+
+        session.changeDocumentTitle(document.getDatabaseId(), "Changed title");
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List fromDb = dbSession.createQuery("select d from USDocument d where d.databaseId = " + document.getDatabaseId()).list();
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        assertEquals(1, fromDb.size());
+        assertEquals("Changed title", ((USDocument)fromDb.get(0)).getTitle());
+    }
+
+    public void testChangeMovieTitle() throws InvalidDocumentIdException {
+        USUser user = getSampleUser();
+        Session session = new Session(user);
+
+        USDocument document = firstGeneratedDocument;
+
+        session.changeMovieTitle(document.getDatabaseId(), "Movie", mediaSourceFactory);
+        assertEquals(null, document.getMediaSource());
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List fromDb = dbSession.createQuery("select d from USDocument d where d.databaseId = " + document.getDatabaseId()).list();
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        assertEquals(1, fromDb.size());
+        assertEquals(null, ((USDocument)(fromDb.get(0))).getMediaSource());
+    }
+
 }

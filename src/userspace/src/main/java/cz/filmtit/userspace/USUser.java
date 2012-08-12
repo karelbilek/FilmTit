@@ -152,7 +152,7 @@ public class USUser extends DatabaseObject {
     //adds document into server memory
     //it doesn't add it into database, it is added into database in document constructor
     public void addDocument(USDocument document) {
-        ownedDocuments.put(document.getDatabaseId(), document);
+        getOwnedDocuments().put(document.getDatabaseId(), document);
     }
 
     public void saveToDatabase(Session dbSession) {

@@ -3,13 +3,20 @@ package cz.filmtit.client.pages;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Label;
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
@@ -18,6 +25,8 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.ChangeDocumentTitle;
+import cz.filmtit.client.callables.ChangeMovieTitle;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
 
@@ -36,13 +45,43 @@ public class UserPage extends Composite {
 	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-        TextColumn<Document> nameClm = new TextColumn<Document>() {
+//        TextColumn<Document> nameClm = new TextColumn<Document>() {
+//            @Override
+//            public String getValue(Document doc) {
+//                return doc.getTitle();
+//            }
+//        };
+
+        Column<Document, String> nameClm2 = new Column<Document, String>(new ClickableTextCell()) {
             @Override
             public String getValue(Document doc) {
                 return doc.getTitle();
             }
         };
-        TextColumn<Document> mSourceClm = new TextColumn<Document>() {
+        nameClm2.setFieldUpdater(new FieldUpdater<Document, String>() {
+			@Override
+			public void update(int index, Document doc, String title) {
+				String newTitle = Window.prompt("Document name: ", title);
+				new ChangeDocumentTitle(doc.getId(), newTitle);
+				doc.setTitle(newTitle);
+			}
+		});
+        
+        Column<Document, String> nameClm3 = new Column<Document, String>(new EditTextCell()) {
+            @Override
+            public String getValue(Document doc) {
+                return doc.getTitle();
+            }
+        };
+        nameClm3.setFieldUpdater(new FieldUpdater<Document, String>() {
+			@Override
+			public void update(int index, Document doc, String newTitle) {
+				new ChangeDocumentTitle(doc.getId(), newTitle);
+				doc.setTitle(newTitle);
+			}
+		});
+        
+        Column<Document, String> mSourceClm = new Column<Document, String>(new ClickableTextCell()) {
             @Override
             public String getValue(Document doc) {
                 if (doc.getMovie()==null) {
@@ -51,6 +90,17 @@ public class UserPage extends Composite {
                 return doc.getMovie().toString();
             }
         };
+        mSourceClm.setFieldUpdater(new FieldUpdater<Document, String>() {
+			@Override
+			public void update(int index, Document doc, String title) {
+				String newTitle = Window.prompt(
+						"Movie/TV show name for " + title + ": " +
+						"(you will be able to make a finer choice in the next step)",
+						doc.getMovie().getTitle());
+				new ChangeMovieTitle(doc.getId(), newTitle);
+			}
+		});
+        
         TextColumn<Document> languageClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
@@ -121,7 +171,9 @@ public class UserPage extends Composite {
 
         
 
-        docTable.addColumn(nameClm, "Document");
+        //docTable.addColumn(nameClm, "Document");
+        docTable.addColumn(nameClm2, "Document clickable");
+        docTable.addColumn(nameClm3, "Document editable");
         docTable.addColumn(mSourceClm, "Movie/TV Show");
         docTable.addColumn(languageClm, "Language");
         docTable.addColumn(doneClm, "Translated");
@@ -154,6 +206,7 @@ public class UserPage extends Composite {
       
 	}
 
+	
     void editDocument(Document document) {
     	Gui.getPageHandler().setDocumentId(document.getId());
     	Gui.getPageHandler().loadPage(Page.TranslationWorkspace);

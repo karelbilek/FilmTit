@@ -2,10 +2,7 @@ package cz.filmtit.share;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
-import cz.filmtit.share.exceptions.AuthenticationFailedException;
-import cz.filmtit.share.exceptions.InvalidChunkIdException;
-import cz.filmtit.share.exceptions.InvalidDocumentIdException;
-import cz.filmtit.share.exceptions.InvalidSessionIdException;
+import cz.filmtit.share.exceptions.*;
 
 
 import java.util.List;
@@ -40,19 +37,19 @@ public interface FilmTitService extends RemoteService {
 
     // User settings
     public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException;
-    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException;
-    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException;
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException;
+    public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException;
     public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
 
     // Logging in methods
     // - Prepared for using JOpenID
     LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);
     Boolean validateAuthentication(int authID, String responseURL);
-    SessionResponse getSessionID(int authID) throws AuthenticationFailedException;
+    SessionResponse getSessionID(int authID) throws AuthenticationFailedException, InvalidValueException;
     
     // Simple login
     // - registration (true if successful)
-    Boolean  registration(String name ,  String pass  , String email, String openId);
+    Boolean  registration(String name ,  String pass  , String email, String openId) throws InvalidValueException;
     // - login (returns session id on success, null in case of error (should throw an exception eventually))
     SessionResponse simpleLogin(String username, String password);
     /**
@@ -73,7 +70,7 @@ public interface FilmTitService extends RemoteService {
      * @return true on success, false if username is incorrect or there is no email address
      */
     Boolean sendChangePasswordMail(String username);
-    Boolean sendChangePasswordMailByMail(String email);
+    Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException;
     
     // - Logout
     Void logout(String sessionID) throws InvalidSessionIdException;
@@ -84,12 +81,12 @@ public interface FilmTitService extends RemoteService {
     public Void deleteDocument(String sessionID, long documentID)
             throws InvalidSessionIdException, InvalidDocumentIdException;
     Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
     Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
-    		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
+            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
     Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)
-    		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
-    List<TranslationPair> changeText(String sessionID, ChunkIndex chunkIndex, long documentId, String newText)
+    		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
+    TranslationResult changeText(String sessionID, TimedChunk chunk, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException;
     public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
