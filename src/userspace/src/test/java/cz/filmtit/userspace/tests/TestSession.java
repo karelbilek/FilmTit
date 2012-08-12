@@ -469,4 +469,41 @@ public class TestSession {
         assertEquals(false, user.getUseMoses());
         assertEquals(true, user.isPermanentlyLoggedId());
     }
+
+    //changeDocumentTitle, changeMovieTitle
+
+    @Test
+    public void testChangeDocumentTitle() throws InvalidDocumentIdException {
+        USUser user = getSampleUser();
+        Session session = new Session(user);
+
+        USDocument document = firstGeneratedDocument;
+
+        session.changeDocumentTitle(document.getDatabaseId(), "Changed title");
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List fromDb = dbSession.createQuery("select d from USDocument d where d.databaseId = " + document.getDatabaseId()).list();
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        assertEquals(1, fromDb.size());
+        assertEquals("Changed title", ((USDocument)fromDb.get(0)).getTitle());
+    }
+
+    public void testChangeMovieTitle() throws InvalidDocumentIdException {
+        USUser user = getSampleUser();
+        Session session = new Session(user);
+
+        USDocument document = firstGeneratedDocument;
+
+        session.changeMovieTitle(document.getDatabaseId(), "Movie", mediaSourceFactory);
+        assertEquals(null, document.getMediaSource());
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        List fromDb = dbSession.createQuery("select d from USDocument d where d.databaseId = " + document.getDatabaseId()).list();
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        assertEquals(1, fromDb.size());
+        assertEquals(null, ((USDocument)(fromDb.get(0))).getMediaSource());
+    }
+
 }
