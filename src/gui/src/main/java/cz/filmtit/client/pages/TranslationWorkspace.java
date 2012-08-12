@@ -406,7 +406,7 @@ public class TranslationWorkspace extends Composite {
           }
           
           // save the chunks
-          new SaveSourceChunks(chunklist, this);
+          new SaveSourceChunks(chunklist, this, createDocumentCall);
           // now the user can close the browser, chunks are safely saved
      }
 
