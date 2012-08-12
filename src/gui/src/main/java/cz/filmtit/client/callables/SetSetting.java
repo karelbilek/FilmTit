@@ -14,11 +14,9 @@ public abstract class SetSetting<T> extends Callable<Void> {
 
 	@Override
 	public String getName() {
-		return getClassName() + "(" + setting.toString() + ")";
+		return getNameWithParameters(setting);
 	}
 	
-	abstract protected String getClassName();
-    
     @Override
     public void onSuccessAfterLog(Void o) {
     	settingsPage.success();

@@ -6,6 +6,7 @@ import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.ChangeSourceChunk;
 import cz.filmtit.client.callables.GetTranslationResults;
 import cz.filmtit.client.callables.SetChunkTimes;
 import cz.filmtit.client.subgestbox.SubgestBox;
@@ -474,6 +475,20 @@ public class TranslationWorkspace extends Composite {
                     return true;
                }
           }
+          
+          /**
+           * Called to tell that there will be no more results,
+           * probably because the browser is offline,
+           * so that for all the remaining chunks
+           * there is no point in requesting them
+           * or waiting for them.
+           */
+          public void noMoreResults() {
+        	  for (TimedChunk chunk : chunks) {
+				  noResult(chunk.getChunkIndex());
+			  }
+        	  chunks.clear();
+          }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
         	  FilmTitServiceHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
@@ -600,6 +615,7 @@ public class TranslationWorkspace extends Composite {
         //html because of <br />
         Label sourcelabel = new HTML(chunk.getGUIForm());
         sourcelabel.setStyleName("chunk_l1");
+        sourcelabel.addDoubleClickHandler(new SourceChangeHandler(chunk, sourcelabel));
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
         SubgestBox targetbox = new SubgestBox(chunk, this, index+1);
@@ -670,6 +686,48 @@ public class TranslationWorkspace extends Composite {
 		}
     }
 
+
+    /**
+     * Used to change the source of a chunk.
+     * Rough and probably TODO now.
+     */
+    class SourceChangeHandler implements DoubleClickHandler {
+
+    	private ChunkIndex chunkIndex;
+    	private Label label;
+    	
+		private SourceChangeHandler(TimedChunk chunk, Label label) {
+			this.chunkIndex = chunk.getChunkIndex();
+			this.label = label;
+		}
+
+		@Override
+		public void onDoubleClick(DoubleClickEvent event) {
+			// TODO probably something nicer than the prompt
+			
+			// init
+			TimedChunk chunk = chunkmap.get(chunkIndex);
+			String oldSource = chunk.getSurfaceForm();
+			
+			// ask user for new value, showing the old one
+			String newSource = Window.prompt("Source text for this chunk:", oldSource);
+			
+			if (newSource == null || newSource.equals(oldSource)) {
+				// cancel or no change
+				return;
+			}
+			else {
+				// change the values
+				// TODO: not sure which set*Form to use (there is no documentation and I am not the author)
+				chunk.setDatabaseForm(newSource);
+				label.setText(chunk.getGUIForm());
+				// this call brings a fresh translation result on return :-)
+				// which is then given directly to showResult()
+				new ChangeSourceChunk(chunk, newSource, TranslationWorkspace.this);
+			}
+		}
+    }
+    
     public void replaceFake(ChunkIndex chunkIndex, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
         int id = indexes.get(chunkIndex);
@@ -712,6 +770,28 @@ public class TranslationWorkspace extends Composite {
 
     }
 
+    /**
+     * Called to tell workspace that there will be no translation result.
+     * Removes the "loading" style from the boxes.
+     * @param chunkIndex
+     */
+    public void noResult(final ChunkIndex chunkIndex) {
+        
+        if (!indexes.containsKey(chunkIndex)) {
+            //try it again after some time
+             new com.google.gwt.user.client.Timer() { 
+                @Override
+                public void run() { 
+                    noResult(chunkIndex); 
+                } 
+            }.schedule(400); 
+        } else {
+            //index is there -> insert result
+            int index = indexes.get(chunkIndex);
+            targetBoxes.get(index).removeStyleName("loading");
+        }
+
+    }
 
     /**
      * Set the focus to the next SubgestBox in order.

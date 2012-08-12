@@ -19,7 +19,7 @@ public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
     
     @Override
     public String getName() {
-        return "DeleteDocument("+documentId+")";
+        return getNameWithParameters(documentId);
     }
 
     @Override

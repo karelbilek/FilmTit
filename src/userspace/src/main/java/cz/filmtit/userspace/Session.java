@@ -312,6 +312,12 @@ public class Session {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
+
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        document.setMovie(null);
+        document.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
         return mediaSourceFactory.getSuggestions(newMovieTitle);
     }
 
@@ -471,17 +477,21 @@ public class Session {
         return  null;
     }
 
-    public List<TranslationPair> changeText(ChunkIndex chunkIndex, long documentId, String text, TranslationMemory TM)
+    public TranslationResult changeText(TimedChunk chunk, String text, TranslationMemory TM)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
-        USDocument document = getActiveDocument(documentId);
-
-        USTranslationResult translationResult = document.getTranslationResultForIndex(chunkIndex);
-        translationResult.setText(text);
-
-        saveTranslationResult(document, translationResult);
-        return requestTMSuggestions(chunkIndex, documentId, TM);
+        // find the document and translation result
+        USDocument document = getActiveDocument(chunk.getDocumentId());
+        USTranslationResult usTranslationResult = document.getTranslationResultForIndex(chunk.getChunkIndex());
+        
+        // set the text
+        usTranslationResult.setText(text);
+        saveTranslationResult(document, usTranslationResult);
+        
+        // generate suggestions
+        usTranslationResult.generateMTSuggestions(TM);
+        return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
     public List<TranslationPair> requestTMSuggestions(ChunkIndex chunkIndex, long documentId, TranslationMemory TM)

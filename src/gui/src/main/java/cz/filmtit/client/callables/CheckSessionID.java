@@ -19,7 +19,7 @@ public class CheckSessionID extends Callable<SessionResponse> {
     	
         @Override
         public String getName() {
-            return "checkSessionID ("+sessionID+")";
+            return getNameWithParameters(sessionID);
         }
 
         @Override
