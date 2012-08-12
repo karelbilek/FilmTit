@@ -24,7 +24,7 @@ public class USDocument extends DatabaseObject {
     private volatile long translationGenerationTime;
     private volatile boolean toBeDeleted = false;
     private volatile boolean finished;
-
+   
     public USDocument(Document document, USUser user) {
         this.document = document;
         workStartTime = new Date().getTime();
@@ -51,6 +51,15 @@ public class USDocument extends DatabaseObject {
         ownerDatabaseId = 0;
     }
 
+    public String getMoviePath() {
+        return document.getMoviePath();
+    }
+    
+    public void setMoviePath(String moviePath) {
+        document.setMoviePath(moviePath);
+    }
+
+
     public long getOwnerDatabaseId() {
         return ownerDatabaseId;
     }
@@ -74,6 +83,7 @@ public class USDocument extends DatabaseObject {
 		return document;
 	}
 
+    
     /**
      * Gets the time spent on translating this subtitles valid right now.
      * @return The time spent on this subtitles in milliseconds.

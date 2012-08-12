@@ -78,7 +78,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 
 		@Override protected void call() {
 			Gui.log("Creating document " + documentTitle + "; its language is " + language);
-			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, this);
+			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, moviePath ,this);
 		}
 	}
 

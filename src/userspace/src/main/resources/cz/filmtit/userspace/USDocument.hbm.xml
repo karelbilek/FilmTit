@@ -22,6 +22,7 @@
         <property name="totalChunksCount" type="int" column="totalChunksCount" />
         <property name="translatedChunksCount" type="int" column="translatedChunksCount" />
         <property name="toBeDeleted" type="boolean" column="toBeDeleted" />
+        <property name="moviePath" type="java.lang.String" column="address" />
     </class>
 
 </hibernate-mapping>

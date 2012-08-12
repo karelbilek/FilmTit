@@ -114,9 +114,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     @Override
-    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
+    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
             throws InvalidSessionIdException {
-        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
+        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, moviePath);
     }
 
     @Override

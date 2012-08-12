@@ -164,9 +164,9 @@ public class Session {
     // HANDLING DOCUMENTS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-    public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory) {
+    public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory, String moviePath) {
         updateLastOperationTime();
-        USDocument usDocument = new USDocument( new Document(documentTitle, language) , user);
+        USDocument usDocument = new USDocument( new Document(documentTitle, language, moviePath) , user);
         List<MediaSource> suggestions = mediaSourceFactory.getSuggestions(movieTitle);
 
         activeDocuments.put(usDocument.getDatabaseId(), usDocument);

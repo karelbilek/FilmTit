@@ -10,7 +10,7 @@ import java.util.List;
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
     // Document handling
-	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
+	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
