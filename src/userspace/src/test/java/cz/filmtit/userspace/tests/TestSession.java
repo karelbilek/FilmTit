@@ -9,6 +9,7 @@ import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
+import cz.filmtit.share.exceptions.InvalidValueException;
 import cz.filmtit.userspace.*;
 import de.svenjacobs.loremipsum.LoremIpsum;
 import org.junit.AfterClass;
@@ -132,7 +133,7 @@ public class TestSession {
     }
 
     @Test
-    public void testChangeStartAndEndTime() throws InvalidDocumentIdException, InvalidChunkIdException {
+    public void testChangeStartAndEndTime() throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;
 
@@ -448,7 +449,7 @@ public class TestSession {
     }
 
     @Test
-    public void testUserSettings() {
+    public void testUserSettings() throws InvalidValueException, InvalidChunkIdException {
         USUser user = getSampleUser();
         Session session = new Session(user);
 
