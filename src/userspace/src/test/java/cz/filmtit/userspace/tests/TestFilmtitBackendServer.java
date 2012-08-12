@@ -72,7 +72,7 @@ public class TestFilmtitBackendServer {
 
     @Test
     public void testParallelGetTranslationResults()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
@@ -107,7 +107,7 @@ public class TestFilmtitBackendServer {
 
     @Test
     public void testGetSourceSubtitlesExport()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         FilmTitBackendServer server = new MockFilmTitBackendServer();
         Session session = new Session(new USUser("jindra2", "pinda", "jindra@pinda.cz", null));
         String sessionId = placeSessionToTheServer(server, session);
@@ -221,7 +221,7 @@ public class TestFilmtitBackendServer {
     private List<TimedChunk> generateTimedChunks(long documentId) {
         List<TimedChunk> timedChunks = new ArrayList<TimedChunk>(32);
         for (int i = 0; i < 32; ++i) {
-            timedChunks.add(new TimedChunk("00:00:00.000", "00:00:00.000", 0,
+            timedChunks.add(new TimedChunk("00:00:00,000", "00:00:00,000", 0,
                     loremIpsum.getWords(5, 1), i, documentId));
         }
         return timedChunks;

@@ -26,7 +26,7 @@ public class Session {
     private volatile SessionState state;
     Logger logger = Logger.getLogger("Session");
 
-    private static final Pattern timingRegexp = Pattern.compile("[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}]");
+    private static final Pattern timingRegexp = Pattern.compile("^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}$");
 
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -135,9 +135,9 @@ public class Session {
         return null;
     }
 
-    public Void setEmail(String email) throws InvalidChunkIdException {
+    public Void setEmail(String email) throws InvalidValueException {
         if (!FilmTitBackendServer.mailRegexp.matcher(email).matches()) {
-            throw new InvalidChunkIdException(email + "is not a valid email address.");
+            throw new InvalidValueException(email + " is not a valid email address.");
         }
 
         user.setEmail(email);
@@ -326,7 +326,7 @@ public class Session {
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     public Void saveSourceChunks(List<TimedChunk> chunks)
-            throws InvalidDocumentIdException, InvalidChunkIdException {
+            throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         updateLastOperationTime();
         if (chunks.size() == 0) {
             return null;
@@ -337,6 +337,15 @@ public class Session {
             if (chunk.getDocumentId() != document.getDatabaseId()) {
                 throw new InvalidChunkIdException("Mismatch in documents IDs of the chunks.");
             }
+
+            // test the timing
+            if (!timingRegexp.matcher(chunk.getStartTime()).matches()) {
+                throw new InvalidValueException("The start time value " + chunk.getStartTime() + " has wrong format.");
+            }
+            if (!timingRegexp.matcher(chunk.getEndTime()).matches()) {
+                throw new InvalidValueException("The end time value " + chunk.getEndTime() + " has wrong format.");
+            }
+
 
             USTranslationResult usTranslationResult = new USTranslationResult(chunk);
             usTranslationResult.setDocument(document);

@@ -217,7 +217,7 @@ public class TestSession {
     }
 
     @Test
-    public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
+    public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
@@ -261,7 +261,7 @@ public class TestSession {
     }
 
     @Test
-    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException {
+    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException, InvalidValueException {
         Session session = new Session(getSampleUser());
 
         DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory);
@@ -270,7 +270,7 @@ public class TestSession {
         // generate few chunks
         List<TimedChunk> timedChunks = new ArrayList<TimedChunk>(32);
         for (int i = 0; i < 32; ++i) {
-            timedChunks.add(new TimedChunk("00:00:00.000", "00:00:00.000", 0,
+            timedChunks.add(new TimedChunk("00:00:00,000", "00:00:00,000", 0,
                     loremIpsum.getWords(5, i), i, documentId));
         }
         session.saveSourceChunks(timedChunks);
@@ -458,13 +458,13 @@ public class TestSession {
         assertEquals(true, user.getUseMoses());
         assertEquals(false, user.isPermanentlyLoggedId());
 
-        session.setEmail("hu@hu.hu");
+        session.setEmail("huhu@huhu.hu");
         session.setMaximumNumberOfSuggestions(23);
         session.setPermanentlyLoggedIn(true);
         session.setUseMoses(false);
 
         // test changed settings
-        assertEquals("hu@hu.hu", user.getEmail());
+        assertEquals("huhu@huhu.hu", user.getEmail());
         assertEquals(23, user.getMaximumNumberOfSuggestions());
         assertEquals(false, user.getUseMoses());
         assertEquals(true, user.isPermanentlyLoggedId());

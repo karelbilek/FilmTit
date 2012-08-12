@@ -36,8 +36,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
     private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
-    public final static Pattern mailRegexp = Pattern.compile("^[_A-Za-z0-9-]+(\\\\.[_A-Za-z0-9-]+)*@" +
-            "[A-Za-z0-9]+(\\\\.[A-Za-z0-9]+)*(\\\\.[A-Za-z]{2,})$");
+    public final static Pattern mailRegexp = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@" +
+            "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -167,7 +167,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
     }
 
@@ -674,7 +674,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
     }
 
-    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException {
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setEmail(email);
     }
 

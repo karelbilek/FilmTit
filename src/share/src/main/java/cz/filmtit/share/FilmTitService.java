@@ -24,7 +24,7 @@ public interface FilmTitService extends RemoteService {
     
     // Subtitles handling
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException;
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
@@ -36,7 +36,7 @@ public interface FilmTitService extends RemoteService {
 
     // User settings
     public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException;
-    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException;
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException, InvalidValueException;
     public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException;
     public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
 
