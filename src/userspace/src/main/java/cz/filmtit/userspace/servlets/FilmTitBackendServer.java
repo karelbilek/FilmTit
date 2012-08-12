@@ -277,6 +277,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         if (endpoint != null){
             Association association = manager.lookupAssociation(endpoint);
+            logger.debug("Association",association.getAssociationHandle() +  "-" +association.getRawMacKey() + "-" + association.getSessionType() );
             AuthData authData = new AuthData();
             authData.Mac_key = association.getRawMacKey();
             authData.endpoint = endpoint;
@@ -404,6 +405,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             // pass validation
             String hash = passHash(pass);
+            if (!checkEmail(email)) return false;
             user = new USUser(name,hash,email,openId);
 
             // create hibernate session
@@ -732,8 +734,19 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return (USUser)UserResult.get(0);
     }
+    /*
+    *  Validate email address
+    *
+    * */
+    private boolean checkEmail(String email) {
+    // star validate string  ^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$
+     String regex = "^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
+     Pattern pattern = Pattern.compile(regex);
+     Matcher matcher = pattern.matcher(email);
+     return matcher.matches();
+    }
 
-    private boolean checkEmail(String email) {        // star validate string  ^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$         String regex = "^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";         Pattern pattern = Pattern.compile(regex);         Matcher matcher = pattern.matcher(email);         return matcher.matches();    }    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // USER SETTINGS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
