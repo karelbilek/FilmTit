@@ -32,7 +32,7 @@
                                 <requireFilesExist>
                                     <message>Keystore folder not present; download it from FilmTit dropbox; keystores/signing-jar.keystore is the important file</message>
                                     <files>
-                                        <file>${project.basedir}/src/main/resources/keystore/signing-jar.keystore</file>
+                                        <file>${project.basedir}/src/main/resources/signing-jar.keystore</file>
                                     </files>
                                 </requireFilesExist>
                             </rules>
@@ -51,7 +51,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <keystore>${project.basedir}/src/main/resources/keystore/signing-jar.keystore</keystore>
+                            <keystore>${project.basedir}/src/main/resources/signing-jar.keystore</keystore>
                             <alias>applet</alias>
                             <storepass>applet</storepass>
                             <keypass>applet</keypass>
