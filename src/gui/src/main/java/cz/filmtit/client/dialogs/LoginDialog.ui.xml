@@ -113,6 +113,12 @@
 
                     <b:Alert ui:field="alertForgottenPassword" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
                     
+                    <b:Paragraph>
+                        Please fill in at least one of these fields.
+                        If an account is found based on the data you give us,
+                        we will send you an e-mail with a link to change your password.
+                    </b:Paragraph>
+                    
                     <b:ControlGroup>
                         <b:ControlLabel>User name:</b:ControlLabel>
                         <b:Controls>
@@ -120,14 +126,12 @@
                         </b:Controls>
                     </b:ControlGroup>
 
-                    <!--
                     <b:ControlGroup>
                         <b:ControlLabel>E-mail address:</b:ControlLabel>
                         <b:Controls>
                             <b:TextBox ui:field="txtFpwdEmail"></b:TextBox>
                         </b:Controls>
                     </b:ControlGroup>
-                    -->
 
                     <b:ModalFooter>
 

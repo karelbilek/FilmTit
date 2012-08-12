@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
-import cz.filmtit.client.callables.CreateDocument;
+import cz.filmtit.client.ReceivesSelectSource;
 import cz.filmtit.share.MediaSource;
 
 
@@ -64,9 +64,9 @@ public class MediaSelector extends Dialog {
     /**
      * To be called on submit.
      */
-    CreateDocument createDocument;
+    ReceivesSelectSource receiver;
     
-    public MediaSelector(List<MediaSource> suggestions, CreateDocument createDocument) {
+    public MediaSelector(List<MediaSource> suggestions, ReceivesSelectSource receiver) {
         listbox = new CellList<MediaSource>(new MediaCell());
 
         initWidget(uiBinder.createAndBindUi(this));
@@ -85,7 +85,7 @@ public class MediaSelector extends Dialog {
         });
         
         this.suggestions = suggestions;
-        this.createDocument = createDocument;
+        this.receiver = receiver;
 
         dialogBox.show();
     }
@@ -103,16 +103,12 @@ public class MediaSelector extends Dialog {
     @UiHandler("submitButton")
     void submitButtonClicked(ClickEvent e) {
     	close();
-    	createDocument.selectSource(getSelected());
+    	receiver.selectSource(selected);
     }
     
     @Override
     protected void onHide() {
-    	createDocument.selectSource(null);
-    }
-
-    private MediaSource getSelected() {
-        return selected;
+    	receiver.selectSource(null);
     }
 
 }

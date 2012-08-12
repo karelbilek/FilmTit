@@ -114,14 +114,18 @@ object Factory {
 
     var levels = List[BackoffLevel]()
 
-    //First level exact matching
-    val flSearcher = new PGFirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB)
-    levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
 
-    //Second level: Full text search
     if (!useInMemoryDB) {
+      //First level exact matching
+      val flSearcher = new PGFirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB)
+      levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
+
+      //Second level: Full text search
       val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
       levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyWekaRanker(configuration.fuzzyRankerModel)), 0.0, TranslationSource.INTERNAL_FUZZY)
+    } else {
+      val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB)
+      levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
     }
 
     //Third level: Moses

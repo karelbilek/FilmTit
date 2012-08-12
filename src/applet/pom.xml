@@ -13,6 +13,8 @@
     <name>Java applet for loading the filename</name>
 
     <build>
+
+
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
@@ -20,24 +22,23 @@
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.1.1</version>
                 <executions>
-                <execution>
-                    <id>enforce-files-exist</id>
-                    <goals>
-                    <goal>enforce</goal>
-                    </goals>
-                    <configuration>
-                    <rules>
-                        <requireFilesExist>
-                        <message>Keystore folder not present; download it from FilmTit dropbox; keystores/signing-jar.keystore is the important file</message>
-                        <files>
-                        <file>src/main/resources/keystore/signing-jar.keystore</file>
-                        
-                        </files>
-                        </requireFilesExist>
-                    </rules>
-                    <fail>true</fail>
-                    </configuration>
-                </execution>
+                    <execution>
+                        <id>enforce-files-exist</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireFilesExist>
+                                    <message>Keystore folder not present; download it from FilmTit dropbox; keystores/signing-jar.keystore is the important file</message>
+                                    <files>
+                                        <file>${project.basedir}/src/main/resources/keystore/signing-jar.keystore</file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -50,15 +51,15 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                        <keystore>src/main/resources/keystore/signing-jar.keystore</keystore>
-                        <alias>applet</alias>
-                        <storepass>applet</storepass>
-                        <keypass>applet</keypass>
+                            <keystore>${project.basedir}/src/main/resources/keystore/signing-jar.keystore</keystore>
+                            <alias>applet</alias>
+                            <storepass>applet</storepass>
+                            <keypass>applet</keypass>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-        </plugins> 
+        </plugins>
     </build>
 
 
