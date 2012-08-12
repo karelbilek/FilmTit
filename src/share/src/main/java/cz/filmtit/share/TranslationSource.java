@@ -14,6 +14,7 @@ public enum TranslationSource implements com.google.gwt.user.client.rpc.IsSerial
     //External:
     EXTERNAL_TM    ("External TM match"),
     EXTERNAL_MT    ("External MT"),
+    MOSES    ("Moses"),
 
     //Multiple
     MULTIPLE       ("Multiple sources"),

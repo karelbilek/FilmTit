@@ -4,7 +4,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
 import cz.filmtit.client.FilmTitServiceHandler;
-import cz.filmtit.client.Gui;
+import cz.filmtit.client.*;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.ChangeSourceChunk;
 import cz.filmtit.client.callables.GetTranslationResults;
@@ -95,25 +95,8 @@ public class TranslationWorkspace extends Composite {
          Gui.getPageHandler().setDocumentId(currentDocument.getId());
     }
     
-    public Map<ChunkIndex, TimedChunk> chunkmap;
-    
-    //this is for quick time lookups for the subtitle displaying
-    //"logically" it should be double, but GWT is actually javascript
-    //and works faster with Doubles instead of Longs,
-    //which it emulates by strings or something
-    public TreeMap<Double, TranslationResult> reverseTimeMap;
+    SubtitleSynchronizer synchronizer = new SubtitleSynchronizer();
 
-    public TimedChunk getChunk(ChunkIndex chunkIndex) {
-       return chunkmap.get(chunkIndex);
-    }
-
-    public Collection<TranslationResult> getChunkIndexesFrom(double start, double end) {
-        Gui.log("Chci from "+start+" to "+end+ " A je jich "+reverseTimeMap.subMap(start, end).values().size()+" !");
-        if (reverseTimeMap== null) {
-            return new ArrayList<TranslationResult>();
-        }
-        return reverseTimeMap.subMap(start, end).values();
-    }
 
     ///////////////////////////////////////
     //                                   //
@@ -123,7 +106,6 @@ public class TranslationWorkspace extends Composite {
 
     public SubgestHandler subgestHandler;
 
-    private Map<ChunkIndex, Integer> indexes;
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
     private Widget activeSuggestionWidget = null;
 
@@ -135,9 +117,12 @@ public class TranslationWorkspace extends Composite {
     private boolean isVideo=false;
 
     VLCWidget vlcPlayer;
+    public VLCWidget getVlcPlayer(){
+        return vlcPlayer;
+    }
     
     HTMLPanel playerFixedPanel = null;
-
+    HTMLPanel fixedWrapper = null;
     // UI binder fields
     @UiField
     ScrollPanel scrollPanel;
@@ -151,7 +136,7 @@ public class TranslationWorkspace extends Composite {
   
     private boolean sourceSelected = false;
 
-    ///////////////////////////////////////
+    /////////////////////////////////////
     //                                   //
     //      Initialization               //
     //                                   //
@@ -186,7 +171,6 @@ public class TranslationWorkspace extends Composite {
         }
         
         this.targetBoxes = new ArrayList<SubgestBox.FakeSubgestBox>();
-        this.indexes = new HashMap<ChunkIndex, Integer>();
 
         scrollPanel.setStyleName("scrollPanel");
         // hiding the suggestion popup when scrolling the subtitle panel
@@ -214,7 +198,7 @@ public class TranslationWorkspace extends Composite {
             playerFixedPanel.addStyleName("fixedPlayer");
             table.addStyleName("tableMoved");
             
-            HTMLPanel fixedWrapper = new HTMLPanel("");
+            fixedWrapper = new HTMLPanel("");
             fixedWrapper.setWidth("984 px");
 
 
@@ -226,24 +210,37 @@ public class TranslationWorkspace extends Composite {
 
             HTML rightLabel = new HTML("");
             rightLabel.addStyleName("subtitleDisplayedRight");
+            
+            InlineLabel fromLabel = new InlineLabel("0:0:0");
+            InlineLabel toLabel = new InlineLabel("0:0:30");
+            Anchor pauseA = new Anchor("[pause]");
+            Anchor replayA = new Anchor("[replay]");
    
-            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, this);
+            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, synchronizer, fromLabel, toLabel, pauseA, replayA, 0, this);
             vlcPlayer.addStyleName("vlcPlayerDisplayed"); 
-            this.subgestHandler = new SubgestHandler(this, vlcPlayer);
+            this.subgestHandler = new SubgestHandler(this);
             fixedWrapper.add(vlcPlayer);
 
             fixedWrapper.add(rightLabel);
            
             HTMLPanel playerStatusPanel = new HTMLPanel("");
-            playerStatusPanel.add(new InlineLabel("[status, pause, replay will be here] "));
-            
+            playerStatusPanel.add(new InlineLabel("currently playing from "));
+            playerStatusPanel.add(fromLabel);
+            playerStatusPanel.add(new InlineLabel(" to "));
+            playerStatusPanel.add(toLabel);
+ 
+            playerStatusPanel.add(new InlineLabel(" "));
+            playerStatusPanel.add(pauseA);
+            playerStatusPanel.add(new InlineLabel(" "));
+            playerStatusPanel.add(replayA);
+ 
             fixedWrapper.add(playerStatusPanel);
             playerStatusPanel.addStyleName("statusPanel");
             
             playerFixedPanel.add(fixedWrapper);
 
         } else {
-            this.subgestHandler = new SubgestHandler(this, null);
+            this.subgestHandler = new SubgestHandler(this);
         }
         
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
@@ -255,6 +252,14 @@ public class TranslationWorkspace extends Composite {
         Gui.getGuiStructure().contentPanel.setStyleName("translating");
         Gui.getGuiStructure().contentPanel.addStyleName("parsing");
 	}
+
+    
+    //getting around the VLC bug when it randomly stops 
+    public void reloadPlayer() {
+        VLCWidget newWidget = vlcPlayer.higherNonce();
+        fixedWrapper.addAndReplaceElement(newWidget, "video");
+        vlcPlayer = newWidget;
+    }
     
     ///////////////////////////////////////
     //                                   //
@@ -302,8 +307,6 @@ public class TranslationWorkspace extends Composite {
     		return;
     	}
     	
-          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
-          reverseTimeMap = new TreeMap<Double, TranslationResult>();
 
           List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
           List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
@@ -311,8 +314,8 @@ public class TranslationWorkspace extends Composite {
         
           for (TranslationResult tr:translations) {
               TimedChunk sChunk = tr.getSourceChunk();
-              chunkmap.put(sChunk.getChunkIndex(), sChunk);
-              reverseTimeMap.put((double)(sChunk.getStartTimeLong()), tr);
+              synchronizer.putTranslationResult(tr);
+              synchronizer.putSourceChunk(sChunk, -1, false);
 
               String tChunk = tr.getUserTranslation();
               
@@ -348,8 +351,8 @@ public class TranslationWorkspace extends Composite {
           // dump the input text into the debug-area:
     	  // Gui.log("processing the following input:\n" + subtext + "\n");
 
-          chunkmap = new HashMap<ChunkIndex, TimedChunk>();
-          reverseTimeMap = new TreeMap<Double, TranslationResult>();
+          //chunkmap = new HashMap<ChunkIndex, TimedChunk>();
+          //reverseTimeMap = new TreeMap<Double, TranslationResult>();
 
           // determine format (from corresponding radiobuttons) and choose parser:
           Parser subtextparser;
@@ -370,15 +373,13 @@ public class TranslationWorkspace extends Composite {
           long parsingTime = endTime - startTime;
           Gui.log("parsing finished in " + parsingTime + "ms");
 
-          
 
           for (TimedChunk chunk : chunklist) {
-              chunkmap.put(chunk.getChunkIndex(), chunk);
               ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult(chunk);
               this.currentDocument.translationResults.put(chunkIndex, tr);
-              reverseTimeMap.put((double)(chunk.getStartTimeLong()), tr);
-
+              synchronizer.putTranslationResult(tr);
+              synchronizer.putSourceChunk(tr, -1, false);
           }
           
           
@@ -508,7 +509,8 @@ public class TranslationWorkspace extends Composite {
           FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
           
-          reverseTimeMap.put((double)(transresult.getSourceChunk().getStartTimeLong()), transresult);
+          synchronizer.putTranslationResult(transresult);
+          //reverseTimeMap.put((double)(transresult.getSourceChunk().getStartTimeLong()), transresult);
      }
 
      ///////////////////////////////////////
@@ -606,7 +608,7 @@ public class TranslationWorkspace extends Composite {
         int index = lastIndex;
         lastIndex++;
 
-        indexes.put(chunkIndex, index);
+        synchronizer.putSourceChunk(chunk, index, true);
 
                         //+1 because of the header
         table.setWidget(index + 1, TIMES_COLNUMBER, timeslabel);
@@ -664,9 +666,9 @@ public class TranslationWorkspace extends Composite {
 				int id = chunk.getId();
 				int partNumber = 1;
 				ChunkIndex chunkIndex = new ChunkIndex(partNumber, id);
-				while (chunkmap.containsKey(chunkIndex)) {
+				while (synchronizer.hasChunkWithIndex(chunkIndex)) {
 					// change chunk
-					TimedChunk cochunk = chunkmap.get(chunkIndex);
+					TimedChunk cochunk = synchronizer.getChunkByIndex(chunkIndex);
 					cochunk.setStartTime(newStartTime);
 					cochunk.setEndTime(newEndTime);
 					// RPC call
@@ -706,7 +708,7 @@ public class TranslationWorkspace extends Composite {
 			// TODO probably something nicer than the prompt
 			
 			// init
-			TimedChunk chunk = chunkmap.get(chunkIndex);
+			TimedChunk chunk = synchronizer.getChunkByIndex(chunkIndex);
 			String oldSource = chunk.getSurfaceForm();
 			
 			// ask user for new value, showing the old one
@@ -728,9 +730,9 @@ public class TranslationWorkspace extends Composite {
 		}
     }
     
-    public void replaceFake(ChunkIndex chunkIndex, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
+    public void replaceFake(TimedChunk chunk, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
-        int id = indexes.get(chunkIndex);
+        int id = synchronizer.getIndexOf(chunk);
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
         
         real.setFocus(true);
@@ -748,10 +750,9 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(final TranslationResult transresult) {
-            
-        ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
         
-        if (!indexes.containsKey(chunkIndex)) {
+        
+        if (!synchronizer.isChunkDisplayed(transresult)) {
             //try it again after some time
              new com.google.gwt.user.client.Timer() { 
                 @Override
@@ -760,9 +761,9 @@ public class TranslationWorkspace extends Composite {
                 } 
             }.schedule(400); 
         } else {
-            
+
             //index is there -> insert result
-            int index = indexes.get(chunkIndex);
+            int index = synchronizer.getIndexOf(transresult);
 
             targetBoxes.get(index).getFather().setTranslationResult(transresult);
             targetBoxes.get(index).removeStyleName("loading");
@@ -777,7 +778,7 @@ public class TranslationWorkspace extends Composite {
      */
     public void noResult(final ChunkIndex chunkIndex) {
         
-        if (!indexes.containsKey(chunkIndex)) {
+        if (!synchronizer.isChunkDisplayed(chunkIndex)) {
             //try it again after some time
              new com.google.gwt.user.client.Timer() { 
                 @Override
@@ -787,7 +788,7 @@ public class TranslationWorkspace extends Composite {
             }.schedule(400); 
         } else {
             //index is there -> insert result
-            int index = indexes.get(chunkIndex);
+            int index = synchronizer.getIndexOf(chunkIndex);
             targetBoxes.get(index).removeStyleName("loading");
         }
 
@@ -801,7 +802,7 @@ public class TranslationWorkspace extends Composite {
      *         true otherwise
      */
     public boolean goToNextBox(SubgestBox currentBox) {
-        int currentIndex = indexes.get(currentBox.getChunkIndex());
+        int currentIndex = synchronizer.getIndexOf(currentBox.getChunk());
         //final int nextIndex = (currentIndex < targetBoxes.size()-1) ? (currentIndex + 1) : currentIndex;
         final int nextIndex = currentIndex + 1;
         if (nextIndex >= targetBoxes.size()) {
@@ -831,7 +832,7 @@ public class TranslationWorkspace extends Composite {
      *         true otherwise
      */
     public boolean goToPreviousBox(SubgestBox currentBox) {
-        int currentIndex = indexes.get(currentBox.getChunkIndex());
+        int currentIndex = synchronizer.getIndexOf(currentBox.getChunk());
         //final int prevIndex = (currentIndex > 0) ? (currentIndex - 1) : currentIndex;
         final int prevIndex = currentIndex - 1;
         if (prevIndex <0) {
@@ -854,9 +855,6 @@ public class TranslationWorkspace extends Composite {
 
 
     public void ensureVisible(SubgestBox subbox) {
-        //scrollPanel.ensureVisible(subbox);
-        //Window.alert("ensuring visible");
-        //ensureVisibleInWindow(subbox.getElement());
         Window.scrollTo(
                 Window.getScrollLeft(),
                 getScrollOffsetY(subbox.getElement())

@@ -4,6 +4,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.Element;
 import cz.filmtit.share.*;
+import cz.filmtit.client.*;
+import com.google.gwt.user.client.ui.*;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import java.util.List;
 import java.util.LinkedList;
@@ -16,6 +18,9 @@ public class VLCWidget extends HTML {
 
     Collection<TranslationResult> currentLoaded = null;
 
+    double begin = 1;
+    double end = WINDOWSIZE;
+
     public void maybePlayWindow(long position) {
         if (position/WINDOWSIZE != lastPosition/WINDOWSIZE){
             
@@ -23,17 +28,40 @@ public class VLCWidget extends HTML {
             lastPosition=position;
             
             
-            double begin = windownum*WINDOWSIZE;
-            double end = (windownum+1)*WINDOWSIZE;
-            currentLoaded = workspace.getChunkIndexesFrom(begin-5000, end);
+            begin = windownum*WINDOWSIZE;
+            end = (windownum+1)*WINDOWSIZE;
+            if (begin==0){
+                begin=1;
+            }
+            begin += nonce;
+            end += nonce;
+            currentLoaded = synchronizer.getTranslationResultsByTime(begin-5000, end);
             
+            String beginString = TimedChunk.millisToTime((long)(begin), false).toString();
+            String endString = TimedChunk.millisToTime((long)(end), false).toString();
+            startLabel.setText(beginString);
+            endLabel.setText(endString);
+
+            stopped=false;
             playPart(begin, end);
             
+            //getting around the VLC bug when it randomly stops 
+            new com.google.gwt.user.client.Timer() { 
+                @Override
+                public void run() { 
+                    if ((!stopped) && getStatus()==begin) {
+                        Window.alert("Chyba v prehravaci; zkusim ho restartovat.");
+                        workspace.reloadPlayer();
+                    }
+                } 
+            }.schedule(2000); 
         
         }
     }
 
-
+    boolean stopped = true;
+    
+   
     public static String buildVLCCode(String path, int width, int height) {
         StringBuilder s = new StringBuilder();
         s.append("<embed type=\"application/x-vlc-plugin\" ");
@@ -47,18 +75,62 @@ public class VLCWidget extends HTML {
         s.append("\" />");
         return s.toString();
     }
+    
+    public VLCWidget higherNonce() {
+        return new VLCWidget(path, width, height,  sourceLabel,targetLabel, synchronizer, startLabel,
+                             endLabel, stopA, replayA, nonce+1000,workspace);
+    }
 
-
-    TranslationWorkspace workspace;
+    InlineLabel startLabel;
+    InlineLabel endLabel;
+ 
+    SubtitleSynchronizer synchronizer;
     HTML sourceLabel;
     HTML targetLabel;
+    public int nonce;
+    TranslationWorkspace workspace;
+    String path;
+    int width;
+    int height;
+    Anchor stopA;
+    Anchor replayA;
 
-    public VLCWidget(String path, int width, int height, HTML left, HTML right, TranslationWorkspace workspace) {
+    public VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
+                        InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA,
+                        int nonce, TranslationWorkspace workspace) {
         super(buildVLCCode(path, width, height));
+        this.path = path;
+        this.width = width;
+        this.height = height;
+        this.stopA = stopA;
+        this.replayA = replayA;
         this.setStyleName("fixed_player");
-        this.workspace = workspace;
+        this.synchronizer = synchronizer;
         targetLabel = right;
         sourceLabel = left;
+        this.startLabel = startLabel;
+        this.endLabel = endLabel;
+        this.nonce=nonce;
+        this.workspace = workspace;
+        stopA.addClickListener(new ClickListener() {
+            @Override
+            public void onClick(Widget sender) {
+                stopped=true;
+                stopPlaying();    
+            }
+        });
+        replayA.addClickListener(new ClickListener() {
+            @Override
+            public void onClick(Widget sender) {
+                stopPlaying();
+                playPart(begin, end);
+
+            }
+        });
+
+       
+
+
     }
 
     public static void maybeSetHTML(HTML elem, String what) {
@@ -81,18 +153,18 @@ public class VLCWidget extends HTML {
         } catch (Exception e) {
            StringBuilder sb = new StringBuilder();
 		
-    	// exception name and message
-    	sb.append(e.toString());
-    	sb.append('\n');
-    	// exception stacktrace
-		StackTraceElement[] st = e.getStackTrace();
-		for (StackTraceElement stackTraceElement : st) {
-	    	sb.append(stackTraceElement);
-	    	sb.append('\n');
-		}
-		
-		String result = sb.toString();
-	 
+            // exception name and message
+            sb.append(e.toString());
+            sb.append('\n');
+            // exception stacktrace
+            StackTraceElement[] st = e.getStackTrace();
+            for (StackTraceElement stackTraceElement : st) {
+                sb.append(stackTraceElement);
+                sb.append('\n');
+            }
+            
+            String result = sb.toString();
+        
             
             Window.alert(result);
         
@@ -151,6 +223,11 @@ public class VLCWidget extends HTML {
         }
     }-*/;
 
+    public static native double getStatusOfThis(Element el) /*-{
+        var vlc = el.querySelector("#video");
+        return vlc.input.time; 
+    }-*/;
+
     public static native void stopPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
         if (vlc.playlist.isPlaying) {
@@ -164,7 +241,6 @@ public class VLCWidget extends HTML {
         vlc.input.time = start;
 
         watchend = end;
-        
         if (!vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
@@ -182,6 +258,9 @@ public class VLCWidget extends HTML {
         }, 600);
     }-*/;
 
+    public double getStatus() {
+        return getStatusOfThis(this.getElement());
+    }
     
     public void stopPlaying() {
         stopPlayingThis(this.getElement());
