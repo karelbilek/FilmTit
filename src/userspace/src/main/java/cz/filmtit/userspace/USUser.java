@@ -106,51 +106,111 @@ public class USUser extends DatabaseObject {
         return ownedDocuments;
     }
 
+    /**
+     * Propagates setting the database ID from the setDatabaseId setter to the wrapped object.
+     * @param id Database ID.
+     */
     protected void setSharedClassDatabaseId(long id) { user.setId(id); }
+    /**
+     * Supplies the id value from the wrapped object to the getDatabaseId getter of the parent DatabaseObject.
+     * @return Identifier from the wrapped object.
+     */
     protected long getSharedClassDatabaseId() { return user.getId(); }
 
+    /**
+     * Gets the name of the user. (Calls the wrapped object.)
+     * @return User name.
+     */
     public String getUserName() {
         return user.getName();
     }
 
+    /**
+     * Sets the user name. (Calls the wrapped object.) Used by Hibernate only.
+     * @param name  User name
+     */
     private void setUserName(String name) {
         user.setName(name);
     }
 
-    public String getOpenId() {
+    /**
+     * Gets the user's openId identifier. Used by Hibernate only.
+     * @return OpenID
+     */
+    private String getOpenId() {
         return openId;
     }
+
+    /**
+     * Sets the user's openId identifier. User by Hibernate only.
+     * @param id     User's openID.
+     */
     private void setOpenId(String id) {
         openId = id;
     }
 
+    /**
+     * Gets the hash of user's password.
+     * @return Hash of the user's password
+     */
     public String getPassword() {
         return password;
     }
+
+    /**
+     * Sets hash of the user's password.
+     * @param password Hash of the user's password.
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Gets the user's email. (Calls the wrapped object.)
+     * @return User's email address.
+     */
     public String getEmail() {
         return user.getEmail();
     }
 
+    /**
+     * Sets the user's email. (Calls the wrapped object.)
+     * @param email User's email address.
+     */
     public void setEmail(String email) {
         user.setEmail(email);
     }
 
+    /**
+     * Gets the flag if the user is permanently logged in. (Calls the wrapped object.)
+     * @return Flag if the user is permanently logged in.
+     */
     public boolean isPermanentlyLoggedId() {
         return user.isPermanentlyLoggedIn();
     }
 
+    /**
+     * Sets the flag if the user is permanently logged in. (Calls the wrapped object.)
+     * @param permanentlyLoggedId Flag if the user is permanently logged in.
+     */
     public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
         user.setPermanentlyLoggedIn(permanentlyLoggedId);
     }
 
+    /**
+     * Gets the maximum number of suggestions user want to receive during a document editing.
+     * (Calls the wrapped object.)
+     * @return Maximum number of suggestions displayed in the app.
+     */
     public int getMaximumNumberOfSuggestions() {
         return user.getMaximumNumberOfSuggestions();
     }
 
+    /**
+     * Sets the maximum number of suggestions user want to receive during a document editing.
+     * (Calls the wrapped object.)
+     * @param maximumNumberOfSuggestions Maximum number of suggestions displayed in the app.
+     */
     public void setMaximumNumberOfSuggestions(int maximumNumberOfSuggestions) {
         user.setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
     }

@@ -206,20 +206,22 @@ public class USDocument extends DatabaseObject {
         return translationResults.values();
     }
 
+    /**
+     * Removes translation result of given index.
+     * @param index Index of translation result to be deleted.
+     */
     public void removeTranslationResult(ChunkIndex index) {
         translationResults.remove(index);
         document.setTranslatedChunksCount(translationResults.size());
     }
-    
+
+    /**
+     * Gets translation result of given index.
+     * @param i Index of required translation result.
+     * @return Translation result of index i.
+     */
     public USTranslationResult getTranslationResultForIndex(ChunkIndex i) {
         return translationResults.get(i);
-    }
-
-    public void setTranslationResultForIndex(ChunkIndex i, USTranslationResult tr) {
-        if (tr == null) {
-            throw new RuntimeException("Someone is trying to put null translationResult!");
-        }
-        translationResults.put(i, tr);
     }
 
     /**
