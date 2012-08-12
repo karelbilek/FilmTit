@@ -372,12 +372,25 @@ public class PageHandler {
 		
 	/**
 	 * Reload the current page.
+	 * If user is in Offline Mode, this method does nothing.
 	 */
 	public void refresh() {
-		setPageToLoad(pageLoaded);
-		loadPageToLoad(true);
+		if (LocalStorageHandler.isOnline()) {
+			setPageToLoad(pageLoaded);
+			loadPageToLoad(true);
+		}
 	}
 	
+	/**
+	 * Reload the current page
+	 * if and only if it is the page given.
+	 */
+	public void refreshIf(Page page) {
+		if (pageLoaded == page) {
+			refresh();
+		}
+	}
+    	
 	// DOCUMENT ID HANDLING	(for TranslationWorkspace)
 	
     /**
@@ -449,5 +462,5 @@ public class PageHandler {
 			}
 		}
 	}
-    	
+
 }

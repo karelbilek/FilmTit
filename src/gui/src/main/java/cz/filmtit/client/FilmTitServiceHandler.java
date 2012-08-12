@@ -13,6 +13,9 @@ import cz.filmtit.share.TimedChunk;
 
 import java.util.List;
 
+// TODO: this class will be removed eventually because it now does not provide any added value any more.
+// (it's a pity though, this class was my first programming contribution to this project)
+
 /**
  * A static class that provides access to Remote Procedure Calls to the FilmTit server.
  * @author rur
@@ -20,11 +23,6 @@ import java.util.List;
  */
 public final class FilmTitServiceHandler {
 	
-// disabled only to avoid duplicities, can be reenabled by uncommenting anytime if needed
-//    public void loadDocumentFromDB(Document document) {
-//        new LoadDocumentFromDB(document.getId());
-//    }
-
     static public void loadDocumentFromDB(long documentId) {
         new LoadDocumentFromDB(documentId);    		
     }
@@ -33,10 +31,6 @@ public final class FilmTitServiceHandler {
 		new CreateDocument(documentTitle, movieTitle, language, subtext, subformat, moviePath);
 	}
 	
-    static public void saveSourceChunks(List<TimedChunk> chunks, TranslationWorkspace workspace) {
-		new SaveSourceChunks(chunks, workspace);
-	}
-
     static public void getTranslationResults(List<TimedChunk> chunks, SendChunksCommand command, TranslationWorkspace workspace) {
 		new GetTranslationResults(chunks, command, workspace);
 	}

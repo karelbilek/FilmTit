@@ -32,6 +32,7 @@ public class SaveSourceChunks extends Callable<Void> {
         
         @Override
         protected void onFinalError(String message) {
+        	new DeleteDocumentSilently(chunks.get(0).getDocumentId());
 	        Gui.getPageHandler().loadPage(Page.DocumentCreator, true);
 	        // TODO remember at least document title
 	        super.onFinalError(message);
@@ -41,13 +42,18 @@ public class SaveSourceChunks extends Callable<Void> {
 		public SaveSourceChunks(List<TimedChunk> chunks, TranslationWorkspace workspace) {
 			super();
 			
-			this.chunks = chunks;
-            this.workspace = workspace;
+			if (chunks == null || chunks.isEmpty() || workspace == null) {
+				return;
+			}
+			else {
+				this.chunks = chunks;
+	            this.workspace = workspace;
 
-			// + 0.1s for each chunk
-			callTimeOut += 100 * chunks.size();
-			
-			enqueue();
+				// + 0.1s for each chunk
+				callTimeOut += 100 * chunks.size();
+				
+				enqueue();
+			}
 		}
 
 		@Override protected void call() {
