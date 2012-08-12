@@ -56,8 +56,8 @@ public class ParserSrt extends Parser {
 			else if ( reTimesLine.test(line)) {
 				// line with times
                 MatchResult mr = reTimesLine.exec(line);
-                startTime = mr.getGroup(1);
-                endTime = mr.getGroup(2);
+                startTime = mr.getGroup(1).trim();
+                endTime = mr.getGroup(2).trim();
 			}
 			else if ( ! line.isEmpty() ) {
 				if (! titText.isEmpty()) {
