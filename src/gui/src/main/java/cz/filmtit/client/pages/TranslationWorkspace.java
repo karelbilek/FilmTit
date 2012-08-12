@@ -708,7 +708,7 @@ public class TranslationWorkspace extends Composite {
 			// TODO probably something nicer than the prompt
 			
 			// init
-			TimedChunk chunk = chunkmap.get(chunkIndex);
+			TimedChunk chunk = synchronizer.getChunkByIndex(chunkIndex);
 			String oldSource = chunk.getSurfaceForm();
 			
 			// ask user for new value, showing the old one
@@ -778,7 +778,7 @@ public class TranslationWorkspace extends Composite {
      */
     public void noResult(final ChunkIndex chunkIndex) {
         
-        if (!indexes.containsKey(chunkIndex)) {
+        if (!synchronizer.isChunkDisplayed(chunkIndex)) {
             //try it again after some time
              new com.google.gwt.user.client.Timer() { 
                 @Override
@@ -788,7 +788,7 @@ public class TranslationWorkspace extends Composite {
             }.schedule(400); 
         } else {
             //index is there -> insert result
-            int index = indexes.get(chunkIndex);
+            int index = synchronizer.getIndexOf(chunkIndex);
             targetBoxes.get(index).removeStyleName("loading");
         }
 

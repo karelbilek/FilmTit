@@ -82,12 +82,22 @@ public class SubtitleSynchronizer {
         return chunkByIndex.containsKey(index);
     }
 
-    public int getIndexOf(TimedChunk chunk) {
-        return indexesOfDisplayed.get(chunk.getChunkIndex());
+    public int getIndexOf(ChunkIndex chunkIndex) {
+        return indexesOfDisplayed.get(chunkIndex);
     }
 
+
+    public int getIndexOf(TimedChunk chunk) {
+        return getIndexOf(chunk.getChunkIndex());
+    }
+
+    public boolean isChunkDisplayed(ChunkIndex chunkIndex) {
+        return indexesOfDisplayed.containsKey(chunkIndex);
+    }
+
+
     public boolean isChunkDisplayed(TimedChunk chunk) {
-        return indexesOfDisplayed.containsKey(chunk.getChunkIndex());
+        return isChunkDisplayed(chunk.getChunkIndex());
     }
 
     public boolean isChunkDisplayed(TranslationResult tr) {
