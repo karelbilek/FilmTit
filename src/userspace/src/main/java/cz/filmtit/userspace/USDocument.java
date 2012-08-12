@@ -99,7 +99,8 @@ public class USDocument extends DatabaseObject {
      * @throws Exception
      */
     private void setOwnerDatabaseId(long ownerDatabaseId) {
-        if (this.ownerDatabaseId !=0 ) {
+        if (this.ownerDatabaseId == ownerDatabaseId) { return; }
+        if (this.ownerDatabaseId != 0) {
             throw new RuntimeException("Owner database ID should not be reset. User " + this.ownerDatabaseId);
         }
         this.ownerDatabaseId = ownerDatabaseId;
