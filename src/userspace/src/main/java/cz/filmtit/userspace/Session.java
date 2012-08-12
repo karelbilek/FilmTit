@@ -241,7 +241,7 @@ public class Session {
 
         if (sourcesFromDb.size() == 0) {
             dbSession.save(selectedMediaSource);
-            document.setMovie(selectedMediaSource);
+            document.setMediaSource(selectedMediaSource);
         }
         else {
             // if the media source is already in db, update it to the latest freebase version
@@ -250,7 +250,7 @@ public class Session {
             fromDb.setThumbnailURL(selectedMediaSource.getThumbnailURL());
             dbSession.update(fromDb);
 
-            document.setMovie(fromDb);
+            document.setMediaSource(fromDb);
         }
 
 
@@ -314,7 +314,7 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        document.setMovie(null);
+        document.setMediaSource(null);
         document.saveToDatabase(dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
 

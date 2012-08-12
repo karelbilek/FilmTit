@@ -151,7 +151,7 @@ public class USDocument extends DatabaseObject {
      * mapping used, so there is only a foreign key in the database.
      * @param movie
      */
-    private void setMediaSource(MediaSource movie) {
+    public void setMediaSource(MediaSource movie) {
         document.setMovie(movie);
     }
 
