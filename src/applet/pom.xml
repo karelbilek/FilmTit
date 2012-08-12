@@ -30,7 +30,7 @@
                         <requireFilesExist>
                         <message>Keystore folder not present; download it from FilmTit dropbox; keystores/signing-jar.keystore is the important file</message>
                         <files>
-                        <file>../keystore/signing-jar.keystore</file>
+                        <file>src/main/resources/keystore/signing-jar.keystore</file>
                         
                         </files>
                         </requireFilesExist>
@@ -50,7 +50,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                        <keystore>../keystore/signing-jar.keystore</keystore>
+                        <keystore>src/main/resources/keystore/signing-jar.keystore</keystore>
                         <alias>applet</alias>
                         <storepass>applet</storepass>
                         <keypass>applet</keypass>
