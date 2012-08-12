@@ -220,7 +220,12 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 					sb.append(',');
 				}
 				prependComma = true;
-				sb.append(object.toString());
+				if (object == null) {
+					sb.append("null");
+				}
+				else {
+					sb.append(object.toString());
+				}
 			}
     		sb.append(')');
     	}
