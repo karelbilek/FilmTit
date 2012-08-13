@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a running session.
+ * 
  * @author Jindřich Libovický
  */
 public class Session {
@@ -33,11 +34,12 @@ public class Session {
 
     /**
      * Cache hash table for active documents owned by current user, to make them quickly available using their IDs.
+     * Being active means that there are translation results loaded from the database. The rest of
+     * the users document is available via user.getOwnedDocuments(). The preferable way for
+     * making a document active is to call getActiveDocument(databaseId) method in the session.
      */
     private Map<Long, USDocument> activeDocuments;
-    /**
-     * Cache hash table for translation results belonging to active documents of the current user
-     */
+
 
     public Session(USUser user) {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
@@ -235,8 +237,8 @@ public class Session {
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
-        List sourcesFromDb = dbSession.createQuery("select m from MediaSource m where m.title like '" +
-                selectedMediaSource.getTitle()+"' and m.year like '" + selectedMediaSource.getYear() + "'").list();
+        List sourcesFromDb = dbSession.createQuery("select m from MediaSource m where m.title like :title and m.year like :year").
+            setParameter("title", selectedMediaSource.getTitle()).setParameter("year", selectedMediaSource.getYear()).list();
 
         if (sourcesFromDb.size() == 0) {
             dbSession.save(selectedMediaSource);

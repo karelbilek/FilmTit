@@ -417,7 +417,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",name+'%').list(); //UPDATE hibernate  for more constraints
+                .setParameter("username", name + '%').list(); //UPDATE hibernate for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         int count = UserResult.size();
         if (count > 0)
@@ -534,7 +534,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException {
         validateEmail(email);
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email = " + email).list();
+        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email like :email")
+                .setParameter("email", email).list();
         usHibernateUtil.closeAndCommitSession(dbSession);
 
         if (usersWithSuchMail.size() == 0) { return false; }
@@ -604,7 +605,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List userDbResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
+                .setParameter("username", username).list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         USUser successUser = null;
         int count = 0;
