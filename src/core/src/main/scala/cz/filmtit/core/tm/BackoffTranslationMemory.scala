@@ -11,6 +11,7 @@ import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper
 import cz.filmtit.share._
 import collection.mutable.ListBuffer
+import exceptions.{SearcherNotAvailableException, LanguageNotSupportedException}
 
 
 /**
@@ -31,13 +32,13 @@ class BackoffTranslationMemory(
   val tokenizerl2: Option[TokenizerWrapper] = None
 ) extends TranslationMemory {
 
-  val logger = LogFactory.getLog("BackoffTM")
+  val LOG = LogFactory.getLog("BackoffTM")
 
   override val mediaStorage = searchers.head match {
     case s: BaseStorage => s.asInstanceOf[MediaStorage]
     case _ => null
   }
-  
+
   def tokenizer(language:Language) = language match {
         case `l1` => tokenizerl1
         case `l2` => tokenizerl2
@@ -55,29 +56,33 @@ class BackoffTranslationMemory(
     }
 
     tokenize(chunk, language)
-    logger.info( "n-best: (%s) %s".format(language, chunk) )
+    LOG.info( "n-best: (%s) %s".format(language, chunk) )
 
     var results = ListBuffer[TranslationPair]()
     for (level: BackoffLevel <- this.levels.filter({ l: BackoffLevel => !forbiddenSources.contains(l.translationType) })) {
 
       val s1 = System.currentTimeMillis
-      val pairs = level.searcher.candidates(chunk, language)
-      val s2 = System.currentTimeMillis
+      try {
+        val pairs = level.searcher.candidates(chunk, language)
+        val s2 = System.currentTimeMillis
 
-      results ++= (level.ranker match {
-        case Some(r) => r.rank(chunk, mediaSource, pairs)
-        case None => pairs
-      }).filter(pair => pair.getScore >= level.threshold)
+        results ++= (level.ranker match {
+          case Some(r) => r.rank(chunk, mediaSource, pairs)
+          case None => pairs
+        }).filter(pair => pair.getScore >= level.threshold)
 
-      val s3 = System.currentTimeMillis
+        val s3 = System.currentTimeMillis
 
-      logger.info( level.toString + ": retrieved %d candidates (%dms), ranking: %dms, total: %dms, Chunk: %s"
-        .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
+        LOG.info( level.toString + ": retrieved %d candidates (%dms), ranking: %dms, total: %dms, Chunk: %s"
+          .format(pairs.size, s2 - s1, s3 - s2, s3 - s1, chunk) )
 
-      if ( results.size >= n ) {
-        return merge(results.sorted, n)
+        if ( results.size >= n ) {
+          return merge(results.sorted, n)
+        }
+      } catch {
+        case e: LanguageNotSupportedException => //The searcher does not support the requested language, we cannot use it.
+        case e: SearcherNotAvailableException => LOG.warn("Searcher %s not available.".format(level.searcher.getClass.getSimpleName))
       }
-
     }
 
     merge(results.sorted, n)
@@ -98,9 +103,9 @@ class BackoffTranslationMemory(
 
   def add(pairs: Array[TranslationPair]) {
 
-    logger.info( "Tokenizing..." )
+    LOG.info( "Tokenizing..." )
     pairs.foreach{ p => tokenizeForImport(p) }
-    logger.info( "Done." )
+    LOG.info( "Done." )
 
     searchers.head match {
       case s: TranslationPairStorage => s.add(pairs)
@@ -116,7 +121,7 @@ class BackoffTranslationMemory(
   }
 
   def finishImport() {
-    logger.info( "Finishing import..." )
+    LOG.info( "Finishing import..." )
     searchers.head match {
       case s: TranslationPairStorage => s.finishImport()
       case s: TranslationPairSearcherWrapper => {
@@ -130,7 +135,7 @@ class BackoffTranslationMemory(
   }
 
   def warmup() {
-    logger.info("Warming up...")
+    LOG.info("Warming up...")
     searchers.foreach(_ match {
        case s: TranslationPairStorage => s.warmup()
        case s: TranslationPairSearcherWrapper => {
@@ -146,7 +151,7 @@ class BackoffTranslationMemory(
   def reindex() {
 
     //If the searcher can be reindexed, do it:
-    logger.info("Reindexing...")
+    LOG.info("Reindexing...")
     searchers.foreach(_ match {
       case s: TranslationPairStorage => s.reindex()
       case s: TranslationPairSearcherWrapper => {
@@ -161,7 +166,7 @@ class BackoffTranslationMemory(
   }
 
   def reset() {
-    logger.info("Reseting...")
+    LOG.info("Reseting...")
     searchers.foreach(_ match {
       case s: TranslationPairStorage => s.reset()
       case s: TranslationPairSearcherWrapper => {
