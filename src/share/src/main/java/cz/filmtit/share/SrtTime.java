@@ -15,7 +15,7 @@ import cz.filmtit.share.exceptions.InvalidValueException;
  * @author rur
  *
  */
-public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializable, Cloneable {
+public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializable {
 	
 	private static final long serialVersionUID = 3413134158754151331L;
 	
@@ -30,7 +30,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	private int s;
 	private int t;
 	
-	// getters
+	// getters to int
 	public int getH() {
 		return h;
 	}
@@ -42,6 +42,20 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	}
 	public int getT() {
 		return t;
+	}
+	
+	// getter to String
+	public String getStringH() {
+		return Integer.toString(h);
+	}
+	public String getStringM() {
+		return Integer.toString(m);
+	}
+	public String getStringS() {
+		return Integer.toString(s);
+	}
+	public String getStringT() {
+		return Integer.toString(t);
 	}
 	
 	// setters from int
@@ -302,8 +316,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		return sb.toString();
 	}
 	
-	@Override
-	protected SrtTime clone() {
+	public SrtTime clone() {
 		SrtTime result = null;
 		try {
 			result = new SrtTime(h, m, s, t);
