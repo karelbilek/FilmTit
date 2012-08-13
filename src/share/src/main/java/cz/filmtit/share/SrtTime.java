@@ -272,4 +272,34 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		return result;
 	}
 	
+	public static final String DISPLAY_INTERVAL_DELIMITER = " - ";
+	
+	// TODO: Object -> SrtTime
+	/**
+	 * hh:mm:ss,ttt - hh:mm:ss,ttt
+	 * (to be used to display in GUI)
+	 */
+	public static String toDisplayInterval(Object start, Object end) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(start);
+		sb.append(DISPLAY_INTERVAL_DELIMITER);
+		sb.append(end);
+		return sb.toString();
+	}
+	
+	public static final String SRT_INTERVAL_DELIMITER = " --> ";
+	
+	// TODO: Object -> SrtTime
+	/**
+	 * hh:mm:ss,ttt --> hh:mm:ss,ttt
+	 * (to be used to export to SRT)
+	 */
+	public static String toSrtInterval(Object start, Object end) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(start);
+		sb.append(SRT_INTERVAL_DELIMITER);
+		sb.append(end);
+		return sb.toString();
+	}
+	
 }
