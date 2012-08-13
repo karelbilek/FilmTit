@@ -315,4 +315,20 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         return "TimedChunk[" + getChunkIndex() + ", " + getSurfaceForm() + "]";
     }
     
+	/**
+	 * hh:mm:ss,ttt - hh:mm:ss,ttt
+	 * (to be used to display in GUI)
+	 */
+    public String getDisplayTimeInterval() {
+    	return SrtTime.toDisplayInterval(startTime, endTime);
+    }
+    
+	/**
+	 * hh:mm:ss,ttt --> hh:mm:ss,ttt
+	 * (to be used to export to SRT)
+	 */
+    public String getSrtTimeInterval() {
+    	return SrtTime.toSrtInterval(startTime, endTime);
+    }
+    
 }
