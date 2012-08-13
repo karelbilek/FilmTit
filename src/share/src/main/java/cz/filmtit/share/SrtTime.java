@@ -3,6 +3,7 @@ package cz.filmtit.share;
 
 import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
+
 import cz.filmtit.share.exceptions.InvalidValueException;
 
 /**
@@ -146,10 +147,10 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			}
 			else {
 				// try set the values
-				setH(time.substring(0, 1));
-				setM(time.substring(3, 4));
-				setS(time.substring(6, 7));
-				setT(time.substring(9, 11));
+				setH(time.substring(0, 2));
+				setM(time.substring(3, 5));
+				setS(time.substring(6, 8));
+				setT(time.substring(9, 12));
 			}
 		}
 		else {
