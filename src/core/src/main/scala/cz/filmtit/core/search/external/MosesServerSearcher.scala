@@ -10,7 +10,7 @@ import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
 import opennlp.tools.tokenize.Tokenizer
 import org.apache.xmlrpc.client.XmlRpcClient
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl
-import cz.filmtit.share.exceptions.LanguageNotSupportedException
+import cz.filmtit.share.exceptions.{LanguageNotSupportedException, SearcherNotAvailableException}
 
 /**
  * Translation pair searcher using standard Moses server 
@@ -81,7 +81,7 @@ class MosesServerSearcher(
    if (res.isDefined) {
      res.get._1.get
    } else {
-     throw SearcherNotAvailableException("Could not connect to Moses server.", tries.last._2.get)
+     throw new SearcherNotAvailableException("Could not connect to Moses server.", tries.last._2.get)
    }
 
 
