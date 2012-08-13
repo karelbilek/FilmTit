@@ -313,7 +313,8 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        document.setMediaSource(null);
+        // keep original media source by default
+        // document.setMediaSource(null);
         document.saveToDatabase(dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
 
