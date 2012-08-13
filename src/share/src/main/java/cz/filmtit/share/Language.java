@@ -54,16 +54,16 @@ public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, S
      * using language codes.
      * @param from
      * @param to
-     * @return e.g. "en->cs"
+     * @return e.g. "en>cs"
      */
     public static String getTranslationDirectionCodes(Language from, Language to) {
-    	return from.code + "->" + to.code;
+    	return from.code + ">" + to.code;
     }
     
     /**
      * Gets a string representing the translation direction,
      * using language codes.
-     * @return e.g. "en->cs"
+     * @return e.g. "en>cs"
      */
     public String getTranslationDirectionCodes() {
     	return getTranslationDirectionCodes(this, theOther());
@@ -74,16 +74,16 @@ public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, S
      * using language names.
      * @param from
      * @param to
-     * @return e.g. "English -> Czech"
+     * @return e.g. "English > Czech"
      */
     public static String getTranslationDirectionNames(Language from, Language to) {
-    	return from.name + " -> " + to.name;
+    	return from.name + " > " + to.name;
     }
     
     /**
      * Gets a string representing the translation direction,
      * using language names.
-     * @return e.g. "English -> Czech"
+     * @return e.g. "English > Czech"
      */
     public String getTranslationDirectionNames() {
     	return getTranslationDirectionNames(this, theOther());
