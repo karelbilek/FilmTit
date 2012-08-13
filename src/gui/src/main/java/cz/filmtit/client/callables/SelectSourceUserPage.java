@@ -19,6 +19,7 @@ public class SelectSourceUserPage extends Callable<Void> {
     	// parameters
     	long documentID;	
     	MediaSource selectedMediaSource;
+		private boolean refreshOnSuccess;
    
         @Override
         public String getName() {
@@ -27,7 +28,9 @@ public class SelectSourceUserPage extends Callable<Void> {
 
         @Override
         public void onSuccessAfterLog(Void o) {
-            Gui.getPageHandler().refreshIf(Page.UserPage);
+        	if (refreshOnSuccess) {
+                Gui.getPageHandler().refreshIf(Page.UserPage);
+        	}
         }
         
         @Override
@@ -37,11 +40,13 @@ public class SelectSourceUserPage extends Callable<Void> {
         }
 
         // constructor
-		public SelectSourceUserPage(long documentID, MediaSource selectedMediaSource) {
+		public SelectSourceUserPage(long documentID, MediaSource selectedMediaSource, boolean refreshOnSuccess) {
 			super();
 			
+			this.documentID = documentID;
+			this.refreshOnSuccess = refreshOnSuccess;
+			
 			if (selectedMediaSource != null) {
-				this.documentID = documentID;
 				this.selectedMediaSource = selectedMediaSource;
 				enqueue();
 			} else {

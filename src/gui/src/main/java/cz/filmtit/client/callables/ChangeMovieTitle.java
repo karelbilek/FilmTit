@@ -44,12 +44,12 @@ public class ChangeMovieTitle extends Callable<List<MediaSource>> implements
 	public void onSuccessAfterLog(List<MediaSource> mediaSourceSuggestions) {
 		if (mediaSourceSuggestions == null || mediaSourceSuggestions.isEmpty()) {
 			// no choice at all
-			selectSource(null);
+			new SelectSourceUserPage(documentID, null, false);
 			// TODO: assert false?
 		}
 		else if (mediaSourceSuggestions.size() == 1) {
 			// no real choice -> just use the one result we got without asking
-			selectSource(mediaSourceSuggestions.get(0));
+			new SelectSourceUserPage(documentID, mediaSourceSuggestions.get(0), false);
 		}
 		else {
 			// multiple choices, user must decide
@@ -65,7 +65,7 @@ public class ChangeMovieTitle extends Callable<List<MediaSource>> implements
 
 	@Override
 	public void selectSource(MediaSource selectedMediaSource) {
-		new SelectSourceUserPage(documentID, selectedMediaSource);
+		new SelectSourceUserPage(documentID, selectedMediaSource, true);
 	}
 
 }
