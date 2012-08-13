@@ -3,6 +3,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 import cz.filmtit.client.*;
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.pages.TranslationWorkspace;
 
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
@@ -26,12 +27,12 @@ public class SelectSourceUserPage extends Callable<Void> {
 
         @Override
         public void onSuccessAfterLog(Void o) {
-            Gui.getPageHandler().refresh();
+            Gui.getPageHandler().refreshIf(Page.UserPage);
         }
         
         @Override
         protected void onFinalError(String message) {
-            Gui.getPageHandler().refresh();
+            Gui.getPageHandler().refreshIf(Page.UserPage);
             super.onFinalError(message);
         }
 
@@ -45,7 +46,7 @@ public class SelectSourceUserPage extends Callable<Void> {
 				enqueue();
 			} else {
 				// ignore
-	            Gui.getPageHandler().refresh();
+				onSuccessAfterLog(null);
 			}
 		}
 

@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.util.*;
-import java.util.regex.Pattern;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -36,8 +35,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
     private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
-    public final static Pattern mailRegexp = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@" +
-            "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -420,7 +417,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",name+'%').list(); //UPDATE hibernate  for more constraints
+                .setParameter("username", name + '%').list(); //UPDATE hibernate for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         int count = UserResult.size();
         if (count > 0)
@@ -537,7 +534,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException {
         validateEmail(email);
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email = " + email).list();
+        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email like :email")
+                .setParameter("email", email).list();
         usHibernateUtil.closeAndCommitSession(dbSession);
 
         if (usersWithSuchMail.size() == 0) { return false; }
@@ -607,7 +605,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List userDbResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
+                .setParameter("username", username).list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         USUser successUser = null;
         int count = 0;
@@ -661,7 +659,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     private void validateEmail(String email) throws InvalidValueException {
-        if (!mailRegexp.matcher(email).matches()) {
+        if (org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
             throw new InvalidValueException("Email address " + email + "is not valid.");
         }
     }

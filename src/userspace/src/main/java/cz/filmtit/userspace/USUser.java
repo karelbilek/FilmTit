@@ -12,17 +12,26 @@ import java.util.*;
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
+    /**
+     * The wrapped shared object.
+     */
     private User user;
 
+    /**
+     * Hash of the user password. (In case user doesn't use open id.)
+     */
     private volatile String password;
+    /**
+     * Open ID identifier of the user.
+     */
     private volatile String openId;
 
     /**
-     * Creates a new user given his user name. It is used in cases a user logs for the first time
+     * Creates a new user given his user name and other credits. It is used in cases a user logs for the first time
      * in the application.
      * @param userName The name of the new user.
-     * @param password - The new password
-     * @param email - The email of new user
+     * @param password The new password
+     * @param email The email of new user
      */
     public USUser(String userName, String password, String email, String openId) {
         this.user = new User();
@@ -37,6 +46,7 @@ public class USUser extends DatabaseObject {
 
         ownedDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
     }
+
     /**
      * Creates a new user given his user name. It is used in cases a user logs for the first time
      * in the application.
@@ -57,11 +67,11 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Default constructor used by Hibernate.
+     * Private default constructor used by Hibernate.
      */
     private USUser() {
         this.user = new User();
-        ownedDocuments = null; //new ArrayList<USDocument>();
+        ownedDocuments = null;
     }
 
     /**
@@ -96,81 +106,165 @@ public class USUser extends DatabaseObject {
         return ownedDocuments;
     }
 
+    /**
+     * Propagates setting the database ID from the setDatabaseId setter to the wrapped object.
+     * @param id Database ID.
+     */
     protected void setSharedClassDatabaseId(long id) { user.setId(id); }
+    /**
+     * Supplies the id value from the wrapped object to the getDatabaseId getter of the parent DatabaseObject.
+     * @return Identifier from the wrapped object.
+     */
     protected long getSharedClassDatabaseId() { return user.getId(); }
 
+    /**
+     * Gets the name of the user. (Calls the wrapped object.)
+     * @return User name.
+     */
     public String getUserName() {
         return user.getName();
     }
 
+    /**
+     * Sets the user name. (Calls the wrapped object.) Used by Hibernate only.
+     * @param name  User name
+     */
     private void setUserName(String name) {
         user.setName(name);
     }
 
-    public String getOpenId() {
+    /**
+     * Gets the user's openId identifier. Used by Hibernate only.
+     * @return OpenID
+     */
+    private String getOpenId() {
         return openId;
     }
+
+    /**
+     * Sets the user's openId identifier. User by Hibernate only.
+     * @param id     User's openID.
+     */
     private void setOpenId(String id) {
         openId = id;
     }
 
+    /**
+     * Gets the hash of user's password.
+     * @return Hash of the user's password
+     */
     public String getPassword() {
         return password;
     }
+
+    /**
+     * Sets hash of the user's password.
+     * @param password Hash of the user's password.
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Gets the user's email. (Calls the wrapped object.)
+     * @return User's email address.
+     */
     public String getEmail() {
         return user.getEmail();
     }
 
+    /**
+     * Sets the user's email. (Calls the wrapped object.)
+     * @param email User's email address.
+     */
     public void setEmail(String email) {
         user.setEmail(email);
     }
 
+    /**
+     * Gets the flag if the user is permanently logged in. (Calls the wrapped object.)
+     * @return Flag if the user is permanently logged in.
+     */
     public boolean isPermanentlyLoggedId() {
         return user.isPermanentlyLoggedIn();
     }
 
+    /**
+     * Sets the flag if the user is permanently logged in. (Calls the wrapped object.)
+     * @param permanentlyLoggedId Flag if the user is permanently logged in.
+     */
     public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
         user.setPermanentlyLoggedIn(permanentlyLoggedId);
     }
 
+    /**
+     * Gets the maximum number of suggestions user want to receive during a document editing.
+     * (Calls the wrapped object.)
+     * @return Maximum number of suggestions displayed in the app.
+     */
     public int getMaximumNumberOfSuggestions() {
         return user.getMaximumNumberOfSuggestions();
     }
 
+    /**
+     * Sets the maximum number of suggestions user want to receive during a document editing.
+     * (Calls the wrapped object.)
+     * @param maximumNumberOfSuggestions Maximum number of suggestions displayed in the app.
+     */
     public void setMaximumNumberOfSuggestions(int maximumNumberOfSuggestions) {
         user.setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
     }
 
+    /**
+     * Gets the flag if the wants to include results of machine translation together with the suggestions.
+     * @return  Flag if the user wants machine translation.
+     */
     public boolean getUseMoses() {
          return user.getUseMoses();
     }
 
+    /**
+     * Sets the flag if the wants to include results of machine translation together with the suggestions.
+     * @param useMoses Flag if the user wants machine translation.
+     */
     public void setUseMoses(boolean useMoses) {
         user.setUseMoses(useMoses);
     }
 
-    //adds document into server memory
-    //it doesn't add it into database, it is added into database in document constructor
+    /**
+     * Adds a document to the in-memory collection of documents owned by the user. The document itself including
+     * it's connection to the user are saved to the already in the document constructor.
+     * @param document
+     */
     public void addDocument(USDocument document) {
         getOwnedDocuments().put(document.getDatabaseId(), document);
     }
 
+    /**
+     * Saves the user (not the document he owns) to the database.
+     * @param dbSession An active database session.
+     */
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
     }
 
+    /**
+     * Deletes the user from the database and marks all the document he own as ready to be deleted.
+     * @param dbSession An active database session.
+     */
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
         for (USDocument document : ownedDocuments.values()) {
-            document.deleteFromDatabase(dbSession);
+            document.setToBeDeleted(true);
+            document.saveToDatabase(dbSession);
         }
     }
 
-
+    /**
+     * Gets the wrapped user object clone without documents. It is used to send the client information about the
+     * user after user logs in.
+     * @return User object without documents.
+     */
     public User sharedUserWithoutDocuments() {
         return user.getCloneWithoutDocuments();
     }

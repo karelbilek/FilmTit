@@ -1,12 +1,14 @@
 package cz.filmtit.client;
 
 import java.util.Date;
+import java.util.Set;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.web.bindery.event.shared.UmbrellaException;
 
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.pages.GuiStructure;
@@ -209,19 +211,29 @@ public class Gui implements EntryPoint {
     }
     
     public static String exceptionCatcher(Throwable e, boolean alertIt, boolean logIt) {
-    			
+    	
 		StringBuilder sb = new StringBuilder();
 		
     	// exception name and message
     	sb.append(e.toString());
     	sb.append('\n');
-    	// exception stacktrace
-		StackTraceElement[] st = e.getStackTrace();
-		for (StackTraceElement stackTraceElement : st) {
-	    	sb.append(stackTraceElement);
-	    	sb.append('\n');
-		}
-		
+
+    	if (e instanceof UmbrellaException) {
+    		Set<Throwable> causes = ((UmbrellaException)e).getCauses();
+        	sb.append("Caused by " + causes.size() + " exceptions:\n");
+    		for (Throwable cause : causes) {
+				sb.append(exceptionCatcher(cause, false, false));
+			}
+    	}
+    	else {
+	    	// exception stacktrace
+			StackTraceElement[] st = e.getStackTrace();
+			for (StackTraceElement stackTraceElement : st) {
+		    	sb.append(stackTraceElement);
+		    	sb.append('\n');
+			}
+    	}
+    	
 		String result = sb.toString();
 		
 		if (logIt) {

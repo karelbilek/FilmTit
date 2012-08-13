@@ -32,47 +32,46 @@ import java.util.*;
         }
 
         @Override
-        protected void onEachReturn(Object returned) {
-            workspace.removeGetTranslationsResultsCall(id);
+        protected boolean onEachReturn(Object returned) {
+            if (workspace.getStopLoading()) {
+            	return false;
+            }
+            else {
+                workspace.removeGetTranslationsResultsCall(id);
+                return true;
+            }
         }
         
 		@Override	
         public void onSuccessAfterLog(List<TranslationResult> newresults) {
-			
-            if (workspace.getStopLoading()) {
-            	return;
-            }
-            else {
-            	if (newresults == null || newresults.isEmpty() ||
-            			!newresults.get(0).getSourceChunk().isActive ||
-            			newresults.size() != chunks.size()) {
-            		// expected suggestions for all chunks but did not get them
-            		// retry
-            		hasReturned = false;
-            		if (!retry()) {
-            			// cannot retry
-            			
-            			// tell workspace that these chunks won't arrive
-            			for (TimedChunk chunk : chunks) {
-                			workspace.noResult(chunk.getChunkIndex());
-						}
-            			// request next translations
-            			command.execute();
-            			// say error
-            			displayWindow("Some of the translation suggestions did not arrive. " +
-            					"You can ignore this or you can try refreshing the page.");
-            		}
-            	}
-            	else {
-            		// got suggestions alright
-                    for (TranslationResult newresult:newresults) {
-                        workspace.showResult(newresult);                	
-                    }
+        	if (newresults == null || newresults.isEmpty() ||
+        			!newresults.get(0).getSourceChunk().isActive ||
+        			newresults.size() != chunks.size()) {
+        		// expected suggestions for all chunks but did not get them
+        		// retry
+        		hasReturned = false;
+        		if (!retry()) {
+        			// cannot retry
+        			
+        			// tell workspace that these chunks won't arrive
+        			for (TimedChunk chunk : chunks) {
+            			workspace.noResult(chunk.getChunkIndex());
+					}
         			// request next translations
-                    command.execute();
-            	}
-            }
-            
+        			command.execute();
+        			// say error
+        			displayWindow("Some of the translation suggestions did not arrive. " +
+        					"You can ignore this or you can try refreshing the page.");
+        		}
+        	}
+        	else {
+        		// got suggestions alright
+                for (TranslationResult newresult:newresults) {
+                    workspace.showResult(newresult);                	
+                }
+    			// request next translations
+                command.execute();
+        	}
         }
 		
 		@Override
@@ -115,7 +114,7 @@ import java.util.*;
 			displayWindow("Some of the translation suggestions did not arrive. " +
 				"You can ignore this or you can try refreshing the page. " +
 				"Error message: " + message);
-		}
+        }
 		
 		// constructor
 		public GetTranslationResults(List<TimedChunk> chunks,

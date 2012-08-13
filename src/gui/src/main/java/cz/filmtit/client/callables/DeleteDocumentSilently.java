@@ -13,10 +13,14 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
-import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import java.util.*;
 
-public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
+/**
+ * Tries to delete the given document but does not display any errors to the user.
+ * To be used if the document deletion command is sent by the application,
+ * e.g. if there is an exception while parsing its subtitles.
+ */
+public class DeleteDocumentSilently extends cz.filmtit.client.Callable<Void> {
     long documentId;
     
     @Override
@@ -26,27 +30,21 @@ public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
 
     @Override
     public void onSuccessAfterLog(Void o) {
-        Gui.getPageHandler().refreshIf(Page.UserPage);
-    }
-    
-    @Override
-    public void onFailureAfterLog(Throwable returned) {
-    	if (returned instanceof InvalidDocumentIdException) {
-    		Gui.log("Actually deletion succeeded because the document does not exist.");
-    		onSuccessAfterLog(null);
-    	}
-    	else {
-        	super.onFailureAfterLog(returned);
-    	}
+        // good
+    	Gui.getPageHandler().refreshIf(Page.UserPage);
     }
     
     @Override
     protected void onFinalError(String message) {
-        Gui.getPageHandler().refreshIf(Page.UserPage);
-    	super.onFinalError(message);
+    	// bad but ignore
+    }
+    
+    @Override
+    protected void onInvalidSession() {
+    	// bad but ignore
     }
         
-    public DeleteDocument(long id) {
+    public DeleteDocumentSilently(long id) {
         super();
         
         documentId = id;

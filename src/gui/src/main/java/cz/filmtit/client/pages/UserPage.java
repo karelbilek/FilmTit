@@ -1,16 +1,14 @@
 package cz.filmtit.client.pages;
 
 
+import java.util.Date;
+import java.util.List;
+
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Label;
-import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -30,9 +28,6 @@ import cz.filmtit.client.callables.ChangeMovieTitle;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
 
-import java.util.Date;
-import java.util.List;
-
 
 public class UserPage extends Composite {
 
@@ -45,68 +40,67 @@ public class UserPage extends Composite {
 	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-//        TextColumn<Document> nameClm = new TextColumn<Document>() {
-//            @Override
-//            public String getValue(Document doc) {
-//                return doc.getTitle();
-//            }
-//        };
-
-        Column<Document, String> nameClm2 = new Column<Document, String>(new ClickableTextCell()) {
+		// column with Document title
+        Column<Document, String> nameClm = new Column<Document, String>(new EditTextCell()) {
             @Override
             public String getValue(Document doc) {
                 return doc.getTitle();
             }
         };
-        nameClm2.setFieldUpdater(new FieldUpdater<Document, String>() {
-			@Override
-			public void update(int index, Document doc, String title) {
-				String newTitle = Window.prompt("Document name: ", title);
-				new ChangeDocumentTitle(doc.getId(), newTitle);
-				doc.setTitle(newTitle);
-			}
-		});
-        
-        Column<Document, String> nameClm3 = new Column<Document, String>(new EditTextCell()) {
-            @Override
-            public String getValue(Document doc) {
-                return doc.getTitle();
-            }
-        };
-        nameClm3.setFieldUpdater(new FieldUpdater<Document, String>() {
+        // use ChangeDocumentTitle() to change the title
+        nameClm.setFieldUpdater(new FieldUpdater<Document, String>() {
 			@Override
 			public void update(int index, Document doc, String newTitle) {
-				new ChangeDocumentTitle(doc.getId(), newTitle);
-				doc.setTitle(newTitle);
+				if (newTitle == null || newTitle.isEmpty()) {
+					// we don't accept the new title
+					// refresh to show the original one
+					Gui.getPageHandler().refresh();
+				}
+				else {
+					new ChangeDocumentTitle(doc.getId(), newTitle);
+					doc.setTitle(newTitle);
+				}
 			}
 		});
         
-        Column<Document, String> mSourceClm = new Column<Document, String>(new ClickableTextCell()) {
+        // column with Movie title
+        Column<Document, String> mSourceClm = new Column<Document, String>(new EditTextCell()) {
             @Override
             public String getValue(Document doc) {
-                if (doc.getMovie()==null) {
-                    return "";
+                if (doc.getMovie() == null) {
+                    return "(none)";
                 }
-                return doc.getMovie().toString();
+                else {
+                    return doc.getMovie().toString();
+                }
             }
         };
+        // use ChangeMovieTitle() to change the title
         mSourceClm.setFieldUpdater(new FieldUpdater<Document, String>() {
 			@Override
-			public void update(int index, Document doc, String title) {
-				String newTitle = Window.prompt(
-						"Movie/TV show name for " + title + ": " +
-						"(you will be able to make a finer choice in the next step)",
-						doc.getMovie().getTitle());
-				new ChangeMovieTitle(doc.getId(), newTitle);
+			public void update(int index, Document doc, String newTitle) {
+				if (newTitle == null || newTitle.isEmpty()) {
+					// we don't accept the new title
+					// refresh to show the original one
+					Gui.getPageHandler().refresh();
+				}
+				else {
+					// TODO: should lock the page while waiting for media sources
+					new ChangeMovieTitle(doc.getId(), newTitle);
+				}
 			}
 		});
         
+        // column with translation direction
         TextColumn<Document> languageClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return doc.getLanguage().getName();
+            	// TODO: do you prefer names or codes?
+                return doc.getLanguage().getTranslationDirectionNames();
             }
         };
+        
+        // percentage of translated chunks
         TextColumn<Document> doneClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
@@ -114,6 +108,8 @@ public class UserPage extends Composite {
                         doc.getTotalChunksCount()) / 100) + "%";
             }
         };
+        
+        // date and time of last edit of the document (table is sorted by this column)
         TextColumn<Document> lastEditedClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
@@ -171,9 +167,7 @@ public class UserPage extends Composite {
 
         
 
-        //docTable.addColumn(nameClm, "Document");
-        docTable.addColumn(nameClm2, "Document clickable");
-        docTable.addColumn(nameClm3, "Document editable");
+        docTable.addColumn(nameClm, "Document");
         docTable.addColumn(mSourceClm, "Movie/TV Show");
         docTable.addColumn(languageClm, "Language");
         docTable.addColumn(doneClm, "Translated");
@@ -229,7 +223,7 @@ public class UserPage extends Composite {
     Button btnDisplayCreator;
 
     @UiField
-    com.github.gwtbootstrap.client.ui.CellTable docTable;
+    com.github.gwtbootstrap.client.ui.CellTable<Document> docTable;
 
  /*   @UiField
     TabPanel tabPanel;

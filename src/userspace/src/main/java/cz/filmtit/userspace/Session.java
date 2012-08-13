@@ -6,7 +6,6 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidValueException;
-import cz.filmtit.userspace.servlets.FilmTitBackendServer;
 import org.jboss.logging.Logger;
 
 import java.util.*;
@@ -14,6 +13,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a running session.
+ * 
  * @author Jindřich Libovický
  */
 public class Session {
@@ -34,11 +34,12 @@ public class Session {
 
     /**
      * Cache hash table for active documents owned by current user, to make them quickly available using their IDs.
+     * Being active means that there are translation results loaded from the database. The rest of
+     * the users document is available via user.getOwnedDocuments(). The preferable way for
+     * making a document active is to call getActiveDocument(databaseId) method in the session.
      */
     private Map<Long, USDocument> activeDocuments;
-    /**
-     * Cache hash table for translation results belonging to active documents of the current user
-     */
+
 
     public Session(USUser user) {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
@@ -136,8 +137,8 @@ public class Session {
     }
 
     public Void setEmail(String email) throws InvalidValueException {
-        if (!FilmTitBackendServer.mailRegexp.matcher(email).matches()) {
-            throw new InvalidValueException(email + " is not a valid email address.");
+        if (!org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
+            throw new InvalidValueException("'" + email + "' is not a valid email address.");
         }
 
         user.setEmail(email);
@@ -147,7 +148,7 @@ public class Session {
 
     public Void setMaximumNumberOfSuggestions(int number) throws InvalidValueException {
         if (number < 0 || number > 100) {
-            throw new InvalidValueException("The maximum number of suggestion must be a positive integer lesser than 100.");
+            throw new InvalidValueException("The maximum number of suggestion must be a positive integer lesser than 100; '" + number + "' is incorrect.");
         }
         user.setMaximumNumberOfSuggestions(number);
         saveUser();
@@ -236,8 +237,8 @@ public class Session {
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
-        List sourcesFromDb = dbSession.createQuery("select m from MediaSource m where m.title like '" +
-                selectedMediaSource.getTitle()+"' and m.year like '" + selectedMediaSource.getYear() + "'").list();
+        List sourcesFromDb = dbSession.createQuery("select m from MediaSource m where m.title like :title and m.year like :year").
+            setParameter("title", selectedMediaSource.getTitle()).setParameter("year", selectedMediaSource.getYear()).list();
 
         if (sourcesFromDb.size() == 0) {
             dbSession.save(selectedMediaSource);
@@ -314,7 +315,8 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        document.setMediaSource(null);
+        // keep original media source by default
+        // document.setMediaSource(null);
         document.saveToDatabase(dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
 
@@ -340,10 +342,10 @@ public class Session {
 
             // test the timing
             if (!timingRegexp.matcher(chunk.getStartTime()).matches()) {
-                throw new InvalidValueException("The start time value " + chunk.getStartTime() + " has wrong format.");
+                throw new InvalidValueException("The start time value '" + chunk.getStartTime() + "' has wrong format.");
             }
             if (!timingRegexp.matcher(chunk.getEndTime()).matches()) {
-                throw new InvalidValueException("The end time value " + chunk.getEndTime() + " has wrong format.");
+                throw new InvalidValueException("The end time value '" + chunk.getEndTime() + "' has wrong format.");
             }
 
 
@@ -458,7 +460,7 @@ public class Session {
         updateLastOperationTime();
 
         if (!timingRegexp.matcher(newStartTime).matches()) {
-            throw new InvalidValueException("Wrong format of the timing.");
+            throw new InvalidValueException("Wrong format of the timing '" + newStartTime + "'.");
         }
 
         USDocument document = activeDocuments.get(documentId);
@@ -474,7 +476,7 @@ public class Session {
         updateLastOperationTime();
 
         if (!timingRegexp.matcher(newEndTime).matches()) {
-            throw new InvalidValueException("Wrong format of the timing.");
+            throw new InvalidValueException("Wrong format of the timing '" + newEndTime + "'.");
         }
 
         USDocument document = getActiveDocument(documentId);

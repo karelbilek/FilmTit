@@ -3,11 +3,13 @@ package cz.filmtit.client.pages;
 import com.google.gwt.user.client.*;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.*;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.ChangeSourceChunk;
+import cz.filmtit.client.callables.CreateDocument;
+import cz.filmtit.client.callables.DeleteDocumentSilently;
 import cz.filmtit.client.callables.GetTranslationResults;
+import cz.filmtit.client.callables.SaveSourceChunks;
 import cz.filmtit.client.callables.SetChunkTimes;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
@@ -344,10 +346,15 @@ public class TranslationWorkspace extends Composite {
       * Currently verbosely outputting both input text, format
       * and output chunks into the debug-area,
       * also "reloads" the CellBrowser interface accordingly.
+      * 
+      * Might return prematurely if there is a parsing error.
+      * In such case, the document is deleted and the user is redirected back to DocumentCreator.
      *
      * @param subtext - multiline text (of the whole subtitle file, typically) to parse
+     * @param createDocument reference to the call that created the document
+     * and now probably holds a reference to an open MediaSelector
       */
-     public void processText(String subtext, String subformat) {
+     public void processText(String subtext, String subformat, CreateDocument createDocumentCall) {
           // dump the input text into the debug-area:
     	  // Gui.log("processing the following input:\n" + subtext + "\n");
 
@@ -368,7 +375,23 @@ public class TranslationWorkspace extends Composite {
           // parse:
           Gui.log("starting parsing");
           long startTime = System.currentTimeMillis();
-          List<TimedChunk> chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
+          List<TimedChunk> chunklist = null;
+          try {
+              chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
+          }
+          catch (Exception e) {
+        	  // user interaction
+        	  createDocumentCall.hideMediaSelector();
+        	  Window.alert("There was an error parsing the subtitle file: " + e.getMessage());
+        	  // logging
+        	  Gui.log("There was an error parsing the subtitle file!");
+        	  Gui.exceptionCatcher(e, false);
+        	  // action
+        	  Gui.getPageHandler().loadPage(Page.DocumentCreator);
+        	  new DeleteDocumentSilently(currentDocument.getId());
+        	  // return prematurely
+        	  return;
+		  }
           long endTime = System.currentTimeMillis();
           long parsingTime = endTime - startTime;
           Gui.log("parsing finished in " + parsingTime + "ms");
@@ -382,16 +405,8 @@ public class TranslationWorkspace extends Composite {
               synchronizer.putSourceChunk(tr, -1, false);
           }
           
-          
-
-          // output the parsed chunks:
-          Gui.log("parsed chunks: "+chunklist.size());
-          
           // save the chunks
-          FilmTitServiceHandler.saveSourceChunks(chunklist, this);
-          
-          Gui.log("called saveSourceChunks()");
-          
+          new SaveSourceChunks(chunklist, this, createDocumentCall);
           // now the user can close the browser, chunks are safely saved
      }
 
