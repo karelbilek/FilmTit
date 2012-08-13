@@ -1,7 +1,6 @@
 package cz.filmtit.client;
 import java.util.*;
 import cz.filmtit.share.*;
-import com.google.gwt.user.client.Window;
 
 public class SubtitleSynchronizer {
     private Map<ChunkIndex, TimedChunk> chunkByIndex = new HashMap<ChunkIndex, TimedChunk>();
@@ -55,6 +54,33 @@ public class SubtitleSynchronizer {
         ChunkTimePosition posEnd = new ChunkTimePosition(end, 100);
 
         return resultsByTime.subMap(posStart, posEnd).values();
+    }
+    
+    /**
+     * Return all chunks with the given id,
+     * order by their partNumbers.
+     * Returns an empty collection if there is no such chunk.
+     * In the current implementation, it iteratively tries
+     * to get a chunk by a generated ChunkIndex,
+     * starting with partNumber = 1,
+     * until there is no such chunk.
+     * This might be made more efficient by having a storage of lists of chunks
+     * indexed by ids.
+     * @param id
+     * @return
+     */
+    public List<TimedChunk> getChunksById(int id) {
+    	List<TimedChunk> result = new LinkedList<TimedChunk>();
+		int partNumber = 1;
+		ChunkIndex chunkIndex = new ChunkIndex(partNumber, id);
+		while (chunkByIndex.containsKey(chunkIndex)) {
+			// add to result
+			result.add(chunkByIndex.get(chunkIndex));
+			// move on
+			partNumber++;
+			chunkIndex = new ChunkIndex(partNumber, id);
+		}
+		return result;
     }
     
     public void putSourceChunk(TranslationResult tr, Integer index, boolean isDisplayed) {
