@@ -1,18 +1,23 @@
 package cz.filmtit.share;
 
+
+import java.io.Serializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 import cz.filmtit.share.exceptions.InvalidValueException;
 
 /**
  * Represents one time in an SRT file, which has the format of
  * <code>hh:mm:ss,ttt</code>.
- * Provides int getters, int and String setters, convertors to and from a String.
+ * Provides int getters, int and String setters, convertors to and from a String,
+ * a comparator and a subtractor.
+ * The object is internaly represented by four integers.
  * TODO: convertor from miliseconds if needed
- * TODO: comparator
- * TODO: subtractor
  * @author rur
  *
  */
-public class SrtTime {
+public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializable {
+	
+	private static final long serialVersionUID = 3413134158754151331L;
 	
 	// constants
 	public static final char HM_DELIMITER = ':';
@@ -138,21 +143,51 @@ public class SrtTime {
 			throw new InvalidValueException("Format of SRT time must be hh:mm:ss,ttt, '" + time + "' is invalid!");
 		}
 	}
+	@SuppressWarnings("unused")
+	private SrtTime() {
+		// constructor for serialization support and hibernate
+	}
 	
-	// toString
+	/**
+	 * hh:mm:ss,ttt
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		// hh:
+		if (h < 10) {
+			sb.append('0');
+		}
 		sb.append(h);
 		sb.append(HM_DELIMITER);
+		// mm:
+		if (m < 10) {
+			sb.append('0');
+		}
 		sb.append(m);
 		sb.append(MS_DELIMITER);
+		// ss,
+		if (s < 10) {
+			sb.append('0');
+		}
 		sb.append(s);
 		sb.append(ST_DELIMITER);
+		// ttt
+		if (t < 100) {
+			sb.append('0');
+		}
+		if (t < 10) {
+			sb.append('0');
+		}
 		sb.append(t);
+		
 		return sb.toString();
 	}
 	
+	/**
+	 * 
+	 * @return The time represented by this object, in miliseconds.
+	 */
 	public int toMs() {
 		int value = 0;
 		value += h;
@@ -163,6 +198,78 @@ public class SrtTime {
 		value *= 1000;
 		value += t;
 		return value;
+	}
+	
+	/**
+	 * The comparator is optimized for comparing times
+	 * having the same numbers in the higher orders
+	 * but this being lower than that in the lower orders.
+	 * This optimization was chosen so that one can quickly check
+	 * the validity of the chunk start time and end time,
+	 * this being the start time
+	 * and that being the end time.
+	 */
+	@Override
+	public int compareTo(SrtTime that) {
+		if (this.h == that.h) {
+			if (this.m == that.m) {
+				if (this.s == that.s) {
+					return compareInts(this.t, that.t);
+				}
+				else {
+					return compareInts(this.s, that.s);
+				}
+			}
+			else {
+				return compareInts(this.m, that.m);
+			}
+		}
+		else {
+			return compareInts(this.h, that.h);
+		}
+	}
+	
+	/**
+	 * Integer comparator, optimalized for a < b
+	 * @param a
+	 * @param b
+	 * @return -1, 0 or 1 if a is <, == or > than b
+	 */
+	private static int compareInts (int a, int b) {
+		if (a < b) {
+			return -1;
+		}
+		else if (a > b) {
+			return 1;
+		}
+		else {
+			assert a == b;
+			return 0;
+		}
+	}
+	
+	/**
+	 * The subtractor is optimized for small time differences,
+	 * i.e. for subtracting times
+	 * having the same numbers in the higher orders.
+	 * This optimization was chosen so that one can quickly compute
+	 * the difference between the chunk start time and end time,
+	 * minuend being the end time
+	 * and subtrahend being the start time.
+	 * @return minuend.toMs() - subtrahend.toMs()
+	 */
+	public static int subtract(SrtTime minuend, SrtTime subtrahend) {
+		int result = minuend.t - subtrahend.t;
+		if (minuend.s != subtrahend.s) {
+			result += (minuend.s - subtrahend.s) * 1000;
+		}
+		if (minuend.m != subtrahend.m) {
+			result += (minuend.m - subtrahend.m) * 60000;
+		}
+		if (minuend.h != subtrahend.h) {
+			result += (minuend.h - subtrahend.h) * 3600000;
+		}
+		return result;
 	}
 	
 }
