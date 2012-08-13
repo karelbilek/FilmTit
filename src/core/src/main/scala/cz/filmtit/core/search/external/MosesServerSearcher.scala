@@ -10,6 +10,8 @@ import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
 import opennlp.tools.tokenize.Tokenizer
 import org.apache.xmlrpc.client.XmlRpcClient
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl
+import cz.filmtit.share.exceptions.{LanguageNotSupportedException, SearcherNotAvailableException}
+
 /**
  * Translation pair searcher using standard Moses server 
  *
@@ -79,7 +81,7 @@ class MosesServerSearcher(
    if (res.isDefined) {
      res.get._1.get
    } else {
-     throw tries.last._2.get
+     throw new SearcherNotAvailableException("Could not connect to Moses server.", tries.last._2.get)
    }
 
 
@@ -119,14 +121,14 @@ class MosesServerSearcher(
      } else {
         translationWithoutSpaces
      }
-     val resUnk = pureAposRegex.replaceAllIn(unkRegex.replaceAllIn(res, ""), "'");
+     val resUnk = pureAposRegex.replaceAllIn(unkRegex.replaceAllIn(res, ""), "'")
      resUnk
  
   }
   
   def candidates(chunk: Chunk, language: Language): List[TranslationPair] = { 
     if (language != l1) {
-      throw new Exception("Moses can translate from "+l1.getName+" to "+l2.getName+", you requested "+language.getName);
+      throw new LanguageNotSupportedException("Moses can translate from "+l1.getName+" to "+l2.getName+", you requested "+language.getName)
     }
     List[TranslationPair] (
        new TranslationPair(

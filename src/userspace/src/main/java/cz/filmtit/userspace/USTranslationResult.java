@@ -327,7 +327,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
              // if we haven't met the document before load it form the db
              if (!involvedDocuments.containsKey(usResult.getDocumentDatabaseId())) {
                  List documentResult = dbSession.createQuery("select d from USDocument d " +
-                         "where d.databaseId = " + usResult.getDocumentDatabaseId()).list();
+                         "where d.databaseId = :did").setParameter("did", usResult.getDocumentDatabaseId()).list();
 
                  if (documentResult.size() == 1) {
                      involvedDocuments.put(usResult.getDocumentDatabaseId(),
