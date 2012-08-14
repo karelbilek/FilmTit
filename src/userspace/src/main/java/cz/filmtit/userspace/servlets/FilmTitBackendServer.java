@@ -12,6 +12,7 @@ import cz.filmtit.share.exceptions.*;
 import cz.filmtit.userspace.*;
 import cz.filmtit.userspace.login.AuthData;
 import cz.filmtit.userspace.login.ChangePassToken;
+import cz.filmtit.userspace.login.SeznamData;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -256,7 +257,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         // sets everything necessary ... see the JOpenID page if you want to know details
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow&authID=" + authID);
         Endpoint endpoint = null;
-        if (serviceType == AuthenticationServiceType.SEZNAM){
+        if (serviceType == AuthenticationServiceType.GOOGLE){
             endpoint = manager.lookupEndpoint("Google");
         }
         else if (serviceType == AuthenticationServiceType.YAHOO){
@@ -264,19 +265,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             endpoint  = manager.lookupEndpoint("Yahoo");
 
         }
-        else if (serviceType == AuthenticationServiceType.GOOGLE){
-
-
-            logger.debug("OpenID","Seznam authentication endpoint");
-            logger.debug("OpenID-url",configuration.SeznamEndpoint() );
-
-
+        else if (serviceType == AuthenticationServiceType.SEZNAM){
             endpoint = manager.lookupEndpoint(configuration.SeznamEndpoint());
-            logger.debug("OpenEndpoint",endpoint.getUrl() +" "+ endpoint.getAlias() );
+
         }
         if (endpoint != null){
             Association association = manager.lookupAssociation(endpoint);
-            logger.debug("Association",association.getAssociationHandle() +  "-" +association.getRawMacKey() + "-" + association.getSessionType() );
             AuthData authData = new AuthData();
             authData.Mac_key = association.getRawMacKey();
             authData.endpoint = endpoint;
@@ -298,21 +292,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         try {
             // in progress login session is removed here
             AuthData authData = authDataInProgress.get(authID);
-            logger.debug("openid",authData.toString());
-            logger.debug("openid",responseURL);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
-            if (request == null ) logger.debug("openid/request","test");
-
-            logger.debug("Authentication",request.getParameter("openid.identity"));
-            //logger.debug("Authentication/URI",request.getRequestURI());
-
-
-            Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
+             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
+            if (isSeznamOpenId(authentication.getIdentity())){
+                SeznamData seznam = new SeznamData(responseURL);
+                authentication.setEmail(seznam.getEmail());
+                authentication.setFirstname(seznam.getLogin());
+                authentication.setIdentity(seznam.getOpenId());
+            }
             finishedAuthentications.put(authID, authentication);
-            logger.info("Authentication",authentication.toString());
-            logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " "+authentication.getIdentity()  +" " +authentication.getEmail());
+            logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " "+authentication.getIdentity()  +" " +authentication.getEmail() + " ");
             return true;
 
         }
@@ -332,6 +323,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             authDataInProgress.remove(authID);        	
         }
 
+    }
+
+    private boolean  isSeznamOpenId(String url){
+        Pattern patt = Pattern.compile(new String("id\\.seznam\\.cz"));
+        Matcher m = patt.matcher(url);
+        return  m.find();
     }
 
     @Override
@@ -378,7 +375,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public SessionResponse openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
-            System.out.println("User " + user.getUserName() + "logged in.");
             logger.info("Login","User " + user.getUserName() + "logged in.");
             return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
@@ -397,7 +393,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
-        validateEmail(email);
+          //checkEmail(email);
+        //validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -405,7 +402,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             // pass validation
             String hash = passHash(pass);
-            if (!checkEmail(email)) return false;
+           // if (!checkEmail(email)) return false;
             user = new USUser(name,hash,email,openId);
 
             // create hibernate session
@@ -420,6 +417,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return true;
         } else {
             // bad, there is already a user with the given name
+
             return false;
         }
     }
@@ -441,13 +439,23 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return registration(name, password, data.getEmail(), openId);
         }
         else {
+            System.out.println("Data null");
             return false;        	
         }
     }
 
     private String extractOpenId(String url){
-        String id = url.substring(url.indexOf("?id") + 4); // ..oi/id?id=*****
+        if (url.indexOf("?id")!=-1){
+        String id = url.substring(url.indexOf("?id") + 4); // google id ..oi/id?id=*****
         return id;
+        }
+        else if (url.indexOf("/a/",8)!=-1){
+            String id = url.substring(url.indexOf("/a/",8) + 3 ); // yahoo id ../a/...*****
+            return id;
+        }
+        else {
+             return url;
+        }
     }
 
     // TODO : what is this good for ?
@@ -460,23 +468,25 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 .setParameter("username",name+'%').list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         int count = UserResult.size();
+        String newName= "";
         if (count > 0)
         {
             long num = count;
             int round = 0;
             do {
-            String  newName = new StringBuilder(name).append(count).toString();
+            newName = new StringBuilder(name).append(count).toString();
             num = num << 2 ;
             round++;
                 if (round > 63) {
                     count++;
                     num = count;
                     round = 0;
-
                 }
-            } while (checkUser(name,null,CheckUserEnum.UserName) != null);
+                System.out.println("Check "+newName + "num:" + String.valueOf(num));
+            } while (checkUser(newName,null,CheckUserEnum.UserName) != null);
+
         }
-        return name;
+        return newName;
     }
 
     @Override
@@ -668,7 +678,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 activeSessions.remove(oldSessionId);
             }
         }
-
         activeSessions.put(newSessionID, session);
         return newSessionID;
     }

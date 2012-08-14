@@ -51,7 +51,9 @@ public class USLogger {
         {
             switch (level)
             {
-                case Notice: jLogger.debug(messageCreator.toString());
+                case DebugNotice: jLogger.debug(messageCreator.toString());
+                     break;
+                case Notice: jLogger.info(messageCreator.toString());
                     break;
                 case Warning : jLogger.warn(messageCreator.toString());
                     break;
