@@ -77,14 +77,6 @@
                 <entry key="mail.filmtit.password">jkhrjj2012</entry>
             </properties>
         </mail>
-        <log>
-            <DbLevel>0</DbLevel>
-            <ConsoleLevel>0</ConsoleLevel>
-        </log>
-        <openid>
-         <seznamcz>http://id.seznam.cz/yadis</seznamcz>
-         <nickname>sreg</nickname>
-        </openid>
     </userspace>
 
     <core>
@@ -99,6 +91,6 @@
     </core>
 
     <mosesURL>u-pl17.ms.mff.cuni.cz:8080</mosesURL>
-    <freebase_key></freebase_key>
+    <freebase_key>AIzaSyApDm3J6nWpX_lkAlDZA0xH2xefZrWxFYY</freebase_key>
 
 </configuration>
