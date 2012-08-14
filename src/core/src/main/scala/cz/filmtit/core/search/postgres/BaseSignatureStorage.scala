@@ -186,8 +186,9 @@ with SignatureTranslationPairStorage {
     val candidates = new ListBuffer[TranslationPair]()
     while (rs.next()) {
 
-      val chunkL1: Chunk = new Chunk(rs.getString("chunk_l1"))
-      val chunkL2: Chunk = new Chunk(rs.getString("chunk_l2"))
+      val chunkL1 = if(language.equals(l1)) new Chunk(rs.getString("chunk_l1")) else new Chunk(rs.getString("chunk_l2"))
+      val chunkL2 = if(language.equals(l1)) new Chunk(rs.getString("chunk_l2")) else new Chunk(rs.getString("chunk_l1"))
+
       val count: Int = rs.getString("pair_count").toInt
       val pairID: Long = rs.getLong("pair_id")
 

@@ -9,6 +9,7 @@ import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.ReceivesSelectSource;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.MediaSelector;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
@@ -26,6 +27,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 		String moviePath;	
 		
 		// results to store before MediaSelector returns
+		private Dialog mediaSelector;
 		long documentId;
 		TranslationWorkspace workspace;
 		
@@ -39,12 +41,11 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 
             workspace = new TranslationWorkspace(result.document, moviePath, DocumentOrigin.NEW);
             documentId = result.document.getId();
-            
-            new MediaSelector(result.mediaSourceSuggestions, this);
+            mediaSelector = new MediaSelector(result.mediaSourceSuggestions, this);
             
             Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                 public void execute() {
-                    workspace.processText(subtext, subformat);
+                    workspace.processText(subtext, subformat, CreateDocument.this);
                 }
             });
         }
@@ -56,10 +57,29 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 			super.onFinalError(message);
 		}
 		
+		@Override
+		protected void onTimedOutReturnAfterLog(Object returned) {
+			if (returned instanceof DocumentResponse) {
+				new DeleteDocumentSilently( ((DocumentResponse)returned).document.getId() );
+			}
+		}
+		
+		/**
+		 * Called when MediaSelector returns
+		 */
 		public void selectSource(MediaSource selectedMediaSource) {
             FilmTitServiceHandler.selectSource(documentId, selectedMediaSource, workspace);
+            mediaSelector = null;
 		}
        
+		/**
+		 * Called from the workspace if parsing of the subtitle file fails.
+		 */
+		public void hideMediaSelector() {
+			if (mediaSelector != null) {
+				mediaSelector.close();
+			}
+		}
 		
 		// constructor
 		public CreateDocument(String documentTitle, String movieTitle, String language,
@@ -78,7 +98,8 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 
 		@Override protected void call() {
 			Gui.log("Creating document " + documentTitle + "; its language is " + language);
-			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, this);
+			filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, moviePath ,this);
 		}
+
 	}
 

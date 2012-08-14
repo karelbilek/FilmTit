@@ -110,7 +110,8 @@ public class TestUSTranslationResult {
 
     @Test
     public void testGenerateMTSuggestions() {
-        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "en"), null);
+        USUser user = new USUser("name");
+        USDocument document = new USDocument(new Document("Hannah and Her Sisters", "en", ""), user);
         document.setOwner(new USUser("user"));
 
         USTranslationResult usTranslationResult = new USTranslationResult(new TimedChunk("001", "002", 1,
@@ -129,8 +130,8 @@ public class TestUSTranslationResult {
         dbSession.createQuery("delete from USTranslationResult").executeUpdate();
 
         USUser testUser = new USUser("user");
-        Document doc = new Document("Movie title", "en");
-        USDocument testDoc = new USDocument(doc, null);
+        Document doc = new Document("Movie title", "en", "");
+        USDocument testDoc = new USDocument(doc, testUser);
         testDoc.setOwner(testUser);
         testDoc.saveToDatabase(dbSession);
         dbSession.getTransaction().commit();

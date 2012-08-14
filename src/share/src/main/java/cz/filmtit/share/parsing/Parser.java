@@ -12,6 +12,7 @@ import cz.filmtit.share.annotations.*;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.SplitResult;
+import cz.filmtit.share.exceptions.ParsingException;
 
 
 /**
@@ -40,9 +41,10 @@ public abstract class Parser {
 	
     public static final RegExp spacesMatch = RegExp.compile("\\s+", "g");
 	
-    public abstract List<UnprocessedChunk> parseUnprocessed(String text);
+    public abstract List<UnprocessedChunk> parseUnprocessed(String text) throws ParsingException;
 
-	public List<TimedChunk> parse(String text, long documentId, Language l) {
+	public List<TimedChunk> parse(String text, long documentId, Language l)
+            throws ParsingException {
         return processChunks(parseUnprocessed(text), documentId, l);
     }
 

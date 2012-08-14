@@ -7,10 +7,11 @@ import org.hibernate.Session;
 import java.util.*;
 
 /**
- * Represents a subtitle chunk together with its timing, translation suggestions from the translation memory
+ * Represents a subtitle chunk together with its timing,  selected translation suggestions from the translation memory
  * and also the user translation in the User Space. It is a wrapper of the TranslationResult class from the
  * share namespace. Unlike the other User Space objects, the Translations Results stays in the database even
- * in cases the the document the Translation Result belongs to is deleted.
+ * in cases the the document the Translation Result belongs to is deleted. Unlike the client side copy of the
+ * wrapped object it does not contain the suggestions itfself which are thrown away as soon they are sent to the client.
  *
  * @author Jindřich Libovický
  */
@@ -24,7 +25,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     private volatile boolean feedbackSent = false;
     /**
-     * The document this translation result is part of.
+     * A reference to the document this translation result is part of.
      */
     private USDocument document;
 
@@ -73,7 +74,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * A default constructor used by Hibernate.
+     * A private default constructor used by Hibernate.
      */
     private USTranslationResult() {
         translationResult = new TranslationResult();
@@ -96,17 +97,27 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * Sets the starting time of the chunk in the srt format.
+     * Sets the starting time of the chunk in the srt format. The format check is not done here, but in the
+     * methods in class Session that can handle the timing.
      * @param startTime Starting time of the chunk.
      */
     public void setStartTime(String startTime) {
         translationResult.getSourceChunk().setStartTime(startTime);
     }
 
+    /**
+     * Gets the ending time of the chunk in the srt format.
+     * @return End time of the chunk.
+     */
     public String getEndTime() {
         return translationResult.getSourceChunk().getEndTime();
     }
 
+    /**
+     * Sets the end time of the chunk in srt format. The format check is not done here, but in the
+     * methods in class Session that can handle the timing.
+     * @param endTime End tie of the chunk in srt format.
+     */
     public void setEndTime(String endTime) {
         translationResult.getSourceChunk().setEndTime(endTime);
     }
@@ -131,7 +142,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * Gets the translation provided by the user.
+     * Gets the translation provided by the user. It Accesses the wrapped object.
      * @return The user translation.
      */
     public String getUserTranslation() {
@@ -140,7 +151,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     /**
      * Sets the user translation. It is used both at the runtime when a user changes the translation and
-     * by Hibernate at the time the TranslationsResult is loaded from the database.
+     * by Hibernate at the time the TranslationsResult is loaded from the database. It access the wrapped object.
      * @param userTranslation
      */
     public void setUserTranslation(String userTranslation) {
@@ -211,7 +222,18 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
 
+    /**
+     * The database ID is not used in the wrapped object, so it gets just the database ID. (Called by the
+     * getDatabaseId getter in DatabaseObject.)
+     * @return The database ID.
+     */
     protected long getSharedClassDatabaseId() { return databaseId; }
+
+    /**
+     * The database ID is not used in the wrapped object, it does nothing. (Called by the setDatabaseId setter
+     * in DatabaseObject.)
+     * @param setSharedDatabaseId
+     */
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
 
     public ChunkIndex getChunkIndex() {
@@ -220,7 +242,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
 
     /**
      * Queries the Translation Memory for the suggestions. If there are some previous
-     * suggestions they are discarded.
+     * suggestions they are discarded. The suggestion are stored in the structure wrapped object the way as it
+     * is the client. Anyway, they are discarded as soon as they are sent to the client.
      * @param TM An instance of Tranlsation Memory from the core.
      */
     public synchronized void generateMTSuggestions(TranslationMemory TM) {
@@ -246,10 +269,18 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
         translationResult.setTmSuggestions(javaList);
     }
 
+    /**
+     * Saves the object to database.
+     * @param dbSession An opened database session.
+     */
     public void saveToDatabase(Session dbSession) {
         saveJustObject(dbSession);
     }
 
+    /**
+     * Deletes the object from database.
+     * @param dbSession  An opened database session.
+     */
     public void deleteFromDatabase(Session dbSession) {
         deleteJustObject(dbSession);
     }
@@ -275,7 +306,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     /**
      * Queries the database for a list of translation results which were not marked as checked
      * and mark them as checked. This is then interpreted as that a feedback for has been provided
-     * and the chunks are ready to be deleted from the database.
+     * and the chunks are ready to be deleted from the database. If the unchecked translation results are part
+     * a document that has been flagged as to be deleted, teh translation results are deleted as well.
      * @return  A list of unchecked translation results.
      */
     public synchronized static List<USTranslationResult> getUncheckedResults() {
@@ -295,7 +327,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
              // if we haven't met the document before load it form the db
              if (!involvedDocuments.containsKey(usResult.getDocumentDatabaseId())) {
                  List documentResult = dbSession.createQuery("select d from USDocument d " +
-                         "where d.databaseId = " + usResult.getDocumentDatabaseId()).list();
+                         "where d.databaseId = :did").setParameter("did", usResult.getDocumentDatabaseId()).list();
 
                  if (documentResult.size() == 1) {
                      involvedDocuments.put(usResult.getDocumentDatabaseId(),
@@ -340,7 +372,13 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     public String toString() {
     	return getDatabaseId() + "#" + getTranslationResult().toString();
     }
-    
+
+    /**
+     * Sets the chunk to be active or non-active, it means if it is currently displayed in a translation workspace
+     * and translation suggestion should generated for it. If it is set to false, the translation memory core
+     * stops to generate the suggestion.
+     * @param active Flag if the translation results is worth of generating suggestions.
+     */
     public void setChunkActive (boolean active) {
     	translationResult.getSourceChunk().isActive = active;
     }

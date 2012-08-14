@@ -307,3 +307,81 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
     text-align: center;
     color: white;
 }
+
+.numerical2digits input {
+	width: 3ex;
+    text-align: right;
+}
+
+.numerical3digits input {
+	width: 4ex;
+    text-align: right;
+}
+
+/*
+.timEditDialog:
+style copied from bootstrap's .modal and edited
+*/
+
+.timeEditDialog {
+    z-index:1050;
+    width:400px;
+    background-color:#fff;
+    border:1px solid #999;
+    border:1px solid rgba(0,0,0,0.3);
+    *border:1px solid #999;
+    -webkit-border-radius:6px;
+    -moz-border-radius:6px;
+    border-radius:6px;
+    -webkit-box-shadow:0 3px 7px rgba(0,0,0,0.3);
+    -moz-box-shadow:0 3px 7px rgba(0,0,0,0.3);
+    box-shadow:0 3px 7px rgba(0,0,0,0.3);
+    -webkit-background-clip:padding-box;
+    -moz-background-clip:padding-box;
+    background-clip:padding-box;
+}
+
+.timeEditDialog .dialogTopLeft,
+.timeEditDialog .dialogTopRight,
+.timeEditDialog .dialogMiddleLeft,
+.timeEditDialog .dialogMiddleLeft,
+.timeEditDialog .dialogBottom {
+    display: none;    
+}
+	
+.timeEditDialog .Caption {
+	padding:9px 15px !important;
+    border-top:none !important;
+    border-bottom:1px solid #eee !important;
+    background-color: #fff !important;
+
+    -webkit-border-radius:6px;
+    -moz-border-radius:6px;
+    border-radius:6px;
+}
+	
+.timeEditDialog .dialogContent {
+    max-height:400px;
+    padding:15px;
+    overflow-y:auto;
+}
+
+.timeEditDialog table {
+    width: 100%;
+}
+
+.timeEditDialog .table td,
+.timeEditDialog .table th {
+    text-align: center;
+}
+
+.timeEditDialog .dialogMiddleCenter {
+    padding: 0;
+
+    -webkit-border-radius:6px;
+    -moz-border-radius:6px;
+    border-radius:6px;
+}
+
+
+

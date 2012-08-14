@@ -64,7 +64,7 @@ public class TestSession {
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory);
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, "");
 
         assertNotNull(response.mediaSourceSuggestions);
         assertTrue(response.document.getId() != Long.MIN_VALUE);
@@ -187,25 +187,6 @@ public class TestSession {
     }
 
     @Test
-    public void testRequestTMSuggestions() throws InvalidDocumentIdException, InvalidChunkIdException {
-        USUser sampleUser = getSampleUser();
-        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
-
-        Session session = new Session(sampleUser);
-        session.loadDocument(trToUpdate.getDocumentDatabaseId());
-
-        List<TranslationPair> originalSuggestions = trToUpdate.getTranslationResult().getTmSuggestions();
-        List<TranslationPair> respond = session.requestTMSuggestions(trToUpdate.getChunkIndex(),
-                trToUpdate.getDocumentDatabaseId(), TM);
-
-        // test if the change appeared in the user space structure
-        assertNotNull(respond);
-        assertTrue(respond != originalSuggestions);
-
-        // translation pairs are not stored in the database => do not test it
-    }
-
-    @Test
     public void testDeleteChunk() throws InvalidDocumentIdException, InvalidChunkIdException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;
@@ -217,12 +198,12 @@ public class TestSession {
     }
 
     @Test
-    public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException {
+    public void testTerminate() throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         USUser sampleUser = getSampleUser();
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory);
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, "");
         Document clientDocument = response.document;
         if (response.mediaSourceSuggestions.size() > 0) {
             session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
@@ -261,16 +242,16 @@ public class TestSession {
     }
 
     @Test
-    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException {
+    public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException, InvalidValueException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory);
+        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory, "");
         long documentId = resp.document.getId();
 
         // generate few chunks
         List<TimedChunk> timedChunks = new ArrayList<TimedChunk>(32);
         for (int i = 0; i < 32; ++i) {
-            timedChunks.add(new TimedChunk("00:00:00.000", "00:00:00.000", 0,
+            timedChunks.add(new TimedChunk("00:00:00,000", "00:00:00,000", 0,
                     loremIpsum.getWords(5, i), i, documentId));
         }
         session.saveSourceChunks(timedChunks);
@@ -349,7 +330,7 @@ public class TestSession {
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Test", "en"), null);
+            USDocument usDocument = new USDocument(new Document("Test", "en", ""), sampleUser);
             usDocument.setOwner(sampleUser);
             long documentID = usDocument.getDatabaseId();
 
@@ -458,13 +439,13 @@ public class TestSession {
         assertEquals(true, user.getUseMoses());
         assertEquals(false, user.isPermanentlyLoggedId());
 
-        session.setEmail("hu@hu.hu");
+        session.setEmail("huhu@huhu.hu");
         session.setMaximumNumberOfSuggestions(23);
         session.setPermanentlyLoggedIn(true);
         session.setUseMoses(false);
 
         // test changed settings
-        assertEquals("hu@hu.hu", user.getEmail());
+        assertEquals("huhu@huhu.hu", user.getEmail());
         assertEquals(23, user.getMaximumNumberOfSuggestions());
         assertEquals(false, user.getUseMoses());
         assertEquals(true, user.isPermanentlyLoggedId());

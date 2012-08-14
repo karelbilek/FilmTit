@@ -37,8 +37,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
     private static int SESSION_ID_LENGTH = 47;
     private static int LENGTH_OF_TOKEN = 10;
-    public final static Pattern mailRegexp = Pattern.compile("^[_A-Za-z0-9-]+(\\\\.[_A-Za-z0-9-]+)*@" +
-            "[A-Za-z0-9]+(\\\\.[A-Za-z0-9]+)*(\\\\.[A-Za-z]{2,})$");
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
@@ -115,9 +113,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     @Override
-    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
+    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
             throws InvalidSessionIdException {
-        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory);
+        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, moviePath);
     }
 
     @Override
@@ -168,7 +166,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     @Override
     public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
     }
 
@@ -225,12 +223,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public TranslationResult changeText(String sessionID, TimedChunk chunk, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
         return getSessionIfCan(sessionID).changeText(chunk, newText, TM);
-    }
-
-    @Override
-    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
     }
 
     @Override
@@ -365,7 +357,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public SessionResponse simpleLogin(String username, String password) {
         USUser user = checkUser(username, password, CheckUserEnum.UserNamePass);
-        if (user == null){ return  null; }
+        if (user == null) { return  null; }
         else {
             logger.info("Login","User " + user.getUserName() + "logged in.");
             return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
@@ -391,10 +383,19 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
+    /**
+     * Register new user
+     * @param name
+     * @param pass
+     * @param email
+     * @param openId
+     * @return flag - succes registration
+     * @throws InvalidValueException
+     */
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
-          //checkEmail(email);
-        //validateEmail(email);
+
+          validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -458,14 +459,18 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
-    // TODO : what is this good for ?
+    /**
+     * From email gets unique userName
+     * @param email
+     * @return  unique login
+     */
     private String getUniqueName(String email){
 
         String name = email.substring(0,email.indexOf('@'));
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List UserResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",name+'%').list(); //UPDATE hibernate  for more constraints
+                .setParameter("username", name + '%').list(); //UPDATE hibernate for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         int count = UserResult.size();
         String newName= "";
@@ -489,6 +494,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return newName;
     }
 
+    /**
+     * Change password if exists  token, which allow that
+     * @param userName
+     * @param pass
+     * @param stringToken
+     * @return  flag - success changing
+     */
     @Override
     public Boolean changePassword(String userName, String pass, String stringToken){
         USUser usUser = checkUser(userName, "", CheckUserEnum.UserName);
@@ -506,6 +518,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
+
+    /**
+     * Update user can change login and email according old login
+     * @param user
+     * @param newLogin
+     * @param newMail
+     * @return  if change was successful
+     */
     public Boolean updateUser(String user, String newLogin , String newMail){
 
         USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
@@ -622,7 +642,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException {
         validateEmail(email);
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email = " + email).list();
+        List usersWithSuchMail = dbSession.createQuery("select u from USUser u where u.email like :email")
+                .setParameter("email", email).list();
         usHibernateUtil.closeAndCommitSession(dbSession);
 
         if (usersWithSuchMail.size() == 0) { return false; }
@@ -667,7 +688,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *
      */
     private String generateSession(USUser user){
-        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
+        IdGenerator idGenerator = new IdGenerator();
+        String newSessionID = idGenerator.generateId(SESSION_ID_LENGTH);
+
+        while (activeSessions.containsKey(newSessionID)) {
+            newSessionID = idGenerator.generateId(SESSION_ID_LENGTH);
+        }
+
         Session session = new Session(user);
 
         // check if there isn't a session from the same user
@@ -692,7 +719,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List userDbResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
-                .setParameter("username",username).list(); //UPDATE hibernate  for more constraints
+                .setParameter("username", username).list(); //UPDATE hibernate  for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         USUser successUser = null;
         int count = 0;
@@ -747,17 +774,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /*
     *  Validate email address
     *
-    * */
-    private boolean checkEmail(String email) {
-    // star validate string  ^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*\.([a-z]{2,4})$
-     String regex = "^[a-z0-9_\\+-]+(\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
-     Pattern pattern = Pattern.compile(regex);
-     Matcher matcher = pattern.matcher(email);
-     return matcher.matches();
-    }
-
+    *
+    */
     private void validateEmail(String email) throws InvalidValueException {
-        if (!mailRegexp.matcher(email).matches()) {
+        if (org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
             throw new InvalidValueException("Email address " + email + "is not valid.");
         }
     }
@@ -768,7 +788,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
     }
 
-    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException {
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setEmail(email);
     }
 

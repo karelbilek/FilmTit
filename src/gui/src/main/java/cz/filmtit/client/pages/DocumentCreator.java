@@ -91,9 +91,10 @@ public class DocumentCreator extends Composite {
                 if (fit.hasNext()) {
                     File file = fit.next();
                     if (file.getSize() > 500000) {
-                        lblUploadProgress.setText("File too bix (maximum is 500 kB)");
+                        lblUploadProgress.setText("File too big (maximum is 500 kB)");
                     } else {
                         freader.readAsText(file, getChosenEncoding());
+                        // fires onLoadEnd() which enables btnCreateDocument
                     }
                 } else {
                     Gui.log("No file chosen.\n");
@@ -137,7 +138,6 @@ public class DocumentCreator extends Composite {
        
 		moviePath.setText(address);
 
-      // widgetToRemove = widget ;
     }
     
     @UiField
@@ -151,7 +151,7 @@ public class DocumentCreator extends Composite {
                 subtext,
                 getChosenSubFormat(),
                 getMoviePathOrNull());
-        // sets currentDocument and calls processText() on success
+        // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success
     }
 	
     @UiField

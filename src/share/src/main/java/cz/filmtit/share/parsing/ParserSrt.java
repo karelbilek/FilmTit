@@ -5,15 +5,17 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.*;
 
+import cz.filmtit.share.SrtTime;
 import cz.filmtit.share.TimedChunk;
+import cz.filmtit.share.exceptions.InvalidValueException;
+import cz.filmtit.share.exceptions.ParsingException;
 
 /**
  * Provides a simple parsing function for reading SRT subtitle format
- * into a "shallow" GUISubtitleList (with empty matches and translations).
- * 
- * NOTE (TODO): At the moment, it can correctly parse only strings not beginning
- * with an empty line and with no more than one consecutive empty lines.
- * 
+ * into a list of UnprocessedChunks.
+ *
+ * @author Honza VĂˇcl and KB
+ *
  * TODO: add parsing of text format modifiers like "<i>" - or at least deleting them
  * 
  * @author Honza Václ
@@ -21,13 +23,12 @@ import cz.filmtit.share.TimedChunk;
  */
 public class ParserSrt extends Parser {
 	
-	public static RegExp reNumberLine = RegExp.compile("^[0-9]+$");
-	public static RegExp reTimesLine  = RegExp.compile("^(.*)\\s*-- ?>\\s*(.*)$");
+	public static RegExp reSubNumberLine = RegExp.compile("^[0-9]+$");
+	public static RegExp reTimesLine     = RegExp.compile("^(.*)\\s*-- ?>\\s*(.*)$");
+
 	
-    public static String TIMES_SEPARATOR = " --> ";
-	
-	
-	public List<UnprocessedChunk> parseUnprocessed(String text) {
+	public List<UnprocessedChunk> parseUnprocessed(String text)
+            throws ParsingException {
 		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
 		
 		String[] lines;
@@ -38,28 +39,42 @@ public class ParserSrt extends Parser {
             lines = text.split(LINE_SEPARATOR);
 		}
 
-		//int number = 0;  // in-file numbering of the subtitle - not used at the moment
+		//int subNumber = 0;  // in-file numbering of the subtitle - not used at the moment
 		String startTime = EMPTY_STRING;
 		String endTime = EMPTY_STRING;
-		String titText = EMPTY_STRING;		
-		//int chunkId = 0;
+		String titText = EMPTY_STRING;
 
-		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
-			String line = lines[linenumber];
+        //boolean isSubNumberSet = false;
+        boolean isTimeSet = false;
+        //boolean isTitTextSet = false;
+
+
+        for (int linenumber = 0; linenumber < lines.length; linenumber++) {
+            String line = lines[linenumber];
 			
-			//if ( line.matches("[0-9]+") ) {
-			if ( reNumberLine.test(line) ) {
+			if ( reSubNumberLine.test(line) ) {
 				// in-file numbering of the subtitle - not used at the moment
-				//number = Integer.parseInt(line);
+				//subNumber = Integer.parseInt(line);
+                //isSubNumberSet = true;
 			}
-			//else if ( line.matches("[0-9][0-9]:[0-9][0-9].*")) {
 			else if ( reTimesLine.test(line)) {
 				// line with times
                 MatchResult mr = reTimesLine.exec(line);
-                startTime = mr.getGroup(1);
-                endTime = mr.getGroup(2);
-			}
+                startTime = mr.getGroup(1).trim();
+                endTime = mr.getGroup(2).trim();
+                isTimeSet = true;
+                try { // testing the time format:
+                    new SrtTime(startTime);
+                    new SrtTime(endTime);
+                } catch (InvalidValueException e) {
+                    throw new ParsingException(e.getMessage(), linenumber + 1, false);
+                }
+            }
 			else if ( ! line.isEmpty() ) {
+                if (! isTimeSet) {
+                    throw new ParsingException("Subtitle timing line missing or malformed", linenumber + 1, true);
+                }
+                //isTitTextSet = true;
 				if (! titText.isEmpty()) {
 					titText += SUBLINE_SEPARATOR_OUT;
 				}
@@ -74,6 +89,9 @@ public class ParserSrt extends Parser {
 				
 		    	// ...and resetting
 				titText = EMPTY_STRING;
+                //isSubNumberSet = false;
+                isTimeSet = false;
+                //isTitTextSet = false;
 			}
 		}  // for-loop over lines
         

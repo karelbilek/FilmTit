@@ -144,14 +144,23 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         return new StringBuilder().append(framelong.toString());
     }
 
-    public static StringBuilder subTimeToSrt(String frame, double fps) {
-        Double f = new Long(frame).doubleValue();
-        long allMillis = (long)(f*1000/fps);
+    public static StringBuilder millisToTime(Long allMillis, boolean includeMillis) {
         long millis = allMillis % 1000;
         long seconds = ((long)(allMillis / 1000)) % 60;
         long minutes = ((long)(allMillis / (1000*60))) % 60;
         long hours = ((long)(allMillis / (1000*60*60)));
-        return new StringBuilder().append(hours).append(":").append(minutes).append(":").append(seconds).append(".").append(millis);
+        StringBuilder res = new StringBuilder().append(hours).append(":").append(minutes).append(":").append(seconds);
+        if (includeMillis) {
+            res = res.append(".").append(millis);
+        }
+        return res;
+ 
+    }
+
+    public static StringBuilder subTimeToSrt(String frame, double fps) {
+        Double f = new Long(frame).doubleValue();
+        long allMillis = (long)(f*1000/fps);
+        return millisToTime(allMillis, true);
     }
     
     //working only with SRT
@@ -304,6 +313,22 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
     @Override
     public String toString() {
         return "TimedChunk[" + getChunkIndex() + ", " + getSurfaceForm() + "]";
+    }
+    
+	/**
+	 * hh:mm:ss,ttt - hh:mm:ss,ttt
+	 * (to be used to display in GUI)
+	 */
+    public String getDisplayTimeInterval() {
+    	return SrtTime.toDisplayInterval(startTime, endTime);
+    }
+    
+	/**
+	 * hh:mm:ss,ttt --> hh:mm:ss,ttt
+	 * (to be used to export to SRT)
+	 */
+    public String getSrtTimeInterval() {
+    	return SrtTime.toSrtInterval(startTime, endTime);
     }
     
 }

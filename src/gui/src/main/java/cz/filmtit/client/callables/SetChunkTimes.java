@@ -7,6 +7,10 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.TimedChunk;
 
+/**
+ * Updated the chunk's start time and end time in the UserSpace database.
+ *
+ */
 public class SetChunkTimes extends Callable<Void> {
 
 	private TimedChunk chunk;
@@ -17,6 +21,10 @@ public class SetChunkTimes extends Callable<Void> {
 	}
 	
 	
+	/**
+	 * Updated the chunk's start time and end time in the UserSpace database.
+	 * TODO: change to SetChunkTimes(TimedChunk... chunks)
+	 */
 	public SetChunkTimes(TimedChunk chunk) {
 		super();
 		

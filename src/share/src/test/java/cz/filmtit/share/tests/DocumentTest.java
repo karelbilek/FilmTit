@@ -19,7 +19,7 @@ public class DocumentTest {
     private Document doc = null;
 
     private  void initializeDoc() {
-        doc = new Document("TestMovie", "cs");
+        doc = new Document("TestMovie", "cs", "");
         doc.setId(2012);
     }
 

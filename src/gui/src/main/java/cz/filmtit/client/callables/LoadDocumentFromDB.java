@@ -28,7 +28,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     public void onSuccessAfterLog(final Document doc) {
         
         // prepare empty TranslationWorkspace
-        String moviePath = null; //TODO: player
+        String moviePath = doc.getMoviePath();
         final TranslationWorkspace workspace = new TranslationWorkspace(doc, moviePath, DocumentOrigin.FROM_DB);
         
         // prepare the TranslationResults

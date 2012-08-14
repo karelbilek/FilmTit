@@ -3,6 +3,8 @@ package cz.filmtit.core.concurrency.searcher
 import cz.filmtit.core.model.TranslationPairSearcher
 import akka.actor.Actor
 import java.io.IOException
+import cz.filmtit.share.exceptions.{SearcherNotAvailableException, LanguageNotSupportedException}
+import akka.actor.SupervisorStrategy.Escalate
 
 /**
  * @author Joachim Daiber
@@ -15,7 +17,7 @@ class TranslationPairSearcherActor(val searcher: TranslationPairSearcher) extend
       try {
         sender ! searcher.candidates(chunk, language)
       } catch {
-        case e: NullPointerException => throw new IOException("Could not run NER.")
+        case ex: Exception => sender ! akka.actor.Status.Failure(ex)
       }
     }
   }

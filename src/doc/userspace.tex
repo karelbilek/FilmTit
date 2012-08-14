@@ -57,7 +57,13 @@ The User Space uses the shared data types used thorough the application or the w
 
 \item {\tt USTranslationResult} -- It is a wrapper for the shared {\tt TranlsationResult} class. The class congregates the original subtitle chunk, its timing, the translation suggested by translation memory and the result of the user activity -- the user's translation which translation suggestion she has chosen. It is the class where the actual translation is being done. Despite a user can delete the document he is working all the translation results are kept in the database to provide a  feed back to the translation memory.
 
+\item {\tt Emailer} -- A class used for sending email from the application. It is used as a confirmation of user registration and also when the user forgets his password and requires sending a new one via email.
+
 \end{itemize}
+
+There are also two third-party classes included in the User Space source code. \todo{add the description}
+
+The {\tt SubtitleDownloadServlet} class responsible for exporting the subtitle files is described in section \ref{sec:export}. Details concerning the user registration, login and using open ID are discussed in more detail is section \ref{subsec:simple_login} in the GUI chapter. Details about handling the communication with the client are covered in section \ref{sec:communication} of the GUI chapter.
 
 \subsection{Database Mapping}
 
@@ -69,7 +75,19 @@ The mapping just reflects the data properties of classes. If the class is a wrap
 
 As was told before, the mapping of {\tt USDocument} does not include the list of Translation Results the document contains in order to be able to send the documents both with and without the translation results. It would be also possible to use the lazy Hibernate collection mapping, but it would cause problem at the time the object serialized.
 
-\section{Exporting subtitle files}
+\subsection{Providing Feedback to the Translation Memory}
+
+In order to be able provide a feedback to the translation memory and take advantage of the translator work for improving of the translation memory, the implementation of deleting a document a selecting of the media source needs to be done not in a straightforward way. Handling this requirements is described in following paragraphs.
+
+The User Space and the Translation Memory Core use the same database table for the media source (representing the movie or the TV show the subtitles are from). When the user creates a document she is required to enter the title of the movie she is about to translate. After that the {\it Freebase} service is queried for the movies and TV shows possible having such title and a list of this matches is provided to the user to choose from. After the user chooses the media source, the media source object is sent back to the User Space. Then the search in the database table is done. If there is a record with the same title and the release year, its data (genres and thumbnails URL) are updated, if it is a completely new media source, it is saved to the table.
+
+The reason for doing it is not to have duplicate media sources in the database and also the fact that the meta data of the movie should be available to the Data Import module when the feedback to the translation memory is provided.
+
+Another thing to be mentioned here is handling the document deletion. When the user clicks on the delete button in the interface, the document is marked to be deleted in the User Space and is removed from the list of documents owned  by the user and from the list of the documents that has been loaded during a session. From that time the document is not available for the user. After dealing with this a thread is run that deals with the translation results the document consists of. All the translation results that has already provided the feedback to the translation memory are deleted from the database. If the document is empty after this step, it is delete too.
+
+Providing the feedback itself is done by a static method of the {\tt USTranslsationResult} class. This method returns all the translation results what have not been used for feedback before (have {\tt hasSentFeedback} flag set to false. The translation results are provided with a reference they belong to which allows resolve the media source later. If the translation results are form a document that has been flagged as ready to be deleted, both the translation results and the document are delete. Otherwise just the flag informing about having provided the feedback is set.
+
+\section{Exporting Subtitle Files}
 \label{sec:export}
 
 TODO \todo{Write it}

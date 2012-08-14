@@ -11,7 +11,7 @@ import java.util.List;
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
     // Document handling
-	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language)
+	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
     	throws InvalidSessionIdException;
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
@@ -25,7 +25,7 @@ public interface FilmTitService extends RemoteService {
     
     // Subtitles handling
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
-            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
+            throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException;
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
@@ -37,7 +37,7 @@ public interface FilmTitService extends RemoteService {
 
     // User settings
     public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException;
-    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException;
+    public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException, InvalidValueException;
     public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException;
     public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
 
@@ -88,8 +88,6 @@ public interface FilmTitService extends RemoteService {
     		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
     TranslationResult changeText(String sessionID, TimedChunk chunk, String newText)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException;
-    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex , long documentId)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
     Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
 

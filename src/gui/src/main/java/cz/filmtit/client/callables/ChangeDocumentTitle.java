@@ -3,6 +3,7 @@ package cz.filmtit.client.callables;
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler;
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
 
 public class ChangeDocumentTitle extends Callable<Void> {
@@ -18,13 +19,14 @@ public class ChangeDocumentTitle extends Callable<Void> {
 	public ChangeDocumentTitle(long documentID, String newTitle) {
 		super();
 		
-		if (newTitle != null && !newTitle.isEmpty()) {
+		if (newTitle == null || newTitle.isEmpty()) {
+			// we don't accept the new title - refresh to load the old title
+			Gui.getPageHandler().refresh();
+		}
+		else {
 			this.newTitle = newTitle;
 			this.documentID = documentID;
 			enqueue();
-		}
-		else {
-			Gui.getPageHandler().refresh();
 		}
 	}
 
@@ -35,12 +37,14 @@ public class ChangeDocumentTitle extends Callable<Void> {
 
 	@Override
 	public void onSuccessAfterLog(Void returned) {
-		Gui.getPageHandler().refresh();
+		// don't refresh since the new title is already there
+		// Gui.getPageHandler().refreshIf(Page.UserPage)
 	}
 	
 	@Override
 	protected void onFinalError(String message) {
-		Gui.getPageHandler().refresh();
+		// we don't accept the new title - refresh to load the old title
+		Gui.getPageHandler().refreshIf(Page.UserPage);
 		super.onFinalError(message);
 	}
 
