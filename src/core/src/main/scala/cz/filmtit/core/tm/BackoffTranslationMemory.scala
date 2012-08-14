@@ -1,7 +1,6 @@
 package cz.filmtit.core.tm
 
-import _root_.java.io.IOException
-import cz.filmtit.core.model.{TranslationPairMerger, TranslationPairSearcher, TranslationPairRanker, TranslationMemory}
+import cz.filmtit.core.model.{TranslationPairMerger, TranslationMemory}
 import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
 import org.apache.commons.logging.LogFactory

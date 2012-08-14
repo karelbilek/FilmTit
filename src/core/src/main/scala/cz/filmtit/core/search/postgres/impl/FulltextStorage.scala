@@ -37,7 +37,9 @@ class FulltextStorage(
     var tps = List[TranslationPair]()
 
     while (rs.next) {
-      val tp = new TranslationPair(new Chunk(rs.getString("chunk_l1")), new Chunk(rs.getString("chunk_l2")), TranslationSource.INTERNAL_FUZZY)
+      val c1 = if(language.equals(l1)) new Chunk(rs.getString("chunk_l1")) else new Chunk(rs.getString("chunk_l2"))
+      val c2 = if(language.equals(l1)) new Chunk(rs.getString("chunk_l2")) else new Chunk(rs.getString("chunk_l1"))
+      val tp = new TranslationPair(c1, c2, TranslationSource.INTERNAL_FUZZY)
       tp.setId(rs.getInt("pair_id"))
       tp.setScore(rs.getDouble("rank"))
       tp.setCount(rs.getInt("pair_count"))
