@@ -65,7 +65,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			this.h = h;
 		}
 		else {
-			throw new InvalidValueException("Value of h must be 0 <= h <= 99, ' + h + ' is invalid!");
+			throw new InvalidValueException("Value of h must be 0 <= h <= 99, '" + h + "' is invalid!");
 		}
 	}
 	public void setM(int m) throws InvalidValueException {
@@ -73,7 +73,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			this.m = m;
 		}
 		else {
-			throw new InvalidValueException("Value of m must be 0 <= m <= 59, ' + m + ' is invalid!");
+			throw new InvalidValueException("Value of m must be 0 <= m <= 59, '" + m + "' is invalid!");
 		}
 	}
 	public void setS(int s) throws InvalidValueException {
@@ -81,7 +81,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			this.s = s;
 		}
 		else {
-			throw new InvalidValueException("Value of s must be 0 <= s <= 59, ' + s + ' is invalid!");
+			throw new InvalidValueException("Value of s must be 0 <= s <= 59, '" + s + "' is invalid!");
 		}
 	}
 	public void setT(int t) throws InvalidValueException {
@@ -89,7 +89,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			this.t = t;
 		}
 		else {
-			throw new InvalidValueException("Value of t must be 0 <= t <= 999, ' + t + ' is invalid!");
+			throw new InvalidValueException("Value of t must be 0 <= t <= 999, '" + t + "' is invalid!");
 		}
 	}
 
@@ -99,7 +99,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			setH(Integer.parseInt(h));
 		}
 		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of h must be an ineteger, ' + h + ' is invalid!");
+			throw new InvalidValueException("Value of h must be an ineteger, '" + h + "' is invalid!");
 		}
 	}
 	public void setM(String m) throws InvalidValueException {
@@ -107,7 +107,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			setM(Integer.parseInt(m));
 		}
 		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of m must be an ineteger, ' + m + ' is invalid!");
+			throw new InvalidValueException("Value of m must be an ineteger, '" + m + "' is invalid!");
 		}
 	}
 	public void setS(String s) throws InvalidValueException {
@@ -115,7 +115,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			setS(Integer.parseInt(s));
 		}
 		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of s must be an ineteger, ' + s + ' is invalid!");
+			throw new InvalidValueException("Value of s must be an ineteger, '" + s + "' is invalid!");
 		}
 	}
 	public void setT(String t) throws InvalidValueException {
@@ -123,7 +123,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			setT(Integer.parseInt(t));
 		}
 		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of t must be an ineteger, ' + t + ' is invalid!");
+			throw new InvalidValueException("Value of t must be an ineteger, '" + t + "' is invalid!");
 		}
 	}
 
