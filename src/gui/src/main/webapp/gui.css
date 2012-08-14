@@ -370,7 +370,8 @@ style copied from bootstrap's .modal and edited
     width: 100%;
 }
 
-.timeEditDialog .table td {
+.timeEditDialog .table td,
+.timeEditDialog .table th {
     text-align: center;
 }
 
