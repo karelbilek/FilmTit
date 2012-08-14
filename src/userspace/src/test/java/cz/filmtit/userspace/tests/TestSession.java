@@ -187,25 +187,6 @@ public class TestSession {
     }
 
     @Test
-    public void testRequestTMSuggestions() throws InvalidDocumentIdException, InvalidChunkIdException {
-        USUser sampleUser = getSampleUser();
-        USTranslationResult trToUpdate = firstGeneratedTranslationResult;
-
-        Session session = new Session(sampleUser);
-        session.loadDocument(trToUpdate.getDocumentDatabaseId());
-
-        List<TranslationPair> originalSuggestions = trToUpdate.getTranslationResult().getTmSuggestions();
-        List<TranslationPair> respond = session.requestTMSuggestions(trToUpdate.getChunkIndex(),
-                trToUpdate.getDocumentDatabaseId(), TM);
-
-        // test if the change appeared in the user space structure
-        assertNotNull(respond);
-        assertTrue(respond != originalSuggestions);
-
-        // translation pairs are not stored in the database => do not test it
-    }
-
-    @Test
     public void testDeleteChunk() throws InvalidDocumentIdException, InvalidChunkIdException {
         USUser sampleUser = getSampleUser();
         USTranslationResult trToUpdate = firstGeneratedTranslationResult;

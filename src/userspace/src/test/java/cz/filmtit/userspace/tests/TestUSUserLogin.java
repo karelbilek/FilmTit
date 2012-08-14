@@ -61,7 +61,7 @@ public class TestUSUserLogin {
     @Test
     public void testLogin() throws NoSuchFieldException, IllegalAccessException, InvalidValueException {
         // if not able to log in, register the user
-        if (server.simpleLogin(name,pass) != null) {
+        if (server.simpleLogin(name,pass) == null) {
             server.registration(name, pass, email, null);
         }
 

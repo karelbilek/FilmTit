@@ -17,19 +17,48 @@ import java.util.regex.Pattern;
  * @author Jindřich Libovický
  */
 public class Session {
-    private String sessionId;
+    /**
+     * Database ID of the session. It is set when the log about the session is saved to database. It means
+     * that all the time the session exists has value of Long.MIN_VALUE.
+     */
     private long databaseId = Long.MIN_VALUE;
+    /**
+     * Reference to the user who owns the session.
+     */
     private USUser user;
 
+    /**
+     * Time when the session was created. It is stored in the log.
+     */
     private volatile long sessionStart;
+    /**
+     * Time of last operation with the session. It is stored in the log.
+     */
     private volatile long lastOperationTime;
+    /**
+     * Current state of the session. It is stored in the log.
+     */
     private volatile SessionState state;
+
+    /**
+     * JBoss logger.
+     */
     Logger logger = Logger.getLogger("Session");
 
+    /**
+     * Regular expression used for checking if the timing has the right format.
+     */
     private static final Pattern timingRegexp = Pattern.compile("^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}$");
-
+    /**
+     * Instance of the singleton class
+     */
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
+    /**
+     * Type for describing the stae of the session. <b>active</b> means the session is running, <b>loggedOut</b>
+     * means the user deliberately logged out from the application, <b>terminated</b> means the session was
+     * ended when the user logged again to the application despite he has a previously opened session.
+     */
     enum SessionState {active, loggedOut, terminated, killed}
 
     /**
@@ -41,6 +70,10 @@ public class Session {
     private Map<Long, USDocument> activeDocuments;
 
 
+    /**
+     * Creates a session owned by given user.
+     * @param user Owner of the session.
+     */
     public Session(USUser user) {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
         
@@ -50,32 +83,72 @@ public class Session {
         this.user = user;
     }
 
+    /**
+     * Gets the time of the last operation with this session. It is usud
+     * @return Time of last operation of the session.
+     */
     public long getLastOperationTime() {
         return lastOperationTime;
     }
 
+    /**
+     * Setter of last operation time, method required by Hibernate. Anyway, it is never used because the session
+     * is never loaded from the databse.
+     * @param time Arbitrary number.
+     */
     private void setLastOperationTime(long time) {}
 
-    public long getSessionStart() {
+    /**
+     * Gets the time when the session started. Used by Hibernate only.
+     * @return The time when the session started.
+     */
+    private long getSessionStart() {
         return sessionStart;
     }
 
+    /**
+     * Setter of starting time of the session, method required by Hibernate. Anyway, it is never used because the session
+     * is never loaded from the databse.
+     * @param time Arbitrary number.
+     */
     private void setSessionStart(long time) {}
 
+    /**
+     * Gets the user owning the session.
+     * @return User owning the session.
+     */
     public USUser getUser() {
         return user;
     }
 
+    /**
+     * Gets the database ID of user owning the session.
+     * @return Database ID of user owning the session.
+     */
     public long getUserDatabaseId() {
         return user.getDatabaseId();
     }
 
+    /**
+     * Setter of user database ID, method required by Hibernate. Anyway, it is never used because the session
+     * is never loaded from the database.
+     * @param id Arbitrary number.
+     */
     private void setUserDatabaseId(long id) {}
 
+    /**
+     * Gets the database if of the session. It used by Hibernate only at the time the log about the session is saved.
+     * @return Database ID of the session.
+     */
     private long getDatabaseId() {
         return databaseId;
     }
 
+    /**
+     * Sets the database ID fo the session if it has not been set before. Used by Hibernate only at the time the
+     * log about the session is saved.
+     * @param databaseId
+     */
     private void setDatabaseId(long databaseId) {
         if (this.databaseId == databaseId) { return; }
         if (this.databaseId == Long.MIN_VALUE) {
@@ -85,21 +158,40 @@ public class Session {
         throw new UnsupportedOperationException("Once the database ID is set, it can't be changed.");
     }
 
+    /**
+     * Gets the state of the session as a string. It is used by Hibernate only when the log about the session is saved.
+     * @return The sate of the session as a string.
+     */
     private String getStateString() {
         return state.toString();
     }
 
+    /**
+     * Setter of the state of the session, method required by Hibernate. Anyway, it is never used because the session
+     * is never loaded from the database.
+     * @param stateString Arbitrary string.
+     */
     private void setStateString(String stateString) {}
 
+    /**
+     * Gets the flag if the session is permanent. (Calls the user owning the session for his settings.)
+     * @return The flag is the session is permanent.
+     */
     public boolean isPermanent() {
         return user.isPermanentlyLoggedId();
     }
 
+    /**
+     * Logs out the user and terminates the session.
+     */
     public void logout() {
         state = SessionState.loggedOut;
         terminate();
     }
 
+    /**
+     * Terminates the session. It is called when the same user logs in for the second time.
+     */
     public void terminateOnNewLogin() {
         state = SessionState.terminated;
         logger.info("Previous session of " + user.getUserName() + "was terminated before creating a new one.");
@@ -108,6 +200,7 @@ public class Session {
 
     /**
      * Terminates the session. Used in all session terminating situations (i.e. logout, time-out, re-login).
+     * Saves the log about the session to the database.
      */
     private synchronized void terminate() {
         // the session was already terminated and is in database => skip this method
@@ -131,11 +224,25 @@ public class Session {
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     // permanently logged in, email, maximumNumberOfSuggestions, useMoses
+
+    /**
+     * Sets the flag if the user owning the session is permanently logged in or not.
+     * (Called directly from an RPC call.)
+     * @param permanentlyLoggedIn Flag if the user owning the session is permanently logged in
+     * @return Void
+     */
     public Void setPermanentlyLoggedIn(boolean permanentlyLoggedIn) {
         user.setPermanentlyLoggedId(permanentlyLoggedIn);
         return null;
     }
 
+    /**
+     * Changes the email of the owner of the session.
+     * (Called directly from an RPC call.)
+     * @param email New user's email.
+     * @return Void
+     * @throws InvalidValueException Throws an exception if an invalid email address is provided.
+     */
     public Void setEmail(String email) throws InvalidValueException {
         if (!org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
             throw new InvalidValueException("'" + email + "' is not a valid email address.");
@@ -146,6 +253,13 @@ public class Session {
         return null;
     }
 
+    /**
+     * Changes the maximum number of translation suggestions provided to the user.
+     * (Called directly from an RPC call.)
+     * @param number New maximum number of suggestions, a number < 0 and <= 100.
+     * @return Void
+     * @throws InvalidValueException Throws an exception if the number is not between 1 and 100.
+     */
     public Void setMaximumNumberOfSuggestions(int number) throws InvalidValueException {
         if (number < 0 || number > 100) {
             throw new InvalidValueException("The maximum number of suggestion must be a positive integer lesser than 100; '" + number + "' is incorrect.");
@@ -155,6 +269,12 @@ public class Session {
         return null;
     }
 
+    /**
+     * Sets the flag is the user wants to include the machine translation by moses in the tranlsation suggestion.
+     * (Called directly from an RPC call.)
+     * @param useMoses Flag if the Moses should be used.
+     * @return Void
+     */
     public Void setUseMoses(boolean useMoses) {
         user.setUseMoses(useMoses);
         saveUser();
@@ -165,6 +285,17 @@ public class Session {
     // HANDLING DOCUMENTS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    /**
+     * Creates a new document of given properties and sends back a new shared Document object representing the
+     * document and a list of media sources that matches the movie title provided by the user.
+     * (Called directly from an RPC call.)
+     * @param documentTitle Title of the document as it should displayed to the user.
+     * @param movieTitle A movie title filled in by the user
+     * @param language Source language
+     * @param mediaSourceFactory A searcher for the media sources provided by the FilmTitBackendServer
+     * @param moviePath Path the to movie vide on the user's machine.
+     * @return  An object wrapping a shared document object of given
+     */
     public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory, String moviePath) {
         updateLastOperationTime();
         USDocument usDocument = new USDocument( new Document(documentTitle, language, moviePath) , user);
@@ -178,6 +309,15 @@ public class Session {
         return new DocumentResponse(usDocument.getDocument(), suggestions);
     }
 
+    /**
+     * Marks given document as deleted. The document is removed from the collection of owned and active documents
+     * immediately. After that a thread is run that deletes chunks that already provided feedback. It is done
+     * in a separate thread not to delay the response for the RPC call.
+     * (Called directly from an RPC call.)
+     * @param documentId ID of document to be deleted.
+     * @return Void
+     * @throws InvalidDocumentIdException  It throws an exception if the document with such ID is not owned by the user.
+     */
     public Void deleteDocument(long documentId) throws InvalidDocumentIdException {
         USDocument document = getActiveDocument(documentId);
 
@@ -185,23 +325,35 @@ public class Session {
         user.getOwnedDocuments().remove(documentId);
         document.setToBeDeleted(true);
 
-        // take care of the database and the translation results in separate thread
+        // take care of the database and the translation results in separate thread not to delay the RPC response
         new DeleteDocumentRunner(document).run();
         return null;
     }
 
     /**
-     * A thread that performs the addition operation on the document deletion. It deletes the document from
+     * A thread that performs the additional operation after the document deletion. It deletes the document from
      * the database all the document's translation results that has already provided feedback to the core
      * and if they are no translation results left it it deletes the
      */
     private class DeleteDocumentRunner extends Thread {
+        /**
+         * A document that has been signed as to be deleted.
+         */
         USDocument document;
 
+        /**
+         * Creates the delete document runner for the particular document.
+         * @param document A document that has been signed as to be deleted.
+         */
         public DeleteDocumentRunner(USDocument document) {
             this.document = document;
         }
 
+        /**
+         * Goes through all the chunks the to-be-deleted document has a deletes all of them that already
+         * provided feedback. If there are no chunks left, the document is deleted as well.
+         */
+        @Override
         public void run() {
             // if it wasn't an active document, translation results need to be loaded
             if (document.getTranslationResultValues() == null) {
@@ -229,6 +381,16 @@ public class Session {
             usHibernateUtil.closeAndCommitSession(dbSession);}
     }
 
+    /**
+     * Selects the media source of the document according to the users selection. If such media source is already
+     * in the database, it is update to have the latest data, otherwise a new media source is stored to the
+     * database.
+     * (Called directly from an RPC call.)
+     * @param documentId ID of the document the ID selected for
+     * @param selectedMediaSource Selected media source
+     * @return Void
+     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
+     */
     public Void selectSource(long documentId, MediaSource selectedMediaSource)
             throws InvalidDocumentIdException {
         updateLastOperationTime();
@@ -261,6 +423,12 @@ public class Session {
         return null;
     }
 
+    /**
+     * Gets the list of document the session user owns. In fact surface clones of the documents not having
+     * having the translation results is sent.
+     * (Called directly from an RPC call.)
+     * @return List of documents owned by the user.
+     */
     public List<Document> getListOfDocuments() {
         updateLastOperationTime();
         List<Document> result = new ArrayList<Document>();
@@ -274,27 +442,44 @@ public class Session {
     }
 
     /**
-     * Implements FilmTitService.loadDocument
-     * @param documentID
-     * @return the document, with the chunks loaded
-     * @throws InvalidDocumentIdException
+     * Loads the document's translation results and place the document among the active documents and sends
+     * back a shared document object with the loaded translation results.
+     * (Called directly from an RPC call.)
+     * @param documentID ID of document to be loaded.
+     * @return The loaded document with translation results.
+     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
      */
     public Document loadDocument(long documentID) throws InvalidDocumentIdException {
         updateLastOperationTime();
         return getActiveDocument(documentID).getDocument();
     }
 
+    /**
+     * Closes the document. Discards the loaded translation results and removes the document from active documents.
+     * (Called directly from an RPC call.)
+     * @param documentId ID of the document to be closed.
+     * @return Void
+     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
+     */
     public Void closeDocument(long documentId) throws InvalidDocumentIdException {
         updateLastOperationTime();
 
         USDocument document = getActiveDocument(documentId);
-
         activeDocuments.remove(documentId);
         logger.info("User " + user.getUserName() + " closed document " + documentId + " (" + document.getTitle() + ")." );
         saveAllTranslationResults(document);
         return null;
     }
 
+    /**
+     * Changes the title of document (this is user's document title which is not connected to the media source) and
+     * saves it immediately to the database.
+     * (Called directly from an RPC call.)
+     * @param documentId ID of the document
+     * @param newTitle New title of the document.
+     * @return  Void
+     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
+     */
     public Void changeDocumentTitle(long documentId, String newTitle) throws InvalidDocumentIdException {
         updateLastOperationTime();
 
@@ -308,6 +493,16 @@ public class Session {
         return null;
     }
 
+    /**
+     * Starts the change of the media source. I takes a new movie title sent by the user and sends back a list of
+     * suggestion what movies / TV shows the user may have meant. Then the client calls again the selectSource method.
+     * (Called directly from an RPC call.)
+     * @param documentId ID of the document
+     * @param newMovieTitle Movie title suggested by the user
+     * @param mediaSourceFactory A searcher for the media sources provided by the FilmTitBackendServer
+     * @return
+     * @throws InvalidDocumentIdException
+     */
     public List<MediaSource> changeMovieTitle (long documentId, String newMovieTitle,  MediaSourceFactory mediaSourceFactory)
             throws InvalidDocumentIdException {
         updateLastOperationTime();
@@ -327,6 +522,17 @@ public class Session {
     // HANDLING TRANSLATION RESULTS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    /**
+     * Creates the translation results from the list of timed chunks and save to the database. It does
+     * start the translation suggestion generation. A whole parsed document is supposed to be sent this
+     * way.
+     * (Called directly from an RPC call.)
+     * @param chunks List of timed chunks
+     * @return Void
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
+     * @throws InvalidChunkIdException Throws an exception in case the chunks are from different documents.
+     * @throws InvalidValueException  Throws an exception when the timing is not in the right format.
+     */
     public Void saveSourceChunks(List<TimedChunk> chunks)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         updateLastOperationTime();
@@ -358,9 +564,14 @@ public class Session {
     }
 
     /**
-     * Implements FilmTitService.getTranslationResults,
-     * calls ParallelHelper,
-     * ParallelHelper calls getTranslationResults().
+     * Receives a list of timed chunks from the client and generates the MT suggestion for them. It calls the
+     * ParallelHelper Scala object that parallels the translation suggestion generation by running the
+     * getTranslationResults method in multiple threads.
+     * (Called directly from an RPC call.)
+     * @param chunks List of timed chunk from the client
+     * @param TM An instance of translation memory passed form the FilmTitBackendServer
+     * @return List of translation results with suggestions
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
      */
     public List<TranslationResult> getTranslationResultsParallel(List<TimedChunk> chunks, TranslationMemory TM) throws InvalidDocumentIdException {
 
@@ -377,17 +588,19 @@ public class Session {
                 usTranslationResult.setChunkActive(true);
     		}
         }
-        // TODO: do not throw away document and usTranslationResult, pass them directly through ParallellHelper!
-        // (and change getTranslationResults() accordingly)
-        
+
         // get the results
         List<TranslationResult> res = ParallelHelper.getTranslationsParallel(chunks, this, TM);
         return res;
     }
     
     /**
-     * Implements FilmTitService.getTranslationResults,
-     * called by ParallelHelper.
+     * Gets the translation result with translation memory suggestions when a timed chunk is given. The methods is called
+     * by the ParallelHelper scala object.
+     * @param chunk Timed chunk
+     * @param TM An instance of translation memory provided by the FilmTitBackendServer.
+     * @return Translation result with generated suggestions
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
      */
     public TranslationResult getTranslationResults(TimedChunk chunk, TranslationMemory TM) throws InvalidDocumentIdException {
         updateLastOperationTime();
@@ -401,9 +614,11 @@ public class Session {
     }
 
     /**
-     * Implements FilmTitService.stopTranslationResults
-     * @param chunks
-     * @throws InvalidDocumentIdException
+     * Stops the translation results generation in the Translation Memory Core.
+     * (Called directly from an RPC call.)
+     * @param chunks List of timed chunks to be stopped.
+     * @return Void
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
      */
     public Void stopTranslationResults(List<TimedChunk> chunks) throws InvalidDocumentIdException {
         if (chunks == null || chunks.isEmpty()) {
@@ -422,6 +637,18 @@ public class Session {
         }
     }
 
+    /**
+     * Sets the translation the user has written and ID of the translation pair he has chosen as the best suggestion
+     * and has postedited.
+     * (Called directly from an RPC call.)
+     * @param chunkIndex Index of the chunk that has been translated
+     * @param documentId ID of the document the chunk belongs to
+     * @param userTranslation The tranlsation provided by user
+     * @param chosenTranslationPairID ID of the tranlsation pair the user has chosen
+     * @return Void
+     * @throws InvalidDocumentIdException  Throws an exception if the session user does not own document with given ID.
+     * @throws InvalidChunkIdException Throws an exception if the document does not contain chunk with given index.
+     */
     public Void setUserTranslation(ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
@@ -455,6 +682,17 @@ public class Session {
         return null;
     }
 
+    /**
+     * Sets the new start time of the given chunk, resp. translation results.
+     * (Called directly from an RPC call.)
+     * @param chunkIndex Index of chunk being changed
+     * @param documentId ID of the document the chunk belongs to.
+     * @param newStartTime New start time of the chunk
+     * @return Void
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
+     * @throws InvalidChunkIdException Throws an exception if the document does not contain chunk with given index.
+     * @throws InvalidValueException  Throws an exception if the timing is wrongly formated.
+     */
     public Void setChunkStartTime(ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         updateLastOperationTime();
@@ -471,6 +709,17 @@ public class Session {
         return  null;
     }
 
+    /**
+     * Sets the new end time of the given chunk, resp. translation results.
+     * (Called directly from an RPC call.)
+     * @param chunkIndex Index of chunk being changed
+     * @param documentId ID of the document the chunk belongs to.
+     * @param newEndTime New end time of the chunk
+     * @return Void
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
+     * @throws InvalidChunkIdException Throws an exception if the document does not contain chunk with given index.
+     * @throws InvalidValueException  Throws an exception if the timing is wrongly formated.
+     */
     public Void setChunkEndTime(ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         updateLastOperationTime();
@@ -488,6 +737,15 @@ public class Session {
         return  null;
     }
 
+    /**
+     * Sets the new source text of the chunk, resp. translation results and generates new translation suggestions.
+     * @param chunk The timed chunk with the changed source text
+     * @param text New source text
+     * @param TM A translation memory instance provided by FilmTitBackendServer
+     * @return Translation result object that reflects the changes
+     * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
+     * @throws InvalidChunkIdException Throws an exception if the document does not contain chunk with given index.
+     */
     public TranslationResult changeText(TimedChunk chunk, String text, TranslationMemory TM)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
@@ -505,21 +763,15 @@ public class Session {
         return usTranslationResult.getResultCloneAndRemoveSuggestions();
     }
 
-    public List<TranslationPair> requestTMSuggestions(ChunkIndex chunkIndex, long documentId, TranslationMemory TM)
-            throws InvalidDocumentIdException, InvalidChunkIdException {
-        updateLastOperationTime();
 
-        USDocument document = getActiveDocument(documentId);
-        
-        USTranslationResult selected = document.getTranslationResultForIndex(chunkIndex);
-        selected.generateMTSuggestions(TM);
-        List<TranslationPair> l = new ArrayList<TranslationPair>();
-        l.addAll( selected.getTranslationResult().getTmSuggestions());
-        selected.getTranslationResult().setTmSuggestions(null); // do not store suggestion in the user space
-
-        return l;
-    }
-
+    /**
+     * Deletes a chunk having particular chunk index and belonging to a particular document.
+     * @param chunkIndex  Index of chunk to be deleted.
+     * @param documentId  ID of the document containing the chunk to be deleted.
+     * @return Void
+     * @throws InvalidDocumentIdException  Throws an exception if the user does not own document with given ID.
+     * @throws InvalidChunkIdException  Throws an exception if the document does not contain chunk with given index.
+     */
     public Void deleteChunk(ChunkIndex chunkIndex, long documentId)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
@@ -536,26 +788,33 @@ public class Session {
         return null;
     }
 
+    /**
+     * Gets the information if the owner of the session owns document of particular id.
+     * @param id    ID of required document.
+     * @return A sign if the user owns the document.
+     */
     public boolean hasDocument(long id) {
         return user.getOwnedDocuments().containsKey(id);
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-    public void saveAllTranslationResults(long l) {
-        saveAllTranslationResults(activeDocuments.get(l));
-    }
-
+    /**
+     * Saves all translation results in a document.
+     * @param document Document to be saved.
+     */
     public void saveAllTranslationResults(USDocument document) {
         Collection<USTranslationResult> results = document.getTranslationResultValues();
         saveTranslationResults(document, results);
     }
 
     /**
-     * Adds the given translation result to the document
+     * Adds the given (exatcly one) translation result to the document
      * (or updates if it already exists - it is identified by ChunkIndex)
      * and saves the updated document to the database.
-     */
+     * @param document Document to be saved to the database
+     * @param result Translation result to be saved.
+     * */
     public void saveTranslationResult(USDocument document, USTranslationResult result) {
        ArrayList<USTranslationResult> al = new ArrayList<USTranslationResult>(1);
        al.add(result);
@@ -566,6 +825,8 @@ public class Session {
      * Adds the given translation results to the document
      * (or updates if they already exist - they are identified by ChunkIndex)
      * and saves the updated document to the database.
+     * @param document USDocument do be saved to the database
+     * @param results Collection of translation results to be saved or updated in the database.
      */
     public synchronized void saveTranslationResults(USDocument document, Collection<USTranslationResult> results) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
@@ -581,10 +842,21 @@ public class Session {
         usHibernateUtil.closeAndCommitSession(session);
     }
 
+    /**
+     * Updates the last operation time to the current time. It should be called by every method which is responding
+     * for an RPC call.
+     */
     private void updateLastOperationTime() {
         lastOperationTime = new Date().getTime();
     }
 
+    /**
+     * Gets the active document of given ID. If the document is not active at the time this method is called
+     * it is loaded to active documents.
+     * @param documentID ID of the requested document
+     * @return USDocument object of given ID
+     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
+     */
     public USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
             logger.info("Loading document " + documentID + "to memory.");
@@ -596,6 +868,12 @@ public class Session {
         return document;
     }
 
+    /**
+     * It loads translation results of a document a place it to the map of active documents.
+     * @param documentID ID of the document to be loaded
+     * @return USDocument object with loaded translation results.
+     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
+     */
     private synchronized USDocument loadDocumentIfNotActive(long documentID) throws InvalidDocumentIdException {
         if (user.getOwnedDocuments().containsKey(documentID)) {
             USDocument usDocument = user.getOwnedDocuments().get(documentID);
@@ -608,6 +886,9 @@ public class Session {
         throw new InvalidDocumentIdException("User does not have document with such ID.");
     }
 
+    /**
+     * Save the user who is owner of the session to the database. It called when a change of user settings is made.
+     */
     private synchronized void saveUser() {
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
         user.saveToDatabase(dbSession);

@@ -224,12 +224,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public List<TranslationPair> requestTMSuggestions(String sessionID, ChunkIndex chunkIndex, long documentId)
-            throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).requestTMSuggestions(chunkIndex, documentId, TM);
-    }
-
-    @Override
     public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
         return getSessionIfCan(sessionID).deleteChunk(chunkIndex, documentId);
@@ -332,7 +326,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public SessionResponse simpleLogin(String username, String password) {
         USUser user = checkUser(username, password, CheckUserEnum.UserNamePass);
-        if (user == null){ return  null; }
+        if (user == null) { return  null; }
         else {
             Logger.getLogger("User " + user.getUserName() + "logged in.");
             return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
@@ -579,7 +573,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *
      */
     private String generateSession(USUser user){
-        String newSessionID = (new IdGenerator().generateId(SESSION_ID_LENGTH));
+        IdGenerator idGenerator = new IdGenerator();
+        String newSessionID = idGenerator.generateId(SESSION_ID_LENGTH);
+
+        while (activeSessions.containsKey(newSessionID)) {
+            newSessionID = idGenerator.generateId(SESSION_ID_LENGTH);
+        }
+
         Session session = new Session(user);
 
         // check if there isn't a session from the same user
