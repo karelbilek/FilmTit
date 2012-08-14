@@ -14,7 +14,7 @@
         <b:CellTable ui:field="docTable" />
 
 
-        <b:Label ui:field="emptyLabel" />
+        <b:Label ui:field="emptyLabel" visible="false" />
 
 
 		<!--b:TabPanel ui:field="tabPanel" tabPosition="above">

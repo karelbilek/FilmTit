@@ -10,10 +10,10 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
@@ -25,6 +25,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.ChangeDocumentTitle;
 import cz.filmtit.client.callables.ChangeMovieTitle;
+import cz.filmtit.client.callables.GetListOfDocuments;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
 
@@ -56,6 +57,9 @@ public class UserPage extends Composite {
 					// refresh to show the original one
 					Gui.getPageHandler().refresh();
 				}
+				else if (newTitle.equals(doc.getTitle())) {
+					// not changed, ignore
+				}
 				else {
 					new ChangeDocumentTitle(doc.getId(), newTitle);
 					doc.setTitle(newTitle);
@@ -83,6 +87,9 @@ public class UserPage extends Composite {
 					// we don't accept the new title
 					// refresh to show the original one
 					Gui.getPageHandler().refresh();
+				}
+				else if (newTitle.equals(doc.getMovie().toString())) {
+					// not changed, ignore
 				}
 				else {
 					// TODO: should lock the page while waiting for media sources
@@ -176,28 +183,13 @@ public class UserPage extends Composite {
         docTable.addColumn(exportSubtitlesButton, "Export");
         docTable.addColumn(deleteButton, "Delete");
       
-        emptyLabel.setVisible(false);
         
+        // load documents
+        new GetListOfDocuments(this);
 
+        
         Gui.getGuiStructure().contentPanel.setStyleName("users_page");
-
-        Gui.log("getting list of documents...");
-        FilmTitServiceHandler.getListOfDocuments(this);
-
-
-
-        btnDisplayCreator.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-            	Gui.getPageHandler().loadPage(Page.DocumentCreator);
-            }
-
-        });
-
-
         Gui.getGuiStructure().contentPanel.setWidget(this);
-
-      
 	}
 
 	
@@ -221,6 +213,12 @@ public class UserPage extends Composite {
 
     @UiField
     Button btnDisplayCreator;
+    
+    @UiHandler("btnDisplayCreator")
+    void onClick(ClickEvent event) {
+    	Gui.getPageHandler().loadPage(Page.DocumentCreator);
+    }
+
 
     @UiField
     com.github.gwtbootstrap.client.ui.CellTable<Document> docTable;
