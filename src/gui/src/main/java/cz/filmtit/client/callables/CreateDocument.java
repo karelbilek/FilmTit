@@ -57,6 +57,13 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 			super.onFinalError(message);
 		}
 		
+		@Override
+		protected void onTimedOutReturnAfterLog(Object returned) {
+			if (returned instanceof DocumentResponse) {
+				new DeleteDocumentSilently( ((DocumentResponse)returned).document.getId() );
+			}
+		}
+		
 		/**
 		 * Called when MediaSelector returns
 		 */
