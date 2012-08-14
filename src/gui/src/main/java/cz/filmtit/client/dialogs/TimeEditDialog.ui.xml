@@ -1,0 +1,30 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+    xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+	<ui:style>
+		
+	</ui:style>
+    <g:HTMLPanel>
+	    <b:Form ui:field="timesForm">
+	        <b:Fieldset>
+                <!-- <b:Legend>Original chunk</b:Legend> -->
+	            <b:Paragraph>
+                    TODO: show chunk text and original timing
+                </b:Paragraph>
+	        </b:Fieldset>
+	        <b:Fieldset>
+                <!-- <b:Legend>New timing</b:Legend> -->
+                <b:CellTable ui:field="timesTable"/>
+	            <b:Paragraph>
+	                TODO: show current display length
+	            </b:Paragraph>
+	        </b:Fieldset>
+	        <b:Fieldset>
+	            <b:ModalFooter>
+	                <b:SubmitButton ui:field="submitButton" type="PRIMARY">Set</b:SubmitButton>
+	            </b:ModalFooter>
+	        </b:Fieldset>
+	    </b:Form>
+    </g:HTMLPanel>
+</ui:UiBinder> 

@@ -11,6 +11,7 @@ import cz.filmtit.client.callables.DeleteDocumentSilently;
 import cz.filmtit.client.callables.GetTranslationResults;
 import cz.filmtit.client.callables.SaveSourceChunks;
 import cz.filmtit.client.callables.SetChunkTimes;
+import cz.filmtit.client.dialogs.TimeEditDialog;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
 import cz.filmtit.client.widgets.*;
@@ -595,7 +596,7 @@ public class TranslationWorkspace extends Composite {
         dealWithChunks(chunks, new LinkedList<TranslationResult>(), chunks);
      }
 
-     private Map<Integer, List<Label>> timeslabels = new HashMap<Integer, List<Label>>();
+     private Map<ChunkIndex, Label> timeLabels = new HashMap<ChunkIndex, Label>();
      
      /**
      * Display the whole row for the given (source-language) chunk in the table, i.e. the timing,
@@ -609,16 +610,11 @@ public class TranslationWorkspace extends Composite {
     	ChunkIndex chunkIndex = chunk.getChunkIndex();
 
     	// create label
-        Label timeslabel = new Label(chunk.getStartTime() + " - " + chunk.getEndTime());
+        Label timeslabel = new Label(chunk.getDisplayTimeInterval());
         timeslabel.setStyleName("chunk_timing");
 		timeslabel.addDoubleClickHandler(new TimeChangeHandler(chunk));
 		// add label to map
-		List<Label> timeslabelsWithThisTime = timeslabels.get(chunkIndex.getId());
-		if (timeslabelsWithThisTime == null) {
-			timeslabelsWithThisTime = new LinkedList<Label>();
-			timeslabels.put(chunkIndex.getId(), timeslabelsWithThisTime);
-		}
-		timeslabelsWithThisTime.add(timeslabel);
+		timeLabels.put(chunk.getChunkIndex(), timeslabel);
 		
         int index = lastIndex;
         lastIndex++;
@@ -652,56 +648,41 @@ public class TranslationWorkspace extends Composite {
 
     	private TimedChunk chunk;
     	
+    	// computed and cached when invoked for the first time
+    	private List<TimedChunk> chunks = null;
+    	
 		private TimeChangeHandler(TimedChunk chunk) {
 			this.chunk = chunk;
 		}
 
 		@Override
 		public void onDoubleClick(DoubleClickEvent event) {
-			// TODO something nicer
-			// TODO: check values
-			// ask user for new values, showing the old ones
-			String newStartTime = Window.prompt(
-					"Start time of chunk " + chunk.getSurfaceForm(),
-					chunk.getStartTime());
-			String newEndTime = Window.prompt(
-					"End time of chunk " + chunk.getSurfaceForm(),
-					chunk.getEndTime());
-			// handle cancels
-			if (newStartTime == null) {
-				newStartTime = chunk.getStartTime();
+			if (chunks == null) {
+				chunks = synchronizer.getChunksById(chunk.getId());
 			}
-			if (newEndTime == null) {
-				newEndTime = chunk.getEndTime();
-			}
-			Gui.log("change times " + chunk + ": " + newStartTime + " - " + newEndTime);
-			// change values
-			if (!newStartTime.equals(chunk.getStartTime()) || !newEndTime.equals(chunk.getEndTime())) {
-				// change chunks
-				int id = chunk.getId();
-				int partNumber = 1;
-				ChunkIndex chunkIndex = new ChunkIndex(partNumber, id);
-				while (synchronizer.hasChunkWithIndex(chunkIndex)) {
-					// change chunk
-					TimedChunk cochunk = synchronizer.getChunkByIndex(chunkIndex);
-					cochunk.setStartTime(newStartTime);
-					cochunk.setEndTime(newEndTime);
-					// RPC call
-					new SetChunkTimes(cochunk);
-					// move on
-					partNumber++;
-					chunkIndex = new ChunkIndex(partNumber, id);
-				}
-				// change labels
-				String newValue = chunk.getStartTime() + " - " + chunk.getEndTime();
-				List<Label> timeslabelsWithThisTime = timeslabels.get(id);
-				assert timeslabelsWithThisTime != null : "Each chunk must be there.";
-				for (Label label : timeslabelsWithThisTime) {
-					label.setText(newValue);
-				}
-			}
+			// the chunks are directly modified by the TimeEditDialog
+			new TimeEditDialog(chunks, TranslationWorkspace.this);
 		}
     }
+
+	/**
+	 * Called when a time of some chunks gets changed
+	 * by the TimeEditDialog.
+	 * Changes the labels in the workspace
+	 * to match the new values.
+	 */
+	public void changeTimeLabels(List<TimedChunk> chunks) {
+		if (chunks == null || chunks.isEmpty()) {
+			return;
+		}
+		
+		String newLabelValue = chunks.get(0).getDisplayTimeInterval();
+		for (TimedChunk chunk : chunks) {
+			Label label = timeLabels.get(chunk.getChunkIndex());
+			assert label != null : "Each chunk has its timelabel";
+			label.setText(newLabelValue);
+		}
+	}
 
 
     /**
