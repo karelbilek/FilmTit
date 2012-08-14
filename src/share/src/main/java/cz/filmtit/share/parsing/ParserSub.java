@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.regexp.shared.*;
 
 import cz.filmtit.share.TimedChunk;
+import cz.filmtit.share.exceptions.ParsingException;
 
 /**
  * Provides a simple parsing function for reading SUB subtitle format
@@ -18,14 +19,14 @@ import cz.filmtit.share.TimedChunk;
  */
 public class ParserSub extends Parser {
 	
-	public static RegExp reSubtitleLine  = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
+	public static RegExp reSubtitleLine = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
 
-	public List<UnprocessedChunk> parseUnprocessed(String text) {
+	public List<UnprocessedChunk> parseUnprocessed(String text)
+            throws ParsingException {
 		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
 		
 		String[] lines = text.split(LINE_SEPARATOR);
-		//int chunkId = 0;
 		
 		for (int linenumber = 0; linenumber < lines.length; linenumber++) {
 			String line = lines[linenumber];
@@ -48,11 +49,10 @@ public class ParserSub extends Parser {
                 //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 			}
 			else {
-				// wrong format of this line
-				//throw new TODO SubFileFormatException(linenumber);
+				throw new ParsingException("Wrong format of the subtitle", linenumber + 1, false);
 			}
 		}
-        //renumber(sublist);	
+        //renumber(sublist);
 
 		return sublist;
 	}

@@ -352,7 +352,7 @@ public class TranslationWorkspace extends Composite {
       * In such case, the document is deleted and the user is redirected back to DocumentCreator.
      *
      * @param subtext - multiline text (of the whole subtitle file, typically) to parse
-     * @param createDocument reference to the call that created the document
+     * @param createDocumentCall reference to the call that created the document
      * and now probably holds a reference to an open MediaSelector
       */
      public void processText(String subtext, String subformat, CreateDocument createDocumentCall) {
@@ -383,7 +383,7 @@ public class TranslationWorkspace extends Composite {
           catch (Exception e) {
         	  // user interaction
         	  createDocumentCall.hideMediaSelector();
-        	  Window.alert("There was an error parsing the subtitle file: " + e.getMessage());
+        	  Window.alert("There was an error parsing the subtitle file:\n" + e.getMessage());
         	  // logging
         	  Gui.log("There was an error parsing the subtitle file!");
         	  Gui.exceptionCatcher(e, false);
