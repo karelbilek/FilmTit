@@ -929,18 +929,14 @@ public class Session {
 	         user.setUserName(newLogin);
 	
 	         // save into db
-	        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction() ;
-	        user.saveToDatabase(dbSession);
-	        usHibernateUtil.closeAndCommitSession(dbSession);
+	        saveUser();
         }
         return null;
     }
 
 	public Void setPassword(String password) {
         user.setPassword(FilmTitBackendServer.passHash(password));
-        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
-        user.saveToDatabase(dbSession);
-        usHibernateUtil.closeAndCommitSession(dbSession);
+        saveUser();
         return null;
 	}
 
