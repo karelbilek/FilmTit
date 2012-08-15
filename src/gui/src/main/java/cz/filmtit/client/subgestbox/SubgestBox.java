@@ -1,6 +1,5 @@
 package cz.filmtit.client.subgestbox;
 
-import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
@@ -73,41 +72,20 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                     }
                 }
             });
-//            this.setHeight(getFather().getCorrectVerticalSize()+"px");
             this.setTabIndex(tabIndex);
             this.setStyleName("pre_subgestbox");
             this.addStyleName("loading");
-                this.addStyleName("subgest_fullwidth");
-        }
-
-        public /*static */boolean stringHasMoreThanTwoLines(String s) {
-            int count =0;
-            int first = s.indexOf("\n",0);
-            if (first == -1) {
-                return false;
-            }
-            int second = s.indexOf("\n", first);
-            if (second == -1) {
-                return false;
-            }
-            return true;
-        }
-
-        public int lastVerticalSize;
-
-        public int verticalSize() {
-            String text = this.getText();
-            if (stringHasMoreThanTwoLines(text)) {
-                return this.getElement().getScrollHeight();
-            } else {
-                return 30;
-            }
+            this.addStyleName("subgest_fullwidth");
         }
 
         public void updateVerticalSize() {
-            //Window.alert("JDU UPDATE FAKE VERTICAL SIZE "+ verticalSize());
-            this.setHeight(verticalSize() + "px");
-            lastVerticalSize = verticalSize();
+            int newHeight = this.getElement().getScrollHeight();
+            // setHeight probably sets the "inner" height, i.e. this would be a bit larger
+            // (everywhere but in Firefox):
+            if (! Window.Navigator.getUserAgent().matches(".*Firefox.*")) {
+                newHeight -= 16;
+            }
+            this.setHeight(newHeight + "px");
         }
 
         public SubgestBox getFather(){
@@ -328,6 +306,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 					//setValue(selected.getStringL2(), true);
 					// copy the selected suggestion into the richtextarea with the annotation highlighting:
 					setHTML(subgestBoxHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2())));
+                    // contents have changed - we have to resize, if necessary:
                     updateVerticalSize();
 
                     Scheduler.get().scheduleDeferred( new ScheduledCommand() {
@@ -421,6 +400,8 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         //=> I will also have to take in the size of the substitute
         
         int newHeight = getFrameDoc().getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
+        return newHeight;
+        /*
         int substituteSize = substitute.lastVerticalSize;
         //Window.alert("new je "+newHeight+"subst je "+substituteSize);
         if (newHeight>substituteSize) {
@@ -428,17 +409,16 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         } else {
             return substituteSize;
         }
+        */
 
     }
 
     public void updateVerticalSize() {
-         int newHeight = getCorrectVerticalSize();
-//         Window.alert("JDU UPDATE REAL VERTICAL SIZE "+newHeight);
-         
-         if (newHeight != getFrameDoc().getClientHeight()) {
-            setHeight((newHeight) + "px");
-            showSuggestions();
-        }
+        setHeight("36px"); // == height of the one-line SubgestBox
+        // grow from that, if necessary:
+        setHeight(getCorrectVerticalSize() + "px");
+        // and refresh suggestions (to be placed correctly):
+        showSuggestions();
     }
 
     @Override

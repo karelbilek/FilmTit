@@ -732,7 +732,6 @@ public class TranslationWorkspace extends Composite {
         table.setWidget(id+1, TARGETBOX_COLNUMBER, real);
         
         real.setFocus(true);
-        real.updateVerticalSize();
     }
 
     public TranslationResult getTranslationResultForIndex(int id) {

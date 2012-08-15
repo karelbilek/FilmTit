@@ -77,6 +77,8 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                 });
             }
 
+            //Gui.log("updating vertical size after focused");
+            subbox.updateVerticalSize();
 		}
 	}
 
