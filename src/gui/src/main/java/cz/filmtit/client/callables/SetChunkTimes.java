@@ -38,9 +38,4 @@ public class SetChunkTimes extends Callable<Void> {
 		filmTitService.setChunkTimes(Gui.getSessionID(), chunk.getChunkIndex(), chunk.getDocumentId(), chunk.getStartTime(), chunk.getEndTime(), this);
 	}
 
-	@Override
-	public void onSuccessAfterLog(Void returned) {
-		// TODO Auto-generated method stub
-	}
-
 }

@@ -26,6 +26,10 @@ public class LogMessage extends DatabaseObject {
      * Time of the event
      */
     private Date date;
+    /**
+     * User in whose session the event happened (may be null)
+     */
+    private USUser user;
 
     private LogMessage(){
         messageType = -1;
@@ -35,10 +39,15 @@ public class LogMessage extends DatabaseObject {
     }
 
     public LogMessage(int type, String context , String message, Date logTime){
+    	this(type, context, message, logTime, null);
+    }
+    
+    public LogMessage(int type, String context , String message, Date logTime, USUser user){
      setMessageType(type);
      setContext(context);
      setDate(logTime);
      setMessage(message);
+     setUser(user);
     }
 
     /**
@@ -73,6 +82,10 @@ public class LogMessage extends DatabaseObject {
         this.date = logTime;
     }
 
+	public void setUser(USUser user) {
+		this.user = user;
+	}
+
     /**
      * Gets type of the event as integer. (Used by Hibernate only.)
      * @return Type of the event as integer.
@@ -105,6 +118,10 @@ public class LogMessage extends DatabaseObject {
         return date;
     }
 
+
+    private USUser getUser() {
+		return user;
+	}
 
     /**
      * Since it does not wrap any object, it gets directly the database ID.

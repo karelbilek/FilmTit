@@ -3,6 +3,8 @@ package cz.filmtit.userspace;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cz.filmtit.share.LevelLogEnum;
+
 import java.util.Date;
 
 /**
@@ -43,13 +45,41 @@ public class USLogger {
      * @param logMessage Detailed description fo the event
      */
     public void log(LevelLogEnum level , String context , String logMessage){
+    	log(level, context, logMessage, null);
+    }
+    
+    /**
+     * A general method that logs and event.
+     * @param level Log level (debug, warning ...)
+     * @param context Context of the event
+     * @param logMessage Detailed description fo the event
+     * @param user The user in whose session the log was issued, or null
+     */
+    public void log(LevelLogEnum level , String context , String logMessage, USUser user){
         // Todo if base level of
 
         //LevelLogEnum.convertToInt(level) >=  LevelLogEnum.convertToInt(base);
-        StringBuilder messageCreator = new StringBuilder();
         Date datum = new Date();
-        messageCreator.append(datum.toString()).append(" ").append(level.toString()).append("\n").append("Context: ").append(context).append("\n");
+        
+        StringBuilder messageCreator = new StringBuilder();
+        
+        messageCreator.append(datum);
+        messageCreator.append(' ');
+        messageCreator.append(level);
+        messageCreator.append('\n');
+        
+        messageCreator.append("Context: ");
+        messageCreator.append(context);
+        messageCreator.append('\n');
+        
+        if (user != null) {
+            messageCreator.append("User: ");
+            messageCreator.append(user.getUserName());
+            messageCreator.append('\n');
+        }
+        
         messageCreator.append(logMessage);
+        
         if (LevelLogEnum.convertToInt(level) >=  LevelLogEnum.convertToInt(logConsoleLevel)) {
             switch (level) {
                 case DebugNotice: jLogger.debug(messageCreator.toString());
@@ -89,64 +119,5 @@ public class USLogger {
     public void error(String context, String message){
         log(LevelLogEnum.Error,context,message);
     }
-
-    /**
-     * Enum
-     */
-    public enum LevelLogEnum{
-        Unknown,
-        DebugNotice,
-        Notice,
-        Warning,
-        Error;
-
-        /**
-         * Converts the log level to integer.
-         * @param logLevel A log level
-         * @return Integer representing the log level
-         */
-        public static int convertToInt(LevelLogEnum logLevel) {
-              switch (logLevel) {
-                  case DebugNotice : return 0;
-                  case Notice: return 1;
-                  case Warning: return 2;
-                  case Error: return 3;
-                  default:
-                      return -1;
-              }
-        }
-
-        /**
-         * Converts an integer to a log level.
-         * @param logLevelInt  Log level as an integer
-         * @return Log level corresponding the given interger
-         */
-        public static LevelLogEnum convertTo(int logLevelInt){
-            switch (logLevelInt){
-                case 0 : return DebugNotice;
-                case 1 : return Notice;
-                case 2 : return Warning;
-                case 3 : return Error;
-                default:  return  Unknown;
-            }
-        }
-
-        /**
-         * Converts the log level to string.
-         * @return
-         */
-        @Override
-         public String toString() {
-                switch (this) {
-                    case DebugNotice : return "Debug: ";
-                    case Notice: return "Notice: ";
-                    case Warning: return "Warning: ";
-                    case Error: return "Error: ";
-                    default:
-                        return  "No level: " ;
-                }
-
-            }
-        }
 
 }

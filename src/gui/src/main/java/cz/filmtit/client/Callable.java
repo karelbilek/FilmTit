@@ -76,15 +76,18 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected abstract void call();
 	
-	/**
-	 * Processes the result of a successful return of the call.
-	 * @param returned
-	 */
-    abstract public void onSuccessAfterLog(T returned);
-    
     
 
     // methods that can be overriden
+    
+	/**
+	 * Processes the result of a successful return of the call.
+	 * Nothing done by default.
+	 * @param returned
+	 */
+    public void onSuccessAfterLog(T returned) {
+    	// on default do nothing and just be happy
+    }
     
     /**
      * The name shown in logs.

@@ -27,11 +27,6 @@ import java.util.*;
 
         // ignore the errors, it does not matter that much if this one fails
         
-		@Override	
-        public void onSuccessAfterLog(Void o) {
-			// nothing
-        }
-		
 		@Override
 		protected void onInvalidSession() {
 			// nothing

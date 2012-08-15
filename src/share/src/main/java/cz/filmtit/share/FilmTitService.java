@@ -94,4 +94,6 @@ public interface FilmTitService extends RemoteService {
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
 
     public SessionResponse checkSessionID(String sessionID); // return name of user if succeded and null if sessionId is not found
+    
+    public Void logGuiMessage(LevelLogEnum level, String context, String message, String sessionID);
 }

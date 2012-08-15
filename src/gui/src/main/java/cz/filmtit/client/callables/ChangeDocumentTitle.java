@@ -36,12 +36,6 @@ public class ChangeDocumentTitle extends Callable<Void> {
 	}
 
 	@Override
-	public void onSuccessAfterLog(Void returned) {
-		// don't refresh since the new title is already there
-		// Gui.getPageHandler().refreshIf(Page.UserPage)
-	}
-	
-	@Override
 	protected void onFinalError(String message) {
 		// we don't accept the new title - refresh to load the old title
 		Gui.getPageHandler().refreshIf(Page.UserPage);

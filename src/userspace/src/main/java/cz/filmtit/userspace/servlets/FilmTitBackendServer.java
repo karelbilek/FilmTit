@@ -846,8 +846,22 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-    public void logGuiMessage(USLogger.LevelLogEnum level, String context , String message ){
-          logger.log(level,"GUI-" + context , message);
+    public Void logGuiMessage(LevelLogEnum level, String context , String message, String sessionID){
+    	if (sessionID != null) {
+    		try {
+	        	// log some user identifier (can be userid or username)
+	        	USUser user = getSessionIfCan(sessionID).getUser();
+	            logger.log(level, "GUI: " + context, message, user);
+	            return null;
+    		}
+    		catch (InvalidSessionIdException e) {
+    			logger.log(level, "GUI: " + context, message);
+			}
+    	}
+    	else {
+            logger.log(level, "GUI: " + context, message);
+    	}
+    	return null;
     }
 
 	@Override
