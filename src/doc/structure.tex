@@ -61,7 +61,7 @@ TODO \todo{Write something about the annotations}
 
 %If we look at the structure of a document being translated which is mirrored in the GUI and in the US, we can notice there together parts originating in different part of the projects.
 
-\section{Sharing the implementation among the project}
+\section{Sharing the Implementation among the Project}
 
 Since we are using Google Web Toolkit (GWT), we can share java classes between GUI and server, as described in \todo{where}??.
 
@@ -74,3 +74,223 @@ However, as noted in GWT documentation \footnote{\url{https://developers.google.
 \end{itemize}
 
 Therefore, shared classes could only use a subset of Java (generally, what is translatable with GWT to JavaScript is also translatable by java compiler to JVM bytecode, but not the other way around).
+
+\section{Usage of Third Party Libraries}
+
+TODO \todo{write it, commented out pom file si right after this note}
+
+%<dependency>
+%        <groupId>org.hibernate</groupId>
+%            <artifactId>hibernate-validator-annotation-processor</artifactId>
+%            <version>4.1.0.Final</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>junit</groupId>
+%            <artifactId>junit</artifactId>
+%            <version>4.10</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>com.cybozu.labs</groupId>
+%            <artifactId>langdetect</artifactId>
+%            <version>1.1-20120112</version>
+%        </dependency>
+%
+%            
+%
+%        <dependency>
+%            <groupId>org.apache.xmlrpc</groupId>
+%            <artifactId>xmlrpc-client</artifactId>
+%            <version>3.1.3</version>
+%        </dependency>
+%
+%                
+%
+%        <dependency>
+%            <groupId>org.openid4java</groupId>
+%            <artifactId>openid4java</artifactId>
+%            <version>0.9.4.339</version>
+%
+%    </dependency>
+%
+%                        
+%        <!-- for RPC -->
+%        <!--<dependency>
+%            <groupId>javax.validation</groupId>
+%            <artifactId>validation-api</artifactId>
+%            <version>1.0.0.GA</version>
+%            <scope>test</scope>
+%        </dependency>-->
+%
+%        <dependency>
+%            <groupId>org.apache.commons</groupId>
+%            <artifactId>commons-lang3</artifactId>
+%            <version>3.1</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.apache.commons</groupId>
+%            <artifactId>commons-math</artifactId>
+%            <version>2.0</version>
+%        </dependency>
+%
+%
+%        <dependency>
+%            <groupId>org.apache.opennlp</groupId>
+%            <artifactId>opennlp-tools</artifactId>
+%            <version>1.5.2-incubating</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>com.google.guava</groupId>
+%            <artifactId>guava</artifactId>
+%            <version>11.0.2</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.hsqldb</groupId>
+%            <artifactId>hsqldb</artifactId>
+%            <version>2.2.8</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>net.sf.trove4j</groupId>
+%            <artifactId>trove4j</artifactId>
+%            <version>3.0.2</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.eclipse.jetty</groupId>
+%            <artifactId>jetty-webapp</artifactId>
+%            <version>${jettyVersion}</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.eclipse.jetty</groupId>
+%            <artifactId>jetty-jsp-2.1</artifactId>
+%            <version>${jettyVersion}</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.eclipse.jetty</groupId>
+%            <artifactId>jetty-server</artifactId>
+%            <version>${jettyVersion}</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.scala-lang</groupId>
+%            <artifactId>scala-compiler</artifactId>
+%            <version>${scala.compiler.version}</version>
+%            <scope>provided</scope>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.scala-lang</groupId>
+%            <artifactId>scala-library</artifactId>
+%            <version>${scala.compiler.version}</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>postgresql</groupId>
+%            <artifactId>postgresql</artifactId>
+%            <version>9.1-901.jdbc4</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.json</groupId>
+%            <artifactId>json</artifactId>
+%            <version>20090211</version>
+%        </dependency>
+%
+%         <dependency>
+%            <groupId>log4j</groupId>
+%            <artifactId>log4j</artifactId>
+%            <version>1.2.16</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.slf4j</groupId>
+%            <artifactId>slf4j-api</artifactId>
+%            <version>1.6.4</version>
+%        </dependency>
+%
+%        <dependency>
+%        	<groupId>org.slf4j</groupId>
+%        	<artifactId>slf4j-log4j12</artifactId>
+%        	<version>1.6.4</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.scalatest</groupId>
+%            <artifactId>scalatest_2.9.0</artifactId>
+%            <version>1.6.1</version>
+%            <scope>test</scope>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.hibernate</groupId>
+%            <artifactId>hibernate-core</artifactId>
+%            <version>4.1.0.Final</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>com.google.gwt</groupId>
+%            <artifactId>gwt-user</artifactId>
+%            <version>${gwtVersion}</version>
+%            <scope>provided</scope>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>com.google.gwt</groupId>
+%            <artifactId>gwt-servlet</artifactId>
+%            <version>${gwtVersion}</version>
+%            <scope>runtime</scope>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>com.typesafe.akka</groupId>
+%            <artifactId>akka-actor</artifactId>
+%            <version>2.0.1</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>org.expressme</groupId>
+%            <artifactId>JOpenId</artifactId>
+%            <version>1.08</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>de.sven-jacobs</groupId>
+%            <artifactId>loremipsum</artifactId>
+%            <version>1.0</version>
+%            <scope>test</scope>
+%        </dependency>
+%
+%        <dependency>
+%        	<groupId>net.liftweb</groupId>
+%        	<artifactId>lift-json_2.9.1</artifactId>
+%        	<version>2.4</version>
+%        </dependency>
+%
+%        <dependency>
+%        	<groupId>nz.ac.waikato.cms.weka</groupId>
+%        	<artifactId>weka-stable</artifactId>
+%        	<version>3.6.7</version>
+%        </dependency>
+%
+%        <dependency>
+%            <groupId>commons-validator</groupId>
+%            <artifactId>commons-validator</artifactId>
+%            <version>1.3.1</version>
+%        </dependency>
+%
+%
+%  <!-- Java Mail API -->
+%	<dependency>
+%		<groupId>javax.mail</groupId>
+%		<artifactId>mail</artifactId>
+%		<version>1.4.3</version>
+%	</dependency>
+%
+

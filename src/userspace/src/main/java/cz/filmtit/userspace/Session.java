@@ -50,7 +50,7 @@ public class Session {
      */
     private static final Pattern timingRegexp = Pattern.compile("^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}$");
     /**
-     * Instance of the singleton class
+     * Instance of the singleton class for managing database sessions.
      */
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 

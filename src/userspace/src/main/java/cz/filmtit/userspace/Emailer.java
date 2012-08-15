@@ -149,6 +149,9 @@ public class Emailer {
     }
 
 
+    /**
+     * Loads the configuration from project configuration to the Emailer properties.
+     */
     private void fetchConfig() {
         java.io.InputStream input = null;
 

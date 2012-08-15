@@ -35,22 +35,22 @@ public class TestLogger {
     @Test
     public void testDebugNotice(){
         USLogger logger = USLogger.getInstance();
-        logger.info("Test","testing message");
+        logger.info("Test", "testing message");
     }
     @Test
     public void testWarning(){
         USLogger logger = USLogger.getInstance();
-        logger.warning("Test","testing warning message");
+        logger.warning("Test", "testing warning message");
 
     }
     @Test
     public void testError(){
         USLogger logger = USLogger.getInstance();
-        logger.error("Test","testing error message");
+        logger.error("Test", "testing error message");
     }
     @Test
     public void testDebug(){
         USLogger logger = USLogger.getInstance();
-        logger.debug("Test","testing debug message");
+        logger.debug("Test", "testing debug message");
     }
 }

@@ -772,7 +772,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return (USUser)UserResult.get(0);
     }
     /*
-    *  Validate email address
+    *  Validates an email address -- throws an exception if it is not valid.
     *
     *
     */

@@ -4,8 +4,8 @@ import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
 /**
- * An object which is stored in the database. Contains the basic database functionality. Mostly
- * the wrappers of shared classes are extend this class.
+ * An object which is stored in the database. Contains the basic database functionality.
+ * The wrappers of shared classes extend this class.
  * @author Jindřich Libovický
  */
 public abstract class DatabaseObject {
@@ -131,5 +131,8 @@ public abstract class DatabaseObject {
      */
     public abstract void deleteFromDatabase(Session session);
 
+    /**
+     * Instance of the singleton class for managing database sessions.
+     */
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 }
