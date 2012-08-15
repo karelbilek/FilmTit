@@ -4,7 +4,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.pages.Settings;
 
 /**
- * An ancestor to methods setting some settings.
+ * Change user's e-mail.
  */
 public class SetEmail extends SetSetting<String> {
 

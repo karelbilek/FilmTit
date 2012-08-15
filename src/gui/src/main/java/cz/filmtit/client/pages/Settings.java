@@ -96,7 +96,7 @@ public class Settings extends Composite implements ReceivesSettings {
 		if (!newUsername.equals(user.getName())) {
 			if (LoginDialog.checkUsername(newUsername)) {
 				calls.add(
-						new SetEmail(newUsername, Settings.this)
+						new SetUsername(newUsername, Settings.this)
 					);
 			}
 			else {
@@ -113,18 +113,18 @@ public class Settings extends Composite implements ReceivesSettings {
 			if (LoginDialog.checkPasswordsMatch(newPassword, newPasswordRepeat)) {
 				if (LoginDialog.checkPasswordStrength(newPassword)) {
 					calls.add(
-							new SetEmail(newPassword, Settings.this)
+							new SetPassword(newPassword, Settings.this)
 						);
 				}
 				else {
 					error++;
-					errors.append("The repeated password must match the new password!");
+					errors.append("This password is too weak!");
 					errors.append(' ');
 				}
 			}
 			else {
 				error++;
-				errors.append("This password is too weak!");
+				errors.append("The repeated password must match the new password!");
 				errors.append(' ');
 			}
 		}
@@ -168,21 +168,34 @@ public class Settings extends Composite implements ReceivesSettings {
 			);
 		}
 		
-		// invoke the calls
-		if (!calls.isEmpty()) {
-			deactivate();
-			waitingFor = calls.size();
-			for (SetSetting<?> setSetting : calls) {
-				setSetting.enqueue();
-			}
+		if (error > 0) {
+			alertError.setText(errors.toString());
+			alertError.setVisible(true);
 		}
 		else {
-			alertInfo.setText("Nothing to be saved!");
-			alertInfo.setVisible(true);
+			// invoke the calls
+			if (!calls.isEmpty()) {
+				if (error > 0) {
+					alertError.setText(errors.toString());
+					alertError.setVisible(true);
+				}
+				deactivate();
+				waitingFor = calls.size();
+				for (SetSetting<?> setSetting : calls) {
+					setSetting.enqueue();
+				}
+			}
+			else {
+				alertInfo.setText("Nothing to be saved!");
+				alertInfo.setVisible(true);
+			}
 		}
 	}
 	
 	private void deactivate() {
+		setUsername.setEnabled(false);
+		setPassword.setEnabled(false);
+		setPasswordRepeat.setEnabled(false);
 		setEmail.setEnabled(false);
 		setPermalogin.setEnabled(false);
 		setMaxSuggestions.setEnabled(false);
@@ -226,6 +239,9 @@ public class Settings extends Composite implements ReceivesSettings {
 	
 	private void reactivate() {
 		Window.scrollTo(Window.getScrollLeft(), 0);
+		setUsername.setEnabled(true);
+		setPassword.setEnabled(true);
+		setPasswordRepeat.setEnabled(true);
 		setEmail.setEnabled(true);
 		setPermalogin.setEnabled(true);
 		setMaxSuggestions.setEnabled(true);
