@@ -1,8 +1,8 @@
 all: result/documentation.pdf
 
 
-result/documentation.pdf:
-	mkdir result
+result/documentation.pdf: *.tex
+	mkdir -p result
 	pdflatex documentation.tex
 	pdflatex documentation.tex
 	mv documentation.pdf result
