@@ -5,12 +5,26 @@ import org.hibernate.Session;
 import java.util.Date;
 
 /**
+ * A class representing a logging message from the client. Log messages are stored persistently in the database
+ * in order enable later review of the logs.
  * @author Pepa Čech
  */
-public class LogMessage extends  DatabaseObject {
+public class LogMessage extends DatabaseObject {
+    /**
+     * Type of the message converted to integer
+     */
     private int messageType;
+    /**
+     * Context of the event
+     */
     private String context;
+    /**
+     * Actual logged message
+     */
     private String message;
+    /**
+     * Time of the event
+     */
     private Date date;
 
     private LogMessage(){
@@ -27,53 +41,100 @@ public class LogMessage extends  DatabaseObject {
      setMessage(message);
     }
 
+    /**
+     * Sets the type of logged event as a string.
+     * @param type Type of logged event as a string.
+     */
     public void setMessageType(int type) {
         this.messageType = type;
     }
 
+    /**
+     * Sets the context of the event.
+     * @param context Context of the event
+     */
     public void setContext(String context) {
         this.context = context;
     }
 
+    /**
+     * Sets the log message.
+     * @param message Log message.
+     */
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Sets the time of the event.
+     * @param logTime Time of the event
+     */
     public void setDate(Date logTime) {
         this.date = logTime;
     }
 
-    public int getMessageType() {
+    /**
+     * Gets type of the event as integer. (Used by Hibernate only.)
+     * @return Type of the event as integer.
+     */
+    private int getMessageType() {
         return messageType;
     }
 
-    public String getContext() {
+    /**
+     * Gets the event context. (Used by Hibernate only.)
+     * @return The event context.
+     */
+    private String getContext() {
         return context;
     }
 
-    public String getMessage() {
+    /**
+     * Gets the event message. (Used by Hibernate only.)
+     * @return The event message.
+     */
+    private String getMessage() {
         return message;
     }
 
-    public Date getDate() {
+    /**
+     * Gets the time of the event. (Used by Hibernate only.)
+     * @return Time of the event.
+     */
+    private Date getDate() {
         return date;
     }
 
 
+    /**
+     * Since it does not wrap any object, it gets directly the database ID.
+     * @return The database ID.
+     */
     @Override
     protected long getSharedClassDatabaseId() {
         return databaseId;
     }
 
+    /**
+     * Does nothing because it is not a shared class wrapper.
+     * @param databaseId Database ID.
+     */
     @Override
-    protected void setSharedClassDatabaseId(long databaseId) {
-    }
+    protected void setSharedClassDatabaseId(long databaseId) {}
 
+    /**
+     * Saves the object to the database
+     * @param session An active database session.
+     */
     @Override
     public void saveToDatabase(Session session) {
         saveJustObject(session);
     }
 
+    /**
+     * Deletes the object from the database.
+     * @param session An active database session.
+     */
     @Override
     public void deleteFromDatabase(Session session) {
        deleteJustObject(session);
