@@ -853,7 +853,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 	@Override
 	public Void setUsername(String sessionID, String username)
 			throws InvalidSessionIdException, InvalidValueException {
-		return getSessionIfCan(sessionID).updateUser(username, null);
+		return getSessionIfCan(sessionID).setUsername(username);
 	}
 
 	@Override

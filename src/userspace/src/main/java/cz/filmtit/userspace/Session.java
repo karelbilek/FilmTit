@@ -910,47 +910,29 @@ public class Session {
 
 
     /**
-     * Update user can change login and email according old login
-     * @param user
+     * Change login
      * @param newLogin
-     * @param newMail
      * @return  if change was successful
      */
-    public Void updateUser(String newLogin , String newMail) throws InvalidValueException {
+    public Void setUsername(String newLogin) throws InvalidValueException {
 
         // USUser usUser = FilmTitBackendServer.checkUser(user,"",CheckUserEnum.UserName);
 
         if (newLogin != null){
             USUser check = FilmTitBackendServer.checkUser(newLogin,"",CheckUserEnum.UserName);
 
-         if (check != null) {
-        	 // exist user with login same like new login
-        	 throw new InvalidValueException("A user with the username '" + newLogin + "' already exists!");
-         }
-
-         user.setUserName(newLogin);
+	         if (check != null) {
+	        	 // exist user with login same like new login
+	        	 throw new InvalidValueException("A user with the username '" + newLogin + "' already exists!");
+	         }
+	
+	         user.setUserName(newLogin);
+	
+	         // save into db
+	        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction() ;
+	        user.saveToDatabase(dbSession);
+	        usHibernateUtil.closeAndCommitSession(dbSession);
         }
-        if (newMail != null){
-        	// TODO: check
-            user.setEmail(newMail);
-        }
-         // save into db
-        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction() ;
-        user.saveToDatabase(dbSession);
-        usHibernateUtil.closeAndCommitSession(dbSession);
-
-        //change in session
-        /*
-        for (String sessionID : activeSessions.keySet()) {
-            Session updateSessionUser = activeSessions.get(sessionID);
-            if (updateSessionUser != null){
-             if (updateSessionUser.getUser().getUserName() == user){
-                 updateSessionUser.setUser(usUser);
-             activeSessions.put(sessionID, updateSessionUser);
-             }
-           }
-        }
-        */
         return null;
     }
 
