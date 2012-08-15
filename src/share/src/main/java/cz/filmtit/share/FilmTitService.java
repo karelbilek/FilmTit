@@ -40,6 +40,8 @@ public interface FilmTitService extends RemoteService {
     public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidChunkIdException, InvalidValueException;
     public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException;
     public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException;
+    public Void setUsername(String sessionID, String username) throws InvalidSessionIdException, InvalidValueException;
+    public Void setPassword(String sessionID, String password) throws InvalidSessionIdException, InvalidValueException;
 
     // Logging in methods
     // - Prepared for using JOpenID

@@ -40,7 +40,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
-    private enum CheckUserEnum {
+    public enum CheckUserEnum {
         UserName,
         UserNamePass,
         OpenId
@@ -519,47 +519,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
-    /**
-     * Update user can change login and email according old login
-     * @param user
-     * @param newLogin
-     * @param newMail
-     * @return  if change was successful
-     */
-    public Boolean updateUser(String user, String newLogin , String newMail){
-
-        USUser usUser = checkUser(user,"",CheckUserEnum.UserName);
-
-        if (newLogin != null){
-            USUser check = checkUser(newLogin,"",CheckUserEnum.UserName);
-
-         if (check != null) return false; // exist user with login same like new login
-
-         usUser.setUserName(newLogin);
-        }
-        if (newMail != null){
-            usUser.setEmail(newMail);
-        }
-         // save into db
-        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction() ;
-        usUser.saveToDatabase(dbSession);
-        usHibernateUtil.closeAndCommitSession(dbSession);
-
-        //change in session
-        for (String sessionID : activeSessions.keySet()) {
-            Session updateSessionUser = activeSessions.get(sessionID);
-            if (updateSessionUser != null){
-             if (updateSessionUser.getUser().getUserName() == user){
-                 updateSessionUser.setUser(usUser);
-             activeSessions.put(sessionID, updateSessionUser);
-             }
-           }
-        }
-        return true;
-    }
-
-
-
     public Boolean sendChangePasswordMail(USUser user){
 
         Emailer email = new Emailer();
@@ -680,7 +639,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Get hash of string
      * if return same string like input - problem with algortithm
      */
-    private String passHash(String pass){
+    public static String passHash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
     }
     /**
@@ -715,7 +674,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      *     CheckName - return first user of given name
      *     CheckNamePass - return user with given name and pass
      */
-    private USUser checkUser(String username , String password, CheckUserEnum type){
+    public static USUser checkUser(String username , String password, CheckUserEnum type){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List userDbResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
@@ -890,5 +849,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public void logGuiMessage(USLogger.LevelLogEnum level, String context , String message ){
           logger.log(level,"GUI-" + context , message);
     }
+
+	@Override
+	public Void setUsername(String sessionID, String username)
+			throws InvalidSessionIdException, InvalidValueException {
+		return getSessionIfCan(sessionID).updateUser(username, null);
+	}
+
+	@Override
+	public Void setPassword(String sessionID, String password)
+			throws InvalidSessionIdException, InvalidValueException {
+		return getSessionIfCan(sessionID).setPassword(password);
+	}
 
 }

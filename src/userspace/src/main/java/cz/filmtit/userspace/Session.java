@@ -6,6 +6,9 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidValueException;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer;
+import cz.filmtit.userspace.servlets.FilmTitBackendServer.CheckUserEnum;
+
 import org.jboss.logging.Logger;
 
 import java.util.*;
@@ -904,4 +907,60 @@ public class Session {
         user.saveToDatabase(dbSession);
         usHibernateUtil.closeAndCommitSession(dbSession);
     }
+
+
+    /**
+     * Update user can change login and email according old login
+     * @param user
+     * @param newLogin
+     * @param newMail
+     * @return  if change was successful
+     */
+    public Void updateUser(String newLogin , String newMail) throws InvalidValueException {
+
+        // USUser usUser = FilmTitBackendServer.checkUser(user,"",CheckUserEnum.UserName);
+
+        if (newLogin != null){
+            USUser check = FilmTitBackendServer.checkUser(newLogin,"",CheckUserEnum.UserName);
+
+         if (check != null) {
+        	 // exist user with login same like new login
+        	 throw new InvalidValueException("A user with the username '" + newLogin + "' already exists!");
+         }
+
+         user.setUserName(newLogin);
+        }
+        if (newMail != null){
+        	// TODO: check
+            user.setEmail(newMail);
+        }
+         // save into db
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction() ;
+        user.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+
+        //change in session
+        /*
+        for (String sessionID : activeSessions.keySet()) {
+            Session updateSessionUser = activeSessions.get(sessionID);
+            if (updateSessionUser != null){
+             if (updateSessionUser.getUser().getUserName() == user){
+                 updateSessionUser.setUser(usUser);
+             activeSessions.put(sessionID, updateSessionUser);
+             }
+           }
+        }
+        */
+        return null;
+    }
+
+	public Void setPassword(String password) {
+        user.setPassword(FilmTitBackendServer.passHash(password));
+        org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
+        user.saveToDatabase(dbSession);
+        usHibernateUtil.closeAndCommitSession(dbSession);
+        return null;
+	}
+
+
 }

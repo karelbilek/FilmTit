@@ -16,6 +16,27 @@
                 <b:Legend>Account and Logging in</b:Legend>
 
                 <b:ControlGroup>
+                    <b:ControlLabel>User name:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextBox ui:field="setUsername"></b:TextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>New password:</b:ControlLabel>
+                    <b:Controls>
+                        <b:PasswordTextBox ui:field="setPassword"></b:PasswordTextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Repeat new password:</b:ControlLabel>
+                    <b:Controls>
+                        <b:PasswordTextBox ui:field="setPasswordRepeat"></b:PasswordTextBox>
+                    </b:Controls>
+                </b:ControlGroup>
+
+                <b:ControlGroup>
                     <b:ControlLabel>E-mail address:</b:ControlLabel>
                     <b:Controls>
                         <b:TextBox ui:field="setEmail"></b:TextBox>

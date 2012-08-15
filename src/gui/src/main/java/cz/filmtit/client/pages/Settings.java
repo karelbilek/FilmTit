@@ -9,6 +9,7 @@ import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.IntegerBox;
 import com.github.gwtbootstrap.client.ui.PageHeader;
+import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.SubmitButton;
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.google.gwt.core.client.GWT;
@@ -23,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.ReceivesSettings;
 import cz.filmtit.client.callables.*;
+import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.User;
 
 public class Settings extends Composite implements ReceivesSettings {
@@ -55,6 +57,9 @@ public class Settings extends Composite implements ReceivesSettings {
 	}
 	
 	private void setDefault () {
+		setUsername.setText(user.getName());
+		setPassword.setText("");
+		setPasswordRepeat.setText("");
 		setEmail.setText(user.getEmail());
 		setPermalogin.setValue(user.isPermanentlyLoggedIn());
 		setMaxSuggestions.setValue(user.getMaximumNumberOfSuggestions());
@@ -86,11 +91,57 @@ public class Settings extends Composite implements ReceivesSettings {
 		errors = new StringBuilder();
 		List<SetSetting<?>> calls = new LinkedList<SetSetting<?>>();
 		
+		// username
+		String newUsername = setUsername.getValue();
+		if (!newUsername.equals(user.getName())) {
+			if (LoginDialog.checkUsername(newUsername)) {
+				calls.add(
+						new SetEmail(newUsername, Settings.this)
+					);
+			}
+			else {
+				error++;
+				errors.append("You cannot use this username!");
+				errors.append(' ');
+			}
+		}
+		
+		// passwort
+		String newPassword = setPassword.getValue();
+		String newPasswordRepeat = setPasswordRepeat.getValue();
+		if (newPassword != null && !newPassword.isEmpty()) {
+			if (LoginDialog.checkPasswordsMatch(newPassword, newPasswordRepeat)) {
+				if (LoginDialog.checkPasswordStrength(newPassword)) {
+					calls.add(
+							new SetEmail(newPassword, Settings.this)
+						);
+				}
+				else {
+					error++;
+					errors.append("The repeated password must match the new password!");
+					errors.append(' ');
+				}
+			}
+			else {
+				error++;
+				errors.append("This password is too weak!");
+				errors.append(' ');
+			}
+		}
+		
 		// email
-		if (!user.getEmail().equals(setEmail.getValue())) {
-			calls.add(
-				new SetEmail(setEmail.getValue(), Settings.this)
-			);
+		String newEmail = setEmail.getValue();
+		if (!newEmail.equals(user.getEmail())) {
+			if (LoginDialog.checkEmailValidity(newEmail)) {
+				calls.add(
+					new SetEmail(newEmail, Settings.this)
+				);
+			}
+			else {
+				error++;
+				errors.append("The e-mail address is invalid!");
+				errors.append(' ');
+			}
 		}
 		
 		// permalog
@@ -191,6 +242,15 @@ public class Settings extends Composite implements ReceivesSettings {
 	
 	@UiField
 	AlertBlock alertError;
+	
+	@UiField
+	TextBox setUsername;
+	
+	@UiField
+	PasswordTextBox setPassword;
+	
+	@UiField
+	PasswordTextBox setPasswordRepeat;
 	
 	@UiField
 	TextBox setEmail;
