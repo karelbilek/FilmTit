@@ -25,40 +25,31 @@ import cz.filmtit.share.parsing.Parser
 class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment:ChunkAlignment, val numberOfTestedFiles:Int) {
     val l1 = Language.EN
     val l2 = Language.CS
-    
-    val mapping = new SubtitleMapping(c)
-    def tested:Seq[String] = scala.util.Random.shuffle(mapping.moviesWithSubs).take(numberOfTestedFiles).toSeq
-  
-    def loadAlignedFiles():Map[String, Pair[SubtitleFile, SubtitleFile]] = 
-        TMEvaluator.loadFilePairsToMap(alignedFiles, c)
+    lazy val tested:Seq[String] = scala.util.Random.shuffle(TMEvaluator.mapping.moviesWithSubs).take(numberOfTestedFiles).toSeq
+    lazy val loadAlignedFiles:Map[String, Pair[SubtitleFile, SubtitleFile]] = TMEvaluator.loadFilePairsToMap(alignedFiles, c)
  
 
-   def loadAlignedFilesExceptTested():Map[String, Pair[SubtitleFile, SubtitleFile]] = 
-        loadAlignedFiles--tested
+   lazy val loadAlignedFilesExceptTested:Map[String, Pair[SubtitleFile, SubtitleFile]] = loadAlignedFiles--tested
+    
     
    def alignFiles() {
 
         c.dataFolder.listFiles.foreach{_.delete()}
-        
+
         val map = loadAlignedFilesExceptTested
 
         val aligner:Aligner = new Aligner(new SubtitleFileAlignmentFromFile(l1, l2, map), chunkAlignment, new GoodFilePairChooserFromFile(map), c, l1, l2)
 
-        aligner.align(mapping)
+        aligner.align(TMEvaluator.mapping)
    }
-
-    def queryTMForStrings(sentences:Seq[String]):Seq[Iterable[String]] = {
-        val set = sentences.toSet
-        
-        val resMap:Map[String, Iterable[String]] =
-        
-        c.dataFolder.listFiles.flatMap{
+  
+   def forEachLine(fce:Function2[String, String, Unit]) {
+        c.dataFolder.listFiles.foreach{
             filename => 
-        //I have no fucking clue why is the fucking io.Source crashing=>rewriting as pure java
+        //I have no  clue why is the io.Source crashing=>rewriting as java reader
                 import scala.collection.mutable.ListBuffer
                 import java.io._
                 
-                val buf: ListBuffer[Pair[String,String]] = new ListBuffer[Pair[String,String]]()
                 val fstream:FileInputStream = new FileInputStream(filename)
                 val in: DataInputStream  = new DataInputStream(fstream);
                 val br: BufferedReader = new BufferedReader(new InputStreamReader(in));
@@ -69,18 +60,33 @@ class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment
                 while (strLine != null)   {
                     strLine match {
                         case reg(en,cz)=>
-                            if (set.contains(en)) {
-                                buf += ((en,cz))
-                            }
+                                fce(en,cz)
                     }
                     strLine = br.readLine
                     
                 }
                 in.close
-                
-                buf                    
-         }.groupBy{_._1}.mapValues{_.map{_._2}}
+         }
+   }
+
+   def getPairCount():Integer = {
+       var i = 0
+       forEachLine({(_,_)=>i+=1})
+       i
+   }
+
+    def queryTMForStrings(sentences:Seq[String]):Seq[Iterable[String]] = {
+        val set = sentences.toSet
+            
+        val buf: ListBuffer[Pair[String,String]] = new ListBuffer[Pair[String,String]]()
+        forEachLine ({ (en,cz) =>
+            if (set.contains(en)) {
+                buf += ((en,cz))
+            }
+        })
         
+        val resMap:Map[String, Iterable[String]] = buf.groupBy{_._1}.mapValues{_.map{_._2}}
+ 
         sentences.map{
             s=>if(resMap.contains(s)){
                 resMap(s).take(30)
@@ -94,7 +100,7 @@ class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment
     def loadTestedFiles():Seq[String] = {
         val files:Seq[SubtitleFile] = tested.map {
            moviename=>
-              mapping.getSubtitles(moviename).get.filter{_.language==l1}.minBy{_.fileNumber.toInt}
+              TMEvaluator.mapping.getSubtitles(moviename).get.filter{_.language==l1}.minBy{_.fileNumber.toInt}
         }
         val unprocessedChunks:Seq[UnprocessedChunk] = files.flatMap {
             _.readChunks.slice(60,70)
@@ -115,6 +121,10 @@ class TMEvaluator(val c:Configuration, val alignedFiles:File, val chunkAlignment
 }
 
 object TMEvaluator {
+    //hacks, hacks everywhere
+    lazy val c = new Configuration("configuration.xml")
+    lazy val mapping = new SubtitleMapping(c, false)
+
 
         val l1 = Language.EN
         val l2 = Language.CS
@@ -171,11 +181,20 @@ object TMEvaluator {
     def doComparison(descriptions: Iterable[Tuple3[String, ChunkAlignment, String]]) {
         descriptions.foreach {
             case(file2file, chunk2chunk, results) =>
+               println("doing another one")
                val evaluator = new TMEvaluator(new Configuration("configuration.xml"), new File(file2file), chunk2chunk, 30)
+               
                evaluator.alignFiles
-               val testedS = evaluator.loadTestedFiles
-               val testedT = evaluator.queryTMForStrings(testedS)
-               saveCountInfo(new File(results), readCountInfo(testedS, testedT))
+               println("alignment done")
+               if (false) {
+                    //testing recall/precision by printing/returning stuff by user
+                   val testedS = evaluator.loadTestedFiles
+                   val testedT = evaluator.queryTMForStrings(testedS)
+                   saveCountInfo(new File(results), readCountInfo(testedS, testedT))
+               } else {
+                   saveCountInfo(new File(results), Seq[Int](evaluator.getPairCount))
+                    
+               }
         }
     }
 
@@ -230,9 +249,9 @@ object TMEvaluator {
         println("mapdan")
         val cnt = new LinearSubtitlePairCounter
         println("A")
-        val filename ="aligned" 
+        val filename ="../alignment_file2file/leven" 
         println("B")
-        val alignment =  new DistanceChunkAlignment(l1, l2, cnt)
+        val alignment =  new LevenstheinChunkAlignment(l1, l2, 6000L)
         println("C")
         
         val file = new File(filename)
@@ -250,15 +269,16 @@ object TMEvaluator {
         if(true){final_alignment(); return}
         val cnt = new LinearSubtitlePairCounter
 
+        println("starting");
         val ar:Array[Tuple3[String, ChunkAlignment, String]] = Array (
-            ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k"),
-            ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 600L), "../res/leven600"),
-            ("../alignment_file2file/distance",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k_d"),
-            ("../alignment_file2file/distance12k",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../res/leven6k_d12k"),
-            ("../alignment_file2file/leven",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance_leven"),
-            ("../alignment_file2file/distance",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance"),
-            ("../alignment_file2file/distance12k",  new DistanceChunkAlignment(l1, l2, cnt), "../res/distance12k"),
-            ("../alignment_file2file/trivial",  new TrivialChunkAlignment(l1, l2), "../res/trivial")
+ //           ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../c/leven6k"),
+  //          ("../alignment_file2file/leven",  new LevenstheinChunkAlignment(l1, l2, 600L), "../c/leven600"),
+    //        ("../alignment_file2file/distance",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../c/leven6k_d"),
+     //       ("../alignment_file2file/distance12k",  new LevenstheinChunkAlignment(l1, l2, 6000L), "../c/leven6k_d12k"),
+     //       ("../alignment_file2file/leven",  new DistanceChunkAlignment(l1, l2, cnt), "../c/distance_leven"),
+      //      ("../alignment_file2file/distance",  new DistanceChunkAlignment(l1, l2, cnt), "../c/distance"),
+       //     ("../alignment_file2file/distance12k",  new DistanceChunkAlignment(l1, l2, cnt), "../c/distance12k"),
+            ("../alignment_file2file/trivial",  new TrivialChunkAlignment(l1, l2), "../c/trivial")
     )
             
     doComparison(ar)          

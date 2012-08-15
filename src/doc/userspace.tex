@@ -1,10 +1,10 @@
 \section{Preliminaries}
 
-The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work available always in the same state she finished her work.
+The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work persistent on the server and available always in the same state she finished her work.
 
 The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. All of the User Space code is implemented Java. It uses \emph{Hibernate} object-relational mapping library. The same \emph{PostgreSQL} database as in the TM Core is used. The in-memory \emph{hsqldb} database is used for the unit testing.
 
-Because the TM Core is a separate module it is also linked as dependency to the User Space. Their communication by calls to the core returning objects of share classes.
+Because the TM Core is a separate module it is also linked as dependency to the User Space, but they run together as one process in one Java Virtual Machine. Their communication done invoking the core methods returning objects of share classes.
 
 \section{Architecture}
 
