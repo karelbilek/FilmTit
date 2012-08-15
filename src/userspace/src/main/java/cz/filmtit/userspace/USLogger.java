@@ -90,6 +90,9 @@ public class USLogger {
         log(LevelLogEnum.Error,context,message);
     }
 
+    /**
+     * Enum
+     */
     public enum LevelLogEnum{
         Unknown,
         DebugNotice,
@@ -113,6 +116,11 @@ public class USLogger {
               }
         }
 
+        /**
+         * Converts an integer to a log level.
+         * @param logLevelInt  Log level as an integer
+         * @return Log level corresponding the given interger
+         */
         public static LevelLogEnum convertTo(int logLevelInt){
             switch (logLevelInt){
                 case 0 : return DebugNotice;
@@ -123,7 +131,11 @@ public class USLogger {
             }
         }
 
-         @Override
+        /**
+         * Converts the log level to string.
+         * @return
+         */
+        @Override
          public String toString() {
                 switch (this) {
                     case DebugNotice : return "Debug: ";

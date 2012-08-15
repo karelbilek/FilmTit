@@ -5,11 +5,7 @@ import org.hibernate.Session;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA.
- * User: josef.cech
- * Date: 7.8.12
- * Time: 21:46
- * To change this template use File | Settings | File Templates.
+ * @author Pepa Čech
  */
 public class LogMessage extends  DatabaseObject {
     private int messageType;
