@@ -63,20 +63,36 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.surfaceForm = surfaceForm.replace('\u0000',' ');
     }
 
+    /**
+     * Only the string, with no annotations (newlines are turned into spaces).
+     * @return
+     */
     public String getSurfaceForm() {
         return surfaceForm;
     }
 
+    /**
+     * The string with annotations, as in an SRT file (newlines are turned into |).
+     * @return
+     */
     public String getDatabaseForm() {
         return getFormatedForm("- "," | ");
     }
 
+    /**
+     * The string with annotations, as in an SRT file (newlines are turned into |).
+     * @return
+     */
     public void setDatabaseForm(String form) {
         Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
         setSurfaceForm(chunkInfo.string);
         addAnnotations(chunkInfo.anots); 
     }
 
+    /**
+     * The string with annotations, newlines turned into newlineString, dialogue dashes into dashString.
+     * @return
+     */
     public String getFormatedForm(String dashString, String newlineString) {
         String displayForm = getSurfaceForm();
         
@@ -118,6 +134,10 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         return false;
     }
 
+    /**
+     * Only the string, with no annotations (newlines are turned into spaces).
+     * @return
+     */
     public void setSurfaceForm(String surfaceform) {
         this.surfaceForm = surfaceform.replace('\u0000', ' ');
         /*if (this.surfaceForm.equals(surfaceForm)) { return; }
@@ -168,9 +188,33 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.annotations.add(annotation);
     }
  
+    /**
+     * The string with annotations in HTML form (newlines are turned into <br />).
+     * @return
+     */
     public String getGUIForm(){
         return getFormatedForm("- ", "<br />");
     }
+
+//    intended to be used where the text is displayed in a textarea but not used at the moment
+//
+//    /**
+//     * The string with annotations in text form (newlines are turned into \n).
+//     * @return
+//     */
+//    public String getTextForm(){
+//        return getFormatedForm("- ", "\n");
+//    }
+//    
+//    /**
+//     * The string with annotations in text form (newlines are turned into \n).
+//     * @return
+//     */
+//    public void setTextForm(String form){
+//    	RegExp newline = RegExp.compile("[\n\r]+", "g");
+//    	String dbForm = newline.replace(form, " | ");
+//        setDatabaseForm(dbForm);
+//    }
     
     public void addAnnotations(Collection<Annotation> annotations) {
         if (this.annotations == null)
