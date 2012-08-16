@@ -24,7 +24,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 
 	// static members
 	
-	protected static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
+	public static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
 	
 	protected static int windowsDisplayed;
 	
@@ -244,7 +244,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	public final void enqueue() {
 		if (!hasReturned) {
-            Gui.log("RPC ENQUEUE "+getName());
+            Gui.log(LevelLogEnum.DebugNotice, "RPC ENQUEUE", getName());
 			setTimer();
 			call();
 		}
@@ -255,13 +255,13 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		timeOutTimer.cancel();
     	if (!hasReturned) {
         	hasReturned = true;
-            Gui.log("RPC SUCCESS "+getName());
+            Gui.log(LevelLogEnum.DebugNotice, "RPC SUCCESS", getName());
         	if (onEachReturn(returned)) {
                 onSuccessAfterLog(returned);
         	}
     	} else {
     		// has returned successfully for the second time
-            Gui.log("RPC TIMEOUT RETURN " + getName() + " (returned with " + returned + ")");
+            Gui.log(LevelLogEnum.DebugNotice, "RPC TIMEOUT RETURN", getName() + " (returned with " + returned + ")");
             onTimedOutReturnAfterLog(returned);
     	}
     }
@@ -270,7 +270,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	public final void onFailure(Throwable returned) {
 		timeOutTimer.cancel();
     	if (!hasReturned) {
-            Gui.log("RPC FAILURE " + getName() + " WITH " + returned.toString());
+            Gui.log(LevelLogEnum.Warning, "RPC FAILURE", getName() + " WITH " + returned.toString());
         	if (onEachReturn(returned)) {
 		        if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
 		            // this happens if there is no connection to the server, and reportedly in other cases as well
@@ -289,7 +289,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
         	}
     	} else {
     		// has failed after already having returned successfully
-            Gui.log("RPC TIMEOUT RETURN " + getName() + " (returned with " + returned + ")");
+            Gui.log(LevelLogEnum.DebugNotice, "RPC TIMEOUT RETURN", getName() + " (returned with " + returned + ")");
             onTimedOutReturnAfterLog(returned);
     	}
     }
@@ -300,11 +300,11 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	 */
 	protected final boolean retry () {
 		if (retries <= 0) {
-        	Gui.log("RPC NORETRY" + getName() + " (retry attempts exhausted)");
+        	Gui.log(LevelLogEnum.Error, "RPC NORETRY", getName() + " (retry attempts exhausted)");
 			return false;
 		} else {
 			retries--;
-        	Gui.log("RPC RETRY " + getName() + " IN " + waitToRetry + "ms (" + retries + " retries left)");
+        	Gui.log(LevelLogEnum.Notice, "RPC RETRY", getName() + " IN " + waitToRetry + "ms (" + retries + " retries left)");
         	new EnqueueTimer(waitToRetry);
         	waitToRetry *= 10; // wait 5ms, 50ms, 0.5s, 5s
 			return true;
@@ -326,7 +326,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
      */
     final protected void timeOut() {
     	if (!hasReturned) {
-    		Gui.log("RPC TIMEOUT " + getName() + " (after " + callTimeOut + "ms)");
+    		Gui.log(LevelLogEnum.Error, "RPC TIMEOUT", getName() + " (after " + callTimeOut + "ms)");
         	if (onEachReturn("TIMEOUT")) {
         		onTimeOut();
         	}
