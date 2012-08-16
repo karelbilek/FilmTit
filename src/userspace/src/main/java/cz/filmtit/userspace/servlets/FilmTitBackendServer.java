@@ -736,7 +736,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     *
     */
     private void validateEmail(String email) throws InvalidValueException {
-        if (org.apache.commons.validator.EmailValidator.getInstance().isValid(email)) {
+      if (Emailer.validEmail(email)){
             throw new InvalidValueException("Email address " + email + "is not valid.");
         }
     }

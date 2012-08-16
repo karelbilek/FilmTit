@@ -13,9 +13,11 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.util.HashMap;
 import java.util.Properties;
+
 public class Emailer {
 
     /**
@@ -162,4 +164,40 @@ public class Emailer {
         }
 
     }
+
+
+    /**
+     * Validate email
+     */
+    public static boolean validEmail(String email){
+        boolean result = true;
+        if (email == null) result=  false;
+        try {
+            InternetAddress emailAddr = new InternetAddress(email,true);
+            String[] tokens = email.split("@");
+            if (tokens[0] == null){
+              result &= tokens[0].trim().length() > 0 ;
+            }
+            else{
+                result &=  false;
+            }
+            result =  tokens.length == 2 &&
+                           hasContent( tokens[0] ) &&
+                           hasContent( tokens[1] ) ;
+        }
+        catch (AddressException ex){
+            result = false;
+        }
+        return result;
+    }
+
+    private static boolean hasContent(String token){
+        if (token == null){
+           return token.trim().length() > 0 ;
+        }
+        else{
+           return  false;
+        }
+    }
+
 }
