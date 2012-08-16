@@ -2,6 +2,7 @@ package cz.filmtit.client.callables;
 
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.pages.Settings;
+import cz.filmtit.share.exceptions.InvalidValueException;
 
 /**
  * An ancestor to methods setting some settings.
@@ -20,6 +21,17 @@ public abstract class SetSetting<T> extends Callable<Void> {
     @Override
     public void onSuccessAfterLog(Void o) {
     	settingsPage.success();
+    }
+    
+    @Override
+    public void onFailureAfterLog(Throwable returned) {
+    	if (returned instanceof InvalidValueException) {
+    		// the value is invalid, there is no point in trying again
+    		onFinalError(returned.getLocalizedMessage());
+    	}
+    	else {
+        	super.onFailureAfterLog(returned);
+    	}
     }
 
     @Override
