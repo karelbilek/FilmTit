@@ -63,7 +63,9 @@ In the MicroDVD \emph{sub} format each line represents a subtitle chunk. Numbers
 
 The are also some other proprietary format having the extension \emph{.sub}, but they look differently.
 
-By the way, in the examples in table \ref{subtitleFormats}, you can notice the mixup of letter ``l'' and ``I''. That is indeed not an error on our part, but error, caused by copying DVD subtitle to text file using programs like SubRip, that use some easy form of OCR to get the text information; and ``I'' and ``l'' often look indistinguishable in sans-serif fonts used often in the DVD subtitles.
+For our purposes, we can take note of one important thing, partly visible in the example on top: not every subtitle ``chunk'' (that is, lines displayed on screen at the same time) is a sentence -- sometimes, there are more sentences in one ``chunk'', sometimes, there is one sentence split across many ``chunks''. We describe how we dealt with this problem in the section ???????.
+
+By the way, in the examples in table \ref{subtitleFormats}, you can notice the mixup of letter ``l'' and ``I''. That is indeed not an error on our part, but error, caused by copying DVD subtitle to text file using programs like SubRip, that use some light form of OCR to get the text information; and ``I'' and ``l'' often look indistinguishable in sans-serif fonts used often in the DVD subtitles.
 
 \subsection{Current tools}
 
@@ -136,7 +138,7 @@ Originally a bottom-up dynamic programming algorithm was used -- a distance of t
 \includegraphics[scale=0.65]{./figures/levensthein.pdf}
 \end{center}
 
-\caption{An example of the Levensthein transducer for the word \emph{"success"}. (Taken from the study material for the \emph{Information Retrieval Systems} course at MFF UK by Michal Kopecký.)}
+\caption{(Why is that picture here? How is it relevant to \emph{anything?}) An example of the Levensthein transducer for the word \emph{"success"}. (Taken from the study material for the \emph{Information Retrieval Systems} course at MFF UK by Michal Kopecký.)}
 \end{figure}
 
 For bigger databases the online algorithms begin to be very slow a preprocessing of the database is necessary. Some sophisticated indexing methods are used, among them the suffix trees or $n$-gram indexes. The candidates retrieved from such indexes are later examined more carefully.
