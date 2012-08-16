@@ -308,6 +308,26 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
     color: white;
 }
 
+.chunkmark {
+    height: 24px;
+    font-size: large;
+    font-weight: bold;
+    color: #333;
+}
+
+/* grouping: */
+.row_group_begin, .row_group_continue, .row_group_end {
+    /*height: 50px;*/
+}
+.row_group_continue {
+    /*height: 42px;*/
+}
+.row_group_begin {
+    /*height: 64px;*/
+}
+.row_group_end {
+}
+
 .numerical2digits input {
 	width: 3ex;
     text-align: right;
