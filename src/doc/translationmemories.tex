@@ -3,16 +3,31 @@
 
 Subtitles are textual versions of the dialog in films or television shows which are shown on the screen at the same time the dialogs are performed. The most common reasons to show the subtitles is either to allow the deaf of hard-of-hearing viewers to follow the dialogs or to allow viewers who are not speakers of the language used in the movie to understand the movie while hearing the original sound track. The major difference between these two types of subtitling is that the subtitles for deaf people usually contains not only the dialogs themselves, but also a lot of additional information, e.g. that music is playing or description of background noises important for the story. 
 
-Originally, the subtitles used to be chemically corroded or leaser burnt into the film tape. While using the digital technology, the subtitles can be added dynamically to the screen and do not have to be actual part of the movie. Moreover, they can be distributed independently on the movie. The subtitles are in a standalone file which contains the actual subtitles and some meta data telling the media players which subtitle chunks should be displayed at the which time interval of the video playback.
+Originally, the subtitles used to be chemically corroded or laser burnt into the film tape. While using the digital technology, the subtitles can be added dynamically to the screen and do not have to be actual part of the movie. Moreover, they can be distributed independently on the movie. 
 
-While making a professional translation of the subtitles, the translators can see the whole screenplay of the movie, accompanied with a lot of notes concerning the expressiveness of the utterances and using the rhetorical devices (culture references, sarcasm etc.), on the other hand they often do not see the movie at all. They are equipped with the same tools as other professional translators as translation memories or glossaries checking the consistence of used vocabulary.
+Subtitles on DVDs are stored in bitmap format within the movie itself.\footnote{Although official DVD documentation is not available online for free, you can see some information here - \url{http://dvd.sourceforge.net/spu_notes}} With the birth of unofficial movie file sharing, those bitmaps became too big to distribute, so several unofficial formats, based on text, were made.
 
-On the other hand, the fan translators use simple editors without any special functionality but they usually watch the movie during translating.
+In those cases, the subtitles -- now in text format instead of bitmap, as in DVD -- are in a standalone file which contains the actual subtitles and some meta data telling the media players which subtitle chunks should be displayed at the which time interval of the video playback.
+
+We don't deal with the type of subtitle that are in non-textual formats at all; all subtitles we have in database and that users translate are only textual.
+
+\subsection{Translating subtitles}
+Professional translation of movie subtitles and unofficial fan translation is very different for several reasons.
+
+While making a professional translation of the subtitles, the translators can see the whole screenplay of the movie, accompanied with a lot of notes concerning the expressiveness of the utterances and using the rhetorical devices (culture references, sarcasm etc.), on the other hand they often do not see the movie at all.\footnote{For an illustration, how script, given to a translator may look like, see \url{http://www.flickr.com/photos/fuxoft/5731288526/in/photostream/}; also you can read some articles about making movie translations in here (in Czech) \url{http://www.fffilm.name/search/label/titulky}}
+They usually make changes to the timings to better fit on the screen, have the same number of syllables (in cases of dubbing), and so on. They are equipped with the same tools as other professional translators as translation memories or glossaries checking the consistence of used vocabulary. 
+
+On the other hand, the fan translators use simple editors without any special functionality but they usually watch the movie during translating. They usually have ready existing English subtitles from unofficial sources, which they simply translate without much retiming, subtitle splitting or anything else.
+
+We want to target specifically the second kind of user.
 
 \subsection{Subtitle Formats}
 \label{subtitle_formats}
 
-There is a lot of subtitle formats, most of them proprietary. The most widely used is the SubRip srt format (more than 90\,\% of files on opensubtitles.org). Sometimes also MicroDVD sub format is used. Example of the formats is in table \ref{subtitleFormats}.
+There are two formats of subtitles, that are most widely used in unofficial movie sharing.
+
+The most widely used is the SubRip srt format. Sometimes also MicroDVD sub format is used. Example of the formats is in table \ref{subtitleFormats}. According to database we got from OpenSubtitles.org (database will be described later), more than 99\% of subtitles are in srt format.
+%(more than 90\,\% of files on opensubtitles.org).
 
 \begin{table}
 \begin{center}
@@ -38,10 +53,17 @@ and take care of her.\\
 \label{subtitleFormats}
 \end{table}
 
-The \emph{srt} file does not have any header and contains everything as plain text. Each subtitle chunk consists of three or four lines and is separated from the previous and the next one by an empty line. The first line is the order of the subtitle in the movie, the second line contains the absolute time in the movie when the subtitle shows up and when it disappears. The time is expressed with the precision of thousandths of seconds. On the next one or two lines is the actual text of the subtitle. Standardly it should not contain any formating data, but the players usually support simple HTML-like formating tags.
+\emph{Srt} or \emph{SubRip} is a format from eponymous GPL program, used mainly for getting text data out of bitmap-based subtitles on DVDs. There is no formal specification of the subtitle file format, perhaps because of its simplicity.\footnote{Some kind of ``specification" can be found on site of Matroska codec -- \url{http://matroska.org/technical/specs/subtitles/srt.html}.}
 
-In the MicroDVD \emph{sub} format each line represents a subtitle chunk. Numbers of frames in the video between whose the subtitle is displayed are used instead of the absolute time in seconds. After the frame numbers in brackets, the actual text of the subtitle follows. The pipe symbol is used as a line separator. The are also other proprietary format having the extension \emph{.sub}, but they look differently.
+The \emph{srt} file does not have any header and contains everything as plain text. Each subtitle chunk consists of three or four lines and is separated from the previous and the next one by an empty line. The first line is the order of the subtitle in the movie, the second line contains the absolute time in the movie when the subtitle shows up and when it disappears. The time is expressed with the precision of milliseconds. On the next several lines is the actual text of the subtitle. It can also contain simple HTML-like formatting tags, although support for those varies across the players.
 
+MicroDVD \emph{sub} format is a format, used by free, but proprietary MicroDVD media player, which is not developed from 2001. This format also lacks any formal specification and support is usually worse among players.
+
+In the MicroDVD \emph{sub} format each line represents a subtitle chunk. Numbers of frames in the video between whose the subtitle is displayed are used instead of the absolute time in seconds. After the frame numbers in brackets, the actual text of the subtitle follows. The pipe symbol is used as a line separator. 
+
+The are also some other proprietary format having the extension \emph{.sub}, but they look differently.
+
+By the way, in the examples in table \ref{subtitleFormats}, you can notice the mixup of letter ``l'' and ``I''. That is indeed not an error on our part, but error, caused by copying DVD subtitle to text file using programs like SubRip, that use some easy form of OCR to get the text information; and ``I'' and ``l'' often look indistinguishable in sans-serif fonts used often in the DVD subtitles.
 
 \subsection{Current tools}
 
@@ -70,7 +92,7 @@ Subtitles Translator & freeware & Windows & www.mironto.sk \\ \hline
 \caption{An overview of subtitle translation tools available on the Internet.} \label{subtitles_tools}
 \end{table}
 
-From our view there is also an interesting project by Google -- \emph{Google Translator Toolkit}. It is a web application designed to help the translators with their work which also supports parsing subtitles. During his work, a translator can see the document both in source and target language and is given per sentence suggestions from the Google Translate or his own translation memory which the user has previously imported. When the work is finished created translation can be exported as a translation memory archive. This tool did not became popular among the translator, probably because of the quality of the machine translation provided. Professional translator would be also aware to bring their valuable translation memories to Google for free. 
+From our view there is also an interesting project by Google -- \emph{Google Translator Toolkit}. It is a web application designed to help the translators with their work which also supports parsing subtitles. During his work, a translator can see the document both in source and target language and is given per sentence suggestions from the Google Translate or his own translation memory which the user has previously imported. After the work is finished, created translation can be exported as a translation memory archive. This tool did not became popular among the translator, probably because of the quality of the machine translation provided. Professional translator would probably not be willing to bring their valuable translation memories to Google for free. 
 
 \begin{figure}
 
@@ -85,11 +107,11 @@ From our view there is also an interesting project by Google -- \emph{Google Tra
 \label{sec:translation_memories}
 \subsection{What is a Translation Memory}
 
-A \emph{translation memory} is a tool for a computer assisted human translation. The core idea behind translation memories is the assumption that sentences that are similar in the source language will probably have a similar translation in the target language. Then, if the tool is able to provide the translator a translation of a similar sentence, there is a big chance the translator can just edit a little the provided sentence and get the translation he wants.
+A \emph{translation memory} is a tool for a computer assisted human translation. The core idea behind translation memories is the assumption that sentences that are similar in the source language will probably have a similar translation in the target language. Then, if the tool is able to provide the translator a translation of a similar sentence, there is a big chance that the provided sentence will require only small changes.
 
-The translation memories are widely used in the translation industry, mostly while translating technical documentation and localization of software. In such cases the translators usually take advantage from that the new version of manuals of software does not differ much from the previous version. A survey \footnote{Elina Lagoudaki (2006), "Translation Memory systems: Enlightening users' perspective. Key finding of the TM Survey 2006 carried out during July and August 2006. (Imperial College London, Translation Memories Survey 2006), p.16} among companies producing multilingual documentation for their products in 2006 showed that 82.5\,\% out of 874 such companies uses a TM system.
+The translation memories are widely used in the translation industry, mostly while translating technical documentation and localization of software. In such cases the translators usually take advantage from the fact that the new version of the manual of a given software doesn't differ too much from the previous version. A survey \footnote{Elina Lagoudaki (2006), "Translation Memory systems: Enlightening users' perspective. Key finding of the TM Survey 2006 carried out during July and August 2006. (Imperial College London, Translation Memories Survey 2006), p.16} among companies producing multilingual documentation for their products in 2006 showed that 82.5\,\% out of 874 such companies use a TM system.
 
-While using a translation memory there is usually an tendency to keep the database as clean as possible in terms of domain -- to contain only sentences relevant for translated topics. The reasons to do so are the effort to keep the database as small as possible in order to not make the database search too slow and not spoil the terminology that is used in the particular area. To keep the the terminology consistent the domain glossaries are usually used.
+While using a translation memory there is usually a tendency to keep the database as clean as possible in terms of domain -- to contain only sentences relevant for translated topics. The reasons to do so are the effort to keep the database as small as possible in order to not make the database search too slow and not spoil the terminology that is used in the particular area. To keep the the terminology consistent the domain glossaries are usually used.
 
 There are several reasons why using translation memories makes the translators' work more efficient. The main advantage is that it reduces the cost and makes the translation process faster because the amount of the translators work is lower -- the work that has been done once can be easily reused. It helps to keep consistency of translation between more documents and also consistency with the previous versions of documents (e.g. technical manuals). It is also quite easy to ensure that each sentence of the original document was translated into a segment of the target language document.
 
@@ -135,4 +157,4 @@ There are also few open source translation memories projects, mostly not really 
 
 \end{figure}
 
-There is also a translation memory project which is somehow similar to our project. It is called \emph{MyMemory} and it was created by a Italian translation agency \emph{Translated.net}. It is a big general purpose translation memory available as a remote service via the Internet. It contains translation from various domains which can be used either separately or altogether. Using of the MyMemory is free of charge under condition the translations produced using the service will be provided as a data to the service.
+There is also a translation memory project which is somehow similar to our project. It is called \emph{MyMemory} and it was created by a Italian translation agency \emph{Translated.net}. It is a big general purpose translation memory available as a remote service via the Internet. It contains translation from various domains, which can be used either separately or altogether. Using of the MyMemory is free of charge, under the condition that the translations produced using the service will be provided as a data to the service.
