@@ -1,9 +1,13 @@
 package cz.filmtit.share;
 
+import java.io.Serializable;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Enum for log levels in remote GUI logging
  */
-public enum LevelLogEnum{
+public enum LevelLogEnum implements Comparable<LevelLogEnum>, Serializable, IsSerializable {
     Unknown,
     DebugNotice,
     Notice,
@@ -17,6 +21,21 @@ public enum LevelLogEnum{
      */
     public static int convertToInt(LevelLogEnum logLevel) {
           switch (logLevel) {
+              case DebugNotice : return 0;
+              case Notice: return 1;
+              case Warning: return 2;
+              case Error: return 3;
+              default:
+                  return -1;
+          }
+    }
+
+    /**
+     * Converts the log level to integer.
+     * @return Integer representing the log level
+     */
+    public int convertToInt() {
+          switch (this) {
               case DebugNotice : return 0;
               case Notice: return 1;
               case Warning: return 2;
@@ -57,4 +76,5 @@ public enum LevelLogEnum{
             }
 
         }
-    }
+    
+}
