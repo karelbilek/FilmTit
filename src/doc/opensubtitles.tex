@@ -57,14 +57,24 @@ The contents of OS.org is all user-generated, and users of OS.org, when uploadin
 \subsection*{Format}
 The OpenSubtitles data consisted from the following files:
 \begin{itemize}
-    \item file, called \texttt{export.gz}, which was a tab-separated table, having information about one subtitle file on one line. The information consisted from:
+    \item file, called \texttt{export.txt.gz}, which was a tab-separated table, having information about one subtitle file on one line. The information consisted from:
     \begin{itemize}
         \item ID of a media source (seemed like an internal OS.org ID)
         \item name of the subtitle file (a number)
-        \item language of the subtitle
+        \item language of the subtitle (either czech or english)
         \item ID of the subtitle (in the case of split subtitles, the ID is the same, while name of the file is different)
+        \item information about on how many parts the movie was split and which part this subtitles belongs to
+        \item format of the subtitle (\emph{always} \texttt{srt})
+        \item description of media source. This description consists of name of the movie in the case of movies, or from name of the series and episode in the case of TV show. What is also present is the year of the movie release.
+        
+         We found out these data are taken from IMDB and in almost all the cases determine the movie unambiguously. They are very few cases of two movies  with the same name released in the same year, and the probability of both of them having both Czech and English translation is low. We took the name and the year as unambiguously identifying a media source.
     \end{itemize}
+    
+    There were 676,155 lines in the document (which would imply 676 155 files). There is 15,882 separate media sources in the file (which would imply 42.6 files for one document).
+    \item 139,538 gzipped subtitle files (filenames as described in the table + \texttt{.gz})
 \end{itemize}
+All these files were packed into \texttt{tar}, which was 3,076 MB.
+
 
 We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After removing files, which were not in the index, and removing index data, that didn't have the files, we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data. (Each file was individually zipped with \texttt{gzip}, so unzipped version would be much bigger.)
 
