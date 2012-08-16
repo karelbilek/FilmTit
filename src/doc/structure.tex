@@ -14,9 +14,9 @@ Core layer also queries our machine translation server, which is running as a se
 
 \emph{Data import} is a separate module, for cleaning up and parsing the data from OpenSubtitles.org database, aligning language pairs and telling Core layer to import the pairs into database. The classes should be run only once to have the data ready; however, we found it useful to have those data importing classes as a part of the whole application, rather than some external scripts, because it allowed us to repeatedly change the data themselves and kept the code compact. This part is also implemented in scala.
 
-The middle-ware layer is called the User Space. Its task is to interact with the translation memory itself and mirror all GUI operations on the server side. The User Space is implemented in Java. It uses the same database as the Core and \todo{Is this still true?}one database table is shared among them. The TM Core is used only as a service which is queried for translation suggestions. The interaction with the GUI is much more complicated because each operation from GUI has to be reflected in the US. The US provides a permanent storage of users' work to make the whole application including the users data available from the Internet. Except this function, the US provides the TM suggestion for the GUI and keep them up to date (the TM is should be gradually improving, so every time the user starts editing the document new translation suggestions are generated).
+The middle-ware layer is called the User Space. Its task is to interact with the translation memory itself and mirror all GUI operations on the server side. The User Space is implemented in Java. It uses the same database as the Core and one database table is shared among them. The TM Core is used only as a service which is queried for translation suggestions. The interaction with the GUI is much more complicated because each operation from GUI has to be reflected in the US. The US provides a permanent storage of users' work to make the whole application including the users data available from the Internet. Except this function, the US provides the TM suggestion for the GUI and keep them up to date (the TM is should be gradually improving, so every time the user starts editing the document new translation suggestions are generated).
 
-GUI is written in Java, using \emph{Google Web Toolkit}, which translates Java code into JavaScript and provides a framework for simple implementation of remote procedure calls (RPCs) via the HTTP protocol, using the POST requests. Server side of GUI layer displays the needed JavaScript and css code to user's browser, which then communicates with User Space through JavaScript AJAX calls through RPC, as is described above. The GUI let the user log in, upload the subtitles, parses the subtitles into individual chunks, offers the users translations for every chunk and play the video of the chunks being translated.
+GUI is written in Java, using \emph{Google Web Toolkit}, which translates Java code into JavaScript and provides a framework for simple implementation of remote procedure calls (RPCs) via the HTTP protocol, using the POST requests. The server side of GUI layer displays the appropriate JavaScript and CSS code to user's browser, which then communicates with User Space through JavaScript AJAX calls through RPC, as is described above. The GUI let the user log in, upload the subtitles, parses the subtitles into individual chunks, offers the users translations for every chunk and play the video of the chunks being translated.
 
 GUI and User Space are both in Java (even when GUI is then translated to JavaScript) and can, therefore, have some Java \emph{shared classes}, which are used for communicating from GUI to User Space.
 
@@ -31,29 +31,26 @@ As noted above, Moses machine translation server is running as a completely sepa
 \section{Logical structure of work with TM}
 \label{sec:shared_structure}
 
-In this section, the general structure of work with translation memory is described, from which a design of common classes is inferred, later used both in US, GUI and Core. It also explains the terminology we use both in code and the documentation.
+In this section, the general structure of work with translation memory is described, from which a design of shared classes is inferred, later used both in US, GUI and Core. It also explains the terminology we use both in code and the documentation.
 
 \subsection*{User}
 Everyone, who logs into the system, is called \emph{User}. Each user of the TM has its own setting, authentication data etc., and can own multiple subtitle files which we call \emph{Documents}.
 
 \subsection*{Document}
-\emph{Document} is subtitle file, owned by a user. (This is not connected with files, that are used for building the corpus.) The documents contains information about \emph{media source} of the subtitle, and list of the subtitles \emph{chunks} which either have been already translated or are waiting for translation.
+A \emph{document} is subtitle file, owned by a user. (This is not connected with files, that are used for building the corpus.) The documents contains information about \emph{media source} of the subtitle, and list of the subtitles \emph{chunks} which either have been already translated or are waiting for translation.
 
 \subsection*{Media source}
 \emph{Media source} is our name for movie or TV show episode. It contains the name of the movie, its release year and a set of tags describing the genre of the movie.
 
 \subsection*{Chunk}
-Chunk a piece of text, that is getting translated. Chunk has a \emph{surface form} -- the text, being translated -- plus possible annotations. Annotations are positions of named entities, original position of newlines and dialog marks ("-"). We talk more about the nature of subtitle files in the part \ref{subtitle_formats}.
+A \emph{chunk} is a piece of text, that is getting translated. Chunk has a \emph{surface form} -- the text, being translated -- plus possible annotations. Annotations are positions of named entities, original position of newlines and dialog marks ("-"). We talk more about the nature of subtitle files in the part \ref{subtitle_formats}.
 
 \subsection*{Timed chunk}
-Timed chunk is a chunk, that also have a time information and information about order, in which it appears in subtitle file.
+A \emph{timed chunk} is a chunk, that also have a time information and information about order, in which it appears in subtitle file.
 
 \subsection*{Translation result}
 The chunks are wrapped in to the \emph{Translation result} objects which contains the the timed chunk from the original subtitle file, a chunk produced by the user as a translation of the original chunk, a list of translation suggestions from translation memory.
 
-\subsection*{Annotations}
-
-TODO \todo{Write something about the annotations}
 
 \begin{figure}[h]
 \begin{center}
@@ -81,7 +78,7 @@ Therefore, shared classes could only use a subset of Java (generally, what is tr
 
 \section{Usage of Third Party Libraries}
 
-TODO \todo{write it, commented out pom file is right after this note}
+We use quite a lot of third party libraries and tools. Most of them are linked to the project as Maven dependencies. Overview of the used dependencies including their licenses and short descriptions is listed below.
 
 \begin{itemize}
 \item {\bf Scala Compiler 2.9.1} -- Scala License \\

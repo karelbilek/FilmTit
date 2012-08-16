@@ -1,18 +1,16 @@
 \label{chap:building_corpus}
 
-Since we wanted the translation memory to be functional from the very beginning, we needed to build some parallel corpus -- best from some repository of subtitles. 
+Since we wanted the translation memory to be functional from the very beginning, we needed to build a parallel corpus -- best from some repository of subtitles. 
 
-We first get data from OpenSubtitles. Once we have the "raw" subtitle data, we build a parallel corpus from that data to use for translation memory. 
+Right after we recieved the data from \emph{opensubtitles.org} and had the "raw" subtitle data, we started to build a parallel corpus from that data to use for translation memory. The process of creating the corpus a and getting the "clean" translation memory data is described in the following sections.
 
-Since there are more strategies for building the corpus from the "raw" data, we also want to somehow measure the quality of the resulting corpus (either by measuring the alignment itself or the resulting corpus).
+Since there were more strategies how to face the "raw" data which looked equally auspiciously, we also needed to develop a measure of the quality of the resulting corpus (either by measuring the alignment itself or the resulting corpus).
 
 In this chapter, we discuss these steps, together with more detailed description of the data we got. We will also discuss various strategies for measuring the quality of the corpus.
 
-
 \section{Retrieving data}
 
-There are plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded.
-However, it is problematic to download from most of the servers in bigger batches (thanks to anti-spam protection and so on); also, we wanted to avoid any copyright problems we would meet by using random subtitles from the internet. For this purpose, we asked the administrator of the biggest server providing the subtitles \emph{opensubtitles.org} for the data.
+There are plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded. However, it is problematic to download from most of the servers in bigger batches (due to the anti-spam protection and so on). Also, we wanted to avoid any copyright problems we would meet by using random subtitles from the Internet. For this purpose, we asked the administrator of the biggest server providing the subtitles \emph{opensubtitles.org} for the data.
 
 As a result of this we received all subtitle files in Czech and English from \emph{opensubtitles.org} with following licence condition (in Slovak):
 
@@ -53,20 +51,16 @@ As a matter of fact, the users of \emph{opensubtitles.org} agree with a statemen
 
 \section{The initial data properties}
 
-We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After removing files, which were not in the index, and removing index data, that didn't have the files, we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data. (Each file was individually zipped with \texttt{gzip}, so unzipped version would be probably bigger.)
+We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After removing files, which were not in the index, and removing index data, that didn't have the files, we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data. (Each file was individually zipped with \texttt{gzip}, so unzipped version would be much bigger.)
 
-Some subtitles are divide into more files, anyway 81\% of subtitles are in one piece.
-There is also just 1.7\% movies having subtitles only in multiple files. 
-We assumed that those split into more parts are probably just split version the complete ones. 
-So, to keep the chunk alignment simple, we deleted the split subtitle files.
+Some subtitles are split into more files, anyway 81\,\% of subtitles are in one piece. There is also just 1.7\,\% movies having subtitles only in multiple files. We assumed that those split into more parts are probably just split version the complete ones. So, to keep the chunk alignment simple, we deleted the split subtitle files.
 
 This caused that some movies lost its translation -- 64
 of Czech and 218 of English. In total we will lost 3,5\% of movies. After this steps, the amount of data was 2,556 MB.
 
 Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
-However, this also caused one curious issue.
-While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
+However, this also caused one curious issue. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
 
 After doing all mentioned filtering we had 2,543 MB in 110,312 subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
@@ -113,27 +107,27 @@ As you can see, the sentences and chunks don't exactly match each other.
 \section{Aligning the subtitles}
 \label{sec:aligning_subtitles}
 
-While we had enough metadata to align subtitles of the same movie together, there were still more than two subtitle files for each of the movies, so we needed to chose the best pair. Also, on these, we needed to align the actual chunk pairs.
+After having done the previously mentioned steps we had tge meta data to group subtitles of the same movie together. There were still more than two subtitle files for each of the movies, so we needed to chose the best pair and extract the actual chunk pairs.
 
-We used two different approaches for this. All of them need to solve these three issues:
+We used two different approaches for this. Both of them need to solve these three issues:
 \begin{itemize}
     \item file to file alignment -- in each movie find \emph{one} best pair
-    \item filter the "good" movies -- filter the movies, whose best pairs are well alignable
-    \item chunk to chunk alignment -- if we already have pairs of files, chose the best  
+    \item filter the "good" movies -- filter the movies, whose best pairs can be well aligned\todo{what do you mean by that?}
+    \item chunk to chunk alignment -- if we already have pairs of files, extract the bilingual pairs of chunks 
 \end{itemize}
 
-All those are implemented as abstract classes in \texttt{cz.filmtit.dataimport.alignment.model} and their two implementations (described below) in \texttt{cz.filmtit.dataimport.alignment.aligners}.
+Implementation of all techniques described below \texttt{cz.filmtit.dataimport.alignment.model} and \texttt{cz.filmtit.dataimport.alignment.aligners} packages.
 
 \subsection{File to file alignment}
-In general, there is 2.1 Czech subtitle files and 5 English subtitle file. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
+In general, \todo{what does this sentence mean?}there is 2.1 Czech subtitle files and 5 English subtitle file. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
 
-What is, however, helping us in determining alignment is the fact, that Czech subtitles are usually taken from existing subtitles in English and directly translated, therefore the time marks should be similar. It is interesting to note that in professional translation of movie subtitles, this is not the case -- as was noted to us by professional movie subtitle translators, professional subtitles are translated directly from the script and then recut to not be too long or too short, which is usually not a concern for fan made translations. 
+What helps us in determining alignment is the fact, that Czech subtitles are usually created by taking existing English subtitles and translating them chunk by chunk. The timing of such files should be very similar. It is interesting to note that in professional translation of movie subtitles, as was noted to us by a professional movie subtitle translator, the translating is made directly from the original script of the movie and then \todo{what do you mean by "recut"?}recut to not be too long or too short, which is usually not a concern for fan made translations. 
 
-On the other hand, usually, people, who download movies (and, therefore, subtitles) online, download them from sources of questionable legality, which usually have more versions of the same file (some are so-called "cam-rips", some are copied from DVDs or blu-rays). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles (which is a case of professional translation with different timing).
+On the other hand, people, who download movies (and, therefore, subtitles) online, often use sources of questionable legality, which usually have more versions of the same file (some of them are so-called "cam-rips", some of them are copied from DVDs or blue-ray disks). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles (which is a case of professional translation with different timing).
 
-Also, sometimes, subtitles have absolutely wrong movie tag.
+Sometimes, it also happens that a subtitle file has assigned a completely wrong movie tag.
 
-For illustration here, I randomly selected a movie from the database and show sample of its subtitles. The randomly selected movie is \emph{Legends of the Fall} from 1994 - 5 lines from beginning, 3 lines from the middle (374 to 376, if possible), 3 lines from the end.
+To illustrate some features of the movie subtitle files, fragments ofa randomly selected movie are typed below. It is a movie called \emph{Legends of the Fall} from 1994 - 5 lines from beginning, 3 lines from the middle (374 to 376, if possible), 3 lines from the end.
  
 \todo{better formating}
 
@@ -671,14 +665,12 @@ and the other.
 It was a good death.
 \end{subexam}
 
-As you can see, the two czech subtitles are exact duplicates. Also, there is one English subtitle that is totally wrong. Except this one, though, most of the English files are correct "translation" of the Czech one. You can also see neither one is a "perfect" match, if you look either at numbers or at time marks; but -- judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source.
-
-So, none of the pairs are perfect match, however, we have a few almost-perfect matches.
+As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except to this one, most of the English files seems to match the Czech one quite good. You can also see none of them is a "perfect" match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
 
 \subsection{Subtitle to subtitle alignment}
 As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks.
 
-However, even in cases when Czech subtitle file \emph{was} done directly from English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, Czech version has those deleted.
+However, even in cases when Czech subtitle file has been made directly from English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, Czech version has those deleted.
 
 Anyway, we align only the one best candidate from each media source. The result of this alignment is almost what goes into the corpus; we yet have to do sentence splitting before putting it into corpus.
 
@@ -687,7 +679,7 @@ Anyway, we align only the one best candidate from each media source. The result 
 
 The first approach is to take only the chunks with the same time (with some small tolerance) as belonging to each other.
 
-For counting file to file alignment, we used \todo{Actually it was 6s in your code :)}0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
 
 We chose editing distance, since there can be some small splitting or additions, as described above.
 
@@ -702,7 +694,7 @@ Because the computation on whole files would be really time consuming, we limite
 
 
 The results were following: from 15,552 movies there was 22.2\,\%
-with perfect matches and 3.1\,\% of total mismatches. \todo{I have \textbf{no clue whatsoever} what the percentages mean. Is it the editing distance?}The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
+with perfect matches and 3.1\,\% of total mismatches. The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
 
 \begin{table}[h]
 
@@ -718,12 +710,12 @@ amount of films & measure of match\\ \hline
 \end{tabular}
 \end{center}
 
-\caption{Table capturing for how many movies there exist a matching pair of subtitle files with given measure of matching}\label{opensubtitles:matchTable}
+\caption{Table capturing for how many movies there exist a matching pair of subtitle files with given measure of matching as a percentage of timings which do not contribute to editing distance (in other words percentage of timings which are with the given tolerance equal in both files).}\label{opensubtitles:matchTable}
 \end{table}
 
 %what does the "measure of match" mean in this context? I don't get it.
 
-After looking at some randomly selected files we have decided to use just movies for which we have a pair of files with at least \todo{Again, what does the 70\% mean??}70 \% match. Again, lower match score doesn't mean lower quality of translation, but rather how the subtitles match to each other. 
+After looking at some randomly selected files we have decided to use just movies for which we have a pair of files where at least 70\,\% of timings match. Again, lower match score doesn't mean lower quality of translation, but rather how the subtitles match to each other. 
 
 The chunk-to-chunk alignment is then simple -- chunks are aligned together it both the time of their start and time of their end differ less than by 0.6\ s.
 
