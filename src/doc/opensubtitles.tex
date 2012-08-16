@@ -75,20 +75,27 @@ The OpenSubtitles data consisted from the following files:
 \end{itemize}
 All these files were packed into \texttt{tar}, which was 3,076 MB.
 
-\subsection*{Cleaning up}
-As you can see even just by looking at the numbers, it is obvious that the data in the database and the files don't match up exactly. So the initial clean-up was getting only the intersection of files we have and the files that are in the database. The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,881 mediasources -- 3,032 MB of zipped data.
+\subsection*{Cleaning up -- non-existent files}
+As you can see even just by looking at the numbers, it is obvious that the data in the database and the files don't match up exactly. So the initial clean-up was getting only the intersection of files we have and the files that are in the database. 
 
+The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,881 mediasources -- 3,032 MB of zipped data.
+
+\subsection*{Cleaning up -- split subtitles}
 The other step in cleanup is -- for simplicity -- removing the subtitles, that are split to more files; we assumed that those split into more parts are probably just split version the complete ones. 81\,\% of subtitles are in one piece and only 1.7\,\% movies have subtitles only in multiple files. By deleting subtitles split into more files, we completely lose Czech side of 64 movies and English side of 218 movies, which is 3,5\% in total.
 
+\subsection*{Cleaning up -- Carmencita}
+There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{You can see it here -- \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg}}. This happened due to a server error at OS.o, because the movie has ID {\tt tt0000001} at IMDB. We deleted those as well.
 
-There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
+%Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
-Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
+\subsection*{Cleaning up -- results}
+After doing all mentioned filtering we had 2,543 MB in 110,312 gzipped subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
+All previous cleanup was done as one of the first things when we got the data; it is not included in the \emph{dataimport} module and the module already expects those data filtered out.
 
-After doing all mentioned filtering we had 2,543 MB in 110,312 subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
+Later in development, we noticed that some files have incorrect language written in the table file; files, that should be in Czech, were in  Hungarian, and so on. We added a language detection, based on letter trigrams, later; that detection is, however, already in the \emph{dataimport} module and is done directly before aligning the files (which will be described later).
 
-\todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
+%\todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
 
 \section{Subtitles and sentences}
 
