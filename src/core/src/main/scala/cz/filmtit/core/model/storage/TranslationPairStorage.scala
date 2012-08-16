@@ -29,4 +29,6 @@ extends TranslationPairSearcher(l1, l2) {
   /**Short description of the implementation */
   def name: String
 
+  override def toString = name
+
 }

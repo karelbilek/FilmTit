@@ -150,6 +150,11 @@
      id="layer1"
      transform="translate(2.482302e-6,-782.52006)">
     <path
+       style="fill:#008000;stroke:#2b0000;stroke-width:0.93773912999999998px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -0.71428805,1005.2194 462.91740805,0"
+       id="path3095"
+       inkscape:connector-curvature="0" />
+    <path
        inkscape:connector-curvature="0"
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:none;marker-mid:none;marker-end:url(#TriangleOutL)"
        d="M 327.78581,875.04689 216.41489,894.72191"
@@ -637,26 +642,6 @@
          x="214.61012"
          y="947.73657"
          id="tspan8574">translations to TM</tspan></text>
-    <path
-       sodipodi:type="arc"
-       style="fill:none;stroke:#000000;stroke-width:1.74899995;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="path4238"
-       sodipodi:cx="237.5"
-       sodipodi:cy="225"
-       sodipodi:rx="56.07143"
-       sodipodi:ry="15"
-       d="m 293.57143,225 c 0,8.28427 -25.10403,15 -56.07143,15 -30.9674,0 -56.07143,-6.71573 -56.07143,-15 0,-8.28427 25.10403,-15 56.07143,-15 30.9674,0 56.07143,6.71573 56.07143,15 z"
-       transform="matrix(0.84747714,0,0,0.95628856,-0.24375286,787.91154)" />
-    <text
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-       x="159.46024"
-       y="1006.2296"
-       id="text5285-5"><tspan
-         sodipodi:role="line"
-         x="159.46024"
-         y="1006.2296"
-         id="tspan5289-4">shared classes</tspan></text>
     <rect
        y="856.11035"
        x="325.60211"
@@ -728,5 +713,45 @@
          y="913.59058"
          x="149.7341"
          sodipodi:role="line">import data</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;stroke:#000000;stroke-width:1.74899994999999997;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path4238"
+       sodipodi:cx="237.5"
+       sodipodi:cy="225"
+       sodipodi:rx="56.07143"
+       sodipodi:ry="15"
+       d="m 293.57143,225 c 0,8.28427 -25.10403,15 -56.07143,15 -30.9674,0 -56.07143,-6.71573 -56.07143,-15 0,-8.28427 25.10403,-15 56.07143,-15 30.9674,0 56.07143,6.71573 56.07143,15 z"
+       transform="matrix(0.84747714,0,0,0.95628856,-0.24375286,787.91154)" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="159.46024"
+       y="1006.2296"
+       id="text5285-5"><tspan
+         sodipodi:role="line"
+         x="159.46024"
+         y="1006.2296"
+         id="tspan5289-4">shared classes</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14.09982109000000072px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#2b0000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="307.63025"
+       y="997.76715"
+       id="text8568-1"><tspan
+         sodipodi:role="line"
+         x="307.63025"
+         y="997.76715"
+         id="tspan8574-2">server</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14.09982109px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#2b0000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+       x="309.35803"
+       y="1020.3036"
+       id="text8568-1-3"><tspan
+         sodipodi:role="line"
+         x="309.35803"
+         y="1020.3036"
+         id="tspan8574-2-9">client</tspan></text>
   </g>
 </svg>

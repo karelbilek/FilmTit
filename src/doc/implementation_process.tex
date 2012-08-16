@@ -8,17 +8,17 @@ The regular project meeting where we discussed mostly the organizational aspects
 
 \begin{itemize}
 \item core translation memory,
-\item userspace,
+\item user space,
 \item graphical user interface,
 \end{itemize}
 
-which became very soon separate Maven modules. Although we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different part of project which remained surprisingly stable as well. 
+which became very soon separate Maven modules (as soon started using Maven for building the project). Despite we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different part of project which remained surprisingly stable as well. 
 
 Before receiving the data from OpenSubtitles.org we were thinking about the source of data to fill the translation memory for the first time. There were several options -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL, using sentences from a general purpose parallel corpus or getting the data from a subtitle server.
 
-From the very beginning we intended base the project on Java. Mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with it. We also decided to combine the code in Java and Scala programming languages and Apache Maven as a build manager.
+From the very beginning we intended base the project on Java. Mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with it. We also decided to combine the code in Java and Scala programming languages and Apache Maven as a build manager. At that time there was only one team member who knew the Scala language. Despite we repetitively expressed believes that everybody of would learn it, at the end there was one another person familiar with the Scala language which appeared to be a bottleneck of work on the translation memory core.
 
-Much complicated was to agree on the technology of the client. There were many different opinions from writing the client in {\it PHP} with {\it Nette Framework} which some of us know, using the {\it JSP} to have all the code consistently in Java or even quite extreme idea to make the whole application as {\it Java Applet} (it was because of the intention to integrate the video player in the application). Finally we decided to use {\it Google Web Toolkit} which nobody of us had had any prior knowledge before, but it promised making the communication between server and client very easy.
+Much complicated was to agree on the technology of the client. There were many different opinions from writing the client in {\it PHP} with {\it Nette Framework} which some of us know quite well, using the {\it JSP} to have all the code consistently in Java or even quite extreme idea to make the whole application as {\it Java Applet} (this idea had appeared because of the intention to integrate the video player in the application and at that time we didn't of any other option of doing it except making a Java applet for it). Finally we decided to use {\it Google Web Toolkit} which nobody of us had had any prior knowledge before, but it promised making the communication between server and client very easy. Similarly to the Scala language we ended up with just two people able to work effectively with the Google Web Toolkit. Fortunately, it did not became a bottleneck of the development process. 
 
 After overcoming the problems connected with learning a new technology we became quite satisfied with the decisions because the usage of Google Web Toolkit and other modules, as well as the possibility to combine all parts of the project with Apache Maven were helpful despite making the project run in Maven was very painful for us and we spent unnecessarily a lot of time by solving this issues.
 	
@@ -74,11 +74,13 @@ Use our own Moses trained on the subtitle data we have from opensubtitles
 
 \subsection{Final Development}
 
-Optimizations required: better to throw away 
+Optimizations required: better to throw away translation pairs and generated everytime user logs in
 
 Found many technical issues: e.g. necessary to be able to stop loading generating the suggestions on the server at the moment
 
-We left to the end a lot issues which we considered to be only minor technical 
+We left to the end a lot issues which we considered to be only minor technical , which appeared to be a lot of intensive work.
+
+We estimated the 12$^\mathrm{th}$ August, 12 p.m. to be a day that we called the Feature Freeze which meant that after this date no new features were added to the project. At that time we started an intensive review of already existing code, debugging and working on the documentation. 
 
 \section{Evaluating the Development Process}
 
@@ -90,7 +92,7 @@ Despite we spent quite a lot of time by the discussions how the structure of the
 
 A bottleneck of the development process was also that not all of us were familiar with all of the technologies. It happened many times that somebody could not continue developing a particular part of the project and had to wait for an other team member to fix the issue even though it may have been just changing a single attribute in the Hibernate mapping.
 
-
+Problems with communication, different communication platforms among time, members of the team sometimes must have waited for othres...
 
 
 

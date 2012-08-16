@@ -86,9 +86,9 @@ object Factory {
   }
 
   def createTMFromConfiguration(
-                                 configuration: Configuration,
-                                 readOnly: Boolean = true,
-                                 useInMemoryDB: Boolean = false) : TranslationMemory =
+    configuration: Configuration,
+    readOnly: Boolean = true,
+    useInMemoryDB: Boolean = false) : TranslationMemory =
 
     createTM(
       configuration.l1, configuration.l2,
@@ -109,32 +109,35 @@ object Factory {
     searcherTimeout: Int
   ): TranslationMemory = {
 
-    val csTokenizerWrapper = createTokenizerWrapper(Language.CS, configuration)
-    val enTokenizerWrapper = createTokenizerWrapper(Language.EN, configuration)
+    var l1TokenizerWrapper: Option[TokenizerWrapper] = None //createTokenizerWrapper(l1, configuration)
+    var l2TokenizerWrapper: Option[TokenizerWrapper] = None //createTokenizerWrapper(l2, configuration)
 
     var levels = List[BackoffLevel]()
 
 
     if (!useInMemoryDB) {
       //First level exact matching
-      val flSearcher = new PGFirstLetterStorage(Language.EN, Language.CS, connection, useInMemoryDB)
+      val flSearcher = new PGFirstLetterStorage(l1, l2, connection, useInMemoryDB)
       levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
 
       //Second level: Full text search
-      val fulltextSearcher = new FulltextStorage(Language.EN, Language.CS, connection)
+      val fulltextSearcher = new FulltextStorage(l1, l2, connection)
       levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyWekaRanker(configuration.fuzzyRankerModel)), 0.0, TranslationSource.INTERNAL_FUZZY)
     } else {
-      val flSearcher = new FirstLetterStorage(Language.EN, Language.CS, connection, enTokenizerWrapper, csTokenizerWrapper, useInMemoryDB)
+      l1TokenizerWrapper = Some(createTokenizerWrapper(l1, configuration))
+      l2TokenizerWrapper = Some(createTokenizerWrapper(l2, configuration))
+
+      val flSearcher = new FirstLetterStorage(l1, l2, connection, l2TokenizerWrapper.get, l1TokenizerWrapper.get, useInMemoryDB)
       levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
     }
 
     //Third level: Moses
     val mosesSearchers = (1 to 30).map { _ =>
-      new MosesServerSearcher(Language.EN, Language.CS, configuration.mosesURL)
+      new MosesServerSearcher(l1, l2, configuration.mosesURL)
     }.toList
     levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7, TranslationSource.EXTERNAL_MT)
 
-    new BackoffTranslationMemory(Language.EN, Language.CS, levels.reverse, Some(new LevenshteinMerger()), Some(enTokenizerWrapper), Some(csTokenizerWrapper))
+    new BackoffTranslationMemory(l1, l2, levels.reverse, Some(new LevenshteinMerger()), l1TokenizerWrapper, l2TokenizerWrapper)
   }
 
 
