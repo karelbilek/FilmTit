@@ -67,7 +67,7 @@ The OpenSubtitles data consisted from the following files:
         \item format of the subtitle (\emph{always} \texttt{srt})
         \item description of media source. This description consists of name of the movie in the case of movies, or from name of the series and episode in the case of TV show. What is also present is the year of the movie release.
         
-         We found out these data are taken from IMDB and in almost all the cases determine the movie unambiguously. They are very few cases of two movies  with the same name released in the same year, and the probability of both of them having both Czech and English translation is low. We took the name and the year as unambiguously identifying a media source.
+         We found out these data are taken from IMDB (internally, by OS.o) and in almost all the cases determine the movie unambiguously. They are very few cases of two movies  with the same name released in the same year, and the probability of both of them having both Czech and English translation is low. We took the name and the year as unambiguously identifying a media source.
     \end{itemize}
     
     There were 676,155 lines in the document (which would imply 676 155 files). There is 15,882 separate media sources in the file (which would imply 42.6 files for one document).
@@ -76,18 +76,15 @@ The OpenSubtitles data consisted from the following files:
 All these files were packed into \texttt{tar}, which was 3,076 MB.
 
 \subsection*{Cleaning up}
-As you can see by looking at the 
+As you can see even just by looking at the numbers, it is obvious that the data in the database and the files don't match up exactly. So the initial clean-up was getting only the intersection of files we have and the files that are in the database. The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,881 mediasources -- 3,032 MB of zipped data.
 
-We received 3,076 MB of data in 139,538 files with a database index dump which did not exactly match the received content. After removing files, which were not in the index, and removing index data, that didn't have the files, we have 39,712 Czech subtitle files and 97,991 English files of 15,881 movies or TV shows episodes -- 3,032 MB of data. (Each file was individually zipped with \texttt{gzip}, so unzipped version would be much bigger.)
+The other step in cleanup is -- for simplicity -- removing the subtitles, that are split to more files; we assumed that those split into more parts are probably just split version the complete ones. 81\,\% of subtitles are in one piece and only 1.7\,\% movies have subtitles only in multiple files. By deleting subtitles split into more files, we completely lose Czech side of 64 movies and English side of 218 movies, which is 3,5\% in total.
 
-Some subtitles are split into more files, anyway 81\,\% of subtitles are in one piece. There is also just 1.7\,\% movies having subtitles only in multiple files. We assumed that those split into more parts are probably just split version the complete ones. So, to keep the chunk alignment simple, we deleted the split subtitle files.
 
-This caused that some movies lost its translation -- 64
-of Czech and 218 of English. In total we will lost 3,5\% of movies. After this steps, the amount of data was 2,556 MB.
+There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
 
 Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
-However, this also caused one curious issue. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing various content. This movie was Carmentica, a 21 seconds long silent film from 1884. This happened due to a server error at \emph{opensubtitles.org}, because the movie has ID {\tt tt0000001} at IMDB.
 
 After doing all mentioned filtering we had 2,543 MB in 110,312 subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
