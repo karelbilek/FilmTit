@@ -614,7 +614,7 @@ public class TranslationWorkspace extends Composite {
         timeslabel.setStyleName("chunk_timing");
 		timeslabel.addDoubleClickHandler(new TimeChangeHandler(chunk));
 		// add label to map
-		timeLabels.put(chunk.getChunkIndex(), timeslabel);
+		timeLabels.put(chunkIndex, timeslabel);
 		
         int index = lastIndex;
         lastIndex++;
@@ -705,10 +705,10 @@ public class TranslationWorkspace extends Composite {
 			
 			// init
 			TimedChunk chunk = synchronizer.getChunkByIndex(chunkIndex);
-			String oldSource = chunk.getSurfaceForm();
+			String oldSource = chunk.getDatabaseForm();
 			
 			// ask user for new value, showing the old one
-			String newSource = Window.prompt("Source text for this chunk:", oldSource);
+			String newSource = Window.prompt("Source text for this chunk (' | ' denotes a new line):", oldSource);
 			
 			if (newSource == null || newSource.equals(oldSource)) {
 				// cancel or no change
@@ -716,9 +716,8 @@ public class TranslationWorkspace extends Composite {
 			}
 			else {
 				// change the values
-				// TODO: not sure which set*Form to use (there is no documentation and I am not the author)
 				chunk.setDatabaseForm(newSource);
-				label.setText(chunk.getGUIForm());
+				label.getElement().setInnerHTML(chunk.getGUIForm());
 				// this call brings a fresh translation result on return :-)
 				// which is then given directly to showResult()
 				new ChangeSourceChunk(chunk, newSource, TranslationWorkspace.this);
