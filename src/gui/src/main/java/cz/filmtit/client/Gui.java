@@ -11,7 +11,9 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.web.bindery.event.shared.UmbrellaException;
 
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.LogGuiMessage;
 import cz.filmtit.client.pages.GuiStructure;
+import cz.filmtit.share.LevelLogEnum;
 import cz.filmtit.share.User;
 
 /**
@@ -164,6 +166,7 @@ public class Gui implements EntryPoint {
     
     private static long start=0;
     private static StringBuilder logStringBuilder = new StringBuilder();
+    
     /**
      * Output the given text in the debug textarea
      * with a timestamp relative to the first logging.
@@ -194,6 +197,18 @@ public class Gui implements EntryPoint {
          // also log to development console
          GWT.log(logtext);
      }
+     
+     /**
+      * Log the message to server (if its level is high enough)
+      * and also log it to the debug window.
+      * @param level
+      * @param context
+      * @param message
+      */
+     public static void log(LevelLogEnum level, String context, String message) {
+    	 log(context + ":\n" + message);
+    	 new LogGuiMessage(level, context, message);
+     }
 
     /**
      * log and alert the exception
@@ -214,10 +229,8 @@ public class Gui implements EntryPoint {
     	
 		StringBuilder sb = new StringBuilder();
 		
-    	// exception name and message
-    	sb.append(e.toString());
-    	sb.append('\n');
-
+		sb.append(e.getLocalizedMessage());
+		
     	if (e instanceof UmbrellaException) {
     		Set<Throwable> causes = ((UmbrellaException)e).getCauses();
         	sb.append("Caused by " + causes.size() + " exceptions:\n");
@@ -238,7 +251,7 @@ public class Gui implements EntryPoint {
 		
 		if (logIt) {
 	    	// log exception name, message and stacktrace
-			log(result);
+			log(LevelLogEnum.Error, e.getClass().getName(), result);
 		}
 		
 		if (alertIt) {
