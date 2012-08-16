@@ -22,8 +22,9 @@ class PGFirstLetterStorage(
 ) {
 
   if (!connection.isReadOnly) {
+
+    //    DROP FUNCTION IF EXISTS firstletter(TEXT);
     connection.createStatement().execute("""
-    DROP FUNCTION IF EXISTS firstletter(TEXT);
 
     CREATE FUNCTION firstletter(TEXT) RETURNS TEXT
         AS $$

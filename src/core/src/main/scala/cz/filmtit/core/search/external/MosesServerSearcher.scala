@@ -43,7 +43,7 @@ class MosesServerSearcher(
   l2: Language,
   url: java.net.URL,
   genericTranslationScore: Double = 0.7
-  ) extends TranslationPairSearcher(l1, l2) {
+) extends TranslationPairSearcher(l1, l2) {
 
   val config = new XmlRpcClientConfigImpl()
   config.setServerURL(url)
@@ -142,4 +142,5 @@ class MosesServerSearcher(
   
   def close() {}
 
+  override def toString = "Moses"
 }

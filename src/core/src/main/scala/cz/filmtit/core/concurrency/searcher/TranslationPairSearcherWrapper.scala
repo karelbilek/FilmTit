@@ -1,6 +1,5 @@
 package cz.filmtit.core.concurrency.searcher
 
-import _root_.javax.management.ServiceNotFoundException
 import cz.filmtit.core.model.TranslationPairSearcher
 import cz.filmtit.share.{Chunk, TranslationPair, Language}
 import akka.pattern.ask

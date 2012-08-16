@@ -80,7 +80,7 @@ class BackoffTranslationMemory(
         }
       } catch {
         case e: LanguageNotSupportedException => //The searcher does not support the requested language, we cannot use it.
-        case e: SearcherNotAvailableException => LOG.warn("Searcher %s not available.".format(level.searcher.getClass.getSimpleName))
+        case e: SearcherNotAvailableException => LOG.warn("Searcher %s not available.".format(level.searcher.toString))
       }
     }
 
@@ -202,8 +202,8 @@ class BackoffTranslationMemory(
   }
 
   private def tokenizeForImport(pair:TranslationPair) {
-    pair.getChunkL1.setTokens(tokenizer(l1).get.tokenizers(0).tokenize(pair.getChunkL1.getSurfaceForm))
-    pair.getChunkL2.setTokens(tokenizer(l2).get.tokenizers(0).tokenize(pair.getChunkL2.getSurfaceForm))
+    tokenizer(l1).foreach{ t: TokenizerWrapper => pair.getChunkL1.setTokens( t.tokenizers(0).tokenize(pair.getChunkL1.getSurfaceForm)) }
+    tokenizer(l2).foreach{ t: TokenizerWrapper => pair.getChunkL2.setTokens( t.tokenizers(0).tokenize(pair.getChunkL2.getSurfaceForm)) }
   }
 
   def searchers = levels.map(_.searcher)
