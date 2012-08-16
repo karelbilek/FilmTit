@@ -9,16 +9,12 @@
 	    <b:Form ui:field="timesForm">
 	        <b:Fieldset>
                 <!-- <b:Legend>Original chunk</b:Legend> -->
-	            <b:Paragraph>
-                    TODO: show chunk text and original timing
-                </b:Paragraph>
+                <b:Paragraph ui:field="chunkText" />
 	        </b:Fieldset>
 	        <b:Fieldset>
                 <!-- <b:Legend>New timing</b:Legend> -->
                 <b:CellTable ui:field="timesTable"/>
-	            <b:Paragraph>
-	                TODO: show current display length
-	            </b:Paragraph>
+	            <b:Paragraph ui:field="timeValue" />
 	        </b:Fieldset>
 	        <b:Fieldset>
 	            <b:ModalFooter>
