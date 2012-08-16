@@ -753,13 +753,13 @@ public class Session {
     /**
      * Sets the new source text of the chunk, resp. translation results and generates new translation suggestions.
      * @param chunk The timed chunk with the changed source text
-     * @param text New source text
+     * @param dbForm New source text, in DB form (i.e. with pipes)
      * @param TM A translation memory instance provided by FilmTitBackendServer
      * @return Translation result object that reflects the changes
      * @throws InvalidDocumentIdException Throws an exception if the session user does not own document with given ID.
      * @throws InvalidChunkIdException Throws an exception if the document does not contain chunk with given index.
      */
-    public TranslationResult changeText(TimedChunk chunk, String text, TranslationMemory TM)
+    public TranslationResult changeText(TimedChunk chunk, String dbForm, TranslationMemory TM)
             throws InvalidDocumentIdException, InvalidChunkIdException {
         updateLastOperationTime();
 
@@ -768,7 +768,7 @@ public class Session {
         USTranslationResult usTranslationResult = document.getTranslationResultForIndex(chunk.getChunkIndex());
         
         // set the text
-        usTranslationResult.setText(text);
+        usTranslationResult.getTranslationResult().getSourceChunk().setDatabaseFormForce(dbForm);
         saveTranslationResult(document, usTranslationResult);
         
         // generate suggestions

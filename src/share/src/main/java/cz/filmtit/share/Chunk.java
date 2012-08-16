@@ -90,6 +90,17 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     }
 
     /**
+     * The string with annotations, as in an SRT file (newlines are turned into |).
+     * Deletes previously existing format annotations.
+     * @return
+     */
+    public void setDatabaseFormForce(String form) {
+        Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
+        setSurfaceForm(chunkInfo.string);
+        setFormattingAnnotations(chunkInfo.anots); 
+    }
+
+    /**
      * The string with annotations, newlines turned into newlineString, dialogue dashes into dashString.
      * @return
      */
@@ -216,11 +227,37 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 //        setDatabaseForm(dbForm);
 //    }
     
+    /**
+     * Add new annotations, keeping the original ones.
+     */
     public void addAnnotations(Collection<Annotation> annotations) {
         if (this.annotations == null)
             this.annotations = new ArrayList<Annotation>();
 
         this.annotations.addAll(annotations);
+    }
+
+    /**
+     * Set new formatting annotations, deleting the previous ones.
+     * @param annotations
+     */
+    public void setFormattingAnnotations(Collection<Annotation> annotations) {
+    	// remove old formatting annotations = readd non-formatting annotations
+    	List<Annotation> newAnnotations = new ArrayList<Annotation>();
+    	for (Annotation annotation : this.annotations) {
+			if (
+					annotation.getType() == AnnotationType.ORGANIZATION ||
+					annotation.getType() == AnnotationType.PERSON ||
+					annotation.getType() == AnnotationType.PLACE
+					) {
+				
+				annotations.add(annotation);
+			}
+		}
+        // add new format annotations
+        newAnnotations.addAll(annotations);
+        // set
+        this.annotations = newAnnotations;
     }
 
     public void removeAnnotation(int index) {

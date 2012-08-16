@@ -708,7 +708,9 @@ public class TranslationWorkspace extends Composite {
 			String oldSource = chunk.getDatabaseForm();
 			
 			// ask user for new value, showing the old one
-			String newSource = Window.prompt("Source text for this chunk (' | ' denotes a new line):", oldSource);
+			String newSource = Window.prompt("Source text for this chunk. " +
+					"The pipe sign  |  (surrounded by spaces) denotes a new line.",
+					oldSource);
 			
 			if (newSource == null || newSource.equals(oldSource)) {
 				// cancel or no change
@@ -716,7 +718,7 @@ public class TranslationWorkspace extends Composite {
 			}
 			else {
 				// change the values
-				chunk.setDatabaseForm(newSource);
+				chunk.setDatabaseFormForce(newSource);
 				label.getElement().setInnerHTML(chunk.getGUIForm());
 				// this call brings a fresh translation result on return :-)
 				// which is then given directly to showResult()
