@@ -17,7 +17,7 @@ considered were
 \end{itemize}
 According to these requirements, we evaluated several database systems
 and selected the open source database system
-PostgreSQL.\footnote{\url{http://www.postgresql.org/}} This system
+\postgres.\footnote{\url{http://www.postgresql.org/}} This system
 fulfills the requirements as follows:
 
 \begin{itemize}
@@ -39,7 +39,7 @@ and username and password to the database have to be specified. When testing the
 translation memory with project-internal unit tests, we replace the production JDBC
 configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://hsqldb.org/}}).
 
-\lstset{language=XML, caption={Configuration }}
+\lstset{language=XML, caption={Configuration snippet}}
 \begin{lstlisting}
 <database>
     <connector>jdbc:postgresql://localhost/filmtit</connector>
@@ -63,16 +63,15 @@ minimum quality threshold, they will be sent to the user.
 
 The idea of a backoff translation memory is to use multiple ways of
 retrieving and ranking candidate translation pairs from the database and
-``back off'' to a less exact level of retrieving and ranking when there
-are no satisfactory results on the current level.
+``back off'' to a less exact level of retrieval and ranking when there
+are no satisfying results on the current level.
 
-A backoff translation memory consists of a \emph{translation pair
-searcher}, a \emph{translation pair ranker}, a \emph{minimal quality
-threshold}, and another optional \emph{backoff translation memory}. If
-the results retrieved by the \emph{searcher} and ranked (and scored) by
-the \emph{ranker} do not meet the threshold, then the query is sent to
-the backoff translation memory. The backoff translation memory can
-itself be backoff translation memory.
+A backoff-level in the translation memory consists of a \emph{translation pair
+searcher}, a \emph{translation pair ranker} and a \emph{minimal quality
+threshold}. 
+If the results retrieved by the \emph{searcher} and scored and ranked by
+the \emph{ranker} do not meet the threshold, then the query is sent to the 
+next level of the backoff translation memory. 
 
 
 \section{Candidate retrieval}
@@ -80,13 +79,16 @@ itself be backoff translation memory.
 
 We implemented several methods for efficiently retrieving candidate
 translation pairs from the database. The most general method
-is the usage of an indexed signature strings. In this method, for each
-chunk stored in the database, a string is produced by a signature
-function and this string is used as an index for the database relation.
-Several signature functions are used in the translation memory
-implementation. Within the database, each signature function is represented by 
-a relation which is indexed by the signature and refers to the original
-translation pair.
+is the usage of indexed signature strings.
+
+There are two implementations of signature-based retrieval in the project: In the first method, signatures are created fully within the \postgres~database (database-based signatures) and in the second, the signatures are created on the server and only stored and retrieved in the
+database (program-based signatures).  
+
+
+\subsubsection*{Program-based signatures}
+
+In the case of program-based signatures, for each chunk stored in the database, a string is produced by a signature function and this string is used to retrieve candidates from a signature table that is in turn
+connected to the translation pairs table.
 
 \begin{figure}[h!]
 	\centering
@@ -95,25 +97,33 @@ translation pair.
 	\label{fig:figures_core_signatures}
 \end{figure}
 
-In the following sections, the signature functions will be illustrated.
 
-\newpage
+\subsubsection*{Database-based signatures}
+
+In the case of the database-based signatures, a {\tt PL/pgSQL} procedural function is used to create a functional index\footnote{See e.g.\ \url{http://www.postgresql.org/docs/9.1/static/indexes-expressional.html} (retrieved 10.08.2012).} on the translationpairs table. The function can then be used for fast retrieval from this table.
+
+
+Several signature functions are used in the translation memory
+implementation. In the following sections, the signature functions and related issues will be illustrated.
+
 \subsection{Tokenization}
 
-For all retrieval methods, we tokenize, i.e. separate the input sentence into individual tokens,
-all inputs using tokenizers provided by the Apache OpenNLP project.\footnote{\url{http://opennlp.apache.org/}}
+For all program-based retrieval methods, we tokenize, i.e.\ separate the input sentence into individual tokens,
+all inputs, using tokenizers provided by the Apache OpenNLP project.\footnote{\url{http://opennlp.apache.org/}}
 OpenNLP provides both unsupervised and supervised methods of tokenization. 
 As a default tokenizer, we use an unsupervised tokenizer that splits the input
-based on white space. This method has the advantage that is applicable to any new
+based on whitespace. This method has the advantage that it is applicable to any new
 language without requiring further training, however the result is of moderate
 quality and often leads to problems in latter processing steps (e.g. Named Entity Recognition).
 
 To improve the results, we use a Maximum-Entropy based OpenNLP tokenizer. For English, we use the
-models provided by the OpenNLP project. For Czech, no such model existed, so we trained a ME tokenizer
-model on data from the Prague Dependency Treebank\footnote{\url{http://ufal.mff.cuni.cz/pdt2.0/}}.\\
+models provided by the OpenNLP project. 
 
-\noindent For training the ME tokenizer, we produced a script that creates training data in the following format:
-\lstset{caption={Example training data for OpenNLP ME tokenizer.}}
+
+\subsubsection*{Czech ME tokenizer}
+
+For Czech, no such model existed, so we trained a ME tokenizer
+model on data from the Prague Dependency Treebank\footnote{\url{http://ufal.mff.cuni.cz/pdt2.0/}}. We produced a script that creates training data in the following format:
 \begin{verbatim}
 K vynikajícím spisovatelům<SPLIT>, kteří věřili v nevysvětlitelné duševní 
 úkazy<SPLIT>, patřil také americký romanopisec Upton Sinclair<SPLIT>.
@@ -125,6 +135,7 @@ positions were manually marked in the Prague Dependency Treebank by annotators.
 
 On a test dataset from the Prague Dependency Treebank, the ME tokenizer achieved the following results:
 
+\lstset{caption={Accuracy for the Czech ME tokenizer.}}
 \begin{lstlisting}
 Precision: 0.9970180340649772
 Recall: 0.9954658318039512
@@ -140,9 +151,43 @@ F-Measure: 0.9962413283293529
 The first signature function is for retrieving exact matches. For this,
 the signature function consists of the first letters of each word in the
 chunk. Punctuation is dropped from the signature. If the queried chunk is
-very short, only using the first letter would produce a very high number of
+short, only using the first letter would produce a very high number of
 results. Hence, for short chunks, more letters of each individual token are
-included.
+included. Algorithm~\ref{alg:firstletter} shows pseudo-code for the {\tt FirstLetter}
+function.
+
+\vspace{1em}
+\begin{algorithm}[H]
+\label{alg:firstletter}
+ \SetKwFunction{Union}{Union}\SetKwFunction{TokenizeAndRemoveStopWords}{TokenizeAndRemoveStopWords}
+ \SetKwFunction{Union}{Union}\SetKwFunction{Lower}{Lower}
+ \SetKwFunction{Union}{Union}\SetKwFunction{Take}{Take}
+
+
+ \SetAlgoLined
+
+ \KwData{text chunk}
+ \KwResult{signature for the chunk}
+ $tokens \leftarrow \TokenizeAndRemoveStopWords{chunk}$
+
+ \For{$token \in tokens$}{
+
+   \uIf{$|token| = 1$}{
+     ret += \Lower{token}
+   } \uElseIf{$|token| = 2$}{
+     ret += \Lower{\Take{3, token}}
+   } \uElseIf{$|token| = 3$}{
+     ret += \Lower{\Take{2, token}}
+   } \Else{
+     ret += \Lower{\Take{1, token}}
+  }
+
+ }
+ \Return ret joined by " "
+ \caption{{\tt FirstLetter} function.}
+\end{algorithm}
+
+
 
 
 
@@ -157,6 +202,7 @@ category. This allows the retrieval of candidate chunks that differ only
 in the named entities they are using. As an example, consider the
 following chunks:
 
+\lstset{caption={Example of NE-based retrieval.}}
 \begin{lstlisting}
 Chunk 1:   Peter saw the girl.
 Signature: <Person> saw the girl
@@ -218,7 +264,7 @@ The corpus contains manual named entity annotations of a large number of named e
 shows an overview of the NE types annotated in the corpus.
 
 
-\begin{figure}
+\begin{figure}[h!]
 	\centering
 		\includegraphics[width=16
 		 cm]{figures/core/CzechNECorpus.pdf}
@@ -233,8 +279,11 @@ manually selected the annotation types and trained the OpenNLP named entity reco
 
 \subsubsection*{Selecting the best approach}
 
-Both approaches showed to have their unique advantages and disadvantages. While the first approach is only minimally supervised
-and can easily be extended to other languages that have a local version of Wikipedia and existing DBpedia dumps (DBpedia dumps are currently available for 97 languages\footnote{\url{http://wiki.dbpedia.org/Downloads37}}), our manual evaluation of the produced Named Entity recognizers showed that the models trained on the Czech Named Entity corpus produced better results.
+Both approaches showed to have their unique advantages and disadvantages. While the first approach is 
+only minimally supervised and can easily be extended to other languages that have a local version of 
+Wikipedia and existing DBpedia dumps (DBpedia dumps are currently available for 97 languages\footnote{\url{http://wiki.dbpedia.org/Downloads37}}), 
+our manual evaluation of the produced Named Entity recognizers showed that the 
+models trained on the Czech Named Entity corpus produced better results.
 
 More precisely, we approximated, that the DBPedia recognized far less cases and, therefore, had much lower RECALL, the PRECISION was only slightly better. We then decided, that lower RECALL is worse for our purposes -- it's better to show wrong translation to user than to not show anything.
 
@@ -243,31 +292,98 @@ It's worth noting that the overall effectiveness of using named entity-based ret
 
 TODO:DATA HERE
 
+
+\subsection{Full-text search}
+
+As another, more fuzzy level of retrieval, we use the full-text search included in \postgres. In  \postgres~full-text search, documents (in our case translation pairs) are tokenized and normalized. The result of this process is vector of normalized tokens ({\tt tsvector}). The normalization step can include lowercasing, stemming or synonyms from a dictionary and removes stop words. \postgres~builds an index over the token vector of all documents, against which queries can be run. To convert a string to a query, it is tokenized and normalized and the resulting normalized tokens are connected with an {\tt AND} operator.
+
+The tokenization and normalization for a specific language is described in a text search configuration.\footnote{\url{http://www.postgresql.org/docs/9.1/static/textsearch-intro.html}, retrieved 10.08.2012.} By default, \postgres~includes text search configurations for the following languages: Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Turkish and the default ``Simple'' configuration. For Czech, a text search configuration is available from postgres.cz\footnote{\url{http://postgres.cz/wiki/Instalace_PostgreSQL}, retrieved 10.08.2012.} For installation instructions, please see the technical manual in chapter~\ref{chap:technical_manual}.
+
+When querying candidates for a Chunk, we use the {\tt ts\_rank}\footnote{\url{http://www.postgresql.org/docs/9.1/static/functions-textsearch.html}, retrieved 20.08.2012} function to pre-sort the candidates and the {\tt ts\_rank} score is later used as one of the scores in the ranking of translation pair candidates. One problem that the full-text search as a method of candidate retrieval shows, is that some of the candidates are unreasonably large documents that still have high scores because their token overlaps with the query are reasonable. We approach this problem by using our own ranking functions for translation pairs, as described in Section~\ref{sec:ranking}.
+
+
 \subsection{External services}
 
 As another backoff level, we use Machine Translation from external services.
-For this, a query with the chunk is sent to an external REST-based
-API.\footnote{We use the free Machine Translation API of the MyMemory project, cf. \url{http://mymemory.translated.net/doc/spec.php}.}
-If the resulting translation meets the minimal quality threshold, it
-will be presented to the user.
-
-However, there is no machine translation service with unlimited free REST-based API, and, for example, MyMemory project has so low daily quota, that we get over its quota with averagely TODO:FILLDATA subtitle files.
+For this, a query with the chunk is sent to an external REST-based API. We offer a translation pair searcher for the free Machine Translation API of the MyMemory project.\footnote{ \url{http://mymemory.translated.net/doc/spec.php}} However, there is currently no machine translation service with an unlimited free API, and, for example, the MyMemory project has such a low daily quota (2500 requests/day) that the quota is quickly surpassed when translating subtitle files.
 
 \subsection{Statistical Machine-Translation based on Moses}
 
+TODO
 
 
 
+\newpage
 \section{Candidate Ranking}
+\label{sec:ranking}
 
-After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and how well they fit the query. We use different methods for ranking the candidates retrieved by the candidate retrieval methods.
+After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and how well they fit the queried chunk. We use different methods for ranking the candidates retrieved by the various candidate retrieval methods. In the following, we will briefly describe the ranking methods for each retrieval method.
+
+All ranking methods are based on a combination of scores. Depending on the retrieval method, we assign every translation pair candidate a set of scores, which are then combined into a final score.  Translation pairs are ordered by this score.
+
+To learn the best combination for scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}, retrieved 10.08.2012.}
 
 
 \subsection{Ranking for exact matches}
 
-For exact matches, 
+The ranking for exact matches uses a linear regression model with the following scores:
+
+\begin{itemize}
+	\item \textbf{translation pair count}\\%TODO: not really count
+	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_p{c(p)}  } $, where $c(p)$ is the count for the translationpair $p$.
+	
+	\item \textbf{source-chunk edit distance}\\
+	The edit distance between the queried chunk and the source chunk of the translation pair candidate; the score is normalized by the length of the queried chunk.
+	
+	\item \textbf{genre match}\\
+	Percentage indicting how much the genres of the queried media source overlap with the genres of the sources of the translation pair.
+
+	\item \textbf{length difference between source and translation}\\
+	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of high quality (in most good translation pair candidates,  the length source and target side should not differ in length significantly).
+	
+	\item \textbf{final punctuation}\\
+	Feature indicating wether the final punctuation of the queried chunk and the candidate translation match.
+	
+	
+	
+\end{itemize}
 
 
+
+\subsection{Ranking for full-text search matches}
+
+
+\begin{itemize}
+	
+	\item \textbf{full-text search score for the document}\\
+	The score assigned by the \postgres~full text search for the document that represents the translation pair candidate.
+    
+	\item \textbf{translation pair count}\\%TODO: not really count
+	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_p{c(p)}  } $, where $c(p)$ is the count for the translationpair $p$.
+	
+	\item \textbf{source-chunk edit distance}\\
+	The edit distance between the queried chunk and the source chunk of the translation pair candidate; the score is normalized by the length of the queried chunk.
+	
+	\item \textbf{genre match}\\
+	Percentage indicting how much the genres of the queried media source overlap with the genres of the sources of the translation pair.
+
+	\item \textbf{length difference between query and source}\\
+	The length difference between the queried chunk and the source side of the translation pair candidate 
+
+
+	\item \textbf{length difference between source and translation}\\
+	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of high quality (in most good translation pair candidates,  the length source and target side should not differ in length significantly).
+	
+	\item \textbf{final punctuation}\\
+	Feature indicating wether the final punctuation of the queried chunk and the candidate translation match.
+	
+	
+	
+\end{itemize}
+
+
+
+\newpage
 \section{Merging similar candidates}
 
 
