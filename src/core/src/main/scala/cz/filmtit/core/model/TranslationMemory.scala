@@ -82,6 +82,7 @@ trait TranslationMemory {
    */
   def mediaStorage: MediaStorage
 
+  def tokenize(chunk:Chunk, language:Language)
 
   def close()
 }

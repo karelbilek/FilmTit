@@ -124,7 +124,7 @@ object Factory {
       val fulltextSearcher = new FulltextStorage(l1, l2, connection)
       levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyWekaRanker(configuration.fuzzyRankerModel)), 0.0, TranslationSource.INTERNAL_FUZZY)
     } else {
-      val flSearcher = new FirstLetterStorage(l1, l2, connection, l2TokenizerWrapper.get, l1TokenizerWrapper.get, useInMemoryDB)
+      val flSearcher = new FirstLetterStorage(l1, l2, connection, useInMemoryDB)
       levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
     }
 

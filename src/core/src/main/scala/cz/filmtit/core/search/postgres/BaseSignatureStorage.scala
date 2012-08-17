@@ -92,8 +92,15 @@ with SignatureTranslationPairStorage {
 
       if (row != null) {
 
-        val sigL1 = signature(new Chunk(row.getString("chunk_l1")), l1)
-        val sigL2 = signature(new Chunk(row.getString("chunk_l2")), l2)
+        val c1 = new Chunk(row.getString("chunk_l1"))
+        if (this.requiresTokenization && tm != null)
+          tm.tokenize(c1, l1)
+        val sigL1 = signature(c1, l1)
+
+        val c2 = new Chunk(row.getString("chunk_l2"))
+        if (this.requiresTokenization && tm != null)
+          tm.tokenize(c2, l2)
+        val sigL2 = signature(c2, l2)
 
         if(sigL1.surfaceform.size < maximumSignatureLength && sigL2.surfaceform.size < maximumSignatureLength) {
 
