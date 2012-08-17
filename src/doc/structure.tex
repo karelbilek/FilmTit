@@ -70,9 +70,9 @@ A \emph{timed chunk} is a chunk, that also have a time information and informati
 The chunks are wrapped in to the \emph{Translation result} objects which contains the the timed chunk from the original subtitle file, a chunk produced by the user as a translation of the original chunk, a list of translation suggestions from translation memory.
 
 \subsection*{Subtitle item}
-To have a clear terminology, in this document, we will call \emph{subtitle item} the text, that is displayed as a whole in the video player. This differs from the \emph{timed chunk}, because we might split the subtitle item into more chunks and translate them differently.
+To have a clear terminology, in this document, we will call \emph{subtitle item} the whole text, that has a time declaration in the video file and has a clear time information and is displayed in the video in a given time when playing. This differs from the \emph{timed chunk}, because we might split the subtitle item into more chunks and translate them differently.
 
-Unfortunately, in the code itself, we call \emph{chunk} both the sentence, that is translated, and the whole subtitle item. This is an error on our part, created most likely by not exactly defining all the terms before and just using the term \emph{subtitle chunk} for everything.
+Unfortunately, in the code itself, we call \emph{chunk} both the sentence, that is translated, and the whole subtitle item. This is an error on our part, created by not exactly defining all the terms beforehand and just using the term \emph{subtitle chunk} for everything.
 
 
 \begin{figure}[h]
