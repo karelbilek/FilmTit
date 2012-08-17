@@ -55,6 +55,7 @@ BaseSignatureStorage(
     })
   }
 
+  override def requiresTokenization = true
   override def name: String = "Translation pair storage based on word clustering index."
 }
 

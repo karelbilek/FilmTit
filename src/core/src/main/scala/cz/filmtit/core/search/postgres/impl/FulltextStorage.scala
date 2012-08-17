@@ -58,4 +58,6 @@ class FulltextStorage(
     connection.createStatement().execute(("DROP index IF EXISTS idx_fulltext_l2;" +
       "CREATE INDEX idx_fulltext_l2 ON %s USING gin(to_tsvector('%s', chunk_l2));").format(pairTable, l2.getName.toLowerCase))
   }
+
+  def requiresTokenization = false
 }

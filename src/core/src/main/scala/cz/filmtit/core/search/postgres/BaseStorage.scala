@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import cz.filmtit.share.{Language, TranslationPair, MediaSource, TranslationSource}
 import collection.mutable.{ListBuffer, HashSet}
 import scala.collection.JavaConverters._
+import cz.filmtit.core.model.TranslationMemory
 
 
 /**
@@ -25,6 +26,8 @@ abstract class BaseStorage(
   useInMemoryDB: Boolean = false
 ) extends TranslationPairStorage(l1, l2)
 with MediaStorage {
+
+  var tm: TranslationMemory = null
 
   val log = LogFactory.getLog(this.getClass.getSimpleName)
 

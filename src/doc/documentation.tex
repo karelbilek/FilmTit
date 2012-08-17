@@ -33,7 +33,12 @@
 \usepackage{relsize}
 \usepackage{hyperref}
 \usepackage{sectsty}
+
+\usepackage{algorithm2e}
+
+
 \allsectionsfont{\sffamily\mdseries\larger}
+
 
 
 
@@ -104,6 +109,19 @@
 \author{}
 %\date{} % Activate to display a given date or no date (if empty),
          % o
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Terminology
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\subarrow}{-{}->}
+\newcommand{\postgres}{Postgres}
+
+
+
+
 \begin{document}
 
 
@@ -115,7 +133,7 @@
 \item discussion about stopping generating suggestion (wanted to introduce WorkspaceID)
 \item we used Piratenpad for communication
 \item discussion about nature of translator (would edit negation, don't postedit at all, helpful get ideas about translations), how TM differs from MT
-\item want have Apache License $\Rightarrow$ cannot use Weka
+\item want have Apache License $\Rightarrow$ cannot use Weka+ sentence splitters from LanguageTool
 \end{itemize}
 }
 
@@ -129,6 +147,9 @@
 
 \pagenumbering{arabic}
 \setcounter{page}{1}
+
+\chapter*{Glossary}
+\input{glossary}
 
 
 \chapter{Introduction}

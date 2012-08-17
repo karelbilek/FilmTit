@@ -39,46 +39,6 @@ All the servlets are loaded using the \emph{Jetty} web server. Maven is used for
 
 As noted above, Moses machine translation server is running as a completely separate process, and it is actually running on a completely separate computer.
 
-\section{Terminology}
-\label{sec:shared_structure}
-
-In this section, our terminology is described, also with the general structure of work with translation memory.
-% from which a design of common classes is inferred, later used both in US, GUI and Core. It also explains the terminology we use both in code and the documentation.
-
-\subsection*{User}
-Everyone, who logs into the system, is called \emph{User}. Each user of the TM has its own setting, authentication data etc., and can own multiple subtitle files which we call \emph{Documents}.
-
-\subsection*{Document}
-A \emph{document} is subtitle file, owned by a user. (This is not connected with files, that are used for building the corpus.) The documents contains information about \emph{media source} of the subtitle, and list of the subtitles \emph{chunks} which either have been already translated or are waiting for translation.
-
-\subsection*{Media source}
-\emph{Media source} is our name for specific movie or TV show episode. It contains the name of the movie, its release year and a set of tags describing the genre of the movie.
-
-\subsection*{Chunk}
-A \emph{chunk} is a piece of text, that is getting translated. As we will describe later, it doesn't have to be a complete sentence.
-
-\subsection*{Surface form}
-Every chunk has a \emph{surface form} -- that means the text, that is being translated. The surface form is without any non-textual information -- we store these in annotations.
-
-\subsection*{Annotations}
-Every chunk also has \emph{annotations} -- non-textual information, that might be used at some point, but are not sent to translation memory for querying. By that, we mean positions of named entities, original position of newlines and dialog marks ("-") -- none of these go into the translation memory core.
-
-\subsection*{Timed chunk}
-A \emph{timed chunk} is a chunk, that also have a time information and information about order, in which it appears in subtitle file.
-
-\subsection*{Translation result}
-The chunks are wrapped in to the \emph{Translation result} objects which contains the the timed chunk from the original subtitle file, a chunk produced by the user as a translation of the original chunk, a list of translation suggestions from translation memory.
-
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics{figures/shared_classes.pdf}
-\end{center}
-\caption{Scheme of the application architecture.}\label{projectStructure:logical}
-\end{figure}
-
-%Deleting this, since we say the same stuff in the next section
-%All mentioned characteristics are common for both US and GUI. Because all parts of the project are Java based we can use a set of shared classes. Despite the limitations of GWT, which implements only a subset of Java functionality, using a shared classes structure makes the whole project clearer. 
 
 \section{Sharing the Implementation among the Project}
 
@@ -94,7 +54,14 @@ However, as noted in GWT documentation \footnote{\url{https://developers.google.
 
 Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by Java compiler to JVM bytecode, but not the other way around.
 
-\todo{???whould I let it here??}As it is hard to describe shared classes out of context, they will be explained in other parts of code when needed.
+\todo{???should I let it here??}As it is hard to describe shared classes out of context, they will be explained in other parts of code when needed.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{figures/shared_classes.pdf}
+\end{center}
+\caption{Scheme of the shared classes.}\label{projectStructure:logical}
+\end{figure}
 
 \section{Usage of Third Party Libraries}
 

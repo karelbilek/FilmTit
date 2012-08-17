@@ -39,10 +39,10 @@ class BackoffTranslationMemory(
   }
 
   def tokenizer(language:Language) = language match {
-        case `l1` => tokenizerl1
-        case `l2` => tokenizerl2
-        case _ => throw new Exception("Wrong tokenization language")
-    }
+    case `l1` => tokenizerl1
+    case `l2` => tokenizerl2
+    case _ => throw new Exception("Wrong tokenization language")
+  }
 
   def nBest(chunk: Chunk, language: Language, mediaSource: MediaSource,
     n: Int = 10, inner: Boolean = false,
@@ -152,10 +152,16 @@ class BackoffTranslationMemory(
     //If the searcher can be reindexed, do it:
     LOG.info("Reindexing...")
     searchers.foreach(_ match {
-      case s: TranslationPairStorage => s.reindex()
+      case s: TranslationPairStorage => {
+        s.asInstanceOf[BaseStorage].tm = this
+        s.reindex()
+      }
       case s: TranslationPairSearcherWrapper => {
         s.searchers.head match {
-          case s: TranslationPairStorage => s.reindex()
+          case s: TranslationPairStorage => {
+            s.asInstanceOf[BaseStorage].tm = this
+            s.reindex()
+          }
           case _ =>
         }
       }
@@ -194,7 +200,7 @@ class BackoffTranslationMemory(
     })
   }
 
-  private def tokenize(chunk:Chunk, language:Language) {
+  def tokenize(chunk:Chunk, language:Language) {
     if (!chunk.isTokenized) {
        //foreach means "do if not None"
         tokenizer(language).foreach {_.tokenize(chunk)}

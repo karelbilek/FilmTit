@@ -50,4 +50,6 @@ class TrigramStorage(
         "gist (sentence gist_trgm_ops);").format(pairTable))
   }
 
+  override def requiresTokenization = false
+
 }
