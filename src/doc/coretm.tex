@@ -48,6 +48,13 @@ configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://h
 </database>
 \end{lstlisting}
 
+
+\subsection{Retrieving Media Source information}
+\newpage
+
+
+
+
 \section{Architecture of the Core Translation Memory}
 
 The core translation memory consists of the database of chunks and media
@@ -100,7 +107,7 @@ connected to the translation pairs table.
 
 \subsubsection*{Database-based signatures}
 
-In the case of the database-based signatures, a {\tt PL/pgSQL} procedural function is used to create a functional index\footnote{See e.g.\ \url{http://www.postgresql.org/docs/9.1/static/indexes-expressional.html} (retrieved 10.08.2012).} on the translationpairs table. The function can then be used for fast retrieval from this table.
+In the case of the database-based signatures, a {\tt PL/pgSQL} procedural function is used to create a functional index\footnote{See e.g.\ \url{http://www.postgresql.org/docs/9.1/static/indexes-expressional.html} (retrieved 02.08.2012).} on the translationpairs table. The function can then be used for fast retrieval from this table.
 
 
 Several signature functions are used in the translation memory
@@ -297,9 +304,9 @@ TODO:DATA HERE
 
 As another, more fuzzy level of retrieval, we use the full-text search included in \postgres. In  \postgres~full-text search, documents (in our case translation pairs) are tokenized and normalized. The result of this process is vector of normalized tokens ({\tt tsvector}). The normalization step can include lowercasing, stemming or synonyms from a dictionary and removes stop words. \postgres~builds an index over the token vector of all documents, against which queries can be run. To convert a string to a query, it is tokenized and normalized and the resulting normalized tokens are connected with an {\tt AND} operator.
 
-The tokenization and normalization for a specific language is described in a text search configuration.\footnote{\url{http://www.postgresql.org/docs/9.1/static/textsearch-intro.html}, retrieved 10.08.2012.} By default, \postgres~includes text search configurations for the following languages: Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Turkish and the default ``Simple'' configuration. For Czech, a text search configuration is available from postgres.cz\footnote{\url{http://postgres.cz/wiki/Instalace_PostgreSQL}, retrieved 10.08.2012.} For installation instructions, please see the technical manual in chapter~\ref{chap:technical_manual}.
+The tokenization and normalization for a specific language is described in a text search configuration.\footnote{\url{http://www.postgresql.org/docs/9.1/static/textsearch-intro.html}} By default, \postgres~includes text search configurations for the following languages: Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Turkish and the default ``Simple'' configuration. For Czech, a text search configuration is available from postgres.cz\footnote{\url{http://postgres.cz/wiki/Instalace_PostgreSQL}} For installation instructions, please see the technical manual in chapter~\ref{chap:technical_manual}.
 
-When querying candidates for a Chunk, we use the {\tt ts\_rank}\footnote{\url{http://www.postgresql.org/docs/9.1/static/functions-textsearch.html}, retrieved 20.08.2012} function to pre-sort the candidates and the {\tt ts\_rank} score is later used as one of the scores in the ranking of translation pair candidates. One problem that the full-text search as a method of candidate retrieval shows, is that some of the candidates are unreasonably large documents that still have high scores because their token overlaps with the query are reasonable. We approach this problem by using our own ranking functions for translation pairs, as described in Section~\ref{sec:ranking}.
+When querying candidates for a Chunk, we use the {\tt ts\_rank}\footnote{\url{http://www.postgresql.org/docs/9.1/static/functions-textsearch.html}} function to pre-sort the candidates and the {\tt ts\_rank} score is later used as one of the scores in the ranking of translation pair candidates. One problem that the full-text search as a method of candidate retrieval shows, is that some of the candidates are unreasonably large documents that still have high scores because their token overlaps with the query are reasonable. We approach this problem by using our own ranking functions for translation pairs, as described in Section~\ref{sec:ranking}.
 
 
 \subsection{External services}
@@ -321,7 +328,7 @@ After retrieving candidates for a query, the candidate translation pairs must be
 
 All ranking methods are based on a combination of scores. Depending on the retrieval method, we assign every translation pair candidate a set of scores, which are then combined into a final score.  Translation pairs are ordered by this score.
 
-To learn the best combination for scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}, retrieved 10.08.2012.}
+To learn the best combination for scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}}
 
 
 \subsection{Ranking for exact matches}
@@ -351,6 +358,8 @@ The ranking for exact matches uses a linear regression model with the following 
 
 
 \subsection{Ranking for full-text search matches}
+
+
 
 
 \begin{itemize}
@@ -383,9 +392,13 @@ The ranking for exact matches uses a linear regression model with the following 
 
 
 
-\newpage
 \section{Merging similar candidates}
 
+After all translation pair candidates are retrieved and ranked on each level, we attempt to merge translation pairs that are too similar, so not to present the user with several choices that differ only very slightly.
+
+As a translation pair merger, we currently use an implementation based on Levenshtein distance, which removes all candidates whose similarity to a higher-scoring candidate are below a given threshold (1 by default).
+
+%TODO algorithm+analysis
 
 
 
@@ -393,7 +406,11 @@ The ranking for exact matches uses a linear regression model with the following 
 
 \subsection{Concurrency}
 
+One important issue in the Core Translation Memory is that the service must be able to handle a large number of simultaneous requests without blocking or long delays. 
 
+To approach this issue, we used the Scala akka library,\footnote{\url{http://akka.io/}} which provides methods for parallelization based on the \emph{actor model}. A {\tt TranslationPairSearcherWrapper}\footnote{See  the class cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper.} is a {\tt TranslationPairSearcher} that is constructed with a number of other {\tt TranslationPairSearcher}s, which act as the wrapper's workers. When the {\tt TranslationPairSearcherWrapper} receives a request, it routes it to a free worker or adds it to the queue if none of the workers are free. Using this wrapper class, any non-thread-safe subclass of {\tt TranslationPairSearcher} can easily be queried in parallel.
+
+We use the same method for parallelizing the tokenization of Chunks.
 
 
 

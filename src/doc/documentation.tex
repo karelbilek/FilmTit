@@ -32,6 +32,17 @@
 
 \usepackage{relsize}
 \usepackage{hyperref}
+
+%From here: http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-crossreferences-and-hyperlinks
+\usepackage{xcolor}
+\definecolor{dark-red}{rgb}{0.4,0.15,0.15}
+\definecolor{dark-blue}{rgb}{0.15,0.15,0.4}
+\definecolor{medium-blue}{rgb}{0,0,0.5}
+\hypersetup{
+    colorlinks, linkcolor={dark-red},
+    citecolor={dark-blue}, urlcolor={medium-blue}
+}
+
 \usepackage{sectsty}
 
 \usepackage{algorithm2e}

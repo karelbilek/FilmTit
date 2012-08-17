@@ -137,7 +137,7 @@ Dialogues are sometimes marked with a dash in the beginning. Example is in the g
 While punctuation marks (!?.) don't always end a sentence, they \emph{do} end a sentence when they are right before newline. For that reason we do split sentences on punctuation marks before newlines.
 
 \subsection*{Rule-based sentence splitting}
-Besides the two aforementioned rules, we use rule-based sentenced splitting (or Sentence Tokenizing) derived from code from Daniel Naber's LanguageTools. The code was heavily edited by us, but only for better clarity and usage of GWT regex classes, the functionality was unchanged.
+Besides the two aforementioned rules, we use rule-based sentenced splitting (or Sentence Tokenizing) derived from code from Daniel Naber's LanguageTools.\footnote{\url{http://www.languagetool.org/}, retrieved 20.08.2012.} The code was heavily edited by us, but only for better clarity and usage of GWT regex classes, the functionality was unchanged.
 
 In the rule-based classes, the list of possible words before the punctuation that don't break the sentence have to be explicitly written in the code (because GWT has a problem with reading files). Therefore, if there was a need of adding a new language to FilmTit, this would have to be added. On the other hand, similar data are publicly available for every language in, for example, the Wiktionary project.
 
