@@ -93,9 +93,9 @@ Despite we wanted to implement OpenID support from the very beginning we started
 
 \emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes\todo{check if it is true}) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
 
-At the end we \emph{JOpenID} library and support Google, Yahoo and Seznam accounts. The library contains the Google and Yahoo by default. We decided to add also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider. Seznam provides provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the the other OpenID providers, therefore it was necessary to write our parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
+At the end we decided to use \emph{JOpenID} library and support Google, Yahoo and Seznam accounts. The library contains the Google and Yahoo by default. We decided to also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider. Seznam provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the other OpenID providers, therefore it was necessary to write our parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
 
-We do not support generic OpenID because the lib does not support it. Anyway, after doing some research on the Czech developers forums we concluded that just a very small percentage of users actually know what OpenID is and allowing to login via the Google and Seznam accounts hopefully enough.
+We do not support generic OpenID because the lib does not support it. Anyway, after doing some research on the Czech developers forums we concluded that just a very small percentage of users actually know what OpenID is and allowing to login via the Google and Seznam accounts is hopefully enough.
 
 The support for OpenID was finished in July, the parser for the authentication data from Seznam were added at the beginning of August.
 
