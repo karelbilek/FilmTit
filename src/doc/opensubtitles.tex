@@ -97,43 +97,49 @@ Later in development, we noticed that some files have incorrect language written
 
 %\todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
 
-\section{Subtitles and sentences}
+\section{Loading subtitles, parsing}
+\subsection*{Loading subtitles}
+The subtitles were gzipped, as already noted. Gunzipping all the files to disk would take unnecessary space, so we load the files using \texttt{GZIPInputStream}, which is a part of standard Java library.
 
-By observing several subtitle files, we can see some patterns. 
+Most of the Czech subtitles were in encoding \texttt{Windows-1250}, but a small minority of them were in Unicode. Some files were not correct \texttt{gzip}. Other than these issues, reading the files themselves was quite easy.
 
-\begin{enumerate}
-    \item Usually, dialogues are marked with dash in the beginning. Example (from english subtitles from movie \emph{Jurassic Park III}):
-    
-        \texttt{7 \\
-        00:01:40,224 --> 00:01:42,762 \\
-        -Ready, amigo? \\
-        -Ready!}
-        
-    \item Sometimes, there is a sentence spread through more "screens" (or what we call \emph{chunks})
-    
-    \texttt{62
-    00:05:35,327 --> 00:05:36,092\\
-    Ellie,\\
-\\
-    63\\
-    00:05:36,127 --> 00:05:37,967\\
-    all the theories are about\\
-    raptors intelligence,\\
-\\
-    64\\
-    00:05:38,002 --> 00:05:39,567\\
-    what are they capable of?}
-    
-    \item Sometimes, there are more sentences in one chunk
-    
-    \texttt{43\\
-    00:04:43,047 --> 00:04:46,607\\
-    This is Hylaeosaurus.\\
-    That's the dinosaur man.}
-    
-\end{enumerate}
+\subsection*{GUI parsing}
+Before we start to talk about parsing, let us take a small sidestep to GUI. \todo{why???}We wanted to move the parsing of the users' uploaded subtitles to client side. Because we already had a set of shared classes, we decided to add the parser as a shared class -- because both users use the parsing in GUI and serves is using the parser while doing dataimport.
 
-As you can see, the sentences and chunks don't exactly match each other.
+Because we did that, we had to write the parsing classes in such a way, that would compile with both GWT and the java compiler. What that effectively meant was not using the standard Java regex classes, but special GWT ones.
+
+\subsection*{Parsing}
+Parsing the subtitles themselves was not a hard task, using GWT's regex classes. Even when \texttt{sub} is considerably less popular, we decided to not neglect it and built a parser for it, too.
+
+\section{Sentence splitting}
+\subsection*{Basic idea}
+Quite early on, we decided, that we shouldn't add the whole subtitle items into translation memory, but that we should split them to smaller parts.
+
+As you can see on the graph \ref{splitting:chunks}, we decided that we \emph{do} want to break subtitle items into sentences wherever possible and those add to database separately, but we do \emph{not} want to join the sentences that were already broken into multiple items.
+
+One of the reasons for \emph{not} joining sentences together is that it is not trivial to tell if the sentence ends with a given item or not, and other is, that user will also have the sentences in his original subtitles split in this way, but we don't want to join it, translate it joined and then break it again randomly.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{figures/chunks.pdf}
+\end{center}
+\caption{Relation of chunk, sentence and subtitle item. From movie \emph{Jurassic Park III}}\label{splitting:chunks}
+\end{figure}
+
+So to reiterate, we split sentences only within one subtitle item, and we don't join subtitle items to form complete sentences.
+
+For the same reasons as parsing \todo{to me, there are no real reasons}, we split sentences on client GUI when user uploads its subtitles. That limits us in the choice of splitting algorithms, basically to just using regular expressions; any algorithms, based on some machine-learned models, are not applicable here -- we can't just link a library to the GWT code and use a model, loaded from file.
+
+\subsection*{Dialogues}
+Dialogues are sometimes marked with a dash in the beginning. Example is in the graph \ref{splitting:chunks}. Dialogue is \emph{always} a new sentence.
+
+\subsection*{Punctuation marks on newlines}
+While punctuation marks (!?.) don't always end a sentence, they \emph{do} end a sentence when they are right before newline. For that reason we do split sentences on punctuation marks before newlines.
+
+\subsection*{Rule-based sentence splitting}
+Besides the two aforementioned rules, we use rule-based sentenced splitting (or Sentence Tokenizing) derived from code from Daniel Naber's LanguageTools. The code was heavily edited by us, but only for better clarity and usage of GWT regex classes, the functionality was unchanged.
+
+In the rule-based classes, the list of possible words before the punctuation that don't break the sentence have to be explicitly written in the code (because GWT has a problem with reading files). Therefore, if there was a need of adding a new language to FilmTit, this would have to be added. On the other hand, similar data are publicly available for every language in, for example, the Wiktionary project.
 
 \section{Aligning the subtitles}
 \label{sec:aligning_subtitles}
@@ -174,7 +180,7 @@ To illustrate some features of the movie subtitle files, fragments ofa randomly 
 
 \begin{subexam}
 1
-00:00:00,066 --> 00:00:02,375
+00:00:00,066 \subarrow 00:00:02,375
 Titulky preložené do češtiny by BiGfOoT.
 ----------------------------------------
 Tento disk DVD (Digital Versatile Disc)
@@ -184,7 +190,7 @@ zvukového záznamu přísluší vlastníku
 autorského práva.
 
 2
-00:00:02,746 --> 00:00:05,055
+00:00:02,746 \subarrow 00:00:05,055
 Neautorizované rozmnožování,
 úpravy, projekce pro jiné než domácí
 účely, pronájem, výměna, pújčování a
@@ -195,49 +201,49 @@ práva bude stíháno podle platných
 právních předpisú.
 
 3
-00:00:32,666 --> 00:00:38,059
+00:00:32,666 \subarrow 00:00:38,059
 LEGENDA O VÁŠNI
 
 4
-00:00:46,426 --> 00:00:51,454
+00:00:46,426 \subarrow 00:00:51,454
 Někteří lidě slyší svúj
 vnitřní hlas nadmíru jasně.
 
 5
-00:00:51,626 --> 00:00:54,663
+00:00:51,626 \subarrow 00:00:54,663
 A řídí se jím po celý život.
 
 374
-00:56:41,186 --> 00:56:44,781
+00:56:41,186 \subarrow 00:56:44,781
 Řekni to ještě jednou
 a přestaneme být bratry.
 
 375
-00:56:46,506 --> 00:56:49,862
+00:56:46,506 \subarrow 00:56:49,862
 Někdy!
 
 376
-00:56:52,146 --> 00:56:56,503
+00:56:52,146 \subarrow 00:56:56,503
 - S tebou nebude šťastna.
 - Uvidíme.
 
 755
-02:01:42,266 --> 02:01:47,101
+02:01:42,266 \subarrow 02:01:47,101
 ... někde mezi tímto světem
 a tím druhým.
 
 756
-02:02:23,266 --> 02:02:26,178
+02:02:23,266 \subarrow 02:02:26,178
 Byla to dobrá smrt.
 
 757
-02:07:18,306 --> 02:07:22,697
+02:07:18,306 \subarrow 02:07:22,697
 České titulky - BiGfOoT.
 \end{subexam}
 \hspace{0.5cm}
 \begin{subexam}
 1
-00:00:00,066 --> 00:00:02,375
+00:00:00,066 \subarrow 00:00:02,375
 Titulky preložené do češtiny by BiGfOoT.
 ----------------------------------------
 Tento disk DVD (Digital Versatile Disc)
@@ -247,7 +253,7 @@ zvukového záznamu přísluší vlastníku
 autorského práva.
 
 2
-00:00:02,746 --> 00:00:05,055
+00:00:02,746 \subarrow 00:00:05,055
 Neautorizované rozmnožování,
 úpravy, projekce pro jiné než domácí
 účely, pronájem, výměna, pújčování a
@@ -258,43 +264,43 @@ práva bude stíháno podle platných
 právních předpisú.
 
 3
-00:00:32,666 --> 00:00:38,059
+00:00:32,666 \subarrow 00:00:38,059
 LEGENDA O VÁŠNI
 
 4
-00:00:46,426 --> 00:00:51,454
+00:00:46,426 \subarrow 00:00:51,454
 Někteří lidě slyší svúj
 vnitřní hlas nadmíru jasně.
 
 5
-00:00:51,626 --> 00:00:54,663
+00:00:51,626 \subarrow 00:00:54,663
 A řídí se jím po celý život.
 
 374
-00:56:41,186 --> 00:56:44,781
+00:56:41,186 \subarrow 00:56:44,781
 Řekni to ještě jednou
 a přestaneme být bratry.
 
 375
-00:56:46,506 --> 00:56:49,862
+00:56:46,506 \subarrow 00:56:49,862
 Někdy!
 
 376
-00:56:52,146 --> 00:56:56,503
+00:56:52,146 \subarrow 00:56:56,503
 - S tebou nebude šťastna.
 - Uvidíme.
 
 755
-02:01:42,266 --> 02:01:47,101
+02:01:42,266 \subarrow 02:01:47,101
 ... někde mezi tímto světem
 a tím druhým.
 
 756
-02:02:23,266 --> 02:02:26,178
+02:02:23,266 \subarrow 02:02:26,178
 Byla to dobrá smrt.
 
 757
-02:07:18,306 --> 02:07:22,697
+02:07:18,306 \subarrow 02:07:22,697
 České titulky - BiGfOoT.
 \end{subexam}
 
@@ -302,89 +308,89 @@ Byla to dobrá smrt.
 \begin{subexam}
 
 1
-00:00:46,577 --> 00:00:51,605
+00:00:46,577 \subarrow 00:00:51,605
 Somepeople heartheir own
 innervoices with greatcleamess.
 
 2
-00:00:51,777 --> 00:00:54,814
+00:00:51,777 \subarrow 00:00:54,814
 And they live bywhatthey hear.
 
 3
-00:00:54,977 --> 00:01:00,973
+00:00:54,977 \subarrow 00:01:00,973
 Such people become crazy,
 orthey become legends ...
 
 4
-00:01:07,137 --> 00:01:11,813
+00:01:07,137 \subarrow 00:01:11,813
 Tristan Ludlowwas bom
 in the moon ofthe falling leaves.
 
 5
-00:01:11,977 --> 00:01:14,332
+00:01:11,977 \subarrow 00:01:14,332
 ltwas a terrible winter.
 
 374
-00:56:41,337 --> 00:56:44,932
+00:56:41,337 \subarrow 00:56:44,932
 You saythat again
 and we're not brothers.
 
 375
-00:56:46,657 --> 00:56:50,013
+00:56:46,657 \subarrow 00:56:50,013
 Once!
 
 376
-00:56:52,297 --> 00:56:56,654
+00:56:52,297 \subarrow 00:56:56,654
 - You know you can't make her happy.
 - l'm gonna try.
 
 756
-02:01:38,937 --> 02:01:42,247
+02:01:38,937 \subarrow 02:01:42,247
 He hadalways lived
 in the borderland, anyway.
 
 757
-02:01:42,417 --> 02:01:47,252
+02:01:42,417 \subarrow 02:01:47,252
 Somewhere between this world
 and the other.
 
 758
-02:02:23,417 --> 02:02:26,329
+02:02:23,417 \subarrow 02:02:26,329
 lt was a good death.
 \end{subexam}
 \hspace{0.5cm}
 \begin{subexam}
 1
-00:00:58,000 --> 00:01:00,696
+00:00:58,000 \subarrow 00:01:00,696
 - I'm here!
 - Where? I can't see.
 
 2
-00:01:02,704 --> 00:01:04,365
+00:01:02,704 \subarrow 00:01:04,365
 I can't move!
 
 3
-00:01:08,577 --> 00:01:10,238
+00:01:08,577 \subarrow 00:01:10,238
 I'm coming!
 
 4
-00:01:35,671 --> 00:01:38,037
+00:01:35,671 \subarrow 00:01:38,037
 I got you now.
 
 5
-00:01:40,008 --> 00:01:42,272
+00:01:40,008 \subarrow 00:01:42,272
 You're doing good.
 
 315
-00:44:59,438 --> 00:45:02,032
+00:44:59,438 \subarrow 00:45:02,032
 were married several years ago.
 
 316
-00:45:05,278 --> 00:45:07,542
+00:45:05,278 \subarrow 00:45:07,542
 Your brother's a congressman now.
 
 317
-00:45:09,282 --> 00:45:11,716
+00:45:09,282 \subarrow 00:45:11,716
 They have a big, new place
 in Helena.
 \end{subexam}
@@ -392,307 +398,307 @@ in Helena.
 
 \begin{subexam}
 1
-00:00:45,869 --> 00:00:49,186
+00:00:45,869 \subarrow 00:00:49,186
 <i>Some people hear 
 their own inner voices...</i>
 
 2
-00:00:49,261 --> 00:00:50,920
+00:00:49,261 \subarrow 00:00:50,920
 <i>with great clearness...</i>
 
 3
-00:00:50,989 --> 00:00:54,087
+00:00:50,989 \subarrow 00:00:54,087
 <i>and they live by what they hear.</i>
 
 4
-00:00:54,157 --> 00:00:57,125
+00:00:54,157 \subarrow 00:00:57,125
 <i>Such people become crazy...</i>
 
 5
-00:00:57,198 --> 00:00:59,369
+00:00:57,198 \subarrow 00:00:59,369
 <i>or they become legends.</i>
 
 374
-00:34:22,150 --> 00:34:23,710
+00:34:22,150 \subarrow 00:34:23,710
 Charge!
 
 375
-00:34:37,734 --> 00:34:39,806
+00:34:37,734 \subarrow 00:34:39,806
 Goddamn it!
 
 376
-00:34:40,838 --> 00:34:42,693
+00:34:40,838 \subarrow 00:34:42,693
 - Where are you hit?
 - It's just a scratch.
 
 983
-02:01:38,444 --> 02:01:41,891
+02:01:38,444 \subarrow 02:01:41,891
 <i>He had always lived
 in the borderland anyway:</i>
 
 984
-02:01:41,964 --> 02:01:45,576
+02:01:41,964 \subarrow 02:01:45,576
 <i>somewhere between this world
 and the other.</i>
 
 985
-02:02:23,086 --> 02:02:25,093
+02:02:23,086 \subarrow 02:02:25,093
 <i>It was a good death.</i>
 \end{subexam}
 \hspace{0.5cm}
 \begin{subexam}
 1
-00:00:44,411 --> 00:00:47,869
+00:00:44,411 \subarrow 00:00:47,869
 Some people hear their own
 inner voices
 
 2
-00:00:47,948 --> 00:00:49,677
+00:00:47,948 \subarrow 00:00:49,677
 with great clearness
 
 3
-00:00:49,750 --> 00:00:52,981
+00:00:49,750 \subarrow 00:00:52,981
 and they live
 by what they hear
 
 4
-00:00:53,053 --> 00:00:56,147
+00:00:53,053 \subarrow 00:00:56,147
 Such people become crazy
 
 5
-00:00:56,223 --> 00:00:58,487
+00:00:56,223 \subarrow 00:00:58,487
 or they become legend
 
 374
-00:35:27,326 --> 00:35:30,921
+00:35:27,326 \subarrow 00:35:30,921
 Is that wrong to want
 to distinguish myself gloriously
 
 375
-00:35:30,996 --> 00:35:33,226
+00:35:30,996 \subarrow 00:35:33,226
 in combat as my father did?
 
 376
-00:35:33,298 --> 00:35:36,290
+00:35:33,298 \subarrow 00:35:36,290
 Tristan and Alfred
 watch over me so carefully
 
 1000
-02:06:50,103 --> 02:06:53,869
+02:06:50,103 \subarrow 02:06:53,869
 Somewhere between this world
 and the other
 
 1001
-02:07:32,979 --> 02:07:35,072
+02:07:32,979 \subarrow 02:07:35,072
 It was a good death
 
 1002
-02:12:47,200 --> 02:12:49,072
+02:12:47,200 \subarrow 02:12:49,072
 \{\{\{the end\}\}\}
 \end{subexam}
 
 
 \begin{subexam}
 1
-00:00:43,411 --> 00:00:46,869
+00:00:43,411 \subarrow 00:00:46,869
 Some people hear their own
 inner voices
 
 2
-00:00:46,948 --> 00:00:48,677
+00:00:46,948 \subarrow 00:00:48,677
 with great clearness
 
 3
-00:00:48,750 --> 00:00:51,981
+00:00:48,750 \subarrow 00:00:51,981
 and they live
 by what they hear
 
 4
-00:00:52,053 --> 00:00:55,147
+00:00:52,053 \subarrow 00:00:55,147
 Such people become crazy
 
 5
-00:00:55,223 --> 00:00:57,487
+00:00:55,223 \subarrow 00:00:57,487
 or they become legend
 
 374
-00:35:26,326 --> 00:35:29,921
+00:35:26,326 \subarrow 00:35:29,921
 Is that wrong to want
 to distinguish myself gloriously
 
 375
-00:35:29,996 --> 00:35:32,226
+00:35:29,996 \subarrow 00:35:32,226
 in combat as my father did?
 
 376
-00:35:32,298 --> 00:35:35,290
+00:35:32,298 \subarrow 00:35:35,290
 Tristan and Alfred
 watch over me so carefully
 
 1000
-02:06:49,103 --> 02:06:52,869
+02:06:49,103 \subarrow 02:06:52,869
 Somewhere between this world
 and the other
 
 1001
-02:07:31,979 --> 02:07:34,072
+02:07:31,979 \subarrow 02:07:34,072
 It was a good death
 
 1002
-02:12:46,200 --> 02:12:48,072
+02:12:46,200 \subarrow 02:12:48,072
 \{\{\{the end\}\}\}
 \end{subexam}
 \hspace{0.5cm}
 \begin{subexam}
 1
-00:00:46,418 --> 00:00:51,446
+00:00:46,418 \subarrow 00:00:51,446
 Some people hear their own
 inner voices with great clearness.
 
 2
-00:00:51,618 --> 00:00:54,655
+00:00:51,618 \subarrow 00:00:54,655
 And they live by what they hear.
 
 3
-00:00:54,818 --> 00:01:00,814
+00:00:54,818 \subarrow 00:01:00,814
 Such people become crazy,
 or they become legends ...
 
 4
-00:01:06,978 --> 00:01:11,654
+00:01:06,978 \subarrow 00:01:11,654
 Ôristan Ludlow was born
 in the moon of the falling leaves.
 
 5
-00:01:11,818 --> 00:01:14,173
+00:01:11,818 \subarrow 00:01:14,173
 It was a terrible winter.
 
 374
-00:56:58,898 --> 00:57:02,208
+00:56:58,898 \subarrow 00:57:02,208
 You will fail.
 
 375
-00:57:14,298 --> 00:57:17,529
+00:57:14,298 \subarrow 00:57:17,529
 I'm going to be leaving today.
 
 376
-00:57:26,458 --> 00:57:30,087
+00:57:26,458 \subarrow 00:57:30,087
 l do wish you both all the best.
 
 752
-02:01:42,258 --> 02:01:47,093
+02:01:42,258 \subarrow 02:01:47,093
 Somewhere between this world
 and the other.
 
 753
-02:02:23,258 --> 02:02:26,170
+02:02:23,258 \subarrow 02:02:26,170
 It was a good death.
 
 754
-02:07:18,298 --> 02:07:22,689
+02:07:18,298 \subarrow 02:07:22,689
 English subtitles - lFT
 \end{subexam}
 
 \begin{subexam}
 1
-00:00:45,977 --> 00:00:51,005
+00:00:45,977 \subarrow 00:00:51,005
 Some people hear their own
 inner voices with great cleamess.
 
 2
-00:00:51,177 --> 00:00:54,214
+00:00:51,177 \subarrow 00:00:54,214
 And they live by what they hear.
 
 3
-00:00:54,377 --> 00:01:00,373
+00:00:54,377 \subarrow 00:01:00,373
 Such people become crazy,
 or they become legends ...
 
 4
-00:01:06,537 --> 00:01:11,213
+00:01:06,537 \subarrow 00:01:11,213
 Tristan Ludlow was bom
 in the moon of the falling leaves.
 
 5
-00:01:11,377 --> 00:01:13,732
+00:01:11,377 \subarrow 00:01:13,732
 lt was a terrible winter.
 
 374
-00:56:40,737 --> 00:56:44,332
+00:56:40,737 \subarrow 00:56:44,332
 You saythat again
 and we're not brothers.
 
 375
-00:56:46,057 --> 00:56:49,413
+00:56:46,057 \subarrow 00:56:49,413
 Once!
 
 376
-00:56:51,697 --> 00:56:56,054
+00:56:51,697 \subarrow 00:56:56,054
 - You know you can't make her happy.
 - l'm gonna try.
 
 756
-02:01:38,337 --> 02:01:41,647
+02:01:38,337 \subarrow 02:01:41,647
 He had always lived
 in the borderland, anyway.
 
 757
-02:01:41,817 --> 02:01:46,652
+02:01:41,817 \subarrow 02:01:46,652
 Somewhere between this world
 and the other.
 
 758
-02:02:22,817 --> 02:02:25,729
+02:02:22,817 \subarrow 02:02:25,729
 lt was a good death.
 \end{subexam}
 \hspace{0.5cm}
 \begin{subexam}
 1
-00:00:43,785 --> 00:00:47,243
+00:00:43,785 \subarrow 00:00:47,243
 Some people hear their own
 inner voices...
 
 2
-00:00:47,322 --> 00:00:49,051
+00:00:47,322 \subarrow 00:00:49,051
 with great clearness...
 
 3
-00:00:49,123 --> 00:00:52,354
+00:00:49,123 \subarrow 00:00:52,354
 and they live
 by what they hear.
 
 4
-00:00:52,427 --> 00:00:55,521
+00:00:52,427 \subarrow 00:00:55,521
 Such people become crazy...
 
 5
-00:00:55,597 --> 00:00:57,861
+00:00:55,597 \subarrow 00:00:57,861
 or they become legends.
 
 374
-00:35:35,741 --> 00:35:37,470
+00:35:35,741 \subarrow 00:35:37,470
 I may never get the opportunity.
 
 375
-00:35:46,085 --> 00:35:47,712
+00:35:46,085 \subarrow 00:35:47,712
 Charge!
 
 376
-00:36:02,334 --> 00:36:04,495
+00:36:02,334 \subarrow 00:36:04,495
 Goddamn it!
 
 987
-02:06:45,772 --> 02:06:49,367
+02:06:45,772 \subarrow 02:06:49,367
 He had always lived
 in the borderland anyway:
 
 988
-02:06:49,443 --> 02:06:53,209
+02:06:49,443 \subarrow 02:06:53,209
 somewhere between this world
 and the other.
 
 989
-02:07:32,319 --> 02:07:34,412
+02:07:32,319 \subarrow 02:07:34,412
 It was a good death.
 \end{subexam}
 
