@@ -30,3 +30,19 @@ The chunks are wrapped in to the \emph{Translation result} objects which contain
 In this document, we will call \emph{subtitle item} the whole text, that has a time declaration in the video file and has a clear time information and is displayed in the video in a given time when playing. This differs from the \emph{timed chunk}, because we might split the subtitle item into more chunks and translate them differently.
 
 Unfortunately, in the code itself, we call \emph{chunk} both the sentence, that is translated, and the whole subtitle item. This is an error on our part, created by not exactly defining all the terms beforehand and just using the term \emph{subtitle chunk} for everything.
+
+\subsection*{Remote Procedure Call (RPC)}
+A method providing interaction between the client and the server is a \emph{remote procedure call}. The shared class FilmTitService.java \emph{defines} the API by specifying the RPCs as methods with a name, a set of parameters, a return type and checked exceptions. The Userspace class FilmTitBackendServer.java must \emph{implement} each of the defined RPCs. A class in cz.filmtit.client.callables may \emph{invoke} the RPC, passing the required parameters to the GWT RPC mechanism which ensures their delivery to the server and the execution of the implementation method. The callable class must also implement an asynchronous \emph{callback} by implementing the methods onSuccess() and onFailure(), which are called by the GWT RPC mechanism when the RPC \emph{returns}, i.e. returns a value or fails with an exception and the result is received by GUI. Failure is defined as the RPC server implementation throwing an exception, which is passed as a parameter to onFailure(). Otherwise, the retrned value is passed to onSuccess().
+
+\subsection*{Session ID}
+A unique identifier of a logged in user, valid for 1 hour, or 1 month if the user decided to be ``permanently logged in''. Managed by the Userspace.
+
+\subsection*{Google Web Toolkit (GWT)}
+Framework used to implement the Graphical User Interface (GUI).
+TODO: It probably does not really belong here, but I refer to it so often that I thought it deserved its own entry. Delete if you disagree.
+
+\subsection*{Page}
+A \emph{page} in GUI (also often called ``screen'' by other authors) is a viewpoint in the GUI, having a distinct name, URL identifier, layout and function -- such as the About Page or the Translation Workspace.
+
+\subsection*{Dialog}
+A \emph{Dialog} is an element smaller than a page in height and width, displayed on top of a page and disabling the user interaction with the page. Similarly to a page, it also has a distinct layout and function. It typically contains text boxes to fill in or edit some values, and buttons to submit the values or to close the dialog.

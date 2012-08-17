@@ -1,3 +1,5 @@
+299
+
 \section{Timeline}
 
 The following section describes the project development, progress and decision as we did through the time the the project was developed. After series of informal talk the project officially started in December 2011 and was submitted in September 2012.
@@ -289,6 +291,22 @@ finally decided to support only SRT
 - easier to process (e.g. changing the timing), easier to sync to the player
 
 We also support exporting the subtitles in plain text format, i.e. only the text without timing information.
+
+\subsubsection{GUI Pages}
+
+We started having one page only, the Translation Workspace, which was sufficient for development of the application for several months. Later we added the Document  Creator page as the default one, which replaced itself by the Translation Workspace once a document was created, and this was sufficient for some more time. However, we eventually could not avoid adding more pages and the need to explicitely handle multiple pages became obvious.
+
+We immediately found out a week point of GWT here: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switchng pages are really simple tasks. GWT, however, observes the idea of having one HTML file and one Javascript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
+
+The GWT way of switching pages is by replacing the contents of the Root Panel (which represents the visible part of a page), or any other Panel placed within the Root Panel (which we decided to use so that some elements, such as the menu, are present on all pages). The switching is done without reloading, simply by creating an instance of the new page and directly setting it as the contents of the panel (without any convenience functions for that to our knowledge).
+
+All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also Hyperlink widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler.
+
+Created PageHandler, handles both changing the URL and switching the Content Panel contents.
+
+\subsubsection{}
+
+\subsubsection{}
 
 \subsection{Final Development}
 
