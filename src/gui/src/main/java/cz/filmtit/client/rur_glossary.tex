@@ -1,0 +1,5 @@
+
+Remote Procedure Call (RPC) -- a method providing interaction between the client and the server. The shared class FilmTitService.java \b{defines} the API by specifying the RPCs as methods with a name, a set of parameters, a return type and checked exceptions. The Userspace class FilmTitBackendServer.java \b{must} \b{implement} each of the defined RPCs. A class in cz.filmtit.client.callables \b{may} \b{invoke} the RPC, passing the required parameters to the GWT RPC mechanism which ensures their delivery to the server and the execution of the implementation method. The callable class \b{must} also implement an asynchronous \b{callback} by implementing the methods onSuccess() and onFailure(), which are called by the GWT RPC mechanism when the RPC \b{returns}. Failure is defined as the RPC server implementation throwing an exception, which is passed as a parameter to onFailure(). Otherwise, the retrned value is passed to onSuccess().
+
+SessionID -- a unique identifier of a logged in user, valid for 1 hour or 1 month.
+
