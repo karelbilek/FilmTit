@@ -43,17 +43,20 @@ Originally, all the algorithms precessing the data we retrieved were implemented
 
 \end{figure}
 
-We started to solve very soon the video playback in the browser which we expected to be a really challenging issue. ... we thought about flash, creating application wrapper where an web would be included ...
+We started to solve very soon the video playback in the browser which we expected to be a really challenging issue. We did some research about \emph{Adobe Flash} technology. We were also thinking about creating a hybrid solution -- an application wrapper with web browser inside, capable to ensure the video playback for the inner web application.
 
 We very soon had toy implementations of:
 
-- a player using VLC plugin, to be incorporated into the web app
+\begin{itemize}
+\item a player using VLC plugin, to be incorporated into the web app
 
-- a player as a desktop java app, showing the web app in a frame
+\item a player as a desktop java app, showing the web app in a frame\todo{do you have a screenshot?}
+\end{itemize}
 
 We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
 
 \subsection{Introducing the shared classes}
+\label{subsec:introducing_shared_classes}
 
 After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order run a first snapshot of the application. This was happening approximately in March 2012.
 
@@ -76,21 +79,25 @@ The very first version of the application was a page where it was possible to up
 
 From the later view it appeared to be an important decision to agree on the shared classes which made the cooperation between the modules easier and less verbose. 
 
-\subsection{???}
+\subsection{The Main Development Phase}
 
-Sessions, logging, troubles with OpenID, trying JOpenID, openid4java 
+It is hard to define the main development phase which is covered in the following paragraphs. It corresponds to the period from the beginning of March when the important design changes were made (see previous section \ref{subsec:introducing_shared_classes}) to approximately the middle of August when adding new features was stopped (see next section \ref{subsec:final_development}).
 
-Use our own Moses trained on the subtitle data we have from opensubtitles
+The section is divided to parts covering the issues we were dealing with and describes what we did in each area in those approximately five and half months.
 
 \subsubsection{OpenID}
 
-TODO -- Jindra?
+Despite we wanted to implement OpenID support from the very beginning we started with it approximately in May. We found two most frequently used Java libraries for OpenID and tried them. Those were \emph{JOpenID} and \emph{openid4java}.
 
-we use this and this library because...
+\emph{JOpenID} seemed to be easier to use and also was much smaller as a dependency, on the other hand when we run into some problems with using it we found out that \emph{openid4java} is much more frequently discussed on the \emph{StackOverflow.com} forum and that there bigger chance that we would be able to find some advice for potential problems.
 
-we support Google, Yahoo and Seznam because...
+\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes\todo{check if it is true}) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
 
-we do not support generic openid because the lib does not support this
+At the end we \emph{JOpenID} library and support Google, Yahoo and Seznam accounts. The library contains the Google and Yahoo by default. We decided to add also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider. Seznam provides provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the the other OpenID providers, therefore it was necessary to write our parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
+
+We do not support generic OpenID because the lib does not support it. Anyway, after doing some research on the Czech developers forums we concluded that just a very small percentage of users actually know what OpenID is and allowing to login via the Google and Seznam accounts hopefully enough.
+
+The support for OpenID was finished in July, the parser for the authentication data from Seznam were added at the beginning of August.
 
 \subsubsection{Chunk Splitting}
 
@@ -309,8 +316,9 @@ Created PageHandler, handles both changing the URL and switching the Content Pan
 \subsubsection{}
 
 \subsection{Final Development}
+\label{subsec:final_development}
 
-Optimizations required: better to throw away translation pairs and generated everytime user logs in
+Optimizations required: better to throw away translation pairs and generated every time user logs in
 
 Found many technical issues: %e.g. necessary to be able to stop loading generating the suggestions on the server at the moment - DONE
 
