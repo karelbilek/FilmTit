@@ -7,6 +7,8 @@
 .settings
 
 
+.gwt
+
 
 #targets
 
@@ -28,3 +30,8 @@
 #vim stuff
 
 *.swp
+
+
+# runtime stuff
+
+live.log.1

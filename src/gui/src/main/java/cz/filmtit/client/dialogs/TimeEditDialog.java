@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.CellTable;
+import com.github.gwtbootstrap.client.ui.Paragraph;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.SubmitButton;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -79,6 +80,13 @@ public class TimeEditDialog extends Composite {
 		}
 		
 		initTable();
+		
+		StringBuilder sb = new StringBuilder();
+		for (TimedChunk timedChunk : chunks) {
+			sb.append(timedChunk.getSurfaceForm());
+			sb.append(' ');
+		}
+		chunkText.setText(sb.toString());
 		
 		showDialog();
 	}
@@ -218,9 +226,15 @@ public class TimeEditDialog extends Composite {
     @UiField
     Form timesForm;
     
+    @UiField
+    Paragraph chunkText;
+    
 	@UiField
 	CellTable<SrtTime> timesTable;
 	
+    @UiField
+    Paragraph timeValue;
+    
 	@UiField
 	SubmitButton submitButton;
 	

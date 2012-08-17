@@ -63,20 +63,47 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.surfaceForm = surfaceForm.replace('\u0000',' ');
     }
 
+    /**
+     * Only the string, with no annotations (newlines are turned into spaces).
+     * @return
+     */
     public String getSurfaceForm() {
         return surfaceForm;
     }
 
+    /**
+     * The string with annotations, as in an SRT file (newlines are turned into |).
+     * @return
+     */
     public String getDatabaseForm() {
         return getFormatedForm("- "," | ");
     }
 
+    /**
+     * The string with annotations, as in an SRT file (newlines are turned into |).
+     * @return
+     */
     public void setDatabaseForm(String form) {
         Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
         setSurfaceForm(chunkInfo.string);
         addAnnotations(chunkInfo.anots); 
     }
 
+    /**
+     * The string with annotations, as in an SRT file (newlines are turned into |).
+     * Deletes previously existing format annotations.
+     * @return
+     */
+    public void setDatabaseFormForce(String form) {
+        Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
+        setSurfaceForm(chunkInfo.string);
+        setFormattingAnnotations(chunkInfo.anots); 
+    }
+
+    /**
+     * The string with annotations, newlines turned into newlineString, dialogue dashes into dashString.
+     * @return
+     */
     public String getFormatedForm(String dashString, String newlineString) {
         String displayForm = getSurfaceForm();
         
@@ -118,6 +145,10 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         return false;
     }
 
+    /**
+     * Only the string, with no annotations (newlines are turned into spaces).
+     * @return
+     */
     public void setSurfaceForm(String surfaceform) {
         this.surfaceForm = surfaceform.replace('\u0000', ' ');
         /*if (this.surfaceForm.equals(surfaceForm)) { return; }
@@ -168,15 +199,65 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.annotations.add(annotation);
     }
  
+    /**
+     * The string with annotations in HTML form (newlines are turned into <br />).
+     * @return
+     */
     public String getGUIForm(){
         return getFormatedForm("- ", "<br />");
     }
+
+//    intended to be used where the text is displayed in a textarea but not used at the moment
+//
+//    /**
+//     * The string with annotations in text form (newlines are turned into \n).
+//     * @return
+//     */
+//    public String getTextForm(){
+//        return getFormatedForm("- ", "\n");
+//    }
+//    
+//    /**
+//     * The string with annotations in text form (newlines are turned into \n).
+//     * @return
+//     */
+//    public void setTextForm(String form){
+//    	RegExp newline = RegExp.compile("[\n\r]+", "g");
+//    	String dbForm = newline.replace(form, " | ");
+//        setDatabaseForm(dbForm);
+//    }
     
+    /**
+     * Add new annotations, keeping the original ones.
+     */
     public void addAnnotations(Collection<Annotation> annotations) {
         if (this.annotations == null)
             this.annotations = new ArrayList<Annotation>();
 
         this.annotations.addAll(annotations);
+    }
+
+    /**
+     * Set new formatting annotations, deleting the previous ones.
+     * @param annotations
+     */
+    public void setFormattingAnnotations(Collection<Annotation> annotations) {
+    	// remove old formatting annotations = readd non-formatting annotations
+    	List<Annotation> newAnnotations = new ArrayList<Annotation>();
+    	for (Annotation annotation : this.annotations) {
+			if (
+					annotation.getType() == AnnotationType.ORGANIZATION ||
+					annotation.getType() == AnnotationType.PERSON ||
+					annotation.getType() == AnnotationType.PLACE
+					) {
+				
+				annotations.add(annotation);
+			}
+		}
+        // add new format annotations
+        newAnnotations.addAll(annotations);
+        // set
+        this.annotations = newAnnotations;
     }
 
     public void removeAnnotation(int index) {

@@ -114,8 +114,10 @@ public class TranslationWorkspace extends Composite {
 
     // column numbers in the subtitle-table
     private static final int TIMES_COLNUMBER      = 0;
-    private static final int SOURCETEXT_COLNUMBER = 1;
-    private static final int TARGETBOX_COLNUMBER  = 2;
+    private static final int SOURCETEXT_COLNUMBER = 2;
+    private static final int TARGETBOX_COLNUMBER  = 4;
+    private static final int SOURCE_DIALOGMARK_COLNUMBER = 1;
+    private static final int TARGET_DIALOGMARK_COLNUMBER = 3;
 
     private boolean isVideo=false;
 
@@ -186,8 +188,10 @@ public class TranslationWorkspace extends Composite {
 
         table.setWidth("100%");
         table.getColumnFormatter().setWidth(TIMES_COLNUMBER,      "164px");
-        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "410px");
-        table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "400px");
+        table.getColumnFormatter().setWidth(SOURCETEXT_COLNUMBER, "400px");
+        table.getColumnFormatter().setWidth(TARGETBOX_COLNUMBER,  "390px");
+        table.getColumnFormatter().setWidth(SOURCE_DIALOGMARK_COLNUMBER,  "10px");
+        table.getColumnFormatter().setWidth(TARGET_DIALOGMARK_COLNUMBER,  "10px");
         translationHPanel.setCellWidth(scrollPanel, "100%");
         translationHPanel.setCellWidth(emptyPanel, "0%");            
 
@@ -249,6 +253,8 @@ public class TranslationWorkspace extends Composite {
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
         table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
         table.setWidget(0, TARGETBOX_COLNUMBER,  new Label("Translation"));
+        table.setWidget(0, SOURCE_DIALOGMARK_COLNUMBER, new Label(""));
+        table.setWidget(0, TARGET_DIALOGMARK_COLNUMBER, new Label(""));
         table.getRowFormatter().setStyleName(0, "header");
          
         Gui.getGuiStructure().contentPanel.setWidget(this);
@@ -614,7 +620,7 @@ public class TranslationWorkspace extends Composite {
         timeslabel.setStyleName("chunk_timing");
 		timeslabel.addDoubleClickHandler(new TimeChangeHandler(chunk));
 		// add label to map
-		timeLabels.put(chunk.getChunkIndex(), timeslabel);
+		timeLabels.put(chunkIndex, timeslabel);
 		
         int index = lastIndex;
         lastIndex++;
@@ -626,15 +632,43 @@ public class TranslationWorkspace extends Composite {
 
         
         //html because of <br />
-        Label sourcelabel = new HTML(chunk.getGUIForm());
+        Label sourcelabel = new HTML(chunk.getSurfaceForm());
         sourcelabel.setStyleName("chunk_l1");
         sourcelabel.addDoubleClickHandler(new SourceChangeHandler(chunk, sourcelabel));
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
+        // initializing targetbox - fake
         SubgestBox targetbox = new SubgestBox(chunk, this, index+1);
         SubgestBox.FakeSubgestBox fake = targetbox.new FakeSubgestBox(index+1);
         targetBoxes.add(fake);
         table.setWidget(index + 1, TARGETBOX_COLNUMBER, fake);
+
+        // chunk-marking (dialogs):
+        // setting sourcemarks:
+        HTML sourcemarks = new HTML();
+        sourcemarks.setStyleName("chunkmark");
+        sourcemarks.setTitle("This line is part of the one-screen dialog.");
+        if (chunk.isDialogue()) {
+            sourcemarks.setHTML(sourcemarks.getHTML() + " - ");
+        }
+        if (! sourcemarks.getHTML().isEmpty()) {
+            table.setWidget(index + 1, SOURCE_DIALOGMARK_COLNUMBER, sourcemarks);
+            // and copying the same to the targets (GWT does not have .clone()):
+            HTML targetmarks = new HTML(sourcemarks.getHTML());
+            targetmarks.setStyleName(sourcemarks.getStyleName());
+            targetmarks.setTitle(sourcemarks.getTitle());
+            table.setWidget(index + 1, TARGET_DIALOGMARK_COLNUMBER, targetmarks);
+        }
+
+        // grouping:
+        // alignment because of the grouping:
+        //table.getRowFormatter().setVerticalAlign(index + 1, HasVerticalAlignment.ALIGN_BOTTOM);
+        if (chunk.getPartNumber() > 1) {
+            table.getRowFormatter().addStyleName(index + 1, "row_group_continue");
+        }
+        else {
+            table.getRowFormatter().addStyleName(index + 1, "row_group_begin");
+        }
         
     }
 
@@ -705,10 +739,12 @@ public class TranslationWorkspace extends Composite {
 			
 			// init
 			TimedChunk chunk = synchronizer.getChunkByIndex(chunkIndex);
-			String oldSource = chunk.getSurfaceForm();
+			String oldSource = chunk.getDatabaseForm();
 			
 			// ask user for new value, showing the old one
-			String newSource = Window.prompt("Source text for this chunk:", oldSource);
+			String newSource = Window.prompt("Source text for this chunk. " +
+					"The pipe sign  |  (surrounded by spaces) denotes a new line.",
+					oldSource);
 			
 			if (newSource == null || newSource.equals(oldSource)) {
 				// cancel or no change
@@ -716,9 +752,8 @@ public class TranslationWorkspace extends Composite {
 			}
 			else {
 				// change the values
-				// TODO: not sure which set*Form to use (there is no documentation and I am not the author)
-				chunk.setDatabaseForm(newSource);
-				label.setText(chunk.getGUIForm());
+				chunk.setDatabaseFormForce(newSource);
+				label.getElement().setInnerHTML(chunk.getGUIForm());
 				// this call brings a fresh translation result on return :-)
 				// which is then given directly to showResult()
 				new ChangeSourceChunk(chunk, newSource, TranslationWorkspace.this);
