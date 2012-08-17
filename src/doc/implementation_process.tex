@@ -1,4 +1,4 @@
-299
+499
 
 \section{Timeline}
 
@@ -55,6 +55,20 @@ We very soon had toy implementations of:
 
 We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
 
+TODO: player -- Karel should write something more about its development, the applet signing, etc.
+
+An issue we encountered in developing the player and were not able to combat completely is letting the user choose a media file and passing its full filesystem path to the player. We found out that although it is quite easy to load a whole file from disc into memory, only its filename is passed to Javascript instead of the full path for security reasons. We did a thorough search on the internet but found out that there is most probably no clean way around this restriction.
+
+Ultimately we came up with 3 solutions, but none of them pleases us enough:
+
+- the user inputs the full path as a string into an input box; works well but is not user-friendly (most users probably do not even know that such a thing as a filepath exists)
+
+- the user chooses the file in the file browser and then copies the file path from the browser inputbox into a textbox; maybe even less userfriendly
+
+- a Java applet is loaded to choose the file as Java applets do not have such restrictions, and then passes the path to the application; it seems to us as an \todo{overkill} to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly
+
+We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet.
+
 \subsection{Introducing the shared classes}
 \label{subsec:introducing_shared_classes}
 
@@ -98,6 +112,15 @@ At the end we decided to use \emph{JOpenID} library and support Google, Yahoo an
 We do not support generic OpenID because the lib does not support it. Anyway, after doing some research on the Czech developers forums we concluded that just a very small percentage of users actually know what OpenID is and allowing to login via the Google and Seznam accounts is hopefully enough.
 
 The support for OpenID was finished in July, the parser for the authentication data from Seznam were added at the beginning of August.
+
+A question to solve was what to do when the user logs in through OpenID for the first time. We were thinking about requiring an explicit registration from the user in such case, but then decided that we probably do not need any more data than we already get from the OpenID provider. Therefore, we decided to register the user transparently in such situation.
+However, because it can happen that e.g. the OpenID provider is temporarily unavailable, ceases to provide his services or that the user closes his account at the provider, we decided to offer the user a possibility to log in to his account even without the OpenID. For that reason, we create a full account for such user, generating a username and password and sending these to his e-mail address (which usually can be acquired from the OpenID provider).
+
+Because the generated username is not only used as a backup way of authentication but is also displayed to the user in the top right corner of the application, we wanted to generate one that the user would recognize as being his. At first, we simply took the username part of his e-mail address (i.e. the part before the @ sign) and used it directly. However, this eventually leads to collisions, so we had to implement something more sophiticated.
+
+The most primitive solution was iteratively trying to append numbers to the username if it was already taken, starting with 1, and checking whether such username was available. This was then improved to starting not at 1 but at the number of occurences of a username with the wanted username as a prefix, thus heuristically skipping the other usernames probably created in a similar way (and probably a few more just to be sure). And finally, we changed the iterative step from a simple increment to multiplication by 2, breaking any possibly remaining long sequences of already existing usernames.
+
+Moreover, the user has the possibility to change his username and/or password on the Settings page.
 
 \subsubsection{Chunk Splitting}
 
@@ -187,7 +210,7 @@ The type of an RPC parameter or return value can be any GWT-compilable type. Bec
 
 Because of Javascript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g. in logging in or changing user settings. In such situations, the page or dialog is "deactivated" on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is "reactivated", either with a success message or an error message, depending on the result of the RPC.
 
-In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling.
+In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID is used. Originally it was created by the GUI and sent to Userspace, but we soon found this to be inappropriate (TODO why -- collisions, anything else?) and the Userspace now generates the authID.
 
 Most of the RPCs contain the SessionID as one of their parameters to authenticate the user. All of such RPCs can thus throw an InvalidSessionIdException, to which the default GUI action is to show the Login Dialog to the user.
 
@@ -197,7 +220,7 @@ Originally, all the RPC requests followed the barebone AsyncCallback interface, 
 
 We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
 
-The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary. If the request fails for any reason, it is retried by default; four attempts are made for each request, always retrying after a short time interval. We identified the response that we usually get in case of network problems (which could be temporary or permanent), in such case the request is always resent three times. Otherwise, resending the request is the default behavior which the subclasses override in cases where it is obvious that resending will not help (e.g. incorrect e-mail address format or an already existing username on registration). We also added a timeout for each request after which the request is regarded as lost and is retried.
+The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary. If the request fails for any reason, it is retried by default; four attempts are made for each request, always retrying after a short time interval. We identified the response that we usually get in case of network problems -- which could be temporary or permanent (it is a StatusCodeException with the status code 0). In such case the request is always resent three times. Otherwise, resending the request is the default behavior which the subclasses override in cases where it is obvious that resending will not help (e.g. incorrect e-mail address format or an already existing username on registration). We also added a timeout for each request after which the request is regarded as lost and is retried.
 
 The subclass can always intervene by overriding several methods, such as onSuccessAfterLog, onEachReturn, onFailureAfterLog, onProbablyOffline etc. This way, the behavior needed can be always achieved, but the default implementation is often sufficient, so the subclasses often override only one or two methods, keeping their code as simple as possible. The superclass also provides logging for all the requests, based on the classname and the parameters of the subclass.
 (E.g. when deleting a document, a failure with an InvalidDocumentIdException, meaning that the document does not exist, is an error, but there is no need to inform the user because the result is the same as if the RPC succeeded: the document does not exist now.)
@@ -307,13 +330,184 @@ We immediately found out a week point of GWT here: it has nearly no native suppo
 
 The GWT way of switching pages is by replacing the contents of the Root Panel (which represents the visible part of a page), or any other Panel placed within the Root Panel (which we decided to use so that some elements, such as the menu, are present on all pages). The switching is done without reloading, simply by creating an instance of the new page and directly setting it as the contents of the panel (without any convenience functions for that to our knowledge).
 
-All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also Hyperlink widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler.
+All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also Hyperlink widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a ValueChangeHandler).
+The URL contains an anchor with the name of the page (e.g. \#DocumentCreator or \#WelcomeScreen), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
 
-Created PageHandler, handles both changing the URL and switching the Content Panel contents.
+We decided to use the History class and Hyperlinks to implement the menu and page switching. We create a PageHandler class which implements the ValueChangeHandler -- it turns the anchor string into a value of Page enum, checks whther the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
 
-\subsubsection{}
+However, we encountered one issue with the Hyperlinks: the ValueChangeHandler is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the Hyperlink class, we had to abandon the Hyperlinks and used NavLinks instead (a simple link with no default interaction with the History), with click handlers invoking the ValueChangeHandler.
 
-\subsubsection{}
+When reviewing the resulting code, we found out that the History class and the ValueChangeHandler do not provide any benefit to us any more, so we removed them completely. Only then did we find out that the History class can also correctly handle the browser's forward/backward button behavior, so we readded it, but it is only used for that purpose now.
+
+Another issue encountered was the fact that passing the page name as an anchor name is not always convenient and sometimes is not possible at all. If the page requires some additional parameters -- such as the password change page, where the user can change his password based on a link sent to his mailbox, containing a temporary token and the username as parameters -- the resulting address looks odd (e.g. http://filmtit.cz/?username=a\&token=df5ds3f\#ChangePassword). Moreover, the OpenID validation mechanism we used requires URL of a return page as a parameter, to which it adds parameters containing information about the validation process, but it is only able to add the parameters at the end of the address, resulting in an incorrect URL. For such cases, we decided to offer an alternative way of specifying the oage to be loaded in the URL by setting the page parameter (e.g. http://filmtit.cz/?page=ChangePassword\&username=a\&token=df5ds3f).
+
+This solution finally proved to offer all features required.
+
+We also had a discussion about the expected page to be loaded in various situations. E.g., if the user is in Translation Workspace and logs out, the URL page parameter stayed on Translation Workspace by default, although Welcome Screen is displayed instead because a logged out user does not have access to Translation Workspace. If he then logged back in without switching the page, the document he had opened before logging out was reopened again.
+Eventually, the behavior was modified so that the URL is always changed to Welcome Page when the user explicitely logs out, but the URL is not modified if the user is logged out automatically, typically because his Session ID expires. Reasoning: if he was logged out implicitely, it is probable that he did not want that and woud like to continue with his work as soon as possible. However, if he logged out explicitely, he probably finished his work and expects the application to be ``closed'', i.e. not remembering the last stae of his work.
+
+(TODO: tidy a little, I dont like that subsubsection very much...)
+
+\subsubsection{Userspace Robustness}
+
+Userspace started as nice but not robust -- it was not prepared to receiving erroneous data, it had concurrency issues especially when there were multiple users performing similar actions simultaneously, etc. This was probably caused by the fact that Userspace was developed several months before it was first used, due to delays in GUI development.
+
+TODO: When we tried it out, we were getting tons of errors, so some checks were added and locks were introduced, so now it works nicely.
+
+\subsubsection{Handling Parsing Errors}
+
+At first, errors in parsing were not handled at all: the file was simply expected to be in the correct format, and if it was not, more or less random exceptions would be thrown from the parser.
+
+We were improving the situation gradually, eventually creating a new exception class, InvalidDocumentFormatException, which is thrown by the parser, with a message containing details about the error that can be shown to the user.
+Validation of times was improved by adding the SrtTime class (XXX odkaz, snad uz to nekde je), which checks even whether the number ranges are valid for the given field (e.g. whether the minute is between 0 and 59).
+
+Also, as a preliminary check, we refuse any file which is larger than 500 kB. We introduced this check because it is very fast and efficient.
+
+\subsubsection{Offline Mode}
+
+At first, the whole app should be able to work offline.
+
+Eventually, decided that the only part that must be able to work offline is the Translation Workspace.
+
+Actually, only saving SetUserTranslation calls.
+
+Decided to use Local Storage -- similar to cookies but better.
+
+First idea: serialize and deserialize using JSON!
+Later realization: would need an external library for that (TODO see RPCs), decided to write custom serialization.
+
+How to identify the objects correctly:
+
+- add a special object describing the other objets:
+
+  - not reliable, user can interrupt the application at any time and can also change the values stored by the app
+
+  - but could at least be used as a non-authoritative cache
+  
+  - now all object keys must be loaded to know the contents of the storage (but takes at most a few seconds in a typical case)
+
+- each object contains all necessary information in its key
+
+  - started with the ``key fields'' of the objects (document id and chunk index in case of SetUserTranslation)
+  
+  - then also added the class name to make it extendable (although it has not been extended)
+  
+  - then added username because there might be various FilmTit users using the same browser
+  
+  - and eventually changed username into user ID because now the user can change his username
+
+\subsubsection{Hibernate Issues}
+
+TODO: Jindra
+
+- classes must have getters and setters (but they can be private)
+
+- classes must have parameter-less constructor (but can be private)
+
+- limitting number of connections
+
+- having to add members not only to class but also to mapping
+
+- necessary to drop the tables on any change
+
+- adding database constraints
+
+...?
+
+\subsubsection{Media Source}
+
+was IMDB, is Freebase now
+
+https problems
+
+adding the "null" option
+
+\subsubsection{GUI Refactoring}
+
+TODO: have that here or not???
+
+Started as 1 class (GUI.java) which grew and grew.
+
+The RPCs handling moved to a separate class.
+
+Subgestbox class.
+
+Introduced UiBinder for designing the GUI.
+
+The notion of pages, each having its own java class and an UiBinder template.
+
+Introducing the PageHandler.
+
+The RPCs turned into individual classes in cz.filmtit.client.callables
+
+The pages moved to cz.filmtit.client.pages and all are displayed simply by creating the class.
+
+The notion of Dialogs, residing in cz.filmtit.client.dialogs, with Dialog being the superclass (peviously just hardcoded somewhere).
+
+The sbgetsbox gets its own subpackage.
+
+Gui made static
+
+\subsubsection{Subgestboxes}
+
+Input, RtfBox
+
+Focus handling
+
+Popping below/above/not at all
+
+Scrolling to center
+
+Resizing
+
+Proper cross-browser CSS
+
+...?
+
+\subsubsection{Subtitles Export}
+
+Necessary to give the user the possibility to export the subtitles.
+
+Issue: GWT cannot create a file, neither on server (beacause it is all Javascript) nor on the user's computer (because of security restrictions).
+
+Possible solutions:
+
+- export the subtitles into a textarea
+
+  - not really what a user expects
+
+- send the exported subtitles to user's e-mail address
+
+  - not really what a user expects
+  
+  - can be hard to use for the user
+  
+  - might be added as a special feature but should not be the only or primary way
+
+- create a temporary file on the server and offer a download link to the user
+
+  - creating temporary files is not very clean
+  
+  - should handle access rights in Jetty
+
+- create a new servlet (using JSP) for downloading the file
+
+  - we were afraid that it would be too much extra work
+  
+  - it turned out not to be so difficult so we used that
+
+\subsubsection{Chunks Saving / Loading}
+
+original idea: parse the subtitle file in GUI and keep it there; decision kept: no sense sending the chunks to US and then back again, also would cause unnecessary load on the server
+
+problem: how to do editing when the Workspace expects to get the SRT file?
+
+solution: Translation Workspace has two ways of accepting the data, one by getting the subtitle file contents and parsing it into chunks, the other one getting already parsed chunks from DB
+
+
+problem: chunks were saved only upon requesting the translations for them, so part of document was lost if user closed too early :-)
+
+solution: first save all chunks, then start loading the trabslation suggestions
 
 \subsection{Final Development}
 \label{subsec:final_development}
