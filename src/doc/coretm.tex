@@ -52,6 +52,7 @@ configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://h
 \subsection{Retrieving Media Source information}
 \newpage
 
+%TODO
 
 
 
@@ -85,33 +86,58 @@ next level of the backoff translation memory.
 \label{sec:candidate_retrieval}
 
 We implemented several methods for efficiently retrieving candidate
-translation pairs from the database. The most general method
-is the usage of indexed signature strings.
-
-There are two implementations of signature-based retrieval in the project: In the first method, signatures are created fully within the \postgres~database (database-based signatures) and in the second, the signatures are created on the server and only stored and retrieved in the
-database (program-based signatures).  
+translation pairs from the database. 
 
 
-\subsubsection*{Program-based signatures}
+\subsection{Translation pair searchers}
 
-In the case of program-based signatures, for each chunk stored in the database, a string is produced by a signature function and this string is used to retrieve candidates from a signature table that is in turn
-connected to the translation pairs table.
+Every translation pair searcher implements the interface {\tt TranslationPairSearcher} and therefore must implement the method 
 
-\begin{figure}[h!]
-	\centering
-		\includegraphics[width=17cm]{figures/core/signatures.pdf}
-	\caption{Illustration of signature strings in the database.}
-	\label{fig:figures_core_signatures}
-\end{figure}
+\vspace*{0.5em}
+
+\lstset{language=scala, caption={Candidate search}}
+\begin{lstlisting}
+def candidates(chunk: Chunk, language: Language): List[TranslationPair]
+\end{lstlisting}
+
+This is the main method for retrieving translations pairs, which are then combined and ranked in later steps. A {\tt TranslationPairSearcher} may require the chunks it queries to be tokenized beforehand. In this case, the {\tt TranslationPairSearcher} must override the following method:
+
+\vspace*{0.5em}
+
+\lstset{language=scala, caption={TranslationPairSearchers may require tokenization}}
+\begin{lstlisting}
+def requiresTokenization: Boolean
+\end{lstlisting}
+
+\vspace*{0.5em}
 
 
-\subsubsection*{Database-based signatures}
 
-In the case of the database-based signatures, a {\tt PL/pgSQL} procedural function is used to create a functional index\footnote{See e.g.\ \url{http://www.postgresql.org/docs/9.1/static/indexes-expressional.html} (retrieved 02.08.2012).} on the translationpairs table. The function can then be used for fast retrieval from this table.
+{\tt TranslationPairSearcher}s that are based on the local \postgres~database extend the class {\tt TranslationPairStorage} and must implement the method {\tt add} for adding new translation pairs to the storage.
+
+\vspace*{0.5em}
+
+\lstset{language=scala, caption={TranslationPairSearchers may require tokenization}}
+\begin{lstlisting}
+def add(translationPairs: TraversableOnce[TranslationPair])
+\end{lstlisting}
+
+\vspace*{0.5em}
 
 
-Several signature functions are used in the translation memory
-implementation. In the following sections, the signature functions and related issues will be illustrated.
+The method {\tt reindex} must be implemented to create and update the database indexes for the particular searcher.
+
+\lstset{language=scala, caption={TranslationPairSearchers may require tokenization}}
+\begin{lstlisting}
+def reindex()
+\end{lstlisting}
+
+
+
+
+
+
+
 
 \subsection{Tokenization}
 
@@ -151,6 +177,36 @@ F-Measure: 0.9962413283293529
 
 %TODO: layout this (table or something)
 
+
+
+
+\subsection{Signature-based retrieval}
+
+
+The most general method is the usage of indexed signature strings. There are two implementations of signature-based retrieval in the project: In the first method, signatures are created fully within the \postgres~database (database-based signatures) and in the second, the signatures are created on the server and only stored and retrieved in the
+database (program-based signatures).  
+
+
+\subsubsection*{Program-based signatures}
+
+In the case of program-based signatures, for each chunk stored in the database, a string is produced by a signature function and this string is used to retrieve candidates from a signature table that is in turn
+connected to the translation pairs table.
+
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=17cm]{figures/core/signatures.pdf}
+	\caption{Illustration of signature strings in the database.}
+	\label{fig:figures_core_signatures}
+\end{figure}
+
+
+\subsubsection*{Database-based signatures}
+
+In the case of the database-based signatures, a {\tt PL/pgSQL} procedural function is used to create a functional index\footnote{See e.g.\ \url{http://www.postgresql.org/docs/9.1/static/indexes-expressional.html} (retrieved 02.08.2012).} on the translationpairs table. The function can then be used for fast retrieval from this table.
+
+
+Several signature functions are used in the translation memory
+implementation. In the following sections, the signature functions and related issues will be illustrated.
 
 
 \subsection{Signature-based retrieval: Exact matches}
@@ -320,7 +376,6 @@ TODO
 
 
 
-\newpage
 \section{Candidate Ranking}
 \label{sec:ranking}
 
@@ -361,7 +416,6 @@ The ranking for exact matches uses a linear regression model with the following 
 
 
 
-
 \begin{itemize}
 	
 	\item \textbf{full-text search score for the document}\\
@@ -385,9 +439,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	
 	\item \textbf{final punctuation}\\
 	Feature indicating wether the final punctuation of the queried chunk and the candidate translation match.
-	
-	
-	
+
 \end{itemize}
 
 
@@ -413,9 +465,9 @@ To approach this issue, we used the Scala akka library,\footnote{\url{http://akk
 We use the same method for parallelizing the tokenization of Chunks.
 
 
-
 \subsection{Keeping the database up to date}
 
+Since we want to ensure good retrieval performance, the core database is read-only in production mode. The user's translations that are stored in the User Space already are periodically added to the core database as new translation pairs and the indexes of all searchers are updated in turn.
 
 
 
