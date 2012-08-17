@@ -96,4 +96,5 @@ class MyMemorySearcher(
 
   def close() {}
 
+  def requiresTokenization = false
 }

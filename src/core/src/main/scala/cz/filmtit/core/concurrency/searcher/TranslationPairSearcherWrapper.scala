@@ -56,4 +56,6 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
 
   override def toString = "SearcherWrapper[%s, %d]".format(searchers.head.getClass.getSimpleName, searchers.size)
 
+  override def requiresTokenization = searchers.head.requiresTokenization
+
 }

@@ -142,5 +142,7 @@ class MosesServerSearcher(
   
   def close() {}
 
+  def requiresTokenization = true
+
   override def toString = "Moses"
 }

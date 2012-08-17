@@ -72,6 +72,8 @@ class FirstLetterStorage(
 
   override def name: String = "Translation pair storage using the first letter of every word as an index."
 
+  override def requiresTokenization = true
+
 }
 
 

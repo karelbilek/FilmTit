@@ -85,4 +85,6 @@ class PGFirstLetterStorage(
 
   override def name: String = "Translation pair storage using exact postgres based."
 
+  override def requiresTokenization = false
+
 }

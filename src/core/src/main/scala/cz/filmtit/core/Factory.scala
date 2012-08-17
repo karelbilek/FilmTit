@@ -94,9 +94,9 @@ object Factory {
       configuration.l1, configuration.l2,
       if (useInMemoryDB) createInMemoryConnection() else createConnection(configuration, readOnly),
       configuration,
-      useInMemoryDB,
       configuration.maxNumberOfConcurrentSearchers,
-      configuration.searcherTimeout
+      configuration.searcherTimeout,
+      useInMemoryDB=useInMemoryDB
     )
 
 
@@ -104,16 +104,16 @@ object Factory {
     l1: Language, l2: Language,
     connection: Connection,
     configuration: Configuration,
-    useInMemoryDB: Boolean = false,
     maxNumberOfConcurrentSearchers: Int,
-    searcherTimeout: Int
+    searcherTimeout: Int,
+    indexing: Boolean = false,
+    useInMemoryDB: Boolean = false
   ): TranslationMemory = {
 
-    var l1TokenizerWrapper: Option[TokenizerWrapper] = None //createTokenizerWrapper(l1, configuration)
-    var l2TokenizerWrapper: Option[TokenizerWrapper] = None //createTokenizerWrapper(l2, configuration)
+    var l1TokenizerWrapper: Option[TokenizerWrapper] = None
+    var l2TokenizerWrapper: Option[TokenizerWrapper] = None
 
     var levels = List[BackoffLevel]()
-
 
     if (!useInMemoryDB) {
       //First level exact matching
@@ -124,18 +124,23 @@ object Factory {
       val fulltextSearcher = new FulltextStorage(l1, l2, connection)
       levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyWekaRanker(configuration.fuzzyRankerModel)), 0.0, TranslationSource.INTERNAL_FUZZY)
     } else {
-      l1TokenizerWrapper = Some(createTokenizerWrapper(l1, configuration))
-      l2TokenizerWrapper = Some(createTokenizerWrapper(l2, configuration))
-
       val flSearcher = new FirstLetterStorage(l1, l2, connection, l2TokenizerWrapper.get, l1TokenizerWrapper.get, useInMemoryDB)
       levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
     }
 
-    //Third level: Moses
-    val mosesSearchers = (1 to 30).map { _ =>
-      new MosesServerSearcher(l1, l2, configuration.mosesURL)
-    }.toList
-    levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7, TranslationSource.EXTERNAL_MT)
+    if (!indexing) {
+      //Third level: Moses
+      val mosesSearchers = (1 to 30).map { _ =>
+        new MosesServerSearcher(l1, l2, configuration.mosesURL)
+      }.toList
+
+      levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7, TranslationSource.EXTERNAL_MT)
+    }
+
+    if ( levels.map(_.searcher).exists(_.requiresTokenization) ) {
+      l1TokenizerWrapper = Some(createTokenizerWrapper(l1, configuration))
+      l2TokenizerWrapper = Some(createTokenizerWrapper(l2, configuration))
+    }
 
     new BackoffTranslationMemory(l1, l2, levels.reverse, Some(new LevenshteinMerger()), l1TokenizerWrapper, l2TokenizerWrapper)
   }

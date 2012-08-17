@@ -236,4 +236,5 @@ with SignatureTranslationPairStorage {
     candidates.toList
   }
 
+  def requiresTokenization = true
 }

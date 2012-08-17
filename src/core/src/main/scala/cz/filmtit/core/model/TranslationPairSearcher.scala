@@ -35,4 +35,6 @@ abstract class TranslationPairSearcher(
 
   def close()
 
+  def requiresTokenization: Boolean
+
 }
