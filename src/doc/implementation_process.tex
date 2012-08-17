@@ -43,6 +43,14 @@ Originally, all the algorithms precessing the data we retrieved were implemented
 
 We started to solve very soon the video playback in the browser which we expected to be a really challenging issue. ... we thought about flash, creating application wrapper where an web would be included ...
 
+We very soon had toy implementations of:
+
+- a player using VLC plugin, to be incorporated into the web app
+
+- a player as a desktop java app, showing the web app in a frame
+
+We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
+
 \subsection{Introducing the shared classes}
 
 After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order run a first snapshot of the application. This was happening approximately in March 2012.
@@ -71,6 +79,16 @@ From the later view it appeared to be an important decision to agree on the shar
 Sessions, logging, troubles with OpenID, trying JOpenID, openid4java 
 
 Use our own Moses trained on the subtitle data we have from opensubtitles
+
+\subsubsection{OpenID}
+
+TODO -- Jindra?
+
+we use this and this library because...
+
+we support Google, Yahoo and Seznam because...
+
+we do not support generic openid because the lib does not support this
 
 \subsubsection{Chunk Splitting}
 
@@ -150,14 +168,30 @@ great: GWT provides a possibility to catch all exceptions -- using GWT.setUncaug
 issue with debug window: cannot appear in final application :-) but still there might be errors;
 also it is at the user side, but we need the logs at the server side;
 ultimate solution: "remote logging", i.e. important messages are sent to the server through an RPC, where they are both included into the server log and saved into DB for possible future use (together with user id)
+The minimal level of a meesage to be sent to the server can be set (debug, info, warn, error)
+
+\subsubsection{Implementing the RPCs}
+
+From the start it was obvious to us that we want to use a well-estabilished method to implement the Remode Procedure Calls. Our first idea was to directly send and receive JSON messages because they have a format of a Javascript object, so we thought that this would be easy and efficient to implement in GWT (it is possible to read the object from string into memore simply using Javascript eval() function). However, there are three facts that we later found out that made us change our decision. The first one is that, although it is possible to directly use eval() function to convert the JSON message into the in-memory object representation, this practice is not recommended for security reasons (any Javascript code can be injected and it would be directly executed with no constraints). Therefore, the recommended practice is to use a JSON parser, which validates the JSON object before calling eval(). A related issue is that although GWT sometimes does use JSON internally, it does not provide a JSON parser to be used by the programmer, so one has to use an additional library. And finally, we found out that GWT already implements a mechanism to send RPCs (in which, as a matter of fact, the messages are actually serialized to JSON).
+
+The type of an RPC parameter or return value can be any GWT-compilable type. Because this type must be known both to the server and to the client, we use only primitive types and shared classes SEE XXX. Each class sendable through GWT RPC mechanism must implement the GWT IsSerializable interface (which is only a marker, i.e. it does not have any abstract methods) and a parameter-less constructor; this also holds for the checked exceptions, which are technically only a special type of a return value.
+
+Because of Javascript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g. in logging in or changing user settings. In such situations, the page or dialog is "deactivated" on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is "reactivated", either with a success message or an error message, depending on the result of the RPC.
+
+In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling.
+
+Most of the RPCs contain the SessionID as one of their parameters to authenticate the user. All of such RPCs can thus throw an InvalidSessionIdException, to which the default GUI action is to show the Login Dialog to the user.
 
 \subsubsection{Failed RPC Requests Handling}
 
 Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
 
+We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
+
 The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary. If the request fails for any reason, it is retried by default; four attempts are made for each request, always retrying after a short time interval. We identified the response that we usually get in case of network problems (which could be temporary or permanent), in such case the request is always resent three times. Otherwise, resending the request is the default behavior which the subclasses override in cases where it is obvious that resending will not help (e.g. incorrect e-mail address format or an already existing username on registration). We also added a timeout for each request after which the request is regarded as lost and is retried.
 
 The subclass can always intervene by overriding several methods, such as onSuccessAfterLog, onEachReturn, onFailureAfterLog, onProbablyOffline etc. This way, the behavior needed can be always achieved, but the default implementation is often sufficient, so the subclasses often override only one or two methods, keeping their code as simple as possible. The superclass also provides logging for all the requests, based on the classname and the parameters of the subclass.
+(E.g. when deleting a document, a failure with an InvalidDocumentIdException, meaning that the document does not exist, is an error, but there is no need to inform the user because the result is the same as if the RPC succeeded: the document does not exist now.)
 
 \subsubsection{Sending Translation Results}
 
@@ -179,9 +213,82 @@ The first idea was to mark the whole document as closed, and to check this when 
 
 Finally, we decided for a compromise solution between those two. The StopTranslationResults request is now bound to individual chunks, which now have an added boolean field isActive. This field is set to true when the GetTranslationResults request arrives to the server, for each of the chunks on the request. The StopTranslationResults request contains a list of the chunks which translations should be stopped. On arrival of that request, Userspace simply sets the isActive field to false -- because Userspace and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Trabslation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
 
+\subsubsection{User Management}
+
+deciding between "simple" login and OpenID ... decided to use both
+
+TODO some notes on OpenID (probably a separate subsetion)
+
+decisions:
+
+no constraints on username (except for non-emptiness)
+
+little constraints on password (only must be >= 3 characters). Resoning:
+
+- we think the most important feature of a password is for the user to remember it, we leave the assessment of the strenght to the user.
+often the password strenght constraints are rather arbitrary and many classes of strong passwords do not pass them, it is hard to develop a reasonable strength measure. E.g. a whole sentence, a "passphrase", is a very strong password; however, it usually does not pass measures requiring use of specific classes of characters. And vice versa, a password using very unusual characters (e.g. Czech letters with diacritic signs) can be impossible to break even if it is quite short, because the attacker simply does not try out such characters that are uncommon in passwords; still it often does not pass typical minimum password length constraints.
+
+- the app does not contain any sensitive data whose compromising would pose a threat to the users of the app
+
+- the benefit to the attacker succesfully breaking into a user account is close to none
+
+
+We allow the user to work in multiple browser tabs or windows, provided it is the same session (i.e. has the same SessionID), because we believe it is natural to work on multiple translations at once, to have the Document List opened to see the translation progres, etc. The user himself is responsible for having the same document opened multiple times, which is not expected behavior and so changes to the document in one Translation Workspace are not projected into the other Workspace until reload.
+
+However, we decided to disallow one user having multiple sessions at one time, as we believe that this is neither expected nor required behavior, and could potentially confuse the user. We believe that such a state is usually caused by a mistake, e.g. user A forgetting to log out on PC 1, then moving to PC 2, and at the same time user B using the application on PC 1 under user A's account by mistake.
+We do not support multiple users collaborating on one subtitle file.
+
+If user registers through OpenID, we have to assign a username to him (the unique OpenID identifier we get is typically a long hash, which does not look like a nice username). SEE XXX
+
+Because the username is at least partly generated, the user might not like it. Therefore, we offer each user the possibility to change the username (provided that the one he chooses is free). The username is only used to authenticate the user (if not using OpenID login) and is displayed in the top right corner in the application; the internal unique identifier of a user is his user id, an integer assigned to each user on registration that never changes.
+
 \subsubsection{E-mail Address Validation}
 
 TODO: write it here or not?
+
+\subsubsection{GUI Look and Feel}
+
+After using default GWT look, we decided to use Twitter Bootstrap -- good decision, looks nice and provides additional widgets.
+
+Trying to be user friendly
+
+- expected behavior
+
+- as litle controls as possible
+
+- can be controlled by mouse (except for typing)
+
+- TranslationWorkspace can be controlled by keyboard (efficiency)
+
+- other pages must be controlled by mouse ... user spends most time in Translation Workspace so occasional clicking should not be a problem; it feels more natural to us
+
+changing data .. idea: it should be possible to change anything if there is not a strong reason why not
+
+- change document title, movie title... by clicking on it (seems natural, added a tooltip)
+
+- change timing or source text: we think that this is not usually required so it is under a double click to prevent unwanted activation (and a tooltip again)
+
+- we offer the user the possibility to change the source text because if there is an error, the suggestions might be incorrect (the suggestions are regenerated on changing the source)
+
+- we do not offer deleting chunks because this would be difficult to implement properly in GUI; however, the default behavior is not to export the untrabslated chunks, so not translating a chunk is roughly equivalent to deleting it
+
+- we do not allow to change the source subtitle file (this would actually mean deleting the whole old document and creating a new one, probably only keeping the title -- so we leave this for the user to do himself); however, smaller edits can be done directly in TW
+
+\subsubsection{Subtitle Formats}
+
+first support for SRT and SUB
+
+more and more problems with SUB
+
+internal format of time is SUB
+
+finally decided to support only SRT
+
+- AFAIK 99\% of subtitles are in SRT
+
+- easier to process (e.g. changing the timing), easier to sync to the player
+
+We also support exporting the subtitles in plain text format, i.e. only the text without timing information.
 
 \subsection{Final Development}
 
