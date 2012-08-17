@@ -4,27 +4,27 @@ The User Space component is a server process that provides the web service. Its 
 
 The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. All of the User Space code is implemented Java. It uses \emph{Hibernate} object-relational mapping library. The same \emph{PostgreSQL} database as in the TM Core is used. The in-memory \emph{hsqldb} database is used for the unit testing.
 
-Because the TM Core is a separate module it is also linked as dependency to the User Space, but they run together as one process in one Java Virtual Machine. Their communication done invoking the core methods returning objects of share classes.
+Because the TM Core is a separate module it is also linked as dependency to the User Space, but they run together as one process in one Java Virtual Machine. Their communication is done by invoking the core methods returning objects of share classes.
 
 \section{Architecture}
 
 To make the whole project as clear as possible we try to use as most as possible from the shared classes and prevent using the User Space specific classes. If some additional functionality is required and cannot be incorporated into the shared classes, mostly the database and core calls, we wrap the shared classes into distinct User Space classes.
 
-The server class which processes the calls on the first level contains the Session objects. These objects processes the calls with association the the particular logged in users. These two classes are not a part of the shared classes set.
+The server class which processes the calls on the first level contains the {\it Session} objects. These objects processes the calls with association the the particular logged in users. These two classes are not a part of the shared classes set.
 
-The session class contains an object representing the user (a wrapper for the shared class). Hash tables of active documents and active chunks is there to access them faster than by searching lists in the user and document objects. Both the document objects and translation results objects (which collect the source chunk, translation suggestion and the actual user's translation) are wrappers for the shared classes. Anyway, the inner shared objects are used for communication with other components.
+The session class contains an object representing the user (a wrapper for the shared class). Hash tables of active documents is there to access  them quickly. Both the document objects and translation results objects (which collect the source chunk, translation suggestion and the actual user's translation) are wrappers for the shared classes. Anyway, the inner shared objects are used for communication with other components.
 
 The more basic level than the translation result uses exactly the shared classes structure.
 
 \section{Functionality overview}
 
-The User Space the User Space is available via the RPC calls from the client side. During the run of the server there exist one instance of the server class. The main task of the sever class is to process the calls from the clients -- which in fact means pass the calls further to the particular sessions and manage the sessions. It has a method for every single operation that is possible to happen in the client.
+The User Space services are available via the RPC calls from the client side. During the run of the server there exist one instance of the server class. The main task of the sever class is to process the calls from the clients -- which in fact means pass the calls further to the particular sessions and manage the sessions themselves. There is a method for every single operation that is possible to happen in the client.
 
-After the user logs in, a Session object is created. It contains a unique session ID the client uses for authentication of its calls. A session object contains information about the user o -- the settings and a list of the documents owned by the user, and hash tables of documents and chunks which are currently in use. When the user is logged in all of the call processing is happening in the session class.
+After a user logs in, a Session object is created. It contains a unique session ID the client uses for authentication of its calls. A session object contains information about the user -- the user's settings and \todo{this is not true}a list of the documents owned by the user, and hash tables of documents and chunks which are currently in use. When the user is logged in all of the call processing is happening in the session class.
 
 Until the user does not explicitly request a document, only basic information about the document remains loaded into memory (basic facts about the movie, time of last changes of the document). Only if he opens the document for editing, all the document chunks with the translation suggestions and already finished users translations are loaded. Anyway, if the list of owned documents is queried, empty documents arrive to the client no matter if the documents are loaded in the User Space.
 
-There is also a thread running in the server that checks the time how long the sessions are opened without any users action. If this time exceeds the predefined session time out limit, the session is terminated. The other way of terminating a session is when the user logs out. In both of these cases the changes the user made which were stored just in the memory so far, are saved permanently to the database. It is also possible to close just a document, which will also lead to saving all the document content to the database immediately.
+There is also a thread running in the server that checks the time how long the sessions are opened without any users action. If this time exceeds the predefined session time out limit, either a short time for common sessions or a very long time for permanent sessions, the session is terminated. The another situations when a session is terminated is when the user logs in despite has he already owns a session or explicitly logs out. When a session ends, basic information about the session is written to database (user, start time, end time) to enable us to compute statistics about using the application later.
 
 \begin{figure}
 \begin{center}
