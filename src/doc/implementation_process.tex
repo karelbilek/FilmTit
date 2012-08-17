@@ -72,11 +72,123 @@ Sessions, logging, troubles with OpenID, trying JOpenID, openid4java
 
 Use our own Moses trained on the subtitle data we have from opensubtitles
 
+\subsubsection{Chunk Splitting}
+
+TODO
+
+ideas:
+
+keep as it is, i.e. one timing = one chunk ... too long, too arbitrary
+
+split into sentences, joining already split sentences together ... very hard (probably impossible) to do reliably, would miss the advantage of subtitle files for alignment
+
+now: keep already existing splits, split on dialogue boundaries, slit on sentence boundaries (+ clean away irrelevant characters)
+
+... easy enough to do reliably (SOME NUMBER of errors)
+
+... arbitrary but not so much as the first solution
+
+... length is reasonable
+
+Important: to do the splitting in the same way when creating the database and when processing the user subtitles.
+Therefore: a shared Parser class which is compiled both into java bytecode and used in impoting, and into Javascript and used in GUI
+
+\subsubsection{Chunk Time Format}
+
+TODO
+
+we used strings
+
+then we needed to parse these for player and for editing the timing
+
+decided to use the SRT format only (99\% of subtitles we have and easier to use)
+
+a class (SrtTime) that represents the time as a set of integers, providing constructors, getters and setters for all formats we need -- one string, a set of strings, a set of integers, one integer (the time in miliseconds), + compareTo, + subtract
+
+\subsubsection{Chunk Annotations}
+
+TODO
+
+named entities = first reason for annotations
+
+chunk splitting by dashes denoting individual dialogue speekers: dashes need to be removed for translation suggestions generating because they are irrelevat but need be kept for correct rendering of text -> annotations extended to contain dialogue dashes
+
+need to identify the newlines (irrelevant for translation suggestions but necessary to render the subtitles properly) -> annotations extended for newlines
+
+subtitle formatting for bold, italic, underline etc. Original idea: extended the annotations again (easy to do). Then: too much trouble, expecially for GUI. Decision: just strip off these, do not support that. Reasoning: used very little, no formal specification so has various formats, often the players do not support the formatting properly so we want to discourage the users from using the formatting
+
+chunk now has a set of methods to get and set the chunk and annotations correctly, using the notion of FORMS. The forms used are:
+
+database form: the text as stored in the subtitle file, only cleaned -- formatting stripped off (bold, italic etc.), non-printable characters turned into spaces, multiple spaces replaced by one space only... The newlines are stored as PIPE characters.
+
+surface form + annotations: the surface form is the text to be used to generate the translation suggestions, without dashes and with newline turned into spaces
+
+GUI form: HTML form to be displayed in GUI, i.e. newlines turned into BR tags
+
+text form: to be used in textarea -- with dashes, newlines as BACKSHLASH N characters
+
+\subsubsection{Logging}
+
+In US: easy, we use (whatever we use)
+
+
+In GUI: tricky -- we do not have any "console" so we cannot simply write logs to "standard output"
+(actually we have a console, but only in dev mode)
+
+preliminary solutions: "debug prints" ensured by alerts, changing the page title, changing the page statusbar -- not usable in larger scale
+
+development solution: a debug window at the bottom of the page, and a (in the end) static method Gui.log(String) that prints the log messages into that window
+... proved to be very useful, with a large enough amount of logging we were often able to locate the bugs from the contents of this window
+
+also added an exception catcher which gets the stacktrace from the exception, then extended to handle umbrella exceptions as well (= multiple exceptions in one)
+
+great: GWT provides stacktraces with filenames and line numbers from the source java code
+downpoint: not very reliable but usually useful
+
+great: GWT provides a possibility to catch all exceptions -- using GWT.setUncaughtExceptionHandler() -- it has no real "main" so one cannot just put that into a try-catch block
+
+issue with debug window: cannot appear in final application :-) but still there might be errors;
+also it is at the user side, but we need the logs at the server side;
+ultimate solution: "remote logging", i.e. important messages are sent to the server through an RPC, where they are both included into the server log and saved into DB for possible future use (together with user id)
+
+\subsubsection{Failed RPC Requests Handling}
+
+Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
+
+The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary. If the request fails for any reason, it is retried by default; four attempts are made for each request, always retrying after a short time interval. We identified the response that we usually get in case of network problems (which could be temporary or permanent), in such case the request is always resent three times. Otherwise, resending the request is the default behavior which the subclasses override in cases where it is obvious that resending will not help (e.g. incorrect e-mail address format or an already existing username on registration). We also added a timeout for each request after which the request is regarded as lost and is retried.
+
+The subclass can always intervene by overriding several methods, such as onSuccessAfterLog, onEachReturn, onFailureAfterLog, onProbablyOffline etc. This way, the behavior needed can be always achieved, but the default implementation is often sufficient, so the subclasses often override only one or two methods, keeping their code as simple as possible. The superclass also provides logging for all the requests, based on the classname and the parameters of the subclass.
+
+\subsubsection{Sending Translation Results}
+
+At first, the translation suggestions from the Translation Memory were requested and sent for each chunk individually. This had the theoretical advantage that the user received each of the translation suggestins as soon as possible. However, we found the overhead of the RPC calls to be unreasonable. Not only was the overall time necessary to load all the suggestions too long, but also a typical browser was unable to handle such a large number of requests and usually froze for long periods of time, often unfreezing only after all of the suggestions arrived.
+
+A simple solution seemed to be sending all of the chunks for translation in one request. However, such a request can take several minutes to complete, and we still wanted to keep the nice property of the application showing the suggestions as soon as possible at least for the first lines -- so that the user can start the translation immediately. Thus, we decided to send the request in batches, starting with a small size of the batch for the beginning of the file and gradually increasing the batch size.
+
+The first way to do that was an exponential increase, where each batch contains twice as many chunks as the previous one, starting with a batch of size one. This proved to solve the aforementioned problem of browser freezing; however, another problem arose. As the batch sizes grew larger and larger, the later requests often took several tens of seconds or even minutes to complete. Meanwhile, the user would often navigate away from the Translation Workspace, rendering the translation suggestions, including the currently being processed ones, obsolete. This was of course detected in GUI and the suggestions were thrown away on arrival, but still it meant that the server was working in vain for some time, possibly resulting in an unnecessarily slower responsiveness to other users (and even to the very same user as well).
+
+We introduced two further solutions. The first and simple one was limiting the size of the batch to 64 chunks (which typically only take about ??? seconds to process), so that the amount of useless work could not grow too large. The second one, which took us some time to think up and implement, was to stop the translation suggestions from being generated on the server, by issuing a StopTranslationResults request. (This breaks the typical model of procesing the queries, where once a query is sent, its processing is not influenced by queries that arrive later.)
+
+The two major issues with the StopTranslationResults request were:
+
+- to interrupt the suggestions generating which is already in process (which is done in parallel for the chunks in the batch, making this even harder).
+
+- to identify what to stop and what to let continue.
+
+The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the StopTranslationResults request to this identifier. However, we soon found out that this would require a lot of overhead only to handle this probably not very common situation, so we dropped that idea as well.
+
+Finally, we decided for a compromise solution between those two. The StopTranslationResults request is now bound to individual chunks, which now have an added boolean field isActive. This field is set to true when the GetTranslationResults request arrives to the server, for each of the chunks on the request. The StopTranslationResults request contains a list of the chunks which translations should be stopped. On arrival of that request, Userspace simply sets the isActive field to false -- because Userspace and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Trabslation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
+
+\subsubsection{E-mail Address Validation}
+
+TODO: write it here or not?
+
 \subsection{Final Development}
 
 Optimizations required: better to throw away translation pairs and generated everytime user logs in
 
-Found many technical issues: e.g. necessary to be able to stop loading generating the suggestions on the server at the moment
+Found many technical issues: %e.g. necessary to be able to stop loading generating the suggestions on the server at the moment - DONE
+
 
 We left to the end a lot issues which we considered to be only minor technical , which appeared to be a lot of intensive work.
 
