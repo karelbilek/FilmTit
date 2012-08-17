@@ -122,7 +122,7 @@ object Factory {
 
       //Second level: Full text search
       val fulltextSearcher = new FulltextStorage(l1, l2, connection)
-      levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyWekaRanker(configuration.fuzzyRankerModel)), 0.0, TranslationSource.INTERNAL_FUZZY)
+      levels ::= new BackoffLevel(fulltextSearcher, Some(new FuzzyWekaRanker(configuration.fuzzyRankerModel)), 0.4, TranslationSource.INTERNAL_FUZZY)
     } else {
       val flSearcher = new FirstLetterStorage(l1, l2, connection, useInMemoryDB)
       levels ::= new BackoffLevel(flSearcher, Some(new ExactWekaRanker(configuration.exactRankerModel)), 0.7, TranslationSource.INTERNAL_EXACT)
@@ -134,7 +134,7 @@ object Factory {
         new MosesServerSearcher(l1, l2, configuration.mosesURL)
       }.toList
 
-      levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.7, TranslationSource.EXTERNAL_MT)
+      levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.5, TranslationSource.EXTERNAL_MT)
     }
 
     if ( levels.map(_.searcher).exists(_.requiresTokenization) ) {
