@@ -7,9 +7,11 @@ import com.github.gwtbootstrap.client.ui.CellTable;
 import com.github.gwtbootstrap.client.ui.Paragraph;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.SubmitButton;
+import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextInputCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -235,6 +237,14 @@ public class TimeEditDialog extends Composite {
     @UiField
     Paragraph timeValue;
     
+	@UiField
+	Button cancelButton;
+	
+	@UiHandler("cancelButton")
+	void cancel(ClickHandler e) {
+		dialogBox.hide();
+	}
+	
 	@UiField
 	SubmitButton submitButton;
 	

@@ -18,7 +18,8 @@
 	        </b:Fieldset>
 	        <b:Fieldset>
 	            <b:ModalFooter>
-	                <b:SubmitButton ui:field="submitButton" type="PRIMARY">Set</b:SubmitButton>
+                    <b:SubmitButton ui:field="submitButton" type="PRIMARY">Set</b:SubmitButton>
+                    <b:Button ui:field="cancelButton">Cancel</b:Button>
 	            </b:ModalFooter>
 	        </b:Fieldset>
 	    </b:Form>
