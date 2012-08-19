@@ -50,9 +50,10 @@ configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://h
 
 
 \subsection{Retrieving Media Source information}
-\newpage
 
-%TODO
+For retrieving information about media sources, we initially used a free IMDB API (\url{http://imdbapi.com/}). However, it showed that this API might become unreliable in the future and indeed, as of July 30, the API had been shut down. To avoid complications early, we switched to the Freebase API\footnote{\url{http://www.freebase.com/}}. Freebase is a large knowledge base of structured data based on data extracted from Wikipedia and other publicly available resources and continually extended by users.
+
+To retrieve media source candidates, first a full text search query with the title and a restriction to entities of type \emph{film}\footnote{Freebase type: /film/film.} and \emph{TV program}\footnote{Freebase type: /tv/tv\_program.} is sent to the Freebase API. Afterwards additional information for each candidate is retrieved and the {\tt MediaSource} objects are sent to the GUI for the best match to be selected by the user.
 
 
 
@@ -116,7 +117,7 @@ def requiresTokenization: Boolean
 {\tt TranslationPairSearcher}s that are based on the local \postgres~database extend the class {\tt TranslationPairStorage} and must implement the method {\tt add} for adding new translation pairs to the storage.
 
 \vspace*{0.5em}
-
+ 
 \lstset{language=scala, caption={TranslationPairSearchers may require tokenization}}
 \begin{lstlisting}
 def add(translationPairs: TraversableOnce[TranslationPair])

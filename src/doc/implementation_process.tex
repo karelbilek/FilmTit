@@ -100,6 +100,7 @@ It is hard to define the main development phase which is covered in the followin
 The section is divided to parts covering the issues we were dealing with and describes what we did in each area in those approximately five and half months.
 
 \subsubsection{OpenID}
+\label{subsubsec:openid}
 
 Despite we wanted to implement OpenID support from the very beginning we started with it approximately in May. We found two most frequently used Java libraries for OpenID and tried them. Those were \emph{JOpenID} and \emph{openid4java}.
 
@@ -247,36 +248,24 @@ Finally, we decided for a compromise solution between those two. The StopTransla
 
 \subsubsection{User Management}
 
-deciding between "simple" login and OpenID ... decided to use both
+At the very beginning the only the GUI was basically only the translation workspace. It was possible to translate a subtitle file in the application, the changes were reflected in the database, anyway it was not possible neither to get them in the application when the web application was reloaded neither to export the subtitles.
 
-TODO some notes on OpenID (probably a separate subsetion)
+We considered the user management to be just a minor technical issue. Anyway, to enable to reach the intended architecture of the User Space -- mostly that most of the calls should be resolved in the Session objects -- we introduced a simple fake login in April (you could log as any user using password "guest").
 
-decisions:
+We stared to implement the OpenID login support in May (see section \ref{subsubsec:openid}). When we met some technical difficulties. We decided to implement first our own registration and login.
 
-no constraints on username (except for non-emptiness)
+Because our own experience that requiring a registration from a web service often prevent us from using it we decided to make the registration as easy as possible. We have no constraints on user name (except for non-emptiness) and very little constraints on password (only it must be at least characters long).
 
-little constraints on password (only must be >= 3 characters). Resoning:
+We think the most important feature of a password is for the user to remember it, we leave the assessment of the strength to the user. The password strength constraints are often rather arbitrary and many classes of strong passwords do not pass them, it is hard to develop a reasonable strength measure. E.g. a whole sentence, a "passphrase", is a very strong password; however, it usually does not pass measures requiring use of specific classes of characters. And vice versa, a password using very unusual characters (e.g. Czech letters with diacritic signs) can be impossible to break even if it is quite short, because the attacker simply does not try out such characters that are uncommon in passwords; still it often does not pass typical minimum password length constraints.
 
-- we think the most important feature of a password is for the user to remember it, we leave the assessment of the strenght to the user.
-often the password strenght constraints are rather arbitrary and many classes of strong passwords do not pass them, it is hard to develop a reasonable strength measure. E.g. a whole sentence, a "passphrase", is a very strong password; however, it usually does not pass measures requiring use of specific classes of characters. And vice versa, a password using very unusual characters (e.g. Czech letters with diacritic signs) can be impossible to break even if it is quite short, because the attacker simply does not try out such characters that are uncommon in passwords; still it often does not pass typical minimum password length constraints.
-
-- the app does not contain any sensitive data whose compromising would pose a threat to the users of the app
-
-- the benefit to the attacker succesfully breaking into a user account is close to none
-
+Moreover, we are not forced to pay much attention to the security of the application - it does not contain any sensitive data whose compromising would pose a threat to the users of the application and the benefit to the attacker successfully breaking into a user account is close to none.
 
 We allow the user to work in multiple browser tabs or windows, provided it is the same session (i.e. has the same SessionID), because we believe it is natural to work on multiple translations at once, to have the Document List opened to see the translation progres, etc. The user himself is responsible for having the same document opened multiple times, which is not expected behavior and so changes to the document in one Translation Workspace are not projected into the other Workspace until reload.
 
 However, we decided to disallow one user having multiple sessions at one time, as we believe that this is neither expected nor required behavior, and could potentially confuse the user. We believe that such a state is usually caused by a mistake, e.g. user A forgetting to log out on PC 1, then moving to PC 2, and at the same time user B using the application on PC 1 under user A's account by mistake.
 We do not support multiple users collaborating on one subtitle file.
 
-If user registers through OpenID, we have to assign a username to him (the unique OpenID identifier we get is typically a long hash, which does not look like a nice username). SEE XXX
-
-Because the username is at least partly generated, the user might not like it. Therefore, we offer each user the possibility to change the username (provided that the one he chooses is free). The username is only used to authenticate the user (if not using OpenID login) and is displayed in the top right corner in the application; the internal unique identifier of a user is his user id, an integer assigned to each user on registration that never changes.
-
-\subsubsection{E-mail Address Validation}
-
-TODO: write it here or not?
+If user registers through OpenID, we have to assign a user name to him (the unique OpenID identifier we get is typically a long hash, which does not look like a nice user name), see section \ref{subsubsec:gui_openid}. Because the user name is at least partly generated, the user might not like it. Therefore, we offer each user the possibility to change the user name (provided that the one he chooses is free). The user name is only used to authenticate the user (if not using OpenID login) and is displayed in the top right corner in the application; the internal unique identifier of a user is his user id, an integer assigned to each user on registration that never changes.
 
 \subsubsection{GUI Look and Feel}
 
@@ -398,21 +387,21 @@ How to identify the objects correctly:
 
 \subsubsection{Hibernate Issues}
 
-TODO: Jindra
+Before starting the project nobody of us had an experience with a object-relation mapping library for Java. Initially we were thinking also about not using such library and operate directly with the \emph{JDBC} connection. That was the option we chose for the translation memory core where we work only with few tables with not complicated relations. About the User Spaces where we expected much more complicated structure we thought that using a object-relation mapping would more beneficial and decided to use one. 
 
-- classes must have getters and setters (but they can be private)
+After doing a little research on the Internet we found out that Hibernate seems to be the most frequently used library for object relation mapping and decided to use it too. There were more than 20,000 discussions on \emph{stackoverflow.com} which gave us hope that solution for any problems we might have had could be easily found on the Internet. 
 
-- classes must have parameter-less constructor (but can be private)
+Details of the mapping itself could be found in section \ref{subsec:database_mapping}, the structure of the mapped database is in figure \ref{fig:em_of_us}. Here we will focus on the database mapping from the development perspective.
 
-- limitting number of connections
+Because we started with Hibernate version 3, all properties we wanted make persistent must have had their getters and setters. The requirement to have a getter and setter for each property may sound as violating the encapsulation feature of the Object Oriented Programming, but luckily the method can be private. (Hibernate probably access them via reflection.) Classes also must have parameter-less constructor, but it also can be private.
 
-- having to add members not only to class but also to mapping
+New versions of Hibernate allow to use directly the fields of the classes, but since the mapped classes are usually wrappers of the shared classes, the fields are not directly accessible from the mapped class, we used the getters and setters for all properties to be consistent. Despite we ended up using Hibernate version 4.1.0, we are quite conservative in terms of using its features and keep all the mapping in separate XML files despite it can be done by annotations directly in the source file and do not access fields directly, but always use getters and setters.
 
-- necessary to drop the tables on any change
+Previously mentioned features of Hibernate were very often also source of bugs -- mostly forgetting to add a private setter. Very often mistake was also forgetting to add a property in the mapping and finding out it is not persistent. (When a new property was added it was usually not covered in tests at that time so it took some time find it.)
 
-- adding database constraints
+Another problem was that despite the Hibernate can adjust the database scheme to the mapping, it was often not able to change it in a proper way and it was necessary to drop the User Space tables in the database and let the Hibernate to create them from the scratch. This of course always caused loss of the data we tested the application on.
 
-...?
+During debugging of one bug (it was happening that the same translation results was appearing in the database with different database IDs) it appeared how useful is to use the database constraints. If we had had it before this bug would have been found right away and it would not take so much time to find it. After this experience we added constrains everywhere where it was possible.
 
 \subsubsection{Media Source}
 
@@ -424,7 +413,7 @@ adding the "null" option
 
 \subsubsection{GUI Refactoring}
 
-TODO: have that here or not???
+TODO: have that here or not??? Yes!
 
 Started as 1 class (GUI.java) which grew and grew.
 

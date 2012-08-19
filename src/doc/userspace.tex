@@ -16,15 +16,15 @@ The session class contains an object representing the user (a wrapper for the sh
 
 The more basic level than the translation result uses exactly the shared classes structure.
 
-\section{Functionality overview}
+\section{Functionality Overview}
 
 The User Space services are available via the RPC calls from the client side. During the run of the server there exist one instance of the server class. The main task of the sever class is to process the calls from the clients -- which in fact means pass the calls further to the particular sessions and manage the sessions themselves. There is a method for every single operation that is possible to happen in the client.
 
-After a user logs in, a Session object is created. It contains a unique session ID the client uses for authentication of its calls. A session object contains information about the user -- the user's settings and \todo{this is not true}a list of the documents owned by the user, and hash tables of documents and chunks which are currently in use. When the user is logged in all of the call processing is happening in the session class.
+After a user logs in, a Session object is created. It contains a unique session ID the client uses for authentication of its calls. A session object contains information about the user -- the user's settings and a set of the documents owned by the user available via the User object, and a hash tables of documents which are currently in use with loaded chunks. When the user is logged in all of the call processing is happening in the session class.
 
-Until the user does not explicitly request a document, only basic information about the document remains loaded into memory (basic facts about the movie, time of last changes of the document). Only if he opens the document for editing, all the document chunks with the translation suggestions and already finished users translations are loaded. Anyway, if the list of owned documents is queried, empty documents arrive to the client no matter if the documents are loaded in the User Space.
+Until the user does not explicitly requests a document, only basic information about the document remains loaded into memory (basic facts about the movie, time of last changes of the document). Only if he opens the document for editing or requests export of the subtitle file, all the document chunks with the translation suggestions and already finished users translations are loaded. Anyway, if the list of owned documents is queried, empty documents arrive to the client no matter if the documents are loaded in the User Space.
 
-There is also a thread running in the server that checks the time how long the sessions are opened without any users action. If this time exceeds the predefined session time out limit, either a short time for common sessions or a very long time for permanent sessions, the session is terminated. The another situations when a session is terminated is when the user logs in despite has he already owns a session or explicitly logs out. When a session ends, basic information about the session is written to database (user, start time, end time) to enable us to compute statistics about using the application later.
+There is also a thread running in the server that checks the time how long the sessions are opened without any users action. If this time exceeds the predefined session time out limit, either a short time for common sessions or a long time for permanent sessions, the session is terminated. The another situations when a session is terminated is when the user logs in despite has he already owns a session or explicitly logs out. When a session ends, basic information about the session is written to database (user, start time, end time) to enable us to compute statistics about using the application later.
 
 \begin{figure}
 \begin{center}
@@ -66,14 +66,23 @@ There are also two third-party classes included in the User Space source code. I
 The {\tt SubtitleDownloadServlet} class responsible for exporting the subtitle files is described in section \ref{sec:export}. Details concerning the user registration, login and using open ID are discussed in more detail is section \ref{subsec:simple_login} in the GUI chapter. Details about handling the communication with the client are covered in section \ref{sec:communication} of the GUI chapter.
 
 \subsection{Database Mapping}
+\label{subsec:database_mapping}
 
-As was mentioned many times before, the User Space mirrors all the client operations and make them persistent on the server side. The persistence ensured by saving the data to the database. The exist many sophisticated tool for Java to ensure the data persistence, e.g. \emph{Java Persistence API} framework which or some frameworks working on the higher level of abstraction as \emph{Spring Data Framework}. Since only very basic database operations are required during the run of the User Space -- loading and saving of the raw Java object -- only a object relational mapping is library used, namely the \emph{Hibernate}.
+As was mentioned many times before, the User Space mirrors all the client operations and make them persistent on the server side. The persistence ensured by saving the data to the database. The exist many sophisticated tool for Java to ensure the data persistence, e.g. \emph{Java Persistence API} framework which or some frameworks working on the higher level of abstraction as \emph{Spring Data Framework}. Since only very basic database operations are required during the run of the User Space -- loading and saving of the raw Java object -- only a object relational mapping is library used, namely the \emph{Hibernate}. Structure of the database being mapped is figure \ref{fig:em_of_us}.
 
 The core also uses Hibernate for mapping the {\tt MediaSource} class (gathering information about movie). User Space shares the mapping of such class and uses a class extended from the core class to manage the database transactions.
 
 The mapping just reflects the data properties of classes. If the class is a wrapper of a shared class the getters and setters of the properties are bind to the wrapped objects properties.
 
 As was told before, the mapping of {\tt USDocument} does not include the list of Translation Results the document contains in order to be able to send the documents both with and without the translation results. It would be also possible to use the lazy Hibernate collection mapping, but it would cause problem at the time the object serialized.
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.5]{figures/userspacedb.pdf}
+\end{center}
+\caption{EM diagram of the database used by the User Space}
+\label{fig:em_of_us}
+\end{figure}
 
 \subsection{Providing Feedback to the Translation Memory}
 
