@@ -11,6 +11,7 @@ import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextInputCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -241,7 +242,7 @@ public class TimeEditDialog extends Composite {
 	Button cancelButton;
 	
 	@UiHandler("cancelButton")
-	void cancel(ClickHandler e) {
+	void cancel(ClickEvent e) {
 		dialogBox.hide();
 	}
 	
