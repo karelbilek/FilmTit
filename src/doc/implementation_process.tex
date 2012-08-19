@@ -387,21 +387,21 @@ How to identify the objects correctly:
 
 \subsubsection{Hibernate Issues}
 
-TODO: Jindra
+Before starting the project nobody of us had an experience with a object-relation mapping library for Java. Initially we were thinking also about not using such library and operate directly with the \emph{JDBC} connection. That was the option we chose for the translation memory core where we work only with few tables with not complicated relations. About the User Spaces where we expected much more complicated structure we thought that using a object-relation mapping would more beneficial and decided to use one. 
 
-- classes must have getters and setters (but they can be private)
+After doing a little research on the Internet we found out that Hibernate seems to be the most frequently used library for object relation mapping and decided to use it too. There were more than 20,000 discussions on \emph{stackoverflow.com} which gave us hope that solution for any problems we might have had could be easily found on the Internet. 
 
-- classes must have parameter-less constructor (but can be private)
+Details of the mapping itself could be found in section \ref{subsec:database_mapping}, the structure of the mapped database is in figure \ref{fig:em_of_us}. Here we will focus on the database mapping from the development perspective.
 
-- limitting number of connections
+Because we started with Hibernate version 3, all properties we wanted make persistent must have had their getters and setters. The requirement to have a getter and setter for each property may sound as violating the encapsulation feature of the Object Oriented Programming, but luckily the method can be private. (Hibernate probably access them via reflection.) Classes also must have parameter-less constructor, but it also can be private.
 
-- having to add members not only to class but also to mapping
+New versions of Hibernate allow to use directly the fields of the classes, but since the mapped classes are usually wrappers of the shared classes, the fields are not directly accessible from the mapped class, we used the getters and setters for all properties to be consistent. Despite we ended up using Hibernate version 4.1.0, we are quite conservative in terms of using its features and keep all the mapping in separate XML files despite it can be done by annotations directly in the source file and do not access fields directly, but always use getters and setters.
 
-- necessary to drop the tables on any change
+Previously mentioned features of Hibernate were very often also source of bugs -- mostly forgetting to add a private setter. Very often mistake was also forgetting to add a property in the mapping and finding out it is not persistent. (When a new property was added it was usually not covered in tests at that time so it took some time find it.)
 
-- adding database constraints
+Another problem was that despite the Hibernate can adjust the database scheme to the mapping, it was often not able to change it in a proper way and it was necessary to drop the User Space tables in the database and let the Hibernate to create them from the scratch. This of course always caused loss of the data we tested the application on.
 
-...?
+During debugging of one bug (it was happening that the same translation results was appearing in the database with different database IDs) it appeared how useful is to use the database constraints. If we had had it before this bug would have been found right away and it would not take so much time to find it. After this experience we added constrains everywhere where it was possible.
 
 \subsubsection{Media Source}
 

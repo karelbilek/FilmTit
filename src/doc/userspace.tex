@@ -66,8 +66,9 @@ There are also two third-party classes included in the User Space source code. I
 The {\tt SubtitleDownloadServlet} class responsible for exporting the subtitle files is described in section \ref{sec:export}. Details concerning the user registration, login and using open ID are discussed in more detail is section \ref{subsec:simple_login} in the GUI chapter. Details about handling the communication with the client are covered in section \ref{sec:communication} of the GUI chapter.
 
 \subsection{Database Mapping}
+\label{subsec:database_mapping}
 
-As was mentioned many times before, the User Space mirrors all the client operations and make them persistent on the server side. The persistence ensured by saving the data to the database. The exist many sophisticated tool for Java to ensure the data persistence, e.g. \emph{Java Persistence API} framework which or some frameworks working on the higher level of abstraction as \emph{Spring Data Framework}. Since only very basic database operations are required during the run of the User Space -- loading and saving of the raw Java object -- only a object relational mapping is library used, namely the \emph{Hibernate}.
+As was mentioned many times before, the User Space mirrors all the client operations and make them persistent on the server side. The persistence ensured by saving the data to the database. The exist many sophisticated tool for Java to ensure the data persistence, e.g. \emph{Java Persistence API} framework which or some frameworks working on the higher level of abstraction as \emph{Spring Data Framework}. Since only very basic database operations are required during the run of the User Space -- loading and saving of the raw Java object -- only a object relational mapping is library used, namely the \emph{Hibernate}. Structure of the database being mapped is figure \ref{fig:em_of_us}.
 
 The core also uses Hibernate for mapping the {\tt MediaSource} class (gathering information about movie). User Space shares the mapping of such class and uses a class extended from the core class to manage the database transactions.
 
@@ -80,6 +81,7 @@ As was told before, the mapping of {\tt USDocument} does not include the list of
 \includegraphics[scale=0.5]{figures/userspacedb.pdf}
 \end{center}
 \caption{EM diagram of the database used by the User Space}
+\label{fig:em_of_us}
 \end{figure}
 
 \subsection{Providing Feedback to the Translation Memory}
