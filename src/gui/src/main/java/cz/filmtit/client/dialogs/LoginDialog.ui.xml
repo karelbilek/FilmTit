@@ -52,9 +52,16 @@
 
                     <b:Alert ui:field="alertOpenidLogin" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
                     
+                    <b:Paragraph>
+                        You can log in without registration, using your existing account on Google, Seznam or Yahoo:
+                    </b:Paragraph>
+                    
                     <b:ControlGroup>
                         <b:Controls>
-                            <b:SubmitButton ui:field="btnLoginGoogle">Login via Google Account</b:SubmitButton>
+                            <!-- TODO: probably integrate into the Login tab using a select -->
+                            <b:Button ui:field="btnLoginGoogle">Google.com</b:Button>
+                            <b:Button ui:field="btnLoginSeznam">Seznam.cz</b:Button>
+                            <b:Button ui:field="btnLoginYahoo">Yahoo.com</b:Button>
                         </b:Controls>
                     </b:ControlGroup>
 

@@ -52,10 +52,6 @@ public final class FilmTitServiceHandler {
         }
     }
     
-    static public void registerUser(String username, String password, String email, Dialog loginDialog) {
-    	new RegisterUser(username, password, email, loginDialog);
-    }
-    
     /**
      * change password in case of forgotten password;
      * user chooses a new password,
@@ -81,10 +77,6 @@ public final class FilmTitServiceHandler {
     static public void logout() {    	new Logout();
     }
     
-    static public void getAuthenticationURL(AuthenticationServiceType serviceType, Dialog loginDialog) {
-		new GetAuthenticationURL(serviceType, loginDialog);
-	}
-	
     static public void validateAuthentication (String responseURL, int authID, AuthenticationValidationWindow authenticationValidationWindow) {
 		new ValidateAuthentication(responseURL, authID, authenticationValidationWindow);
 	}

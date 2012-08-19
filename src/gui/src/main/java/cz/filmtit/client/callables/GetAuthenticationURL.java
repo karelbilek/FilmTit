@@ -19,7 +19,7 @@ import cz.filmtit.share.LoginSessionResponse;
 
         @Override
 		public String getName() {
-            return "GetAuthenticationURL";
+            return getNameWithParameters(serviceType);
         }
         
         @Override

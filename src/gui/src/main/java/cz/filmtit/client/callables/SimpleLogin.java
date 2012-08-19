@@ -50,7 +50,12 @@ import cz.filmtit.share.SessionResponse;
 	    	}
         }
         
-        // constructor
+        /**
+         * Log in the user
+         * @param username
+         * @param password
+         * @param dialog can be null if we are "sure" the password is OK (i.e. after setting it)
+         */
         public SimpleLogin(String username, String password, Dialog dialog) {
 			super();
 			

@@ -9,10 +9,12 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.callables.GetAuthenticationURL;
+import cz.filmtit.client.callables.RegisterUser;
 import cz.filmtit.client.callables.SendChangePasswordMail;
 import cz.filmtit.client.callables.SendChangePasswordMailByMail;
+import cz.filmtit.client.callables.SimpleLogin;
 import cz.filmtit.share.AuthenticationServiceType;
 
 
@@ -321,7 +323,7 @@ public class LoginDialog extends Dialog {
     	
     	if (checkLoginForm(username, password)) {
             Gui.log("trying to log in as user " + username);
-            FilmTitServiceHandler.simpleLogin(username, password, LoginDialog.this);
+            new SimpleLogin(username, password, LoginDialog.this);
     	}
 	}
 	
@@ -354,14 +356,30 @@ public class LoginDialog extends Dialog {
 	Alert alertOpenidLogin;
 	
 	@UiField
-	SubmitButton btnLoginGoogle;
+	Button btnLoginGoogle;
 
-    @UiHandler("formOpenidLogin")
-    void formOpenidLoginSubmit(Form.SubmitEvent e) {
+    @UiHandler("btnLoginGoogle")
+    void loginGoogle(ClickEvent e) {
         deactivate();
-    	
-		Gui.log("trying to log in through Google account");
-		FilmTitServiceHandler.getAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
+		new GetAuthenticationURL(AuthenticationServiceType.GOOGLE, LoginDialog.this);
+	}
+	
+	@UiField
+	Button btnLoginSeznam;
+
+    @UiHandler("btnLoginSeznam")
+    void loginSeznam(ClickEvent e) {
+        deactivate();
+		new GetAuthenticationURL(AuthenticationServiceType.SEZNAM, LoginDialog.this);
+	}
+	
+	@UiField
+	Button btnLoginYahoo;
+
+    @UiHandler("btnLoginYahoo")
+    void loginYahoo(ClickEvent e) {
+        deactivate();
+		new GetAuthenticationURL(AuthenticationServiceType.YAHOO, LoginDialog.this);
 	}
 	
 	//////////////////////////////////
@@ -401,7 +419,7 @@ public class LoginDialog extends Dialog {
     	
     	if (checkRegForm(username, password, passwordRepeat, email)) {
             Gui.log("trying to register as user " + username);
-           	FilmTitServiceHandler.registerUser(username, password, email, LoginDialog.this);
+           	new RegisterUser(username, password, email, LoginDialog.this);
     	}
 	}
 	
