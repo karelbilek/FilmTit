@@ -185,7 +185,7 @@ simpleLogin(username, password)</panel_attributes>
       <h>70</h>
     </coordinates>
     <panel_attributes>lt=.&lt;
-new SessionResponse(sessionID, User)</panel_attributes>
+new SessionResponse(sessionID, user)</panel_attributes>
     <additional_attributes>30;50;320;50</additional_attributes>
   </element>
   <element>
@@ -219,7 +219,7 @@ logged_in(username)</panel_attributes>
       <w>650</w>
       <h>580</h>
     </coordinates>
-    <panel_attributes>sd Simple Login</panel_attributes>
+    <panel_attributes>sd Successful Simple Login</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
