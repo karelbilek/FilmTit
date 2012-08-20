@@ -44,7 +44,18 @@ public abstract class Dialog extends Composite {
     	// nothing to do by default
     }
     
+    private boolean activated = true;
+    
     /**
+     * true by default,
+     * false after calling deactivate(),
+     * true after calling reactivate().
+     */
+    public boolean isActivated() {
+		return activated;
+	}
+
+	/**
      * Elements enabled and disabled on callind reactivate() and deactivate() respectively.
      */
     protected HasEnabled[] enablableElements;
@@ -55,7 +66,8 @@ public abstract class Dialog extends Composite {
 	 * Used to block the user from doing anything
 	 * e.g. while waiting for an RPC call to complete.
 	 */
-	public void deactivate() {
+	public final void deactivate() {
+		activated = false;
 		if (enablableElements == null) {
 			dialogBox.setVisible(false);
 		}
@@ -72,7 +84,8 @@ public abstract class Dialog extends Composite {
 	 * @see deactivate()
 	 * @param message
 	 */
-	public void reactivate() {
+	public final void reactivate() {
+		activated = true;
 		if (enablableElements == null) {
 			dialogBox.setVisible(true);
 		}

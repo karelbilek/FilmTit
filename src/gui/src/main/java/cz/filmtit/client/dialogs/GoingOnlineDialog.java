@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.LocalStorageHandler;
@@ -31,6 +32,8 @@ public class GoingOnlineDialog extends Dialog {
 				"There are " + count + " Offline Mode items stored in your browser. " +
 				"Let's upload them to the server now!"
 			);
+		
+		enablableElements = new HasEnabled[] {uploadButton, retryButton, deleteButton, closeButton};
 		
 		dialogBox.show();
 	}
@@ -147,6 +150,5 @@ public class GoingOnlineDialog extends Dialog {
 		deleteButton.setVisible(true);
 		closeButton.setVisible(true);
 	}
-	
 	
 }

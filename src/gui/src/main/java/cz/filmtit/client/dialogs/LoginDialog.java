@@ -7,6 +7,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
@@ -96,6 +97,13 @@ public class LoginDialog extends Dialog {
         	showErrorMessage(errorMessage);
         }
         
+        enablableElements = new HasEnabled[] {
+        		txtLoginPassword, txtLoginUsername, btnLogin,
+        		btnLoginGoogle, btnLoginSeznam, btnLoginYahoo,
+        		txtRegEmail, txtRegPassword, txtRegPasswordRepeat, txtRegUsername, btnRegister,
+        		txtFpwdEmail, txtFpwdUsername, btnForgottenPassword,
+    		};
+        
         dialogBox.show();
 	}
 	
@@ -153,11 +161,14 @@ public class LoginDialog extends Dialog {
 	private Tab activeTab = Tab.Login;
 	
 	private void switchTo(Tab tab) {
-		hideAlert();
-		propagateUsername(username(activeTab));
-		activateTab(tab);
-		showForm(tab);
-		activeTab = tab;
+		if (isActivated()) {
+			hideAlert();
+			propagateUsername(username(activeTab));
+			activateTab(tab);
+			showForm(tab);
+			activeTab = tab;
+		}
+		// do not switch tabs in deactivated mode
 	}
 	
 	private void activateTab(Tab tab) {
@@ -253,12 +264,6 @@ public class LoginDialog extends Dialog {
 	public void showErrorMessage(String message) {
 		alert(activeTab).setText(message);
 		alert(activeTab).setVisible(true);
-	}
-	
-	@Override
-	public void deactivate() {
-		hideAlert();
-		super.deactivate();
 	}
 	
 	/**
