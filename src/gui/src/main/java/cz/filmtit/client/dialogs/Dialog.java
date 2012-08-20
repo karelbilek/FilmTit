@@ -5,8 +5,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-
-import cz.filmtit.client.Gui;
+import com.google.gwt.user.client.ui.HasEnabled;
 
 /**
  * Common ancestor to dialogs in FilmTit.
@@ -45,24 +44,43 @@ public abstract class Dialog extends Composite {
     	// nothing to do by default
     }
     
-	// The methods have the simplest possible implementations and should be overridden whenever applicable.
-	
+    /**
+     * Elements enabled and disabled on callind reactivate() and deactivate() respectively.
+     */
+    protected HasEnabled[] enablableElements;
+    
 	/**
-	 * Temporarily prevent the user from using the dialog,
-	 * but do not hide it.
+	 * Disable all enablable elements
+	 * (this.enablableElements must be set correctly).
 	 * Used to block the user from doing anything
 	 * e.g. while waiting for an RPC call to complete.
 	 */
 	public void deactivate() {
-		dialogBox.setVisible(false);
+		if (enablableElements == null) {
+			dialogBox.setVisible(false);
+		}
+		else {
+			for (HasEnabled element : enablableElements) {
+				element.setEnabled(false);
+			}
+		}
 	}
 	
 	/**
-	 * Activate the dialog again
+	 * Activate the dialog again,
+	 * opposite of deactivate().
+	 * @see deactivate()
 	 * @param message
 	 */
 	public void reactivate() {
-		dialogBox.setVisible(true);
+		if (enablableElements == null) {
+			dialogBox.setVisible(true);
+		}
+		else {
+			for (HasEnabled element : enablableElements) {
+				element.setEnabled(true);
+			}
+		}
 	}
 	
 	/**
