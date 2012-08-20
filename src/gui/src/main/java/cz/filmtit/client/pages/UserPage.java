@@ -43,11 +43,11 @@ public class UserPage extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		/**
-		 * A cell with a title (aka a tool-tip)
+		 * A column consisting of EdiTextCells with a title (aka a tool-tip)
 		 * @author rur
 		 *
 		 */
-		class TitledEditTextCell extends EditTextCell {
+		abstract class EditableTitledColumn extends Column<Document, String> {
 			
 			private String title;
 
@@ -59,28 +59,22 @@ public class UserPage extends Composite {
 				this.title = title;
 			}
 
-			/**
-			 * 
-			 * @param title will be displayed as the tool-tip
-			 */
-			public TitledEditTextCell(String title) {
-				super();
+			public EditableTitledColumn(String title) {
+				super(new EditTextCell());
 				this.title = title;
 			}
-			
+
 			@Override
-			public void render(com.google.gwt.cell.client.Cell.Context context,
-					String value, SafeHtmlBuilder sb) {
+			public void render(Context context, Document object,
+					SafeHtmlBuilder sb) {
 				sb.appendHtmlConstant("<div title=\"" + title + "\">");
-				// sb.append(value);
-				super.render(context, value, sb);
+				super.render(context, object, sb);
 				sb.appendHtmlConstant("</div>");
 			}
 		}
 		
 		// column with Document title
-        // Column<Document, String> nameClm = new Column<Document, String>(new TitledEditTextCell("click to change document title")) {
-        Column<Document, String> nameClm = new Column<Document, String>(new EditTextCell()) {
+        Column<Document, String> nameClm = new EditableTitledColumn("click to change document title") {
             @Override
             public String getValue(Document doc) {
                 return doc.getTitle();
@@ -106,8 +100,7 @@ public class UserPage extends Composite {
 		});
         
         // column with Movie title
-        // Column<Document, String> mSourceClm = new Column<Document, String>(new TitledEditTextCell("click to change movie title")) {
-        Column<Document, String> mSourceClm = new Column<Document, String>(new EditTextCell()) {
+        Column<Document, String> mSourceClm = new EditableTitledColumn("click to change movie title") {
             @Override
             public String getValue(Document doc) {
                 if (doc.getMovie() == null) {
@@ -117,6 +110,7 @@ public class UserPage extends Composite {
                     return doc.getMovie().toString();
                 }
             }
+            
         };
         // use ChangeMovieTitle() to change the title
         mSourceClm.setFieldUpdater(new FieldUpdater<Document, String>() {
