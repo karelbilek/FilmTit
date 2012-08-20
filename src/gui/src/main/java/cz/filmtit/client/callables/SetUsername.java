@@ -4,7 +4,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.pages.Settings;
 
 /**
- * Change username.
+ * Change user's username.
  */
 public class SetUsername extends SetSetting<String> {
 

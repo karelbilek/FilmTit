@@ -4,7 +4,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.pages.Settings;
 
 /**
- * An ancestor to methods setting some settings.
+ * Set maximum number of suggestions to show for each line.
  */
 public class SetMaximumNumberOfSuggestions extends SetSetting<Integer> {
 
