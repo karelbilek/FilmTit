@@ -1,5 +1,3 @@
-499
-
 \section{Timeline}
 
 The following section describes the project development, progress and decision as we did through the time the the project was developed. After series of informal talk the project officially started in December 2011 and was submitted in September 2012.
@@ -30,7 +28,9 @@ The decision to use both Java and Scala appeared to be a bring quite a lot of co
 
 Luckily for us we received very soon a database from the {\it opensubtitles.org} containing all the Czech and English subtitle file that were at the server at that time. Soon after that we started an alignment algorithm to retrieve the parallel data from the subtitle files (the process is described in section~\ref{sec:aligning_subtitles}) and enable us to start experiments that helped us to decide which database system could be used.
 
-Choosing appropriate database system was also intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.  We evaluated different DBMS and decided to use Postgres (see section~\ref{sec:dbms} for details). Not having any experience with the object-relation mapping libraries in Java we started to us {\it Hibernate} based on the Internet forums and advice of our colleagues.
+Choosing appropriate database system was also intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.  We evaluated different DBMS and decided to use \postgres~(see section~\ref{sec:dbms} for details). To test its applicability for our project, we ran several small evaluations of \postgres~features that might be useful to us, e.g.\ the full-text search. As soon as we made the final decision on which DBMS to use, we re factored the evaluation code into {\tt TranslationPairSearcher} classes and started to set out the general architecture of the core. The {\tt BackoffTranslationMemory} class was added and the candidate search was finished in the early stages, so a basic version of the system could be used even though there were not yet any sophisticated rankers. For more details on the core architecture, please see Section~\ref{sec:corearchitecture}.
+
+Not having any experience with the object-relation mapping libraries in Java we started to us {\it Hibernate} based on the Internet forums and advice of our colleagues.
 
 Originally, all the algorithms precessing the data we retrieved were implemented in Perl the and the code importing the data were in the \emph{Core} module implemented in Scala. Later, to be the code more consistent, we decided to move the data preparation and data import to a separate \emph{dataimport} module and re-implement the Perl scripts in Scala.
 
@@ -50,10 +50,18 @@ We very soon had toy implementations of:
 \begin{itemize}
 \item a player using VLC plugin, to be incorporated into the web app
 
-\item a player as a desktop java app, showing the web app in a frame\todo{do you have a screenshot?}
+\item a player as a desktop java app, showing the web app in a frame
 \end{itemize}
 
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=7cm]{figures/desktop-app-player.png}
+	\caption{Screenshot of Qt-based desktop application.}
+	\label{fig:figures_desktop-app-player}
+\end{figure}
+
 We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
+
 
 TODO: player -- Karel should write something more about its development, the applet signing, etc.
 
@@ -72,7 +80,7 @@ We decided to use the third option, with the first option also available as a fa
 \subsection{Introducing the shared classes}
 \label{subsec:introducing_shared_classes}
 
-After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order run a first snapshot of the application. This was happening approximately in March 2012.
+After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order to run a first snapshot of the application. This was happening approximately in March 2012.
 
 At this stage we found out that we are not fully taking advantage of using the Java technologies for all parts of project and decided to totally redesign the User Space and Client parts.
 
@@ -85,7 +93,7 @@ Originally we wanted to keep the traditional translation memory structure where 
 \caption{Current scheme of the work with translation memory.}\label{fig:new_scheme}
 \end{figure}
 
-We agreed on the shared classes that all parts of the project should use.  We more or less adopted the design of the class from the core and started to use in the whole project. This step required to re-implement the classes from Scala to Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}.
+We agreed on the shared classes that all parts of the project should use.  We more or less adopted the design of the classes from the core and started to use in the whole project. This step required to re-implement the classes from Scala to Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}.
 
 We started the work on the project with new design soon, anyway it started the period of the biggest struggle with technologies. It took almost two months to have a first running version of the application.
 
