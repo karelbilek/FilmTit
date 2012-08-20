@@ -4,7 +4,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.pages.Settings;
 
 /**
- * An ancestor to methods setting some settings.
+ * Stay logged in permanently (for 1 month) instead of 1 hour (sets the session timeout)
  */
 public class SetPermanentlyLoggedIn extends SetSetting<Boolean> {
 

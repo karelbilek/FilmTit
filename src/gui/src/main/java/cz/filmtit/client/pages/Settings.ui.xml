@@ -71,7 +71,7 @@
                 <b:ControlGroup>
                     <b:ControlLabel>Include machine translation:</b:ControlLabel>
                     <b:Controls>
-                        <b:CheckBox ui:field="setMoses"></b:CheckBox>
+                        <b:CheckBox ui:field="setUseMT"></b:CheckBox>
                     </b:Controls>
                 </b:ControlGroup>
                 

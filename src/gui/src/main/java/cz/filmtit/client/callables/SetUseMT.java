@@ -4,11 +4,11 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.pages.Settings;
 
 /**
- * An ancestor to methods setting some settings.
+ * Include MT results in translation suggestions.
  */
-public class SetUseMoses extends SetSetting<Boolean> {
+public class SetUseMT extends SetSetting<Boolean> {
 
-	public SetUseMoses(Boolean setting, Settings settingsPage) {
+	public SetUseMT(Boolean setting, Settings settingsPage) {
 		super(setting, settingsPage);
 	}
 

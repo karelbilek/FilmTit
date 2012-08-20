@@ -63,7 +63,7 @@ public class Settings extends Composite implements ReceivesSettings {
 		setEmail.setText(user.getEmail());
 		setPermalogin.setValue(user.isPermanentlyLoggedIn());
 		setMaxSuggestions.setValue(user.getMaximumNumberOfSuggestions());
-		setMoses.setValue(user.getUseMoses());
+		setUseMT.setValue(user.getUseMoses());
 	}
 	
 	private int waitingFor = 0;
@@ -162,9 +162,9 @@ public class Settings extends Composite implements ReceivesSettings {
 		}
 		
 		// moses
-		if (user.getUseMoses() != setMoses.getValue()) {
+		if (user.getUseMoses() != setUseMT.getValue()) {
 			calls.add(
-				new SetUseMoses(setMoses.getValue(), Settings.this)
+				new SetUseMT(setUseMT.getValue(), Settings.this)
 			);
 		}
 		
@@ -199,7 +199,7 @@ public class Settings extends Composite implements ReceivesSettings {
 		setEmail.setEnabled(false);
 		setPermalogin.setEnabled(false);
 		setMaxSuggestions.setEnabled(false);
-		setMoses.setEnabled(false);
+		setUseMT.setEnabled(false);
 		btnSave.setEnabled(false);
 		btnReset.setEnabled(false);
 	}
@@ -245,7 +245,7 @@ public class Settings extends Composite implements ReceivesSettings {
 		setEmail.setEnabled(true);
 		setPermalogin.setEnabled(true);
 		setMaxSuggestions.setEnabled(true);
-		setMoses.setEnabled(true);
+		setUseMT.setEnabled(true);
 		btnSave.setEnabled(true);
 		btnReset.setEnabled(true);
 	}
@@ -278,7 +278,7 @@ public class Settings extends Composite implements ReceivesSettings {
 	IntegerBox setMaxSuggestions;
 	
 	@UiField
-	CheckBox setMoses;
+	CheckBox setUseMT;
 	
 	@UiField
 	SubmitButton btnSave;
