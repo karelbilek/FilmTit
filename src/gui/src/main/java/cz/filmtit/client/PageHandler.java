@@ -140,10 +140,17 @@ public class PageHandler {
 	private ValueChangeHandler<String> historyChangeHandler = new ValueChangeHandler<String>() {
 		@Override
 		public void onValueChange(ValueChangeEvent<String> event) {
-			// find out which page the user wants
-			pageUrl = string2page(event.getValue());
-			// load the page
-			loadPage(true);
+			if (LocalStorageHandler.isOnline()) {
+				// find out which page the user wants
+				pageUrl = string2page(event.getValue());
+				// load the page
+				loadPage(true);
+			}
+			else {
+				// do not switch pages in Offline Mode
+				// keep the URL unchanged
+				setPageUrl(pageLoaded);
+			}
 		}
 	};
 	
