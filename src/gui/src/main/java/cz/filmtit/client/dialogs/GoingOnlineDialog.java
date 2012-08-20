@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -26,6 +27,7 @@ public class GoingOnlineDialog extends Dialog {
 	}
 
 	public GoingOnlineDialog(int count) {
+		super();
 		initWidget(uiBinder.createAndBindUi(this));
 
 		paragraph.setText(
@@ -34,8 +36,7 @@ public class GoingOnlineDialog extends Dialog {
 			);
 		
 		enablableElements = new HasEnabled[] {uploadButton, retryButton, deleteButton, closeButton};
-		
-		dialogBox.show();
+		focusElement = uploadButton;
 	}
 	
 	private enum State { Uploading, Retrying, Deleting };
@@ -118,6 +119,7 @@ public class GoingOnlineDialog extends Dialog {
 		deleteButton.setVisible(false);
 		closeButton.setType(ButtonType.SUCCESS);
 		closeButton.setVisible(true);
+		focusElement = closeButton;
 	}
 	
 	@Override
@@ -149,6 +151,7 @@ public class GoingOnlineDialog extends Dialog {
 		retryButton.setVisible(true);
 		deleteButton.setVisible(true);
 		closeButton.setVisible(true);
+		focusElement = retryButton;
 	}
 	
 }

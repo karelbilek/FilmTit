@@ -24,11 +24,10 @@ public class SessionIDPollingDialog extends Dialog {
 	SessionIDPolling sessionIDPolling;
 	
 	public SessionIDPollingDialog(SessionIDPolling sessionIDPolling) {
+		super();
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		this.sessionIDPolling = sessionIDPolling;
-		
-		dialogBox.show();
 	}
 	
     @UiField

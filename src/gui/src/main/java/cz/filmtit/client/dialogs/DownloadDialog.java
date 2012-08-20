@@ -26,17 +26,14 @@ public class DownloadDialog extends Dialog {
     Document document;
 
 	public DownloadDialog(Document document) {
+		super();
         initWidget(uiBinder.createAndBindUi(this));
         target.setChecked(true);
         this.document = document;
-
         
         srtButton.addClickHandler(handlerForFormat("srt"));
         subButton.addClickHandler(handlerForFormat("sub"));
         txtButton.addClickHandler(handlerForFormat("txt"));
-
-        dialogBox.show();
-
 	}
 
     String detectWay() {

@@ -67,6 +67,7 @@ public class MediaSelector extends Dialog {
     ReceivesSelectSource receiver;
     
     public MediaSelector(List<MediaSource> suggestions, ReceivesSelectSource receiver) {
+    	super();
         listbox = new CellList<MediaSource>(new MediaCell());
 
         initWidget(uiBinder.createAndBindUi(this));
@@ -86,8 +87,6 @@ public class MediaSelector extends Dialog {
         
         this.suggestions = suggestions;
         this.receiver = receiver;
-
-        dialogBox.show();
     }
 
 //    public void setSelected(MediaSource mediaSource) {

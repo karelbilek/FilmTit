@@ -7,6 +7,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -87,6 +88,7 @@ public class LoginDialog extends Dialog {
 	 * @param errorMessage An optional error message to show to the user.
 	 */
 	public LoginDialog(String username, Tab tab, String errorMessage) {
+		super();
 		initWidget(uiBinder.createAndBindUi(this));
 
 		propagateUsername(username);
@@ -103,8 +105,7 @@ public class LoginDialog extends Dialog {
         		txtRegEmail, txtRegPassword, txtRegPasswordRepeat, txtRegUsername, btnRegister,
         		txtFpwdEmail, txtFpwdUsername, btnForgottenPassword,
     		};
-        
-        dialogBox.show();
+        focusElement = focusElement(tab);
 	}
 	
 	//////////////////////////////////
@@ -167,6 +168,8 @@ public class LoginDialog extends Dialog {
 			activateTab(tab);
 			showForm(tab);
 			activeTab = tab;
+			focusElement = focusElement(tab);
+			focusFocusElement();
 		}
 		// do not switch tabs in deactivated mode
 	}
@@ -251,6 +254,26 @@ public class LoginDialog extends Dialog {
 			txtLoginUsername.setText(username);
 			txtRegUsername.setText(username);
 			txtFpwdUsername.setText(username);
+		}
+	}
+
+	/**
+	 * converts Tab to Focusable element to be focused on the tab
+	 * @param tab
+	 * @return the Focusable element in the tab which should get focus on opening the tab, or null if the tab has no such Focusable element
+	 */
+	private Focusable focusElement(Tab tab) {
+		switch (tab) {
+		case Login:
+			return txtLoginUsername;
+		case OpenidLogin:
+			return null;
+		case Register:
+			return txtRegUsername;
+		case ForgottenPassword:
+			return txtFpwdUsername;
+		default:
+			return null;
 		}
 	}
 

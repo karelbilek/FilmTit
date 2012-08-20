@@ -1,10 +1,13 @@
 package cz.filmtit.client.dialogs;
 
 import com.github.gwtbootstrap.client.ui.event.HiddenEvent;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.HasEnabled;
 
 /**
@@ -19,6 +22,8 @@ public abstract class Dialog extends Composite {
 	
 	/**
 	 * The enclosing dialog box.
+	 * Should not be accessed in subclasses
+	 * (but must be visible to UiBinder).
 	 */
     @UiField
     CustomModal dialogBox;
@@ -60,6 +65,34 @@ public abstract class Dialog extends Composite {
      */
     protected HasEnabled[] enablableElements;
     
+    protected Focusable focusElement;
+    
+    public Dialog() {
+    	
+    	// show the Dialog when everything is prepared
+    	Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			public void execute() {
+				dialogBox.show();
+		    	// and focus the set focusable element
+				focusFocusElement();
+			}
+		});
+		
+	}
+    
+    /**
+     * Focus the element set as focusElement, using a deferred call.
+     */
+    protected final void focusFocusElement() {
+    	Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			public void execute() {
+				if (focusElement != null) {
+					focusElement.setFocus(true);
+				}
+			}
+		});
+    }
+    
 	/**
 	 * Disable all enablable elements
 	 * (this.enablableElements must be set correctly).
@@ -94,6 +127,7 @@ public abstract class Dialog extends Composite {
 				element.setEnabled(true);
 			}
 		}
+		focusFocusElement();
 	}
 	
 	/**
