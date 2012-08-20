@@ -79,7 +79,8 @@ public class UserPage extends Composite {
 		}
 		
 		// column with Document title
-        Column<Document, String> nameClm = new Column<Document, String>(new TitledEditTextCell("click to change document title")) {
+        // Column<Document, String> nameClm = new Column<Document, String>(new TitledEditTextCell("click to change document title")) {
+        Column<Document, String> nameClm = new Column<Document, String>(new EditTextCell()) {
             @Override
             public String getValue(Document doc) {
                 return doc.getTitle();
@@ -105,7 +106,8 @@ public class UserPage extends Composite {
 		});
         
         // column with Movie title
-        Column<Document, String> mSourceClm = new Column<Document, String>(new TitledEditTextCell("click to change movie title")) {
+        // Column<Document, String> mSourceClm = new Column<Document, String>(new TitledEditTextCell("click to change movie title")) {
+        Column<Document, String> mSourceClm = new Column<Document, String>(new EditTextCell()) {
             @Override
             public String getValue(Document doc) {
                 if (doc.getMovie() == null) {
