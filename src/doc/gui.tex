@@ -104,7 +104,14 @@ Once the Document is created, it is sent back to the GUI.
 	
 Userspace passes the given chunk to the core, which generates zero or more translation suggestions.
 These are packed into a TranslationResult instance and sent back to GUI.
-	
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.45]{figures/document_creation_sequence.pdf}
+\end{center}
+\caption{Sequence diagram of document creation, including translation suggestions loading.}\label{gui:sd:document_creation}
+\end{figure}
+
 \subsubsection{setUserTranslation}
 	Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair);
 
