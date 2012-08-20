@@ -305,7 +305,7 @@ public class Gui implements EntryPoint {
         // actions
     	Gui.getGuiStructure().logged_in(user);
     	Gui.pageHandler.loadPage();
-    	
+    	Callable.callCallsToBeCalled();
     	LocalStorageHandler.setOnline(true);
     }
 

@@ -41,7 +41,9 @@ public class DeleteDocumentSilently extends cz.filmtit.client.Callable<Void> {
     
     @Override
     protected void onInvalidSession() {
-    	// bad but ignore
+    	// try to call again when logged in again
+    	addCallToBeCalled();
+    	// do not display the login dialog
     }
         
     public DeleteDocumentSilently(long id) {

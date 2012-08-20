@@ -1,6 +1,8 @@
 package cz.filmtit.client;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import cz.filmtit.client.dialogs.LoginDialog;
@@ -10,14 +12,14 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 
 /**
  * Represents an RPC with parameters.
- * The method is automatically called on its creation
- * and stored into a queue of active calls
- * so that it can be easily re-called on failure.
+ * The method is automatically called on its creation.
  */
 public abstract class Callable<T> implements AsyncCallback<T> {
 	
@@ -28,7 +30,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 	
 	protected static int windowsDisplayed;
 	
-	
+	protected static HashMap<Long, LinkedList<Callable<?>>> toBeCalled = new HashMap<Long, LinkedList<Callable<?>>>();
 	
 	// non-static members
 	
@@ -177,7 +179,9 @@ public abstract class Callable<T> implements AsyncCallback<T> {
      * Displays the login dialog by default.
      */
 	protected void onInvalidSession() {
-		// TODO: store to retry after reloging in
+		// store to retry after reloging in
+		addCallToBeCalled();
+		
         Gui.logged_out ();
         new LoginDialog(Gui.getUsername(), "You have not logged in or your session has expired. Please log in.");
 	}    
@@ -353,6 +357,35 @@ public abstract class Callable<T> implements AsyncCallback<T> {
         }
     }
     
+    /**
+     * Store the call in Callable.toBeCalled for future execution.
+     */
+    final protected void addCallToBeCalled () {
+    	if (!toBeCalled.containsKey(Gui.getUserID())) {
+    		toBeCalled.put(Gui.getUserID(), new LinkedList<Callable<?>>());
+    	}
+    	toBeCalled.get(Gui.getUserID()).add(this);
+    }
+
+    /**
+     * Call all calls stored in Callable.toBeCalled for future execution.
+     */
+    final public static void callCallsToBeCalled () {
+    	if (toBeCalled.containsKey(Gui.getUserID())) {
+    		Scheduler.get().scheduleIncremental(new RepeatingCommand() {
+				public boolean execute() {
+					if (toBeCalled.get(Gui.getUserID()).isEmpty()) {
+						return false;
+					}
+					else {
+						Callable<?> callable = toBeCalled.get(Gui.getUserID()).remove();
+						callable.enqueue();
+						return true;
+					}
+				}
+			});
+    	}
+    }
 
     
     
