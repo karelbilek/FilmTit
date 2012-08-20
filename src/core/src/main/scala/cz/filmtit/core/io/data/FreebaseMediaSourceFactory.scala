@@ -1,5 +1,6 @@
 package cz.filmtit.core.io.data
 
+import _root_.java.io.IOException
 import javax.net.ssl.{TrustManager, X509TrustManager, HttpsURLConnection, SSLContext}
 import javax.security.cert
 import java.security.cert.X509Certificate
@@ -147,16 +148,21 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
 
   def getSuggestion(title: String, year: String): MediaSource = {
     var firstBest: MediaSource = null
-    for (result <- (getMoviesByTitle(title) \ "result").children) {
-      getMediaSource(result) match {
-        case Some(ms) => {
-          if (ms.getYear != null && ms.getYear.equals(year))
-            return ms
-          else if (firstBest == null)
-            firstBest = ms
+
+    try {
+      for (result <- (getMoviesByTitle(title) \ "result").children) {
+        getMediaSource(result) match {
+          case Some(ms) => {
+            if (ms.getYear != null && ms.getYear.equals(year))
+              return ms
+            else if (firstBest == null)
+              firstBest = ms
+          }
+          case _ =>
         }
-        case _ =>
       }
+    } catch {
+      case e: IOException => firstBest = null
     }
 
     if (firstBest != null)
@@ -171,7 +177,11 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
   }
 
   def getSuggestions(title: String): java.util.List[MediaSource] = {
-    val moviesFromFreebase: ArrayList[MediaSource] = new ArrayList((getMoviesByTitle(title) \ "result").children.map(getMediaSource).flatten)
+    val moviesFromFreebase = try {
+       new ArrayList((getMoviesByTitle(title) \ "result").children.map(getMediaSource).flatten)
+    } catch {
+      case e: IOException => new ArrayList[MediaSource]()
+    }
 
     val defaultMS = new MediaSource()
     defaultMS.setTitle(title)
