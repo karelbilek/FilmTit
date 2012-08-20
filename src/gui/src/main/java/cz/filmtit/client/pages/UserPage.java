@@ -11,6 +11,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -41,8 +42,44 @@ public class UserPage extends Composite {
 	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
+		/**
+		 * A cell with a title (aka a tool-tip)
+		 * @author rur
+		 *
+		 */
+		class TitledEditTextCell extends EditTextCell {
+			
+			private String title;
+
+			public String getTitle() {
+				return title;
+			}
+
+			public void setTitle(String title) {
+				this.title = title;
+			}
+
+			/**
+			 * 
+			 * @param title will be displayed as the tool-tip
+			 */
+			public TitledEditTextCell(String title) {
+				super();
+				this.title = title;
+			}
+			
+			@Override
+			public void render(com.google.gwt.cell.client.Cell.Context context,
+					String value, SafeHtmlBuilder sb) {
+				sb.appendHtmlConstant("<div title=\"" + title + "\">");
+				// sb.append(value);
+				super.render(context, value, sb);
+				sb.appendHtmlConstant("</div>");
+			}
+		}
+		
 		// column with Document title
-        Column<Document, String> nameClm = new Column<Document, String>(new EditTextCell()) {
+        Column<Document, String> nameClm = new Column<Document, String>(new TitledEditTextCell("click to change document title")) {
             @Override
             public String getValue(Document doc) {
                 return doc.getTitle();
@@ -68,7 +105,7 @@ public class UserPage extends Composite {
 		});
         
         // column with Movie title
-        Column<Document, String> mSourceClm = new Column<Document, String>(new EditTextCell()) {
+        Column<Document, String> mSourceClm = new Column<Document, String>(new TitledEditTextCell("click to change movie title")) {
             @Override
             public String getValue(Document doc) {
                 if (doc.getMovie() == null) {
