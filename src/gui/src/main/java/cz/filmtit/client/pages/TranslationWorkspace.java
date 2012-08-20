@@ -618,6 +618,7 @@ public class TranslationWorkspace extends Composite {
     	// create label
         Label timeslabel = new Label(chunk.getDisplayTimeInterval());
         timeslabel.setStyleName("chunk_timing");
+        timeslabel.setTitle("double-click to change the timing");
 		timeslabel.addDoubleClickHandler(new TimeChangeHandler(chunk));
 		// add label to map
 		timeLabels.put(chunkIndex, timeslabel);
@@ -634,6 +635,7 @@ public class TranslationWorkspace extends Composite {
         //html because of <br />
         Label sourcelabel = new HTML(chunk.getSurfaceForm());
         sourcelabel.setStyleName("chunk_l1");
+        sourcelabel.setTitle("double-click to change this text");
         sourcelabel.addDoubleClickHandler(new SourceChangeHandler(chunk, sourcelabel));
         table.setWidget(index + 1, SOURCETEXT_COLNUMBER, sourcelabel);
 
