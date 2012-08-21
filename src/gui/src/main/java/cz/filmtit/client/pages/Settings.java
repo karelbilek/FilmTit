@@ -132,7 +132,7 @@ public class Settings extends Composite implements ReceivesSettings {
 		// email
 		String newEmail = setEmail.getValue();
 		if (!newEmail.equals(user.getEmail())) {
-			if (email.isEmpty() || LoginDialog.checkEmailValidity(newEmail)) {
+			if (newEmail.isEmpty() || LoginDialog.checkEmailValidity(newEmail)) {
 				calls.add(
 					new SetEmail(newEmail, Settings.this)
 				);
