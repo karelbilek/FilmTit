@@ -16,6 +16,7 @@ import static junit.framework.Assert.assertNotNull;
  * To change this template use File | Settings | File Templates.
  */
 public class TestLogger {
+
     @BeforeClass
     public static void setupConfiguration() {
         Configuration configuration = new Configuration("configuration.xml");
@@ -24,7 +25,7 @@ public class TestLogger {
 
     }
 
-    TestLogger() {}
+    public TestLogger(){}
 
     @Test
     public void testInstance(){
