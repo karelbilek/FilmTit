@@ -1,12 +1,16 @@
 \label{chap:communication}
 \label{sec:communication}
 
+This chapter describes the communication interface between the GUI and the Userspace. The central part of the interface are Remote Procedure Calls, described in XXX, YYY and ZZZ, but some of the sequences span more than one RPC: these are further described in XXX.
+
 \section{Remote Procedure Calls}
 % (Ruda)
 
 We use GWT RPCs.
 
 TODO: describe GWT RPCs
+
+They are asynchronous, always called from the client. They return an instance of the return type on success or an instance of an exception on failure.
 
 \section{Communication Scheme}
 GUI communicates with Userspace via a GWT RemoteService implementation, defined as the FilmTitService interface.
@@ -16,50 +20,109 @@ The method is always called from the client, because Javascript security policie
 Therefore, in case the Userspace needs to actively contact the GUI without the GUI having sent a request before,
 this has to be implemented in the GUI by polling.
 
-\section{Manipulating the documents}
+\section{Manipulating Documents}
+\subsection{Whole Document Operations}
 
-\subsubsection{createDocument}
-	Document createDocument(String movieTitle, String year, String language);
+\subsubsection{DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)}
 
-Userspace creates a Document instance with the given title, year and language.
-It checks the data with IMDB and fills in other information if a corresponding movie is found.
-Once the Document is created, it is sent back to the GUI.
+Creates the document
+(without source chunks, which have to be added by calling saveSourceChunks),
+returns its id, together with media source suggestions based on movieTitle.
+     	
+\subsubsection{Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)}
+Sets the media source of the document.
 
-\subsubsection{getTranslationResults}
-	TranslationResult getTranslationResults(TimedChunk chunk);
-	
+\subsubsection{List<Document> getListOfDocuments(String sessionID)}
+Returns all documents owned by the user, ordered by date and time of last change.
+
+\subsubsection{Document loadDocument(String sessionID, long documentID)}
+Returns the document with the given id, with source chunks but without translation suggestions.
+
+\subsubsection{Void closeDocument(String sessionID, long documentId)}
+Not used. TODO: delete?
+     	
+\subsubsection{Void changeDocumentTitle(String sessionId, long documentID, String newTitle)}
+Sets a different title for the document.
+     	
+\subsubsection{List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)}
+Returns media source suggestions based on newMovieTitle.
+The movie title is not changed yet,
+this is only done on calling selectSource.
+TODO: is this true?     	 
+     	
+\subsubsection{Void deleteDocument(String sessionID, long documentID)}
+Remove the given document from the list of user's documents.
+(The data might not be discarded immediately
+as the translations still might be used to encàich the translation memory)	 
+
+\subsection{Source Subtitles Operations}
+
+\subsubsection{Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)}
+Save the given source chunks as the contents of the given document
+(which was already created by calling createNewDocument)	 
+
+\subsubsection{Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)}
+Change the start time of the given chunk to the new value.
+
+\subsubsection{Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)}
+Change the end time of the given chunk to the new value.
+
+\subsubsection{Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)}
+Change the start time and end time of the given chunk to the values.
+
+\subsubsection{TranslationResult changeText(String sessionID, TimedChunk chunk, String newDbForm)}
+Change the source text of the chunk,
+resulting in new translation suggestions
+which are sent as the result.
+
+\subsubsection{Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)}
+Remove the chunk from the document, together with its translation if it exists.
+
+\subsection{Target Subtitles Operations}
+
+\subsubsection{TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)}
+Get the list of possible translations of the given chunk.
+
 Userspace passes the given chunk to the core, which generates zero or more translation suggestions.
 These are packed into a TranslationResult instance and sent back to GUI.
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[scale=0.45]{figures/document_creation_sequence.pdf}
-\end{center}
-\caption{Sequence diagram of document creation, including translation suggestions loading.}\label{gui:sd:document_creation}
-\end{figure}
+\subsubsection{List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)}
+Get the list of lists of possible translations of the given chunks.
 
-\subsubsection{setUserTranslation}
-	Void setUserTranslation(int chunkId, long documentId, String userTranslation, long chosenTranslationPair);
+\subsubsection{Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)}
+Stop generating translation results for the given chunks
+(to be used when the getTranslationResults call has been called
+with the given chunks.
+
+\subsubsection{Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)}
+Set the user translation of the given chunk.
 
 This method is called once the user selects a suggested translation and optionally post-edits it
 (or does not select one but inputs the translation text directly).
 The translation is then saved by Userspace;
 the id of the TranslationPair chosen for post-editing is also sent, providing feedback which then can be used to improve future suggestions.
 
-\section{User login}
+\section{User Registration and Login}
 
 The user is required to log in to be able to save his work on the server.
-TODO: Do we allow the user to work without being logged in?
 
 The user is logged in if he has a valid session id which is linked to a user account in Userspace.
 The session id expires after a given period of time without any user interaction with the server,
 it is therefore neccessary that the user can log in without the application\'s main window being reloaded so that the user does not lose unsaved data.
 
-\subsubsection{Simple Login}
+Two ways to log in -- Simple Login and OpenID. Only Logout is common, other methods devided into two subsections.
+
+
+\subsubsection{Void logout(String sessionID)}
+Invalidate the user session with the given sessionID
+
+
+\subsection{Simple Login and Registration}
 \label{subsec:simple_login}
 
 TODO: There is simple login which is very simple. See Figure \ref{gui:sd:simple_login}.
 
+TODO: probably split the diagram into two (or delete the logout completely from the diagram, there is nothing interesting on it)
 
 \begin{figure}[h]
 \begin{center}
@@ -68,8 +131,54 @@ TODO: There is simple login which is very simple. See Figure \ref{gui:sd:simple_
 \caption{Sequence diagram of simple login and logout.}\label{gui:sd:simple_login}
 \end{figure}
 
-\subsubsection{Login via OpenID Services}
+\subsubsection{Boolean registration(String username, String password, String email, String openId)}
+Register a user with the given username and password, setting the given e-mail and sending registration info to it.
+@return true if successful, false if not
+TODO: throw an exception
+
+
+\subsubsection{SessionResponse simpleLogin(String username, String password);}
+Try to log in the user with the given username and password.
+@return SessionResponse containing the sessionID and the User object on success, null on error
+TODO: throw an exception
+
+
+\subsubsection{SessionResponse checkSessionID(String sessionID);}
+Validates the given sessionID.
+@param sessionID
+@return SessionResponse containing the sessionID and the User object if the sessionID is valid, null if not
+
+
+\subsubsection{Boolean sendChangePasswordMail(String username);}
+Send an email with a link to password reset
+to the user's email address.
+@param username registered username of the user
+@return true on success, false if username is incorrect or there is no email address
+TODO: throw an exception
+
+
+\subsubsection{Boolean sendChangePasswordMailByMail(String email)}
+Send an email with a link to password reset
+to the user's email address.
+@param email registered e-mail address of the user
+@return true on success, false if username is incorrect or there is no email address
+TODO: throw an exception
+
+    
+
+\subsubsection{Boolean changePassword(String username, String password, String token);}
+Change password in case of forgotten password;
+user chooses a new password,
+user authentication is done by the token sent to user's email
+@return true on success, false if token is invalid
+TODO: throw an exception
+
+\subsection{Login via OpenID Services}
 \label{subsubsec:gui_openid}
+
+No registration needed, user automatically registered on first login.
+
+TODO: move partly to last section (Complex Operations) and maybe partly to GUI
 
 The authentication itself is done in a new authentication window.
 A successful authentication is then paired with the GUI instance using a temporary one-time identifier, authID, shared by the main window and the authentication window.
@@ -89,32 +198,101 @@ The result is then sent to Userspace by validateAuthentication.
 If the authentication is successful, a new session is created for the user.
 The main window then acquires the new session id via getSessionID and the authentication process is completed.
 
-Several ways of authenticating the user are supported, including authentication by Google openID and Facebook account.
+Currently supported OpenID providers are Google, Yahoo and Seznam.
 
-\subsubsection{getAuthenticationURL}
-    String getAuthenticationURL(long authID, AuthenticationServiceType serviceType);
+\subsubsection{LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);}
+Get the URL of a window to show to the user for him to log in using his OpenID
 
 Called by GUI when authentication is required and the user is not logged in (i.e. does not have a valid sesion id).
 A temporary one-time identifier, authID, is generated for the authentification session only to identify the client logging in and sent to Userspace together with the request.
 The chosen service to be used for authentication is also given (e.g. Google or Facebook).
 The Userspace returns a URL of the webpage to be used for authentication.
 
-\subsubsection{validateAuthentication}
-    Boolean validateAuthentication(long authID, String responseURL);
+\subsubsection{Boolean validateAuthentication(int authID, String responseURL);}
+Send the URL of the response from the OpenID provider to Userspace for validation.
 
 Called from the authentication response window after the user\'s attempt to authenticate themself.
 The responseURL contains information from the authentication service to be checked and used by the Userspace.
 If the authentication is found to have been successful, a new session is generated for the user and paired with the given authID, and true is returned.
 Otherwise, the method returns false.
 
-\subsubsection{getSessionID}
-    String getSessionID(long authID);
+\subsubsection{SessionResponse getSessionID(int authID)}
+Poll the Userspace to find out whether the user has already successfully logged in using his OpenID.
 
 Userspace checks whether a successful authentication has been done with the given authID.
 If yes, the corresponding session id is returned.
 Otherwise, null is returned.
 TODO null or empty string?
 TODO we still need to be able to send info that the user decided to cancel the authentication if we find this out - probably by an exception?
+
+\section{User Settings}
+
+There are several settings that the user can change. There is a separate call for each of the settings -- therefore, a set of indivdual calls must be invoked if the user decides to change multiple settings at once, and each of the calls can succeed or fail independently on the results of the other calls.
+
+The settings are stored in the User object and sent to GUI on login, as a part of the SessionResponse which is the result of the methods simpleLogin, getSessionID and checkSessionID. There is no dedicated method to load the settings; checkSessionID is to be used for that purpose.
+
+\subsection{Account and Logging in Settings}
+
+\subsubsection{Void setUsername(String sessionID, String username)}
+Change user's username.
+
+\subsubsection{Void setPassword(String sessionID, String password)}
+Change user's password.
+
+\subsubsection{Void setEmail(String sessionID, String email)}
+Change user's e-mail.
+
+\subsubsection{Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn)}
+Stay logged in permanently (for 1 month) instead of 1 hour (sets the session timeout)
+
+\subsection{Translation Workspace Settings}
+
+\subsubsection{Void setMaximumNumberOfSuggestions(String sessionID, int number)}
+Set maximum number of suggestions to show for each line.
+
+\subsubsection{Void setUseMoses(String sessionID, boolean useMoses)}
+Include MT results in translation suggestions.
+
+\section{Remote logging}
+    
+
+\subsubsection{Void logGuiMessage(LevelLogEnum level, String context, String message, String sessionID);}
+Log the given message from GUI on server.
+
+\section{Exceptions Thrown by RPCs}
+
+The RPCs typically throw an exception on failure. These exceptions should be of only four types, described in this section.
+
+\subsection{InvalidSessionIdException}
+
+Most of the RPCs can only be invoked by a logged in user -- such RPCs take the sessionID as a parameter and throw an InvalidSessionIdException in case of an invalid sessionID. Typically the ID would be originally valid but expired, so the expected reaction to this exception is to simply ask the user to log in again.
+
+\subsection{InvalidDocumentIdException}
+
+RPCs that manipulate the document usually take the documentID as a parameter and throw an InvalidDocumentIdException if a document with the given ID does not exist or does not belong to the user.
+
+\subsection{InvalidChunkIdException}
+
+RPCs that manipulate individual chunks take either the whole chunks or only their indexes as a parameter. They throw an InvalidChunkIdException if the specified chunk does not exist.
+
+\subsection{InvalidValueException}
+
+The InvalidValueException is thrown by a method if a value provided by the user, such as an e-mail address or a password, does not have the required format. It always contains details about the nature of the error as the message, which usually should be shown to the user.
+
+\section{Complex Operations}
+
+In most cases, one RPC is sufficient to perform the whole operation. However, sometimes a whole sequence of several RPCs is required to complete one complex operation. Such operations are described in this section.
+
+\subsection{Document Creation}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.45]{figures/document_creation_sequence.pdf}
+\end{center}
+\caption{Sequence diagram of document creation, including translation suggestions loading.}\label{gui:sd:document_creation}
+\end{figure}
+
+\subsection{OpenID Login}
 
 \begin{figure}[h]
 \begin{center}
