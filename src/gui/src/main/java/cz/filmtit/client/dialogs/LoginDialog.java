@@ -463,7 +463,7 @@ public class LoginDialog extends Dialog {
     	else if (!checkPasswordsMatch(password, passwordRepeat)) {
     		reactivateWithErrorMessage("The passwords don't match!");
     	}
-    	else if (!checkEmailValidity(email)) {
+    	else if (!email.isEmpty() && !checkEmailValidity(email)) {
     		reactivateWithErrorMessage("The e-mail address is invalid!");
     	}
     	else {
