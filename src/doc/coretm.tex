@@ -158,11 +158,21 @@ models provided by the OpenNLP project.
 \subsubsection*{Czech ME tokenizer}
 
 For Czech, no such model existed, so we trained a ME tokenizer
-model on data from the Prague Dependency Treebank\footnote{\url{http://ufal.mff.cuni.cz/pdt2.0/}}. We produced a script that creates training data in the following format:
+model on data from the Prague Dependency Treebank\footnote{\url{http://ufal.mff.cuni.cz/pdt2.0/}}. Scheme of the process is in fogure \ref{fig:tokenizer}. 
+
+We produced a script that creates training data in the following format:
 \begin{verbatim}
 K vynikajícím spisovatelům<SPLIT>, kteří věřili v nevysvětlitelné duševní 
 úkazy<SPLIT>, patřil také americký romanopisec Upton Sinclair<SPLIT>.
 \end{verbatim}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.6]{figures/creatingTokenizationModel.pdf}
+\end{center}
+\caption{Scheme of traning the tokenizer.}
+\label{fig:tokenizer}
+\end{figure}
 
 In the training data, the \verb|<SPLIT>| annotation indicates a position in the data, in which the
 tokenizer is required to separate two tokens (in this case words and punctuation symbols). These
