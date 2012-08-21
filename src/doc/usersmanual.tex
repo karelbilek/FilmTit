@@ -2,7 +2,15 @@
 
 \section{About Filmtit Application}
 
-\emph{Filmtit} is a web application that assists amateur subtitle translators with translating movie and TV shows subtitles. In order to help save the amount of work spent on the translation, it provides suggestions on how the subtitles could be translated, based on a database of already existing translated subtitles. Similar to Google Documents, every single user operation is saved right after it is done -- there is no need for saving the documents manually; even if your browser crashes, you can continue working on the subtitle document exactly at the place where you ended last time. Your data are available from any computer at any time exactly in the state you left them.
+\emph{Filmtit} is a web application that assists amateur subtitle translators with translating movie and TV shows subtitles. In order to help save the amount of work spent on the translation, it provides suggestions on how the subtitles could be translated, based on a database of already existing translated subtitles.
+
+You can translate any subtitle file you have from English to Czech or from Czech to English, making use of the millions of translations already made by other movie subtitles translators, comming from the tens of thousands of subtitle files in our database. From these, we always carefully select the most relevant ones for the lines that you are translating at the moment, which you can use as they are, post-edit them a little, or just use them for inspiration. And even if we find no similar lines in our database, there is always the machine translation system, ready to provide an automatically generated translation for any line you encounter.\footnote{Currently, the machine translation is only available for translation from English to Czech. Also please note that the machine translation can contain mistakes, as there is no perfect machine translation system in existence that we know of.}
+
+Often it may be hard to fully understand the subtitles without seeing the movie; therefore, you have the possibility to load a movie file into the application, and the part of the movie that you are translating at a given moment will be always played to you, also showing he source subtitles (and the target ones as well if you have already translated them). Most of the movie formats and codecs are supported! See XXX
+
+FilmTit is a web application, which means you just have to open your favourite internet browser and you can start translating straight away -- no installation is necessary (although you may have to install Java and VLC for the video playback function, see XXX). However, this does not mean that you have to be online to translate the subtitles! Once you get all the translation suggestions from the server, you can go to the Offline Mode, work on the translation offline, and all your work will be automatically saved on the server when you are online again! See XXX
+
+Similar to Google Documents, every single user operation is saved right after it is done -- there is no need for saving the documents manually; even if your browser crashes, you can continue working on the subtitle document exactly at the place where you ended last time. Your data are available from any computer at any time exactly in the state you left them.\footnote{Except for the Offline Mode, where your data is saved to the server only when you go online again.}
 
 To run the application, you need a web browser with HTML5 support (Opera v.12
 Firefox v.14, Chrome v.21, Safari v.5.1.5, or higher \todo{find versions exactly}). To use the optional video playback in your browser, you need to have installed Java (version ???) and the VLC plugin for ??? (version ???).\todo{add it, who knows it}
@@ -17,7 +25,7 @@ We require the users to be logged into the application during their work. We do 
 
 \subsection{Registration and Basic Login}
 
-First option how to get an account to the application is to register and get a user name and password similarly as to any other web application. However, if you have a Google, Yahoo or Seznam account, we recommend you to use the ``OpenID login'', which enables you to use your already existing account with Google, Yahoo or Seznam to log into the FilmTit application.
+First option how to get an account to the application is to register and get a user name and password similarly as to any other web application. However, if you have a Google, Yahoo or Seznam account, we recommend you to use the ``OpenID login'', which enables you to use your already existing account at Google, Yahoo or Seznam to log into the FilmTit application.
 
 \begin{figure}[h]
 \begin{center}
@@ -27,9 +35,9 @@ First option how to get an account to the application is to register and get a u
 \label{fig:welcome}
 \end{figure}
 
-For the classic registration, click on the "Register" button on the welcome screen (figure \ref{fig:welcome}) or click on login button and select the third tab in opened dialog (figure \ref{fig:register_login}).
+For the classic registration, click on the "Register" button on the welcome screen (figure \ref{fig:welcome}) or click on login button and select the third tab in the opened dialog (figure \ref{fig:register_login}).
 
-After that you are requested to choose a user name, fill in a valid a email address and type twice the password you would like to use. Because the application does not contain any sensitive information we try to keep the registration and login process as simple as possible and there are no requirement on the strength of the password. After the successful registration you will receive an email confirming the registration. You do not need to fill in a working email address, anyway it is useful for the potential password recovery.
+After that you are requested to choose a user name, fill in a valid a email address and type twice the password you would like to use. (You do not need to fill in an email address, but it is necessary for password recovery in case you forget your password.) Because the application does not contain any sensitive information, we try to keep the registration and login process as simple as possible and there are no requirements on the strength of the password (except for a minimum length of 3 characters). After the successful registration, you will receive an email confirming the registration.
 
 \begin{figure}[h]
 \begin{center}
@@ -39,19 +47,19 @@ After that you are requested to choose a user name, fill in a valid a email addr
 \label{fig:register_login}
 \end{figure}
 
-You are automatically logged in after the registration. For logging in next time, click on the login button on the welcome screen and fill in your user name and password (figure \ref{fig:register_login}). If you want to be logged in permanently, you change it in your settings, see section \ref{sec:settings}.
+You are automatically logged in after the registration. For logging in next time, click on the login button on the welcome screen and fill in your user name and password (figure \ref{fig:register_login}). Your login session is valid for 1 hour -- if you do not use the application for 1 hour, you will be logged out automatically. If you want to stay logged in permanently, you can set this in the settings, see section \ref{sec:settings}.
 
-\subsection{OpenID}
+\subsection{OpenID Login}
 
-Another option how to log in to the application is using Google, Yahoo or Seznam account. After choosing the service you want to use a pop-up window is opened. It may happen that your browser blocks this window. If it happens you need to allow the pop-up window to continue the logging process.
+Another option to log into the application is using Google, Yahoo or Seznam account. After choosing the service you want to use, a pop-up window is opened. It may happen that your browser blocks this window -- if this happens, you need to allow the pop-up window to continue the logging process.
 
-You will see the login form of the service you have chosen. If you are already logged in the service you will see just the confirmation request to allow the Filmtit application to access your account data (it is your user name in the service, your first name, surname, email and gender, depending on what you filled in in the particular service and what you allowed to be provided to the third party applications, but it is never the password to the original service). After submitting your user name and user password and confirming that the Filmit application can receive your authentication data the pop-up window will be automatically closed. Within few seconds after that you will be redirected to the list of documents you own. Is is empty at the time first you log in.
+You will see the login form of the service you have chosen. If you are currently already logged into the service, you will only see the confirmation request to allow the Filmtit application to access your account data (it is your user name in the service, your first name, surname, email and gender, depending on what you filled in in the particular service and what you allowed to be provided to the third party applications, but it is never the password to the original service). \todo{why do we get the name and gender if we dont use it???} After submitting your user name and user password and confirming that the Filmit application can receive your authentication data, the pop-up window will be automatically closed. Within a few seconds you will be redirected to the list of documents you own (if this is your first time logging into the application, you have no documents yet, so you will see the New Document page instead).
 
-You are registered automatically on first successful login. You also automatically get a user name and password for the Basic Login, which is sent to your e-mail address upon registration (if your OpenID provider provides us with one) and can be changed in the Settings.
+If you use OpenID Login, you do not have to register -- you are registered automatically on your first successful login. You also automatically get a user name and password for the Basic Login, which is sent to your e-mail address upon registration (if your OpenID provider provides us with one) and can be changed in the Settings.
 
 \subsection{Forgotten Password}
 
-Another issue connected to login is the dealing with situation when a you forget your password. If such situation happens, open the login dialog and click on the "Forgotten password" tab. Fill in either your user name or email (or both) and click "Send password change link to email" (see figure \ref{forgotten_pass}).
+Another issue connected to login is the dealing with situation when a you forget your password. If such situation happens, open the login dialog and click on the "Forgotten password" tab. Fill in either your user name or email (or both) and click "Send password change link to email" (see figure \ref{forgotten_pass}). (Please note that if you did not set a valid e-mail address with your account, you cannot use this feature.)
 
 \begin{figure}[h]
 \begin{center}
@@ -61,12 +69,12 @@ Another issue connected to login is the dealing with situation when a you forget
 \label{fig:forgotten_pass}
 \end{figure}
 
-After that you will receive an email reminding your user name with a link to the page where you change your password. If you ignore the email, the original password will remain still valid.
+After that you will receive an email reminding your user name with a link to a page where you can change your password. If you ignore the email, the original password will remain valid.
 
 \section{Changing the User's Settings}
 \label{sec:settings}
 
-You can change the user settings by clicking on the "Settings" links in the top line of the application after you are logged in. You can see the settings form in figure \ref{fig:settings}. After you are done with changing settings, click 
+You can change the user settings by clicking the Settings link in the top menu of the application (you must be logged in to have the Settings available). You can see the settings form in figure \ref{fig:settings}. After you are done with changing settings, click the Save button.
 
 \begin{figure}[h]
 \begin{center}
@@ -78,21 +86,23 @@ You can change the user settings by clicking on the "Settings" links in the top 
 \subsection{Account and Logging in}
 \subsubsection{User name}
 
-You can change you user name by typing a different one. The user name has to unique within the Filmtit application, anyway if you pick up an already existing user name, the system will propose to you a similar user name which is still free.
+You can change you user name by typing a different one. The user name has to unique within the Filmtit application, so if you pick an already existing user name, the system will propose to you a similar user name which is still free.
+\todo{will it? I dont think so!}
+you will have to find another user name which is free.
 
 \subsubsection{New password}
 
-You can change your password by filling the two boxes with two identical strings which will become your new password. As was already mentioned we do not have any requirements on the strength of the password except of non-emptiness. 
+You can change your password by filling the two boxes with two identical strings which will become your new password. As was already mentioned, we do not have any requirements on the strength of the password except for a minimal length of 3 characters.
 
-By leaving the two input boxes empty, the old password remains.
+By leaving the two input boxes empty, the old password remains unchanged.
 
 \subsubsection{E-mail address}
 
-In this input box you can change you email address. It is checked whether the address as a valid email format, but we do not test the email address availability. We recommend to fill in a working email address for the case you would forget your password.
+In this input box you can change you email address. It is checked whether the address has a valid email address format, but we do not test the email address existence and functionality. We recommend to fill in a working email address for the case you forget your password.
 
 \subsubsection{Stay logged in}
 
-By ticking this option you be stay logged permanently logged in to the application. After a long time of not appearing in the application you will be automatically logged out (it is a month be default, but it depends on the administration settings of the server).
+By ticking this option you stay permanently logged in to the application -- unless you log out. (After a really long time of not appearing in the application, you will be automatically logged out for security reasons; it is a month be default, but it depends on the administration settings of the server.)
 
 \subsection{Translation Workspace}
 
@@ -104,13 +114,18 @@ It is the maximum number of suggestion that can be displayed for a particular su
 
 \subsubsection{Include machine translation}
 
-By this option you indicate if you want to include automatic translation among the translation results. If this option is disabled you receive only sentences which has occurred before in subtitle files.
+By this option you indicate if you want to include automatic translation among the translation results. If this option is disabled, you receive only sentences which have occurred before in the subtitle files that we have available in our database.
 
-The machine translation provides automatically generated sentences by an open-source statistical machine translation system called Moses. When we tested it on the subtitle data it performed better than the popular Google Translation (tested in August 2012). Anyway, there may be situations, like movies having very specific vocabulary where it may better to switch machine translation off.
+The machine translation provides automatically generated sentences by an open-source statistical machine translation system called Moses. When we tested it on the subtitle data, it performed better than the popular Google Translate system (tested in August 2012). Anyway, there may be situations, like movies having very specific vocabulary where it may better to switch machine translation off.
+\todo{I think the last sentene is nonsense and I would delete it.}
+
+If you disable the machine translation, you often do not receive any suggestions for many chunks. However, you get the suggestions faster (the machine translation is usually the slowest part of the suggestions generation process), and all suggestions you get are human translations which generally have a higher quality than the automatic translations.
+
+Please note that in the current version, machine translation is only available for translations from English to Czech.
 
 \section{Creating a New Document}
 
-In the application, we call a subtitle file as document. Creating a document means loading a subtitle file in the source language and starting translating it. You can create a new document either by clicking on the "Create a new document" button in the document list or by clicking the "New document" link in the top line.
+A document is a subtitle file in the source language (usually English) which you load into the application, together with its translation in the target language (usually Czech) which you produce with the help of the application. Creating a document means loading a subtitle file in the source language and starting to translate it. You can create a new document either by clicking the ``Create a new document'' button in the document list, or by clicking the ``New document'' link in the top menu.
 
 \begin{figure}[h]
 \begin{center}
@@ -119,9 +134,9 @@ In the application, we call a subtitle file as document. Creating a document mea
 \caption{Form for creating a new document.}
 \end{figure}
 
-While creating a document you are asked to fill in the movie title and a document title in case you want to name it differently than the movie title. In the case of TV series please fill in the name of the series, not the name of the particular episode. An example of it can be to type "Lost" as the movie title and "Lost S01E01" as a document title. The you are asked to choose the source language of the subtitles, encoding of the subtitle file and the path to the actual subtitle file you would like to translate. You should also make sure you selected the proper encoding of the source subtitle file. You can choose from UTF-8, windows-1280 and iso-8859-2 which are the most commonly used encoding for Central European languages.
+While creating a document, you are asked to fill in the movie title and the document title (which defaults to the movie title, but you can set any name you like). In the case of TV series, please fill in the name of the series, not the name of the particular episode. An example of it can be to type ``Lost'' as the movie title and ``Lost S01E01'' as the document title. Then you are asked to choose the source language of the subtitles, encoding of the subtitle file and the path to the actual subtitle file you would like to translate. You should also make sure you selected the proper encoding of the source subtitle file. You can choose from UTF-8, windows-1280 and iso-8859-2, which are the most commonly used encodings for Central European languages. (Usually UTF-8 is the correct choice.)
 
-There is also an option to play the video of the movie you have on your computer. If you want to do so, click the "Load" button below the "Movie playback" headline and select the movie file. For this step you need to have installed Java and the VLC plugin as was mentioned before. Please be patient while doing it, loading the open file dialog can take few minutes on the slower computers. The browsers do not normally support opening the local files without posting them to the server, therefore we had to develop a non-standard solution.
+There is also an option to play the video of the movie you have on your computer. If you want to do so, click the "Load" button below the "Movie playback" headline and select the movie file. For this step you need to have installed Java and the VLC plugin as was mentioned before. Please be patient while doing it, loading the open file dialog can take few minutes \todo{FEW MINUTES?!?!?!} on slower computers. (The browsers do not normally support opening the local files without posting them to the server, therefore we had to develop a non-standard solution.) \todo{the last sentence does not bother I user I am afraid, I would delete it}
 
 Then you can submit the document creating. Within few seconds a form containing suggestion movies with title you provided should appear (see figure \ref{fig:media_sources}).
 
