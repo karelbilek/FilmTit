@@ -20,20 +20,51 @@ public interface FilmTitService extends RemoteService {
     //                                    //
     ////////////////////////////////////////
 	
+	/**
+	 * Creates the document
+	 * (without source chunks, which have to be added by calling saveSourceChunks),
+	 * returns its id, together with media source suggestions based on movieTitle.
+	 */     	
 	DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
     	throws InvalidSessionIdException;
+	/**
+	 * Sets the media source of the document.
+	 */     	
     Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Returns all documents owned by the user, ordered by date and time of last change.
+	 */     	
     List<Document> getListOfDocuments(String sessionID)
     	throws InvalidSessionIdException;
+	/**
+	 * Returns the document with the given id, with source chunks but without translation suggestions.
+	 */     	
     Document loadDocument(String sessionID, long documentID)
     	throws InvalidDocumentIdException, InvalidSessionIdException;
+	/**
+	 * Not used. TODO: delete?
+	 */     	
     Void closeDocument(String sessionID, long documentId)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Sets a different title for the document.
+	 */     	
     Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
         throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Returns media source suggestions based on newMovieTitle.
+	 * The movie title is not changed yet,
+	 * this is only done on calling selectSource.
+	 * TODO: is this true?     	 
+	 */     	
     List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
         throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Remove the given document from the list of user's documents.
+	 * (The data might not be discarded immediately
+	 * as the translations still might be used to encŕich the translation memory)	 
+	 */
     Void deleteDocument(String sessionID, long documentID)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
     
@@ -43,18 +74,39 @@ public interface FilmTitService extends RemoteService {
     //                                    //
     ////////////////////////////////////////
 	
+	/**
+	 * Save the given source chunks as the contents of the given document
+	 * (which was already created by calling createNewDocument)	 
+	 */
     Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
     	throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException;
+	/**
+	 * Change the start time of the given chunk to the new value.
+	 */
     Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
 	    throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
+	/**
+	 * Change the end time of the given chunk to the new value.
+	 */
 	Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
 	    throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
+	/**
+	 * Change the start time and end time of the given chunk to the values.
+	 */
 	Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)
 		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
-	Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
-	    throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
+	/**
+	 * Change the source text of the chunk,
+	 * resulting in new translation suggestions
+	 * which are sent as the result.
+	 */
 	TranslationResult changeText(String sessionID, TimedChunk chunk, String newDbForm)
 		throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException;
+	/**
+	 * Remove the chunk from the document, together with its translation if it exists.
+	 */
+	Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
+	    throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
     
     ////////////////////////////////////////
     //                                    //
@@ -62,12 +114,26 @@ public interface FilmTitService extends RemoteService {
     //                                    //
     ////////////////////////////////////////
 	
+	/**
+	 * Get the list of possible translations of the given chunk.
+	 */
 	TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
 		throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Get the list of lists of possible translations of the given chunks.
+	 */
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
 		throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Stop generating translation results for the given chunks
+	 * (to be used when the getTranslationResults call has been called
+	 * with the given chunks.
+	 */
 	Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
 		throws InvalidSessionIdException, InvalidDocumentIdException;
+	/**
+	 * Set the user translation of the given chunk.
+	 */
 	Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
 		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
