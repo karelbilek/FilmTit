@@ -445,19 +445,61 @@ The sbgetsbox gets its own subpackage.
 
 Gui made static
 
+
 \subsubsection{Subgestboxes}
 
-Input, RtfBox
+One of the most important features of the application's user interface is the behaviour of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, SubgestBox, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
 
-Focus handling
+\paragraph{SuggestBox?}
+First, we were thinking about a GWT's pre-implemented SuggestBox, probably with some slight adjustments. But we have realized that with our quite specialized demands of its behaviour and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the older classes in the inheritance chain. However, we have drawn some inspiration from the SuggestBox class implementation, for example using a PopupPanel to show the suggestions proved to be quite an elegant solution.
 
-Popping below/above/not at all
+\paragraph{Base widget}
+For some time, we were using a usual TextBox with the suggestions pop-up extension, switching after a while to a TextArea to offer a multi-line input. But since we also needed some text formatting inside the box (e.g. for the named entities' annotation highlighting and also for the user formatting, for example italicized text) and this is could not be added by simply extending the TextArea, we have once again switched the base class, this last time to RichTextArea.
 
-Scrolling to center
+\paragraph{Fake and real}
+The RichTextArea, being based on the IFrame HTML element, provided all the functionality we have requested (although some of it is not as simply accessible as we expected), but there was yet another problem with it. Having one IFrame for each chunk on the page, i.e. hundreds of them for an average movie, turned out to be quite a significant performance problem -- the browser often became irresponsive. In the end, we have solved this issue by distinguishing so-called ``fake'' and ``real'' SubgestBoxes; the former being simple TextAreas and displayed as default in the translation workspace, on focus transforming into the latter, the real IFrame-based SubgestBoxes with all the functionality.
 
-Resizing
+\paragraph{Focus handling}
+With all the complexity of the SubgestBoxes switching and suggestion selection (and initially, also because of the asynchronicity of the suggestion arrivals), we could not rely on the default focus handling mechanisms of the browser. If we wanted to provide a keyboard-only control for the user when translating (which is often a key to an effective translation speed), we had to devise our own mechanism of the focus traversal between the SubgestBoxes and/or the suggestion pop-ups. This issue, seemingly simple, proved to be quite complex to cover to all the implications and in the end, some cross-browser inconsistencies (not captured by GWT) had to be solved manually by a browser-dependent code. As usual, particularly one of the hints found on the web-forums proved to be very useful, namely the suggestion of always wrapping the setFocus method in a ScheduledDeferred command.
 
-Proper cross-browser CSS
+\paragraph{Automatic scrolling}
+In order to relieve the user of manual scrolling when going through the SubgestBoxes in the translation workspace and avoid the whole-page auto-scroll when the focus is gone outside the page, we used the ScrollPanel's method ensureVisible to automatically scroll each focused SubgestBox to a fixed place in the browser window (currently it is approximately 2/5 of the window's height), later rewritten more generally to be used independently on any ScrollPanel. However, this feature also partly clashed with the suggestions popping up, so there had to be also lots of tuning and experimenting with the command deferring.
+
+\paragraph{Endlines}
+Since it was our intention also to allow multi-line inputs in the SubgestBox (reflecting for example the cases of translations being sometimes significantly longer than the original chunk), we had to cope with an issue of RichTextArea of inconsistent newline handling in different browsers, expressed by table \ref{implprocess:RichTextAreaNewlines}. Our solution was to keep this different formatting while the user is translating, convert it to our unified format (i.e. every newline represented by the \verb=\n= character, stripping of beginning and trailing newlines and shortening sequences of them into one) when the translations are sent to be saved in the userspace, and show the newlines as \verb=<br />= when loaded from the userspace again. This behaves quite well in all the tested browsers and does not interfere much with the idea of the RichTextArea's HTML-based system.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+browser & getText()             & getHTML() \\
+\hline
+Firefox & \verb=first linesecond line= & \verb=first line<br>second line<br><br>= \\
+\hline
+Chrome  & \verb=first line=            & \verb=<div>first line</div><div>second line</div><div><br></div>= \\
+        & \verb=second line=           & \\ 
+\hline
+Safari  & \verb=first line=            & \verb=first line<div>second line</div><div><br></div>= \\
+        & \verb=second line=           & \\
+\hline
+IE9     & \verb=first line=            & \verb=<p>first line</p><p>second line</p><p>&nbsp;</p>= \\
+        & \verb=second line=           & \\
+\hline
+Opera   & \verb=first linesecond line= & \verb=<p>first line</p><p>second= line</p><p><br></p> \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Table capturing different handling of newlines across browsers, showing the return values of the RichTextArea's getText() and getHTML() methods. In all the cases, the text entered was ``first line[enter pressed]second line[enter pressed]''.}\label{implprocess:RichTextAreaNewlines}
+\end{table}
+
+\paragraph{Automatic resizing}
+With the possibility of allowing multi-line inputs, we had to manage somehow the size adjustments of the input area. And since the RichTextArea itself does not have any pre-implemented tools for this purpose, again we had to devise our own. And because of the difficulties with the newline handling (see above), we have abandoned the direction of counting lines manually and built the mechanism on getting the scrollHeight property of the input area. Then, auto-growing of the SubgestBox is relatively easy, but auto-shrinking turned out to be more difficult, because the scrollHeight does not decrease. So a simple trick of setting the size to one line in the beginning of each adjustments was employed and fortunately did not significantly affect the performance.
+
+\paragraph{Popup widget}
+The suggestion pop-up widget has not come through so many fundamental changes, rather some styling or minor adjustments. Since its introduction, the CellList class was used as a base for this widget, only initially the cell rendering was implemented by hand as a simple table. Later, for the sake of clarity and convenience, we also switched this rendering to the UiBinder template-based structure, namely SuggestionPopupStructure. This way, its structure is more readable, more easily stylable and even supposedly faster in its displaying.
+
+\paragraph{Fake vs. real styling}
+When introducing the ``fake'' SubgestBox, as opposed to the ``real'' one, we were facing also an issue of making them visually as similar as possible, not to bother the user with this implementation workaround. But since we were overriding GWT and GWT-Bootstrap's styling, we had to be very specific in the CSS class identification to address and change the SubgestBox' visual appearance. Unfortunately, one of the side-effects of this was for example a need to change the CSS identification when the basic widget for the ``fake'' SubgestBox changed from a TextBox to a TextArea.
 
 ...?
 
