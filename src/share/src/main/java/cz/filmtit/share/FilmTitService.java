@@ -45,12 +45,12 @@ public interface FilmTitService extends RemoteService {
 	/**
 	 * Not used. TODO: delete?
 	 */     	
-    Void closeDocument(String sessionID, long documentId)
+    Void closeDocument(String sessionID, long documentID)
     	throws InvalidSessionIdException, InvalidDocumentIdException;
 	/**
 	 * Sets a different title for the document.
 	 */     	
-    Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
+    Void changeDocumentTitle(String sessionID, long documentID, String newTitle)
         throws InvalidSessionIdException, InvalidDocumentIdException;
 	/**
 	 * Returns media source suggestions based on newMovieTitle.
@@ -58,7 +58,7 @@ public interface FilmTitService extends RemoteService {
 	 * this is only done on calling selectSource.
 	 * TODO: is this true?     	 
 	 */     	
-    List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
+    List<MediaSource> changeMovieTitle(String sessionID, long documentID, String newMovieTitle)
         throws InvalidSessionIdException, InvalidDocumentIdException;
 	/**
 	 * Remove the given document from the list of user's documents.
@@ -83,17 +83,17 @@ public interface FilmTitService extends RemoteService {
 	/**
 	 * Change the start time of the given chunk to the new value.
 	 */
-    Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
+    Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentID, String newStartTime)
 	    throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
 	/**
 	 * Change the end time of the given chunk to the new value.
 	 */
-	Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
+	Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentID, String newEndTime)
 	    throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
 	/**
 	 * Change the start time and end time of the given chunk to the values.
 	 */
-	Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)
+	Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentID, String newStartTime, String newEndTime)
 		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException;
 	/**
 	 * Change the source text of the chunk,
@@ -105,7 +105,7 @@ public interface FilmTitService extends RemoteService {
 	/**
 	 * Remove the chunk from the document, together with its translation if it exists.
 	 */
-	Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
+	Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentID)
 	    throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException;
     
     ////////////////////////////////////////
@@ -134,7 +134,7 @@ public interface FilmTitService extends RemoteService {
 	/**
 	 * Set the user translation of the given chunk.
 	 */
-	Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId, String userTranslation, long chosenTranslationPairID)
+	Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentID, String userTranslation, long chosenTranslationPairID)
 		throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException;
 
 	////////////////////////////////////////
@@ -185,11 +185,11 @@ public interface FilmTitService extends RemoteService {
      * @param username
      * @param password
      * @param email
-     * @param openId TODO remove
+     * @param openID TODO remove
      * @return true if successful, false if not
      * TODO: throw an exception
      */
-    Boolean registration(String username, String password, String email, String openId)
+    Boolean registration(String username, String password, String email, String openID)
     	throws InvalidValueException;
     
     /**
