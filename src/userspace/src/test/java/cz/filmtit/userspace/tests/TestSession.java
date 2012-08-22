@@ -231,17 +231,6 @@ public class TestSession {
     }
 
     @Test
-    public void testCloseDocument() throws InvalidDocumentIdException, NoSuchFieldException, IllegalAccessException {
-        Session session = new Session(getSampleUser());
-
-        session.loadDocument(firstGeneratedDocument.getDatabaseId());
-        assertTrue(testIfDocumentInActiveList(session, firstGeneratedDocument.getDatabaseId()));
-
-        session.closeDocument(firstGeneratedDocument.getDatabaseId());
-        assertFalse(testIfDocumentInActiveList(session, firstGeneratedDocument.getDatabaseId()));
-    }
-
-    @Test
     public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException, InvalidValueException {
         Session session = new Session(getSampleUser());
 

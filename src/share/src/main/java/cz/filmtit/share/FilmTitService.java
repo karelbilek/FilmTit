@@ -1,15 +1,10 @@
 package cz.filmtit.share;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import cz.filmtit.share.exceptions.*;
 
-import cz.filmtit.share.exceptions.AuthenticationFailedException;
-import cz.filmtit.share.exceptions.InvalidChunkIdException;
-import cz.filmtit.share.exceptions.InvalidDocumentIdException;
-import cz.filmtit.share.exceptions.InvalidSessionIdException;
-import cz.filmtit.share.exceptions.InvalidValueException;
+import java.util.List;
 
 @RemoteServiceRelativePath("filmtit")
 public interface FilmTitService extends RemoteService {
@@ -43,11 +38,6 @@ public interface FilmTitService extends RemoteService {
     Document loadDocument(String sessionID, long documentID)
     	throws InvalidDocumentIdException, InvalidSessionIdException;
 	/**
-	 * Not used. TODO: delete?
-	 */     	
-    Void closeDocument(String sessionID, long documentID)
-    	throws InvalidSessionIdException, InvalidDocumentIdException;
-	/**
 	 * Sets a different title for the document.
 	 */     	
     Void changeDocumentTitle(String sessionID, long documentID, String newTitle)
@@ -56,14 +46,13 @@ public interface FilmTitService extends RemoteService {
 	 * Returns media source suggestions based on newMovieTitle.
 	 * The movie title is not changed yet,
 	 * this is only done on calling selectSource.
-	 * TODO: is this true?     	 
 	 */     	
     List<MediaSource> changeMovieTitle(String sessionID, long documentID, String newMovieTitle)
         throws InvalidSessionIdException, InvalidDocumentIdException;
 	/**
 	 * Remove the given document from the list of user's documents.
 	 * (The data might not be discarded immediately
-	 * as the translations still might be used to encŕich the translation memory)	 
+	 * as the translations still might be used to enrich the translation memory)
 	 */
     Void deleteDocument(String sessionID, long documentID)
     	throws InvalidSessionIdException, InvalidDocumentIdException;

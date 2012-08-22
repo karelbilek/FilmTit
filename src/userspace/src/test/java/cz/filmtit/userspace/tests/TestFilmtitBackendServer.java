@@ -88,23 +88,6 @@ public class TestFilmtitBackendServer {
         assertEquals(timedChunks.size(), res.size());
     }
 
-    @Test(expected = Throwable.class)
-    public void testCloseDocumentWhileGettingSuggestions()
-            throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException {
-        FilmTitBackendServer server = new MockFilmTitBackendServer();
-        Session session = new Session(new USUser("jindra1", "pinda", "jindra@pinda.cz", null));
-        String sessionId = placeSessionToTheServer(server, session);
-
-        DocumentResponse resp = server.createNewDocument(sessionId, "Lost", "Lost", "en", "");
-        long documentId = resp.document.getId();
-        List<TimedChunk> chunks = generateTimedChunks(documentId);
-
-        server.closeDocument(sessionId, documentId);
-        GettingTranslationsRunner runner = new GettingTranslationsRunner(server, sessionId, chunks);
-        runner.run();
-
-    }
-
     @Test
     public void testGetSourceSubtitlesExport()
             throws NoSuchFieldException, IllegalAccessException, InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {

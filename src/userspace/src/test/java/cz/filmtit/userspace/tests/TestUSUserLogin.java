@@ -83,7 +83,7 @@ public class TestUSUserLogin {
     public void testChangePass() throws NoSuchFieldException, IllegalAccessException {
         String stringToken = "test001";
 
-        Field activeTokensField = FilmTitBackendServer.class.getDeclaredField("activeTokens");
+        Field activeTokensField = FilmTitBackendServer.class.getDeclaredField("activeChangePassTokens");
         activeTokensField.setAccessible(true);
         Map<String, ChangePassToken> activeTokens = (Map<String, ChangePassToken>) activeTokensField.get(server);
         activeTokens.put(name, new ChangePassToken(stringToken));

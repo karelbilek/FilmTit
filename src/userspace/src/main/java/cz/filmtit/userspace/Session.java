@@ -468,23 +468,6 @@ public class Session {
     }
 
     /**
-     * Closes the document. Discards the loaded translation results and removes the document from active documents.
-     * (Called directly from an RPC call.)
-     * @param documentId ID of the document to be closed.
-     * @return Void
-     * @throws InvalidDocumentIdException It throws an exception if the document with such ID is not owned by the user.
-     */
-    public Void closeDocument(long documentId) throws InvalidDocumentIdException {
-        updateLastOperationTime();
-
-        USDocument document = getActiveDocument(documentId);
-        activeDocuments.remove(documentId);
-        logger.info("User " + user.getUserName() + " closed document " + documentId + " (" + document.getTitle() + ")." );
-        saveAllTranslationResults(document);
-        return null;
-    }
-
-    /**
      * Changes the title of document (this is user's document title which is not connected to the media source) and
      * saves it immediately to the database.
      * (Called directly from an RPC call.)

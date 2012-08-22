@@ -13,6 +13,7 @@ import cz.filmtit.userspace.*;
 import cz.filmtit.userspace.login.AuthData;
 import cz.filmtit.userspace.login.ChangePassToken;
 import cz.filmtit.userspace.login.SeznamData;
+import cz.filmtit.userspace.login.TimedAuthenticationWrapper;
 import org.expressme.openid.Association;
 import org.expressme.openid.Authentication;
 import org.expressme.openid.Endpoint;
@@ -33,11 +34,33 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         FilmTitService {
 
     private static final long serialVersionUID = 3546115L;
+    /**
+     * Time after which sessions are timed out and closed in milliseconds. It is load from the configuration file.
+     */
     private static long SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().sessionTimeout();
+    /**
+     * Time after which sessions of user who wants to be permanently logged in are timed out and closed in milliseconds.
+     * It is load from the configuration file.
+     */
     private static long PERMANENT_SESSION_TIME_OUT_LIMIT = ConfigurationSingleton.conf().permanentSessionTimeout();
+    /**
+     * Time after which a open authentication session is canceled.
+     */
+    private static long OPEN_ID_AUTH_TIME_OUT = 10 * 60 * 1000; // 10 minutes
+    /**
+     * Length of session ID.
+     */
     private static int SESSION_ID_LENGTH = 47;
-    private static int LENGTH_OF_TOKEN = 10;
+    /**
+     * Length of token used in the case of forgotten password.
+     */
+    private static int FORGOTTEN_PASS_TOKEN_LENGTH = 10;
 
+
+
+    /**
+     * Instance of Hibernate util.
+     */
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     public enum CheckUserEnum {
@@ -46,25 +69,55 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         OpenId
     }
 
+    /**
+     * Instance of Translation Memory which is used in the server.
+     * It is passed to session object at the time
+     */
     protected TranslationMemory TM;
+    /**
+     * Instance of Media Source Factory (Scala object providing the Freebase data about movies)
+     * used in the server.
+     */
     protected MediaSourceFactory mediaSourceFactory;
+    /**
+     * The project configuration loaded from the XML file.
+     */
     protected Configuration configuration;
+    /**
+     * Instance of JBoss logger used for logging the server events.
+     */
     private USLogger logger =  USLogger.getInstance(); //Logger.getLogger("FilmtitBackendServer");
 
-    // AuthId which are in process
+    /**
+     * Map of OpenID authentication which hasn't been resolved yet.
+     */
     private Map<Integer, AuthData> authDataInProgress =
             Collections.synchronizedMap(new HashMap<Integer, AuthData>());
-    // AuthId which are authenticated but not activated
-    private Map<Integer,Authentication> finishedAuthentications =
-            Collections.synchronizedMap(new HashMap<Integer, Authentication>());
-    // Activated User
+    /**
+     * Map of OpenID authentications which were successfully resolved and are prepared to generate session id
+     * for the user.
+     */
+    private Map<Integer, TimedAuthenticationWrapper> finishedAuthentications =
+            Collections.synchronizedMap(new HashMap<Integer, TimedAuthenticationWrapper>());
+    /**
+     * Map of active sessions (i.e. logged in Users)
+     */
     private Map<String, Session> activeSessions =
             Collections.synchronizedMap(new HashMap<String,Session>());
-
-    private Map<String, ChangePassToken> activeTokens =
+    /**
+     * Map of active tokens generated for changing password.
+     */
+    private Map<String, ChangePassToken> activeChangePassTokens =
             Collections.synchronizedMap(new HashMap<String,ChangePassToken>());
-
+    /**
+     * Instance of JOpenID class used for managing the OpenID login.
+     */
     protected OpenIdManager manager = new OpenIdManager();
+
+    /**
+     * Default constructor of the server. Initializes all necessary components (database mapping, translation memory
+     * core and openID configuration) and starts the thread checking the session time out limits.
+     */
     public FilmTitBackendServer() {
         configuration = ConfigurationSingleton.conf();
 
@@ -76,8 +129,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         new WatchSessionTimeOut().start(); // runs deleting timed out sessions
 
         // set up the OpenID returning address
-        // localhost hack
-        //serverAddress = "localhost:8080/";
         manager.setReturnTo(serverAddress + "?page=AuthenticationValidationWindow");
         manager.setRealm(serverAddress);
 
@@ -89,6 +140,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         logger.info("Userspace/server","FilmtitBackendServer started fine!");
     }
 
+    /**
+     * Initializes the Translation Memory.
+     */
     protected void loadTranslationMemory() {
         TM = Factory.createTMFromConfiguration(
                 ConfigurationSingleton.conf(),
@@ -104,55 +158,75 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     }
 
-    public TranslationMemory getTM() {
-        return TM;
-    }
-
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // HANDLING DOCUMENTS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+
+    /**
+     * Creates the document
+     * (without source chunks, which have to be added by calling saveSourceChunks),
+     * returns its id, together with media source suggestions based on movieTitle.
+     */
     @Override
     public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
             throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, moviePath);
     }
 
+    /**
+     * Sets the media source of the document.
+     */
     @Override
     public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).selectSource(documentID, selectedMediaSource);
     }
 
+    /**
+     * Returns all documents owned by the user, ordered by date and time of last change.
+     */
     @Override
     public List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).getListOfDocuments();
     }
 
+    /**
+     * Returns the document with the given id, with source chunks but without translation suggestions.
+     */
     @Override
     public Document loadDocument(String sessionID, long documentID)
             throws InvalidDocumentIdException, InvalidSessionIdException {
         return getSessionIfCan(sessionID).loadDocument(documentID);
     }
 
-    @Override
-    public Void closeDocument(String sessionID, long documentId)
-            throws InvalidSessionIdException, InvalidDocumentIdException {
-        return getSessionIfCan(sessionID).closeDocument(documentId);
-    }
-
+    /**
+     * Remove the given document from the list of user's documents.
+     * (The data might not be discarded immediately
+     * as the translations still might be used to enrich the translation memory)
+     */
     @Override
     public Void deleteDocument(String sessionID, long documentID)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).deleteDocument(documentID);
     }
 
+    /**
+     * Returns media source suggestions based on newMovieTitle.
+     * The movie title is not changed yet,
+     * this is only done on calling selectSource.
+     */
     @Override
     public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionId).changeDocumentTitle(documentID, newTitle);
     }
 
+    /**
+     * Returns media source suggestions based on newMovieTitle.
+     * The movie title is not changed yet,
+     * this is only done on calling selectSource.
+     */
     @Override
     public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
             throws InvalidSessionIdException, InvalidDocumentIdException {
@@ -164,30 +238,48 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // HANDLING TRANSLATION RESULTS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    /**
+     * Save the given source chunks as the contents of the given document
+     * (which was already created by calling createNewDocument)
+     */
     @Override
     public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException, InvalidValueException {
         return getSessionIfCan(sessionID).saveSourceChunks(chunks);
     }
 
+    /**
+     * Get the list of possible translations of the given chunk.
+     */
     @Override
     public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).getTranslationResults(chunk, TM);
     }
 
+    /**
+     * Get the list of lists of possible translations of the given chunks.
+     */
     @Override
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).getTranslationResultsParallel(chunks, TM);
     }
 
+    /**
+     * Stop generating translation results for the given chunks
+     * (to be used when the getTranslationResults call has been called
+     * with the given chunks.
+     */
     @Override
     public Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
             throws InvalidSessionIdException, InvalidDocumentIdException {
         return getSessionIfCan(sessionID).stopTranslationResults(chunks);
     }
 
+    /**
+     * Set the user translation of the given chunk.
+     */
     @Override
     public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId,
                                    String userTranslation, long chosenTranslationPairID)
@@ -195,19 +287,28 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).setUserTranslation(chunkIndex, documentId, userTranslation, chosenTranslationPairID);
     }
 
+    /**
+     * Change the start time of the given chunk to the new value.
+     */
     @Override
     public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
             throws InvalidSessionIdException, InvalidChunkIdException, InvalidDocumentIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setChunkStartTime(chunkIndex, documentId, newStartTime);
     }
 
+    /**
+     * Change the end time of the given chunk to the new value.
+     */
     @Override
     public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
             throws InvalidDocumentIdException, InvalidChunkIdException, InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setChunkEndTime(chunkIndex, documentId, newEndTime);
     }
 
-	@Override
+    /**
+     * Change the start time and end time of the given chunk to the values.
+     */
+    @Override
 	public Void setChunkTimes(String sessionID, ChunkIndex chunkIndex,
 			long documentId, String newStartTime, String newEndTime)
             throws InvalidSessionIdException, InvalidChunkIdException,
@@ -219,12 +320,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 		return null;
 	}
 
+    /**
+     * Change the source text of the chunk,
+     * resulting in new translation suggestions
+     * which are sent as the result.
+     */
     @Override
     public TranslationResult changeText(String sessionID, TimedChunk chunk, String newDbForm)
             throws InvalidChunkIdException, InvalidDocumentIdException, InvalidSessionIdException {
         return getSessionIfCan(sessionID).changeText(chunk, newDbForm, TM);
     }
 
+    /**
+     * Remove the chunk from the document, together with its translation if it exists.
+     */
     @Override
     public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
             throws InvalidSessionIdException, InvalidDocumentIdException, InvalidChunkIdException {
@@ -235,6 +344,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // LOGIN & REGISTRATION STUFF
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    /**
+     * Register a user with the given username and password, setting the given e-mail and sending registration info to it.
+     */
     @Override
     public LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType) {
         // generate the unique authentication ID first
@@ -273,7 +385,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
-
+    /**
+     * Send the URL of the response from the OpenID provider to Userspace for validation.
+     * @param authID
+     * @param responseURL
+     * @return
+     */
     @Override
     public Boolean validateAuthentication(int authID, String responseURL) {
         //  response url - one if you succesfull with login
@@ -285,7 +402,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             // in progress login session is removed here
             AuthData authData = authDataInProgress.get(authID);
             HttpServletRequest request = FilmTitBackendServer.createRequest(responseURL);
-             Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
+            Authentication authentication = manager.getAuthentication(request, authData.Mac_key, authData.endpoint.getAlias());
 
             // if no exception was thrown, everything is OK
             if (isSeznamOpenId(authentication.getIdentity())){
@@ -294,7 +411,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 authentication.setFirstname(seznam.getLogin());
                 authentication.setIdentity(seznam.getOpenId());
             }
-            finishedAuthentications.put(authID, authentication);
+
+            finishedAuthentications.put(authID, new TimedAuthenticationWrapper(authentication));
             logger.info("AuthenticationOpenId","Testing User is Validate " + authID + " "+authentication.getIdentity()  +" " +authentication.getEmail() + " ");
             return true;
 
@@ -317,19 +435,31 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     }
 
-    private boolean  isSeznamOpenId(String url){
+    /**
+     * Gets flag if it is openID from Seznam.cz
+     * @param url Address of OpenID
+     * @return Flag if it is openID from Seznam.cz
+     */
+    private boolean isSeznamOpenId(String url){
         Pattern patt = Pattern.compile(new String("id\\.seznam\\.cz"));
         Matcher m = patt.matcher(url);
         return  m.find();
     }
 
+    /**
+     * Poll the Userspace to find out whether the user has already successfully logged in using his OpenID.
+     * @param authID
+     * @return
+     * @throws AuthenticationFailedException
+     * @throws InvalidValueException
+     */
     @Override
     public SessionResponse getSessionID(int authID) throws AuthenticationFailedException, InvalidValueException {
         if (finishedAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
         	// cancel the authentication session
-            Authentication authentication = finishedAuthentications.remove(authID);
+            Authentication authentication = finishedAuthentications.remove(authID).getAuthentication();
 
             String openid = extractOpenId(authentication.getIdentity());
             
@@ -354,6 +484,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
+    /**
+     * Try to log in the user with the given username and password.
+     * @return Tuple containing session ID and the information about user.
+     */
     @Override
     public SessionResponse simpleLogin(String username, String password) {
         USUser user = checkUser(username, password, CheckUserEnum.UserNamePass);
@@ -364,6 +498,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
+    /**
+     * Logs in a user (creates a session) using the openID (already authenticated).
+     * @param openId
+     * @return Tuple containing session ID and the information about user.
+     */
     public SessionResponse openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
@@ -373,6 +512,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
+    /**
+     * Invalidate the user session with the given sessionID
+     * @param sessionID
+     * @throws InvalidSessionIdException
+     */
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
@@ -384,11 +528,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Register new user
-     * @param name
-     * @param pass
-     * @param email
-     * @param openId
+     * Register new user with given cretitials.
+     * @param name Picked user name.
+     * @param pass Password
+     * @param email Email address
+     * @param openId OpenID identifyier in case it is an openID registration
      * @return flag - succes registration
      * @throws InvalidValueException
      */
@@ -445,6 +589,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
+    /**
+     * Extracts openID identifier from the provided openID URL.
+     * @param url URL from an OpenID provider
+     * @return OpenID identifier.
+     */
     private String extractOpenId(String url){
         if (url.indexOf("?id")!=-1){
         String id = url.substring(url.indexOf("?id") + 4); // google id ..oi/id?id=*****
@@ -494,17 +643,22 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return newName;
     }
 
+
     /**
-     * Change password if exists  token, which allow that
+     * Change password in case of forgotten password;
+     * user chooses a new password,
+     * user authentication is done by the token sent to user's email
+     * There needs to be a valid token for changing the password.
      * @param userName
      * @param pass
      * @param stringToken
      * @return  flag - success changing
+     * TODO: throw an exception
      */
     @Override
     public Boolean changePassword(String userName, String pass, String stringToken){
         USUser usUser = checkUser(userName, "", CheckUserEnum.UserName);
-        ChangePassToken token = activeTokens.get(userName);
+        ChangePassToken token = activeChangePassTokens.get(userName);
 
         if (usUser != null && token != null && token.isValidToken(stringToken)){
 
@@ -519,19 +673,30 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
+    /**
+     * Sends an email informing user about possibility of change his password.
+     * @param user User who is about to change his password
+     * @return  Sign if sending email was succesful.
+     */
     public Boolean sendChangePasswordMail(USUser user){
-
         Emailer email = new Emailer();
         if (user.getEmail() != null) {
             return email.sendForgottenPassMail(
                     user.getEmail(),
                     user.getUserName(),
-                    this.forgotUrl(user));
+                    this.generateForgotenPassUrl(user));
         }
         return false;
 
     }
 
+    /**
+     * Sends an email informing user about his registration. Password is here as an explicit parameter because
+     * it is in a hashed form in the user object and the plain text form is thrown away after registration.
+     * @param user Newly registered user
+     * @param pass User's password
+     * @return Sign if sending email was succesful.
+     */
     public boolean sendRegistrationMail(USUser user , String pass){
         Emailer email = new Emailer();
         if (user.getEmail() != null) {
@@ -585,7 +750,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return null;
     }
 
-    // Forgot password, but knows user name
+    /**
+     * Send an email with a link to password reset
+     * to the user's email address.
+     * @param username registered username of the user
+     * @return true on success, false if username is incorrect or there is no email address
+     * TODO: throw an exception
+     */
     @Override
     public Boolean sendChangePasswordMail(String username){
         USUser user = checkUser(username, null, CheckUserEnum.UserName);
@@ -596,7 +767,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
-    // Forgot password, but knows email
+    /**
+     * Send an email with a link to password reset
+     * to the user's email address.
+     * @param email registered e-mail address of the user
+     * @return true on success, false if username is incorrect or there is no email address
+     * TODO: throw an exception
+     */
     @Override
     public Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException {
         validateEmail(email);
@@ -615,23 +792,20 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
-
-    private boolean sendMail(USUser user){
-        Emailer email = new Emailer();
-        //if (user.getEmail()!=null) return email.send(user.getEmail(),"You were succesfully login");
-        return true;
-    }
-    /*end test zone*/
-
-    private String forgotUrl(USUser user){
+    /**
+     * Generates URL where a user can change his password.
+     * @param user User how is about to change his password.
+     * @return URL of page where the user can change the password.
+     */
+    private String generateForgotenPassUrl(USUser user){
         // string defaultUrl = "?page=ChangePass&login=Pepa&token=000000";       "/?username=%login%&token=%token%#ChangePassword"
 
         String templateUrl = configuration.serverAddress() + "/?username=%login%&token=%token%#ChangePassword";
         String login = user.getUserName();
-        String _token = new IdGenerator().generateId(LENGTH_OF_TOKEN);
+        String _token = new IdGenerator().generateId(FORGOTTEN_PASS_TOKEN_LENGTH);
         ChangePassToken token = new ChangePassToken(_token);
         String actualUrl = templateUrl.replaceAll("%login%",login).replaceAll("%token%",_token);
-        activeTokens.put(login, token);
+        activeChangePassTokens.put(login, token);
         return actualUrl;
     }
 
@@ -730,39 +904,69 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
         return (USUser)UserResult.get(0);
     }
-    /*
-    *  Validates an email address -- throws an exception if it is not valid.
-    *
-    *
-    */
+    /**
+     * Validates an email address -- throws an exception if it is not valid.
+     */
     private void validateEmail(String email) throws InvalidValueException {
       if (Emailer.validEmail(email)){
             throw new InvalidValueException("Email address " + email + "is not valid.");
         }
     }
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // USER SETTINGS
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+    /**
+     * Stay logged in permanently (for 1 month) instead of 1 hour (sets the session timeout)
+     */
     public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
     }
 
+    /**
+     * Change user's e-mail.
+     */
     public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setEmail(email);
     }
 
+    /**
+     * Set maximum number of suggestions to show for each line.
+     */
     public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setMaximumNumberOfSuggestions(number);
     }
 
+    /**
+     * Include MT results in translation suggestions.
+     */
     public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).setUseMoses(useMoses);
+    }
+
+    /**
+     * Change user's username.
+     */
+    @Override
+    public Void setUsername(String sessionID, String username)
+            throws InvalidSessionIdException, InvalidValueException {
+        return getSessionIfCan(sessionID).setUsername(username);
+    }
+    /**
+     * Change user's password.
+     */
+    @Override
+    public Void setPassword(String sessionID, String password)
+            throws InvalidSessionIdException, InvalidValueException {
+        return getSessionIfCan(sessionID).setPassword(password);
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     /**
-     * A thread that checks out whether the sessions should be timed out.
+     * A thread that checks out whether the sessions and other time limited items (authentication tokens,
+     * authenticated openIDs without sessions, token for changing password) should be timed out.
      */
     class WatchSessionTimeOut extends Thread {
         public void run() {
@@ -784,13 +988,28 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 // after ask to change a password
                 // you get token which is valid 1hour
                 // if you use it before limit became token invalid too
-                for (String login : activeTokens.keySet()) {
-                    ChangePassToken token =  activeTokens.get(login);
+                for (String login : activeChangePassTokens.keySet()) {
+                    ChangePassToken token =  activeChangePassTokens.get(login);
                     if (!token.isValidTime()) {
-                        activeTokens.remove(login);
+                        activeChangePassTokens.remove(login);
                     }
 
                 }
+
+                for (Integer authID : authDataInProgress.keySet()) {
+                    if (authDataInProgress.get(authID).getCreationTime() + OPEN_ID_AUTH_TIME_OUT < new Date().getTime()) {
+                        authDataInProgress.remove(authID);
+                    }
+                }
+
+                for (Integer authID : finishedAuthentications.keySet()) {
+                    if (finishedAuthentications.get(authID).getCreationTime() + OPEN_ID_AUTH_TIME_OUT < new Date().getTime()) {
+                        finishedAuthentications.remove(authID);
+                    }
+                }
+
+
+                // sleep for a minute and try it again
                 try { Thread.sleep(60 * 1000); }
                 catch (Exception e) {}
             }
@@ -798,6 +1017,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
 
+    /**
+     * Gets flag if there is such document available in given session.
+     * @param sessionId
+     * @param documentId
+     * @return
+     */
     public boolean canReadDocument(String sessionId, long documentId) {
         try {
             Session session = getSessionIfCan(sessionId);
@@ -807,6 +1032,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         }
     }
 
+    /**
+     * Gets the session if there exist session with such ID. Throws an exception otherwise.
+     * @param sessionId
+     * @return
+     * @throws InvalidSessionIdException
+     */
     private Session getSessionIfCan(String sessionId) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
             throw new InvalidSessionIdException("Session ID expired or invalid.");
@@ -821,7 +1052,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param documentID ID of the exported document
      * @param fps        Frames per second (important for subrip format)
      * @param type       Format of the subtitles
-     * @param converter  ???
+     * @param converter  Converter of the translation results to text format
      * @return
      * @throws InvalidSessionIdException
      * @throws InvalidDocumentIdException
@@ -833,7 +1064,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Gets an active document by ID.
+     * Gets an active document by ID. If the document hasn't been active before (i.e. the translation results
+     * haven't been loaded) it is loaded completely.
      * @param sessionID
      * @param documentID
      * @return
@@ -845,7 +1077,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return getSessionIfCan(sessionID).getActiveDocument(documentID);
     }
 
-
+    /**
+     * Log the given message from GUI on server.
+     */
+    @Override
     public Void logGuiMessage(LevelLogEnum level, String context , String message, String sessionID){
     	if (sessionID != null) {
     		try {
@@ -863,17 +1098,4 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     	}
     	return null;
     }
-
-	@Override
-	public Void setUsername(String sessionID, String username)
-			throws InvalidSessionIdException, InvalidValueException {
-		return getSessionIfCan(sessionID).setUsername(username);
-	}
-
-	@Override
-	public Void setPassword(String sessionID, String password)
-			throws InvalidSessionIdException, InvalidValueException {
-		return getSessionIfCan(sessionID).setPassword(password);
-	}
-
 }
