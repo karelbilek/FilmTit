@@ -95,6 +95,16 @@ See \ref{gui:sd:document_creation}
 
 At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate suggestions are generated for them and sent back. When received in the GUI, the suggestions are displayed as some kind of suggest-box, or pop-up to the corresponding text-box for the given chunk, and sorted according to their supposed accuracy (still TODO). The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the chunk to the next one, his translation is sent to the Userspace to be saved here as an intermediate translation of this chunk (???also to the Core???).
 
+See \ref{gui:sd:document_translation}
+(Some technical details are ommitted for simplicity.)
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.45]{figures/document_translation_sequence.pdf}
+\end{center}
+\caption{Sequence diagram of document translation.}\label{gui:sd:document_translation}
+\end{figure}
+
 (still TODO:)
 When finished with this chunk-after-chunk translation, the whole document is saved and processed as finished (sent to Userspace, Core etc.) and can be exported as a new subtitle file created from the (non-empty) translations.
 
