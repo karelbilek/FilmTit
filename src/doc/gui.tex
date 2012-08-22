@@ -84,6 +84,15 @@ Some settings have to be done via several resource files in the webapp directory
 % (Honza)
 In the most typical case, a new user (already registered) will open the page with FilmTit and log in. Then, a dialog appears to create a new document corresponding to one movie, or more precisely, one subtitle file being translated from one language to another. Within this dialog, the user should specify which movie it is (title and year), what language pair will the translation be operating upon (e.g. from English to Czech) and provide the actual local file with the source subtitles (or alternatively, the user can paste the subtitles in appropriate format into a text-area). These information are sent to the Userspace and after refining the movie specification, the new document is created and the "translation working space" is filled with source subtitles (segmented to so-called "chunks") on the left side (as well as their timing) and corresponding empty text-boxes on the right side.
 
+See \ref{gui:sd:document_creation}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.40]{figures/document_creation_sequence_GUI.pdf}
+\end{center}
+\caption{Sequence diagram of document creation.}\label{gui:sd:document_creation}
+\end{figure}
+
 At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate suggestions are generated for them and sent back. When received in the GUI, the suggestions are displayed as some kind of suggest-box, or pop-up to the corresponding text-box for the given chunk, and sorted according to their supposed accuracy (still TODO). The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the chunk to the next one, his translation is sent to the Userspace to be saved here as an intermediate translation of this chunk (???also to the Core???).
 
 (still TODO:)
