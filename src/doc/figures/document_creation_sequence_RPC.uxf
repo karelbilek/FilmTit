@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="11.5.1">
-  <zoom_level>7</zoom_level>
+  <zoom_level>11</zoom_level>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>469</x>
-      <y>35</y>
-      <w>70</w>
-      <h>28</h>
+      <x>429</x>
+      <y>55</y>
+      <w>110</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes>Userspace
 bg=green</panel_attributes>
@@ -16,10 +16,10 @@ bg=green</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>280</x>
-      <y>35</y>
-      <w>70</w>
-      <h>28</h>
+      <x>132</x>
+      <y>55</y>
+      <w>110</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes>GUI
 bg=orange</panel_attributes>
@@ -28,10 +28,10 @@ bg=orange</panel_attributes>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>308</x>
-      <y>77</y>
-      <w>14</w>
-      <h>455</h>
+      <x>176</x>
+      <y>121</y>
+      <w>22</w>
+      <h>715</h>
     </coordinates>
     <panel_attributes>fg=
 bg=</panel_attributes>
@@ -40,23 +40,23 @@ bg=</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>140</y>
-      <w>211</w>
-      <h>64</h>
+      <x>154</x>
+      <y>220</y>
+      <w>349</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=.&lt;
 new DocumentResponse
 (document, mediaSourceSuggestions)</panel_attributes>
-    <additional_attributes>21;35;196;35</additional_attributes>
+    <additional_attributes>44;55;319;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>581</x>
-      <y>35</y>
-      <w>70</w>
-      <h>28</h>
+      <x>605</x>
+      <y>55</y>
+      <w>110</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes>Freebase
 bg=blue</panel_attributes>
@@ -65,45 +65,45 @@ bg=blue</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>84</y>
-      <w>209</w>
-      <h>64</h>
+      <x>165</x>
+      <y>132</y>
+      <w>329</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 createNewDocument
 (title, movieTitle, lang, moviePath)</panel_attributes>
-    <additional_attributes>196;35;21;35</additional_attributes>
+    <additional_attributes>308;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>483</x>
-      <y>42</y>
-      <w>34</w>
-      <h>503</h>
+      <x>451</x>
+      <y>66</y>
+      <w>54</w>
+      <h>791</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;490</additional_attributes>
+    <additional_attributes>33;33;33;770</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>294</x>
-      <y>42</y>
-      <w>34</w>
-      <h>503</h>
+      <x>154</x>
+      <y>66</y>
+      <w>54</w>
+      <h>791</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;490</additional_attributes>
+    <additional_attributes>33;33;33;770</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>217</x>
+      <x>33</x>
       <y>0</y>
-      <w>532</w>
-      <h>532</h>
+      <w>836</w>
+      <h>836</h>
     </coordinates>
     <panel_attributes>sd Successful Document Creation</panel_attributes>
     <additional_attributes/>
@@ -111,21 +111,21 @@ createNewDocument
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>595</x>
-      <y>42</y>
-      <w>34</w>
-      <h>503</h>
+      <x>627</x>
+      <y>66</y>
+      <w>54</w>
+      <h>791</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;490</additional_attributes>
+    <additional_attributes>33;33;33;770</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>609</x>
-      <y>133</y>
-      <w>14</w>
-      <h>28</h>
+      <x>649</x>
+      <y>209</y>
+      <w>22</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -133,10 +133,10 @@ createNewDocument
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>497</x>
-      <y>119</y>
-      <w>14</w>
-      <h>56</h>
+      <x>473</x>
+      <y>187</y>
+      <w>22</w>
+      <h>88</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -144,49 +144,49 @@ createNewDocument
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>490</x>
-      <y>98</y>
-      <w>132</w>
-      <h>64</h>
+      <x>462</x>
+      <y>154</y>
+      <w>208</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;
 query
 (movieTitle)</panel_attributes>
-    <additional_attributes>119;35;21;35</additional_attributes>
+    <additional_attributes>187;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>490</x>
-      <y>126</y>
-      <w>132</w>
-      <h>64</h>
+      <x>462</x>
+      <y>198</y>
+      <w>208</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;
 response
 (matching media)</panel_attributes>
-    <additional_attributes>21;35;119;35</additional_attributes>
+    <additional_attributes>33;55;187;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>294</y>
-      <w>209</w>
-      <h>64</h>
+      <x>165</x>
+      <y>462</y>
+      <w>329</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 selectSource
 (selectedMediaSource)</panel_attributes>
-    <additional_attributes>196;35;21;35</additional_attributes>
+    <additional_attributes>308;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>497</x>
-      <y>329</y>
-      <w>14</w>
-      <h>28</h>
+      <x>473</x>
+      <y>517</y>
+      <w>22</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -194,10 +194,10 @@ selectSource
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>497</x>
-      <y>231</y>
-      <w>14</w>
-      <h>28</h>
+      <x>473</x>
+      <y>363</y>
+      <w>22</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -205,45 +205,45 @@ selectSource
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>336</y>
-      <w>209</w>
-      <h>34</h>
+      <x>165</x>
+      <y>528</y>
+      <w>329</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>21;21;196;21</additional_attributes>
+    <additional_attributes>33;33;308;33</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>238</y>
-      <w>209</w>
-      <h>34</h>
+      <x>165</x>
+      <y>374</y>
+      <w>329</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>21;21;196;21</additional_attributes>
+    <additional_attributes>33;33;308;33</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>196</y>
-      <w>209</w>
-      <h>64</h>
+      <x>165</x>
+      <y>308</y>
+      <w>329</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 saveSourceChunks
 (chunks)</panel_attributes>
-    <additional_attributes>196;35;21;35</additional_attributes>
+    <additional_attributes>308;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>217</x>
-      <y>210</y>
-      <w>308</w>
-      <h>175</h>
+      <x>33</x>
+      <y>330</y>
+      <w>484</w>
+      <h>275</h>
     </coordinates>
     <panel_attributes>par</panel_attributes>
     <additional_attributes/>
@@ -251,23 +251,23 @@ saveSourceChunks
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>413</y>
-      <w>209</w>
-      <h>64</h>
+      <x>165</x>
+      <y>649</y>
+      <w>329</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 getTranslationResults
 (chunks)</panel_attributes>
-    <additional_attributes>196;35;21;35</additional_attributes>
+    <additional_attributes>308;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>497</x>
-      <y>448</y>
-      <w>14</w>
-      <h>56</h>
+      <x>473</x>
+      <y>704</y>
+      <w>22</w>
+      <h>88</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -275,10 +275,10 @@ getTranslationResults
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>665</x>
-      <y>35</y>
-      <w>70</w>
-      <h>28</h>
+      <x>737</x>
+      <y>55</y>
+      <w>110</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes>Core
 bg=red</panel_attributes>
@@ -287,46 +287,46 @@ bg=red</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>679</x>
-      <y>42</y>
-      <w>34</w>
-      <h>503</h>
+      <x>759</x>
+      <y>66</y>
+      <w>54</w>
+      <h>791</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;490</additional_attributes>
+    <additional_attributes>33;33;33;770</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>490</x>
-      <y>427</y>
-      <w>216</w>
-      <h>64</h>
+      <x>462</x>
+      <y>671</y>
+      <w>341</w>
+      <h>99</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;
 TM.nBest
 (chunk, language, mediaSource)</panel_attributes>
-    <additional_attributes>203;35;21;35</additional_attributes>
+    <additional_attributes>319;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>490</x>
-      <y>455</y>
-      <w>216</w>
-      <h>49</h>
+      <x>462</x>
+      <y>715</y>
+      <w>330</w>
+      <h>77</h>
     </coordinates>
     <panel_attributes>lt=&lt;.
 TMResults</panel_attributes>
-    <additional_attributes>21;35;203;35</additional_attributes>
+    <additional_attributes>33;55;319;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>693</x>
-      <y>462</y>
-      <w>14</w>
-      <h>28</h>
+      <x>781</x>
+      <y>726</y>
+      <w>22</w>
+      <h>44</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -334,57 +334,57 @@ TMResults</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>301</x>
-      <y>469</y>
-      <w>209</w>
-      <h>49</h>
+      <x>165</x>
+      <y>737</y>
+      <w>319</w>
+      <h>77</h>
     </coordinates>
     <panel_attributes>lt=&lt;.
 translationResults</panel_attributes>
-    <additional_attributes>21;35;196;35</additional_attributes>
+    <additional_attributes>33;55;308;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>196</x>
-      <y>56</y>
-      <w>125</w>
-      <h>49</h>
+      <x>0</x>
+      <y>88</y>
+      <w>197</w>
+      <h>77</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 Create document</panel_attributes>
-    <additional_attributes>112;35;21;35</additional_attributes>
+    <additional_attributes>176;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>196</x>
-      <y>280</y>
-      <w>125</w>
-      <h>49</h>
+      <x>0</x>
+      <y>440</y>
+      <w>197</w>
+      <h>77</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 Select source</panel_attributes>
-    <additional_attributes>112;35;21;35</additional_attributes>
+    <additional_attributes>176;55;33;55</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>196</x>
-      <y>266</y>
-      <w>342</w>
-      <h>34</h>
+      <x>0</x>
+      <y>418</y>
+      <w>538</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;329;21</additional_attributes>
+    <additional_attributes>33;33;517;33</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>294</x>
-      <y>413</y>
-      <w>427</w>
-      <h>105</h>
+      <x>154</x>
+      <y>649</y>
+      <w>671</w>
+      <h>165</h>
     </coordinates>
     <panel_attributes>loop</panel_attributes>
     <additional_attributes/>
