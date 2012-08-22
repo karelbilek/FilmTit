@@ -1,41 +1,30 @@
 package cz.filmtit.client.subgestbox;
 
 import com.google.gwt.event.dom.client.*;
-
-import cz.filmtit.client.Gui;
-import cz.filmtit.client.pages.TranslationWorkspace;
-import cz.filmtit.client.widgets.*;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.SimplePanel;
-import cz.filmtit.share.TimedChunk;
+
+import cz.filmtit.client.Gui;
+import cz.filmtit.client.pages.TranslationWorkspace;
+
 
 /**
  * Universal event-handler for SubgestBoxes.
- * 
- * @author Honza Václ
- *
  */
-public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, ValueChangeHandler<String>, BlurHandler {
+public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, BlurHandler {
 	
     TranslationWorkspace workspace;
-    //VLCWidget vlcPlayer;
-
 
 	/**
-	 * Creates a new SubgestHandler.
+	 * Creates a new SubgestHandler within the given workspace.
+     * @param workspace - the TranslationWorkspace inside which the handled SubgestBox operates
 	 */
 	public SubgestHandler(TranslationWorkspace workspace) {
 		this.workspace = workspace;
-        //this.vlcPlayer = vlcPlayer;
 	}
-
 
 
 	@Override
@@ -47,28 +36,23 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                 workspace.getVlcPlayer().maybePlayWindow(time);
             }
 
-            subbox.loadSuggestions();
+            subbox.loadSuggestions(); // if not already loaded - the check is inside
+
             // hide the suggestion widget corresponding to the SubgestBox
 			//   which previously had focus (if any)
-            if (workspace == null) {
-                Gui.log("workspace for handler is null when focusing!!!");
-                final Throwable throwable = new IllegalArgumentException("Hello");
-            } else {
-                workspace.deactivateSuggestionWidget();
-                workspace.ensureVisible(subbox);
-                // and show a new one for the current SubgestBox
-                Scheduler.get().scheduleDeferred( new ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        subbox.showSuggestions();
-                        workspace.setActiveSuggestionWidget(subbox.getSuggestionWidget());
-                    }
-                } );
-            }
-			Gui.log("tabindex of this: " + subbox.getTabIndex());
+            workspace.deactivateSuggestionWidget();
+            workspace.ensureVisible(subbox);
+            // and show a new one for the current SubgestBox
+            Scheduler.get().scheduleDeferred( new ScheduledCommand() {
+                @Override
+                public void execute() {
+                    subbox.showSuggestions();
+                    workspace.setActiveSuggestionWidget(subbox.getSuggestionWidget());
+                }
+            } );
 
             if (Window.Navigator.getUserAgent().matches(".*Firefox.*")) {
-                //Gui.log("in firefox - scheduling resetting focus");
+                // In Firefox - resetting focus needed:
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                     @Override
                     public void execute() {
@@ -77,12 +61,10 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                 });
             }
 
-            //Gui.log("updating vertical size after focused");
             subbox.updateVerticalSize();
 		}
 	}
 
-	
 	
 	@Override
 	public void onKeyDown(KeyDownEvent event) {
@@ -106,29 +88,12 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 				event.preventDefault(); // e.g. in Chrome, default is to insert TAB character in the textarea
                 workspace.deactivateSuggestionWidget();
 				SubgestBox subbox = (SubgestBox) event.getSource();
-				boolean moved;
-				if (event.isShiftKeyDown()) {
-					moved = workspace.goToPreviousBox(subbox);
-				}
-				else {
-					moved = workspace.goToNextBox(subbox);
-				}
-				/*
-				if (!moved) {
-					subbox.showSuggestions();
-				}
-				*/
-			}
-			// pressing Enter:
-			else if ( isThisKeyEvent(event, KeyCodes.KEY_ENTER) ) {
-//				Gui.log("enter pressed...");
-//				// all this should happen on Blur (or something like that):
-//				SubgestBox subbox = (SubgestBox) event.getSource();
-//				subbox.getTranslationResult().setUserTranslation(subbox.getText());
-//				gui.submitUserTranslation(subbox.getTranslationResult());
-//				
-//				gui.deactivateSuggestionWidget();
-//				gui.goToNextBox(subbox);
+                if (event.isShiftKeyDown()) {
+                    workspace.goToPreviousBox(subbox);
+                }
+                else {
+                    workspace.goToNextBox(subbox);
+                }
 			}
 			
 		}
@@ -136,8 +101,8 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 	
 	
 	/**
-	 * Tell if the given event's key corresponds to the given keycode - in a various ways, hopefully
-	 * compliant with all the major browsers...
+	 * Tell if the given event's key corresponds to the given keycode - in a various ways,
+     * hopefully compliant with all the major browsers...
 	 * @param event
 	 * @param keycode
 	 * @return true if this KeyDownEvent's key has the given keycode, false otherwise
@@ -148,25 +113,11 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 			||   (event.getNativeEvent().getKeyCode() == keycode) );
 	}
 	
-	
-	@Override
-	public void onValueChange(ValueChangeEvent<String> event) {
-//        // all this should proceed only when explicitly submitted - e.g. by hitting Enter (or Tab)
-//        if (event.getSource() instanceof SubgestBox) { // should be
-//          Gui.log("valuechange handled: " + event.getValue());
-//
-//          SubgestBox subbox = (SubgestBox) event.getSource();
-//          subbox.getTranslationResult().setUserTranslation(event.getValue());
-//          gui.submitUserTranslation(subbox.getTranslationResult());
-//        }
-	}
-	
-	
+
 	@Override
 	public void onBlur(BlurEvent event) {
 		if (event.getSource() instanceof SubgestBox) { // should be
 			SubgestBox subbox = (SubgestBox) event.getSource();
-			//Gui.log("pseudo-valuechange handled - new value:" + subbox.getText());
 			subbox.getTranslationResult().setUserTranslation(subbox.getTextWithNewlines());
 
             // submitting only when the contents have changed
@@ -175,7 +126,6 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                 subbox.updateLastText();
             }
 
-			//gui.deactivateSuggestionWidget();
 		}
 	}
 
@@ -183,9 +133,8 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
     @Override
     public void onKeyUp(KeyUpEvent event) {
         if (event.getSource() instanceof SubgestBox) { // should be
-            // Gui.log("keyup caught on subgestbox");
             final SubgestBox subbox = (SubgestBox) event.getSource();
-            // recalculating number of lines and auto-resize:
+            // auto-resize, if necessary:
             Scheduler.get().scheduleDeferred( new ScheduledCommand() {
                 @Override
                 public void execute() {
@@ -194,4 +143,5 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
             } );
         }
     }
+
 }
