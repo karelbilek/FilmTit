@@ -1,14 +1,15 @@
 package cz.filmtit.client.subgestbox;
 
-import com.github.gwtbootstrap.client.ui.Paragraph;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+import com.github.gwtbootstrap.client.ui.Paragraph;
 
 import cz.filmtit.share.TranslationPair;
+
 
 public class SubgestPopupStructure extends Composite {
 
@@ -17,6 +18,11 @@ public class SubgestPopupStructure extends Composite {
 	interface SubgestPopupStructureUiBinder extends UiBinder<Widget, SubgestPopupStructure> {
 	}
 
+    /**
+     * Primary constructor, initializing the values according
+     * to the given TranslationPair.
+     * @param value
+     */
 	public SubgestPopupStructure(TranslationPair value) {
 		initWidget(uiBinder.createAndBindUi(this));
 		
@@ -30,7 +36,6 @@ public class SubgestPopupStructure extends Composite {
 			suggestionItemScore.setText("Score unknown");
 		}
 		suggestionItemSource.setText( "Source: " + value.getSource().getDescription() );
-		
 	}
 	
 	@UiField

@@ -1,12 +1,14 @@
 package cz.filmtit.client.subgestbox;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
@@ -27,17 +29,10 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.annotations.Annotation;
 import cz.filmtit.share.annotations.AnnotationType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 
 /**
  * Variant of a TextBox with pop-up suggestions
  * taken from the given TranslationResult.
- * 
- * @author Honza Václ
- *
  */
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private TimedChunk chunk;
@@ -48,12 +43,16 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
     private boolean loadedSuggestions = false;
     String lastText = "";
 
-    void replaceFakeWithReal() {
+    private void replaceFakeWithReal() {
         workspace.replaceFake(chunk, substitute, this);
     }
 
     private FakeSubgestBox substitute=null;
-    
+
+    /**
+     * Lightweight input area serving as a substitute
+     * for the SubgestBox before it is focused (and worked with)
+     */
     public class FakeSubgestBox extends TextArea implements Comparable<FakeSubgestBox> {
        
         public FakeSubgestBox(int tabIndex) {
@@ -78,6 +77,9 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             this.addStyleName("subgest_fullwidth");
         }
 
+        /**
+         * Set the fakebox' height according to its current contents.
+         */
         public void updateVerticalSize() {
             int newHeight = this.getElement().getScrollHeight();
             // setHeight probably sets the "inner" height, i.e. this would be a bit larger
@@ -88,10 +90,20 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
             this.setHeight(newHeight + "px");
         }
 
-        public SubgestBox getFather(){
+        /**
+         * Returns the "real" SubgestBox which is substituted
+         * by this fake one.
+         * @return the corresponding "real" SubgestBox
+         */
+        public SubgestBox getFather() {
             return SubgestBox.this;
         }
 
+        /**
+         * Comparison according to the underlying "real" SubgestBoxes
+         * @param that
+         * @return
+         */
         @Override
 	    public int compareTo(FakeSubgestBox that) {
 	        return getFather().compareTo(that.getFather());
@@ -117,6 +129,12 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         return content;
     }
 
+    /**
+     * Primary constructor for the SubgestBox.
+     * @param chunk - the source chunk of the underlying TranslationResult
+     * @param workspace - the TranslationWorkspace in which this SubgestBox operates
+     * @param tabIndex - intended tabIndex within the workspace
+     */
 	public SubgestBox(TimedChunk chunk, TranslationWorkspace workspace, int tabIndex) {
 		this.chunk = chunk;
 		this.translationResult = new TranslationResult(chunk);
@@ -131,13 +149,10 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         this.addFocusHandler(this.workspace.subgestHandler);
 		this.addKeyDownHandler(this.workspace.subgestHandler);
         this.addKeyUpHandler(this.workspace.subgestHandler);
-		//this.addValueChangeHandler(this.workspace.subgestHandler);
 		this.addBlurHandler(this.workspace.subgestHandler);
 
         this.setTabIndex(tabIndex);
 
-        //delaying loadSuggestions() for focus
-		//this.loadSuggestions();
         this.addStyleName("subgest_fullwidth");
 
         final RichTextArea richtext = this;
@@ -150,38 +165,57 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
                 s.setColor("#333");
             }
         });
-        
-    //    this.updateVerticalSize();
 
 	}
-	
+
+
+    /**
+     * Set the underlying TranslationResult, displaying its userTranslation
+     * immediately (if not empty). Also reset loadedSuggestions to false.
+     * @param translationResult - new value of the underlying TranslationResult
+     */
     public void setTranslationResult(TranslationResult translationResult) {
         this.translationResult = translationResult;
         loadedSuggestions = false;
         String userTranslation = translationResult.getUserTranslation();
 
         if (userTranslation != null && !userTranslation.equals("")) {
-            //replaceFakeWithReal();
             substitute.setText(userTranslation);
             substitute.updateVerticalSize();
             this.setHTML(subgestBoxHTML(userTranslation));
             updateLastText();
-            //updateVerticalSize();
         }
     }
 
+    /**
+     * Returns the underlying TranslationResult's source chunk.
+     * @return
+     */
 	public TimedChunk getChunk() {
 		return chunk;
 	}
-	
+
+    /**
+     * Returns the list of suggestions from the underlying TranslationResult.
+     * @return
+     */
 	public List<TranslationPair> getSuggestions() {
 		return this.translationResult.getTmSuggestions();
 	}
-	
+
+
+    /**
+     * Set the widget used by this SubgestBox to display the suggestions.
+     * @param suggestionWidget
+     */
 	public void setSuggestionWidget(Widget suggestionWidget) {
 		this.suggestionWidget = suggestionWidget;
 	}
-	
+
+    /**
+     * Returns the widget used by this SubgestBox to display the suggestions.
+     * @return
+     */
 	public Widget getSuggestionWidget() {
 		return suggestionWidget;
 	}
@@ -202,53 +236,21 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 			this.parentPopup = parentPopup;
 		}
 
-		@Override
-		public void render(Context context, TranslationPair value, SafeHtmlBuilder sb) {
-			// Value can be null, so do a null check:
-			if (value == null) {
-				return;
-			}
-			SubgestPopupStructure struct = new SubgestPopupStructure(value);
-			// TODO: find another way how to render this - this is probably neither the safest, nor the best one...
-			sb.append( SafeHtmlUtils.fromTrustedString(struct.toString()) );
-			
-			
-			/*
-			 * previously rendered this way:
-			sb.appendHtmlConstant("<table class='suggestionItem'>");
-			
-			// show the suggestion:
-			sb.appendHtmlConstant("<tr><td class='suggestionItemText'>");
-			sb.appendEscaped(value.getStringL2());
-			sb.appendHtmlConstant("</td></tr>");
-			
-			// show the corresponding match:
-			sb.appendHtmlConstant("<tr><td class='suggestionItemMatch'>(\"");
-			sb.appendEscaped(value.getStringL1());
-			sb.appendHtmlConstant("\")</td>");
-			
-			// show their (combined) score:
-			sb.appendHtmlConstant("<td class='suggestionItemScore'>(");
-			if (value.getScore() != null) {
-				sb.appendEscaped( Double.toString(value.getScore()) );
-			}
-			sb.appendHtmlConstant(")</td>");
-			sb.appendHtmlConstant("</tr>");
-			
-			// show the corresponding match:
-			sb.appendHtmlConstant("<tr><td class='suggestionItemSource'>(source: ");
-			sb.appendEscaped(value.getSource().getDescription());
-			sb.appendHtmlConstant(")</td>");
-
-			sb.appendHtmlConstant("</tr>");
-			sb.appendHtmlConstant("</table>");
-			*/
+        @Override
+        public void render(Context context, TranslationPair value, SafeHtmlBuilder sb) {
+            // Value can be null, so do a null check:
+            if (value == null) {
+                return;
+            }
+            SubgestPopupStructure struct = new SubgestPopupStructure(value);
+            // TODO after switching to GWT 2.5 - use UiRenderer for doing this;
+            // (this is probably neither the safest, nor the best way...)
+            sb.append( SafeHtmlUtils.fromTrustedString(struct.toString()) );
 		}
 		
 		@Override
 		protected void onEnterKeyDown(Context context, Element parent, TranslationPair value,
 				NativeEvent event, ValueUpdater<TranslationPair> valueUpdater) {
-			//super.onEnterKeyDown(context, parent, value, event, valueUpdater);
 			// selecting also by Enter is automatic in Opera only, others use only Spacebar
 			// (and we want also Enter everywhere)
 			event.preventDefault();
@@ -272,7 +274,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		
 	}
 
-	
+
+    /**
+     * Prepare the suggestions from the underlying TranslationResult
+     * to be displayed (if they are already fetched and not loaded yet).
+     */
 	public void loadSuggestions() {
 		if (loadedSuggestions == true) {
             return;
@@ -280,7 +286,6 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 
         loadedSuggestions=true;
         // creating the suggestions pop-up panel:
-		//FlowPanel suggestPanel = new FlowPanel();
 		suggestPanel = new PopupPanel();
 		suggestPanel.setAutoHideEnabled(true);
 		suggestPanel.setStylePrimaryName("suggestionsPopup");
@@ -298,15 +303,10 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				TranslationPair selected = selectionModel.getSelectedObject();
 				if (selected != null) {
-					//Gui.log("selection changed...");
-					//int selectedIndex = translationResult.getTmSuggestions().indexOf(selected);
 					translationResult.setSelectedTranslationPairID(selected.getId());
-					
-                    // copy the selected suggestion into the textbox:
-					//setValue(selected.getStringL2(), true);
-					// copy the selected suggestion into the richtextarea with the annotation highlighting:
+                    // copy the selected suggestion into the richtextarea with the annotation highlighting:
 					setHTML(subgestBoxHTML(getAnnotatedSuggestionFromChunk(selected.getChunkL2())));
-                    // contents have changed - we have to resize, if necessary:
+                    // contents have changed - resize if necessary:
                     updateVerticalSize();
 
                     Scheduler.get().scheduleDeferred( new ScheduledCommand() {
@@ -324,9 +324,14 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		this.setSuggestionWidget(suggestPanel);
 	}
 
+
+    /**
+     * Display the suggestion widget with the suggestions from
+     * the underlying TranslationResult.
+     */
 	public void showSuggestions() {
         if(this.getSuggestions().size() > 0) {
-		    //suggestPanel.showRelativeTo(this);
+            // showing the suggestions always below this SubgestBox:
             final UIObject relativeObject = this;
             suggestPanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
                 @Override
@@ -370,6 +375,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 		return this.translationResult;
 	}
 
+    /**
+     * Returns the SubgestBox' contents as text with newlines unified as "\n"
+     * (also trimmed on the beginning and end and removed duplicate newlines)
+     * @return the text contents with unified newlines
+     */
     protected String getTextWithNewlines() {
         String text = this.getHTML();
         RegExp newlineTags = RegExp.compile("<p>|<div>|<br>", "g");
@@ -382,6 +392,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         return text;
     }
 
+    /**
+     * True if the user translation text has changed since the last
+     * submitting (or update) (except for the trimmed newlines).
+     * @return
+     */
     protected boolean textChanged() {
         return !this.getTextWithNewlines().equals(this.lastText);
     }
@@ -390,29 +405,17 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         this.lastText = this.getTextWithNewlines();
     }
 
-    public Document getFrameDoc(){
-        return ((FrameElement) this.getElement().cast()).getContentDocument();
-    }
 
-
-    public int getCorrectVerticalSize() {
-        //if this happen right after replacing, it's wrong
-        //=> I will also have to take in the size of the substitute
-        
-        int newHeight = getFrameDoc().getScrollHeight(); // or: .getDocumentElement().getOffsetHeight();
+    private int getCorrectVerticalSize() {
+        FrameElement frameElement = (FrameElement) this.getElement().cast();
+        int newHeight = frameElement.getContentDocument().getScrollHeight();
         return newHeight;
-        /*
-        int substituteSize = substitute.lastVerticalSize;
-        //Window.alert("new je "+newHeight+"subst je "+substituteSize);
-        if (newHeight>substituteSize) {
-            return newHeight;
-        } else {
-            return substituteSize;
-        }
-        */
-
     }
 
+    /**
+     * Adjust the height of the input area according to the height
+     * of its contents.
+     */
     public void updateVerticalSize() {
         setHeight("36px"); // == height of the one-line SubgestBox
         // grow from that, if necessary:
@@ -421,9 +424,14 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         showSuggestions();
     }
 
+
+    /**
+     * Comparison according to the underlying TranslationResults.
+     * @param that
+     * @return value of compareTo applied on the underlying TranslationResults
+     */
     @Override
 	public int compareTo(SubgestBox that) {
-		// compare according to the underlying TranslationResult
 		return this.translationResult.compareTo( that.getTranslationResult() );
 	}
 	
