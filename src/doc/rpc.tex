@@ -111,7 +111,7 @@ The sessionID expires after a given period of time without any user interaction 
 
 Two ways to log in are supported -- Simple Login and OpenID Login; these are further decribed separately. The only two common methods are checkSessionID and logout.
 
-\subsubsection{SessionResponse checkSessionID(String sessionID);}
+\subsubsection{SessionResponse checkSessionID(String sessionID)}
 Validates the given sessionID. To be used with a sessionID that does not result from invoking neither simpleLogin nor getSessionID (such as a sessionID stored in a cookie).
 Returns a SessionResponse instance containing the sessionID and the User object if the sessionID is valid, or null otherwise.
 
@@ -166,7 +166,7 @@ Return the URL of a window to show to the user to log in using his OpenID accoun
 
 A generated temporary one-time identifier, authID, is also included in the response. It is used to pair the authentication process, which takes place in the newly opened window, with the main GUI window.
 
-\subsubsection{Boolean validateAuthentication(int authID, String responseURL);}
+\subsubsection{Boolean validateAuthentication(int authID, String responseURL)}
 
 Validate the response URL from the OpenID provider, which contains information about the result of the OpenID authentication.
 

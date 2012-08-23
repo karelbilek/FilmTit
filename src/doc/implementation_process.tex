@@ -370,29 +370,47 @@ Eventually, decided that the only part that must be able to work offline is the 
 Actually, only saving SetUserTranslation calls.
 
 Decided to use Local Storage -- similar to cookies but better.
+Like Cookies, the stored object has two ``useful'' fields, the name (or key) and the contents (or value). However, the Local Storage has several advanages over cookies:
+
+\begin{itemize}
+\item larger size limit
+\item objects are not sent to the browser on loading the page as with cookies but are stored and retrieved on request. This would be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within Javascript is an advantage.
+\end{itemize}
+
+Thanks to the similarity of Local Storage to cookies, it would be quite easy to implement a fallback for browsers without Local Storage support using cookies. We decided not to do that because, as far as we know, most browsers installed on users\' computers do support Local Storage. However, we might add this feature in future if there is a need for it.
 
 First idea: serialize and deserialize using JSON!
+
 Later realization: would need an external library for that (TODO see RPCs), decided to write custom serialization.
+
+Created a Storable interface for classes that implement serialization and deserialization methods.
+Currently only implemented by one class (SetUserTranslation), but is desinged to be easily extendable if we decide to store other data in Local Storage as well. (Logically separated into LocalStorageHandler, Storable interface and the SetUserTranslation class).
+
+To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the Storable interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
 
 How to identify the objects correctly:
 
-- add a special object describing the other objets:
+\begin{itemize}
 
-  - not reliable, user can interrupt the application at any time and can also change the values stored by the app
+\item add a special object describing the other objects:
 
-  - but could at least be used as a non-authoritative cache
-  
-  - now all object keys must be loaded to know the contents of the storage (but takes at most a few seconds in a typical case)
+\begin{itemize}
+\item not reliable, user can interrupt the application at any time and can also change the values stored by the app
+\item but could at least be used as a non-authoritative cache
+\item now all object keys must be loaded to know the contents of the storage (but takes at most a few seconds in a typical case)
+\item decided that this might be good to add in future but there seems to be no need at the moment
+\end{itemize}
 
-- each object contains all necessary information in its key
+\item each object contains all necessary information in its key
 
-  - started with the ``key fields'' of the objects (document id and chunk index in case of SetUserTranslation)
-  
-  - then also added the class name to make it extendable (although it has not been extended)
-  
-  - then added username because there might be various FilmTit users using the same browser
-  
-  - and eventually changed username into user ID because now the user can change his username
+\begin{itemize}
+\item started with the ``key fields'' of the objects (document id and chunk index in case of SetUserTranslation)
+\item then also added the class name to make it extendable (although it has not been extended)
+\item then added username because there might be various FilmTit users using the same browser
+\item and eventually changed username into user ID because now the user can change his username
+\end{itemize}
+
+\end{itemize}
 
 \subsubsection{Hibernate Issues}
 
