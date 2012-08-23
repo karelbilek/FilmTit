@@ -221,18 +221,19 @@ Because of Javascript and browser limitations, the RPC mechanism of GWT only all
 
 In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID is used. Originally it was created by the GUI and sent to Userspace, but we soon found this to be inappropriate (TODO why -- collisions, anything else?) and the Userspace now generates the authID.
 
-Most of the RPCs contain the SessionID as one of their parameters to authenticate the user. All of such RPCs can thus throw an InvalidSessionIdException, to which the default GUI action is to show the Login Dialog to the user.
-
 \subsubsection{Failed RPC Requests Handling}
 
 Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
 
 We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
 
-The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary. If the request fails for any reason, it is retried by default; four attempts are made for each request, always retrying after a short time interval. We identified the response that we usually get in case of network problems -- which could be temporary or permanent (it is a StatusCodeException with the status code 0). In such case the request is always resent three times. Otherwise, resending the request is the default behavior which the subclasses override in cases where it is obvious that resending will not help (e.g. incorrect e-mail address format or an already existing username on registration). We also added a timeout for each request after which the request is regarded as lost and is retried.
+The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary.
 
-The subclass can always intervene by overriding several methods, such as onSuccessAfterLog, onEachReturn, onFailureAfterLog, onProbablyOffline etc. This way, the behavior needed can be always achieved, but the default implementation is often sufficient, so the subclasses often override only one or two methods, keeping their code as simple as possible. The superclass also provides logging for all the requests, based on the classname and the parameters of the subclass.
-(E.g. when deleting a document, a failure with an InvalidDocumentIdException, meaning that the document does not exist, is an error, but there is no need to inform the user because the result is the same as if the RPC succeeded: the document does not exist now.)
+We identified the response that we usually get in case of network problems (it is a StatusCodeException with the status code 0). The problems can be temporary or permanent; in case of temporary problems, the default response of showing an error message was found to be highly inappropriate, as it would suffice only to resend the call. Therefore, we introduced retrying the call for three more times in such case with short delays, before showing an error message to the user.
+
+The retrial of calls has proven to be an efficient way to deal with problems, so we decided to extend it to all types of failures. However, in case of non-network errors, we soon found out that retrying the calls does not make sense in some situations; so we decided to keep the retrial as a default action which can be overridden in the exteding classes.
+
+We also added a timeout for each request after which the request is regarded as lost and is retried. Such situation is not at all typical, but we need to count with it to prevent the user from ``starvation'' (the user can always escape from any state by refreshing the page in the browser, but this can lead to an uncontrolled local data loss or even to objects being left in an inconsistent state -- such as a document without content).
 
 \subsubsection{Sending Translation Results}
 
@@ -547,6 +548,10 @@ solution: Translation Workspace has two ways of accepting the data, one by getti
 problem: chunks were saved only upon requesting the translations for them, so part of document was lost if user closed too early :-)
 
 solution: first save all chunks, then start loading the trabslation suggestions
+
+
+\subsubsection{Login}
+it is therefore neccessary that the user can log in without the application\'s main window being reloaded so that the user does not lose unsaved data.
 
 \subsection{Final Development}
 \label{subsec:final_development}

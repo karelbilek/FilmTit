@@ -16,6 +16,8 @@ The official description of GWT isas follows:
 
 Google Web Toolkit (GWT) is a development toolkit for building and optimizing complex browser-based applications. Its goal is to enable productive development of high-performance web applications without the developer having to be an expert in browser quirks, XMLHttpRequest, and JavaScript. GWT is used by many products at Google, including Google Wave and the new version of AdWords. It's open source, completely free, and used by thousands of developers around the world.
 
+
+\todo{probably move to Implementation Process}
 We decided to use GWT for several reasons.
 
 One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.
@@ -55,15 +57,21 @@ Similarly to other third-party libraries used by FilmTit, the GWT-Bootstrap libr
 \section{GUI Structure}
 % (Honza/Ruda)
 
-(I am not sure what this section should look like, so I'm just drafting something.... RR)
+package cz.filmtit.client (not cz.filmtit.gui for historical reasons -- ``client'' is the default package name in GWT for the client side of a web application)
 
-The main class is Gui.java. It defines the web application itself, providing an entry point and initialization methods. It also handles general requests.
+Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.)
 
-FilmTitServiceHandler.java provides wrappers for the ``raw'' RPC calls. It offers methods with names and parameters similar to the actual RPC methods, also providing response and error handling.
+\todo{I already wrote a lot into the implementation process and I dont want to have duplicities in the documentation, so I am now keeping the development description in implementation process but moving detailed descriptions of the final solution from implemenattion process into this section. Prosím buï pacient :-)}
 
-An important class is the SubgestBox, or ``SUBtitle sugGESTion BOX'', which visualizes the TM results, offering a variety of means of navigation through them.
+\subsection{Gui.java}
 
-Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.) Don't forget to refer to the sitemap figure \ref{fig:sitemap}.
+The main class is Gui.java. It defines the web application itself, providing an entry point, initialization methods and logging methods. It also handles general requests.
+
+\subsection{Pages}
+
+subpackage cz.filmtit.client.pages
+
+Please refer to the sitemap figure \ref{fig:sitemap} for an overview of all pages.
 
 \begin{figure}
 \begin{center}
@@ -73,16 +81,111 @@ Some settings have to be done via several resource files in the webapp directory
 \label{fig:sitemap}
 \end{figure}
 
+layout defined by UiBinder
+
+page is created and loaded by calling its constructor, which may require some parameters (such as documentID for TranslationWorkspace)
+
+page loading and switching handled by PageHandler; also provides support for URLs: e.g. the About page can be accessed by a URL http://server/#About or http://server/?page=About (the first one being the default), with the help of the History class
+
+GuiStructure -- defines menu and the content panel, handles menu activation/deactivation, shows the login/logout link
+
+\subsubsection{TranslationWorkspace}
+
+maybe describe in more detail, maybe not
+
+\subsection{Dialogs}
+
+subpackage cz.filmtit.client.dialogs
+
+typically extended from Dialog
+
+defines deactivate(), reactivate(), showInfoMessage() and showErrorMessage(); all dialogs should only be accessed via this interface (except for their creatin, which is invoked by their constructor)
+
+typically use a Modal 
+
+\subsection{Remote Procedure Calls Implementation}
+
+subpackage cz.filmtit.client.callables
+
+Each call represented by an instance of a class with the name similar to the RPC name (e.g. for deleteDocument RPC it is the DeleteDocument class), extended from Callable.
+
+Callable:
+
+-- to alleviate the burden of boiler-plate code
+
+-- to provide utility methods and default actions (logging, error handling)
+
+The superclass also provides logging for all the requests, based on the classname and the parameters of the subclass.
+
+-- to provide a common structure for all RPCs
+
+E.g. RPC deleteDocument(sessionID, documentID)
+is invoked as new DeleteDocument(sessionID, documentID).
+
+the callback is defined by the class
+
+wrappers for the ``raw'' RPC calls
+
+The subclasses representing the individual calls must only override the call() method, which specifies the actual RPC to be invoked.
+They can also modify the default behavior defined by the superclass by overriding several other methods, such as onSuccessAfterLog, onEachReturn, onFailureAfterLog, onProbablyOffline etc. This way, the behavior needed can be always achieved, but the default implementation is often sufficient, so the subclasses often override only one or two methods, keeping their code as simple as possible. (The method most often overridden is the onSuccessAfterLog method; its default implementation is to do nothing, which is only good for RPCs that do not require any reaction of GUI on their successful return, such as changeDocumentTitle or stopTranslationResults.)
+
+\subsubsection{Error Handling}
+
+If the request fails for any reason, it is retried by default; four attempts are made for each request, always retrying after a short time interval.
+Resending the request is the default behavior which the subclasses override in cases where it is obvious that resending will not help (e.g. incorrect e-mail address format or an already existing username on registration).
+
+In case of network problems, both temporary and permanent (this cannot be easily distinguished), the GUI usually receives a StatusCodeException with the status code 0. In such case the request is always resent three times before passing control to the onProbablyOffline method (this behavior cannot be overridden).
+
+There is also a timeout for each request after which the request is regarded as lost and is retried.
+
+The default action in case of an error is to show the error message in a Javascript alert window, except for the InvalidSessionIdException where the default action is to ask the user to log in again.
+The subclasses often override this by showing the message in a Dialog (invoking the reactivateWithErrorMessage method of the Dialog class), or by ignoring the error completely (e.g. when deleting a document, a failure with an InvalidDocumentIdException, meaning that the document does not exist, is an error, but there is no need to inform the user because the result is the same as if the RPC succeeded: the document does not exist now.)
+
+\subsubsection{Error Handling}
+
+Most of the RPCs contain the SessionID as one of their parameters to authenticate the user. All of such RPCs can thus throw an InvalidSessionIdException, to which the default action is to show the Login Dialog to the user.
+
+\subsection{Offline Work}
+
+LocalStorageHandler
+
+Storable interface
+
+(again, I describe some of it in implementation process, have to solve somehow)
+
+\subsection{SubgestBox}
+
+subpackage cz.filmtit.client.subgestbox
+
+An important class is the SubgestBox, or ``SUBtitle sugGESTion BOX'', which visualizes the TM results, offering a variety of means of navigation through them.
+
+\subsection{FileLoadWidget}
+
+subpackage cz.filmtit.client.widgets
+
+a Widget which is a wrapper for a Java applet
+
+\todo{Karel should proudly describe what he did}
+
+\subsection{Video Playback (VLCWidget)}
+
+ensured by the VLCWidget, which is a Widget wrapper to the VLC plugin
+
+subpackage cz.filmtit.client.widgets
+
+\todo{Karel should proudly describe what he did}
+
 \subsection{Parsing and segmentation}
 % (maybe Karel?)
 
-\section{Implementing the RPCs}
-
-\todo{Describe the Callable class, error handling, logging, maybe getName.}
-
 \section{Typical Usage}
 % (Honza)
-In the most typical case, a new user (already registered) will open the page with FilmTit and log in. Then, a dialog appears to create a new document corresponding to one movie, or more precisely, one subtitle file being translated from one language to another. Within this dialog, the user should specify which movie it is (title and year), what language pair will the translation be operating upon (e.g. from English to Czech) and provide the actual local file with the source subtitles (or alternatively, the user can paste the subtitles in appropriate format into a text-area). These information are sent to the Userspace and after refining the movie specification, the new document is created and the "translation working space" is filled with source subtitles (segmented to so-called "chunks") on the left side (as well as their timing) and corresponding empty text-boxes on the right side.
+
+\todo{update, some things changed...}
+
+\subsection{Document Creation}
+
+In the most typical case, a new user (already registered) will open the page with FilmTit and log in. Then, a dialog appears to create a new document corresponding to one movie, or more precisely, one subtitle file being translated from one language to another. Within this dialog, the user should specify which movie it is (title and year), what language pair will the translation be operating upon (e.g. from English to Czech) and provide the actual local file with the source subtitles. These information are sent to the Userspace and after refining the movie specification, the new document is created and the "translation working space" is filled with source subtitles (segmented to so-called "chunks") on the left side (as well as their timing) and corresponding empty text-boxes on the right side.
 
 See \ref{gui:sd:document_creation}
 
@@ -92,6 +195,8 @@ See \ref{gui:sd:document_creation}
 \end{center}
 \caption{Sequence diagram of document creation.}\label{gui:sd:document_creation}
 \end{figure}
+
+\subsection{Document Translation}
 
 At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate suggestions are generated for them and sent back. When received in the GUI, the suggestions are displayed as some kind of suggest-box, or pop-up to the corresponding text-box for the given chunk, and sorted according to their supposed accuracy (still TODO). The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the chunk to the next one, his translation is sent to the Userspace to be saved here as an intermediate translation of this chunk (???also to the Core???).
 
@@ -105,9 +210,18 @@ See \ref{gui:sd:document_translation}
 \caption{Sequence diagram of document translation.}\label{gui:sd:document_translation}
 \end{figure}
 
-(still TODO:)
-When finished with this chunk-after-chunk translation, the whole document is saved and processed as finished (sent to Userspace, Core etc.) and can be exported as a new subtitle file created from the (non-empty) translations.
+\subsection{Document Export}
 
-\section{Video Playback}
+\todo{I actually dont know how this works.}
 
-TODO \todo{Karel should proudly describe what he did}
+\todo{do you want a Sequence Diagram for that? it would be nice but I dont know how we do it, I would have to look into the code (I hope it is at least commented)}
+
+\todo{but probably this is not GUI but userspace mostly}
+
+When finished with this chunk-after-chunk translation, the whole document can be exported as a subtitle file in the SRT format, or as a text file (without the chunk numbers and timing).
+
+A GET request is sent to the servlet.
+
+The servlet takes this and this, checks this and that, loads the chunks using Hibernate, creates the file like this, and returns that as the contents.
+
+\todo{The user translations are probably harvested by Userspace and Core independently of what the user does -- it probably does not fit into the GUI section at all...}
