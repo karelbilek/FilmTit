@@ -61,7 +61,7 @@ package cz.filmtit.client (not cz.filmtit.gui for historical reasons -- ``client
 
 Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.)
 
-\todo{I already wrote a lot into the implementation process and I dont want to have duplicities in the documentation, so I am now keeping the development description in implementation process but moving detailed descriptions of the final solution from implemenattion process into this section. Prosím buï pacient :-)}
+\todo{I already wrote a lot into the implementation process and I dont want to have duplicities in the documentation, so I am now keeping the development description in implementation process but moving detailed descriptions of the final solution from implemenattion process into this section. Prosim bud pacient :-)}
 
 \subsection{Gui.java}
 
@@ -85,7 +85,7 @@ layout defined by UiBinder
 
 page is created and loaded by calling its constructor, which may require some parameters (such as documentID for TranslationWorkspace)
 
-page loading and switching handled by PageHandler; also provides support for URLs: e.g. the About page can be accessed by a URL http://server/#About or http://server/?page=About (the first one being the default), with the help of the History class
+page loading and switching handled by PageHandler; also provides support for URLs: e.g. the About page can be accessed by a URL http://server/\#About or http://server/?page=About (the first one being the default), with the help of the History class
 
 GuiStructure -- defines menu and the content panel, handles menu activation/deactivation, shows the login/logout link
 
