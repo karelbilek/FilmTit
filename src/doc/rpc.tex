@@ -13,8 +13,9 @@ Therefore, in case the Userspace needs to actively contact the GUI without the G
 this has to be implemented in the GUI by polling.
 
 The method always returns an instance of the return type on success or an instance of an exception on failure.
+In case of common points of failure that do not qualify as an exceptional state, such as user registration attempt with an already existing username, the common failure is typically signalled by the return value instead (typically a null or a false).
 
-Most of the RPCs can only be invoked by a logged in user. Such RPCs always have the sessionID as their first parameter.
+Most of the RPCs can only be invoked by a logged in user. Such RPCs always have the sessionID as their first parameter to authenticate the user and can throw an InvalidSessionIdException.
 
 \section{Manipulating Documents}
 
@@ -35,20 +36,17 @@ Creates the document
 returns its id, together with media source suggestions based on movieTitle.
      	
 \subsubsection{Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)}
-Sets the media source of the document.
+Sets the media source of the document. The media source represents the movie or series which the subtitles come from.
 
 \subsubsection{List<Document> getListOfDocuments(String sessionID)}
 Returns all documents owned by the user, ordered by date and time of last change.
 
 \subsubsection{Document loadDocument(String sessionID, long documentID)}
-Returns the document with the given id, with source chunks but without translation suggestions.
+Returns the document with the given id, with source chunks but without translation suggestions (these have to be explicitely requested by getTranslationResults).
 
-\subsubsection{Void closeDocument(String sessionID, long documentID)}
-Not used. TODO: delete?
-     	
 \subsubsection{Void changeDocumentTitle(String sessionID, long documentID, String newTitle)}
 Sets a different title for the document.
-     	
+
 \subsubsection{List<MediaSource> changeMovieTitle(String sessionID, long documentID, String newMovieTitle)}
 Returns media source suggestions based on newMovieTitle.
 The movie title is not changed yet,
@@ -64,16 +62,16 @@ as the translations still might be used to enrich the translation memory)
 
 \subsubsection{Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)}
 Save the given source chunks as the contents of the given document
-(which was already created by calling createNewDocument)	 
+(which was already created by calling createNewDocument).
 
 \subsubsection{Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentID, String newStartTime)}
-Change the start time of the given chunk to the new value.
+Change the start time of the given chunk to the new value. The value must be in the SRT format, i.e. hh:mm:ss,ttt.
 
 \subsubsection{Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentID, String newEndTime)}
-Change the end time of the given chunk to the new value.
+Change the end time of the given chunk to the new value. The value must be in the SRT format, i.e. hh:mm:ss,ttt.
 
 \subsubsection{Void setChunkTimes(String sessionID, ChunkIndex chunkIndex, long documentID, String newStartTime, String newEndTime)}
-Change the start time and end time of the given chunk to the values.
+Change the start time and end time of the given chunk to the values. The values must be in the SRT format, i.e. hh:mm:ss,ttt.
 
 \subsubsection{TranslationResult changeText(String sessionID, TimedChunk chunk, String newDbForm)}
 Change the source text of the chunk,
@@ -89,148 +87,101 @@ Remove the chunk from the document, together with its translation if it exists.
 
 \subsubsection{TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)}
 Get the list of possible translations of the given chunk.
-
-Userspace passes the given chunk to the core, which generates zero or more translation suggestions.
-These are packed into a TranslationResult instance and sent back to GUI.
+The TranslationResult instance contains zero or more translation suggestions, which come from the Translation Memory and/or the Machine Translation System.
 
 \subsubsection{List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)}
 Get the list of lists of possible translations of the given chunks.
+Each TranslationResult instance contains zero or more translation suggestions, which come from the Translation Memory and/or the Machine Translation System.
 
 \subsubsection{Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)}
 Stop generating translation results for the given chunks
-(to be used when the getTranslationResults call has been called
-with the given chunks.
+(to be called after getTranslationResults has been called
+with the given chunks).
 
 \subsubsection{Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentID, String userTranslation, long chosenTranslationPairID)}
-Set the user translation of the given chunk.
-
-This method is called once the user selects a suggested translation and optionally post-edits it
-(or does not select one but inputs the translation text directly).
-The translation is then saved by Userspace;
-the id of the TranslationPair chosen for post-editing is also sent, providing feedback which then can be used to improve future suggestions.
+Save the user translation of the given chunk (no matter whether it is user\'s own translation or a suggestion taken over or post-edited).
+The id of the TranslationPair chosen for post-editing is also sent, providing feedback which then can be used to improve future suggestions.
 
 \section{User Registration and Login}
 
-The user is required to log in to be able to save his work on the server.
+The user is required to log in to use the application.
 
-The user is logged in if he has a valid session id which is linked to a user account in Userspace.
-The session id expires after a given period of time without any user interaction with the server,
-it is therefore neccessary that the user can log in without the application\'s main window being reloaded so that the user does not lose unsaved data.
+The user is logged in if he has a valid sessionID which is linked to a user account.
+The sessionID expires after a given period of time without any user interaction with the server,
 
-Two ways to log in -- Simple Login and OpenID. Only Logout is common, other methods devided into two subsections.
+Two ways to log in are supported -- Simple Login and OpenID Login; these are further decribed separately. The only two common methods are checkSessionID and logout.
 
+\subsubsection{SessionResponse checkSessionID(String sessionID)}
+Validates the given sessionID. To be used with a sessionID that does not result from invoking neither simpleLogin nor getSessionID (such as a sessionID stored in a cookie).
+Returns a SessionResponse instance containing the sessionID and the User object if the sessionID is valid, or null otherwise.
 
 \subsubsection{Void logout(String sessionID)}
-Invalidate the user session with the given sessionID
-
+Invalidate the user session with the given sessionID.
 
 \subsection{Simple Login and Registration}
 \label{subsec:simple_login}
 
-TODO: There is simple login which is very simple. See Figure \ref{gui:sd:simple_login}.
+The Simple Login is the classical implementation of user login. Each user must first register with a unique username and a password of choice. These credentials are then used to log into the application. (The password is to be stored on the server side in the form of a one-way hash.)
 
-TODO: probably split the diagram into two (or delete the logout completely from the diagram, there is nothing interesting on it)
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[scale=0.65]{figures/simple_login_sequence.pdf}
-\end{center}
-\caption{Sequence diagram of simple login and logout.}\label{gui:sd:simple_login}
-\end{figure}
+The user can also provide an e-mail address for forgotten password retrieval. He then has the option to request a password reset e-mail, based on his username or e-mail address. The password reset e-mail contains a link to a page where the user can set a new password, based on a temporary password change token.
 
 \subsubsection{Boolean registration(String username, String password, String email)}
-Register a user with the given username and password, setting the given e-mail and sending registration info to it.
-@return true if successful, false if not
-TODO: throw an exception
+Register a user with the given username and password, also setting the e-mail address if provided and sending registration info to it.
+Returns true on success, false if the username is already taken, and an exception in case of other errors (usually an invalid e-mail address).
 
-
-\subsubsection{SessionResponse simpleLogin(String username, String password);}
+\subsubsection{SessionResponse simpleLogin(String username, String password)}
 Try to log in the user with the given username and password.
-@return SessionResponse containing the sessionID and the User object on success, null on error
-TODO: throw an exception
+Returns a SessionResponse instance containing the sessionID and the User object on success, or null if the credentials are invalid.
 
-
-\subsubsection{SessionResponse checkSessionID(String sessionID);}
-Validates the given sessionID.
-@param sessionID
-@return SessionResponse containing the sessionID and the User object if the sessionID is valid, null if not
-
-
-\subsubsection{Boolean sendChangePasswordMail(String username);}
-Send an email with a link to password reset
-to the user's email address.
-@param username registered username of the user
-@return true on success, false if username is incorrect or there is no email address
-TODO: throw an exception
-
+\subsubsection{Boolean sendChangePasswordMail(String username)}
+Send a password reset e-mail
+to the e-mail address of the user with the given username.
+Returns true if the e-mail is successfully sent;
+returns false if the username is not registered or there is no e-mail address stored with the corresponding user account.
 
 \subsubsection{Boolean sendChangePasswordMailByMail(String email)}
-Send an email with a link to password reset
-to the user's email address.
-@param email registered e-mail address of the user
-@return true on success, false if username is incorrect or there is no email address
-TODO: throw an exception
+Send a password reset e-mail to the given e-mail address.
+The password reset link is bound to a username;
+therefore, if there are multiple user accounts with the given e-mail address,
+multiple password reset e-mail are sent to the e-mail address.
+Returns true if the e-mail is successfully sent;
+returns false if the e-mail address is not registered with any user account.
 
-    
-
-\subsubsection{Boolean changePassword(String username, String password, String token);}
-Change password in case of forgotten password;
-user chooses a new password,
-user authentication is done by the token sent to user's email
-@return true on success, false if token is invalid
-TODO: throw an exception
+\subsubsection{Boolean changePassword(String username, String password, String token)}
+Set a new password in case of forgotten password.
+The temporary password change token must be still valid,
+and identical to one sent in the password reset e-mail
+to the user with the given username.
+Returns true if the password change is successful;
+returns false if the token is not valid.
 
 \subsection{Login via OpenID Services}
 \label{subsubsec:gui_openid}
 
-No registration needed, user automatically registered on first login.
+The OpenID Login process is described in detail in a separate section \ref{sec:OpenID_Login}.
 
-TODO: move partly to last section (Complex Operations) and maybe partly to GUI
+\subsubsection{LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType)}
 
-The authentication itself is done in a new authentication window.
-A successful authentication is then paired with the GUI instance using a temporary one-time identifier, authID, shared by the main window and the authentication window.
-(Because of Javascript security restrictions, there is no simple way of sending the result of the authentication process from the authentication window to the main window;
-however, it is straightforward to generate the authID in the main window, store it in Userspace and send it to the authentication window on its creation.)
+Return the URL of a window to show to the user to log in using his OpenID account at an OpenID provider specified by serviceType. It leads to a webpage of the OpenID provider, with the return page set to the FilmTit application, to the AuthenticationValidationWindow page.
 
-When the main window requests user authentication, it generates the authID, calls getAuthenticationURL and opens an authentication window with the returned URL.
-Then it waits for the user to authenticate in the authentication window
--- the waiting is active, polling the Userspace with getSessionID in regular intervals.
-TODO: I suggest every 3 seconds for the first 2 minutes, then every 10 seconds for the following 8 minutes, and then every 30 seconds forever.
-And, of course, if the main window regains focus, we call getSessionID immediately.
-For each of the authentication services, there is a webpage that enables the user to authenticate
-(its URL is returned by getAuthenticationURL)
-and then passes information about the result of the authentication to a webpage given to it as a get parameter
-(we use the Authentication Response Window as the target webpage).
-The result is then sent to Userspace by validateAuthentication.
-If the authentication is successful, a new session is created for the user.
-The main window then acquires the new session id via getSessionID and the authentication process is completed.
+A generated temporary one-time identifier, authID, is also included in the response. It is used to pair the authentication process, which takes place in the newly opened window, with the main GUI window.
 
-Currently supported OpenID providers are Google, Yahoo and Seznam.
+\subsubsection{Boolean validateAuthentication(int authID, String responseURL)}
 
-\subsubsection{LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType);}
-Get the URL of a window to show to the user for him to log in using his OpenID
+Validate the response URL from the OpenID provider, which contains information about the result of the OpenID authentication.
 
-Called by GUI when authentication is required and the user is not logged in (i.e. does not have a valid sesion id).
-A temporary one-time identifier, authID, is generated for the authentification session only to identify the client logging in and sent to Userspace together with the request.
-The chosen service to be used for authentication is also given (e.g. Google or Facebook).
-The Userspace returns a URL of the webpage to be used for authentication.
-
-\subsubsection{Boolean validateAuthentication(int authID, String responseURL);}
-Send the URL of the response from the OpenID provider to Userspace for validation.
-
-Called from the authentication response window after the user\'s attempt to authenticate themself.
-The responseURL contains information from the authentication service to be checked and used by the Userspace.
 If the authentication is found to have been successful, a new session is generated for the user and paired with the given authID, and true is returned.
 Otherwise, the method returns false.
 
 \subsubsection{SessionResponse getSessionID(int authID)}
-Poll the Userspace to find out whether the user has already successfully logged in using his OpenID.
 
-Userspace checks whether a successful authentication has been done with the given authID.
-If yes, the corresponding session id is returned.
-Otherwise, null is returned.
-TODO null or empty string?
-TODO we still need to be able to send info that the user decided to cancel the authentication if we find this out - probably by an exception?
+Check whether the user has already successfully logged in using his OpenID with the given authID.
+
+\begin{itemize}
+\item If yes, the corresponding sessionID and User object are returned.
+\item If not yet, but the authID is valid, which means that an OpenID login operation is probably still in progress, null is returned.
+\item Otherwise, an exception is thrown.
+\end{itemize}
 
 \section{User Settings}
 
@@ -258,13 +209,18 @@ Stay logged in permanently (for 1 month) instead of 1 hour (sets the session tim
 Set maximum number of suggestions to show for each line.
 
 \subsubsection{Void setUseMoses(String sessionID, boolean useMoses)}
-Include MT results in translation suggestions.
+Include Machine Translation results in translation suggestions.
 
-\section{Remote logging}
-    
+\section{Remote Logging}
 
-\subsubsection{Void logGuiMessage(LevelLogEnum level, String context, String message, String sessionID);}
+The remote logging is used to log messages from GUI on server. The messages are to be printed in the server log and can also be stored in the database.
+
+\subsubsection{Void logGuiMessage(LevelLogEnum level, String context, String message, String sessionID)}
 Log the given message from GUI on server.
+The suported levels are DebugNotice, Notice, Warning and Error.
+The context specifies the type of the message and should be constant for each instance of a similar message; it can contain e.g. a class name, a method name or an RPC name. The message should be as detailed as to provide all necessary information, including e.g. values of variables or a stacktrace if applicable.
+
+The sessionID is only used to include the userID in the logged message; it is to be null if the user is not logged in.
 
 \section{Exceptions Thrown by RPCs}
 
@@ -272,7 +228,7 @@ The RPCs typically throw an exception on failure. These exceptions should be of 
 
 \subsection{InvalidSessionIdException}
 
-Most of the RPCs can only be invoked by a logged in user -- such RPCs take the sessionID as a parameter and throw an InvalidSessionIdException in case of an invalid sessionID. Typically the ID would be originally valid but expired, so the expected reaction to this exception is to simply ask the user to log in again.
+Most of the RPCs can only be invoked by a logged in user -- such RPCs take the sessionID as their first parameter and throw an InvalidSessionIdException in case of an invalid sessionID. Typically the ID would be originally valid but expired, so the expected reaction to this exception is to simply ask the user to log in again.
 
 \subsection{InvalidDocumentIdException}
 
@@ -294,6 +250,8 @@ In most cases, one RPC is sufficient to perform the whole operation. However, so
 
 see \ref{rpc:sd:document_creation}
 
+\todo{describe textually}
+
 \todo{probably translation suggestions generation does not belong here}
 
 \begin{figure}[h]
@@ -304,8 +262,30 @@ see \ref{rpc:sd:document_creation}
 \end{figure}
 
 \subsection{OpenID Login}
+\label{sec:OpenID_Login}
 
-see \ref{rpc:sd:openid_login}
+This section describes the OpenID Login process, which is also shown in the sequence diagram \ref{rpc:sd:openid_login}.
+
+The authentication itself is done in a new authentication window.
+A successful authentication in the authentication window is then paired with the GUI main window using a temporary one-time identifier, authID, shared by the Userspace, the main GUI window and the authentication window.
+(Because of Javascript security restrictions, there is no simple way of sending the result of the authentication process from the authentication window to the main window;
+however, the authID can be sent to the new window easily because it is already known at the time of its creation.)
+
+When OpenID Login is requested by the user, the GUI main window calls getAuthenticationURL.
+The Userspace generates an authID, and a URL to be used for the authentication, and returns that to the GUI, which opens a new authentication window with the received URL.
+The URL points to an OpenID provider webpage (currently supported OpenID providers are Google, Yahoo and Seznam). As a GET parameter, it contains the return URL, which leads back to FilmTit -- to the AuthenticationValidationWindow page, including the authID as a GET parameter in the return URL.
+
+After opening the authentication window, GUI starts waiting for the user to authenticate. The waiting is active, polling the Userspace with getSessionID in regular intervals until a non-null value is returned.
+
+Meanwhile, the user can authenticate in the authentication window. The OpenID provider then redirects the user to the return URL, which is the AuthenticationValidationWindow, together with parameters describing the result of the authentication and providing some information about the user (see \todo{link to userspace} for details).
+The whole response URL is then sent through validateAuthentication to Userspace for validation.
+
+If Userspace finds the authentication to be successful, a new session is created for the user, and the sessionID is stored in a pair with the authID.
+If a user with the given OpenID is not registered yet, registration is transparently performed at this moment (see \todo{link to userspace} for details); no explicit registration is required for OpenID login.
+The authentication window is then closed.
+In case of an error, the error message is displayed in the authentication window (and the window stays open).
+
+When a successful authentication took place, the getSessionID method returns the sessionID and a User object, the polling stops and the authentication process is completed.
 
 \begin{figure}[h]
 \begin{center}
