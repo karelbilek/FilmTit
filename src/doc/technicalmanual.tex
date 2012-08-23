@@ -259,6 +259,27 @@ The module-specific options for the Core TM are mostly related to performance.
 </userspace>
 \end{lstlisting}
 
+\subsubsection{Setting email}
+Filmtit uses free mailserver and account from Gmail for sending emails. Administrator can change mailer server, account and text of messages too. 
+Userspace part properties contains whole configuration of mailer. Configuration can be divided into two parts. First part consistis of entries with values, which are needed to establishing connection
+\begin{itemize}
+   \item \verb#mail.transport.protocol# -- protocol for sending
+   \item \verb#mail.stmps.port# -- port for sending mail
+   \item \verb#mail.stmps.host# -- host server
+	\item \verb#mail.smtps.socketFactory.class# -- class used for ssl encryption
+	\item \verb#mail.smtps.socketFactory.port# -- port used for ssl
+	\item \verb#mail.smtps.auth# -- if connection needs authentication
+	\item \verb#mail.filmtit.address# -- account login
+	\item \verb#mail.filmtit.password# -- account password
+\end{itemize}
+Second part contains entries for setting messages. Administrator can change subject and text message. Message contains strings starts and ends with '\%' - templates. These templates are replaced by data from database.
+\begin{itemize}
+\item \verb#mail.filmtit.forgottenPassSubject# -- subject for forgotten password email
+\item \verb#mail.filmtit.forgottenPassBody# -- text body for forgotten password email
+\item \verb#mail.filmtit.registrationSubject# -- subject for registration email
+\item \verb#mail.filmtit.registrationBody# -- text body of registration email
+\end{itemize}
+
 
 \subsubsection{APIs and keys}
 
