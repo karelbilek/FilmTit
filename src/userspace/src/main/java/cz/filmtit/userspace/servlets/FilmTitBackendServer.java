@@ -167,6 +167,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Creates the document
      * (without source chunks, which have to be added by calling saveSourceChunks),
      * returns its id, together with media source suggestions based on movieTitle.
+     * @param sessionID Session ID
+     * @param documentTitle Title of the new document
+     * @param movieTitle Title of the document's movie
+     * @param language Code of the source language of the movie
+     * @param moviePath Path to the local video file
+     * @return Tuple of a shared document object representing the newly created document and list of suggestions
+     *         of possible media sources based on the movie title.
+     * @throws InvalidSessionIdException Throws exception when there does not exist a session of given ID.
      */
     @Override
     public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
@@ -176,6 +184,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Sets the media source of the document.
+     * @param sessionID Session ID
+     * @param documentID ID of the document the media source is set to
+     * @param selectedMediaSource Selected media source
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public Void selectSource(String sessionID, long documentID, MediaSource selectedMediaSource)
@@ -185,6 +199,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Returns all documents owned by the user, ordered by date and time of last change.
+     * @param sessionID Session ID
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     @Override
     public List<Document> getListOfDocuments(String sessionID) throws InvalidSessionIdException {
@@ -192,7 +208,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Returns the document with the given id, with source chunks but without translation suggestions.
+     * Returns the document with the given id, with translation results containing source chunks but
+     * but not translation suggestions.
+     * @param sessionID Session ID
+     * @param documentID ID of the document to be loaded
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public Document loadDocument(String sessionID, long documentID)
@@ -201,9 +222,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Remove the given document from the list of user's documents.
-     * (The data might not be discarded immediately
+     * Removes the given document from the list of user's documents. (The data might not be discarded immediately
      * as the translations still might be used to enrich the translation memory)
+     * @param sessionID Session ID
+     * @param documentID ID of the document to be deleted
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public Void deleteDocument(String sessionID, long documentID)
@@ -212,9 +236,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Returns media source suggestions based on newMovieTitle.
-     * The movie title is not changed yet,
-     * this is only done on calling selectSource.
+     * Changes the tile of the document
+     * @param sessionId Session ID
+     * @param documentID ID of the involved document
+     * @param newTitle A new document title suggested by the user.
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public Void changeDocumentTitle(String sessionId, long documentID, String newTitle)
@@ -224,8 +251,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Returns media source suggestions based on newMovieTitle.
-     * The movie title is not changed yet,
-     * this is only done on calling selectSource.
+     * The movie title is not changed yet, this is only done on calling selectSource.
+     * @param sessionId Session ID
+     * @param documentID ID of the involved document
+     * @param newMovieTitle New movie title suggested by the user
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public List<MediaSource> changeMovieTitle(String sessionId, long documentID, String newMovieTitle)
