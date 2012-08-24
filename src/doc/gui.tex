@@ -145,13 +145,44 @@ The subclasses often override this by showing the message in a Dialog (invoking 
 
 Most of the RPCs contain the SessionID as one of their parameters to authenticate the user. All of such RPCs can thus throw an InvalidSessionIdException, to which the default action is to show the Login Dialog to the user.
 
-\subsection{Offline Work}
+\subsection{Offline Mode}
 
 LocalStorageHandler
 
 Storable interface
 
 (again, I describe some of it in implementation process, have to solve somehow)
+
+see \ref{gui:sd:offline_mode_1} for the first phase, where the user goes offline and continues working on the translation, and \ref{gui:sd:offline_mode_2} for the second phase, where the user goes online again and the locally stored data are uploaded to the server.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.55]{figures/offline_mode_1.pdf}
+\end{center}
+\caption{Sequence diagram of turning on the Offline Mode and translating the document in Offline Mode.}\label{gui:sd:offline_mode_1}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.55]{figures/offline_mode_2.pdf}
+\end{center}
+\caption{Sequence diagram of the user going online after using Offline Mode.}\label{gui:sd:offline_mode_2}
+\end{figure}
+
+for simplicity does not show some implementation details
+
+Also, call parameters are not listed if they are either already specified in REF sd: translating a document or only of a technical nature.
+
+
+
+Before using the Local Storage, it must always be first checked whether it is supported -- if it is not, Offline Mode is not offered to the user and a relevant message is displayed.
+
+When a setUserTranslation call fails with the ``probably offline'' error, it is saved into a queue of failed calls that are to be stored offline if the user agrees (other setUserTranslation calls could already have been invoked and will also fail). If the user decides to turn on the Offline Mode, all calls from the queue are stored into Local Storage.
+
+
+In Offline Mode, the style of the menu is changed and all active components are hidden, because the user should not leave the Translation Workspace while in Offline Mode. Also, going back or forward using the browser controls is disabled: each upcoming page switch is cancelled.
+
+
 
 \subsection{SubgestBox}
 
