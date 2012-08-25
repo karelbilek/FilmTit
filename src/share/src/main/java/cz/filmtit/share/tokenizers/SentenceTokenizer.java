@@ -11,15 +11,23 @@ import com.google.gwt.regexp.shared.RegExp;
 
 /**
  * Tokenizes text into sentences by looking for typical end-of-sentence markers,
- * but considering exceptions (e.g. abbreviations).
+ * but considering exceptions (eg abbreviations).
+ * 
+ * It is heavily based on LanguageTools by Daniel Naber, but was
+ * also heavily refractored.
  *
- * @author Daniel Naber
+ * @author Daniel Naber, Karel Bílek
  */
 abstract public class SentenceTokenizer{
 
-    // end of sentence marker:
+    /**
+     * end of sentence marker
+     */
     protected static final String EOS = "\0";
-    //private final static String EOS = "#"; // for testing only
+    
+    /**
+     * punctuation
+     */
     protected static final String P = "[\\.!?…]"; // PUNCTUATION
     
     protected static final String AP = "(?:'|«|\"|”|\\)|\\]|\\})?"; // AFTER PUNCTUATION

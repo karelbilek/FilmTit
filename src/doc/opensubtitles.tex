@@ -111,6 +111,8 @@ Because we did that, we had to write the parsing classes in such a way, that wou
 \subsection*{Parsing}
 Parsing the subtitles themselves was not a hard task, using GWT's regex classes. Even when \texttt{sub} is considerably less popular, we decided to not neglect it and built a parser for it, too.
 
+The parsing process have two steps. First, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word \uv{chunk} more generally in the source code than here in the documentation.} 
+
 \section{Sentence splitting}
 \subsection*{Basic idea}
 Quite early on, we decided, that we shouldn't add the whole subtitle items into translation memory, but that we should split them to smaller parts.

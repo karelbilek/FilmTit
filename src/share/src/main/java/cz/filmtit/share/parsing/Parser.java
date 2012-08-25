@@ -16,16 +16,17 @@ import cz.filmtit.share.exceptions.ParsingException;
 
 
 /**
- * Interface for parsing a subtitle file,
- * intended primarily as a base class
- * for ParserSrt (parsing .srt files)
- * and ParserSub (.sub files)
- * 
- * @author Honza Václ
+ *
+ * Parser of file into list of TimedChunks.
+ * The type of parsing is dependent only on UnprocessedParser,
+ * because there are only two of UnprocessedParsers and both of them are 
+ * singletons, there is need only for two instances of Parser
+ *
+ * @author Honza Václ, Karel Bílek
  *
  */
 public class Parser {
-    //LINE_SEPARATOR_OUT_REGEXP catches LINE_SEPARATOR_OUT
+    //LINE_SEPARATOR_OUT_REGEXP catches LINE_SEPARATOR_OUT from UnprocessedParser
     //it is not RegExp object, because RegExp object somehow keeps internal counts
     //that we use while adding newlines as Annotations 
     public static final String LINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
@@ -44,19 +45,48 @@ public class Parser {
 	
     //========================================
 
+    /**
+     * UnprocessedParser to get unprocessed chunks from text.
+     */
     private UnprocessedParser unprocessedParser;
-    public Parser(UnprocessedParser unprocessedParser) {
+
+    /**
+     * Constructor. It is private, because only 2 instances of Parser exist - PARSER_SUB and PARSER_SRT.
+     * The only difference between them is the underlying UnprocessedParser.
+     */
+    private Parser(UnprocessedParser unprocessedParser) {
         this.unprocessedParser = unprocessedParser;
     }
     
+    /**
+     * Parser for SUB files.
+     */
     public static Parser PARSER_SUB = new Parser(new UnprocessedParserSub());
+    
+    /**
+     * Parser for SRT files.
+     */
     public static Parser PARSER_SRT = new Parser(new UnprocessedParserSrt());
 
+    /**
+     * Parses given text.
+     * @param text Given text, as string.
+     * @param documentId ID of the document, which is saved in the TimedChunk object
+     * @param l language of the subtitle
+     * @return list of TimedChunks
+     */
 	public List<TimedChunk> parse(String text, long documentId, Language l)
             throws ParsingException {
         return processChunks(unprocessedParser.parseUnprocessed(text), documentId, l);
     }
 
+    /**
+     * Makes TimedChunk out of unprocessedChunks.
+     * @param chunks unprocessed chunks to process
+     * @param documentId ID of the document, which is saved in the resulting TimedChunk objects
+     * @param l language of the subtitle
+     * @return list of TimedChunks
+     */
     public static List<TimedChunk> processChunks(List<UnprocessedChunk> chunks, long documentId, Language l) {
         LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
         int chunkId = 0;
@@ -67,6 +97,11 @@ public class Parser {
         return result;
     }
 
+    /**
+     * Get chunk with proper annotations from source text.
+     * @param chunkText text of the chunk with "-" and newlines (marked as | ).
+     * @return Chunk with surfaceForm without "-" and newlines, and with proper annotations. 
+     */
     public static Chunk getChunkFromText(String chunkText) {
             chunkText = formatMatch.replace(chunkText, "");
             chunkText = spacesMatch.replace(chunkText, " ");
@@ -105,6 +140,14 @@ public class Parser {
             return ch;
     }
    
+    /**
+     * Takes chunk, separates it to sentences and converts those to TimedChunks.
+     * @param chunk unprocessed chunk, might contain zero to N sentences
+     * @param chunkId ID of resulting chunk (it depends on the order in the file which we don't know at this point)
+     * @param documentId ID of document, that is saved in the resulting TimedChunks
+     * @param l language of the subtitle
+     * @return list of chunks. It is list, because it might contain more sentences.
+     */
     public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
         
 

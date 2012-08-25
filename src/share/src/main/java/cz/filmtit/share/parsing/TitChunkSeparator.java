@@ -8,20 +8,58 @@ import java.util.List;
 import cz.filmtit.share.tokenizers.*;
 import cz.filmtit.share.*;
 
+
+/**
+ * TitChunkSeparator is a singleton for splitting chunks into sentences.
+ * It uses both SentenceTokenizers, but also some pre-defined rules.
+ *
+ * @author Honza Václ, Karel Bílek
+ *
+ */
 public class TitChunkSeparator {
+    
+    /**
+     * Czech sentence tokenizer.
+     */
+    public static SentenceTokenizer czechTokenizer = new CzechSentenceTokenizer();
+    /**
+     * English sentence tokenizer.
+     */
+    public static SentenceTokenizer englishTokenizer = new EnglishSentenceTokenizer();
 
-    public static CzechSentenceTokenizer czechTokenizer = new CzechSentenceTokenizer();
-    public static EnglishSentenceTokenizer englishTokenizer = new EnglishSentenceTokenizer();
+    /**
+     * String, separating lines.
+     */
+	public static final String LINE_SEPARATOR_OUT = " | ";
 
-	public static final String SUBLINE_SEPARATOR_OUT = " | ";
+    /**
+     * Regexp, splitting lines.
+     */
+	public static final RegExp lineSplitter = RegExp.compile(" *\\| *");
 	
-	public static final RegExp indirectSplitter = RegExp.compile(" *\\| *");
-	public static final RegExp dialogSegmenter = RegExp.compile("^ ?-+ ?.");
+    /**
+     * Regexp, splitting on "-" on the beginning of the line.
+     */
+    public static final RegExp dialogSegmenter = RegExp.compile("^ ?-+ ?.");
+
+    /**
+     * Regexp, splitting on ".?!" at the end of line.
+     */
     public static final RegExp endOfLinePunct = RegExp.compile("[.?…!]\\s*$");
 
-	// formatting tags - in srt e.g. "<i>", in sub e.g. "{Y:i}"
+    /**
+     * Regexp, removing formatting tags.
+     * In srt, they are for example &lt;i&gt;, in sub they are for example "{Y:i}"
+     */
 	public static final RegExp formatTag = RegExp.compile("(<[^>]*>)|(\\{[^}]*\\})", "g");  // the "{}" are here as literals
 
+    /**
+     * Tokenizes string to sentences just using the tokenizer. It does NOT use our
+     * additional rules.
+     * @param tit Subtitle that will be tokenized. It can have "|" in the middle somewhere.
+     * @param l language of the subtitle (currently only Czech and English are supported)
+     * @return sentences. If the input has "|" (newline) somewhere, it WILL be preserved.
+     */
     private static List<String> tokenizeByTokenizers(String tit, Language l) {
        
        if (l == Language.EN) {
@@ -31,13 +69,18 @@ public class TitChunkSeparator {
        }
     }
 
-
+    /**
+     * Separates longer string to sentences, using BOTH our own rules AND the rule-based tokenizers.
+     * @param tit Subtitle that will be separated to sentences.
+     * @param l language of the subtitle (currently only Czech and English are supported)
+     * @return sentences.
+     */
 	public static List<String> separate(String tit, Language l) {
         
         // remove formatting tags
 		tit = formatTag.replace(tit, "");
 
-		SplitResult lines = indirectSplitter.split(tit);
+		SplitResult lines = lineSplitter.split(tit);
 
 		List<String> resultChunks = new ArrayList<String>();
 		String intermediateChunk = "";
@@ -53,7 +96,7 @@ public class TitChunkSeparator {
                 if (intermediateChunk.equals("")) {
                     intermediateChunk = line;
 				} else {
-                    intermediateChunk += SUBLINE_SEPARATOR_OUT + line;
+                    intermediateChunk += LINE_SEPARATOR_OUT + line;
 		        }
 
                 //is punct at EOL -> splitting

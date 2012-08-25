@@ -14,17 +14,28 @@ import cz.filmtit.share.exceptions.ParsingException;
  * Provides a simple parsing function for reading SRT subtitle format
  * into a list of UnprocessedChunks.
  *
- * @author Honza Václ and KB
+ * @author Honza Václ and Karel Bílek
  *
- * TODO: add parsing of text format modifiers like "<i>" 
+ * TODO: add parsing of text format modifiers like "&lt;i&gt;" 
  */
 public class UnprocessedParserSrt extends UnprocessedParser {
 
 
+    /**
+     * Regexp for determining if line is number of subtitle.
+     */
 	public static RegExp reSubNumberLine = RegExp.compile("^[0-9]+$");
+
+    /**
+     * Regexp for determining if line is time line.
+     */
 	public static RegExp reTimesLine     = RegExp.compile("^(.*)\\s*-- ?>\\s*(.*)$");
 
-	
+	/**
+     * Parses SRT text to unprocessed chunks.
+     * @param text text in SRT format
+     * @return list of unprocessed chunks.
+     */
 	public List<UnprocessedChunk> parseUnprocessed(String text)
             throws ParsingException {
 		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
@@ -37,26 +48,17 @@ public class UnprocessedParserSrt extends UnprocessedParser {
             lines = text.split(LINE_SEPARATOR);
 		}
 
-		//int subNumber = 0;  // in-file numbering of the subtitle - not used at the moment
 		String startTime = EMPTY_STRING;
 		String endTime = EMPTY_STRING;
 		String titText = EMPTY_STRING;
 
-        //boolean isSubNumberSet = false;
         boolean isTimeSet = false;
-        //boolean isTitTextSet = false;
 
 
         for (int linenumber = 0; linenumber < lines.length; linenumber++) {
             String line = lines[linenumber];
 			
-			if ( reSubNumberLine.test(line) ) {
-				// in-file numbering of the subtitle - not used at the moment
-				//subNumber = Integer.parseInt(line);
-                //isSubNumberSet = true;
-			}
-			else if ( reTimesLine.test(line)) {
-				// line with times
+			if ( reTimesLine.test(line)) {
                 MatchResult mr = reTimesLine.exec(line);
                 startTime = mr.getGroup(1).trim();
                 endTime = mr.getGroup(2).trim();
@@ -72,7 +74,6 @@ public class UnprocessedParserSrt extends UnprocessedParser {
                 if (! isTimeSet) {
                     throw new ParsingException("Subtitle timing line missing or malformed", linenumber + 1, true);
                 }
-                //isTitTextSet = true;
 				if (! titText.isEmpty()) {
 					titText += LINE_SEPARATOR_OUT;
 				}
@@ -83,22 +84,17 @@ public class UnprocessedParserSrt extends UnprocessedParser {
 				// creating the chunk(s) from what was gathered recently...
 
                 sublist.add(new UnprocessedChunk(startTime, endTime, titText));
-                //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 				
 		    	// ...and resetting
 				titText = EMPTY_STRING;
-                //isSubNumberSet = false;
                 isTimeSet = false;
-                //isTitTextSet = false;
 			}
 		}  // for-loop over lines
         
         
 		// adding the last tit (after it, there was no empty line from splitting):
         sublist.add(new UnprocessedChunk(startTime, endTime, titText));
-        //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 
-        //renumber(sublist);	
 		return sublist;
 	}
 	
