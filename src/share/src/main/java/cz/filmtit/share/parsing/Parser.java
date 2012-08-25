@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.filmtit.share.Chunk;
 import cz.filmtit.share.TimedChunk;
-import cz.filmtit.share.TitChunkSeparator;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.annotations.*;
 
@@ -24,28 +24,37 @@ import cz.filmtit.share.exceptions.ParsingException;
  * @author Honza Václ
  *
  */
-public abstract class Parser {
-	public static final String SUBLINE_SEPARATOR_IN = "\\|";
-	public static final String SUBLINE_SEPARATOR_OUT = " | ";
-	public static final String EMPTY_STRING = "";
-	public static final String LINE_SEPARATOR  = "\r?\n";
+public class Parser {
+    //LINE_SEPARATOR_OUT_REGEXP catches LINE_SEPARATOR_OUT
+    //it is not RegExp object, because RegExp object somehow keeps internal counts
+    //that we use while adding newlines as Annotations 
+    public static final String LINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
 	
-	public static final String SUBLINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
-	public static final RegExp dialogueMatch = RegExp.compile("^ ?-+ ?");
-    public static final RegExp sublineAtBeginMatch = RegExp.compile("^\\|");
+    //==========REGEXP STATIC OBJECTS=========== 
+	//matching a dialogue on the beginning in a beginning
+    public static final RegExp dialogueMatch = RegExp.compile("^ ?-+ ?");
+    //matching a new line on the beginning
+    public static final RegExp lineAtBeginMatch = RegExp.compile("^\\|");
 
-    //TODO - better solution
-    //(will need to rewrite the AnnotationType from scratch I am afraid)
-    //temporary solution - ignore all HTML-like tags
+    //ignore all HTML-like tags
 	public static final RegExp formatMatch = RegExp.compile("<[^>]*>", "g");
 	
+    //more spaces => single space
     public static final RegExp spacesMatch = RegExp.compile("\\s+", "g");
 	
-    public abstract List<UnprocessedChunk> parseUnprocessed(String text) throws ParsingException;
+    //========================================
+
+    private UnprocessedParser unprocessedParser;
+    public Parser(UnprocessedParser unprocessedParser) {
+        this.unprocessedParser = unprocessedParser;
+    }
+    
+    public static Parser PARSER_SUB = new Parser(new UnprocessedParserSub());
+    public static Parser PARSER_SRT = new Parser(new UnprocessedParserSrt());
 
 	public List<TimedChunk> parse(String text, long documentId, Language l)
             throws ParsingException {
-        return processChunks(parseUnprocessed(text), documentId, l);
+        return processChunks(unprocessedParser.parseUnprocessed(text), documentId, l);
     }
 
     public static List<TimedChunk> processChunks(List<UnprocessedChunk> chunks, long documentId, Language l) {
@@ -58,16 +67,7 @@ public abstract class Parser {
         return result;
     }
 
-    public static class ChunkInfo {
-        public String string;
-        public List<Annotation> anots;
-        public ChunkInfo(String sstring, List<Annotation> sanots){
-            string = sstring;
-            anots = sanots;
-        }
-    }
-
-    public static ChunkInfo getChunkInfo(String chunkText) {
+    public static Chunk getChunkFromText(String chunkText) {
             chunkText = formatMatch.replace(chunkText, "");
             chunkText = spacesMatch.replace(chunkText, " ");
         
@@ -80,7 +80,7 @@ public abstract class Parser {
             }
 
             //add linebreaks as annotations
-            RegExp sublineRegexp = RegExp.compile(SUBLINE_SEPARATOR_OUT_REGEXP, "g");
+            RegExp sublineRegexp = RegExp.compile(LINE_SEPARATOR_OUT_REGEXP, "g");
             MatchResult sublineResult = sublineRegexp.exec(chunkText);            
             while (sublineResult != null) {
                 int index = sublineResult.getIndex();
@@ -89,7 +89,7 @@ public abstract class Parser {
                 String newChunkText = chunkText.substring(0, index);
                 
                 if (index+3 < chunkText.length()) {
-                    int biggerIndex = sublineAtBeginMatch.test(chunkText) ? 2 : (index+3);
+                    int biggerIndex = lineAtBeginMatch.test(chunkText) ? 2 : (index+3);
                     newChunkText = newChunkText + " "+chunkText.substring(biggerIndex, chunkText.length());
                 }
 
@@ -101,7 +101,7 @@ public abstract class Parser {
                 sublineResult = sublineRegexp.exec(chunkText);
             }
 
-            ChunkInfo ch = new ChunkInfo(chunkText, annotations);
+            Chunk ch = new Chunk(chunkText, annotations);
             return ch;
     }
    
@@ -116,11 +116,11 @@ public abstract class Parser {
 
         for (String chunkText : separatedText) {
              
-            ChunkInfo info = getChunkInfo(chunkText);
+            Chunk untimedChunk = getChunkFromText(chunkText);
 
             //create a new timedchunk
-            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, info.string, chunkId, documentId); 
-            newChunk.addAnnotations(info.anots);            
+            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, untimedChunk.getSurfaceForm(), chunkId, documentId); 
+            newChunk.addAnnotations(untimedChunk.getAnnotations());            
             
             result.add( newChunk);
             partNumber++;

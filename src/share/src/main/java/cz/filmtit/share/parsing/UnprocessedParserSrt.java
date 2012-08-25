@@ -14,15 +14,13 @@ import cz.filmtit.share.exceptions.ParsingException;
  * Provides a simple parsing function for reading SRT subtitle format
  * into a list of UnprocessedChunks.
  *
- * @author Honza VĂˇcl and KB
+ * @author Honza Václ and KB
  *
- * TODO: add parsing of text format modifiers like "<i>" - or at least deleting them
- * 
- * @author Honza Václ
- *
+ * TODO: add parsing of text format modifiers like "<i>" 
  */
-public class ParserSrt extends Parser {
-	
+public class UnprocessedParserSrt extends UnprocessedParser {
+
+
 	public static RegExp reSubNumberLine = RegExp.compile("^[0-9]+$");
 	public static RegExp reTimesLine     = RegExp.compile("^(.*)\\s*-- ?>\\s*(.*)$");
 
@@ -76,7 +74,7 @@ public class ParserSrt extends Parser {
                 }
                 //isTitTextSet = true;
 				if (! titText.isEmpty()) {
-					titText += SUBLINE_SEPARATOR_OUT;
+					titText += LINE_SEPARATOR_OUT;
 				}
 			    titText += line;
            	}

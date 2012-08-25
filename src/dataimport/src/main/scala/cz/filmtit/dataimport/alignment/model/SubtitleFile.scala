@@ -3,7 +3,7 @@ package cz.filmtit.dataimport.alignment.model
 import cz.filmtit.core.Configuration
 import cz.filmtit.share.MediaSource
 import java.io._
-import cz.filmtit.share.parsing.ParserSrt
+import cz.filmtit.share.parsing.UnprocessedParserSrt
 import cz.filmtit.share.parsing.UnprocessedChunk
 import scala.collection.JavaConversions._
 import java.util.zip.GZIPInputStream
@@ -84,7 +84,7 @@ class SubtitleFile(val filmID:String, val file:File, val c:Configuration, val pr
    */
     def readChunks():Seq[UnprocessedChunk] = {
         //public List<UnprocessedChunk> parseUnprocessed(String text)
-        val parser = new ParserSrt
+        val parser = new UnprocessedParserSrt
         parser.parseUnprocessed(readText())
     }
 

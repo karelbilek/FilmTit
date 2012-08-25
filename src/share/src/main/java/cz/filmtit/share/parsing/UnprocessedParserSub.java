@@ -17,7 +17,9 @@ import cz.filmtit.share.exceptions.ParsingException;
  * @author Honza Václ
  *
  */
-public class ParserSub extends Parser {
+public class UnprocessedParserSub extends UnprocessedParser {
+    
+    public static final String SUBLINE_SEPARATOR_IN = "\\|";
 	
 	public static RegExp reSubtitleLine = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
 	
@@ -42,7 +44,7 @@ public class ParserSub extends Parser {
 				String[] segments = lineText.split(SUBLINE_SEPARATOR_IN);
 				String titText = segments[0];
                 for (int i = 1; i < segments.length; i++) {
-					titText += SUBLINE_SEPARATOR_OUT + segments[i];
+					titText += LINE_SEPARATOR_OUT + segments[i];
 				}
 
                 sublist.add(new UnprocessedChunk(startTime, endTime, titText));

@@ -1,4 +1,4 @@
-package cz.filmtit.share;
+package cz.filmtit.share.parsing;
 
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.regexp.shared.SplitResult;
@@ -6,6 +6,7 @@ import com.google.gwt.regexp.shared.SplitResult;
 import java.util.ArrayList;
 import java.util.List;
 import cz.filmtit.share.tokenizers.*;
+import cz.filmtit.share.*;
 
 public class TitChunkSeparator {
 
