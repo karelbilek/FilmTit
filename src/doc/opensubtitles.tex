@@ -10,11 +10,11 @@ In this chapter, we discuss these steps, together with more detailed description
 
 \section{Retrieving data}
 
-There are plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded individually, file by file. However, for building a bigger corpus, we need a big number of subtitles -- and it is problematic to download from most of the servers in bigger batches (due to the anti-robot protection and so on). 
+There are hundrends to thousands of subtitle files in any major language available at the Internet, and all of those can be easily downloaded individually, file by file. However, for building a bigger corpus, we need the biggest number of subtitles possible -- and it is problematic to download from most of the servers in bigger batches (due to the anti-robot protection and so on). 
 
-Also, we wanted to avoid any copyright problems we would meet by using random subtitles from the Internet. For this purpose, we directly asked the administrator of the biggest server providing the subtitle site \url{http://www.opensubtitles.org} for the data. (We will refer to the site just as OS.org in the following chapter.)
+Also, we wanted to avoid any copyright problems we would meet by using random subtitles, randomly downloaded from the Internet. Because of that, we directly asked the administrator of the biggest server providing the subtitle site \url{http://www.opensubtitles.org} for the data. (We will refer to the site just as OS.org in the following chapter.)
 
-As a reply, we received all subtitle files in Czech and English from OS.org with following license condition (in Slovak):
+We were exteremely lucky to receive all subtitle files in Czech and English (but only from media sources, that have subtitles from both of these languages) from OS.org with following license condition (in Slovak):
 
 \begin{quote}
 \begin{verbatim}
@@ -84,7 +84,7 @@ The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,8
 The other step in cleanup is -- for simplicity -- removing the subtitles, that are split to more files; we assumed that those split into more parts are probably just split version the complete ones. 81\,\% of subtitles are in one piece and only 1.7\,\% movies have subtitles only in multiple files. By deleting subtitles split into more files, we completely lose Czech side of 64 movies and English side of 218 movies, which is 3,5\% in total.
 
 \subsection*{Cleaning up -- Carmencita}
-There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{You can see it here -- \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg}}. This happened due to a server error at OS.o, because the movie has ID {\tt tt0000001} at IMDB. We deleted those as well.
+There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{You can see it here -- \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg}}. We concluded this very probably happened due to a server error at OS.o, because the movie has ID {\tt tt0000001} at IMDB. We deleted those as well.
 
 %Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
