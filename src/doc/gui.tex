@@ -10,29 +10,13 @@ Our main goal is to offer a tool for the translators of the movie subtitles as e
 \section{Google Web Toolkit}
 % (Honza and Ruda)
 The web-based user interface representing the client part of the FilmTit application is based on the Google Web Toolkit (GWT) framework. This technology is a development toolkit for building and optimizing browser-based applications %\citep{Gwtweb}
-and is based on the idea of translation of Java source code into Javascript. Therefore, it enables us to write in Java even on the client side, but preserving most of the advantages of web application accessibility for the user.
+and is based on the idea of compilation of Java source code into Javascript. Therefore, it enables us to write in Java even on the client side, but preserving most of the advantages of web application accessibility for the user.
 
-The official description of GWT isas follows:
+The official description of GWT is as follows:
 
 Google Web Toolkit (GWT) is a development toolkit for building and optimizing complex browser-based applications. Its goal is to enable productive development of high-performance web applications without the developer having to be an expert in browser quirks, XMLHttpRequest, and JavaScript. GWT is used by many products at Google, including Google Wave and the new version of AdWords. It's open source, completely free, and used by thousands of developers around the world.
 
-
-\todo{probably move to Implementation Process}
-We decided to use GWT for several reasons.
-
-One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.
-
-However, there is a downside which can be expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had been already solved by others. Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
-
-A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE, similarly applicable also for IntelliJ IDE), possibly with debugging support. In GWT, there is a dedicated Development Mode for these debugging purposes, sparing the developer the need of recompiling all the GWT code for testing after each change. This proved to be very efficient in the first phases of the development when the GUI module was developed independently and although it turned out to be quite difficult to set up once this module was integrated with the rest of the project, it remained one of the most useful features of GWT.
-
-Another option that we found useful is the possibility to directly insert real Javascript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way how to do something that is supported in Javascript but unsupported in GWT.
-
-An important point also was that GWT is freeware (it is even open-source, but we did not benefit from it much), or more precisely, is licensed under the Apache License, v.~2.0 (TODO: citation for the license!), with several third-party software included in its distribution under other freeware licenses.
-
-Although GWT can be integrated into a Maven project, it was far from flawless and a lot of time had to be spent on making everything work together, including maintaining the IDE support. We managed to do that in the end, but we had expected this to be much easier. The main reason (but not the only one) is the specific directory structure, different for the Maven project and for the GWT project, which has to be adjusted in the configuration of both the Maven plugins and the IDE.
-
-To conclude, we are happy that we decided to use GWT because of the benefits it brought to us, but we were disappointed by the number of complications that it brought as well. Were we to decide on a web framework to use for a similar project, we would still have to consider our decision carefully.
+\todo{text moved to implementation process, add a link and make neater}
 
 \subsection{Browser Support and Optimization}
 GWT also provides a feature which makes the final web application similar in different major browsers and optimized to a certain degree for each of them. This feature is called {\em deferred binding} and it is based on generating different versions of the Javascript code during compile time, only one of which needs to be loaded by a particular client browser at runtime. This process is by default maintained by the GWT compiler itself, so that the developer does not have to worry about it.
@@ -44,7 +28,7 @@ Still, our hope is that GWT development will continue and will keep up with the 
 TODO: FilmTit actual browser support -- tested and optimized for what? (here or somewhere else?)
 
 \subsection{Designing by UiBinder}
-Another very useful and comfortable feature of the GWT for designing the user interface is the UiBinder. The idea behind this approach is to design the visual structure of the page (or its part) in an HTML-like way (this is called the {\em UiBinder template}) and its behaviour and functionality in a Java class (called the {\em owner class} for the template). The UiBinder itself is then an object binding these two approaches together. This style of creating the web application supports the respected best practice to divide the visual design and the functionality. It also allows to create the web page's appearance in a way which is more natural to web designers (e.g. HTML-like), as well as more readable and modifiable. Other advantages includes supposedly better performance (as the browsers can better optimize the rendering from the UiBinder templates than from the heavier-weight Java-based widgets and panels) and support for internationalization (not used by FilmTit at the moment).
+Another very useful and comfortable feature of the GWT for designing the user interface is the UiBinder. The idea behind this approach is to design the visual structure of the page (or its part) in an HTML-like way (this is called the {\em UiBinder template}) and its behaviour and functionality in a Java class (called the {\em owner class} for the template). The UiBinder itself is then an object binding these two approaches together. This style of creating the web application supports the respected best practice to divide the visual design and the functionality. It also allows to create the web page's appearance in a way which is more natural to web designers (e.g. HTML-like), as well as more readable and modifiable. Other advantages include supposedly better performance (as the browsers can better optimize the rendering from the UiBinder templates than from the heavier-weight Java-based widgets and panels) and support for internationalization (not used by FilmTit at the moment).
 
 The actual source code of a page designed this way (or of its segment) then consists of a file with the *.ui.xml Ui-Binder template (where also the style definition can be included directly) and a corresponding *.java owner class, where the elements of the template can be accessed as widgets (as well as made accessible to other classes). The owner class then can be simply instantiated and plugged into an existing design just like any other widget.
 
@@ -57,7 +41,9 @@ Similarly to other third-party libraries used by FilmTit, the GWT-Bootstrap libr
 \section{GUI Structure}
 % (Honza/Ruda)
 
-package cz.filmtit.client (not cz.filmtit.gui for historical reasons -- ``client'' is the default package name in GWT for the client side of a web application)
+The GUI is contained in the package cz.filmtit.client (not cz.filmtit.gui for ``historical'' reasons -- ``client'' is the default package name in GWT for the client side of a web application). All of it is written in Java (in its subset that is GWT-compilable to Javascript), with occasional methods with bodies written directly in Javascript (for reasons clarified in \ref{subsubsec:implementation:gwt}). Thus, the GUI can actually only be compiled to Javascript.
+
+The GUI also makes use of the shared classes (package cz.filmtit.share, see XXX), which are written using only the intersection between standard Java and GWT-compilable Java and are therefore fully compilable both to Javascript and to Java bytecode.
 
 Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.)
 
@@ -65,13 +51,25 @@ Some settings have to be done via several resource files in the webapp directory
 
 \subsection{Gui.java}
 
-The main class is Gui.java. It defines the web application itself, providing an entry point, initialization methods and logging methods. It also handles general requests.
+The main class is Gui.java. It defines the web application itself, providing an entry point, initialization methods, logging methods and access to page switching. It also contains fields that are considered global, such as the sessionID of the currently logged in user.
+It behaves as a static class, except for the onModuleLoad() method required by GWT, which corresponds to the main() function.
 
 \subsection{Pages}
 
-subpackage cz.filmtit.client.pages
+The subpackage cz.filmtit.client.pages defines the pages of the application.
+Please refer to the sitemap figure \ref{fig:sitemap} for an overview of the pages, which are:
 
-Please refer to the sitemap figure \ref{fig:sitemap} for an overview of all pages.
+\begin{itemize}
+\item DocumentCreator, used to create a new document
+\item TranslationWorkspace, the main page of the application where the actual translations take place
+\item UserPage, providing listing of user documents and the possibility to edit them
+\item Settings, enabling the user to change several settings, such as his password or the maximum number of translation suggestions to show
+\item WelcomeScreen, displayed as the first page of the application
+\item About, showing basic information about the applicaton
+\item ChangePassword, used as the target of the password change link sent by e-mail to users who forget their password, enabling them to set a new password
+\item AuthenticationValidationWindow, a special page that receives OpenID authentication data from an OpenID provider and passes them to Userspace for validation
+\item Blank, a special page with no contents and is used to temporarily hide the contents of another page
+\end{itemize}
 
 \begin{figure}
 \begin{center}
@@ -81,50 +79,54 @@ Please refer to the sitemap figure \ref{fig:sitemap} for an overview of all page
 \label{fig:sitemap}
 \end{figure}
 
-layout defined by UiBinder
+As was already mentioned, each page has its layout and function separated as much as possible, with the function being defined in a <page>.java file and the layout in a UiBinder <page>.ui.xml file.
 
-page is created and loaded by calling its constructor, which may require some parameters (such as documentID for TranslationWorkspace)
+The pages package also contains the GuiStructure, which defines the content panel, into which the individual pages are loaded, and the top menu, which enables the users to log in and out and to switch pages.
 
-page loading and switching handled by PageHandler; also provides support for URLs: e.g. the About page can be accessed by a URL http://server/\#About or http://server/?page=About (the first one being the default), with the help of the History class
-
-GuiStructure -- defines menu and the content panel, handles menu activation/deactivation, shows the login/logout link
+A page is created and loaded by calling its constructor, which may require some parameters (such as documentID for TranslationWorkspace).
+Page loading and switching is handled by the PageHandler, which also provides support for URLs: e.g. the About page can be accessed by a URL http://server/\#About or http://server/?page=About (the first one being the default), with the help of the GWT History class.
 
 \subsubsection{TranslationWorkspace}
 
-maybe describe in more detail, maybe not
+\todo{maybe describe in more detail, maybe not}
 
 \subsection{Dialogs}
 
-subpackage cz.filmtit.client.dialogs
+Apart from pages, the GUI also contains several dialogs that can be displayed on top of a page. The dialogs are defined in the cz.filmtit.client.dialogs subpackage and are typically extended from the abstract Dialog class in the same package.
 
-typically extended from Dialog
+The Dialog class defines a modal dialog container and an ``interface'' to be used to handle the dialogs -- all dialogs should only be accessed via this interface (except for their creation, which is invoked by their constructor).
+The interface methods are especially
+deactivate(), reactivate(), showInfoMessage(), showErrorMessage() and close(). To deactivate a dialog means to disable all of its active elements so that the user cannot interact with it and must wait for the dialog being reactivated or closed.
 
-defines deactivate(), reactivate(), showInfoMessage() and showErrorMessage(); all dialogs should only be accessed via this interface (except for their creatin, which is invoked by their constructor)
-
-typically use a Modal 
+The Dialogs defined by the application are:
+\begin{itemize}
+\item LoginDialog, used for logging in and related functions,
+\item SessionIDPollingDialog, used when waiting for OpenID login process to complete,
+\item MediaSelector, used to select the correct movie or series of a newly created document,
+\item TimeEditDialog, used to edit timing of subtitle items,
+\item DownloadDialog, which enables the user to download the translated subtitle file,
+\item GoingOfflineDialog, offering the user to turn on the Offline Mode, and
+\item GoingOnlineDialog, offering the user to upload data from Offline Mode when the user goes back online
+\end{itemize}
 
 \subsection{Remote Procedure Calls Implementation}
 
-subpackage cz.filmtit.client.callables
+Each RPC is in GUI represented by a class from the cz.filmtit.client.callables subpackage. The name of the class is typically similar to the RPC name -- e.g. for deleteDocument RPC it is the DeleteDocument class. Each of these classes is extended from the Callable superclass, which will be described in the next section.
 
-Each call represented by an instance of a class with the name similar to the RPC name (e.g. for deleteDocument RPC it is the DeleteDocument class), extended from Callable.
+The RPC is invoked by creating a new instance of the callable class, providing the neccessary parameters in the constructor -- e.g. to invoke the simpleLogin() RPC with the username and password parameters, one simply calls new SimpleLogin(username, password). A reference to the instance usually does not have to be kept, since the actions to take on success or failure of the RPC are already hard-coded into the onSuccessAfterLog and onFailureAfterLog methods of the class.
 
-Callable:
+\subsubsection{Callable}
 
--- to alleviate the burden of boiler-plate code
+The institute of the Callable superclass of all RPC classes has several puposes:
 
--- to provide utility methods and default actions (logging, error handling)
+\begin{itemize}
+\item to alleviate the burden of boiler-plate RPC invocation code by providing a wrapper for the ``raw'' RPC call
+\item to provide utility methods and default actions, such as error handling
+\item to provide actions to be always taken, such as logging of the calls with their parameters, and their results
+\item to provide a common structure for all RPCs
+\end{itemize}
 
-The superclass also provides logging for all the requests, based on the classname and the parameters of the subclass.
-
--- to provide a common structure for all RPCs
-
-E.g. RPC deleteDocument(sessionID, documentID)
-is invoked as new DeleteDocument(sessionID, documentID).
-
-the callback is defined by the class
-
-wrappers for the ``raw'' RPC calls
+The Callable class itself implements the AsyncCallback interface, implementing the required onSuccess and onFailure methods; therefore, and instance of its subclass can be directly passed to the asynchronous call as the callback.
 
 The subclasses representing the individual calls must only override the call() method, which specifies the actual RPC to be invoked.
 They can also modify the default behavior defined by the superclass by overriding several other methods, such as onSuccessAfterLog, onEachReturn, onFailureAfterLog, onProbablyOffline etc. This way, the behavior needed can be always achieved, but the default implementation is often sufficient, so the subclasses often override only one or two methods, keeping their code as simple as possible. (The method most often overridden is the onSuccessAfterLog method; its default implementation is to do nothing, which is only good for RPCs that do not require any reaction of GUI on their successful return, such as changeDocumentTitle or stopTranslationResults.)
@@ -147,68 +149,72 @@ Most of the RPCs contain the SessionID as one of their parameters to authenticat
 
 \todo{keep everything here or describe Offline Mode in a separate section?}
 
-Logics separated into LocalStorageHandler, Storable interface and classes implementing the interface, i.e. the SetUserTranslation class.
+The Offline Mode offers the user the possibility to continue translating a document even without a connection to the server. His translations are stored locally in his browser and sent to Userspace once he goes back online.
+Support for storing the data is ensured by the HTML5 Local Storage feature, which provides an in-browser data storage, accessible from Javascript.
+Each object is stored as a pair of a unique string key and a string value (therefore, serialization to string is necessary to store complex objects).
 
-\subsubsection{Local Storage}
-
-\todo{some description}
-
-each object stored as a pair of a unique string key and a string value -- proper serialization necessary
-
-each object defines its serialization such that its key uniquely identifies the object and the value contains all data needed to reconstruct the object which are not contained in the key
-
-the key and value are expected to consist of semicolon separated fields by default, but each class can define its own serialization, there are no restrictions
-
-The key is then enriched by adding the classID (e.g. ``SetUserTranslation'') and the userID (a long),
-so the resulting format of key is:
-
-full key = userID@classID:key
-
-(the value is defined solely by the implementing class)
+The Offline Mode support is separated into three parts: the LocalStorageHandler, the Storable interface, and classes implementing the interface (i.e. the SetUserTranslation class).
 
 \subsubsection{Storable interface}
 
-Defines methods that need to be implemented by a class to be storable in the Local Storage, especially:
+This interface defines methods that need to be implemented by a class to be storable in the Local Storage, especially:
 
 \begin{itemize}
-\item toKeyValuePair() -- serializes the object into a pair of a key and a value
+\item toKeyValuePair() -- to serialize the object into a pair of a key and a value
 
-\item static fromKeyValuePair(KeyValuePair) -- a factory method that serializes the object into a pair of a key and a value (not actually defined by the interface;  for a discussion on that matter see Implementation Process \todo{ref})
+\item static fromKeyValuePair(KeyValuePair) -- a factory method that deserializes the object from a pair of a key and a value (not actually defined by the interface; for a discussion on that matter see Implementation Process \todo{ref})
 
 \item onLoadFromLocalStorage() -- invoked by the LocalStorageHandler when the user decides to upload the object
 \end{itemize}
 
-This interface is only implemented by the SetUserTranslation class, for reasons described in the Implementation Process \todo{ref}.
+Each implementing class defines its serialization such that its key uniquely identifies the object and the value contains all data (except for those already contained in the key) needed to reconstruct the object.
+(The key and the value are expected to consist of semicolon separated fields by default, but each class can define its own serialization, there are no restrictions other than defined by the String class.)
 
-\todo{describe the serialization}
+To store in the Local Storage, the key is extended to a ``full key'' by adding the classID (e.g. ``SetUserTranslation'') and the userID (a long),
+so the resulting format of key is:
 
-key = documentId;chunkId;partNumber
+full key = userID@classID:key
 
-value = chosenTranslationPair;userTranslation
+When loading the object from the Local Storage, these added fields are used to indetify the owner of the object and the class to deserialize the object into, and are stripped before passing the key to the fromKeyValuePair() method; thus, the class gets the key for deserialization in exactly the same format as it was produced by the class on serialization.
+
+Unlike the key, the value is defined solely by the implementing class and is stored and loaded ``as is''.
+
+The Storable interface is currently only implemented by the SetUserTranslation class, for reasons described in the Implementation Process \todo{ref}.
+
+\subsubsection{SetUserTranslation}
+
+The SetUserTranslation class defines its serialization key and value as follows:
+
+\begin{itemize}
+\item key = documentId;chunkId;partNumber
+\item value = chosenTranslationPair;userTranslation
+\end{itemize}
+
+The onLoadFromLocalStorage() method implementation invokes the setUserTranslation RPC.
 
 \subsubsection{LocalStorageHandler}
 
-Handles storing and loading of Storable objects to and from the Local Storage.
+The static LocalStorageHandler handles storing and loading of Storable objects to and from the Local Storage.
 
-Boolean online -- determines whether user is in Offline Mode. Setting this value is eqivalent to switching the Offline Mode on or off.
+An important field is a boolean ``online'', which determines whether user is in Online Mode or Offline Mode. Setting this value is eqivalent to switching the Offline Mode on or off.
 
-It implements especially the following methods:
+The LocalStorageHandler implements especially the following (static) methods:
 
 \begin{itemize}
-\item storeInLocalStorage (Storable) -- take a Storable object, serializes it and stores it into the Local Storage
+\item storeInLocalStorage (Storable) -- takes a Storable object, serializes it and stores it into the Local Storage
 
-\item loadUserObjectsFromLocalStorage() -- examine the Local Storage and return a list of objects that belong to the current user
+\item loadUserObjectsFromLocalStorage() -- examines the Local Storage and returns a list of objects that belong to the current user
 
-\item uploadUserObjects() -- deserialize the loaded objects and invoke their onLoadFromLocalStorage() methods
+\item uploadUserObjects() -- deserializes the loaded objects and invokes their onLoadFromLocalStorage() methods
 \end{itemize}
 
 \subsubsection{The Offline Mode operation}
 
 \todo{here or in typical usage?}
 
-see \ref{gui:sd:offline_mode_1} for the first phase, where the user goes offline and continues working on the translation, and \ref{gui:sd:offline_mode_2} for the second phase, where the user goes online again and the locally stored data are uploaded to the server.
-(For simplicity does not show some implementation details
-and, parameters are listed only if they are necessary for understanding the process.)
+Please see the sequence diagram \ref{gui:sd:offline_mode_1} for the first phase, where the user goes offline and continues working on the translation, and the sequence diagram \ref{gui:sd:offline_mode_2} for the second phase, where the user goes online again and the locally stored data are uploaded to the server.
+(For simplicity the diagrams do not show some implementation details;
+also, parameters are listed only if they are necessary for understanding the process.)
 
 \begin{figure}[h]
 \begin{center}
@@ -226,13 +232,11 @@ and, parameters are listed only if they are necessary for understanding the proc
 
 Before using the Local Storage, it is checked whether it is supported -- if it is not, Offline Mode is not offered to the user and a relevant message is displayed.
 
-When a setUserTranslation call fails with the ``probably offline'' error, it is saved into a queue of failed calls that are to be stored offline if the user agrees (other setUserTranslation calls could already have been invoked and will also fail). If the user decides to turn on the Offline Mode, all calls from the queue are stored into Local Storage.
-
+When a setUserTranslation call fails with the ``probably offline'' error, it is saved into a queue of failed calls that are to be stored offline if the user agrees (other setUserTranslation calls could already have been invoked and will also fail and get enqueued). If the user decides to turn on the Offline Mode, all calls from the queue are stored into Local Storage.
 
 In Offline Mode, the style of the menu is changed and all active components are hidden, because the user should not leave the Translation Workspace while in Offline Mode. Also, going back or forward using the browser controls is disabled: each upcoming page switch is cancelled.
 
 The SetUserTranslation calls invoked while in Offline Mode are not sent to server, but they are serialized into a key-value pair and stored in the Local Storage.
-
 
 Once the user is back online and logs in again, the LocalStorageHandler examines the Local Storage. It strips the userID part of the key of each object found and compares it to the currently logged in user. If some data belonging to the user are found, he is informed about their count and is suggested to upload the data. If he agrees, LocalStorageHandler goes through the data, stripping off the ClassID and invoking the corresponding ``ClassID.fromKeyValuePair()'' deserialization. Subsequently, the onLoadFromLocalStorage() method is invoked on each of the resulting objects -- the SetUserTranslation implementation of this method is to invoke the setUserTranslation call, i.e. to store the translation on the server. When the call returns, LocalStorageHandler.SuccessOnLoadFromLocalStorage() or LocalStorageHandler.FailureOnLoadFromLocalStorage() is called, as required.
 
@@ -270,9 +274,10 @@ subpackage cz.filmtit.client.widgets
 
 \subsection{Document Creation}
 
-In the most typical case, a new user (already registered) will open the page with FilmTit and log in. Then, a dialog appears to create a new document corresponding to one movie, or more precisely, one subtitle file being translated from one language to another. Within this dialog, the user should specify which movie it is (title and year), what language pair will the translation be operating upon (e.g. from English to Czech) and provide the actual local file with the source subtitles. These information are sent to the Userspace and after refining the movie specification, the new document is created and the "translation working space" is filled with source subtitles (segmented to so-called "chunks") on the left side (as well as their timing) and corresponding empty text-boxes on the right side.
+In the most typical case, a user (already registered) will open the page with FilmTit and log in. Then, he will go to the DocumentCreator page to create a new document. A document corresponds to one movie, or more precisely, to one subtitle file being translated from one language to another. On this page, the user should specify the title of the movie (or series), the direction of the translation (e.g. from English to Czech) and provide the actual local file with the source subtitles. He can also set a document title different from the movie title, and set a file path to the corresponding movie video file on his filesystem.
+These information are sent to the Userspace and, after refining the movie specification through the MediaSelector, the new document is created and the page switches to TranslationWorkspace, filled with source subtitles (segmented to chunks) together with theit timing on the left side and corresponding empty translation text-boxes on the right side.
 
-See \ref{gui:sd:document_creation}
+See also the corresponding sequence diagram \ref{gui:sd:document_creation}.
 
 \begin{figure}[h]
 \begin{center}
@@ -283,9 +288,10 @@ See \ref{gui:sd:document_creation}
 
 \subsection{Document Translation}
 
-At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate suggestions are generated for them and sent back. When received in the GUI, the suggestions are displayed as some kind of suggest-box, or pop-up to the corresponding text-box for the given chunk, and sorted according to their supposed accuracy (still TODO). The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the chunk to the next one, his translation is sent to the Userspace to be saved here as an intermediate translation of this chunk (???also to the Core???).
+At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate translation suggestions are generated for them and sent back. When received in the GUI, each translation result is set to the SubgestBox corresponding to its chunk, and can be displayed on activation of the translation text-box as a pop-up, with the suggestions sorted according to their estimated accuracy.
+The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the translation text-box, his translation is sent to the Userspace through the setUserTranslation call to be saved as the user translation of the chunk.
 
-See \ref{gui:sd:document_translation}
+See also the corresponding sequence diagram \ref{gui:sd:document_translation}.
 (Some technical details are ommitted for simplicity.)
 
 \begin{figure}[h]
