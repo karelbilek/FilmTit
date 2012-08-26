@@ -157,14 +157,12 @@ each object stored as a pair of a unique string key and a string value -- proper
 
 each object defines its serialization such that its key uniquely identifies the object and the value contains all data needed to reconstruct the object which are not contained in the key
 
-the key and value are expected to consist of semicolon separated fields by default, but each class can define its own serialization
+the key and value are expected to consist of semicolon separated fields by default, but each class can define its own serialization, there are no restrictions
 
 The key is then enriched by adding the classID (e.g. ``SetUserTranslation'') and the userID (a long),
 so the resulting format of key is:
 
-full key = key:classID@userID
-
-\todo{should be userID@classID:key !!! (the "old" format was necessary when username was used instead of userID)}
+full key = userID@classID:key
 
 (the value is defined solely by the implementing class)
 
