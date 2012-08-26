@@ -140,6 +140,7 @@ When the user uploads file, as the second step, we take those unprocessed chunks
 When we are building the corpus, though, we don't split the subtitle items into sentences right away. We first do alignment of files and subtitle items, which we will describe later, and only then we split the chunks into sentences, again using \texttt{TitChunkSeparator}.
 
 \section{Sentence splitting}
+\label{sentence_splitting}
 \subsection*{Basic idea}
 Quite early on, we decided, that we shouldn't add the whole subtitle items into translation memory, but that we should split them to smaller parts.
 
@@ -175,584 +176,596 @@ In the rule-based classes, the list of possible words before the punctuation tha
 
 \section{Aligning the subtitles}
 \label{sec:aligning_subtitles}
-
-After having done the previously mentioned steps we had tge meta data to group subtitles of the same movie together. There were still more than two subtitle files for each of the movies, so we needed to chose the best pair and extract the actual chunk pairs.
+The most crucial part in building the corpus is to group the subtitles of the same movie together.
 
 We used two different approaches for this. Both of them need to solve these three issues:
 \begin{itemize}
     \item file to file alignment -- in each movie find \emph{one} best pair
-    \item filter the "good" movies -- filter the movies, whose best pairs can be well aligned\todo{what do you mean by that?}
-    \item chunk to chunk alignment -- if we already have pairs of files, extract the bilingual pairs of chunks 
+    \item filter out the ``bad" movies -- filter out the movies, where even the best pair of file is not correctly alignable
+    \item item to item alignment -- if we already have pairs of files, extract the bilingual pairs of items 
 \end{itemize}
 
-Implementation of all techniques described below \texttt{cz.filmtit.dataimport.alignment.model} and \texttt{cz.filmtit.dataimport.alignment.aligners} packages.
+Implementation of all techniques described below are in \texttt{cz.filmtit.dataimport.alignment} package.
 
 \subsection{File to file alignment}
-In general, \todo{what does this sentence mean?}there is 2.1 Czech subtitle files and 5 English subtitle file. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
+As you could read in previous sections, we \emph{do} have some mapping from subtitles to movies. Now, we have to find out for each movie, which English and Czech file matches best together; we will throw away the rest of the files except for this one chosen pair for each movie.\footnote{Throwing away meant in the sense of building the corpus; we still have the original data, of course.}
 
-What helps us in determining alignment is the fact, that Czech subtitles are usually created by taking existing English subtitles and translating them chunk by chunk. The timing of such files should be very similar. It is interesting to note that in professional translation of movie subtitles, as was noted to us by a professional movie subtitle translator, the translating is made directly from the original script of the movie and then \todo{what do you mean by "recut"?}recut to not be too long or too short, which is usually not a concern for fan made translations. 
+In general, there is 2.1 Czech subtitle file and 5 English subtitle file per movie. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
 
-On the other hand, people, who download movies (and, therefore, subtitles) online, often use sources of questionable legality, which usually have more versions of the same file (some of them are so-called "cam-rips", some of them are copied from DVDs or blue-ray disks). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles (which is a case of professional translation with different timing).
+What helps us in determining alignment is the fact, that Czech subtitles are usually created by taking existing English subtitles and translating them item by item. The timing of such files should be very similar. 
+
+On the other hand, people, who download movies (and, therefore, subtitles) online, often use sources of questionable legality, which usually have more versions of the same file (some of them are so-called ``cam-rips", some of them are copied from DVDs or blue-ray disks). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles, which have totally different timing.
 
 Sometimes, it also happens that a subtitle file has assigned a completely wrong movie tag.
 
-To illustrate some features of the movie subtitle files, fragments ofa randomly selected movie are typed below. It is a movie called \emph{Legends of the Fall} from 1994 - 5 lines from beginning, 3 lines from the middle (374 to 376, if possible), 3 lines from the end.
- 
-\todo{better formating}
+To illustrate some features of the movie subtitle files, we randomly selected movie (\emph{Legends of the Fall} from 1994) and we show fragments of \emph{all} its subtitles below. We show 5 lines from beginning, 3 lines from the middle (374 to 376, if possible), 3 lines from the end.
 
-\newenvironment{subexam}{\begin{boxedminipage}[b]{0.4\textwidth}
-\footnotesize
-\begin{alltt}
+
+
+\newcommand{\nicesubs}[4]{
+\noindent
+\begin{boxedminipage}{\textwidth}
+\begin{minipage}[b]{0.24\textwidth}\footnotesize\smaller[2]{\tt
+#1
+}\end{minipage}
+\begin{minipage}[b]{0.24\textwidth}\footnotesize\smaller[2]{\tt
+#2
+}\end{minipage}
+\begin{minipage}[b]{0.24\textwidth}\footnotesize\smaller[2]{\tt
+#3
+}\end{minipage}
+\begin{minipage}[b]{0.24\textwidth}\footnotesize\smaller[2]{\tt
+#4
+}\end{minipage}
+\end{boxedminipage}
 }
+
+
+\nicesubs{1 \\
+00:00:00,066 \subarrow 00:00:02,375 \\
+Titulky preložené do češtiny by BiGfOoT.\\
+Tento disk DVD (Digital Versatile Disc)\\
+je určen pouze pro domácí užití.\\
+Veškerá práva k obsahové náplni včetně\\
+zvukového záznamu přísluší vlastníku\\
+autorského práva.\\
+\\
+2 \\
+00:00:02,746 \subarrow 00:00:05,055 \\
+Neautorizované rozmnožování, \\
+úpravy, projekce pro jiné než \\
+domácí \\
+účely, pronájem, výměna, pújčování \\
+a \\
+jakákoli forma přenosu tohoto \\
+disku \\
+DVD nebo jeho částí jsou zakázány. \\
+Porušování práv vlastníka \\
+autorského\\
+práva bude stíháno podle platných\\
+právních předpisú.}
 {
-\end{alltt}
-\end{boxedminipage}}
+3 \\
+00:00:32,666 \subarrow 00:00:38,059 \\
+LEGENDA O VÁŠNI \\
+\\
+4\\
+00:00:46,426 \subarrow 00:00:51,454\\
+Někteří lidě slyší svúj\\
+vnitřní hlas nadmíru jasně.\\
+\\
+5\\
+00:00:51,626 \subarrow 00:00:54,663\\
+A řídí se jím po celý život.}
+{
+374\\
+00:56:41,186 \subarrow 00:56:44,781\\
+Řekni to ještě jednou\\
+a přestaneme být bratry.\\
+\\
+375\\
+00:56:46,506 \subarrow 00:56:49,862\\
+Někdy!\\
+\\
+376\\
+00:56:52,146 \subarrow 00:56:56,503\\
+- S tebou nebude šťastna.\\
+- Uvidíme.}
+{
+755\\
+02:01:42,266 \subarrow 02:01:47,101\\
+... někde mezi tímto světem\\
+a tím druhým.\\
+\\
+756\\
+02:02:23,266 \subarrow 02:02:26,178\\
+Byla to dobrá smrt.\\
+\\
+757\\
+02:07:18,306 \subarrow 02:07:22,697\\
+České titulky - BiGfOoT.}
 
 
-
-\begin{subexam}
-1
-00:00:00,066 \subarrow 00:00:02,375
-Titulky preložené do češtiny by BiGfOoT.
-----------------------------------------
-Tento disk DVD (Digital Versatile Disc)
-je určen pouze pro domácí užití.
-Veškerá práva k obsahové náplni včetně
-zvukového záznamu přísluší vlastníku
-autorského práva.
-
-2
-00:00:02,746 \subarrow 00:00:05,055
-Neautorizované rozmnožování,
-úpravy, projekce pro jiné než domácí
-účely, pronájem, výměna, pújčování a
-jakákoli forma přenosu tohoto disku
-DVD nebo jeho částí jsou zakázány.
-Porušování práv vlastníka autorského
-práva bude stíháno podle platných
-právních předpisú.
-
-3
-00:00:32,666 \subarrow 00:00:38,059
-LEGENDA O VÁŠNI
-
-4
-00:00:46,426 \subarrow 00:00:51,454
-Někteří lidě slyší svúj
-vnitřní hlas nadmíru jasně.
-
-5
-00:00:51,626 \subarrow 00:00:54,663
-A řídí se jím po celý život.
-
-374
-00:56:41,186 \subarrow 00:56:44,781
-Řekni to ještě jednou
-a přestaneme být bratry.
-
-375
-00:56:46,506 \subarrow 00:56:49,862
-Někdy!
-
-376
-00:56:52,146 \subarrow 00:56:56,503
-- S tebou nebude šťastna.
-- Uvidíme.
-
-755
-02:01:42,266 \subarrow 02:01:47,101
-... někde mezi tímto světem
-a tím druhým.
-
-756
-02:02:23,266 \subarrow 02:02:26,178
-Byla to dobrá smrt.
-
-757
-02:07:18,306 \subarrow 02:07:22,697
-České titulky - BiGfOoT.
-\end{subexam}
-\hspace{0.5cm}
-\begin{subexam}
-1
-00:00:00,066 \subarrow 00:00:02,375
-Titulky preložené do češtiny by BiGfOoT.
-----------------------------------------
-Tento disk DVD (Digital Versatile Disc)
-je určen pouze pro domácí užití.
-Veškerá práva k obsahové náplni včetně
-zvukového záznamu přísluší vlastníku
-autorského práva.
-
-2
-00:00:02,746 \subarrow 00:00:05,055
-Neautorizované rozmnožování,
-úpravy, projekce pro jiné než domácí
-účely, pronájem, výměna, pújčování a
-jakákoli forma přenosu tohoto disku
-DVD nebo jeho částí jsou zakázány.
-Porušování práv vlastníka autorského
-práva bude stíháno podle platných
-právních předpisú.
-
-3
-00:00:32,666 \subarrow 00:00:38,059
-LEGENDA O VÁŠNI
-
-4
-00:00:46,426 \subarrow 00:00:51,454
-Někteří lidě slyší svúj
-vnitřní hlas nadmíru jasně.
-
-5
-00:00:51,626 \subarrow 00:00:54,663
-A řídí se jím po celý život.
-
-374
-00:56:41,186 \subarrow 00:56:44,781
-Řekni to ještě jednou
-a přestaneme být bratry.
-
-375
-00:56:46,506 \subarrow 00:56:49,862
-Někdy!
-
-376
-00:56:52,146 \subarrow 00:56:56,503
-- S tebou nebude šťastna.
-- Uvidíme.
-
-755
-02:01:42,266 \subarrow 02:01:47,101
-... někde mezi tímto světem
-a tím druhým.
-
-756
-02:02:23,266 \subarrow 02:02:26,178
-Byla to dobrá smrt.
-
-757
-02:07:18,306 \subarrow 02:07:22,697
-České titulky - BiGfOoT.
-\end{subexam}
+\nicesubs{1 \\
+00:00:00,066 \subarrow 00:00:02,375 \\
+Titulky preložené do češtiny by BiGfOoT.\\
+Tento disk DVD (Digital Versatile Disc)\\
+je určen pouze pro domácí užití.\\
+Veškerá práva k obsahové náplni včetně\\
+zvukového záznamu přísluší vlastníku\\
+autorského práva.\\
+\\
+2 \\
+00:00:02,746 \subarrow 00:00:05,055 \\
+Neautorizované rozmnožování, \\
+úpravy, projekce pro jiné než \\
+domácí \\
+účely, pronájem, výměna, pújčování \\
+a \\
+jakákoli forma přenosu tohoto \\
+disku \\
+DVD nebo jeho částí jsou zakázány. \\
+Porušování práv vlastníka \\
+autorského\\
+práva bude stíháno podle platných\\
+právních předpisú.}
+{
+3 \\
+00:00:32,666 \subarrow 00:00:38,059 \\
+LEGENDA O VÁŠNI \\
+\\
+4\\
+00:00:46,426 \subarrow 00:00:51,454\\
+Někteří lidě slyší svúj\\
+vnitřní hlas nadmíru jasně.\\
+\\
+5\\
+00:00:51,626 \subarrow 00:00:54,663\\
+A řídí se jím po celý život.}
+{
+374\\
+00:56:41,186 \subarrow 00:56:44,781\\
+Řekni to ještě jednou\\
+a přestaneme být bratry.\\
+\\
+375\\
+00:56:46,506 \subarrow 00:56:49,862\\
+Někdy!\\
+\\
+376\\
+00:56:52,146 \subarrow 00:56:56,503\\
+- S tebou nebude šťastna.\\
+- Uvidíme.}
+{
+755\\
+02:01:42,266 \subarrow 02:01:47,101\\
+... někde mezi tímto světem\\
+a tím druhým.\\
+\\
+756\\
+02:02:23,266 \subarrow 02:02:26,178\\
+Byla to dobrá smrt.\\
+\\
+757\\
+02:07:18,306 \subarrow 02:07:22,697\\
+České titulky - BiGfOoT.}
 
 
-\begin{subexam}
-
-1
-00:00:46,577 \subarrow 00:00:51,605
-Somepeople heartheir own
-innervoices with greatcleamess.
-
-2
-00:00:51,777 \subarrow 00:00:54,814
-And they live bywhatthey hear.
-
-3
-00:00:54,977 \subarrow 00:01:00,973
-Such people become crazy,
-orthey become legends ...
-
-4
-00:01:07,137 \subarrow 00:01:11,813
-Tristan Ludlowwas bom
-in the moon ofthe falling leaves.
-
-5
-00:01:11,977 \subarrow 00:01:14,332
+\nicesubs{
+1\\
+00:00:46,577 \subarrow 00:00:51,605\\
+Somepeople heartheir own\\
+innervoices with greatcleamess.\\
+\\
+2\\
+00:00:51,777 \subarrow 00:00:54,814\\
+And they live bywhatthey hear.\\
+\\
+3\\
+00:00:54,977 \subarrow 00:01:00,973\\
+Such people become crazy,\\
+orthey become legends ...}{
+4\\
+00:01:07,137 \subarrow 00:01:11,813\\
+Tristan Ludlowwas bom\\
+in the moon ofthe falling leaves.\\
+\\
+5\\
+00:01:11,977 \subarrow 00:01:14,332\\
 ltwas a terrible winter.
-
-374
-00:56:41,337 \subarrow 00:56:44,932
-You saythat again
-and we're not brothers.
-
-375
-00:56:46,657 \subarrow 00:56:50,013
-Once!
-
-376
-00:56:52,297 \subarrow 00:56:56,654
-- You know you can't make her happy.
+}{
+374\\
+00:56:41,337 \subarrow 00:56:44,932\\
+You saythat again\\
+and we're not brothers.\\
+\\
+375\\
+00:56:46,657 \subarrow 00:56:50,013\\
+Once!\\
+\\
+376\\
+00:56:52,297 \subarrow 00:56:56,654\\
+- You know you can't make her happy.\\
 - l'm gonna try.
-
-756
-02:01:38,937 \subarrow 02:01:42,247
-He hadalways lived
-in the borderland, anyway.
-
-757
-02:01:42,417 \subarrow 02:01:47,252
-Somewhere between this world
-and the other.
-
-758
-02:02:23,417 \subarrow 02:02:26,329
+}{
+756\\
+02:01:38,937 \subarrow 02:01:42,247\\
+He hadalways lived\\
+in the borderland, anyway.\\
+\\
+757\\
+02:01:42,417 \subarrow 02:01:47,252\\
+Somewhere between this world\\
+and the other.\\
+\\
+758\\
+02:02:23,417 \subarrow 02:02:26,329\\
 lt was a good death.
-\end{subexam}
-\hspace{0.5cm}
-\begin{subexam}
-1
-00:00:58,000 \subarrow 00:01:00,696
-- I'm here!
-- Where? I can't see.
+}
 
-2
-00:01:02,704 \subarrow 00:01:04,365
-I can't move!
 
-3
-00:01:08,577 \subarrow 00:01:10,238
-I'm coming!
-
-4
-00:01:35,671 \subarrow 00:01:38,037
-I got you now.
-
-5
-00:01:40,008 \subarrow 00:01:42,272
-You're doing good.
-
-315
-00:44:59,438 \subarrow 00:45:02,032
-were married several years ago.
-
-316
-00:45:05,278 \subarrow 00:45:07,542
-Your brother's a congressman now.
-
-317
-00:45:09,282 \subarrow 00:45:11,716
-They have a big, new place
+\nicesubs{1\\
+00:00:58,000 \subarrow 00:01:00,696\\
+- I'm here!\\
+- Where? I can't see.\\
+\\
+2\\
+00:01:02,704 \subarrow 00:01:04,365\\
+I can't move!\\
+\\
+3\\
+00:01:08,577 \subarrow 00:01:10,238\\
+I'm coming!}{
+4\\
+00:01:35,671 \subarrow 00:01:38,037\\
+I got you now.\\
+\\
+5\\
+00:01:40,008 \subarrow 00:01:42,272\\
+You're doing good.}{
+315\\
+00:44:59,438 \subarrow 00:45:02,032\\
+were married several years ago.\\
+\\
+316\\
+00:45:05,278 \subarrow 00:45:07,542\\
+Your brother's a congressman now.\\
+\\
+317\\
+00:45:09,282 \subarrow 00:45:11,716\\
+They have a big, new place\\
 in Helena.
-\end{subexam}
+}{}
 
-
-\begin{subexam}
-1
-00:00:45,869 \subarrow 00:00:49,186
-<i>Some people hear 
-their own inner voices...</i>
-
-2
-00:00:49,261 \subarrow 00:00:50,920
-<i>with great clearness...</i>
-
-3
-00:00:50,989 \subarrow 00:00:54,087
-<i>and they live by what they hear.</i>
-
-4
-00:00:54,157 \subarrow 00:00:57,125
-<i>Such people become crazy...</i>
-
-5
-00:00:57,198 \subarrow 00:00:59,369
+\nicesubs{
+1\\
+00:00:45,869 \subarrow 00:00:49,186\\
+<i>Some people hear \\
+their own inner voices...</i>\\
+\\
+2\\
+00:00:49,261 \subarrow 00:00:50,920\\
+<i>with great clearness...</i>\\
+\\
+3\\
+00:00:50,989 \subarrow 00:00:54,087\\
+<i>and they live by what they hear.</i>}{
+4\\
+00:00:54,157 \subarrow 00:00:57,125\\
+<i>Such people become crazy...</i>\\
+\\
+5\\
+00:00:57,198 \subarrow 00:00:59,369\\
 <i>or they become legends.</i>
-
-374
-00:34:22,150 \subarrow 00:34:23,710
-Charge!
-
-375
-00:34:37,734 \subarrow 00:34:39,806
-Goddamn it!
-
-376
-00:34:40,838 \subarrow 00:34:42,693
-- Where are you hit?
+}{
+374\\
+00:34:22,150 \subarrow 00:34:23,710\\
+Charge!\\
+\\
+375\\
+00:34:37,734 \subarrow 00:34:39,806\\
+Goddamn it!\\
+\\
+376\\
+00:34:40,838 \subarrow 00:34:42,693\\
+- Where are you hit?\\
 - It's just a scratch.
-
-983
-02:01:38,444 \subarrow 02:01:41,891
-<i>He had always lived
-in the borderland anyway:</i>
-
-984
-02:01:41,964 \subarrow 02:01:45,576
-<i>somewhere between this world
-and the other.</i>
-
-985
-02:02:23,086 \subarrow 02:02:25,093
+}{
+983\\
+02:01:38,444 \subarrow 02:01:41,891\\
+<i>He had always lived\\
+in the borderland anyway:</i>\\
+\\
+984\\
+02:01:41,964 \subarrow 02:01:45,576\\
+<i>somewhere between this world\\
+and the other.</i>\\
+\\
+985\\
+02:02:23,086 \subarrow 02:02:25,093\\
 <i>It was a good death.</i>
-\end{subexam}
-\hspace{0.5cm}
-\begin{subexam}
-1
-00:00:44,411 \subarrow 00:00:47,869
-Some people hear their own
-inner voices
+}
 
-2
-00:00:47,948 \subarrow 00:00:49,677
-with great clearness
-
-3
-00:00:49,750 \subarrow 00:00:52,981
-and they live
-by what they hear
-
-4
-00:00:53,053 \subarrow 00:00:56,147
-Such people become crazy
-
-5
-00:00:56,223 \subarrow 00:00:58,487
+\nicesubs{
+1\\
+00:00:44,411 \subarrow 00:00:47,869\\
+Some people hear their own\\
+inner voices\\
+\\
+2\\
+00:00:47,948 \subarrow 00:00:49,677\\
+with great clearness\\
+\\
+3\\
+00:00:49,750 \subarrow 00:00:52,981\\
+and they live\\
+by what they hear}{
+4\\
+00:00:53,053 \subarrow 00:00:56,147\\
+Such people become crazy\\
+\\
+5\\
+00:00:56,223 \subarrow 00:00:58,487\\
 or they become legend
-
-374
-00:35:27,326 \subarrow 00:35:30,921
-Is that wrong to want
-to distinguish myself gloriously
-
-375
-00:35:30,996 \subarrow 00:35:33,226
-in combat as my father did?
-
-376
-00:35:33,298 \subarrow 00:35:36,290
-Tristan and Alfred
+}{
+374\\
+00:35:27,326 \subarrow 00:35:30,921\\
+Is that wrong to want\\
+to distinguish myself gloriously\\
+\\
+375\\
+00:35:30,996 \subarrow 00:35:33,226\\
+in combat as my father did?\\
+\\
+376\\
+00:35:33,298 \subarrow 00:35:36,290\\
+Tristan and Alfred\\
 watch over me so carefully
-
-1000
-02:06:50,103 \subarrow 02:06:53,869
-Somewhere between this world
-and the other
-
-1001
-02:07:32,979 \subarrow 02:07:35,072
-It was a good death
-
-1002
-02:12:47,200 \subarrow 02:12:49,072
+}{
+1000\\
+02:06:50,103 \subarrow 02:06:53,869\\
+Somewhere between this world\\
+and the other\\
+\\
+1001\\
+02:07:32,979 \subarrow 02:07:35,072\\
+It was a good death\\
+\\
+1002\\
+02:12:47,200 \subarrow 02:12:49,072\\
 \{\{\{the end\}\}\}
-\end{subexam}
+}
 
 
-\begin{subexam}
-1
-00:00:43,411 \subarrow 00:00:46,869
-Some people hear their own
-inner voices
-
-2
-00:00:46,948 \subarrow 00:00:48,677
-with great clearness
-
-3
-00:00:48,750 \subarrow 00:00:51,981
-and they live
-by what they hear
-
-4
-00:00:52,053 \subarrow 00:00:55,147
-Such people become crazy
-
-5
-00:00:55,223 \subarrow 00:00:57,487
+\nicesubs{
+1\\
+00:00:43,411 \subarrow 00:00:46,869\\
+Some people hear their own\\
+inner voices\\
+\\
+2\\
+00:00:46,948 \subarrow 00:00:48,677\\
+with great clearness\\
+\\
+3\\
+00:00:48,750 \subarrow 00:00:51,981\\
+and they live\\
+by what they hear}{
+4\\
+00:00:52,053 \subarrow 00:00:55,147\\
+Such people become crazy\\
+\\
+5\\
+00:00:55,223 \subarrow 00:00:57,487\\
 or they become legend
-
-374
-00:35:26,326 \subarrow 00:35:29,921
-Is that wrong to want
-to distinguish myself gloriously
-
-375
-00:35:29,996 \subarrow 00:35:32,226
-in combat as my father did?
-
-376
-00:35:32,298 \subarrow 00:35:35,290
-Tristan and Alfred
+}{
+374\\
+00:35:26,326 \subarrow 00:35:29,921\\
+Is that wrong to want\\
+to distinguish myself gloriously\\
+\\
+375\\
+00:35:29,996 \subarrow 00:35:32,226\\
+in combat as my father did?\\
+\\
+376\\
+00:35:32,298 \subarrow 00:35:35,290\\
+Tristan and Alfred\\
 watch over me so carefully
-
-1000
-02:06:49,103 \subarrow 02:06:52,869
-Somewhere between this world
-and the other
-
-1001
-02:07:31,979 \subarrow 02:07:34,072
-It was a good death
-
-1002
-02:12:46,200 \subarrow 02:12:48,072
+}{
+1000\\
+02:06:49,103 \subarrow 02:06:52,869\\
+Somewhere between this world\\
+and the other\\
+\\
+1001\\
+02:07:31,979 \subarrow 02:07:34,072\\
+It was a good death\\
+\\
+1002\\
+02:12:46,200 \subarrow 02:12:48,072\\
 \{\{\{the end\}\}\}
-\end{subexam}
-\hspace{0.5cm}
-\begin{subexam}
-1
-00:00:46,418 \subarrow 00:00:51,446
-Some people hear their own
-inner voices with great clearness.
+}
 
-2
-00:00:51,618 \subarrow 00:00:54,655
-And they live by what they hear.
-
-3
-00:00:54,818 \subarrow 00:01:00,814
-Such people become crazy,
-or they become legends ...
-
-4
-00:01:06,978 \subarrow 00:01:11,654
-Ôristan Ludlow was born
-in the moon of the falling leaves.
-
-5
-00:01:11,818 \subarrow 00:01:14,173
+\nicesubs{
+1\\
+00:00:46,418 \subarrow 00:00:51,446\\
+Some people hear their own\\
+inner voices with great clearness.\\
+\\
+2\\
+00:00:51,618 \subarrow 00:00:54,655\\
+And they live by what they hear.\\
+\\
+3\\
+00:00:54,818 \subarrow 00:01:00,814\\
+Such people become crazy,\\
+or they become legends ...}{
+4\\
+00:01:06,978 \subarrow 00:01:11,654\\
+Ôristan Ludlow was born\\
+in the moon of the falling leaves.\\
+\\
+5\\
+00:01:11,818 \subarrow 00:01:14,173\\
 It was a terrible winter.
-
-374
-00:56:58,898 \subarrow 00:57:02,208
-You will fail.
-
-375
-00:57:14,298 \subarrow 00:57:17,529
-I'm going to be leaving today.
-
-376
-00:57:26,458 \subarrow 00:57:30,087
+}{
+374\\
+00:56:58,898 \subarrow 00:57:02,208\\
+You will fail.\\
+\\
+375\\
+00:57:14,298 \subarrow 00:57:17,529\\
+I'm going to be leaving today.\\
+\\
+376\\
+00:57:26,458 \subarrow 00:57:30,087\\
 l do wish you both all the best.
-
-752
-02:01:42,258 \subarrow 02:01:47,093
-Somewhere between this world
-and the other.
-
-753
-02:02:23,258 \subarrow 02:02:26,170
-It was a good death.
-
-754
-02:07:18,298 \subarrow 02:07:22,689
+}{
+752\\
+02:01:42,258 \subarrow 02:01:47,093\\
+Somewhere between this world\\
+and the other.\\
+\\
+753\\
+02:02:23,258 \subarrow 02:02:26,170\\
+It was a good death.\\
+\\
+754\\
+02:07:18,298 \subarrow 02:07:22,689\\
 English subtitles - lFT
-\end{subexam}
+}
 
-\begin{subexam}
-1
-00:00:45,977 \subarrow 00:00:51,005
-Some people hear their own
-inner voices with great cleamess.
-
-2
-00:00:51,177 \subarrow 00:00:54,214
-And they live by what they hear.
-
-3
-00:00:54,377 \subarrow 00:01:00,373
-Such people become crazy,
-or they become legends ...
-
-4
-00:01:06,537 \subarrow 00:01:11,213
-Tristan Ludlow was bom
-in the moon of the falling leaves.
-
-5
-00:01:11,377 \subarrow 00:01:13,732
+\nicesubs{
+1\\
+00:00:45,977 \subarrow 00:00:51,005\\
+Some people hear their own\\
+inner voices with great cleamess.\\
+\\
+2\\
+00:00:51,177 \subarrow 00:00:54,214\\
+And they live by what they hear.\\
+\\
+3\\
+00:00:54,377 \subarrow 00:01:00,373\\
+Such people become crazy,\\
+or they become legends ...}{
+4\\
+00:01:06,537 \subarrow 00:01:11,213\\
+Tristan Ludlow was bom\\
+in the moon of the falling leaves.\\
+\\
+5\\
+00:01:11,377 \subarrow 00:01:13,732\\
 lt was a terrible winter.
-
-374
-00:56:40,737 \subarrow 00:56:44,332
-You saythat again
-and we're not brothers.
-
-375
-00:56:46,057 \subarrow 00:56:49,413
-Once!
-
-376
-00:56:51,697 \subarrow 00:56:56,054
-- You know you can't make her happy.
+}{
+374\\
+00:56:40,737 \subarrow 00:56:44,332\\
+You saythat again\\
+and we're not brothers.\\
+\\
+375\\
+00:56:46,057 \subarrow 00:56:49,413\\
+Once!\\
+\\
+376\\
+00:56:51,697 \subarrow 00:56:56,054\\
+- You know you can't make her happy.\\
 - l'm gonna try.
-
-756
-02:01:38,337 \subarrow 02:01:41,647
-He had always lived
-in the borderland, anyway.
-
-757
-02:01:41,817 \subarrow 02:01:46,652
-Somewhere between this world
-and the other.
-
-758
-02:02:22,817 \subarrow 02:02:25,729
+}{
+756\\
+02:01:38,337 \subarrow 02:01:41,647\\
+He had always lived\\
+in the borderland, anyway.\\
+\\
+757\\
+02:01:41,817 \subarrow 02:01:46,652\\
+Somewhere between this world\\
+and the other.\\
+\\
+758\\
+02:02:22,817 \subarrow 02:02:25,729\\
 lt was a good death.
-\end{subexam}
-\hspace{0.5cm}
-\begin{subexam}
-1
-00:00:43,785 \subarrow 00:00:47,243
-Some people hear their own
-inner voices...
+}
 
-2
-00:00:47,322 \subarrow 00:00:49,051
-with great clearness...
-
-3
-00:00:49,123 \subarrow 00:00:52,354
-and they live
+\nicesubs{
+1\\
+00:00:43,785 \subarrow 00:00:47,243\\
+Some people hear their own\\
+inner voices...\\
+\\
+2\\
+00:00:47,322 \subarrow 00:00:49,051\\
+with great clearness...\\
+\\
+3\\
+00:00:49,123 \subarrow 00:00:52,354\\
+and they live\\
 by what they hear.
-
-4
-00:00:52,427 \subarrow 00:00:55,521
-Such people become crazy...
-
-5
-00:00:55,597 \subarrow 00:00:57,861
+}{
+4\\
+00:00:52,427 \subarrow 00:00:55,521\\
+Such people become crazy...\\
+\\
+5\\
+00:00:55,597 \subarrow 00:00:57,861\\
 or they become legends.
-
-374
-00:35:35,741 \subarrow 00:35:37,470
-I may never get the opportunity.
-
-375
-00:35:46,085 \subarrow 00:35:47,712
-Charge!
-
-376
-00:36:02,334 \subarrow 00:36:04,495
+}{
+374\\
+00:35:35,741 \subarrow 00:35:37,470\\
+I may never get the opportunity.\\
+\\
+375\\
+00:35:46,085 \subarrow 00:35:47,712\\
+Charge!\\
+\\
+376\\
+00:36:02,334 \subarrow 00:36:04,495\\
 Goddamn it!
-
-987
-02:06:45,772 \subarrow 02:06:49,367
-He had always lived
-in the borderland anyway:
-
-988
-02:06:49,443 \subarrow 02:06:53,209
-somewhere between this world
-and the other.
-
-989
-02:07:32,319 \subarrow 02:07:34,412
+}{
+987\\
+02:06:45,772 \subarrow 02:06:49,367\\
+He had always lived\\
+in the borderland anyway:\\
+\\
+988\\
+02:06:49,443 \subarrow 02:06:53,209\\
+somewhere between this world\\
+and the other.\\
+\\
+989\\
+02:07:32,319 \subarrow 02:07:34,412\\
 It was a good death.
-\end{subexam}
+}
 
-As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except to this one, most of the English files seems to match the Czech one quite good. You can also see none of them is a "perfect" match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
+As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except for this one, most of the English files seems to match the Czech one quite well. You can also see none of them is a ``perfect" match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
 
 \subsection{Subtitle to subtitle alignment}
-As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks.
+As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks. We do \emph{not} look at any other features.\footnote{In \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora (Einav Itamar, Alon Itai)}, authors tried to use other features, but we used just the time info.}
 
 However, even in cases when Czech subtitle file has been made directly from English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, Czech version has those deleted.
 
-Anyway, we align only the one best candidate from each media source. The result of this alignment is almost what goes into the corpus; we yet have to do sentence splitting before putting it into corpus.
+The result of this step is a list of pairs of Czech and English subtitle items. We do this step only on the chosen pair of files from the previous step, and only if the pair of files is chosen as a ``good'' candidate.
+
+After this step, we almost have the final corpus. What we have to do before saving it into final corpus is splitting the aligned items into chunks, as described in \ref{sentence_splitting}. If both Czech and English have the same number of chunks, we split them and add those to the corpus; if the number is different, we ignore them.
 
 \subsection{Approaches}
 \subsubsection{Direct equality}
 
-The first approach is to take only the chunks with the same time (with some small tolerance) as belonging to each other.
+The first approach is to take only the items with the same time (with some tolerance) as belonging to each other.
 
-For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as a paper on using subtitles for building corpora\footnote{Einav Itamar, Alon Itai (2008): \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora.} The sixth international conference on Language Resources and Evaluation, LREC 2008.} proposes, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+However, the times are rarely exactly equal. One of the papers authors\footnote{Einav Itamar, Alon Itai (2008): \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora.} The sixth international conference on Language Resources and Evaluation, LREC 2008.} used 0.6\,s as a tolerance in order not to be confused by slight differences in timing.
 
-We chose editing distance, since there can be some small splitting or additions, as described above.
+We found out, that if we use bigger tolerance, we have more subtitle pairs, but sometimes with worse quality (because sometimes we get totally different subtitles, not belonging to each other). We tried tolerance 0.6\,s (as suggested by the paper), and then 6\,s.
 
-Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
+This is for subtitle to subtitle alignment.
+
+For counting file to file alignment, we count editing distance of their time declarations. 
+
+For that, we take all the time information (both the starts and the ends) as vectors. Then, we count editing distance of those two vectors, where we take the two time information as equal if they fall within tolerance, otherwise we take them as unequal. This is because there can be some small splitting, additions, and so on, but we want to take the pair of files, that have minimal number of additions, splitting and so on.
+
+%This is not correct. I take all the files in the Alignment class, not only the first 100 time declarations.
+%Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
 
 %deleting this, since I covered it in previous section already
 %While comparing two mostly identical subtitle files, there may appear some issues which cause that the timing of the files is not identical. There exist some cases where one chunk is split into more or two are merged into one. In both of this cases, two time declarations in the file remain the same and two time declarations are added or deleted. There are also a lot of subtitles for deaf people where from time to time some additional subtitle appears. 
@@ -761,7 +774,7 @@ Because the computation on whole files would be really time consuming, we limite
 %As one of the papers (CITE!!!) proposed we used 0.6\,s as a tolerance for equality, not to be confused by slight differences in timing. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
 
 
-
+\todo{?????ARE THOSE RESULTS REAL?}
 The results were following: from 15,552 movies there was 22.2\,\%
 with perfect matches and 3.1\,\% of total mismatches. The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
 

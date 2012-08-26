@@ -237,6 +237,8 @@ public class LocalStorageHandler {
 	 * Loads all objects
 	 * belonging to the current user
 	 * from the local storage.
+	 * @return A list of KeyValuePairs of objects belonging to the current user, with userID stripped from the key,
+	 * or null if LocalStorage is not supported.
 	 */
 	private static List<KeyValuePair> loadUserObjectsFromLocalStorage() {
 		if (isStorageSupported) {
@@ -250,8 +252,8 @@ public class LocalStorageHandler {
 				String[] keyFields = key.split(USERID_SEPARATOR, 2);
 				// check the key
 				if (keyFields.length == 2) {
-					String key_without_userid = keyFields[0];
-					String userid = keyFields[1];
+					String userid = keyFields[0];
+					String key_without_userid = keyFields[1];
 					// check userid
 					if ( userid.equals(currentUserId) ) {
 						String value = storage.getItem(key);
@@ -337,7 +339,8 @@ public class LocalStorageHandler {
 	 * belonging to the current user
 	 * from the local storage.
 	 * The key must contain the class_id
-	 * and not contain the userid.
+	 * and not contain the userid,
+	 * i.e. classID:key
 	 */
 	private static List<Storable> convertToStorable(List<KeyValuePair> keyValuePairs) {
 		List<Storable> objects = new LinkedList<Storable>();
@@ -351,7 +354,7 @@ public class LocalStorageHandler {
 			}
 			else {
 				Gui.log("Removing corrupted item " + keyValuePair);
-				storage.removeItem(keyValuePair.getKey() + USERID_SEPARATOR + Gui.getUserID());
+				storage.removeItem(Gui.getUserID() + USERID_SEPARATOR + keyValuePair.getKey());
 			}
 		}
 		return objects;
@@ -360,7 +363,8 @@ public class LocalStorageHandler {
 	/**
 	 * Determines the class of the object and loads it.
 	 * The key must contain the class_id
-	 * and not contain the user id.
+	 * and not contain the user id,
+	 * i.e. have the form classID:key
 	 * @return The object on success, null otherwise.
 	 */
 	private static Storable loadObject(KeyValuePair keyValuePair) {
@@ -369,8 +373,8 @@ public class LocalStorageHandler {
 		String[] keyFields = keyValuePair.getKey().split(CLASSID_SEPARATOR, 2);
 		// check the key
 		if (keyFields.length == 2) {
-	    	String key = keyFields[0];
-	    	String classId = keyFields[1];
+	    	String classId = keyFields[0];
+	    	String key = keyFields[1];
 	    	// class switch
 	    	if (classId.equals(SetUserTranslation.CLASS_ID)) {
 				object = SetUserTranslation.fromKeyValuePair(new KeyValuePair(key, keyValuePair.getValue()));
@@ -417,16 +421,15 @@ public class LocalStorageHandler {
     
     /**
      * Add class id and user id to the key.
-     * @param key
-     * @return
+     * @return userID@classID:key
      */
-    private static String fullKey (String key, String classId) {
+    private static String fullKey (String key, String classID) {
 		StringBuilder keyBuilder = new StringBuilder();
-		keyBuilder.append(key);
-		keyBuilder.append(CLASSID_SEPARATOR);
-		keyBuilder.append(classId);
-		keyBuilder.append(USERID_SEPARATOR);
 		keyBuilder.append(Gui.getUserID());
+		keyBuilder.append(USERID_SEPARATOR);
+		keyBuilder.append(classID);
+		keyBuilder.append(CLASSID_SEPARATOR);
+		keyBuilder.append(key);
 		return keyBuilder.toString();
     }
 

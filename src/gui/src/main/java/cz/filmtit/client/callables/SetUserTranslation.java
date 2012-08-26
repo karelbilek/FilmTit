@@ -155,8 +155,6 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 	 * The format is: <br>
 	 * key = documentId;chunkId;partNumber <br>
 	 * value = chosenTranslationPair;userTranslation
-	 * @param keyValuePair
-	 * @return the SetUserTranslation if the parsing is successful, null otherwise
 	 */
 	@Override
     public KeyValuePair toKeyValuePair() {

@@ -28,7 +28,7 @@ public class UnprocessedParserSub extends UnprocessedParser {
      * Regexp extracting time info.
      * Note, that in SRT, the time info are actual times, in SUB, it's frames.
      */
-	public static RegExp reSubtitleLine = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
+	public static RegExp reSubtitleLine = RegExp.compile("^\\{([0-9]+)\\}\\{([0-9]+)\\}(.*)$");  // the "{}" are here as literals
 
     /**
      * Parses SUB text to unprocessed chunks.
