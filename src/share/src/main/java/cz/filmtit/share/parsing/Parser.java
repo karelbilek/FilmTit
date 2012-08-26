@@ -26,22 +26,34 @@ import cz.filmtit.share.exceptions.ParsingException;
  *
  */
 public class Parser {
-    //LINE_SEPARATOR_OUT_REGEXP catches LINE_SEPARATOR_OUT from UnprocessedParser
-    //it is not RegExp object, because RegExp object somehow keeps internal counts
-    //that we use while adding newlines as Annotations 
-    public static final String LINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
+
+
+    /**
+     * Catches LINE_SEPARATOR_OUT from UnprocessedParser.
+     * It is not RegExp object, because RegExp object somehow keeps internal counts
+     * that we use while adding newlines as Annotations, so we will have to create
+     * RegExp object later.
+     */
+     static final String LINE_SEPARATOR_OUT_REGEXP = "( |^)\\|( |$)";
 	
     //==========REGEXP STATIC OBJECTS=========== 
-	//matching a dialogue on the beginning in a beginning
-    public static final RegExp dialogueMatch = RegExp.compile("^ ?-+ ?");
-    //matching a new line on the beginning
-    public static final RegExp lineAtBeginMatch = RegExp.compile("^\\|");
+    /**
+     * Matches a dialogue on the beginning of line
+     */
+    static final RegExp dialogueMatch = RegExp.compile("^ ?-+ ?");
 
-    //ignore all HTML-like tags
-	public static final RegExp formatMatch = RegExp.compile("<[^>]*>", "g");
+    /**
+     * Matches a new line at the very beginning of string.
+     */
+    static final RegExp lineAtBeginMatch = RegExp.compile("^\\|");
+
+    /**
+     * RegExp for recognizing (and then, ignoring) all HTML-like tags
+     */
+	static final RegExp formatMatch = RegExp.compile("<[^>]*>", "g");
 	
     //more spaces => single space
-    public static final RegExp spacesMatch = RegExp.compile("\\s+", "g");
+    static final RegExp spacesMatch = RegExp.compile("\\s+", "g");
 	
     //========================================
 
@@ -53,6 +65,7 @@ public class Parser {
     /**
      * Constructor. It is private, because only 2 instances of Parser exist - PARSER_SUB and PARSER_SRT.
      * The only difference between them is the underlying UnprocessedParser.
+     * @param unprocessedParser "raw" chunk parser
      */
     private Parser(UnprocessedParser unprocessedParser) {
         this.unprocessedParser = unprocessedParser;
@@ -97,6 +110,38 @@ public class Parser {
         return result;
     }
 
+
+    /**
+     * Takes chunk, separates it to sentences and converts those to TimedChunks.
+     * @param chunk unprocessed chunk, might contain zero to N sentences
+     * @param chunkId ID of resulting chunk (it depends on the order in the file which we don't know at this point)
+     * @param documentId ID of document, that is saved in the resulting TimedChunks
+     * @param l language of the subtitle
+     * @return list of chunks. It is list, because it might contain more sentences.
+     */
+    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
+
+
+        LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
+
+        //separate into sentences
+        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), l);
+        int partNumber = 1;
+
+        for (String chunkText : separatedText) {
+
+            Chunk untimedChunk = getChunkFromText(chunkText);
+
+            //create a new timedchunk
+            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, untimedChunk.getSurfaceForm(), chunkId, documentId);
+            newChunk.addAnnotations(untimedChunk.getAnnotations());
+
+            result.add( newChunk);
+            partNumber++;
+        }
+        return result;
+    }
+
     /**
      * Get chunk with proper annotations from source text.
      * @param chunkText text of the chunk with "-" and newlines (marked as | ).
@@ -115,10 +160,10 @@ public class Parser {
             }
 
             //add linebreaks as annotations
-            RegExp sublineRegexp = RegExp.compile(LINE_SEPARATOR_OUT_REGEXP, "g");
-            MatchResult sublineResult = sublineRegexp.exec(chunkText);            
-            while (sublineResult != null) {
-                int index = sublineResult.getIndex();
+            RegExp lineRegexp = RegExp.compile(LINE_SEPARATOR_OUT_REGEXP, "g");
+            MatchResult lineResult = lineRegexp.exec(chunkText);
+            while (lineResult != null) {
+                int index = lineResult.getIndex();
                  
                 //not sure about off-by-one errors
                 String newChunkText = chunkText.substring(0, index);
@@ -133,41 +178,12 @@ public class Parser {
                 if (index != 0) { 
                     annotations.add(new Annotation(AnnotationType.LINEBREAK, index, index));
                 }
-                sublineResult = sublineRegexp.exec(chunkText);
+                lineResult = lineRegexp.exec(chunkText);
             }
 
             Chunk ch = new Chunk(chunkText, annotations);
             return ch;
     }
    
-    /**
-     * Takes chunk, separates it to sentences and converts those to TimedChunks.
-     * @param chunk unprocessed chunk, might contain zero to N sentences
-     * @param chunkId ID of resulting chunk (it depends on the order in the file which we don't know at this point)
-     * @param documentId ID of document, that is saved in the resulting TimedChunks
-     * @param l language of the subtitle
-     * @return list of chunks. It is list, because it might contain more sentences.
-     */
-    public static LinkedList<TimedChunk> processChunk(UnprocessedChunk chunk, int chunkId, long documentId, Language l) {
-        
 
-        LinkedList<TimedChunk> result = new LinkedList<TimedChunk>();
-        
-        //separate into sentences
-        List<String> separatedText = TitChunkSeparator.separate(chunk.getText(), l);
-    	int partNumber = 1;
-
-        for (String chunkText : separatedText) {
-             
-            Chunk untimedChunk = getChunkFromText(chunkText);
-
-            //create a new timedchunk
-            TimedChunk newChunk = new TimedChunk(chunk.getStartTime(), chunk.getEndTime(), partNumber, untimedChunk.getSurfaceForm(), chunkId, documentId); 
-            newChunk.addAnnotations(untimedChunk.getAnnotations());            
-            
-            result.add( newChunk);
-            partNumber++;
-        }
-        return result;
-    }
 }
