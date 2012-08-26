@@ -250,16 +250,19 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     public void setFormattingAnnotations(Collection<Annotation> annotations) {
     	// remove old formatting annotations = readd non-formatting annotations
     	List<Annotation> newAnnotations = new ArrayList<Annotation>();
-    	for (Annotation annotation : this.annotations) {
-			if (
-					annotation.getType() == AnnotationType.ORGANIZATION ||
-					annotation.getType() == AnnotationType.PERSON ||
-					annotation.getType() == AnnotationType.PLACE
-					) {
-				
-				annotations.add(annotation);
-			}
-		}
+    	
+        if (this.annotations!=null) {
+            for (Annotation annotation : this.annotations) {
+                if (
+                        annotation.getType() == AnnotationType.ORGANIZATION ||
+                        annotation.getType() == AnnotationType.PERSON ||
+                        annotation.getType() == AnnotationType.PLACE
+                        ) {
+                    
+                    annotations.add(annotation);
+                }
+            }
+        }
         // add new format annotations
         newAnnotations.addAll(annotations);
         // set
