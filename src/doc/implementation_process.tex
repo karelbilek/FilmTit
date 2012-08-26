@@ -63,7 +63,7 @@ We very soon had toy implementations of:
 We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
 
 
-TODO: player -- Karel should write something more about its development, the applet signing, etc.
+\todo{player -- Karel should write something more about its development, the applet signing, etc.}
 
 An issue we encountered in developing the player and were not able to combat completely is letting the user choose a media file and passing its full filesystem path to the player. We found out that although it is quite easy to load a whole file from disc into memory, only its filename is passed to Javascript instead of the full path for security reasons. We did a thorough search on the internet but found out that there is most probably no clean way around this restriction.
 
@@ -114,7 +114,7 @@ Despite we wanted to implement OpenID support from the very beginning we started
 
 \emph{JOpenID} seemed to be easier to use and also was much smaller as a dependency, on the other hand when we run into some problems with using it we found out that \emph{openid4java} is much more frequently discussed on the \emph{StackOverflow.com} forum and that there bigger chance that we would be able to find some advice for potential problems.
 
-\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes\todo{check if it is true}) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
+\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
 
 At the end we decided to use \emph{JOpenID} library and support Google, Yahoo and Seznam accounts. The library contains the Google and Yahoo by default. We decided to also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider. Seznam provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the other OpenID providers, therefore it was necessary to write our parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
 

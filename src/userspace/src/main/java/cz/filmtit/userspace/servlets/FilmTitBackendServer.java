@@ -272,6 +272,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Save the given source chunks as the contents of the given document
      * (which was already created by calling createNewDocument)
+     * @param sessionID Session ID
+     * @param chunks List of timed chunks to be saved
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception if the the chunks have different document IDs.
+     * @throws InvalidValueException Throws an exception if the timings are in a wrong format.
      */
     @Override
     public Void saveSourceChunks(String sessionID, List<TimedChunk> chunks)
@@ -281,6 +287,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Get the list of possible translations of the given chunk.
+     * @param sessionID Session ID
+     * @param chunk A timed chunk for which the translation suggestion will be generated
+     * @return Translation result with generated translation suggestions.
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public TranslationResult getTranslationResults(String sessionID, TimedChunk chunk)

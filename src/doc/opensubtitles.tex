@@ -748,7 +748,7 @@ Anyway, we align only the one best candidate from each media source. The result 
 
 The first approach is to take only the chunks with the same time (with some small tolerance) as belonging to each other.
 
-For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as a paper on using subtitles for building corpora\footnote{Einav Itamar, Alon Itai (2008): \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora.} The sixth international conference on Language Resources and Evaluation, LREC 2008.} proposes, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
 
 We chose editing distance, since there can be some small splitting or additions, as described above.
 
@@ -832,11 +832,11 @@ We didn't test it on real database (since that would be time consuming), we sear
 \subsubsection{Counting precision and recall for file to file alignment}
 There are those five cases of what can happen:
 \begin{itemize}
-    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a "good" movie - in this section, we call this \textbf{true negative}
-    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a "good" movie - in this section, we call this \textbf{false negative}
-    \item With manual alignment, we found no possible matches, the aligner marked it as a "good" movie and included it in corpus - in this section, we call this \textbf{false positive}
-    \item With manual alignment, we found possible matches, the aligner marked it as a "good" movie, but the match from aligner was not one of the correct ones -  we call this \textbf{partly true positive}
-    \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textbf{fully true positive}
+    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a "good" movie - in this section, we call this \textit{true negative}
+    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a "good" movie - in this section, we call this \textit{false negative}
+    \item With manual alignment, we found no possible matches, the aligner marked it as a "good" movie and included it in corpus - in this section, we call this \textit{false positive}
+    \item With manual alignment, we found possible matches, the aligner marked it as a "good" movie, but the match from aligner was not one of the correct ones -  we call this \textit{partly true positive}
+    \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
 \end{itemize}
 
 With some consideration, we count precision as 

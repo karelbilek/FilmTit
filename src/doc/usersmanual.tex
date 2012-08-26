@@ -17,7 +17,46 @@ Firefox v.14, Chrome v.21, Safari v.5.1.5, or higher \todo{find versions exactly
 
 \section{Installing Java and VLC Plugin}
 
-\todo{how to install Java, how to install VLC plugin}
+Having installed Java and VLC Plugin is necessary for using the video playback in the application. It is still possible to use the application even without these plugins if you do not going to use the video playback.
+
+\subsection{Installing Java}
+
+If you do not have installed Java, your browser will notice it to you and will suggest to you to install the missing plugin. If that happens, please follow the browser instruction. If the installation via the browser fails, you will need to install Java manually. Which is described in the following paragraphs.
+
+\subsubsection{Windows}
+
+For the manual installation first download the Java Installer from the \emph{java.com} website. Go to \url{http://www.java.com} and click on "Free Java Download" button. The website will propose a suitable version for you. If you want to download a different version click on the " See all Java downloads" link. It is recommended to check the system requirements of the version you are going to download and read the license conditions.
+
+After launching the installation guide follow the instructions in the installation program. For more detailed description of the installation please see \url{http://www.java.com/en/download/help/windows_manual_download.xml}.
+
+After finishing installation it is recommend to reboot your system, anyway it is necessary to at least restart your browser.
+
+\subsubsection{Linux}
+
+To install Java on Linux system, download the installation package similarly as is described for Windows. To do the installation from command line, please follow the instructions at \url{http://www.java.com/en/download/help/linux_install.xml#install}. It might be not enough to just install Java, it may be necessary to enable using Java in your browser. To do so, follow other instruction on the referred website.
+
+After finishing the installation it is necessary to restart your browser.
+
+\subsection{Installing VLC Plugin}
+
+The VLC player plugin is available only for Firefox, Chrome, Opera and Safari. Internet Explorer use an \emph{ActiveX} VLC which is not supported by our application.
+
+If you already have an installation of the VLC player without the plugin, it is necessary to reinstall whole VLC player. It is not necessary to uninstall it manually, it is done automatically with the new installation.
+
+To install the VLC player with the plugin on Windows, download the installation program from \url{http://www.videolan.org/vlc/}. The web page should suggest you a suitable version for your computer. If you want to install a different version, click on the "Other Systems and Versions", otherwise just click the "Download VLC" button.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.4]{figures/vlc_installation.png}
+\end{center}
+\caption{Installation guide of VLC player for Windows.}
+\label{fig:vlc}
+\end{figure}
+
+To install the plugin do not forget to tick the box with "Mozilla plugin" label in the third step of the installation guide (named Choose Components, see figure \ref{fig:vlc}). After finishing the installation it is necessary to restart your browser.
+
+Instructions for installation on Linux systems can be found at \url{http://www.videolan.org/doc/vlc-user-guide/en/ch03.html}
+
 
 \section{Registration and Login}
 
@@ -154,7 +193,7 @@ After clicking on the movie you meant click submit and you can start editing you
 
 When you start editing a document, either a new one or an existing one, you see the translation workspace, see figure \ref{fig:translation_workspace}. It has three columns. In the first column there are the timings of the subtitles, in the middle column there are the subtitles in the original language and in the third column there are the text boxes ready to be filled in by the translation in the target language.
 
-Immediately after you open the translation workspace the translation suggestions stars to be loaded.  ...
+Immediately after you open the translation workspace the translation suggestions stars to be loaded.
 
 \begin{figure}[h]
 \begin{center}
@@ -197,7 +236,8 @@ The information in the Offline Mode are bound to computer, browser and user. So,
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[scale=0.4]{figures/user_manual/upload_offline_mode.png}~~~~\includegraphics[scale=0.4]{figures/user_manual/upload_offline_mode_success.png}
+\includegraphics[scale=0.4]{figures/user_manual/upload_offline_mode.png}~~~~
+\includegraphics[scale=0.4]{figures/user_manual/upload_offline_mode_success.png}
 \end{center}
 \caption{Loading data from the Offline Mode}
 \label{fig:offline_loading}
