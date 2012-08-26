@@ -750,7 +750,15 @@ The result of this step is a list of pairs of Czech and English subtitle items. 
 After this step, we almost have the final corpus. What we have to do before saving it into final corpus is splitting the aligned items into chunks, as described in \ref{sentence_splitting}. If both Czech and English have the same number of chunks, we split them and add those to the corpus; if the number is different, we ignore them.
 
 \subsection{Approaches}
-\subsubsection{Direct equality}
+\subsubsection{Equality with tolerance}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/tolerance_priklad.pdf}
+\end{center}
+\caption{How is Levenshtein distance counted for file-to-file alignment}\label{tolerance}
+\end{figure}
+
 
 The first approach is to take only the items with the same time (with some tolerance) as belonging to each other.
 
@@ -758,11 +766,15 @@ However, the times are rarely exactly equal. One of the papers authors\footnote{
 
 We found out, that if we use bigger tolerance, we have more subtitle pairs, but sometimes with worse quality (because sometimes we get totally different subtitles, not belonging to each other). We tried tolerance 0.6\,s (as suggested by the paper), and then 6\,s.
 
-This is for subtitle to subtitle alignment.
+For counting file to file alignment, we count editing distance of their time declarations, as illustrated on the graph \ref{tolerance}. 
 
-For counting file to file alignment, we count editing distance of their time declarations. 
+We take all the time information (both the starts and the ends) as vectors. Then, we count editing distance of those two vectors, where we take the two time information as equal if they fall within tolerance, otherwise we take them as unequal. We score all possible pairs of Czech subtitle file on one side and English on the other for the given movie and we count Levensthein distance as a score; file pair with the shortest levensthein distance is the ``chosen'' file pair.
 
-For that, we take all the time information (both the starts and the ends) as vectors. Then, we count editing distance of those two vectors, where we take the two time information as equal if they fall within tolerance, otherwise we take them as unequal. This is because there can be some small splitting, additions, and so on, but we want to take the pair of files, that have minimal number of additions, splitting and so on.
+We use Levensthein distance because there can be some small splitting, additions, and so on, but we want to take the pair of files, that have minimal number of them.
+
+For filtering out the ``bad'' movie pairs, we just throw away all that has editing distance higher than 30.
+
+For subtitle to subtitle alignment, we take the subtitles that have distance of both beginning and ending within the tolerance.
 
 %This is not correct. I take all the files in the Alignment class, not only the first 100 time declarations.
 %Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
