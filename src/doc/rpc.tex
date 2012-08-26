@@ -5,8 +5,9 @@ This chapter describes the communication interface between the GUI and the Users
 
 \section{Remote Procedure Calls}
 
-GUI communicates with Userspace via a GWT RemoteService implementation, defined as the FilmTitService interface.
-The interface provides asynchronous RPC methods (the responses are processed by callbacks).
+GUI communicates with Userspace via a GWT RemoteService implementation.
+
+A \emph{remote procedure call} is method providing interaction between the client (the GUI) and the server (the Userspace). The shared class FilmTitService.java \emph{defines} the FilmTitService interface, an API for the RPCs, by specifying the RPCs as methods with a name, a set of parameters, a return type and checked exceptions. The Userspace class FilmTitBackendServer.java must \emph{implement} each of the defined RPCs. The interface provides \emph{asynchronous} RPC methods -- the responses are processed by \emph{callbacks}. A class in cz.filmtit.client.callables may \emph{invoke} the RPC, passing the required parameters to the GWT RPC mechanism which ensures their delivery to the server and the execution of the implementation method. The callable class must also implement an asynchronous callback by implementing the methods onSuccess() and onFailure(), which are called by the GWT RPC mechanism when the RPC \emph{returns}, i.e. returns a value or fails with an exception and the result is received by GUI. Failure is defined as the RPC server implementation throwing an exception, which is passed as a parameter to onFailure(). Otherwise, the retrned value is passed to onSuccess().
 
 The method is always called from the client, because Javascript security policies do not allow to handle incoming calls.
 Therefore, in case the Userspace needs to actively contact the GUI without the GUI having sent a request before,
@@ -16,6 +17,7 @@ The method always returns an instance of the return type on success or an instan
 In case of common points of failure that do not qualify as an exceptional state, such as user registration attempt with an already existing username, the common failure is typically signalled by the return value instead (typically a null or a false).
 
 Most of the RPCs can only be invoked by a logged in user. Such RPCs always have the sessionID as their first parameter to authenticate the user and can throw an InvalidSessionIdException.
+A sessionID is a unique identifier of a logged in user, valid for 1 hour (or 1 month if the user decided to be ``permanently logged in''), managed by the Userspace.
 
 \section{Manipulating Documents}
 

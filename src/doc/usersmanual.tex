@@ -174,7 +174,12 @@ It is not necessary to save your work in any way, everything is save right after
 
 \section{Offline Mode}
 
-After the application realize it cannot to the server it offers you to continue in the Offline Mode (see figure \ref{fig:start_offline_mode}). You can continue with editing the document but you can list the documents, open another document or create a new one, neither export or delete the documents. If you refuse starting the Offline Mode, all the editing done when the Internet is down will be lost.
+When the application realizes that it cannot connect to the server, it offers you to continue in the Offline Mode (see figure \ref{fig:start_offline_mode}). When you turn on the Offline Mode, you can continue translating the document -- all translaion suggestions that have already been loaded will be shown to you and all translations that you enter will be saved.
+(However, you cannot list the documents, open or create another document, or export or delete the documents.)
+
+\todo{you also cannot change the timing or the source text, although this would be perfectly possible: however, I have not added support for that, which I might probably do now}
+
+If you refuse starting the Offline Mode, all the editing done without the Internet connection will be lost!
 
 \begin{figure}[h]
 \begin{center}
@@ -184,11 +189,11 @@ After the application realize it cannot to the server it offers you to continue 
 \label{fig:start_offline_mode}
 \end{figure}
 
-During the work in Offline Mode, all the operations are stored in the browser. Once you leave the page with the translation workspace you cannot continue editing the file, but you can even close your browser or restart the computer and all changes that you have made on the document will be saved.
+During the work in Offline Mode, all the operations are stored in the browser. Once you leave the page with the translation workspace, you cannot continue editing the file -- however, you can even close your browser or restart the computer, and still all the changes that you have made on the document in Offline Mode will be saved.
 
-The information in the Offline Mode are bound to computer, browser and user. So, to be able to upload the Offline changes to the server you have to logged in on the same computer as the same user a use the same browser.
+The data from the Offline Mode are posted to the server at the time you log in to the application next time after you confirm you want to do so (see figure \ref{fig:offline_loading}). If your Internet connection starts to work during your work in Offline Mode, you can just reload the page in your browser, log in and continue with your work.
 
-The data from the Offline Mode are posted to the server at the time you log in to the application next time after you confirm you want to do so (see figure \ref{fig:offline_loading}). If your Internet connection starts to work during your work in Offline Mode, you can just reload the page, log in and continue with your work.
+The information in the Offline Mode are bound to computer, browser and user. So, to be able to upload the Offline changes to the server, you have to log in on the same computer as the same user and use the same browser.
 
 \begin{figure}[h]
 \begin{center}
