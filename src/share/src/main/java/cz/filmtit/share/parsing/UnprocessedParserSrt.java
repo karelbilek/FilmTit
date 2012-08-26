@@ -57,38 +57,41 @@ public class UnprocessedParserSrt extends UnprocessedParser {
 
         for (int linenumber = 0; linenumber < lines.length; linenumber++) {
             String line = lines[linenumber];
-			
-			if ( reTimesLine.test(line)) {
-                MatchResult mr = reTimesLine.exec(line);
-                startTime = mr.getGroup(1).trim();
-                endTime = mr.getGroup(2).trim();
-                isTimeSet = true;
-                try { // testing the time format:
-                    new SrtTime(startTime);
-                    new SrtTime(endTime);
-                } catch (InvalidValueException e) {
-                    throw new ParsingException(e.getMessage(), linenumber + 1, false);
+		
+            //skip the number lines
+            if (!reSubNumberLine.test(line) ) { 
+                if ( reTimesLine.test(line)) {
+                    MatchResult mr = reTimesLine.exec(line);
+                    startTime = mr.getGroup(1).trim();
+                    endTime = mr.getGroup(2).trim();
+                    isTimeSet = true;
+                    try { // testing the time format:
+                        new SrtTime(startTime);
+                        new SrtTime(endTime);
+                    } catch (InvalidValueException e) {
+                        throw new ParsingException(e.getMessage(), linenumber + 1, false);
+                    }
+                }
+                else if ( ! line.isEmpty() ) {
+                    if (! isTimeSet) {
+                        throw new ParsingException("Subtitle timing line missing or malformed", linenumber + 1, true);
+                    }
+                    if (! titText.isEmpty()) {
+                        titText += LINE_SEPARATOR_OUT;
+                    }
+                    titText += line;
+                }
+                else {
+                    // empty line
+                    // creating the chunk(s) from what was gathered recently...
+
+                    sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+                    
+                    // ...and resetting
+                    titText = EMPTY_STRING;
+                    isTimeSet = false;
                 }
             }
-			else if ( ! line.isEmpty() ) {
-                if (! isTimeSet) {
-                    throw new ParsingException("Subtitle timing line missing or malformed", linenumber + 1, true);
-                }
-				if (! titText.isEmpty()) {
-					titText += LINE_SEPARATOR_OUT;
-				}
-			    titText += line;
-           	}
-			else {
-                // empty line
-				// creating the chunk(s) from what was gathered recently...
-
-                sublist.add(new UnprocessedChunk(startTime, endTime, titText));
-				
-		    	// ...and resetting
-				titText = EMPTY_STRING;
-                isTimeSet = false;
-			}
 		}  // for-loop over lines
         
         
