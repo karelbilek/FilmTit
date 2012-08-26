@@ -26,8 +26,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.Parser;
-import cz.filmtit.share.parsing.ParserSrt;
-import cz.filmtit.share.parsing.ParserSub;
 
 import java.util.*;
 
@@ -371,11 +369,11 @@ public class TranslationWorkspace extends Composite {
           // determine format (from corresponding radiobuttons) and choose parser:
           Parser subtextparser;
           if (subformat == "sub") {  // i.e. ".sub" is checked
-               subtextparser = new ParserSub();
+               subtextparser = Parser.PARSER_SUB;
           }
           else {  // i.e. ".srt" is checked
                assert subformat == "srt" : "One of the subtitle formats must be chosen.";
-               subtextparser = new ParserSrt();
+               subtextparser = Parser.PARSER_SRT;
           }
           Gui.log("subtitle format chosen: " + subformat);
 

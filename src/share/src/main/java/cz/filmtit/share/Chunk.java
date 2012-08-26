@@ -84,9 +84,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
      * @return
      */
     public void setDatabaseForm(String form) {
-        Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
-        setSurfaceForm(chunkInfo.string);
-        addAnnotations(chunkInfo.anots); 
+        copyFromOther(Parser.getChunkFromText(form));
     }
 
     /**
@@ -95,9 +93,17 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
      * @return
      */
     public void setDatabaseFormForce(String form) {
-        Parser.ChunkInfo chunkInfo = Parser.getChunkInfo(form);
-        setSurfaceForm(chunkInfo.string);
-        setFormattingAnnotations(chunkInfo.anots); 
+        //how the heck is this different from the previous one?
+        copyFromOther(Parser.getChunkFromText(form));
+    }
+
+    /**
+     * Copies data from other chunk.
+     * @param other chunk to copy data from
+     */
+    public void copyFromOther(Chunk other) {
+        setSurfaceForm(other.getSurfaceForm());
+        setFormattingAnnotations(other.getAnnotations());
     }
 
     /**

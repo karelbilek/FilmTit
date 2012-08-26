@@ -5,10 +5,11 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="837"
-   height="530"
+   width="783"
+   height="391"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
@@ -25,7 +26,38 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs183" />
+     id="defs183">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#g2"
+       id="linearGradient3074"
+       x1="68.759354"
+       y1="-36.117008"
+       x2="68.759354"
+       y2="137.60188"
+       gradientTransform="scale(1.3732287,0.72821084)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#g2"
+       id="linearGradient3076"
+       x1="85.949188"
+       y1="-19.088427"
+       x2="85.949188"
+       y2="154.63046"
+       gradientTransform="scale(1.3732287,0.72821082)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#g2"
+       id="linearGradient3078"
+       x1="103.13902"
+       y1="-2.0598431"
+       x2="103.13902"
+       y2="171.65906"
+       gradientTransform="scale(1.3732287,0.72821082)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -40,62 +72,24 @@
      id="namedview181"
      showgrid="false"
      inkscape:zoom="0.77419355"
-     inkscape:cx="339.79631"
-     inkscape:cy="273.2118"
+     inkscape:cx="339.97259"
+     inkscape:cy="273.26175"
      inkscape:window-x="-4"
      inkscape:window-y="-4"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
-  <rect
-     stroke="#000000"
-     stroke-width="0"
-     fill="#ffffff"
-     x="0"
-     y="0"
-     width="836"
-     height="529"
-     id="rect4" />
+     inkscape:current-layer="svg2"
+     units="px" />
   <g
-     transform="translate(78.25,42.25) rotate(0 265.625 39.75)"
-     id="g6">
-    <g
-       transform="translate(0.0,56.75)"
-       id="g8">
-      <text
-         x="265.625"
-         style="text-anchor: middle"
-         y="-7.0"
-         id="text10">
-        <tspan
-           xml:space="preserve"
-           font-size="36"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan12">Creating tokenization model</tspan>      </text>
-    </g>
-  </g>
-  <g
-     transform="translate(66.0,118.0)"
-     id="g14">
-    <path
-       d="M0.0,0.0 L286.5,0.0 L286.5,0.0 L573.0,0.0 "
-       stroke-dasharray="23, 0"
-       fill="none"
-       stroke="#000000"
-       stroke-width="1"
-       id="path16" />
-  </g>
-  <g
-     transform="translate(72.5,142.75) rotate(0 118.5 62.25)"
+     transform="translate(15,1.84375)"
      id="g18">
     <defs
        id="defs20">
       <linearGradient
          id="g2"
-         x1="50%"
-         y1="-25%"
-         x2="50%"
-         y2="100%">
+         x1="0.5"
+         y1="-0.25"
+         x2="0.5"
+         y2="1">
         <stop
            stop-color="white"
            offset="0%"
@@ -107,53 +101,41 @@
       </linearGradient>
     </defs>
     <g
-       transform="translate(4.0,4.0)"
+       transform="translate(4,4)"
        id="g27">
       <path
-         d="M0.0,0.0L188.8446215139442,0.0L188.8446215139442,86.80278884462152Q141.63346613545815,62.00199203187251,94.4223107569721,86.80278884462152Q47.21115537848605,111.60358565737052,0.0,86.80278884462152L0.0,0.0"
-         stroke="#A8A8A8"
-         stroke-width="2.0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="path29" />
+         d="m 0,0 188.84462,0 0,86.802789 q -47.21115,-24.800797 -94.422309,0 Q 47.211155,111.60359 0,86.802789 L 0,0"
+         id="path29"
+         inkscape:connector-curvature="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:2;stroke-opacity:0.6" />
       <path
-         d="M23.605577689243024,12.400398406374503L212.45019920318722,12.400398406374503L212.45019920318722,99.20318725099602Q165.23904382470118,74.40239043824701,118.02788844621513,99.20318725099602Q70.81673306772907,124.00398406374502,23.605577689243024,99.20318725099602L23.605577689243024,12.400398406374503"
-         stroke="#A8A8A8"
-         stroke-width="2.0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="path31" />
+         d="m 23.605578,12.400398 188.844622,0 0,86.802789 q -47.21116,-24.800797 -94.42231,0 -47.211157,24.800793 -94.422312,0 l 0,-86.802789"
+         id="path31"
+         inkscape:connector-curvature="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:2;stroke-opacity:0.6" />
       <path
-         d="M47.21115537848605,24.800796812749006L236.05577689243026,24.800796812749006L236.05577689243026,111.60358565737052Q188.8446215139442,86.80278884462152,141.63346613545815,111.60358565737052Q94.4223107569721,136.40438247011951,47.21115537848605,111.60358565737052L47.21115537848605,24.800796812749006"
-         stroke="#A8A8A8"
-         stroke-width="2.0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="path33" />
+         d="m 47.211155,24.800797 188.844625,0 0,86.802793 q -47.21116,-24.800801 -94.42231,0 -47.211159,24.80079 -94.422315,0 l 0,-86.802793"
+         id="path33"
+         inkscape:connector-curvature="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:2;stroke-opacity:0.6" />
     </g>
     <path
-       d="M0.0,0.0L188.8446215139442,0.0L188.8446215139442,86.80278884462152Q141.63346613545815,62.00199203187251,94.4223107569721,86.80278884462152Q47.21115537848605,111.60358565737052,0.0,86.80278884462152L0.0,0.0"
-       stroke="#333333"
-       stroke-width="2.0"
-       style="fill:url(#g2)"
-       id="path35" />
+       d="m 0,0 188.84462,0 0,86.802789 q -47.21115,-24.800797 -94.422309,0 Q 47.211155,111.60359 0,86.802789 L 0,0"
+       style="fill:url(#linearGradient3074);stroke:#333333;stroke-width:2"
+       id="path35"
+       inkscape:connector-curvature="0" />
     <path
-       d="M23.605577689243024,12.400398406374503L212.45019920318722,12.400398406374503L212.45019920318722,99.20318725099602Q165.23904382470118,74.40239043824701,118.02788844621513,99.20318725099602Q70.81673306772907,124.00398406374502,23.605577689243024,99.20318725099602L23.605577689243024,12.400398406374503"
-       stroke="#333333"
-       stroke-width="2.0"
-       style="fill:url(#g2)"
-       id="path37" />
+       d="m 23.605578,12.400398 188.844622,0 0,86.802789 q -47.21116,-24.800797 -94.42231,0 -47.211157,24.800793 -94.422312,0 l 0,-86.802789"
+       style="fill:url(#linearGradient3076);stroke:#333333;stroke-width:2"
+       id="path37"
+       inkscape:connector-curvature="0" />
     <path
-       d="M47.21115537848605,24.800796812749006L236.05577689243026,24.800796812749006L236.05577689243026,111.60358565737052Q188.8446215139442,86.80278884462152,141.63346613545815,111.60358565737052Q94.4223107569721,136.40438247011951,47.21115537848605,111.60358565737052L47.21115537848605,24.800796812749006"
-       stroke="#333333"
-       stroke-width="2.0"
-       style="fill:url(#g2)"
-       id="path39" />
+       d="m 47.211155,24.800797 188.844625,0 0,86.802793 q -47.21116,-24.800801 -94.42231,0 -47.211159,24.80079 -94.422315,0 l 0,-86.802793"
+       style="fill:url(#linearGradient3078);stroke:#333333;stroke-width:2"
+       id="path39"
+       inkscape:connector-curvature="0" />
     <g
-       transform="translate(0.0,70.25)"
+       transform="translate(0,70.25)"
        id="g41">
       <text
          x="109.45835"
@@ -181,37 +163,35 @@
     </g>
   </g>
   <g
-     transform="translate(309.5,205.0)"
+     transform="translate(252,64.09375)"
      id="g47">
     <path
-       d="M0.0,-1.0 L99.75,-1.0 L99.75,-1.0 L198.5,-1.0 "
-       stroke-dasharray="23, 0"
-       fill="none"
-       stroke="#000000"
-       stroke-width="1"
-       id="path49" />
+       d="m 0,-1 99.75,0 0,0 98.75,0"
+       id="path49"
+       inkscape:connector-curvature="0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-dasharray:23, 0" />
     <g
-       transform="translate(199.5,-1.0) rotate(180.0)"
+       transform="matrix(-1,0,0,-1,199.5,-1)"
        id="g51">
       <polygon
-         points="0,0 12,7 12,-7"
-         fill="#FFFFFF"
-         stroke="#000000"
-         stroke-width="1.0"
-         id="polygon53" />
+         points="12,-7 0,0 12,7 "
+         id="polygon53"
+         style="fill:#ffffff;stroke:#000000;stroke-width:1" />
     </g>
   </g>
   <g
-     transform="translate(78.0,367.875) rotate(0 93.0 71.125)"
+     transform="translate(20.5,226.96875)"
      id="g55">
     <defs
        id="defs57">
       <linearGradient
          id="g4"
-         x1="50%"
-         y1="-25%"
-         x2="50%"
-         y2="100%">
+         x1="86.338287"
+         y1="-44.710484"
+         x2="86.338287"
+         y2="173.45615"
+         gradientTransform="scale(1.0771583,0.92836865)"
+         gradientUnits="userSpaceOnUse">
         <stop
            stop-color="white"
            offset="0%"
@@ -223,72 +203,67 @@
       </linearGradient>
     </defs>
     <g
-       transform="translate(4.0,4.0)"
+       transform="translate(4,4)"
        id="g64">
       <path
-         d="M0,0 L186.0,0 L186.0,142.25 Q139.5,106.6875 93.0,142.25 Q46.5,177.8125 0,142.25 L0,0 Z"
-         stroke="#A8A8A8"
-         stroke-width="0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="path66" />
+         d="m 0,0 186,0 0,142.25 q -46.5,-35.5625 -93,0 -46.5,35.5625 -93,0 L 0,0 z"
+         id="path66"
+         inkscape:connector-curvature="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:0;stroke-opacity:0.6" />
     </g>
     <path
-       d="M0,0 L186.0,0 L186.0,142.25 Q139.5,106.6875 93.0,142.25 Q46.5,177.8125 0,142.25 L0,0 Z"
-       stroke="#333333"
-       stroke-width="2"
-       style="fill:url(#g4)"
-       id="path68" />
+       d="m 0,0 186,0 0,142.25 q -46.5,-35.5625 -93,0 -46.5,35.5625 -93,0 L 0,0 z"
+       style="fill:url(#g4);stroke:#333333;stroke-width:2"
+       id="path68"
+       inkscape:connector-curvature="0" />
     <g
-       transform="translate(0.0,58.125)"
+       transform="translate(0,58.125)"
        id="g70">
       <text
-         x="93.0"
-         style="text-anchor: middle"
-         y="-3.0"
+         x="93"
+         style="text-anchor:middle"
+         y="-3"
          id="text72">
         <tspan
            xml:space="preserve"
            font-size="18"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan74">Document according</tspan>      </text>
+           id="tspan74"
+           style="font-size:18px;fill:#000000;font-family:Arial">Document according</tspan>      </text>
       <text
-         x="93.0"
-         style="text-anchor: middle"
-         y="19.2"
+         x="93"
+         style="text-anchor:middle"
+         y="19.200001"
          id="text76">
         <tspan
            xml:space="preserve"
            font-size="18"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan78">OpenNLP</tspan>      </text>
+           id="tspan78"
+           style="font-size:18px;fill:#000000;font-family:Arial">OpenNLP</tspan>      </text>
       <text
-         x="93.0"
-         style="text-anchor: middle"
-         y="41.4"
+         x="93"
+         style="text-anchor:middle"
+         y="41.400002"
          id="text80">
         <tspan
            xml:space="preserve"
            font-size="18"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan82">documentation</tspan>      </text>
+           id="tspan82"
+           style="font-size:18px;fill:#000000;font-family:Arial">documentation</tspan>      </text>
     </g>
   </g>
   <g
-     transform="translate(672.5,384.5) rotate(0 72.5 53.5)"
+     transform="translate(615,243.59375)"
      id="g84">
     <defs
        id="defs86">
       <linearGradient
          id="g5"
-         x1="50%"
-         y1="-25%"
-         x2="50%"
-         y2="100%">
+         x1="66.267006"
+         y1="-34.770554"
+         x2="66.267006"
+         y2="132.92815"
+         gradientTransform="scale(1.2308161,0.81246906)"
+         gradientUnits="userSpaceOnUse">
         <stop
            stop-color="white"
            offset="0%"
@@ -300,50 +275,45 @@
       </linearGradient>
     </defs>
     <g
-       transform="translate(4.0,4.0)"
+       transform="translate(4,4)"
        id="g93">
       <path
-         d="M18.125,0 L163.125,0 Q126.875,53.5 163.125,107.0 L18.125,107.0 Q-18.125,53.5 18.125,0 Z"
-         stroke="#A8A8A8"
-         stroke-width="0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="path95" />
+         d="m 18.125,0 145,0 q -36.25,53.5 0,107 l -145,0 q -36.25,-53.5 0,-107 z"
+         id="path95"
+         inkscape:connector-curvature="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:0;stroke-opacity:0.6" />
     </g>
     <path
-       d="M18.125,0 L163.125,0 Q126.875,53.5 163.125,107.0 L18.125,107.0 Q-18.125,53.5 18.125,0 Z"
-       stroke="#333333"
-       stroke-width="2"
-       style="fill:url(#g5)"
-       id="path97" />
+       d="m 18.125,0 145,0 q -36.25,53.5 0,107 l -145,0 q -36.25,-53.5 0,-107 z"
+       style="fill:url(#g5);stroke:#333333;stroke-width:2"
+       id="path97"
+       inkscape:connector-curvature="0" />
     <g
-       transform="translate(0.0,61.5)"
+       transform="translate(0,61.5)"
        id="g99">
       <text
          x="72.5"
-         style="text-anchor: middle"
-         y="-3.0"
+         style="text-anchor:middle"
+         y="-3"
          id="text101">
         <tspan
            xml:space="preserve"
            font-size="18"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan103">final data</tspan>      </text>
+           id="tspan103"
+           style="font-size:18px;fill:#000000;font-family:Arial">final data</tspan>      </text>
     </g>
   </g>
   <g
-     transform="translate(509.0,154.125) rotate(0 97.0 49.875)"
+     transform="translate(451.5,13.21875)"
      id="g105">
     <defs
        id="defs107">
       <linearGradient
          id="linearGradient109"
-         x1="50%"
-         y1="-25%"
-         x2="50%"
-         y2="100%">
+         x1="0.5"
+         y1="-0.25"
+         x2="0.5"
+         y2="1">
         <stop
            stop-color="white"
            offset="0%"
@@ -355,27 +325,25 @@
       </linearGradient>
     </defs>
     <g
-       transform="translate(4.0,4.0)"
+       transform="translate(4,4)"
        id="g115">
       <rect
-         width="194.0"
+         width="194"
          height="99.75"
-         stroke="#A8A8A8"
-         stroke-width="0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="rect117" />
+         id="rect117"
+         x="0"
+         y="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:0;stroke-opacity:0.6" />
     </g>
     <rect
-       width="194.0"
+       width="194"
        height="99.75"
-       stroke="#333333"
-       stroke-width="2"
-       style="fill:url(#g6)"
-       id="rect119" />
+       style="fill:url(#g6);stroke:#333333;stroke-width:2"
+       id="rect119"
+       x="0"
+       y="0" />
     <g
-       transform="translate(0.0,46.875)"
+       transform="translate(0,46.875)"
        id="g121">
       <text
          x="97"
@@ -400,37 +368,33 @@
     </g>
   </g>
   <g
-     transform="translate(78.0,439.375)"
+     transform="translate(20.5,298.46875)"
      id="g131">
     <path
-       d="M-1.0,0.0 L-20.0,0.0 L-20.0,-92.75 L528.0,-92.75 L528.0,-185.5 "
-       stroke-dasharray="23, 0"
-       fill="none"
-       stroke="#000000"
-       stroke-width="1"
-       id="path133" />
+       d="m -1,0 -19,0 0,-92.75 548,0 0,-92.75"
+       id="path133"
+       inkscape:connector-curvature="0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-dasharray:23, 0" />
     <g
-       transform="translate(0.0,0.0) rotate(180.0)"
+       transform="scale(-1,-1)"
        id="g135">
       <polygon
-         points="0,0 12,7 12,-7"
-         fill="#FFFFFF"
-         stroke="#000000"
-         stroke-width="1.0"
-         id="polygon137" />
+         points="12,-7 0,0 12,7 "
+         id="polygon137"
+         style="fill:#ffffff;stroke:#000000;stroke-width:1" />
     </g>
   </g>
   <g
-     transform="translate(329.25,383.75) rotate(0 105.125 53.375)"
+     transform="translate(271.75,242.84375)"
      id="g139">
     <defs
        id="defs141">
       <linearGradient
          id="linearGradient143"
-         x1="50%"
-         y1="-25%"
-         x2="50%"
-         y2="100%">
+         x1="0.5"
+         y1="-0.25"
+         x2="0.5"
+         y2="1">
         <stop
            stop-color="white"
            offset="0%"
@@ -442,92 +406,80 @@
       </linearGradient>
     </defs>
     <g
-       transform="translate(4.0,4.0)"
+       transform="translate(4,4)"
        id="g149">
       <rect
          width="210.25"
          height="106.75"
-         stroke="#A8A8A8"
-         stroke-width="0"
-         stroke-opacity=".6"
-         fill-opacity=".6"
-         fill="#A8A8A8"
-         id="rect151" />
+         id="rect151"
+         x="0"
+         y="0"
+         style="fill:#a8a8a8;fill-opacity:0.6;stroke:#a8a8a8;stroke-width:0;stroke-opacity:0.6" />
     </g>
     <rect
        width="210.25"
        height="106.75"
-       stroke="#333333"
-       stroke-width="2"
-       style="fill:url(#g8)"
-       id="rect153" />
+       style="fill:url(#g8);stroke:#333333;stroke-width:2"
+       id="rect153"
+       x="0"
+       y="0" />
     <g
-       transform="translate(0.0,50.375)"
+       transform="translate(0,50.375)"
        id="g155">
       <text
          x="105.125"
-         style="text-anchor: middle"
-         y="-3.0"
+         style="text-anchor:middle"
+         y="-3"
          id="text157">
         <tspan
            xml:space="preserve"
            font-size="18"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan159">processing by</tspan>      </text>
+           id="tspan159"
+           style="font-size:18px;fill:#000000;font-family:Arial">processing by</tspan>      </text>
       <text
          x="105.125"
-         style="text-anchor: middle"
-         y="19.2"
+         style="text-anchor:middle"
+         y="19.200001"
          id="text161">
         <tspan
            xml:space="preserve"
            font-size="18"
-           font-family="Arial"
-           fill="#000000"
-           id="tspan163">TokenizerTrainer </tspan>      </text>
+           id="tspan163"
+           style="font-size:18px;fill:#000000;font-family:Arial">TokenizerTrainer </tspan>      </text>
     </g>
   </g>
   <g
-     transform="translate(264.0,439.375)"
+     transform="translate(206.5,298.46875)"
      id="g165">
     <path
-       d="M0.0,0.0 L32.625,0.0 L32.625,0.0 L64.25,0.0 "
-       stroke-dasharray="23, 0"
-       fill="none"
-       stroke="#000000"
-       stroke-width="1"
-       id="path167" />
+       d="m 0,0 32.625,0 0,0 31.625,0"
+       id="path167"
+       inkscape:connector-curvature="0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-dasharray:23, 0" />
     <g
-       transform="translate(65.25,0.0) rotate(180.0)"
+       transform="matrix(-1,0,0,-1,65.25,0)"
        id="g169">
       <polygon
-         points="0,0 12,7 12,-7"
-         fill="#FFFFFF"
-         stroke="#000000"
-         stroke-width="1.0"
-         id="polygon171" />
+         points="12,-7 0,0 12,7 "
+         id="polygon171"
+         style="fill:#ffffff;stroke:#000000;stroke-width:1" />
     </g>
   </g>
   <g
-     transform="translate(539.5,438.0)"
+     transform="translate(482,297.09375)"
      id="g173">
     <path
-       d="M0.0,0.0 L66.5,0.0 L66.5,0.0 L132.0,0.0 "
-       stroke-dasharray="23, 0"
-       fill="none"
-       stroke="#000000"
-       stroke-width="1"
-       id="path175" />
+       d="m 0,0 66.5,0 0,0 65.5,0"
+       id="path175"
+       inkscape:connector-curvature="0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-dasharray:23, 0" />
     <g
-       transform="translate(133.0,0.0) rotate(180.0)"
+       transform="matrix(-1,0,0,-1,133,0)"
        id="g177">
       <polygon
-         points="0,0 12,7 12,-7"
-         fill="#FFFFFF"
-         stroke="#000000"
-         stroke-width="1.0"
-         id="polygon179" />
+         points="12,-7 0,0 12,7 "
+         id="polygon179"
+         style="fill:#ffffff;stroke:#000000;stroke-width:1" />
     </g>
   </g>
 </svg>

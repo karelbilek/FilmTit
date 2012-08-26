@@ -14,15 +14,28 @@ import cz.filmtit.share.exceptions.ParsingException;
  * 
  * TODO add parsing of text format modifiers like "{Y:i}"
  * 
- * @author Honza Václ
+ * @author Honza Václ and Karel Bílek
  *
  */
-public class ParserSub extends Parser {
+public class UnprocessedParserSub extends UnprocessedParser {
+    
+    /**
+     * How is newline presented in SUB format.
+     */
+    public static final String SUBLINE_SEPARATOR_IN = "\\|";
 	
+    /**
+     * Regexp extracting time info.
+     * Note, that in SRT, the time info are actual times, in SUB, it's frames.
+     */
 	public static RegExp reSubtitleLine = RegExp.compile("^{([0-9]+)}{([0-9]+)}(.*)$");  // the "{}" are here as literals
-	
 
-	public List<UnprocessedChunk> parseUnprocessed(String text)
+    /**
+     * Parses SUB text to unprocessed chunks.
+     * @param text text in SUB format
+     * @return list of unprocessed chunks.
+     */
+     public List<UnprocessedChunk> parseUnprocessed(String text)
             throws ParsingException {
 		List<UnprocessedChunk> sublist = new ArrayList<UnprocessedChunk>();
 		
@@ -42,17 +55,15 @@ public class ParserSub extends Parser {
 				String[] segments = lineText.split(SUBLINE_SEPARATOR_IN);
 				String titText = segments[0];
                 for (int i = 1; i < segments.length; i++) {
-					titText += SUBLINE_SEPARATOR_OUT + segments[i];
+					titText += LINE_SEPARATOR_OUT + segments[i];
 				}
 
                 sublist.add(new UnprocessedChunk(startTime, endTime, titText));
-                //addToSublist(sublist, titText, startTime, endTime, chunkId++, documentId);
 			}
 			else {
 				throw new ParsingException("Wrong format of the subtitle", linenumber + 1, false);
 			}
 		}
-        //renumber(sublist);
 
 		return sublist;
 	}

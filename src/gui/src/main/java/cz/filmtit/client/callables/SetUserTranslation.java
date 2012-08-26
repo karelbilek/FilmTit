@@ -192,6 +192,7 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 	 * @param keyValuePair
 	 * @return the SetUserTranslation if the parsing is successful, null otherwise
 	 */
+    // @Override
     public static SetUserTranslation fromKeyValuePair(KeyValuePair keyValuePair) {
     	try {
     		// key fields

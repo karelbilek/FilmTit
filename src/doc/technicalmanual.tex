@@ -221,13 +221,49 @@ The module-specific options for the Core TM are mostly related to performance.
 
 \subsubsection{Userspace}
 
-\lstset{numbers=none, language=XML, caption={Settings for the Userspace}}
+User space settings contains few constants influencing the behavior of the application and also fields that need be set correctly to make application running.
+
+\begin{itemize} 
+\item \verb#maximum_suggestions_count# -- maximum number of translation suggestions which are displayed to the user for one chunk, users can change this value in their user specific settings
+\item \verb#session_timeout_limit# -- time (in milliseconds) after which a user session is terminated if the user does not do any action in case the user did not set up she wants to be logged in permanently
+\item \verb#permanent_timeout_limit# -- time (in milliseconds) after which a user session is terminated if the user does not do any action in case the user did set up she wants to be logged in permanently
+\item \verb#server_address# -- URL of the web application, it is used in OpenID login to tell the OpenID providers where the browser should be redirected to after logging in
+\end{itemize}
+
+\lstset{numbers=none, language=XML, caption={First part of the User Space settings}}
 \begin{lstlisting}
 <userspace>
-    <maximum_suggestions_count>25</maximum_suggestions_count>
+     <maximum_suggestions_count>25</maximum_suggestions_count>
      <session_timeout_limit>3600000</session_timeout_limit>
      <permanent_session_timeout_limit>1209600000</permanent_session_timeout_limit>
      <server_address>http://localhost:8080</server_address>
+\end{lstlisting}
+
+
+The second part of the User Space setting concerns sending email from the application. Administrator can set the mailer server, account and text of the messages. Settings needed to establish a connection are listed first.
+
+\begin{itemize}
+   \item \verb#mail.transport.protocol# -- protocol for sending
+   \item \verb#mail.stmps.port# -- port for sending mail
+   \item \verb#mail.stmps.host# -- host server
+	\item \verb#mail.smtps.socketFactory.class# -- class used for ssl encryption
+	\item \verb#mail.smtps.socketFactory.port# -- port used for ssl
+	\item \verb#mail.smtps.auth# -- if connection needs authentication
+	\item \verb#mail.filmtit.address# -- account login
+	\item \verb#mail.filmtit.password# -- account password
+\end{itemize}
+
+Settings of the email subjects and bodies follows. In the registration email body you can use {\tt \%userlogin\%} and {\tt \%userpass\%} templates which are later substituted by the real user name and password values at the time the email is sent. Similarly, {\tt \%userlogin\%} and {\tt \%changeurl\%} templates can be used in the email which is sent to the user when he forgets his password.
+
+\begin{itemize}
+\item \verb#mail.filmtit.forgottenPassSubject# -- subject for forgotten password email
+\item \verb#mail.filmtit.forgottenPassBody# -- text body for forgotten password email
+\item \verb#mail.filmtit.registrationSubject# -- subject for registration email
+\item \verb#mail.filmtit.registrationBody# -- text body of registration email
+\end{itemize}
+
+\lstset{numbers=none, language=XML, caption={Settings for sending emails, second part of the User Space settings.}}
+\begin{lstlisting}
      <mail>
          <properties>
              <comment/>
@@ -258,27 +294,6 @@ The module-specific options for the Core TM are mostly related to performance.
      </mail>
 </userspace>
 \end{lstlisting}
-
-\subsubsection{Setting email}
-Filmtit uses free mailserver and account from Gmail for sending emails. Administrator can change mailer server, account and text of messages too. 
-Userspace part properties contains whole configuration of mailer. Configuration can be divided into two parts. First part consistis of entries with values, which are needed to establishing connection
-\begin{itemize}
-   \item \verb#mail.transport.protocol# -- protocol for sending
-   \item \verb#mail.stmps.port# -- port for sending mail
-   \item \verb#mail.stmps.host# -- host server
-	\item \verb#mail.smtps.socketFactory.class# -- class used for ssl encryption
-	\item \verb#mail.smtps.socketFactory.port# -- port used for ssl
-	\item \verb#mail.smtps.auth# -- if connection needs authentication
-	\item \verb#mail.filmtit.address# -- account login
-	\item \verb#mail.filmtit.password# -- account password
-\end{itemize}
-Second part contains entries for setting messages. Administrator can change subject and text message. Message contains strings starts and ends with '\%' - templates. These templates are replaced by data from database.
-\begin{itemize}
-\item \verb#mail.filmtit.forgottenPassSubject# -- subject for forgotten password email
-\item \verb#mail.filmtit.forgottenPassBody# -- text body for forgotten password email
-\item \verb#mail.filmtit.registrationSubject# -- subject for registration email
-\item \verb#mail.filmtit.registrationBody# -- text body of registration email
-\end{itemize}
 
 
 \subsubsection{APIs and keys}

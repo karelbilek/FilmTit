@@ -66,18 +66,18 @@ bg=pink</panel_attributes>
       <x>66</x>
       <y>36</y>
       <w>30</w>
-      <h>702</h>
+      <h>696</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>18;18;18;690</additional_attributes>
+    <additional_attributes>18;18;18;684</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
       <x>78</x>
-      <y>66</y>
+      <y>72</y>
       <w>12</w>
-      <h>660</h>
+      <h>222</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -139,10 +139,10 @@ new CreateNewDocument
       <x>702</x>
       <y>36</y>
       <w>30</w>
-      <h>702</h>
+      <h>696</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>18;18;18;690</additional_attributes>
+    <additional_attributes>18;18;18;684</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
@@ -172,11 +172,10 @@ new CreateNewDocument
       <x>216</x>
       <y>180</y>
       <w>90</w>
-      <h>56</h>
+      <h>42</h>
     </coordinates>
     <panel_attributes>lt=&lt;
-new FileLoad-
-Widget()</panel_attributes>
+new</panel_attributes>
     <additional_attributes>78;30;18;30</additional_attributes>
   </element>
   <element>
@@ -354,7 +353,7 @@ new SaveSourceChunks
       <x>42</x>
       <y>0</y>
       <w>720</w>
-      <h>726</h>
+      <h>720</h>
     </coordinates>
     <panel_attributes>sd Successful Document Creation</panel_attributes>
     <additional_attributes/>
@@ -401,10 +400,10 @@ bg=magenta</panel_attributes>
       <x>534</x>
       <y>36</y>
       <w>30</w>
-      <h>702</h>
+      <h>696</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>18;18;18;690</additional_attributes>
+    <additional_attributes>18;18;18;684</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
@@ -493,10 +492,10 @@ bg=cyan</panel_attributes>
       <x>426</x>
       <y>36</y>
       <w>30</w>
-      <h>702</h>
+      <h>696</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>18;18;18;690</additional_attributes>
+    <additional_attributes>18;18;18;684</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
@@ -528,7 +527,7 @@ new TranslationWorkspace
       <x>438</x>
       <y>360</y>
       <w>12</w>
-      <h>366</h>
+      <h>354</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -675,7 +674,7 @@ Which one of these movies did you mean?</panel_attributes>
     </coordinates>
     <panel_attributes>lt=&lt;
 startShowing-
-TranslationsIfReady()</panel_attributes>
+TranslationsIfReady</panel_attributes>
     <additional_attributes>18;30;114;30</additional_attributes>
   </element>
   <element>
@@ -699,7 +698,51 @@ TranslationsIfReady()</panel_attributes>
     </coordinates>
     <panel_attributes>lt=&lt;
 startShowing-
-TranslationsIfReady()</panel_attributes>
+TranslationsIfReady</panel_attributes>
     <additional_attributes>18;48;66;48;66;18;18;18</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>78</x>
+      <y>594</y>
+      <w>12</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqDestroyMark</type>
+    <coordinates>
+      <x>546</x>
+      <y>420</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqDestroyMark</type>
+    <coordinates>
+      <x>546</x>
+      <y>498</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqDestroyMark</type>
+    <coordinates>
+      <x>546</x>
+      <y>678</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
   </element>
 </diagram>

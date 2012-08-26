@@ -63,7 +63,7 @@ We very soon had toy implementations of:
 We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
 
 
-TODO: player -- Karel should write something more about its development, the applet signing, etc.
+\todo{player -- Karel should write something more about its development, the applet signing, etc.}
 
 An issue we encountered in developing the player and were not able to combat completely is letting the user choose a media file and passing its full filesystem path to the player. We found out that although it is quite easy to load a whole file from disc into memory, only its filename is passed to Javascript instead of the full path for security reasons. We did a thorough search on the internet but found out that there is most probably no clean way around this restriction.
 
@@ -114,7 +114,7 @@ Despite we wanted to implement OpenID support from the very beginning we started
 
 \emph{JOpenID} seemed to be easier to use and also was much smaller as a dependency, on the other hand when we run into some problems with using it we found out that \emph{openid4java} is much more frequently discussed on the \emph{StackOverflow.com} forum and that there bigger chance that we would be able to find some advice for potential problems.
 
-\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes\todo{check if it is true}) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
+\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
 
 At the end we decided to use \emph{JOpenID} library and support Google, Yahoo and Seznam accounts. The library contains the Google and Yahoo by default. We decided to also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider. Seznam provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the other OpenID providers, therefore it was necessary to write our parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
 
@@ -280,6 +280,14 @@ If user registers through OpenID, we have to assign a user name to him (the uniq
 
 After using default GWT look, we decided to use Twitter Bootstrap -- good decision, looks nice and provides additional widgets.
 
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.5]{figures/old_screenshot.png}
+\end{center}
+\caption{Design of the Translation Workspace before starting to use the Twitter Bootstrap}
+\label{fig:before_bootstrap}
+\end{figure}
+
 Trying to be user friendly
 
 - expected behavior
@@ -367,7 +375,16 @@ At first, the whole app should be able to work offline.
 
 Eventually, decided that the only part that must be able to work offline is the Translation Workspace.
 
-Actually, only saving SetUserTranslation calls.
+If user closes the app, we cannot do anything anyway -- the whole app would have to be stored offline which we wanted to avoid in the first place.
+
+Creating documents and exporting documents: not possible in Offline Mode.
+Settings: does not make much sense in Offline mode.
+
+Eventually, only saving SetUserTranslation calls.
+
+Only thing that IMHO could actually be useful is preloading multiple documents, so that user can got to doc list and back again and translate multiple documents, not only the opened one.
+Would have to preload suggestions -- would have to change the way they are handled since now they are not stored permanently anywhere, are always regenerated on opening the TW.
+The question which documents to preload -- all of them? Too unefficient. Only the ones that user chooses? Yes, but he has to be able to choose them in a user-friendly way. Probably simplest: store the documents that the user opens. However, there is then little difference between the targetted state and the current state: the only difference is that now the user must open multiple tabs and leave them opened, while in the proposed state he could open them one after another and work on them in one tab only (although StopTranslationResults would probably have to be modified as well so that the user does not have to leave the TW open and wait for all of the suggestions to load). \todo{nevim jak se anglicky rekne ze to je malo muziky za hodne penez}
 
 Decided to use Local Storage -- similar to cookies but better.
 Like Cookies, the stored object has two ``useful'' fields, the name (or key) and the contents (or value). However, the Local Storage has several advanages over cookies:
@@ -383,10 +400,24 @@ First idea: serialize and deserialize using JSON!
 
 Later realization: would need an external library for that (TODO see RPCs), decided to write custom serialization.
 
-Created a Storable interface for classes that implement serialization and deserialization methods.
-Currently only implemented by one class (SetUserTranslation), but is desinged to be easily extendable if we decide to store other data in Local Storage as well. (Logically separated into LocalStorageHandler, Storable interface and the SetUserTranslation class).
+Created a Storable interface defining serialization and deserialization methods -- toKeyValuePair and fromKeyValuePair.
+
+Issue encountered: Java does not support neither constructors nor static methods in interfaces, but we need to use one or the other for deserialization (or a hack, such as using an empty constructor and then loading the data into the empty object, which would enable us to define the method in the interface but would break several good programming practices otherwise and therefore we decided not to use it).
+
+\todo{check whether there is a coding pattern for that - probably ask Stepan}
+
+Java reasoning: one could specify them, but they could be invoked only on the implementing class anyway (i.e. they could never be invoked through the interface without specifying the implementing class), so there is no point in including them.
+
+Our reaction: we agree that including methods that can never be invoked is strange. However, we would not mind if these methods were removed from the interface during compilation; still, it would be helpful if the classes implementing the interface would be automatically checked for implementation of such methods, both in IDE and at compile time.
+
+We decided to define a static factory method fromKeyValuePair that all Storable classes must implement; however, it has to be commented out in the source code of the Storable interface, as well as the ``@Override'' annotation in the implementation classes. Still, we prefer to keep these in the code to make our point.
+
+
+Currently only implemented by one class (SetUserTranslation), but is desinged to be easily extendable if we decide to store other data in Local Storage as well.
 
 To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the Storable interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
+
+In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if nescessary.
 
 How to identify the objects correctly:
 

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="11.5.1">
-  <zoom_level>7</zoom_level>
+  <zoom_level>6</zoom_level>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>749</x>
-      <y>28</y>
-      <w>70</w>
-      <h>28</h>
+      <x>750</x>
+      <y>24</y>
+      <w>60</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>Userspace
 bg=green</panel_attributes>
@@ -16,21 +16,21 @@ bg=green</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>630</x>
-      <y>35</y>
-      <w>34</w>
-      <h>972</h>
+      <x>648</x>
+      <y>30</y>
+      <w>30</w>
+      <h>810</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;567;21;959</additional_attributes>
+    <additional_attributes>18;18;18;462;18;798</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>476</x>
-      <y>28</y>
-      <w>70</w>
-      <h>28</h>
+      <x>516</x>
+      <y>24</y>
+      <w>60</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>Translation
 Workspace
@@ -38,23 +38,12 @@ bg=cyan</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
-    <type>com.umlet.element.custom.SeqObjectActive</type>
-    <coordinates>
-      <x>504</x>
-      <y>70</y>
-      <w>14</w>
-      <h>917</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes/>
-  </element>
-  <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>126</x>
-      <y>28</y>
-      <w>70</w>
-      <h>28</h>
+      <x>216</x>
+      <y>24</y>
+      <w>60</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>User
 bg=pink</panel_attributes>
@@ -63,21 +52,21 @@ bg=pink</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>35</y>
-      <w>34</w>
-      <h>972</h>
+      <x>228</x>
+      <y>30</y>
+      <w>30</w>
+      <h>810</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;959</additional_attributes>
+    <additional_attributes>18;18;18;798</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>154</x>
-      <y>70</y>
-      <w>14</w>
-      <h>917</h>
+      <x>240</x>
+      <y>324</y>
+      <w>12</w>
+      <h>210</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -85,32 +74,32 @@ bg=pink</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>763</x>
-      <y>35</y>
-      <w>34</w>
-      <h>972</h>
+      <x>762</x>
+      <y>30</y>
+      <w>30</w>
+      <h>810</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;959</additional_attributes>
+    <additional_attributes>18;18;18;798</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>490</x>
-      <y>28</y>
-      <w>34</w>
-      <h>979</h>
+      <x>528</x>
+      <y>6</y>
+      <w>30</w>
+      <h>834</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;966</additional_attributes>
+    <additional_attributes>18;18;18;822</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>77</x>
+      <x>174</x>
       <y>0</y>
-      <w>763</w>
-      <h>994</h>
+      <w>654</w>
+      <h>828</h>
     </coordinates>
     <panel_attributes>sd Document Translation</panel_attributes>
     <additional_attributes/>
@@ -118,37 +107,37 @@ bg=pink</panel_attributes>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>364</x>
-      <y>238</y>
-      <w>308</w>
-      <h>105</h>
+      <x>420</x>
+      <y>162</y>
+      <w>264</w>
+      <h>78</h>
     </coordinates>
     <panel_attributes>loop
 --
- 
+
 [for each received result]            </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>497</x>
-      <y>147</y>
-      <w>160</w>
-      <h>64</h>
+      <x>534</x>
+      <y>84</y>
+      <w>138</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 new GetTranslationResults
 (chunks)</panel_attributes>
-    <additional_attributes>147;35;21;35</additional_attributes>
+    <additional_attributes>126;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>777</x>
-      <y>196</y>
-      <w>14</w>
-      <h>28</h>
+      <x>774</x>
+      <y>126</y>
+      <w>12</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -156,22 +145,22 @@ new GetTranslationResults
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>637</x>
-      <y>189</y>
-      <w>153</w>
-      <h>49</h>
+      <x>654</x>
+      <y>120</y>
+      <w>132</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes>lt=&lt;.
 translationResults</panel_attributes>
-    <additional_attributes>21;35;140;35</additional_attributes>
+    <additional_attributes>18;30;120;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>616</x>
-      <y>28</y>
-      <w>70</w>
-      <h>28</h>
+      <x>636</x>
+      <y>24</y>
+      <w>60</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>:Callable
 bg=magenta</panel_attributes>
@@ -180,10 +169,10 @@ bg=magenta</panel_attributes>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>91</x>
-      <y>98</y>
-      <w>735</w>
-      <h>882</h>
+      <x>186</x>
+      <y>60</y>
+      <w>630</w>
+      <h>756</h>
     </coordinates>
     <panel_attributes>par</panel_attributes>
     <additional_attributes/>
@@ -191,34 +180,34 @@ bg=magenta</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>70</x>
-      <y>350</y>
-      <w>769</w>
-      <h>34</h>
+      <x>168</x>
+      <y>264</y>
+      <w>660</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;119;21;756;21</additional_attributes>
+    <additional_attributes>18;18;102;18;648;18</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>637</x>
-      <y>161</y>
-      <w>153</w>
-      <h>64</h>
+      <x>654</x>
+      <y>96</y>
+      <w>132</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 getTranslationResults
 (chunks)</panel_attributes>
-    <additional_attributes>140;35;21;35</additional_attributes>
+    <additional_attributes>120;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>644</x>
-      <y>182</y>
-      <w>14</w>
-      <h>168</h>
+      <x>660</x>
+      <y>114</y>
+      <w>12</w>
+      <h>138</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -226,37 +215,37 @@ getTranslationResults
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>497</x>
-      <y>266</y>
-      <w>160</w>
-      <h>64</h>
+      <x>534</x>
+      <y>174</y>
+      <w>138</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 showResult
 (translationResult)</panel_attributes>
-    <additional_attributes>21;35;147;35</additional_attributes>
+    <additional_attributes>18;30;126;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>350</x>
-      <y>112</y>
-      <w>462</w>
-      <h>245</h>
+      <x>408</x>
+      <y>72</y>
+      <w>396</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes>loop
 --
- 
+
 [until all yet untranslated chunks are processed]                      </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>357</x>
-      <y>28</y>
-      <w>70</w>
-      <h>28</h>
+      <x>414</x>
+      <y>24</y>
+      <w>60</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>:SubgestBox
 bg=orange</panel_attributes>
@@ -265,34 +254,34 @@ bg=orange</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>371</x>
-      <y>35</y>
-      <w>34</w>
-      <h>972</h>
+      <x>426</x>
+      <y>30</y>
+      <w>30</w>
+      <h>810</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;959</additional_attributes>
+    <additional_attributes>18;18;18;798</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>378</x>
-      <y>280</y>
-      <w>139</w>
-      <h>64</h>
+      <x>432</x>
+      <y>186</y>
+      <w>120</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=&lt;
 setTranslationResult
 (translationResult)</panel_attributes>
-    <additional_attributes>21;35;126;35</additional_attributes>
+    <additional_attributes>18;30;108;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>385</x>
-      <y>315</y>
-      <w>14</w>
-      <h>21</h>
+      <x>438</x>
+      <y>216</y>
+      <w>12</w>
+      <h>18</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -300,10 +289,10 @@ setTranslationResult
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>105</x>
-      <y>385</y>
-      <w>707</w>
-      <h>581</h>
+      <x>198</x>
+      <y>300</y>
+      <w>606</w>
+      <h>504</h>
     </coordinates>
     <panel_attributes>loop</panel_attributes>
     <additional_attributes/>
@@ -311,23 +300,23 @@ setTranslationResult
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>378</y>
-      <w>132</w>
-      <h>64</h>
+      <x>234</x>
+      <y>300</y>
+      <w>114</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 focus
 (subgestbox)</panel_attributes>
-    <additional_attributes>119;35;21;35</additional_attributes>
+    <additional_attributes>102;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>238</x>
-      <y>28</y>
-      <w>70</w>
-      <h>28</h>
+      <x>312</x>
+      <y>24</y>
+      <w>60</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>:Subgest
 Handler
@@ -337,32 +326,21 @@ bg=yellow</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>252</x>
-      <y>35</y>
-      <w>34</w>
-      <h>972</h>
+      <x>324</x>
+      <y>30</y>
+      <w>30</w>
+      <h>810</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>21;21;21;959</additional_attributes>
+    <additional_attributes>18;18;18;606;18;798</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>266</x>
-      <y>413</y>
-      <w>14</w>
-      <h>14</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes/>
-  </element>
-  <element>
-    <type>com.umlet.element.custom.SeqObjectActive</type>
-    <coordinates>
-      <x>385</x>
-      <y>427</y>
-      <w>14</w>
-      <h>336</h>
+      <x>336</x>
+      <y>330</y>
+      <w>12</w>
+      <h>12</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -370,35 +348,35 @@ bg=yellow</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>392</y>
-      <w>139</w>
-      <h>49</h>
+      <x>330</x>
+      <y>312</y>
+      <w>120</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-showSuggestions()</panel_attributes>
-    <additional_attributes>126;35;21;35</additional_attributes>
+showSuggestions</panel_attributes>
+    <additional_attributes>108;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>742</y>
-      <w>132</w>
-      <h>64</h>
+      <x>228</x>
+      <y>612</y>
+      <w>120</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 blur
 (subgestbox)</panel_attributes>
-    <additional_attributes>119;35;21;35</additional_attributes>
+    <additional_attributes>108;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>266</x>
-      <y>777</y>
-      <w>14</w>
-      <h>182</h>
+      <x>336</x>
+      <y>642</y>
+      <w>12</w>
+      <h>156</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -406,63 +384,63 @@ blur
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>497</x>
-      <y>854</y>
-      <w>160</w>
-      <h>72</h>
+      <x>534</x>
+      <y>708</y>
+      <w>138</w>
+      <h>64</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 new SetUserTranslation
 (chunkIndex, translation,
 chosenSuggestion)
 </panel_attributes>
-    <additional_attributes>147;35;21;35</additional_attributes>
+    <additional_attributes>126;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>840</y>
-      <w>258</w>
-      <h>64</h>
+      <x>330</x>
+      <y>696</y>
+      <w>222</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 submitUserTranslation
 (chunkIndex, translation, chosenSuggestion)</panel_attributes>
-    <additional_attributes>245;35;21;35</additional_attributes>
+    <additional_attributes>210;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>413</y>
-      <w>251</w>
-      <h>49</h>
+      <x>234</x>
+      <y>330</y>
+      <w>216</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-new PopupPanel()</panel_attributes>
-    <additional_attributes>21;35;238;35</additional_attributes>
+new PopupPanel</panel_attributes>
+    <additional_attributes>18;30;204;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>609</y>
-      <w>132</w>
-      <h>64</h>
+      <x>234</x>
+      <y>498</y>
+      <w>114</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 press tab
 (isShiftKeyDown)</panel_attributes>
-    <additional_attributes>119;35;21;35</additional_attributes>
+    <additional_attributes>102;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>119</x>
-      <y>469</y>
-      <w>315</w>
-      <h>154</h>
+      <x>210</x>
+      <y>378</y>
+      <w>270</w>
+      <h>132</h>
     </coordinates>
     <panel_attributes>loop</panel_attributes>
     <additional_attributes/>
@@ -470,10 +448,10 @@ press tab
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>133</x>
-      <y>497</y>
-      <w>287</w>
-      <h>112</h>
+      <x>222</x>
+      <y>402</y>
+      <w>246</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>alt</panel_attributes>
     <additional_attributes/>
@@ -481,23 +459,23 @@ press tab
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>497</y>
-      <w>132</w>
-      <h>64</h>
+      <x>234</x>
+      <y>402</y>
+      <w>114</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 select a suggestion
 (translationPair)</panel_attributes>
-    <additional_attributes>119;35;21;35</additional_attributes>
+    <additional_attributes>102;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>266</x>
-      <y>532</y>
-      <w>14</w>
-      <h>14</h>
+      <x>336</x>
+      <y>432</y>
+      <w>12</w>
+      <h>12</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -505,47 +483,47 @@ select a suggestion
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>511</y>
-      <w>139</w>
-      <h>64</h>
+      <x>330</x>
+      <y>414</y>
+      <w>120</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 setSelected
 (translationPair)</panel_attributes>
-    <additional_attributes>126;35;21;35</additional_attributes>
+    <additional_attributes>108;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>546</y>
-      <w>251</w>
-      <h>34</h>
+      <x>204</x>
+      <y>444</y>
+      <w>276</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>238;21;21;21</additional_attributes>
+    <additional_attributes>264;18;18;18</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>147</x>
-      <y>553</y>
-      <w>251</w>
-      <h>64</h>
+      <x>234</x>
+      <y>450</y>
+      <w>216</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 edit the translation
 (edited text)</panel_attributes>
-    <additional_attributes>238;35;21;35</additional_attributes>
+    <additional_attributes>204;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>245</x>
-      <y>665</y>
-      <w>308</w>
-      <h>91</h>
+      <x>318</x>
+      <y>546</y>
+      <w>264</w>
+      <h>78</h>
     </coordinates>
     <panel_attributes>alt</panel_attributes>
     <additional_attributes/>
@@ -553,10 +531,10 @@ edit the translation
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>266</x>
-      <y>644</y>
-      <w>14</w>
-      <h>119</h>
+      <x>336</x>
+      <y>528</y>
+      <w>12</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -564,47 +542,47 @@ edit the translation
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>224</x>
-      <y>693</y>
-      <w>342</w>
-      <h>34</h>
+      <x>300</x>
+      <y>570</y>
+      <w>294</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>329;21;21;21</additional_attributes>
+    <additional_attributes>282;18;18;18</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>658</y>
-      <w>258</w>
-      <h>64</h>
+      <x>330</x>
+      <y>540</y>
+      <w>222</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 goToPreviousBox
 (subgestbox)</panel_attributes>
-    <additional_attributes>245;35;21;35</additional_attributes>
+    <additional_attributes>210;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>700</y>
-      <w>258</w>
-      <h>64</h>
+      <x>330</x>
+      <y>576</y>
+      <w>222</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 goToNextBox
 (subgestbox)</panel_attributes>
-    <additional_attributes>245;35;21;35</additional_attributes>
+    <additional_attributes>210;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>385</x>
-      <y>791</y>
-      <w>14</w>
-      <h>21</h>
+      <x>438</x>
+      <y>654</y>
+      <w>12</w>
+      <h>18</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -612,61 +590,61 @@ goToNextBox
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>756</y>
-      <w>141</w>
-      <h>49</h>
+      <x>330</x>
+      <y>624</y>
+      <w>120</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-getTextWithNewlines()</panel_attributes>
-    <additional_attributes>126;35;21;35</additional_attributes>
+getTextWithNewlines</panel_attributes>
+    <additional_attributes>108;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>259</x>
-      <y>777</y>
-      <w>139</w>
-      <h>49</h>
+      <x>330</x>
+      <y>642</y>
+      <w>120</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes>lt=&lt;.
 userTranslation</panel_attributes>
-    <additional_attributes>21;35;126;35</additional_attributes>
+    <additional_attributes>18;30;108;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.InteractionFrame</type>
     <coordinates>
-      <x>245</x>
-      <y>826</y>
-      <w>553</w>
-      <h>126</h>
+      <x>318</x>
+      <y>684</y>
+      <w>474</w>
+      <h>108</h>
     </coordinates>
     <panel_attributes>opt
 --
-[if subgestbox.textChanged()]                                                                                        </panel_attributes>
+[if subgestbox.textChanged()]                                                                                    </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>637</x>
-      <y>868</y>
-      <w>153</w>
-      <h>72</h>
+      <x>654</x>
+      <y>720</y>
+      <w>134</w>
+      <h>64</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 setUserTranslation
 (chunkIndex, translation,
 chosenSuggestion)</panel_attributes>
-    <additional_attributes>140;35;21;35</additional_attributes>
+    <additional_attributes>120;30;18;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>644</x>
-      <y>889</y>
-      <w>14</w>
-      <h>49</h>
+      <x>660</x>
+      <y>738</y>
+      <w>12</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -674,21 +652,120 @@ chosenSuggestion)</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>637</x>
-      <y>917</y>
-      <w>153</w>
-      <h>34</h>
+      <x>654</x>
+      <y>762</y>
+      <w>132</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>21;21;140;21</additional_attributes>
+    <additional_attributes>18;18;120;18</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.custom.SeqObjectActive</type>
     <coordinates>
-      <x>777</x>
-      <y>903</y>
-      <w>14</w>
-      <h>35</h>
+      <x>774</x>
+      <y>750</y>
+      <w>12</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>540</x>
+      <y>66</y>
+      <w>12</w>
+      <h>204</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqDestroyMark</type>
+    <coordinates>
+      <x>660</x>
+      <y>246</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>540</x>
+      <y>570</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>540</x>
+      <y>606</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>540</x>
+      <y>726</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>438</x>
+      <y>342</y>
+      <w>12</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>438</x>
+      <y>480</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqObjectActive</type>
+    <coordinates>
+      <x>438</x>
+      <y>444</y>
+      <w>12</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SeqDestroyMark</type>
+    <coordinates>
+      <x>660</x>
+      <y>774</y>
+      <w>12</w>
+      <h>12</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>

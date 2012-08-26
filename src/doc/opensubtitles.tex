@@ -10,11 +10,11 @@ In this chapter, we discuss these steps, together with more detailed description
 
 \section{Retrieving data}
 
-There are plenty of subtitle files in many languages available at the Internet these days, which can be easily downloaded individually, file by file. However, for building a bigger corpus, we need a big number of subtitles -- and it is problematic to download from most of the servers in bigger batches (due to the anti-robot protection and so on). 
+There are hundrends to thousands of subtitle files in any major language available at the Internet, and all of those can be easily downloaded individually, file by file. However, for building a bigger corpus, we need the biggest number of subtitles possible -- and it is problematic to download from most of the servers in bigger batches (due to the anti-robot protection and so on). 
 
-Also, we wanted to avoid any copyright problems we would meet by using random subtitles from the Internet. For this purpose, we directly asked the administrator of the biggest server providing the subtitle site \url{http://www.opensubtitles.org} for the data. (We will refer to the site just as OS.org in the following chapter.)
+Also, we wanted to avoid any copyright problems we would meet by using random subtitles, randomly downloaded from the Internet. Because of that, we directly asked the administrator of the biggest server providing the subtitle site \url{http://www.opensubtitles.org} for the data. (We will refer to the site just as OS.org in the following chapter.)
 
-As a reply, we received all subtitle files in Czech and English from OS.org with following license condition (in Slovak):
+We were exteremely lucky to receive all subtitle files in Czech and English (but only from media sources, that have subtitles from both of these languages) from OS.org with following license condition (in Slovak):
 
 \begin{quote}
 \begin{verbatim}
@@ -84,7 +84,7 @@ The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,8
 The other step in cleanup is -- for simplicity -- removing the subtitles, that are split to more files; we assumed that those split into more parts are probably just split version the complete ones. 81\,\% of subtitles are in one piece and only 1.7\,\% movies have subtitles only in multiple files. By deleting subtitles split into more files, we completely lose Czech side of 64 movies and English side of 218 movies, which is 3,5\% in total.
 
 \subsection*{Cleaning up -- Carmencita}
-There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{You can see it here -- \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg}}. This happened due to a server error at OS.o, because the movie has ID {\tt tt0000001} at IMDB. We deleted those as well.
+There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{You can see it here -- \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg}}. We concluded this very probably happened due to a server error at OS.o, because the movie has ID {\tt tt0000001} at IMDB. We deleted those as well.
 
 %Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
@@ -97,6 +97,13 @@ Later in development, we noticed that some files have incorrect language written
 
 %\todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
 
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/data_flow.pdf}
+\end{center}
+\caption{How do the data flow from original archive to database. We don't talk about Moses server in this chapter; but it is here to illustrate that the aligned corpus is used in two ways -- in building the DB for translation memory and in building phrase table for MT}\label{dataflow}
+\end{figure}
+
 \section{Loading subtitles, parsing}
 \subsection*{Loading subtitles}
 The subtitles were gzipped, as already noted. Gunzipping all the files to disk would take unnecessary space, so we load the files using \texttt{GZIPInputStream}, which is a part of standard Java library.
@@ -104,22 +111,43 @@ The subtitles were gzipped, as already noted. Gunzipping all the files to disk w
 Most of the Czech subtitles were in encoding \texttt{Windows-1250}, but a small minority of them were in Unicode. Some files were not correct \texttt{gzip}. Other than these issues, reading the files themselves was quite easy.
 
 \subsection*{GUI parsing}
-Before we start to talk about parsing, let us take a small sidestep to GUI. \todo{why???}We wanted to move the parsing of the users' uploaded subtitles to client side. Because we already had a set of shared classes, we decided to add the parser as a shared class -- because both users use the parsing in GUI and serves is using the parser while doing dataimport.
+Before we start to talk about parsing, let us take a small sidestep to GUI. 
 
-Because we did that, we had to write the parsing classes in such a way, that would compile with both GWT and the java compiler. What that effectively meant was not using the standard Java regex classes, but special GWT ones.
+We wanted to move the parsing of the users' uploaded subtitles to client side. The most important reason was that we didn't want to add work to the server, also we didn't want to create more RPCs specifically for subtitle parsing.\todo{In my opinion(Karel), these are terrible reasons, but I am repeating myself :D} Because we already had a set of shared classes, we decided to add the parser as a shared class -- because both users use the parsing in GUI and server is using the parser while doing dataimport.
+
+This is, by the way, one of the benefits of having the dataimport module a part of the whole system; we can easily share code with other parts of the system, and even let it be translated into JavaScript.
+
+However, because we did that, we had to write the parsing classes in such a way, that would compile with both GWT and the java compiler. What that effectively meant was not using the standard Java regex classes, but special GWT ones.
 
 \subsection*{Parsing}
 Parsing the subtitles themselves was not a hard task, using GWT's regex classes. Even when \texttt{sub} is considerably less popular, we decided to not neglect it and built a parser for it, too.
+
+However, there are two scenarios, depending on when parsing is needed.
+
+One scenario is parsing the movie subtitle after user uploads it for translation and we want to show it to him. Second scenario is during the phase of building the corpus, where we parse the subtitles before aligning the subtitle items.
+
+\subsubsection*{Parsing - first step}
+What both scenarios have in common is the first step. In it, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word ``chunk" more generally in the source code than here in the documentation.} \texttt{UnprocessedParser} is an abstract class, that has two subclasses -- \texttt{UnprocessedParserSrt} and \texttt{UnprocessedParserSub}.
+
+Parsing the files is a pretty straightforward task, even though we have to deal with various edge cases.
+
+
+\subsubsection*{Parsing - second step}
+This is where the two scenarios are different. 
+
+When the user uploads file, as the second step, we take those unprocessed chunks and try to split them to sentences using \texttt{TitChunkSeparator} (which, in turn, uses \texttt{SentenceTokenizer}); we speak about sentence splitting in the next chapter. We then take those and return a list of \texttt{TimedChunk}s, with the appropriate IDs. Then we proceed to display the chunks using GUI, which is not described in this chapter.
+
+When we are building the corpus, though, we don't split the subtitle items into sentences right away. We first do alignment of files and subtitle items, which we will describe later, and only then we split the chunks into sentences, again using \texttt{TitChunkSeparator}.
 
 \section{Sentence splitting}
 \subsection*{Basic idea}
 Quite early on, we decided, that we shouldn't add the whole subtitle items into translation memory, but that we should split them to smaller parts.
 
-As you can see on the graph \ref{splitting:chunks}, we decided that we \emph{do} want to break subtitle items into sentences wherever possible and those add to database separately, but we do \emph{not} want to join the sentences that were already broken into multiple items.
+As you can see on the graph \ref{splitting:chunks}, we decided that we \emph{do} want to break subtitle items into sentences wherever possible and those add to database separately, but we do \emph{not} want to join the sentences that were already broken into multiple items. 
 
-One of the reasons for \emph{not} joining sentences together is that it is not trivial to tell if the sentence ends with a given item or not, and other is, that user will also have the sentences in his original subtitles split in this way, but we don't want to join it, translate it joined and then break it again randomly.
+One of the reasons for \emph{not} joining sentences together is that it is not trivial to tell if the sentence ends with a given item or not. The other is, that user will also have the sentences in his original subtitles split in this way. We would then, for translation, need to join his sentences in the same way - but then, we would have to break them again when exporting out again!
 
-\begin{figure}[h]
+\begin{figure}[t]
 \begin{center}
 \includegraphics{figures/chunks.pdf}
 \end{center}
@@ -128,7 +156,7 @@ One of the reasons for \emph{not} joining sentences together is that it is not t
 
 So to reiterate, we split sentences only within one subtitle item, and we don't join subtitle items to form complete sentences.
 
-For the same reasons as parsing \todo{to me, there are no real reasons}, we split sentences on client GUI when user uploads its subtitles. That limits us in the choice of splitting algorithms, basically to just using regular expressions; any algorithms, based on some machine-learned models, are not applicable here -- we can't just link a library to the GWT code and use a model, loaded from file.
+For the same reasons as parsing, we split sentences on client GUI when user uploads its subtitles. That limits us in the choice of splitting algorithms, basically to just using regular expressions; any algorithms, based on some machine-learned models, are not applicable here -- we can't just link a library to the GWT code and use a model, loaded from file.
 
 \subsection*{Dialogues}
 Dialogues are sometimes marked with a dash in the beginning. Example is in the graph \ref{splitting:chunks}. Dialogue is \emph{always} a new sentence.
@@ -136,8 +164,12 @@ Dialogues are sometimes marked with a dash in the beginning. Example is in the g
 \subsection*{Punctuation marks on newlines}
 While punctuation marks (!?.) don't always end a sentence, they \emph{do} end a sentence when they are right before newline. For that reason we do split sentences on punctuation marks before newlines.
 
+This and the previous rule are implemented in the \texttt{TitChunkSeparator}, that is, after applying them, calling \texttt{SentenceTokenizer} for rule-based sentence splitting.
+
 \subsection*{Rule-based sentence splitting}
-Besides the two aforementioned rules, we use rule-based sentenced splitting (or Sentence Tokenizing) derived from code from Daniel Naber's LanguageTools.\footnote{\url{http://www.languagetool.org/}, retrieved 20.08.2012.} The code was heavily edited by us, but only for better clarity and usage of GWT regex classes, the functionality was unchanged.
+Besides the two aforementioned rules, we use rule-based sentenced splitting (or Sentence Tokenizing) derived from code from Daniel Naber's LanguageTools.\footnote{\url{http://www.languagetool.org/}, retrieved 20.08.2012.} The code was heavily edited by us, but only for better clarity and usage of GWT regex classes, the functionality was unchanged. The code is in package \texttt{cz.filmtit.share.tokenizers}; the base class is named \texttt{SentenceTokenizer}.
+
+The rules are, actually, not \emph{that} sophisticated; it rules out the common abbreviations, the months, the cases like \texttt{I (really!) did it.}, and so on.
 
 In the rule-based classes, the list of possible words before the punctuation that don't break the sentence have to be explicitly written in the code (because GWT has a problem with reading files). Therefore, if there was a need of adding a new language to FilmTit, this would have to be added. On the other hand, similar data are publicly available for every language in, for example, the Wiktionary project.
 
@@ -716,7 +748,7 @@ Anyway, we align only the one best candidate from each media source. The result 
 
 The first approach is to take only the chunks with the same time (with some small tolerance) as belonging to each other.
 
-For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as one of the papers \todo{CITE!!!} proposed, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
+For counting file to file alignment, we used 0.6\,s as a tolerance for equality, in order not to be confused by slight differences in timing, as a paper on using subtitles for building corpora\footnote{Einav Itamar, Alon Itai (2008): \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora.} The sixth international conference on Language Resources and Evaluation, LREC 2008.} proposes, and than we used editing distance of their time declarations. By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
 
 We chose editing distance, since there can be some small splitting or additions, as described above.
 
@@ -800,11 +832,11 @@ We didn't test it on real database (since that would be time consuming), we sear
 \subsubsection{Counting precision and recall for file to file alignment}
 There are those five cases of what can happen:
 \begin{itemize}
-    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a "good" movie - in this section, we call this \textbf{true negative}
-    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a "good" movie - in this section, we call this \textbf{false negative}
-    \item With manual alignment, we found no possible matches, the aligner marked it as a "good" movie and included it in corpus - in this section, we call this \textbf{false positive}
-    \item With manual alignment, we found possible matches, the aligner marked it as a "good" movie, but the match from aligner was not one of the correct ones -  we call this \textbf{partly true positive}
-    \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textbf{fully true positive}
+    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a "good" movie - in this section, we call this \textit{true negative}
+    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a "good" movie - in this section, we call this \textit{false negative}
+    \item With manual alignment, we found no possible matches, the aligner marked it as a "good" movie and included it in corpus - in this section, we call this \textit{false positive}
+    \item With manual alignment, we found possible matches, the aligner marked it as a "good" movie, but the match from aligner was not one of the correct ones -  we call this \textit{partly true positive}
+    \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
 \end{itemize}
 
 With some consideration, we count precision as 
