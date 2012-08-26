@@ -2,7 +2,6 @@ package cz.filmtit.share.tokenizers;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,87 +10,176 @@ import com.google.gwt.regexp.shared.RegExp;
 
 /**
  * Tokenizes text into sentences by looking for typical end-of-sentence markers,
- * but considering exceptions (e.g. abbreviations).
+ * but considering exceptions (eg abbreviations).
+ * 
+ * It is heavily based on LanguageTools by Daniel Naber, but was
+ * also heavily refractored.
  *
- * @author Daniel Naber
+ * @author Daniel Naber, Karel Bílek
  */
 abstract public class SentenceTokenizer{
 
-    // end of sentence marker:
-    protected static final String EOS = "\0";
-    //private final static String EOS = "#"; // for testing only
-    protected static final String P = "[\\.!?…]"; // PUNCTUATION
+    /**
+     * End of sentence marker. Used only internally to split sentences.
+     */
+    protected static final String END_OF_SENTENCE = "\0";
     
-    protected static final String AP = "(?:'|«|\"|”|\\)|\\]|\\})?"; // AFTER PUNCTUATION
-    protected static final String PAP = P + AP;
-    protected static final String PARENS = "[\\(\\)\\[\\]]"; // parentheses
+    /**
+     * Punctuation marks.
+     */
+    protected static final String PUNCTUATION = "[\\.!?…]";
+
+    /**
+     * Quotes like ' and ".
+     */
+    private static final String QUOTES = "['\"]";
+
+    /**
+     * Everything non-lettery that can happen after punctuation.
+     */
+    protected static final String AFTER_PUNCTUATION = "(?:'|«|\"|”|\\)|\\]|\\})?"; // AFTER PUNCTUATION
+
+    /**
+     * Punctuation together with anything after it.
+     */
+    protected static final String PUNCTUATION_AND_AFTER = PUNCTUATION + AFTER_PUNCTUATION;
+
+    /**
+     * Parenthesis, put out to simplify.
+     */
+    protected static final String PARENTHESES = "[\\(\\)\\[\\]]";
 
 
-    // add unbreakable field, for example footnote, if it's at the end of the sentence
-    private static final RegExp punctWhitespace = RegExp.compile("(" + PAP + "(\u0002)?\\s)", "g");
-    // \p{Lu} = uppercase, with obeying Unicode (\p{Upper} is just US-ASCII!):
-    private static final RegExp punctUpperLower = RegExp.compile("(" + PAP
+    /**
+     * Regexp for adding \0 after punct and space after it. Used for the first splitting.
+     */
+    private static final RegExp punctWhitespace = RegExp.compile("(" + PUNCTUATION_AND_AFTER + "(\u0002)?\\s)", "g");
+
+    /**
+     * Regextp for adding \0 after punct and upper letter after it.
+     *
+     */
+    private static final RegExp punctUpperLower = RegExp.compile("(" + PUNCTUATION_AND_AFTER
             + ")([\\p{Lu}][^\\p{Lu}.])", "g");
-    
+    // \p{Lu} = uppercase, with obeying Unicode (\p{Upper} is just US-ASCII!):
+
+    /**
+     * All possible letters in the given language.
+     * This is potentially unsafe, if overriding class has "]" in nonStandardLetters.
+     */
+    private final String POSSIBLE_LETTERS = "[\\w\""+ nonStandardLetters() +"\"]\"";
+
+    /**
+     * Anything but possible letters in given language.
+     * This is potentially unsafe, if overriding class has "]" in nonStandardLetters.
+     */
+    private final String ANYTHING_BUT_LETTERS = "[\\w\""+ nonStandardLetters() +"\"]\"";
+
+    //==========REGEXPs==========
+    //I will not document them, since I would be just rewriting the names
+    private final RegExp singleLetterBeforePunctuation =
+            RegExp.compile("(\\s"+POSSIBLE_LETTERS + PUNCTUATION + ")", "g");
+
+    private final RegExp singleLetterAbbreviationWithSpace =
+             RegExp.compile("("+
+                ANYTHING_BUT_LETTERS+ POSSIBLE_LETTERS + PUNCTUATION_AND_AFTER + "\\s" +
+            ")" + END_OF_SENTENCE, "g");
+
+    private  final RegExp singleLetterAbbreviationWithoutSpace =
+            RegExp.compile("("+
+                    ANYTHING_BUT_LETTERS+POSSIBLE_LETTERS + PUNCTUATION +
+             ")" + END_OF_SENTENCE, "g");
+
+    private final RegExp sentenceEndedWithSingleLetter =
+            RegExp.compile("(" +
+                    "\\s" + POSSIBLE_LETTERS + "\\.\\s+" +
+            ")" + END_OF_SENTENCE, "g");
+
+    private static final RegExp ellipsisAndSmallLetter =
+            RegExp.compile("(" +
+                    "\\.\\.\\. " +
+            ")" + END_OF_SENTENCE + "([\\p{Ll}])", "g");
+
+
+    private static final RegExp punctuationInQuotes =
+            RegExp.compile("(" +
+                    QUOTES + PUNCTUATION + QUOTES + "\\s+" +
+            ")" + END_OF_SENTENCE, "g");
+
+    private static final RegExp smallLetterAfterQuotes =
+            RegExp.compile("("+
+                    QUOTES+"\\s*" +
+            ")" + END_OF_SENTENCE + "(" +
+                    "\\s*[\\p{Ll}]" +
+            ")", "g");
+
+    private static final RegExp moreDots =
+            RegExp.compile("(" +
+                    "\\s" + PUNCTUATION_AND_AFTER + "\\s" +
+            ")" + END_OF_SENTENCE, "g");
+
+    private static final RegExp datumDots =
+            RegExp.compile("(" +
+                    "\\d{1,2}\\.\\d{1,2}\\.\\s+" +
+            ")" + END_OF_SENTENCE, "g");
+
+
+    private final RegExp oneWordSentence =
+            RegExp.compile("('"+POSSIBLE_LETTERS + PUNCTUATION + ")(\\s)", "g");
+
+    private static final RegExp exclamationInParenthesis =
+            RegExp.compile("([\\(\\[])([!?]+)([\\]\\)]) " + END_OF_SENTENCE, "g");
+
+    private static final RegExp wordWithExclamationInParenthesis =
+            RegExp.compile("([!?]+)([\\)\\]]) " + END_OF_SENTENCE, "g");
+
+    private static final RegExp dotsAfterParentheses =
+            RegExp.compile("(" + PARENTHESES + ") " + END_OF_SENTENCE,  "g");
+
+
+    /**
+     * Returns all letters that might not have been in \w in regexps.
+     * @return Letters, just in a string, letter after letter. Shouldn't contain "]" since that
+     * would break the regexes.
+     */
     abstract public String nonStandardLetters();
 
-    private final String NSR = nonStandardLetters();
-    
-    private final RegExp letterPunct = RegExp.compile("(\\s[\\w"+NSR+"]" + P + ")", "g");
+    /**
+     * List of all the abbreviations in a given language.
+     * @return All the abbreviations in a given language, without the dots at the end.
+     */
+    abstract String[] getAbbrevList();
 
-    private  final RegExp abbrev1 = RegExp.compile("([^-\\w"+NSR+"][\\w"+NSR+"]" + PAP + "\\s)" + EOS, "g");
 
-    private  final RegExp abbrev2 = RegExp.compile("([^-\\w"+NSR+"][\\w"+NSR+"]" + P + ")" + EOS, "g");
-    private  final RegExp abbrev3 = RegExp.compile("(\\s[\\w"+NSR+"]\\.\\s+)" + EOS, "g");
-    private static final RegExp abbrev4 = RegExp.compile("(\\.\\.\\. )" + EOS + "([\\p{Ll}])", "g");
-    private static final RegExp abbrev5 = RegExp.compile("(['\"]" + P + "['\"]\\s+)" + EOS, "g");
-    private static final RegExp abbrev6 = RegExp.compile("([\"']\\s*)" + EOS + "(\\s*[\\p{Ll}])", "g");
-    private static final RegExp abbrev7 = RegExp.compile("(\\s" + PAP + "\\s)" + EOS, "g");
-    // z.b. 3.10. (im Datum):
-    private static final RegExp abbrev8 = RegExp.compile("(\\d{1,2}\\.\\d{1,2}\\.\\s+)" + EOS, "g");
-    private final RegExp repair1 = RegExp.compile("('[\\w"+NSR+"]" + P + ")(\\s)", "g");
-    private static final RegExp repair2 = RegExp.compile("(\\sno\\.)(\\s+)(?!\\d)", "g");
-    private static final RegExp repair3 = RegExp.compile("([ap]\\.m\\.\\s+)([\\p{Lu}])", "g");
-
-    private static final RegExp repair10 = RegExp.compile("([\\(\\[])([!?]+)([\\]\\)]) " + EOS, "g");
-    private static final RegExp repair11 = RegExp.compile("([!?]+)([\\)\\]]) " + EOS, "g");
-    private static final RegExp repair12 = RegExp.compile("(" + PARENS + ") " + EOS,  "g");
-
-    // some abbreviations:
-    /*private static final String[] ABBREV_LIST = {
-            // English -- but these work globally for all languages:
-            "Mr", "Mrs", "No", "pp", "St", "no",
-            "Sr", "Jr", "Bros", "etc", "vs", "esp", "Fig", "fig", "Jan", "Feb", "Mar", "Apr", "Jun", "Jul",
-            "Aug", "Sep", "Sept", "Oct", "Okt", "Nov", "Dec", "Ph.D", "PhD",
-            "al",  // in "et al."
-            "cf", "Inc", "Ms", "Gen", "Sen", "Prof", "Corp", "Co"
-    };*/
-   private String abbrevsPreRegexp;
-
-   abstract String[] getAbbrevList(); 
-
-    private final Set<RegExp> abbreviationRegExps = new HashSet<RegExp>();
 
     /**
      * Month names like "Dezember" that should not be considered a sentence
      * boundary in string like "13. Dezember". May also contain other
      * words that indicate there's no sentence boundary when preceded
      * by a number and a dot.
+     *
+     * It is language dependent.
+     * @return Names of months, as array of strings.
      */
     protected abstract String[] getMonthNames();
 
+
     /**
-     * Create a sentence tokenizer with the given list of abbreviations,
-     * additionally to the built-in ones.
+     * Set of all the regexps, built from strings in AbbrevList.
+     * It is not 1:1, I found out that it is faster to have about 20 abbreviations
+     * in one regexp, connected by "|", rather than having too many regexps.
+     */
+    private final Set<RegExp> abbreviationRegExps = new HashSet<RegExp>();
+
+    /**
+     * Create a sentence tokenizer.
+     * Uses list of abbreviations from abstract getAbbrevList().
      */
     public SentenceTokenizer() {
-    
-            final List<String> allAbbreviations = new ArrayList<String>();
-         
 
           String regexpBuilder = null;
-          int howmuch = 0;
-          //for (String element : abbrev) {
+
+          int maxAbbrevInRegex = 0;
           for (String element : getAbbrevList()) {
                 if (regexpBuilder == null) {
                     regexpBuilder = element;
@@ -100,34 +188,37 @@ abstract public class SentenceTokenizer{
                 }
                 //20 was ideal when I experimented
                 //not many regexes, not too long ones
-                if (howmuch!=20) {
-                    howmuch++;
+                if (maxAbbrevInRegex!=20) {
+                    maxAbbrevInRegex++;
                 } else {
                    
-                    RegExp newRegExp = RegExp.compile("(\\b(" + regexpBuilder + ")" + PAP + "\\s)" + EOS); 
+                    RegExp newRegExp = RegExp.compile("(\\b(" + regexpBuilder + ")" + PUNCTUATION_AND_AFTER + "\\s)" + END_OF_SENTENCE);
                     abbreviationRegExps.add(newRegExp);
 
-                    howmuch=0;
+                    maxAbbrevInRegex=0;
                     regexpBuilder=null;
                 }
                 
             }
             if (regexpBuilder != null) {
-                RegExp newRegExp = RegExp.compile("(\\b(" + regexpBuilder + ")" + PAP + "\\s)" + EOS); 
+                RegExp newRegExp = RegExp.compile("(\\b(" + regexpBuilder + ")" + PUNCTUATION_AND_AFTER + "\\s)" + END_OF_SENTENCE);
                 abbreviationRegExps.add(newRegExp);
- 
             }
           
     }
 
+
+
     /**
      * Tokenize the given string to sentences.
+     * @param s String to tokenize.
+     * @return Sentences as list.
      */
     public List<String> tokenize(String s) {
         s = firstSentenceSplitting(s);
         s = removeFalseEndOfSentence(s);
-        s = splitUnsplitStuff(s);
-        final String[] strings = s.split(EOS);
+        s = splitUnsplit(s);
+        final String[] strings = s.split(END_OF_SENTENCE);
 
         List<String> l = new ArrayList<String>();
         for(int i = 0; i < strings.length; i++) {
@@ -138,37 +229,43 @@ abstract public class SentenceTokenizer{
         return l;
     }
 
+
+
     /**
      * Add a special break character at all places with typical sentence delimiters.
+     * @param s String which we want to split.
+     * @return the same string with added \0 marks after the sentences; it requires a clean up.
      */
     private String firstSentenceSplitting(String s) {
         // Punctuation followed by whitespace means a new sentence:
-        s = punctWhitespace.replace(s, "$1" + EOS);
+        s = punctWhitespace.replace(s, "$1" + END_OF_SENTENCE);
         // New (compared to the perl module): Punctuation followed by uppercase followed
         // by non-uppercase character (except dot) means a new sentence:
-        s = punctUpperLower.replace(s, "$1" + EOS + "$2");
+        s = punctUpperLower.replace(s, "$1" + END_OF_SENTENCE + "$2");
         // Break also when single letter comes before punctuation:
-        s = letterPunct.replace(s, "$1" + EOS);
+        s = singleLetterBeforePunctuation.replace(s, "$1" + END_OF_SENTENCE);
         return s;
     }
 
     /**
      * Repair some positions that don't require a split, i.e. remove the special break character at
      * those positions.
+     * @param s String with false end of sentences (\0)
+     * @return String without the false end of sentences.
      */
     protected String removeFalseEndOfSentence(String s)  {
         // Don't split at e.g. "U. S. A.":
-        s = abbrev1.replace(s, "$1");
+        s = singleLetterAbbreviationWithSpace.replace(s, "$1");
         // Don't split at e.g. "U.S.A.":
-        s = abbrev2.replace(s, "$1");
+        s = singleLetterAbbreviationWithoutSpace.replace(s, "$1");
         // Don't split after a white-space followed by a single letter followed
         // by a dot followed by another whitespace.
         // e.g. " p. "
-        s = abbrev3.replace(s, "$1");
+        s = sentenceEndedWithSingleLetter.replace(s, "$1");
         // Don't split at "bla bla... yada yada" (TODO: use \.\.\.\s+ instead?)
-        s = abbrev4.replace(s, "$1$2");
+        s = ellipsisAndSmallLetter.replace(s, "$1$2");
         // Don't split [.?!] when the're quoted:
-        s = abbrev5.replace(s, "$1");
+        s = punctuationInQuotes.replace(s, "$1");
 
 
         // Don't split at abbreviations:
@@ -177,48 +274,48 @@ abstract public class SentenceTokenizer{
             s = abbrevRegExp.replace(s, "$1");
         }
         
-        /*RegExp pattern = RegExp.compile("(?u)(\\b(" + abbrevsPreRegexp + ")" + PAP + "\\s)" + EOS, "g");
+        /*RegExp pattern = RegExp.compile("(?u)(\\b(" + abbrevsPreRegexp + ")" + PUNCTUATION_AND_AFTER + "\\s)" + END_OF_SENTENCE, "g");
         s = pattern.replace(s, "$1");
 */
 
         // Don't break after quote unless there's a capital letter:
         // e.g.: "That's right!" he said.
-        s = abbrev6.replace(s, "$1$2");
+        s = smallLetterAfterQuotes.replace(s, "$1$2");
 
         // fixme? not sure where this should occur, leaving it commented out:
         // don't break: text . . some more text.
-        // text=~s/(\s\.\s)$EOS(\s*)/$1$2/sg;
+        // text=~s/(\s\.\s)$END_OF_SENTENCE(\s*)/$1$2/sg;
 
         // e.g. "Das ist . so." -> assume one sentence
-        s = abbrev7.replace(s, "$1");
+        s = moreDots.replace(s, "$1");
 
         // e.g. "Das ist . so." -> assume one sentence
-        s = abbrev8.replace(s, "$1");
+        s = datumDots.replace(s, "$1");
 
         // extension by dnaber --commented out, doesn't help:
-        // text = re.compile("(:\s+)%s(\s*[%s])" % (self.EOS, string.lowercase),
+        // text = re.compile("(:\s+)%s(\s*[%s])" % (self.END_OF_SENTENCE, string.lowercase),
         // re.DOTALL).sub("\\1\\2", text)
 
         // "13. Dezember" etc. -> keine Satzgrenze:
         if (getMonthNames() != null) {
             for (String element : getMonthNames()) {
-                s = s.replaceAll("(\\d+\\.) " + EOS + "(" + element + ")", "$1 $2");
+                s = s.replaceAll("(\\d+\\.) " + END_OF_SENTENCE + "(" + element + ")", "$1 $2");
             }
         }
         // z.B. "Das hier ist ein(!) Satz."
-        s = repair10.replace(s, "$1$2$3 ");
+        s = exclamationInParenthesis.replace(s, "$1$2$3 ");
 
         // z.B. "Das hier ist (genau!) ein Satz."
-        s = repair11.replace(s, "$1$2 ");
+        s = wordWithExclamationInParenthesis.replace(s, "$1$2 ");
 
         // z.B. "bla (...) blubb" -> kein Satzende
-        s = repair12.replace(s, "$1 ");
+        s = dotsAfterParentheses.replace(s, "$1 ");
 
 
-        s = s.replaceAll("(\\d+\\.) " + EOS + "([\\p{L}&&[^\\p{Lu}]]+)", "$1 $2");
+        s = s.replaceAll("(\\d+\\.) " + END_OF_SENTENCE + "([\\p{L}&&[^\\p{Lu}]]+)", "$1 $2");
 
         // z.B. "Das hier ist ein(!) Satz."
-        s = s.replaceAll("\\(([!?]+)\\) " + EOS, "($1) "); 
+        s = s.replaceAll("\\(([!?]+)\\) " + END_OF_SENTENCE, "($1) ");
         
         
 
@@ -228,29 +325,18 @@ abstract public class SentenceTokenizer{
     /**
      * Treat some more special cases that make up a sentence boundary. Insert the special break
      * character at these positions.
+     * @param s string with unsplit sentences
+     * @return corrected string
      */
-    private String splitUnsplitStuff(String s) {
-        // e.g. "x5. bla..." -- not sure, leaving commented out:
-        // text = re.compile("(\D\d+)(%s)(\s+)" % self.P, re.DOTALL).sub("\\1\\2%s\\3" % self.EOS, text)
-        // Not sure about this one, leaving out four now:
-        // text = re.compile("(%s\s)(\s*\()" % self.PAP, re.DOTALL).sub("\\1%s\\2" % self.EOS, text)
+    private String splitUnsplit(String s) {
+        //There was more stuff in here but it was actually wrong.
+
         // Split e.g.: He won't. #Really.
-        s = repair1.replace(s, "$1" + EOS + "$2");
-        // Split e.g.: He won't say no. Not really.
-        s = repair2.replace(s, "$1" + EOS + "$2");
-        // Split at "a.m." or "p.m." followed by a capital letter.
-        
-        //TODO english true
-        //s = repair3.replace(s, "$1" + EOS + "$2");
-        
+        s = oneWordSentence.replace(s, "$1" + END_OF_SENTENCE + "$2");
+
         return s;
     }
 
-    
 
-    /*public static void main(final String[] args) {
-      final SentenceTokenizer st = new GermanSentenceTokenizer();
-      st.tokenize("Er sagte (...) und");
-    }*/
 
 }

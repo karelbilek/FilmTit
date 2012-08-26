@@ -12,8 +12,6 @@ import com.google.gwt.regexp.shared.RegExp;
 public class CzechSentenceTokenizer extends SentenceTokenizer {
 
 
-        // Check out the private methods for comments and examples about these
-    // regular expressions:
 
     @Override
     public String nonStandardLetters() { 
@@ -49,7 +47,7 @@ public class CzechSentenceTokenizer extends SentenceTokenizer {
         "etnonym", "eufem", "f", "fam", "fem", "fil", "film", "form", "fot", "fr", "fut", "fyz", "gen", "geogr", "geol", "geom", "germ", "gram", "hebr", "herald", "hist", "hl", "hovor", "hud", "hut", "chcsl", "chem", "ie", "imp", "impf", "ind", "indoevr", "inf", "instr", "interj", "ión", "iron", "it", "kanad", "katalán", "klas", "kniž", "komp", "konj", 
     "konkr", "kř", "kuch", "lat", "lék", "les", "lid", "lit", "liturg", "lok", "log", "m", "mat", "meteor", "metr", "mod", "ms", "mysl", "n", "náb", "námoř", "neklas", "něm", "nesklon", "nom", "ob", "obch", "obyč", "ojed", "opt", "part", "pas", "pejor", "pers", "pf", "pl", "plpf", 
     "práv", "prep", "předl", "přivl", "r", "rcsl", "refl", "reg", "rkp", "ř", "řec", "s", "samohl", "sg", "sl", "souhl", "spec", "srov", "stfr", "střv", "stsl", "subj", "subst", "superl", "sv", "sz", "táz", "tech", "telev", "teol", "trans", "typogr", "var", "vedl", "verb", "vl. jm", "voj", "vok", "vůb", "vulg", "výtv", "vztaž", "zahr", "zájm", "zast", "zejm", 
-    "zeměd", "zkr", "zř", "mj", "dl", "atp", "sport", "Mgr", "horn", "MVDr", "JUDr", "RSDr", "Bc", "PhDr", "ThDr", "Ing", "aj", "apod", "PharmDr", "pomn", "ev", "slang", "nprap", "odp", "dop", "pol", "st", "stol", "p. n. l", "před n. l", "n. l", "př. Kr", "po Kr", "př. n. l", "odd", "RNDr", "tzv", "atd", "tzn", "resp", "tj", "p", "br", "č. j", "čj", "č. p", "čp", "a. s", "s. r. o", "spol. s r. o", "p. o", "s. p", "v. o. s", "k. s", "o. p. s", "o. s", "v. r", "v z", "ml", "vč", "kr", "mld", "hod", "popř", "ap", "event", "rus", "slov", "rum", "švýc", "P. T", "zvl", "hor", "dol", "S.O.S"};
+    "zeměd", "zkr", "zř", "mj", "dl", "atp", "sport", "Mgr", "horn", "MVDr", "JUDr", "RSDr", "Bc", "PhDr", "ThDr", "Ing", "aj", "apod", "PharmDr", "pomn", "ev", "slang", "nprap", "odp", "dop", "pol", "st", "stol", "p. n. l", "před n. l", "n. l", "př. Kr", "po Kr", "př. n. l", "odd", "RNDr", "tzv", "atd", "tzn", "resp", "tj", "p", "br", "č. j", "čj", "č. p", "čp", "a. s", "s. r. o", "spol. s r. o", "p. o", "s. p", "v. o. s", "k. s", "o. p. s", "o. s", "v. r", "v z", "ml", "vč", "kr", "mld", "hod", "popř", "ap", "event", "rus", "slov", "rum", "švýc", "PUNCTUATION. T", "zvl", "hor", "dol", "S.O.S"};
         return abbrevList;
     }
 
