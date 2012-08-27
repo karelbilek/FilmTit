@@ -754,9 +754,9 @@ After this step, we almost have the final corpus. What we have to do before savi
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.8\textwidth]{figures/tolerance_priklad.pdf}
+\includegraphics[width=\textwidth]{figures/tolerance_priklad.pdf}
 \end{center}
-\caption{How is Levenshtein distance counted for file-to-file alignment}\label{tolerance}
+\caption Levenshtein distance for file-to-file alignment}\label{tolerance}
 \end{figure}
 
 
@@ -766,7 +766,7 @@ However, the times are rarely exactly equal. One of the papers authors\footnote{
 
 We found out, that if we use bigger tolerance, we have more subtitle pairs, but sometimes with worse quality (because sometimes we get totally different subtitles, not belonging to each other). We tried tolerance 0.6\,s (as suggested by the paper), and then 6\,s.
 
-For counting file to file alignment, we count editing distance of their time declarations, as illustrated on the graph \ref{tolerance}. 
+For counting file to file alignment, we count editing distance of their time declarations, as illustrated on the graph \ref{tolerance}; we use dynamic algorithm for that.
 
 We take all the time information (both the starts and the ends) as vectors. Then, we count editing distance of those two vectors, where we take the two time information as equal if they fall within tolerance, otherwise we take them as unequal. We score all possible pairs of Czech subtitle file on one side and English on the other for the given movie and we count Levensthein distance as a score; file pair with the shortest levensthein distance is the ``chosen'' file pair.
 
