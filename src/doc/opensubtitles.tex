@@ -188,9 +188,9 @@ We used two different approaches for this. Both of them need to solve these thre
 Implementation of all techniques described below are in \texttt{cz.filmtit.dataimport.alignment} package.
 
 \subsection{File to file alignment}
+
 As you could read in previous sections, we \emph{do} have some mapping from subtitles to movies. Now, we have to find out for each movie, which English and Czech file matches best together; we will throw away the rest of the files except for this one chosen pair for each movie.\footnote{Throwing away meant in the sense of building the corpus; we still have the original data, of course.}
 
-In general, there is 2.1 Czech subtitle file and 5 English subtitle file per movie. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
 
 What helps us in determining alignment is the fact, that Czech subtitles are usually created by taking existing English subtitles and translating them item by item. The timing of such files should be very similar. 
 
@@ -200,7 +200,7 @@ Sometimes, it also happens that a subtitle file has assigned a completely wrong 
 
 To illustrate some features of the movie subtitle files, we randomly selected movie (\emph{Legends of the Fall} from 1994) and we show fragments of \emph{all} its subtitles below. We show 5 lines from beginning, 3 lines from the middle (374 to 376, if possible), 3 lines from the end.
 
-
+\label{subtitledump}
 
 \newcommand{\nicesubs}[4]{
 \noindent
@@ -740,6 +740,10 @@ It was a good death.
 
 As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except for this one, most of the English files seems to match the Czech one quite well. You can also see none of them is a ``perfect" match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
 
+In general, there is 2.1 Czech subtitle file and 5 English subtitle file per movie. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
+
+If we take for \emph{each} movie \emph{all} the pairs, where Czech is one side and English on the other (but both have the same movie), we have 235.825 such pairs (remember, we originally have 139.538 files).
+
 \subsection{Subtitle to subtitle alignment}
 As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks. We do \emph{not} look at any other features.\footnote{In \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora (Einav Itamar, Alon Itai)}, authors tried to use other features, but we used just the time info.}
 
@@ -760,7 +764,7 @@ After this step, we almost have the final corpus. What we have to do before savi
 \end{figure}
 
 
-The first approach is to take only the items with the same time (with some tolerance) as belonging to each other.
+The first approach is to take only the items with the same time as belonging to each other.
 
 However, the times are rarely exactly equal. One of the papers authors\footnote{Einav Itamar, Alon Itai (2008): \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora.} The sixth international conference on Language Resources and Evaluation, LREC 2008.} used 0.6\,s as a tolerance in order not to be confused by slight differences in timing.
 
@@ -772,12 +776,10 @@ We take all the time information (both the starts and the ends) as vectors. Then
 
 We use Levensthein distance because there can be some small splitting, additions, and so on, but we want to take the pair of files, that have minimal number of them.
 
-For filtering out the ``bad'' movie pairs, we just throw away all that has editing distance higher than 30.
+For filtering out the ``bad'' movie pairs, we just throw away all that has editing distance higher than 30. (This was decided arbitrarily, just by looking at some random subtitle files.)
 
-For subtitle to subtitle alignment, we take the subtitles that have distance of both beginning and ending within the tolerance.
+For subtitle to subtitle alignment, we take the subtitles that have distance of both beginning and ending within the tolerance. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
 
-%This is not correct. I take all the files in the Alignment class, not only the first 100 time declarations.
-%Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
 
 %deleting this, since I covered it in previous section already
 %While comparing two mostly identical subtitle files, there may appear some issues which cause that the timing of the files is not identical. There exist some cases where one chunk is split into more or two are merged into one. In both of this cases, two time declarations in the file remain the same and two time declarations are added or deleted. There are also a lot of subtitles for deaf people where from time to time some additional subtitle appears. 
@@ -785,74 +787,113 @@ For subtitle to subtitle alignment, we take the subtitles that have distance of 
 %By that we mean taking all the time information (both the starts and the ends) as vectors, and then counting editing distance of those two vectors by dynamic algorithm.
 %As one of the papers (CITE!!!) proposed we used 0.6\,s as a tolerance for equality, not to be confused by slight differences in timing. Because the computation on whole files would be really time consuming, we limited it just for the first 100 time declarations in the files.
 
-
-\todo{?????ARE THOSE RESULTS REAL?}
-The results were following: from 15,552 movies there was 22.2\,\%
-with perfect matches and 3.1\,\% of total mismatches. The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
-
-\begin{table}[h]
-
+\begin{figure}[t]
 \begin{center}
-\begin{tabular}{|c|c|}
-\hline
-amount of films & measure of match\\ \hline
-22,2 \% & $= 100 \%$ match \\
-45.7 \% & $\ge 90 \%$ match \\ 
-56.2 \% & $\ge 80 \%$ match \\ 
-63.0 \% & $\ge 70 \%$ match \\
-69.2 \% & $\ge 60 \%$ match \\ \hline
-\end{tabular}
+\includegraphics[width=\textwidth]{figures/histograms.pdf}
 \end{center}
+\caption{Levenshtein distances for 0,6s tolerance (above) and 6s tolerance (below)}\label{histograms}
+\end{figure}
 
-\caption{Table capturing for how many movies there exist a matching pair of subtitle files with given measure of matching as a percentage of timings which do not contribute to editing distance (in other words percentage of timings which are with the given tolerance equal in both files).}\label{opensubtitles:matchTable}
-\end{table}
+You can see the histogram of shortest Levensthein distances for each movie on the figure \ref{histograms}. The green part is representing the ``good'' file pairs. The distance is maximally 100, since we take only the first 100 subtitles from each file. You can already see that there are more files in the bigger tolerance. (Of course, they might be also more wrong.)
 
-%what does the "measure of match" mean in this context? I don't get it.
 
-After looking at some randomly selected files we have decided to use just movies for which we have a pair of files where at least 70\,\% of timings match. Again, lower match score doesn't mean lower quality of translation, but rather how the subtitles match to each other. 
+%This whole thing doesn't make much sense to me, at all (how are those percents computed? why are those in percent when we use levenstein distance? or is this the sub-to-sub alignment? is it percentage of what exactly? It doesn't make much sense to me)
+%I am commenting it all
+%The results were following: from 15,552 movies there was 22.2\,\%
+%with perfect matches and 3.1\,\% of total mismatches. The scores for partial matches are captured in table \ref{opensubtitles:matchTable}.
+%\begin{table}[h]
+%
+%\begin{center}
+%\begin{tabular}{|c|c|}
+%\hline
+%amount of films & measure of match\\ \hline
+%22,2 \% & $= 100 \%$ match \\
+%45.7 \% & $\ge 90 \%$ match \\ 
+%56.2 \% & $\ge 80 \%$ match \\ 
+%63.0 \% & $\ge 70 \%$ match \\
+%69.2 \% & $\ge 60 \%$ match \\ \hline
+%\end{tabular}
+%\end{center}
+%
+%\caption{Table capturing for how many movies there exist a matching pair of subtitle files with given measure of matching as a percentage of timings which do not contribute to editing distance (in other words percentage of timings which are with the given tolerance equal in both files).}\label{opensubtitles:matchTable}
+%\end{table}
+%After looking at some randomly selected files we have decided to use just movies for which we have a pair of files where at least 70\,\% of timings match. Again, lower match score doesn't mean lower quality of translation, but rather how the subtitles match to each other. 
 
-The chunk-to-chunk alignment is then simple -- chunks are aligned together it both the time of their start and time of their end differ less than by 0.6\ s.
+The chunk-to-chunk alignment is then simple -- chunks are aligned together if both the time of their start and time of their end differ less than by the tolerance.
 
-This gave us 884 MB of parallel data which consists of 13,636,022 chunks. In this we have 5,669,837 unique chunks, from which 3.7 \% appears more than once. On the other hand, chunks appearing more than once make 57.6 \% of the whole corpus.
+%This gave us 884 MB of parallel data which consists of 13,636,022 chunks. In this we have 5,669,837 unique chunks, from which 3.7 \% appears more than once. On the other hand, chunks appearing more than once make 57.6 \% of the whole corpus.
+%I will add the sizes of the various corpora to the evaluation, it will make more sense anyway
 
 \subsubsection{Shortest distance}
-Another approach was to not take the directly equal times (even with tolerance), but to find the distances between Czech and English subtitles and take the subtitles that are "closest" to each other.
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=0.5\textwidth]{figures/distance_align.pdf}
+\end{center}
+\caption{Illustration for the distance-based alignment. Circle represents subtitle, red line represent chosen alignment, black ones are some candidates, red circles are the subtitles that are aligned}\label{histograms}
+\end{figure}
 
-More concretely, we took the middle time of each chunk (in milliseconds) and distance from other chunk is absolute difference of these middles. 
+The idea that lead to the next approach was -- what if we didn't have any maximal tolerance and just took the subtitles that are closest to each other?
 
-To find the best matching pairs in pair of two files, we took for each \todo{maybe it's the other way around :/} the closest Czech chunk for each English chunk; then, if more English chunks were aligned with the same Czech chunks, we select the closest.
+More concretely, we took the middle time of each chunk (in milliseconds) and counted distance from other chunk as an absolute difference of these middles. 
 
-(Although similar, this is not a case of graph matching in bipartite graphs, since it is not needed that each Czech chunk would have some English chunk and vice versa.)
+To find the best matching pairs in pair of two files, we took the closest Czech chunk for each English chunk; then, if more English chunks were aligned with the same Czech chunks, we select the closest.
 
-Trivially implemented this algorithm would be quadratic to the size of subtitle file; however, we may dynamize it so the worst case is linear.
+(Although similar, this is not a case of graph matching in bipartite graphs, since it is \emph{not} needed that each Czech chunk would have some English chunk and vice versa.)
+
+Trivially implemented this algorithm would be quadratic to the size of subtitle file; however, we may dynamize it so even the worst case has linear time to the size of the subtitle file.
 
 In the file-to-file alignment case, we count this alignment for each pair of files and then we sum all the distances for a given pair; we then select the pair with the smallest sum as the correct one. If the subtitles are just translated from each other, the sum should be small and can be even zero, if the time marks are exactly the same.
 
-We then selected given number of movies (we tried \todo{mabye more cases, see below}6000 and 12000) with the smallest sum as the "good" movie pairs and then align them.
+We then selected given number of movies (we tried 6000 and 12000) with the smallest sum as the ``good" movie pairs and then align them.
 
 \subsubsection{Baseline -- trivial alignment}
-As a baseline for comparison, the "trivial" algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
+As a baseline for comparison, the ``trivial" algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
 
-\subsection{Evaluation of alignment}
+\subsection{Evaluation of alignments}
 We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose? For more scientific approach, we have to evaluate them; but it turns out it is not so easy.
 
+\subsubsection{Size of corpus}
+One of the most simple evaluations is just the sheer size. Since the alignment classes are modular, we can actually use different file-to-file alignment together with subtitle-to-subtitle alignment.
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|r|}
+    \hline
+    \textbf{file alignment} & \textbf{subtitle alignment} & \textbf{number of pairs} \\ \hline
+    Tolerance 0,6 s & Tolerance 0,6 s & 5.412.875 \\ \hline
+    Tolerance 6 s & Tolerance 0,6 s & 7.210.505 \\  \hline
+    Tolerance 6 s & Tolerance 6 s & 9.228.304 \\ \hline
+    Tolerance 6 s & Distance & 4.660.382 \\ \hline
+    Distance 6.000 & Distance & 2.109.017 \\ \hline
+    Distance 12.000 & Distance & 4.177.117 \\ \hline
+    Distance 6.000 & Tolerance 6s & 4.024.876 \\ \hline
+    Distance 12.000 & Tolerance 6s & 7.982.142 \\ \hline
+    Trivial & Trivial & 8.318.225 \\ \hline
+    
+\end{tabular}
+\end{center}
+
+\caption{Size of corpus}\label{corpusize}
+\end{table}
+
+As you can see on table \ref{corpusize}, the highest tolerance produces the bigger corpus, while Distance-based alignment doesn't produce as much.
+
+What is interesting is that the Trivial alignment - that really takes \emph{everything} - has smaller corpus than the one with the higher tolerance.
+
+
 \subsubsection{Manual alignment}
-The first idea was to compare the alignment with manual alignment, as noted in \todo{The paper that Bojar sent me :)}???.
+Another measurement is to compare the alignment -- with human alignment.
 
-The problem is -- what to manually align exactly? We can manually align files for a given movie (we demonstrated it in a chapter \todo{chapter}???). It is not very easy though, since -- as we seen already -- the files are all more or less the correct translations and the timings are not exact matches. Anyway, we randomly selected 30 movies and for each of these, selected which pairs seems like from the same source and match together.
+What is sometimes proposed in cases on alignment evaluation is letting user to align something and then measure that against the aligner output.
 
-However, there is bigger issue with the manual chunk-to-chunk alignment, that is -- which file pairs to manually align? Since we don't know the file-to-file aligner results in advance, we should align all the file pairs -- but if there are, for example, 10 subtitle files on each language, it makes 100 of pairs of files on which we should provide manual alignment, while the texts in all of them are \emph{mostly} the same, but \emph{not exactly} the same. This actually proved too hard and tedious to do.
+The problem is -- what to manually align exactly in our case? We can manually align \emph{files} for a given movie (we shown an example of all files for a movie at \ref{subtitledump}). It is not very easy though, since -- as we seen already -- the files are all \emph{more or less} the correct translations and the timings are not exact matches. Anyway, we randomly selected 30 movies and for each of these, selected which pairs of \emph{files} seems like from the same source and match together.
 
-Plus, the aligner chooses just one pair, but person would have to align all the possible pairs for no reason (plus, person can produce different errors in different file pairs, which could be "unfair" to some of the aligners).
+However, there is bigger issue with the manual chunk-to-chunk alignment, that is -- which file pairs to manually align? Since we don't know the file-to-file aligner results in advance, we should align all the file pairs -- but if there are, for example, 10 subtitle files on each language, it makes 100 of pairs of files on which we should provide manual alignment, while the texts in all of them are \emph{mostly} the same, but \emph{not exactly} the same. This actually proved too hard, tedious and actually impossible to do.
+
+Plus, the aligner chooses just one pair, but person would have to align all the possible pairs for no reason (plus, person can produce different errors in different file pairs, which could be ``unfair" to some of the aligners).
 
 Therefore, we manually annotated just the file-to-file alignment and we tried a different metric on the whole chunk-to-chunk alignment.
 
-\subsubsection{Simulation of translation memory}
-We tried a different evaluation metric for testing the alignments.
 
-We imported the whole corpus (as created by an aligner) except for randomly selected 30 media sources into a database, then we took 20 chunks from each file, then we looked at how many of those results were relevant.
-
-We didn't test it on real database (since that would be time consuming), we searched just for direct matches.
 
 \subsubsection{Counting precision and recall for file to file alignment}
 There are those five cases of what can happen:
@@ -864,7 +905,7 @@ There are those five cases of what can happen:
     \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
 \end{itemize}
 
-With some consideration, we count precision as 
+With some consideration, we count precision as \footnote{Technically, that is not precision or recall at all. However, we are not exactly sure how to call those.}
 
 $$\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}},$$ and recall as $$\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}.$$
 
@@ -876,7 +917,7 @@ That means precision is a percentage of movies chosen by aligner that are aligne
     \hline
     \textbf{approach} & \textbf{precision} & \textbf{recall} & \textbf{F1-measure} \\ \hline
     Baseline & 33 & 33 & 33 \\ \hline
-    Equality & 61 & 57 & 59 \\ \hline
+    Tolerance 6s & 61 & 57 & 59 \\ \hline
     6,000 best distance-based & 67 & 20 & 31 \\ \hline
     12,000 best distance-based & 76 & 53 & 63 \\ \hline
 \end{tabular}
@@ -885,9 +926,16 @@ That means precision is a percentage of movies chosen by aligner that are aligne
 \caption{Performance of the alignment algorithms (as percentage)}\label{align_score}
 \end{table}
 
+\subsubsection{Simulation of translation memory}
+We tried a different evaluation metric for testing the alignments.
+
+We imported the whole corpus (as created by an aligner) except for randomly selected 30 media sources into a database, then we took 20 chunks from each of the 30 files, the we queried it to a translation memory. Then, we looked at the result this translation memory has given us and said how much of it was relevant.
+
+We didn't test it on real database (since building it multiple times would be time consuming), we searched just for direct matches using standard java\footnote{Standard Java, but it's in Scala} ``equals".
+
 \subsubsection{Translation memory simulation result}
 
-We counted two percentages for each configuration - one was \emph{precision} -- that is, how many of the received translation results were correct -- and second we called \emph{coverage} -- that is, how many of the subtitle chunks received at least one good translation.
+We counted two percentages for each configuration -- one we called \emph{precision} -- that is, how many of the received translation results were correct -- and second we called \emph{coverage} -- that is, \emph{how many of the subtitle chunks received at least one good translation}.
 
 We also counted a harmonized mean of those two.
 
@@ -897,31 +945,28 @@ Results of the experiment are tabulated in \ref{tm_simulation}.
 
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{|p{7cm}|c|c|c|} 
+\begin{tabular}{|l|l|r|r|r|}
     \hline
-    \textbf{approach} & \textbf{precision} & \textbf{coverage} & \textbf{mean} \\ \hline
-    Baseline & 15 & 20 & 17 \\ \hline
-    Equality based with tolerance 6s & 92 & 21 & 35 \\ \hline
-    Equality based with tolerance 600 ms & 96 & 19 & 31 \\ \hline
+    \textbf{file alignment} & \textbf{subtitle alignment} & \textbf{precision} & \textbf{coverage} & \textbf{mean} \\ \hline
+    Tolerance 0,6 s & Tolerance 0,6 s & 96  & 19  & 31 \\ \hline
+    Tolerance 6 s & Tolerance 6 s & 82  & 29 & 43 \\ \hline
+    Tolerance 6 s & Distance & 83 & 24 & 37 \\ \hline
+    Distance 6.000 & Distance &  89 & 21 & 35 \\ \hline
+    Distance 12.000 & Distance & 85 & 24 & 38 \\ \hline
+    Distance 6.000 & Tolerance 6s & 79 & 24 & 36 \\ \hline
+    Distance 12.000 & Tolerance 6s & 78 & 27 & 41 \\ \hline
+    Trivial & Trivial & 15 & 20 & 17 \\ \hline
     
-    6,000 best distance-based file alignment, but equality based chunk alignment with tolerance 6s & 94 & 17 & 28 \\ \hline
-    12,000 best distance-based file alignment, but equality based chunk alignment with tolerance 6s & 93 & 19 & 31 \\ \hline
-    
-    6,000 best distance-based & 89 & 21 & 35 \\ \hline
-    12,000 best distance-based & 85 & 24 & 38 \\ \hline
-    Equality based file alignment with distance-based chunk alignment & 83 & 24 & 37 \\ \hline
 \end{tabular}
 \end{center}
 
-\caption{Performance of the alignment algorithms in the translation memory simulation}\label{tm_simulation}
-
+\caption{Size of corpus}\label{tm_simulation}
 \end{table}
 
-We may notice that generally, when we allow more tolerance (the distance-based chunk alignment is more tolerant), we got more wrong translation pairs, however, some good translations can appear in chunks that were not translatable with the less tolerant alignment.
+We may notice that Distance is always worse than Tolerance. Also, we might notice, that every time we somehow allow more files, the precision goes down, but the coverage goes up.
 
-The baseline algorithm is absurdly tolerant and produces actually bigger coverage than equality based algorithm with tolerance 600 ms.
+The baseline algorithm is absurdly tolerant and produces actually bigger coverage than tolerance based algorithm with tolerance 600 ms. However, the precision is absurdly low.
 
-Also note, that even with the alignment with best coverage, we still covered only about one fourth of the file. Automatic translations are therefore needed, if we want to provide at least something to the user.
+Also note, that even with the alignment with best coverage, we still covered only slightly more than one fourth of the file. We see that we really \emph{must} use fuzzy matching and, if possible, machine translation. We do both.
 
-We chose the distance-based algorithm with 12,000 files, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations.
-
+We chose the tolerance-based algorithm with 6s tolerance, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations. User of Machine Translation can easily ignore the translation, if he doesn't like it.
