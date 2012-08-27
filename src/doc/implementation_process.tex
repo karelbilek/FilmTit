@@ -166,7 +166,7 @@ Moreover, the user has the possibility to change his username and/or password on
 
 \subsubsection{Chunk Splitting}
 
-TODO
+\todo{people who did that should add the text}
 
 ideas:
 
@@ -187,19 +187,23 @@ Therefore: a shared Parser class which is compiled both into java bytecode and u
 
 \subsubsection{Chunk Time Format}
 
-TODO
+\todo{please check whether this is true}
 
-we used strings
+Originally, we simply used the time strings acquired from the subtitle files to represent the timing, as we only displayed them to the user.
 
-then we needed to parse these for player and for editing the timing
+This was sufficient at the beginning; however, once we began fitting the media player to the actual subtitle lines, we needed to parse the time strings and convert them to a one-ineteger representation of time in miliseconds (we also needed that for editing the timing, which came later).
 
-decided to use the SRT format only (99\% of subtitles we have and easier to use)
+Finally, we created a class, SrtTime, that represents the time in the SRT format as a set of four integers (the SRT format of time is ``hh:mm:ss,ttt'' -- hours:minutes:seconds,miliseconds\footnote{a milisecond is a thousandth of a second, thus the usage of the letter ``t'' to represent it; alternatively, knowing that the word ``second'' stands for the second diminuation of the hour, you can think of the milisecond as a third diminuation of the hour, also leading to the letter ``t''}).
+It provides constructors, getters and setters for all formats we need (one string, a set of strings, a set of integers, one integer being the time in miliseconds). It also implements cloning, comparison and subtraction.
 
-a class (SrtTime) that represents the time as a set of integers, providing constructors, getters and setters for all formats we need -- one string, a set of strings, a set of integers, one integer (the time in miliseconds), + compareTo, + subtract
+At that moment, we decided to use the SRT format only for the sake of simplicity.
+At first it was thought to be only a temporary state, with a plan to add SUB format support later. However, we eventually found out that not only is the SRT time format easier to use (you do not need to know the Frames-Per-Second property of the movie file),
+but also approximately 98\% of subtitles on the internet appear to be in the SRT format \todo{please correct the number and add some source}.
+Thus, we decided to discontinue support for the SUB format and only support SRT.
 
 \subsubsection{Chunk Annotations}
 
-TODO
+\todo{people who did that should add the text}
 
 named entities = first reason for annotations
 
@@ -221,16 +225,23 @@ text form: to be used in textarea -- with dashes, newlines as BACKSHLASH N chara
 
 \subsubsection{Logging}
 
-In US: easy, we use (whatever we use)
+In US and core: easy, we use (whatever we use) \todo{pease specify}
+and print the logs to the standard output (which is typically redirected to a textfile).
 
+However, logging in the GUI is much more tricky, as there is no ``standard output'' or ``console'' to write the logs to.
 
-In GUI: tricky -- we do not have any "console" so we cannot simply write logs to "standard output"
-(actually we have a console, but only in dev mode)
+Actually, it should be noted here that when using the GWT Development Mode, there is a console available to the programmer, where e.g. exceptions can be inspected, and GWT even provides the GWT.log() method to explicitely log messages to the Development Console -- which was found out only later. However, we still find it more useful to be able to see the debug messages even when not running the Development Mode; moreover, some of the members of our team were unable to run the application in the Development Mode successfully.
 
-preliminary solutions: "debug prints" ensured by alerts, changing the page title, changing the page statusbar -- not usable in larger scale
+The preliminary logging solutions included various implementations of the common practice of ``debug prints'' (which is often used by programmers if the support for effective debugging is little or none). In our situation, the debug prints were typically ensured by window alerts; we also tried changing the page title or statusbar for a less aggressive way of showing debug prints. Still, none of these solutions can be used in a larger scale.
 
 development solution: a debug window at the bottom of the page, and a (in the end) static method Gui.log(String) that prints the log messages into that window
 ... proved to be very useful, with a large enough amount of logging we were often able to locate the bugs from the contents of this window
+
+issue with debug window: cannot appear in final application :-) but still there might be errors;
+also it is at the user side, but we need the logs at the server side;
+
+ultimate solution: "remote logging", i.e. important messages are sent to the server through an RPC, where they are both included into the server log and saved into DB for possible future use (together with user id)
+The minimal level of a meesage to be sent to the server can be set (debug, info, warn, error)
 
 also added an exception catcher which gets the stacktrace from the exception, then extended to handle umbrella exceptions as well (= multiple exceptions in one)
 
@@ -238,11 +249,6 @@ great: GWT provides stacktraces with filenames and line numbers from the source 
 downpoint: not very reliable but usually useful
 
 great: GWT provides a possibility to catch all exceptions -- using GWT.setUncaughtExceptionHandler() -- it has no real "main" so one cannot just put that into a try-catch block
-
-issue with debug window: cannot appear in final application :-) but still there might be errors;
-also it is at the user side, but we need the logs at the server side;
-ultimate solution: "remote logging", i.e. important messages are sent to the server through an RPC, where they are both included into the server log and saved into DB for possible future use (together with user id)
-The minimal level of a meesage to be sent to the server can be set (debug, info, warn, error)
 
 \subsubsection{Implementing the RPCs}
 
