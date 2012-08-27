@@ -61,19 +61,25 @@ public class TestUSUserLogin {
     @Test
     public void testLogin() throws NoSuchFieldException, IllegalAccessException, InvalidValueException {
         // if not able to log in, register the user
+        boolean succRegister = false;
         if (server.simpleLogin(name,pass) == null) {
-            server.registration(name, pass, email, null);
+            succRegister = server.registration(name, pass, email, null);
         }
 
         // succesful login
-        SessionResponse response = server.simpleLogin(name, pass);
-        assertNotNull(response);
+        if (succRegister){
+            SessionResponse response = server.simpleLogin(name, pass);
+            assertNotNull(response);
 
         // test if there is active session in the server
         Field activeSessionsField = FilmTitBackendServer.class.getDeclaredField("activeSessions");
         activeSessionsField.setAccessible(true);
         Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
         assertTrue(activeSessions.containsKey(response.sessionID));
+        }
+        else{
+            assertEquals("Registration fail ",false,succRegister);
+        }
 
         MockHibernateUtil.clearDatabase(); // clear database to be able to use the same creditals again
     }

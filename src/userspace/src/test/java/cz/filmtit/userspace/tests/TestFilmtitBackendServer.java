@@ -148,7 +148,7 @@ public class TestFilmtitBackendServer {
         activeSessionsField.setAccessible(true);
         Map<String, Session> activeSessions = (Map<String, Session>) activeSessionsField.get(server);
 
-        server.registration("user", "pass", "user@user.bflm", null);
+        server.registration("user", "pass", "user@user.bf", null);
         String sessionId1 = server.simpleLogin("user", "pass").sessionID;
 
         assertTrue(activeSessions.size() == 1);
