@@ -52,7 +52,12 @@ class SubtitleFile(val filmID:String, val file:File, val c:Configuration, val pr
        
        val res = try {
         try {
-            readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
+            val readWindows:String = readWithCodec(gzis,new Codec(java.nio.charset.Charset.forName("windows-1250")))
+            if (readWindows.startsWith("ď»ż1")) {
+                readWithCodec(gzis, Codec.UTF8)
+            } else {
+                readWindows
+            }
         } catch {
          case e: UnmappableCharacterException => readWithCodec(gzis, Codec.UTF8)
         }
@@ -78,21 +83,32 @@ class SubtitleFile(val filmID:String, val file:File, val c:Configuration, val pr
        buf.toString
      }
 
-  /**
-   * Read the chunks from the file, parse it
-   * @return "raw" chunks from srt
-   */
+    import cz.filmtit.share.exceptions.ParsingException
+   /**
+    * Read the chunks from the file, parse it
+    * @return "raw" chunks from srt
+    */
     def readChunks():Seq[UnprocessedChunk] = {
         //public List<UnprocessedChunk> parseUnprocessed(String text)
         val parser = new UnprocessedParserSrt
-        parser.parseUnprocessed(readText())
+        try {
+            parser.parseUnprocessed(readText())
+        } catch {
+            case e: ParsingException =>
+                println("TOO MANY ERRORS. IGNORING.")
+                Seq[UnprocessedChunk]()
+        }
     }
 
     
     def readTextFromChunks():String = {
         //done by par, so it is faster, but not necesarilly in order
-        val chunks = readChunks.par
-        chunks.map{_.getText}.reduce{_+"\n"+_}
+        val chunks = readChunks
+        if (chunks.size==0) {
+            ""
+        } else {
+            chunks.par.map{_.getText}.reduce{_+"\n"+_}
+        }
      }
 }
 

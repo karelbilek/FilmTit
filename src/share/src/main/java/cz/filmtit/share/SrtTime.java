@@ -4,6 +4,7 @@ package cz.filmtit.share;
 import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import com.google.gwt.regexp.shared.*;
 import cz.filmtit.share.exceptions.InvalidValueException;
 
 /**
@@ -13,7 +14,7 @@ import cz.filmtit.share.exceptions.InvalidValueException;
  * a comparator and a subtractor.
  * The object is internaly represented by four integers.
  * TODO: convertor from miliseconds if needed
- * @author rur
+ * @author rur, KB
  *
  */
 public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializable {
@@ -24,6 +25,9 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	public static final char HM_DELIMITER = ':';
 	public static final char MS_DELIMITER = ':';
 	public static final char ST_DELIMITER = ',';
+    
+                                                            //negative time appears time to time
+    public static final RegExp timeExtractor  = RegExp.compile("(-?[0-9]+):(-?[0-9]+):(-?[0-9]+)[,:.](-?[0-9]+)");
 	
 	// values (h m s could be byte)
 	private int h;
@@ -64,7 +68,9 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		if (0 <= h && h <= 99) {
 			this.h = h;
 		}
-		else {
+		else if (h < 0) {
+            this.h=0;
+        } else {
 			throw new InvalidValueException("Value of h must be 0 <= h <= 99, '" + h + "' is invalid!");
 		}
 	}
@@ -72,7 +78,9 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		if (0 <= m && m <= 59) {
 			this.m = m;
 		}
-		else {
+		else if (m < 0) {
+            this.m=0;
+        } else{
 			throw new InvalidValueException("Value of m must be 0 <= m <= 59, '" + m + "' is invalid!");
 		}
 	}
@@ -80,7 +88,9 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		if (0 <= s && s <= 59) {
 			this.s = s;
 		}
-		else {
+		else if (s < 0) {
+            this.s=0;
+        } else{
 			throw new InvalidValueException("Value of s must be 0 <= s <= 59, '" + s + "' is invalid!");
 		}
 	}
@@ -88,7 +98,9 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		if (0 <= t && t <= 999) {
 			this.t = t;
 		}
-		else {
+		else if (t < 0) {
+            this.t=0;
+        } else {
 			throw new InvalidValueException("Value of t must be 0 <= t <= 999, '" + t + "' is invalid!");
 		}
 	}
@@ -135,29 +147,18 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		setT(t);
 	}
 	public SrtTime(String time) throws InvalidValueException {
-		if (time.length() == 12) {
-			// check the delimiters
-			if (
-					time.charAt(2) != HM_DELIMITER ||
-					time.charAt(5) != MS_DELIMITER ||
-					time.charAt(8) != ST_DELIMITER
-			) {
-				// wrong delimiters
-				throw new InvalidValueException("Format of SRT time must be hh:mm:ss,ttt, '" + time + "' is invalid!");
-			}
-			else {
-				// try set the values
-				setH(time.substring(0, 2));
-				setM(time.substring(3, 5));
-				setS(time.substring(6, 8));
-				setT(time.substring(9, 12));
-			}
-		}
-		else {
-			// wrong length
-			throw new InvalidValueException("Format of SRT time must be hh:mm:ss,ttt, '" + time + "' is invalid!");
-		}
-	}
+        if (timeExtractor.test(time)) {
+            MatchResult mr = timeExtractor.exec(time);
+	        setH(mr.getGroup(1));
+            setM(mr.getGroup(2));
+            setS(mr.getGroup(3));
+            setT(mr.getGroup(4));
+        } else {
+	        throw new InvalidValueException("Format of SRT time must be hh:mm:ss,ttt, '" + time + "' is invalid!");
+        }
+    }
+
+
 	@SuppressWarnings("unused")
 	private SrtTime() {
 		// constructor for serialization support and hibernate
