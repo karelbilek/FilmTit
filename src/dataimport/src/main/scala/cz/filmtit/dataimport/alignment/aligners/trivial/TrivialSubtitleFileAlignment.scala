@@ -3,6 +3,7 @@ package cz.filmtit.dataimport.alignment.aligners.trivial
 import cz.filmtit.dataimport.alignment.model._
 import cz.filmtit.share.Language
 import scala.collection.immutable.List
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 /**
  * Class for trivial file<->file alignment (just take first one from all)

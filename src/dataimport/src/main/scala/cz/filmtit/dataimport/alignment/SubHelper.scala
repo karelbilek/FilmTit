@@ -4,7 +4,7 @@ package cz.filmtit.dataimport.alignment
 object SubHelper {
 
    /**
-   * Converts time to milliseconds
+   * Converts time to milliseconds. Doesn't check the format too much.
    * @param time time information as string
    * @return milliseconds
    */
