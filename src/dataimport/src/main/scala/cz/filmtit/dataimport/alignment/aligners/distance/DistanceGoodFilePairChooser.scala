@@ -5,7 +5,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.immutable.List
 import cz.filmtit.share.parsing.UnprocessedChunk
 import scala.util.Sorting._
-import cz.filmtit.dataimport.alignment.model.SubtitleFile
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 /**
  * Abstract class for selecting only the best 6k movies

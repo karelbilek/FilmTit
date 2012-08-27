@@ -12,6 +12,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
@@ -19,6 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.widgets.FileLoadWidget;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
@@ -193,6 +195,13 @@ public class DocumentCreator extends Composite {
     Label lblCreateProgress;
 
 
+    @UiField
+    NavLink playerInfo;
+    @UiHandler("playerInfo")
+    void showPlayerInfo(ClickEvent e) {
+    	Gui.getPageHandler().loadPage(Page.PlayerInfo);
+    }
+    
     @UiField
     Button btnApplet;
 

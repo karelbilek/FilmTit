@@ -21,15 +21,31 @@ import cz.filmtit.share.exceptions.ParsingException;
 public class UnprocessedParserSrt extends UnprocessedParser {
 
 
+    private static final int MAX_ERRORS_PER_FILE = 20;
+    private int currentErrors = 0;
+    
+    /**
+     * We can silently ignore few format exceptions, if the file is not completely wrong.
+     * Sometimes, the file format is just slightly wrong, but we don't need to
+     * scrap the whole thing because of one wrong time declaration.
+     */
+    private void maybeThrow(ParsingException e) throws ParsingException {
+        if (currentErrors < MAX_ERRORS_PER_FILE) {
+            currentErrors++;
+        } else {
+            throw e;
+        }
+    }
+
     /**
      * Regexp for determining if line is number of subtitle.
      */
-	public static RegExp reSubNumberLine = RegExp.compile("^[0-9]+$");
+	public static RegExp reSubNumberLine = RegExp.compile("^\\s*[0-9]+\\s*$");
 
     /**
      * Regexp for determining if line is time line.
      */
-	public static RegExp reTimesLine     = RegExp.compile("^(.*)\\s*-- ?>\\s*(.*)$");
+	public static RegExp reTimesLine     = RegExp.compile("^(.*)\\s*-- ?>\\s*([^X]*).*$");
 
 	/**
      * Parses SRT text to unprocessed chunks.
@@ -62,19 +78,33 @@ public class UnprocessedParserSrt extends UnprocessedParser {
             if (!reSubNumberLine.test(line) ) { 
                 if ( reTimesLine.test(line)) {
                     MatchResult mr = reTimesLine.exec(line);
-                    startTime = mr.getGroup(1).trim();
-                    endTime = mr.getGroup(2).trim();
+                    String maybeStartTime = mr.getGroup(1).trim();
+                    String maybeEndTime = mr.getGroup(2).trim();
+                    boolean isException=false;
                     isTimeSet = true;
                     try { // testing the time format:
-                        new SrtTime(startTime);
-                        new SrtTime(endTime);
+                        new SrtTime(maybeStartTime);
+                        new SrtTime(maybeEndTime);
                     } catch (InvalidValueException e) {
-                        throw new ParsingException(e.getMessage(), linenumber + 1, false);
+                        System.out.println("chyba pri : start = "+maybeStartTime+", end = "+maybeEndTime);
+                        maybeThrow(new ParsingException(e.getMessage(), linenumber + 1, false));
+                        isException = true;
+                    }
+                    if (!isException) {
+                        startTime = maybeStartTime;
+                        endTime = maybeEndTime;
+                    } else {
+                        //if we have been ignoring the exception
+                        startTime = "00:00:00,00";
+                        endTime = "00:00:00,00";
                     }
                 }
                 else if ( ! line.isEmpty() ) {
                     if (! isTimeSet) {
-                        throw new ParsingException("Subtitle timing line missing or malformed", linenumber + 1, true);
+                        System.out.println("Chyba - ["+line+"]");
+                        //System.out.println("text - ["+text+"]");
+                        
+                        maybeThrow(new ParsingException("Subtitle timing line "+line+" missing or malformed", linenumber + 1, true));
                     }
                     if (! titText.isEmpty()) {
                         titText += LINE_SEPARATOR_OUT;

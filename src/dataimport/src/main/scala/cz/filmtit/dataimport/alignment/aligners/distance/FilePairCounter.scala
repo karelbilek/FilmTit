@@ -2,8 +2,8 @@ package cz.filmtit.dataimport.alignment.aligners.distance
 
 import scala.collection.mutable.ListBuffer
 import cz.filmtit.share.parsing.UnprocessedChunk
-import cz.filmtit.dataimport.alignment.model.SubtitleFile
 import cz.filmtit.dataimport.alignment.SubHelper.timeToNumber
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 /**
  * Abstract class for counting the chunks with best distances in a file
