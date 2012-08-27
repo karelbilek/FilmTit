@@ -234,21 +234,28 @@ Actually, it should be noted here that when using the GWT Development Mode, ther
 
 The preliminary logging solutions included various implementations of the common practice of ``debug prints'' (which is often used by programmers if the support for effective debugging is little or none). In our situation, the debug prints were typically ensured by window alerts; we also tried changing the page title or statusbar for a less aggressive way of showing debug prints. Still, none of these solutions can be used in a larger scale.
 
-development solution: a debug window at the bottom of the page, and a (in the end) static method Gui.log(String) that prints the log messages into that window
-... proved to be very useful, with a large enough amount of logging we were often able to locate the bugs from the contents of this window
+The solution we soon took for the development phase was to add a debug window at the bottom of each page, and an (in the end) static method Gui.log() that prints the log messages into that window.
+This proved to be very useful: once we added a large enough amount of logging, we were able to locate many issues that were appearing only using the contents of this window, often also guessing their causes as well.
 
-issue with debug window: cannot appear in final application :-) but still there might be errors;
-also it is at the user side, but we need the logs at the server side;
+The debug window served its purpose well; however, it obviously could not be left to appear in the final version of application.
+It even would not be as useful, since the errors that would appear in a window of a browser of an external user (i.e. not a member of our team) cannot be accessed from our side.
+However, there still might be errors that we would like to track and fix in future. This is a natural feature of most existing applications, and instead of denying it, we believe it is much better to try to count with it and prepare for it -- in our case, to find a way to make the GUI logs available to us on the server side instead of the cilent side.
 
-ultimate solution: "remote logging", i.e. important messages are sent to the server through an RPC, where they are both included into the server log and saved into DB for possible future use (together with user id)
-The minimal level of a meesage to be sent to the server can be set (debug, info, warn, error)
+The ultimate solution we took is what we call ``remote logging''. Important messages are now sent to the server through an RPC, where they are both included into the server log and saved into the database for possible future use (together with the userID if possible).
+The minimal level of a meesage to be sent to the server can be set (debug, info, warn, error).
+We first wanted to simply replace the implementation of Gui.log() by the remote logging; however, the original logging method did not have log levels, and the ammount of log messages generated was far too large to send all of them through the RPC. So, the remote logging must be used explicitely; it is now used especially for unexpected exceptions and RPCs.
 
-also added an exception catcher which gets the stacktrace from the exception, then extended to handle umbrella exceptions as well (= multiple exceptions in one)
+We were not able to catch unexpected exceptions at first, as a GWT application does not have any ``main'' method where we could add a try-catch block to catch exceptions not caught by the inner components (which are the unexpected exceptions).
+However, we eventually found out that GWT provides the static method GWT.setUncaughtExceptionHandler(), which enables the programmer to add a handler to catch all unexpected exceptions, which would otherwise escape to the browser.
+Therefore, we implemented an ``exception catcher'' that, when given an exception, gets its stacktrace as a string, and logs it together with its name.
 
-great: GWT provides stacktraces with filenames and line numbers from the source java code
-downpoint: not very reliable but usually useful
+An interesting feature of GWT is that it provides stacktraces with filenames and line numbers from the Java source code, making it possible to use the stacktraces quite comfortably to debug the application.
+Unfortunately, they are not always completely reliable, as some information might be missing in some situations.
+Still, logging the exceptions with their stacktraces proved to be extremely useful in debugging the GUI.
 
-great: GWT provides a possibility to catch all exceptions -- using GWT.setUncaughtExceptionHandler() -- it has no real "main" so one cannot just put that into a try-catch block
+Later we also encountered ``umbrella exceptions'' -- an umbrella exception is an exception thrown when multiple exceptions have occured at once, and contains all of them. Its message and stacktrace are not useful at all because they only cover the creation and throwing of the umbrella exception itself, but do not reveal anything about the inner exceptions. Fortunately, it does contain these details in other fields, and the exception catcher was successfully extended to show information about the inner exceptions in case an umbrella exception is thrown.
+
+It is to be noted that in case of exceptions comming through the RPCs, the stacktraces are hardly ever useful as they do not contain information about the server classes where they originated.
 
 \subsubsection{Implementing the RPCs}
 
