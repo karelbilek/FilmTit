@@ -3,6 +3,7 @@ package cz.filmtit.dataimport.alignment.aligners.levensthein
 import cz.filmtit.dataimport.alignment.model._
 import scala.collection.immutable.List
 import cz.filmtit.share.parsing.UnprocessedChunk
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 class LevenstheinGoodFilePairChooser(counter:LevenstheinDistanceCounter) extends GoodFilePairChooser {
 

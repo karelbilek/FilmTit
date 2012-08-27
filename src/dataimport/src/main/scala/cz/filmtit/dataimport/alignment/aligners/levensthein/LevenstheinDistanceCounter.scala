@@ -2,8 +2,8 @@ package cz.filmtit.dataimport.alignment.aligners.levensthein
 
 import scala.collection.mutable.HashMap
 import cz.filmtit.share.parsing.UnprocessedChunk
-import cz.filmtit.dataimport.alignment.model.SubtitleFile
 import cz.filmtit.dataimport.alignment.SubHelper.timeToNumber
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 class LevenstheinDistanceCounter(val tolerance:Long) {
 

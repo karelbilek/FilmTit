@@ -4,6 +4,7 @@ import cz.filmtit.dataimport.alignment.model._
 import cz.filmtit.share.Language
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 /**
  * A class for aligning file<->file, based on the distances of the chunks

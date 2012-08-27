@@ -7,150 +7,95 @@ import cz.filmtit.core.Configuration
 import scala.collection.JavaConversions._
 import cz.filmtit.share.parsing.Parser.processChunk
 import cz.filmtit.dataimport.SubtitleMapping
+import cz.filmtit.dataimport.alignment.io.{SubtitleFile, AlignedCorpusWriter}
 
-/** An object for general alignmenr.
+//
+
+ /**
+  * An object for general alignment. I am using "English" and "Czech" in the doc even when
+  * it can be more general.
   *
   * @constructor create a new aligner.
   * @param subtitleFileAlignment how to decide which file goes to which file?
   * @param chunkAlignment how to decide, which chunk goes which what chunk in a file?
   * @param goodFilePairChooser how to decide, which file pairs are good enough
+  * @param l1 English
+  * @param l2 Czech
   * @param conf Configuration that tells me where to write files
+  * @author KB
   */
-class Aligner(subtitleFileAlignment:SubtitleFileAlignment, chunkAlignment:ChunkAlignment, goodFilePairChooser:GoodFilePairChooser, conf:Configuration, l1:Language, l2:Language) {
-    
-
-  def alignFiles(mapping:SubtitleMapping, maxFiles:Int=0): Iterable[Pair[SubtitleFile, SubtitleFile]] = {
-       println("start")
-       var counter = 0
-       
-       val pairs = mapping.moviesWithSubsBothLangs.flatMap{
-         filmname =>
-           val files = mapping.getSubtitles(filmname);
-           if (filmname==None){
-             None
-           } else {
-             if (maxFiles ==0 || maxFiles < counter) {
-                counter+=1
-                println("aligning file<->file")
-                println("size je : "+files.get.size)
-                subtitleFileAlignment.alignFiles(files.get)
-             } else {
-                None
-             }
-           }
-       }
-       println("done")
-       val goodPairs = goodFilePairChooser.choosePairs(pairs)
-       println("I chose files "+goodPairs.size)
-       goodPairs
-  }
+class Aligner(
+               subtitleFileAlignment:SubtitleFileAlignment,
+               chunkAlignment:ChunkAlignment,
+               goodFilePairChooser:GoodFilePairChooser,
+               conf:Configuration,
+               l1:Language, l2:Language) {
 
   /**
-   * Dose the aligning itself and write it to files
-   *
-   * @param mapping mapping of movie ID to subtitle files
+   * Does the file-to-file alignment and filtering the "bad" ones.
+   * @param mapping SubtitleMapping, that tells us movie ID -> subtitle file mapping
+   * @return Pair of files; first is English, second is Czech
    */
-   def align(mapping:SubtitleMapping, maxFiles:Int=0, printDifferentSentenceLengths:Boolean=false) {
+  def alignFiles(mapping:SubtitleMapping): Iterable[Pair[SubtitleFile, SubtitleFile]] = {
+       println("start")
+
+       val pairs = mapping.moviesWithSubsBothLangs.flatMap{ movieID =>
+           val files = mapping.getSubtitles(movieID)
+           println("aligning file<->file")
+           println("size je : "+files.size)
+           subtitleFileAlignment.alignFiles(files)
+       }
+       println("done")
+       val goodFilePairs = goodFilePairChooser.choosePairs(pairs)
+       println("I chose files "+goodFilePairs.size)
+       goodFilePairs
+  }
+
+
+   /**
+    * Does ALL the three aligning steps and write the results to a folder,
+    * that is defined in configuration.xml
+    * @param mapping SubtitleMapping, that tells us movie ID -> subtitle file mapping
+    * @param printDifferentSentenceLengths What should Aligner do when Czech and English
+    *                                      has different number of sourceSentencesToFind. True = print as-is,
+    *                                      false = ignore them.
+    */
+   def align(mapping:SubtitleMapping, printDifferentSentenceLengths:Boolean=false) {
       
        println("vstup do mapping")
-       val goodPairs = alignFiles(mapping, maxFiles)
-       println("Goodpairs bude "+goodPairs.size())
-       goodPairs.foreach {
-        pair=>
+       val goodFilePairs = alignFiles(mapping)
+       println("Goodpairs bude "+goodFilePairs.size)
+       goodFilePairs.foreach { pair=>
            println("another : "+pair._1.filmID)
-           val chunks = chunkAlignment.alignChunks(pair._1.readChunks, pair._2.readChunks)
-           val pw: java.io.PrintWriter = new java.io.PrintWriter(new java.io.File(conf.getDataFileName(pair._1.filmID)))
-           chunks.foreach {
 
-             chunkPair=>
+           //align the chunks
+           val goodChunkPairs = chunkAlignment.alignChunks(pair._1.readChunks, pair._2.readChunks)
+
+           //open the file
+           val printWriter: java.io.PrintWriter =
+             new java.io.PrintWriter(new java.io.File(conf.getDataFileName(pair._1.filmID)))
+
+           goodChunkPairs.foreach {
+                          //EN                  CS
+             case (unproccessedChunkL1, unprocessedChunkL2)=>
                 
-                
-                val processedChunk1:Seq[TimedChunk] = processChunk(chunkPair._1, 0, 0L, l1)
-                val processedChunk2:Seq[TimedChunk] = processChunk(chunkPair._2, 0, 0L, l2)
+                //split chunks to sourceSentencesToFind
+                val processedChunk1:Seq[TimedChunk] = processChunk(unproccessedChunkL1, 0, 0L, l1)
+                val processedChunk2:Seq[TimedChunk] = processChunk(unprocessedChunkL2, 0, 0L, l2)
+
                 if (processedChunk1.length == processedChunk2.length) {
                    (0 to processedChunk1.length-1).foreach {
-                     i => Writer.write(pw, processedChunk1(i), processedChunk2(i))
+                     i => AlignedCorpusWriter.write(printWriter, processedChunk1(i), processedChunk2(i))
                    }
                 } else {
-                    //writes BOTH sentences as is
+                    //writes BOTH sourceSentencesToFind as is
                    if (printDifferentSentenceLengths) {
-                       Writer.write(pw,chunkPair._1, chunkPair._2);
+                       AlignedCorpusWriter.write(printWriter,unproccessedChunkL1, unprocessedChunkL2)
                    }
                 }
            }
-           pw.close() 
+           printWriter.close()
        }
        
     }
-}
-
-object Aligner {
-
-    
-
-    def writeHeldoutData(alignment:SubtitleFileAlignment,choser:GoodFilePairChooser, mapping:SubtitleMapping, conf:Configuration, where:String) {
-        
-       val a = new Aligner(alignment, null, choser, conf, Language.EN, Language.CS);
-       val alignedMovies = a.alignFiles(mapping).map{_._1.filmID}
-       val nonalignedMovies = mapping.moviesWithSubs.toSet -- alignedMovies
-
-       val nonalignedSubtitles = nonalignedMovies.map{m=>(m, mapping.getSubtitles(m).get.find{sf=>sf.language==Some(Language.EN)})}.filter{_._2.isDefined}
-       val writer = new java.io.PrintWriter(new java.io.File(where))
-
-        nonalignedSubtitles.foreach{
-            case (movie, file)=>writer.println(movie+"\n"+file.get.fileNumber)
-        }
-        writer.close
-
-    
-    }
-
-    def writeHeldoutData(where:String="heldout") {
-
-           val c = new Configuration("configuration.xml")
-
-           val mapping = new SubtitleMapping(c)
-           val filename ="aligned" 
-        
-           val file = new java.io.File(filename)
-           val map = TMEvaluator.loadFilePairsToMap(file, c)
-
-           writeHeldoutData(new SubtitleFileAlignmentFromFile(Language.EN, Language.CS, map), new GoodFilePairChooserFromFile(map), mapping,c, where)
- 
-
-    }
-
-    def main(args:Array[String]) = writeHeldoutData("heldout")
-
-    def writeFilePairsToPrintWriter(pairs: Iterable[Pair[SubtitleFile, SubtitleFile]], writer:java.io.PrintWriter) {
-         pairs.foreach {
-            case Pair(sf1, sf2) => 
-            writer.println(sf1.filmID+"\t"+sf1.fileNumber + "\t"+sf2.fileNumber)
-            println(sf1.filmID+"\t"+sf1.fileNumber + "\t"+sf2.fileNumber)
-         
-         }
-    }
-  def writeFilePairsToFile(pairs:Iterable[Pair[SubtitleFile, SubtitleFile]], where:java.io.File) = {
-      val writer = new java.io.PrintWriter(where)
-      writeFilePairsToPrintWriter(pairs, writer)
-      writer.close
-  }
-
-  def readFilePairsFromFile(where:java.io.File, conf:Configuration, l1:Language, l2:Language, includeNonExistingFiles:Boolean) : Iterable[Pair[SubtitleFile, SubtitleFile]] = {
-      val reg = """(.*)\t(.*)\t(.*)""".r
-      io.Source.fromFile(where).getLines().toIterable.flatMap {
-         case reg(movie, descrL, descrR) => 
-            val sub1 = SubtitleFile.maybeNew(conf, movie, descrL, !includeNonExistingFiles, Some(l1)) 
-            val sub2 = SubtitleFile.maybeNew(conf, movie, descrR, !includeNonExistingFiles, Some(l2)) 
-            if (sub1.isDefined && sub2.isDefined) {
-                Some((sub1.get, sub2.get))
-            } else {
-                None
-            }
-      }
-  }
-
-
-
-
 }
