@@ -3,6 +3,7 @@ package cz.filmtit.dataimport.alignment.model
 import cz.filmtit.share.Language
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 /** An abstract object for aligning file to file
  *

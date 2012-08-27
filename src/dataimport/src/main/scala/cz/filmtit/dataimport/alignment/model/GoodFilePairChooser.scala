@@ -2,6 +2,7 @@ package cz.filmtit.dataimport.alignment.model
 
 import scala.collection.immutable.List
 import cz.filmtit.share.parsing.UnprocessedChunk
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 /**
  * An abstract object for determining whether to take file pairs that

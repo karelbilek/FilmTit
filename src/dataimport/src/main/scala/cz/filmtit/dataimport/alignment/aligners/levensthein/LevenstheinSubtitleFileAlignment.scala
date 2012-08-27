@@ -4,6 +4,7 @@ import cz.filmtit.dataimport.alignment.model._
 import cz.filmtit.share.Language
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
+import cz.filmtit.dataimport.alignment.io.SubtitleFile
 
 class LevenstheinSubtitleFileAlignment(l1:Language, l2:Language, val counter:LevenstheinDistanceCounter) extends SubtitleFileAlignment(l1,l2){
 
