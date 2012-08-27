@@ -1,10 +1,10 @@
 \section{Timeline}
 
-The following section describes the project development, progress and decision as we did through the time the the project was developed. After series of informal talk the project officially started in December 2011 and was submitted in September 2012.
+The following section describes the project development, progress and decision as we did through the time the the project was developed. After series of informal talk the project officially started in December 2011 \todo{I thought we started later} and was submitted in September 2012.
 
 \subsection{Initial project meetings and early implementation decisions}
 
-The regular project meeting where we discussed mostly the organizational aspects and the top-level design of the application started in December 2011. We easily agreed that we were aiming to create an application quite similar to the Google Documents. We have decided very early to use the multi tier architecture consisting of
+The regular project meetings where we discussed mostly the organizational aspects and the top-level design of the application started in December 2011. We easily agreed that we were aiming to create an application quite similar to the Google Documents. We have decided very early to use the multi-tier architecture consisting of
 
 \begin{itemize}
 \item core translation memory,
@@ -12,46 +12,54 @@ The regular project meeting where we discussed mostly the organizational aspects
 \item graphical user interface,
 \end{itemize}
 
-which became very soon separate Maven modules (as soon started using Maven for building the project). Despite we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different part of project which remained surprisingly stable as well. 
+which became very soon separate Maven modules, as we soon started using Maven for building the project.
+(After overcoming the problems connected with learning the new technology, we became quite satisfied with the decision to use Maven, because the possibility to combine all parts of the project with Apache Maven was helpful, although making the project run in Maven was very painful for us and we spent unnecessarily a lot of time by solving Maven issues, especially with dependencies.)
 
-After overcoming the problems connected with learning the new technology we became quite satisfied with the decisions because the possibility to combine all parts of the project with Apache Maven were helpful despite making the project run in Maven was very painful for us and we spent unnecessarily a lot of time by solving this issues. \todo{incorporate more neatly}
+% despite + noun = in spite of + noun = although + clause
 
-Before receiving the data from OpenSubtitles.org we were thinking about the source of data to fill the translation memory for the first time. There were several options -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL, using sentences from a general purpose parallel corpus or getting the data from a subtitle server.
+Despite the fact that we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different parts of project, which remained surprisingly stable as well. 
 
-From the very beginning we intended base the project on Java. Mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with it. We also decided to combine the code in Java and Scala programming languages and Apache Maven as a build manager. At that time there was only one team member who knew the Scala language. Despite we repetitively expressed believes that everybody of would learn it, at the end there was one another person familiar with the Scala language which appeared to be a bottleneck of work on the translation memory core.
+Before receiving the data from OpenSubtitles.org we were thinking about the source of data to fill the translation memory for the first time. There were several options -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL \todo{reference}, using sentences from a general purpose parallel corpus or getting the data from a subtitles server.
+
+From the very beginning we intended to base the project on Java, mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with the language. We also decided to combine the code in Java and Scala programming languages and Apache Maven as a build manager. At that time there was only one team member who knew the Scala language. Although we repetitively expressed believes that everyone of us would learn it, at the end there was only one another person familiar with the Scala language -- which happened to be the bottleneck of work on the translation memory core.
 	
-The decision to use both Java and Scala appeared to be a bring quite a lot of complications. On the one hand, Scala allowed to write concise and efficient code, on the other hand most project members were not able to learn Scala sufficiently and hence used only Java. Although the interoperability between Scala and Java works well in most cases because both are based on the JVM, some problems remain. One of the problems of interoperability was, for example, that the implementation of the data type \emph{List} that was created in Scala was not compatible with Google Web Toolkit, which expected a standard Java \emph{List} implementation.
+The decision to use both Java and Scala appeared to bring quite a lot of complications. On one hand, Scala allows to write concise and efficient code; on the other hand, most project members were not able to learn Scala sufficiently even to understand the Scala code properly, let alone actively producing Scala code, and only used Java.
+Although the interoperability between Scala and Java works well in most cases because both are based on the JVM, some problems remain. One of the problems of interoperability was, for example, that a \emph{List} object created in Scala is not compatible with Google Web Toolkit, which expects a standard Java \emph{List} implementation.
 
 \subsubsection{Technology for the Client: Google Web Toolkit}
 \label{subsubsec:implementation:gwt}
 
-Much complicated was to agree on the technology of the client. There were many different opinions from writing the client in {\it PHP} with {\it Nette Framework} which some of us know quite well, using the {\it JSP} to have all the code consistently in Java or even quite extreme idea to make the whole application as {\it Java Applet} (this idea had appeared because of the intention to integrate the video player in the application and at that time we didn't of any other option of doing it except making a Java applet for it). Finally we decided to use {\it Google Web Toolkit} which nobody of us had had any prior knowledge before, but it promised making the communication between server and client very easy. Similarly to the Scala language we ended up with just two people able to work effectively with the Google Web Toolkit. Fortunately, it did not became a bottleneck of the development process. 
+Much complicated was to agree on the technology of the client. There were many different opinions, from writing the client in {\it PHP} with {\it Nette Framework}, which some of us know quite well, to using the {\it JSP} to have all the code consistently in Java, even to quite an extreme idea to make the whole application as a {\it Java Applet} (this idea had appeared because of the intention to integrate the video player in the application, since at that time we did not know any other way to do that except creating a Java applet). Finally we decided to use {\it Google Web Toolkit}, which nobody of us had had any prior knowledge of before, but it promised making the communication between server and client and many other things very easy. Similarly to the Scala language problem, we ended up with only three people able to work efficiently with the Google Web Toolkit. Fortunately, this did not became a bottleneck of the development process.
+
+% I guess me (Ruda) and Honza have probably mastered GWT, but Karel is also quite fluent in it
 
 We decided to use GWT for several reasons.
 
-One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.
+One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in cz.filmtit.share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. (In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.)
 
-However, there is a downside which can be expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had been already solved by others. Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
+However, there is a downside, which could have been expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had already been solved by others (although sometimes the only solution was not a nice or clean one, such as having to implement some methods directly in Javascript). Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
 
-A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE, similarly applicable also for IntelliJ IDE), possibly with debugging support. In GWT, there is a dedicated Development Mode for these debugging purposes, sparing the developer the need of recompiling all the GWT code for testing after each change. This proved to be very efficient in the first phases of the development when the GUI module was developed independently and although it turned out to be quite difficult to set up once this module was integrated with the rest of the project, it remained one of the most useful features of GWT.
+A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE, similarly applicable also for IntelliJ IDE), possibly with debugging support. In GWT, there is a dedicated Development Mode for these debugging purposes, sparing the developer the need of recompiling all the GWT code for testing after each change. This proved to be very efficient in the first phases of the development when the GUI module was developed independently and, although it turned out to be quite difficult to set up the Development Mode once the GUI module was integrated with the rest of the project, it remained one of the most useful features of GWT.
 
 Another option that we found useful is the possibility to directly insert real Javascript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way how to do something that is supported in Javascript but unsupported in GWT.
 
-An important point also was that GWT is freeware (it is even open-source, but we did not benefit from it much), or more precisely, is licensed under the Apache License, v.~2.0 (TODO: citation for the license!), with several third-party software included in its distribution under other freeware licenses.
+An important point also was that GWT is freeware, or more precisely, is licensed under the Apache License, v.~2.0 (TODO: citation for the license!), with several third-party software included in its distribution under other freeware licenses. It is even open-source, from which we benefited occasionally when examining the source code to understand some of its unexpected behavior, or even to extend some of its classes, overriding their behavior to fir our needs.
 
 Although GWT can be integrated into a Maven project, it was far from flawless and a lot of time had to be spent on making everything work together, including maintaining the IDE support. We managed to do that in the end, but we had expected this to be much easier. The main reason (but not the only one) is the specific directory structure, different for the Maven project and for the GWT project, which has to be adjusted in the configuration of both the Maven plugins and the IDE.
+And still after setting everything correctly, some features remained unavailable to some of us, e.g. running GUI in Development Mode using Eclipse IDE.
 
 To conclude, we are happy that we decided to use GWT because of the benefits it brought to us, but we were disappointed by the number of complications that it brought as well. Were we to decide on a web framework to use for a similar project, we would still have to consider our decision carefully.
 
 \subsection{Early development process}
 
-Luckily for us we received very soon a database from the {\it opensubtitles.org} containing all the Czech and English subtitle file that were at the server at that time. Soon after that we started an alignment algorithm to retrieve the parallel data from the subtitle files (the process is described in section~\ref{sec:aligning_subtitles}) and enable us to start experiments that helped us to decide which database system could be used.
+Luckily for us, we very soon received a database from {\it opensubtitles.org} containing all the Czech and English subtitle files that were at the server at that time. Soon after that we started working on an alignment algorithm to retrieve the parallel data from the subtitle files (the process is described in section~\ref{sec:aligning_subtitles}) and enable us to start experiments that helped us to decide which database system could be used.
 
-Choosing appropriate database system was also intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.  We evaluated different DBMS and decided to use \postgres~(see section~\ref{sec:dbms} for details). To test its applicability for our project, we ran several small evaluations of \postgres~features that might be useful to us, e.g.\ the full-text search. As soon as we made the final decision on which DBMS to use, we re factored the evaluation code into {\tt TranslationPairSearcher} classes and started to set out the general architecture of the core. The {\tt BackoffTranslationMemory} class was added and the candidate search was finished in the early stages, so a basic version of the system could be used even though there were not yet any sophisticated rankers. For more details on the core architecture, please see Section~\ref{sec:corearchitecture}.
+Choosing an appropriate database system was also an intensively discussed issue. The database underlying the Translation Memory plays a crucial role for the whole system performance. Also using built-in features could save us a lot of additional work.
+We evaluated different DBMS and decided to use \postgres~(see section~\ref{sec:dbms} for details). To test its applicability for our project, we ran several small evaluations of \postgres~features that might be useful to us, e.g.\ the full-text search. As soon as we made the final decision on which DBMS to use, we refactored the evaluation code into {\tt TranslationPairSearcher} classes and started to set out the general architecture of the core. The {\tt BackoffTranslationMemory} class was added and the candidate search was finished in the early stages, so a basic version of the system could be used even though there were no sophisticated rankers yet. For more details on the core architecture, please see Section~\ref{sec:corearchitecture}.
 
-Not having any experience with the object-relation mapping libraries in Java we started to us {\it Hibernate} based on the Internet forums and advice of our colleagues.
+Not having any experience with the object-relation mapping libraries in Java, we decided to use {\it Hibernate}, based on advice from both Internet forums and some of our colleagues.
 
-Originally, all the algorithms precessing the data we retrieved were implemented in Perl the and the code importing the data were in the \emph{Core} module implemented in Scala. Later, to be the code more consistent, we decided to move the data preparation and data import to a separate \emph{dataimport} module and re-implement the Perl scripts in Scala.
+Originally, all the algorithms processing the data we retrieved were implemented in Perl, and the code importing the data was in the \emph{Core} module, implemented in Scala. Later, to make the code more consistent, we decided to move the data preparation and data import to a separate \emph{dataimport} module and to re-implement the Perl scripts in Scala.
 
 \begin{figure}[h]
 \begin{center}
@@ -62,14 +70,14 @@ Originally, all the algorithms precessing the data we retrieved were implemented
 
 \end{figure}
 
-We started to solve very soon the video playback in the browser which we expected to be a really challenging issue. We did some research about \emph{Adobe Flash} technology. We were also thinking about creating a hybrid solution -- an application wrapper with web browser inside, capable to ensure the video playback for the inner web application.
+Very soon, we started to try to solve the video playback in the browser, which we expected to be a really challenging issue. We did some research about \emph{Adobe Flash} technology. We were also thinking about creating a hybrid solution -- an application wrapper with a web browser inside, capable to ensure the video playback for the inner web application.
 
 We very soon had toy implementations of:
 
 \begin{itemize}
-\item a player using VLC plugin, to be incorporated into the web app
+\item a player using VLC plugin, to be incorporated into the web application
 
-\item a player as a desktop java app, showing the web app in a frame
+\item a player as a desktop Java application, showing the web application in a frame
 \end{itemize}
 
 \begin{figure}[h!]
@@ -79,7 +87,9 @@ We very soon had toy implementations of:
 	\label{fig:figures_desktop-app-player}
 \end{figure}
 
-We decided for the web app only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required so anyone can start using the application immediately, it is easy to use OpenID registration... Disadvantages: cross browser support, limited power, larger bandwith consumption. GWT added advanatage: the bandwith consumption is closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
+We decided for the web application only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g. that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required, so anyone can start using the application immediately, it is easy to use OpenID registration...
+Still, there are disadvantages, especially the cross browser support issues, limited power, and larger bandwith consumption.
+A GWT added advanatage is that the bandwith consumption is actually closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application, but it is done transparently), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
 
 \todo{player -- Karel should write something more about its development, the applet signing, etc.}
 
@@ -87,22 +97,24 @@ An issue we encountered in developing the player and were not able to combat com
 
 Ultimately we came up with 3 solutions, but none of them pleases us enough:
 
-- the user inputs the full path as a string into an input box; works well but is not user-friendly (most users probably do not even know that such a thing as a filepath exists)
+\begin{itemize}
+\item the user inputs the full path as a string into an input box; works well but is not user-friendly (most users probably do not even know that such a thing as a filepath exists)
 
-- the user chooses the file in the file browser and then copies the file path from the browser inputbox into a textbox; maybe even less userfriendly
+\item the user chooses the file in the file browser and then copies the file path from the browser inputbox into a textbox; this is probably even less userfriendly
 
-- a Java applet is loaded to choose the file as Java applets do not have such restrictions, and then passes the path to the application; it seems to us as an \todo{overkill} to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly
+\item a Java applet is loaded to choose the file as Java applets do not have such restrictions as Javascript, and then passes the path to the application; it seems to us as an \todo{overkill} to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly (we have also encountered an alternative using Flash for the same purpose, but we still prefer using Java to Flash)
+\end{itemize}
 
-We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet.
+We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet. \todo{we dont have that, right?}
 
 \subsection{Introducing the shared classes}
 \label{subsec:introducing_shared_classes}
 
-After having implemented very basic version of both three parts of the project we decided it was time to start to solve the interoperability of individual parts in order to run a first snapshot of the application. This was happening approximately in March 2012.
+After having implemented a very basic version of all three parts of the project, we decided it was time to start to solve the interoperability of individual parts in order to run a first snapshot of the application. This was happening approximately in March 2012.
 
 At this stage we found out that we are not fully taking advantage of using the Java technologies for all parts of project and decided to totally redesign the User Space and Client parts.
 
-Originally we wanted to keep the traditional translation memory structure where each sentence can have several matches and these matches can have several translations in the memory as is depicted in the figure \ref{fig:original_scheme}. Anyway, this scheme did not reflect much the way we worked with the data in the that time -- suitable matches were provided from the table of translation pairs based on indexes built over the table. Moreover, the were very few matches having more different translations in the data and the design of the GUI of the application was a little bit confusing because it used to place the text of matches to prominent place despite the user is not as concerned about the matches as he is about the actual translation suggestions. This lead to a scheme which is depicted in figure \ref{fig:new_scheme}.
+Originally, we wanted to keep the traditional translation memory structure where each sentence can have several matches and these matches can have several translations in the memory, as is depicted in the figure \ref{fig:original_scheme}. Anyway, this scheme did not reflect much the way we worked with the data in the ???core??? that time -- suitable matches were provided from the table of translation pairs based on indexes built over the table. Moreover, there were very few matches having multiple different translations in the data, and the design of the GUI was a little bit confusing because it placed the text of matches to a more prominent place than the translation suggestions, despite the fact that the user is most probably not as concerned about the matches as he is about the actual translation suggestions. This lead to a scheme which is depicted in figure \ref{fig:new_scheme}.
 
 \begin{figure}
 \begin{center}
@@ -111,13 +123,16 @@ Originally we wanted to keep the traditional translation memory structure where 
 \caption{Current scheme of the work with translation memory.}\label{fig:new_scheme}
 \end{figure}
 
-We agreed on the shared classes that all parts of the project should use.  We more or less adopted the design of the classes from the core and started to use in the whole project. This step required to re-implement the classes from Scala to Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}.
+We agreed on the shared classes that all parts of the project should use. We more or less adopted the design of the classes from the core and started to use in the whole project. This step required to re-implement the Scala classes in Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}. \todo{but where is it?!}
 
-We started the work on the project with new design soon, anyway it started the period of the biggest struggle with technologies. It took almost two months to have a first running version of the application.
+We started the work on the project with the new design soon, anyway this started the period of the biggest struggle with technologies. It took us almost two months to have a first running version of the application.
 
-The very first version of the application was a page where it was possible to upload a subtitle file do the translation without any possibility load an already saved subtitle document or download a result of the translation. without any sessions, user, it was just a page, where you edit the subtitles. At that time we used machine translation from the MyMemory service which is in fact Google Translate, anyway there is a limited acces per IP address, so it became obvious the we would have to change the source of machine translation. We used API of IMDB.com, to receive information about movies but the movie meta data was not used in the evaluation the matches at that time.
+The very first version of the application was a page where it was only possible to upload a subtitle file and to do the translation, without any possibility to load an already saved subtitle document or download the result of the translation, without any sessions or users; it was just a page where you edit the subtitles.
+At that time we used machine translation from the MyMemory service (which is in fact Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. \todo{so we took Moses}
 
-From the later view it appeared to be an important decision to agree on the shared classes which made the cooperation between the modules easier and less verbose. 
+We also used API of IMDB.com to receive information about movies but the movie meta data was not used in the evaluation the matches at that time. (We had to switch to Freebase later because the IMDB service was discontinued.)
+
+From a later point of view, it appears to be an important decision to agree on the shared classes, which made the cooperation between the modules easier and less verbose. 
 
 \subsection{The Main Development Phase}
 
@@ -128,17 +143,17 @@ The section is divided to parts covering the issues we were dealing with and des
 \subsubsection{OpenID}
 \label{subsubsec:openid}
 
-Despite we wanted to implement OpenID support from the very beginning we started with it approximately in May. We found two most frequently used Java libraries for OpenID and tried them. Those were \emph{JOpenID} and \emph{openid4java}.
+Despite we wanted to implement OpenID support from the very beginning, we started with it approximately in May. We found two most frequently used Java libraries for OpenID and tried them. Those were \emph{JOpenID} and \emph{openid4java}.
 
-\emph{JOpenID} seemed to be easier to use and also was much smaller as a dependency, on the other hand when we run into some problems with using it we found out that \emph{openid4java} is much more frequently discussed on the \emph{StackOverflow.com} forum and that there bigger chance that we would be able to find some advice for potential problems.
+\emph{JOpenID} seemed to be easier to use and also was much smaller as a dependency; on the other hand, when we run into some problems with using it, we found out that \emph{openid4java} is much more frequently discussed on the \emph{StackOverflow.com} forum and that there is a bigger chance that we would be able to find some advice for potential problems.
 
-\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes) and supports not only logging in but also providing the OpenID endpoint service. When found out that the problems with the libraries was because of wrongly set Maven dependencies we turned back to \emph{JOpenID} library which is much easier to use.
+\emph{Openid4java} library is much bigger than then \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes) and supports not only logging in but also providing an OpenID endpoint service. When we found out that the problems with the libraries were because of wrongly set Maven dependencies, we turned back to \emph{JOpenID} library which is much easier to use.
 
-At the end we decided to use \emph{JOpenID} library and support Google, Yahoo and Seznam accounts. The library contains the Google and Yahoo by default. We decided to also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider. Seznam provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the other OpenID providers, therefore it was necessary to write our parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
+At the end we decided to use \emph{JOpenID} library, and to support Google, Yahoo and Seznam accounts. The library contains Google and Yahoo by default. We decided to also add support for \emph{Seznam.cz} as the biggest Czech OpenID provider \todo{ref?}. Seznam provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the other OpenID providers, therefore it was necessary to write our own parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
 
-We do not support generic OpenID because the lib does not support it. Anyway, after doing some research on the Czech developers forums we concluded that just a very small percentage of users actually know what OpenID is and allowing to login via the Google and Seznam accounts is hopefully enough.
+We do not support generic OpenID because the library does not support it. Anyway, after doing some research on the Czech developers forums, we concluded that just a very small percentage of users actually know what OpenID is; therefore, allowing to login via the Google and Seznam accounts is hopefully enough.
 
-The support for OpenID was finished in July, the parser for the authentication data from Seznam were added at the beginning of August.
+The support for OpenID was finished in July, the parser for the authentication data from Seznam was added at the beginning of August.
 
 A question to solve was what to do when the user logs in through OpenID for the first time. We were thinking about requiring an explicit registration from the user in such case, but then decided that we probably do not need any more data than we already get from the OpenID provider. Therefore, we decided to register the user transparently in such situation.
 However, because it can happen that e.g. the OpenID provider is temporarily unavailable, ceases to provide his services or that the user closes his account at the provider, we decided to offer the user a possibility to log in to his account even without the OpenID. For that reason, we create a full account for such user, generating a username and password and sending these to his e-mail address (which usually can be acquired from the OpenID provider).
