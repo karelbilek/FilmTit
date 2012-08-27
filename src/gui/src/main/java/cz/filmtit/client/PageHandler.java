@@ -10,6 +10,7 @@ import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
 import cz.filmtit.client.pages.ChangePassword;
 import cz.filmtit.client.pages.DocumentCreator;
+import cz.filmtit.client.pages.PlayerInfo;
 import cz.filmtit.client.pages.Settings;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.UserPage;
@@ -77,7 +78,8 @@ public class PageHandler {
 		About,
 		TranslationWorkspace,
 		DocumentCreator,
-		Settings
+		Settings,
+		PlayerInfo,
     }
     
     public PageHandler () {
@@ -274,6 +276,7 @@ public class PageHandler {
     	case ChangePassword:
     	case AuthenticationValidationWindow:
 		case About:
+		case PlayerInfo:
 			pageToLoad = suggestedPage;
 			break;
 			
@@ -336,6 +339,9 @@ public class PageHandler {
 				break;
 			case About:
 	    		new About();
+				break;
+			case PlayerInfo:
+				new PlayerInfo();
 				break;
 			case TranslationWorkspace:
 		    	if (documentId == -1) {
