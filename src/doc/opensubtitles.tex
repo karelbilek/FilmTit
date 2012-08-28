@@ -2,9 +2,9 @@
 
 Since we wanted the translation memory to be functional from the very beginning, we needed to build a parallel corpus -- preferably from some repository of subtitles.
 
-Right after we received the data from \emph{opensubtitles.org} and had the ``raw" subtitle data, we started to build a parallel corpus from this data to use it for the translation memory. The process of creating the corpus and getting the ``clean" translation memory data is described in the following sections.
+Right after we received the data from \emph{opensubtitles.org} and had the ``raw'' subtitle data, we started to build a parallel corpus from this data to use it for the translation memory. The process of creating the corpus and getting the ``clean'' translation memory data is described in the following sections.
 
-Since there were more strategies how to process the ``raw" data which looked equally promising, we also needed to develop a measure of the quality of the resulting corpus (either by measuring the alignment itself or the resulting corpus).
+Since there were more strategies how to process the ``raw'' data which looked equally promising, we also needed to develop a measure of the quality of the resulting corpus (either by measuring the alignment itself or the resulting corpus).
 
 In this chapter, we discuss these steps, together with a more detailed description of the data we received. We will also discuss various strategies for measuring the quality of the corpus.
 
@@ -128,7 +128,7 @@ One scenario is parsing the movie subtitle after the user uploads it for transla
 
 \subsubsection*{Parsing - first step}
 
-What both scenarios have in common is the first step. In it, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word ``chunk" more generally in the source code than here in the documentation.} \texttt{UnprocessedParser} is an abstract class, that has two subclasses -- \texttt{UnprocessedParserSrt} and \texttt{UnprocessedParserSub}.
+What both scenarios have in common is the first step. In it, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word ``chunk'' more generally in the source code than here in the documentation.} \texttt{UnprocessedParser} is an abstract class, that has two subclasses -- \texttt{UnprocessedParserSrt} and \texttt{UnprocessedParserSub}.
 
 Parsing the files is a pretty straightforward task, even though we have to deal with various edge cases.
 
@@ -182,7 +182,7 @@ The most crucial part in building the corpus is to group the subtitles of the sa
 We used two different approaches for this. Both of them need to solve these three issues:
 \begin{itemize}
     \item file to file alignment -- in each movie find \emph{one} best pair
-    \item filter out the ``bad" movies -- filter out the movies, where even the best pair of file is not correctly alignable
+    \item filter out the ``bad'' movies -- filter out the movies, where even the best pair of file is not correctly alignable
     \item item to item alignment -- if we already have pairs of files, extract the bilingual pairs of items 
 \end{itemize}
 
@@ -195,7 +195,7 @@ As you could read in previous sections, we \emph{do} have some mapping from subt
 
 What helps us in determining alignment is the fact, that Czech subtitles are usually created by taking existing English subtitles and translating them item by item. The timing of such files should be very similar. 
 
-On the other hand, people, who download movies (and, therefore, subtitles) online, often use sources of questionable legality, which usually have more versions of the same file (some of them are so-called ``cam-rips", some of them are copied from DVDs or blue-ray disks). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles, which have totally different timing.
+On the other hand, people, who download movies (and, therefore, subtitles) online, often use sources of questionable legality, which usually have more versions of the same file (some of them are so-called ``cam-rips'', some of them are copied from DVDs or blue-ray disks). Similarly with TV episodes -- depending on the source, the timings are slightly different. Also, in some cases, the subtitle translations are directly copied from DVD subtitles, which have totally different timing.
 
 Sometimes, it also happens that a subtitle file has assigned a completely wrong movie tag.
 
@@ -739,7 +739,7 @@ and the other.\\
 It was a good death.
 }
 
-As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except for this one, most of the English files seems to match the Czech one quite well. You can also see that none of them is a ``perfect" match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from a similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
+As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except for this one, most of the English files seems to match the Czech one quite well. You can also see that none of them is a ``perfect'' match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from a similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
 
 On average, there is 2.1 Czech subtitle files and 5 English subtitle files per movie. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
 
@@ -846,10 +846,10 @@ Trivially implemented this algorithm would be quadratic to the size of subtitle 
 
 In the file-to-file alignment case, we count this alignment for each pair of files and then we sum all the distances for a given pair; we then select the pair with the smallest sum as the correct one. If the subtitles are just translated from each other, the sum should be small and can be even zero, if the time marks are exactly the same.
 
-We then selected given number of movies (we tried 6000 and 12000) with the smallest sum as the ``good" movie pairs and then align them.
+We then selected given number of movies (we tried 6000 and 12000) with the smallest sum as the ``good'' movie pairs and then align them.
 
 \subsubsection{Baseline -- trivial alignment}
-As a baseline for comparison, the ``trivial" algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
+As a baseline for comparison, the ``trivial'' algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
 
 \subsection{Evaluation of alignments}
 We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose? For a more scientific approach, we have to evaluate them; but it turns out it is not so easy.
@@ -892,7 +892,7 @@ The problem is -- what to manually align exactly in our case? We can manually al
 
 However, there is a bigger issue with the manual chunk-to-chunk alignment, that is -- which file pairs to manually align? Since we do not know the file-to-file aligner's results in advance, we should align all the file pairs -- but if there are, for example, 10 subtitle files on each language, it produces hundreds of pairs of files on which we should provide manual alignment, while the texts in all of them are \emph{mostly} the same, but \emph{not exactly} the same. This actually proved too hard and tedious to do.
 
-Plus, the aligner chooses just one pair, but a person would have to align all the possible pairs for no reason (a person can also produce different errors in different file pairs, which could be ``unfair" to some of the aligners).
+Plus, the aligner chooses just one pair, but a person would have to align all the possible pairs for no reason (a person can also produce different errors in different file pairs, which could be ``unfair'' to some of the aligners).
 
 Therefore, we manually annotated just the file-to-file alignment and we tried a different metric on the whole chunk-to-chunk alignment.
 
@@ -902,11 +902,11 @@ Therefore, we manually annotated just the file-to-file alignment and we tried a 
 There are five cases of possible events:
 
 \begin{itemize}
-    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a "good" movie - in this section, we call this \textit{true negative}
-    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a "good" movie - in this section, we call this \textit{false negative}
-    \item With manual alignment, we found no possible matches, the aligner marked it as a "good" movie and included it in corpus - in this section, we call this \textit{false positive}
-    \item With manual alignment, we found possible matches, the aligner marked it as a "good" movie, but the match from aligner was not one of the correct ones -  we call this \textit{partly true positive}
-    \item  With manual alignment, we found possible matches, the aligner marked it as a "good" movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
+    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a ``good'' movie - in this section, we call this \textit{true negative}
+    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a ``good'' movie - in this section, we call this \textit{false negative}
+    \item With manual alignment, we found no possible matches, the aligner marked it as a ``good'' movie and included it in corpus - in this section, we call this \textit{false positive}
+    \item With manual alignment, we found possible matches, the aligner marked it as a ``good'' movie, but the match from aligner was not one of the correct ones -  we call this \textit{partly true positive}
+    \item  With manual alignment, we found possible matches, the aligner marked it as a ``good'' movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
 \end{itemize}
 
 With some consideration, we count precision as \footnote{Technically, that is not precision or recall at all. However, we are not exactly sure how to call those.}
@@ -935,7 +935,7 @@ We tried a different evaluation metric for testing the alignments.
 
 We imported the whole corpus (as created by an aligner) except for 30 randomly selected media sources into a database, then we took 20 chunks from each of the 30 files and queried it to a translation memory. We looked at the result this translation memory has given us and judged how much of it was relevant.
 
-We didn't test it on the real database (since building it multiple times would be too time consuming), we searched just for direct matches using standard Java\footnote{Standard Java, but it's in Scala} ``equals".
+We didn't test it on the real database (since building it multiple times would be too time consuming), we searched just for direct matches using standard Java\footnote{Standard Java, but it's in Scala} ``equals''.
 
 \subsubsection{Translation memory simulation result}
 
@@ -943,7 +943,7 @@ We counted two percentages for each configuration -- the one we called \emph{pre
 
 We also calculated a harmonized mean of those two.
 
-What also has to be noted here is that the result counts are not evenly distributed -- on the more "popular" sentences like "I don't know", we might have hundreds of matches; we receive only the first 30 matches. This will, of course, skew the precision slightly (since we take only 30 chunks as received); however, it still emulates the working of translation memory.
+What also has to be noted here is that the result counts are not evenly distributed -- on the more ``popular'' sentences like ``I don't know'', we might have hundreds of matches; we receive only the first 30 matches. This will, of course, skew the precision slightly (since we take only 30 chunks as received); however, it still emulates the working of translation memory.
 
 Results of the experiment are tabulated in \ref{tm_simulation}.
 
