@@ -1,6 +1,6 @@
 \label{chap:technical_manual}
 
-TODO: shouldnt this be called Installation manual? or Administrators manual?
+\todo{shouldnt this be called Installation manual? or Administrators manual?}
 
 \section{System Requirements and Setup}
 
@@ -29,7 +29,11 @@ The system will work with any standard \postgres~installation, however it is rec
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Production server \postgres~settings}}
 \begin{lstlisting}
-shared_buffers = 1024MB
+maintenance_work_mem = 256MB
+effective_cache_size = 1500MB
+work_mem = 256MB
+shared_buffers = 1GB
+max_connections = 10
 \end{lstlisting}
 \vspace*{0.5em}
 
@@ -44,6 +48,7 @@ kernel.shmmax = 2147483648
 kernel.shmall = 4194304
 \end{lstlisting}
 \vspace*{0.5em}
+\todo{put the real values here!}
 
 For more information on \postgres~memory management and how to adjust the shared memory settings for different operating systems, please see the \postgres~documentation on \emph{Resource Consumption}.\footnote{\url{http://www.postgresql.org/docs/9.1/static/runtime-config-resource.html}}
 
@@ -52,13 +57,10 @@ For the fulltext search the \emph{TSearch2} tool is used. By default few world l
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Installing Czech to \postgres}}
 \begin{lstlisting}
-bash install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_name>
+$ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_name>
 \end{lstlisting}
 \vspace*{0.5em}
 
-The script downloads the language package from the Czech Postgre SQL page\footnote{\url{http://postgres.cz/wiki/PostgreSQL}}, copies it to the Postgre SQL directory structure and creates a search configuration called \emph{czech}. Type the path to your Postgre SQL installation as the $<$postgres\_directory$>$ parameter (standard location on Linux system is {\tt /usr/local/pgsql}), name of the user having permission to access the database $<$postgres\_user$>$ and the name of the database you want to install the search configuration for as the $<$database\_name$>$ parameter.
-
-Because the script needs to access Postgre SQL directory structure, it is probably necessary to run the script as root (it depends on your user accounts settings).
 
 
 

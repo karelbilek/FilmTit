@@ -395,7 +395,13 @@ After retrieving candidates for a query, the candidate translation pairs must be
 
 All ranking methods are based on a combination of scores. Depending on the retrieval method, we assign every translation pair candidate a set of scores, which are then combined into a final score.  Translation pairs are ordered by this score.
 
-To learn the best combination for scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}}
+To learn the best combination of scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}}
+
+\subsection{Training the models}
+
+For the manual annotation required to estimate weights for the scores, we started the translation memory with only the corresponding backoff level (e.g.\ exact matching or fuzzy matching) and translated heldout subtitle files using the translation workspace. After uploading and finishing the subtitle files, the class {\tt cz.filmtit.dataimport.training.GenerateTrainingset} can be used to generate a CSV file in WEKA-compatible format which can then be used to train a model.
+
+For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example.
 
 
 \subsection{Ranking for exact matches}
@@ -404,7 +410,7 @@ The ranking for exact matches uses a linear regression model with the following 
 
 \begin{itemize}
 	\item \textbf{translation pair count}\\%TODO: not really count
-	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_p{c(p)}  } $, where $c(p)$ is the count for the translationpair $p$.
+	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_{p' \in P}{c(p')}  } $\ , where $c(p)$ is the count for the translation pair $p$ and $P$ is the set of all translation pair candidates for a query.
 	
 	\item \textbf{source-chunk edit distance}\\
 	The edit distance between the queried chunk and the source chunk of the translation pair candidate; the score is normalized by the length of the queried chunk.
@@ -434,7 +440,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	The score assigned by the \postgres~full text search for the document that represents the translation pair candidate.
     
 	\item \textbf{translation pair count}\\%TODO: not really count
-	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_p{c(p)}  } $, where $c(p)$ is the count for the translationpair $p$.
+	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_{p' \in P}{c(p')}  } $\ , where $c(p)$ is the count for the translation pair $p$ and $P$ is the set of all translation pair candidates for a query.
 	
 	\item \textbf{source-chunk edit distance}\\
 	The edit distance between the queried chunk and the source chunk of the translation pair candidate; the score is normalized by the length of the queried chunk.
