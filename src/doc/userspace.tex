@@ -1,6 +1,6 @@
 \section{Preliminaries}
 
-The User Space (or Userspace) is the middleware component of the application, interconnecting the Graphical User Interface (see Chapter XXX), the Core translation memory (see Chapter YYY) and the storage of user data.
+The User Space (or User Space) is the middleware component of the application, interconnecting the Graphical User Interface (see Chapter XXX), the Core translation memory (see Chapter YYY) and the storage of user data.
 Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work persistent on the server and available always in the same state she finished her work.
 
 The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. Most of the User Space code is implemented in Java. It uses \emph{Hibernate} object-relational mapping library to map the user objects into the database. The same \emph{PostgreSQL} database as in the TM Core is used. (The in-memory \emph{hsqldb} database is used for the unit testing.)
