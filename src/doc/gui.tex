@@ -3,7 +3,7 @@
 %% (documentation chapter for the FilmTit project) %%
 %% ----------------------------------------------- %%
 
-The Graphical User Interface (GUI) is the part of the application that is loaded by the user in his web browser. It is written mostly in Java but compiled by the Google Web Toolkit (GWT) into Javascript. Its main tasks are
+The Graphical User Interface (GUI) is the client part of the application that is loaded by the user in his web browser. It is written mostly in Java but compiled by the Google Web Toolkit (GWT) into Javascript. Its main tasks are
 
 \begin{itemize}
 \item visualisation of the application and communication with the user in a user-friendly way, especially providing an efficient translation workspace adapted for translation of movie subtitles
@@ -16,14 +16,35 @@ Our main goal is to offer a tool for the translators of the movie subtitles as e
 
 \section{Google Web Toolkit}
 % (Honza and Ruda)
-The web-based user interface representing the client part of the FilmTit application is based on the Google Web Toolkit (GWT) framework. This technology is a development toolkit for building and optimizing browser-based applications %\citep{Gwtweb}
+The web-based user interface is based on the Google Web Toolkit (GWT) framework. This technology is a development toolkit for building and optimizing browser-based applications %\citep{Gwtweb}
 and is based on the idea of compilation of Java source code into Javascript. Therefore, it enables us to write in Java even on the client side, but preserving most of the advantages of web application accessibility for the user.
 
 The official description of GWT is as follows:
 
+\todo{some nice latex way to show that the next para is a citation}
+
 Google Web Toolkit (GWT) is a development toolkit for building and optimizing complex browser-based applications. Its goal is to enable productive development of high-performance web applications without the developer having to be an expert in browser quirks, XMLHttpRequest, and JavaScript. GWT is used by many products at Google, including Google Wave and the new version of AdWords. It's open source, completely free, and used by thousands of developers around the world.
 
-\todo{text moved to implementation process, add a link and make neater}
+It was much complicated to agree on the technology for the GUI. There were many different opinions, from writing the client in {\it PHP} with {\it Nette Framework}, which some of us know quite well, to using the {\it JSP} to have all the code consistently in Java, even to quite an extreme idea to make the whole application as a {\it Java Applet} (this idea had appeared because of the intention to integrate the video player in the application, since at that time we did not know any other way to do that except creating a Java applet). Finally we decided to use {\it Google Web Toolkit}, which nobody of us had had any prior knowledge of before, but it promised making the communication between server and client and many other things very easy. Similarly to the Scala language problem, we ended up with only three people able to work efficiently with the Google Web Toolkit. Fortunately, this did not became a bottleneck of the development process.
+
+% I guess me (Ruda) and Honza have probably mastered GWT, but Karel is also quite fluent in it
+
+We decided to use GWT for several reasons.
+
+One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in cz.filmtit.share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. (In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.)
+
+However, there is a downside, which could have been expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had already been solved by others (although sometimes the only solution was not a nice or clean one, such as having to implement some methods directly in Javascript). Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
+
+A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE, similarly applicable also for IntelliJ IDE), possibly with debugging support. In GWT, there is a dedicated Development Mode for these debugging purposes, sparing the developer the need of recompiling all the GWT code for testing after each change. This proved to be very efficient in the first phases of the development when the GUI module was developed independently and, although it turned out to be quite difficult to set up the Development Mode once the GUI module was integrated with the rest of the project, it remained one of the most useful features of GWT.
+
+Another option that we found useful is the possibility to directly insert real Javascript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way how to do something that is supported in Javascript but unsupported in GWT.
+
+An important point also was that GWT is freeware, or more precisely, is licensed under the Apache License, v.~2.0 (TODO: citation for the license!), with several third-party software included in its distribution under other freeware licenses. It is even open-source, from which we benefited occasionally when examining the source code to understand some of its unexpected behavior, or even to extend some of its classes, overriding their behavior to fir our needs.
+
+Although GWT can be integrated into a Maven project, it was far from flawless and a lot of time had to be spent on making everything work together, including maintaining the IDE support. We managed to do that in the end, but we had expected this to be much easier. The main reason (but not the only one) is the specific directory structure, different for the Maven project and for the GWT project, which has to be adjusted in the configuration of both the Maven plugins and the IDE.
+And still after setting everything correctly, some features remained unavailable to some of us, e.g. running GUI in Development Mode using Eclipse IDE.
+
+To conclude, we are happy that we decided to use GWT because of the benefits it brought to us, but we were disappointed by the number of complications that it brought as well. Were we to decide on a web framework to use for a similar project, we would still have to consider our decision carefully.
 
 \subsection{Browser Support and Optimization}
 GWT also provides a feature which makes the final web application similar in different major browsers and optimized to a certain degree for each of them. This feature is called {\em deferred binding} and it is based on generating different versions of the Javascript code during compile time, only one of which needs to be loaded by a particular client browser at runtime. This process is by default maintained by the GWT compiler itself, so that the developer does not have to worry about it.
