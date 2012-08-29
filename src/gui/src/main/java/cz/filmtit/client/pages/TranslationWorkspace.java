@@ -191,7 +191,7 @@ public class TranslationWorkspace extends Composite {
         table.getColumnFormatter().setWidth(SOURCE_DIALOGMARK_COLNUMBER,  "10px");
         table.getColumnFormatter().setWidth(TARGET_DIALOGMARK_COLNUMBER,  "10px");
         translationHPanel.setCellWidth(scrollPanel, "100%");
-        translationHPanel.setCellWidth(emptyPanel, "0%");            
+        //translationHPanel.setCellWidth(emptyPanel, "0%");
 
         if (isVideo) {
             HTMLPanel panelForVLC = Gui.getPanelForVLC();
