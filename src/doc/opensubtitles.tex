@@ -84,7 +84,7 @@ The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,8
 The other step in cleanup is -- for simplicity -- removing the subtitles that are split to multiple files; we assumed that those split into more parts are probably just split version the complete ones. 81\,\% of subtitles are in one piece and only 1.7\,\% movies have subtitles only in multiple files. By deleting subtitles split into more files, we completely lose the Czech side of 64 movies and English the side of 218 movies, which is 3,5\% in total.
 
 \subsection*{Cleaning up -- Carmencita}
-There was also one curious issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{You can see it here -- \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg}}. We concluded this very probably happened due to a server error at OS.org, because the movie has the ID {\tt tt0000001} at IMDB. We deleted those as well.
+There was also one peculiar issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{See \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg} for details.}. We concluded this very probably happened due to a server error at OS.org, because the movie has the ID {\tt tt0000001} at IMDB. We deleted those as well.
 
 %Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
@@ -116,14 +116,14 @@ Most of the Czech subtitles were in \texttt{Windows-1250} encoding, but a small 
 \subsection*{GUI parsing}
 Before we start to talk about parsing, let us take a small sidestep to GUI.
 
-We wanted to move the parsing of the users' uploaded subtitles to the client side. The most important reason was that we did not want to add work to the server, also we did not want to create more RPCs specifically for subtitle parsing. \todo{In my opinion(Karel), these are terrible reasons, but I am repeating myself :D} Because we already had a set of shared classes, we decided to add the parser as a shared class -- because both users use the parsing in the GUI and the server is using the parser while doing the data import.
+We wanted to move the parsing of the users' uploaded subtitles to the client side. The most important reason was that we did not want to add work to the server. Therefore it was necessary to implement the parsing in the shared classes to make it available both in the GWT based GUI and the dataimport module.
 
-This is, by the way, one of the benefits of having the dataimport module a part of the whole system; we can easily share code with other parts of the system, and even let it be translated into JavaScript.
+This is, by the way, one of the benefits of having the dataimport module a part of the whole system. We can easily share the code with other parts of the system, and even let it be translated into JavaScript.
 
 However, because of this, we had to write the parsing classes in such a way, that would compile with both GWT and the Java compiler. What that effectively meant was not using the standard Java Regular Expression classes, but special GWT classes.
 
 \subsection*{Parsing}
-Parsing the subtitles themselves was not a hard task, using GWT's regex classes. Even though \texttt{sub} is considerably less popular, we decided to not neglect it and built a parser for it, too.
+Parsing the subtitles themselves was not a hard task, using GWT's regular expression classes. Even though \texttt{sub} is considerably less popular, we decided to not neglect it and built a parser for it, too.
 
 However, there are two scenarios, depending on when parsing is needed.
 
@@ -133,15 +133,14 @@ One scenario is parsing the movie subtitle after the user uploads it for transla
 
 What both scenarios have in common is the first step. In it, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word ``chunk'' more generally in the source code than here in the documentation.} \texttt{UnprocessedParser} is an abstract class, that has two subclasses -- \texttt{UnprocessedParserSrt} and \texttt{UnprocessedParserSub}.
 
-Parsing the files is a pretty straightforward task, even though we have to deal with various edge cases.
-
+Parsing the files is a relatively straightforward task, even though we have to deal with various edge cases.
 
 \subsubsection*{Parsing - second step}
 This is where the two scenarios are different. 
 
 When the user uploads a file, as the second step, we take those unprocessed chunks and try to split them to sentences using \texttt{TitChunkSeparator} (which, in turn, uses a \texttt{SentenceTokenizer}); we speak about sentence splitting in the next chapter. We then take those and return a list of \texttt{TimedChunk}s, with the appropriate IDs. We proceed to display the chunks using the GUI, which is not described in this chapter.
 
-When we are building the corpus, though, we do not split the subtitle items into sentences right away. We first do alignment of files and subtitle items, which we will describe below, and only then split the chunks into sentences, again using \texttt{TitChunkSeparator}.
+When we are building the corpus, though, we do not split the subtitle items into sentences right away. We first do alignment of files and subtitle items, which is describe below, and only then split the chunks into sentences, again using \texttt{TitChunkSeparator}.
 
 \section{Sentence splitting}
 \label{sentence_splitting}
@@ -150,7 +149,7 @@ Quite early on, we decided, that we should not add the whole subtitle items into
 
 As you can see on Graph~\ref{splitting:chunks}, we decided that we \emph{do} want to break subtitle items into sentences wherever possible and add those to database separately, but we do \emph{not} want to join the sentences that were already broken into multiple items.
 
-One of the reasons for \emph{not} joining sentences together is that it is not trivial to tell if the sentence ends with a given item or not. The other reason is that the user will also have the sentences in his original subtitles split in this way. We would then, for translation, need to join his sentences in the same way - but then, we would have to break them again when exporting out again!
+One of the reasons for \emph{not} joining sentences together is that it is not trivial to tell if the sentence ends with a given item or not. The other reason is that the user will also have the sentences in his original subtitles split in this way. We would then, for translation, need to join his sentences in the same way - but then, we would have to break them again when exporting out again.
 
 \begin{figure}[t]
 \begin{center}
@@ -161,7 +160,7 @@ One of the reasons for \emph{not} joining sentences together is that it is not t
 
 To reiterate: we split sentences only within one subtitle item, and we do not join subtitle items to form complete sentences.
 
-For the same reasons as parsing, we split sentences on the client GUI when the users upload their subtitles. That limits us in the choice of splitting algorithms, basically to just using regular expressions; any algorithms, based on some machine-learned models, are not applicable here -- we cannot link a library to the GWT code and use a model, loaded from a file.
+For the same reasons as parsing, we split sentences in the client GUI when the users upload their subtitles. That limits us in the choice of splitting algorithms, basically to just using regular expressions; any algorithms, based on some machine-learned models, are not applicable here -- we cannot link a library to the GWT code and use a model, loaded from a file.
 
 \subsection*{Dialogues}
 Dialogues are sometimes marked with a dash in the beginning. An example can be seen in Figure~\ref{splitting:chunks}. A dialogue is \emph{always} a new sentence.
@@ -176,7 +175,7 @@ Besides the two aforementioned rules, we use rule-based sentenced splitting (or 
 
 The rules are, actually, not \emph{that} sophisticated; they rule out common abbreviations, names of months, cases like \texttt{I (really!) did it.}, and so on.
 
-In the rule-based classes, the list of possible words before the punctuation that don't break the sentence have to be explicitly written in the code (because GWT has a problem with reading files). Therefore, if there was a need of adding a new language to FilmTit, this would have to be added. On the other hand, similar data are publicly available for every language in, for example, the Wiktionary project.
+In the rule-based classes, the list of possible words before the punctuation that do not break the sentence have to be explicitly written in the code (because GWT has a problem with reading files). Therefore, if there was a need of adding a new language to FilmTit, this would have to be added. On the other hand, similar data are publicly available for every language in, for example, the Wiktionary project.
 
 \section{Aligning the subtitles}
 \label{sec:aligning_subtitles}
@@ -194,7 +193,6 @@ Implementation of all techniques described below are in the \texttt{cz.filmtit.d
 \subsection{File to file alignment}
 
 As you could read in previous sections, we \emph{do} have some mapping from subtitles to movies. Now, we have to find out for each movie, which English and Czech file matches best together; we will throw away the rest of the files except for this one chosen pair for each movie.\footnote{Throwing away meant in the sense of building the corpus; we still have the original data, of course.}
-
 
 What helps us in determining alignment is the fact, that Czech subtitles are usually created by taking existing English subtitles and translating them item by item. The timing of such files should be very similar. 
 
@@ -742,18 +740,18 @@ and the other.\\
 It was a good death.
 }
 
-As you can see, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except for this one, most of the English files seems to match the Czech one quite well. You can also see that none of them is a ``perfect'' match, if you look either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from a similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
+As can be seen, the two Czech subtitle files are exact copies of each other. Also, there is one English subtitle that is totally wrong. Except for this one, most of the English files seems to match the Czech one quite well. None of them is a ``perfect'' match, looking either at numbers or at the timing. Judging by the \emph{number} of the last translation -- some are from a similar source (those with around 750 chunks), while those with significantly more chunks are probably from different source. Although, there is no perfect match, there are few almost-perfect matches.
 
 On average, there is 2.1 Czech subtitle files and 5 English subtitle files per movie. However, the numbers are not evenly distributed and very popular movies can have tens of subtitles.
 
-If we take for \emph{each} movie \emph{all} the pairs, where Czech is one side and English on the other (but both have the same movie), we have 235.825 such pairs (remember, we originally have 139.538 files).
+If we take for \emph{each} movie \emph{all} the pairs, where Czech is one side and English on the other (but both have the same movie), we have 235.825 such pairs (reminding, we originally had 139.538 files).
 
 \subsection{Subtitle to subtitle alignment}
 As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks. We do \emph{not} look at any other features.\footnote{In \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora (Einav Itamar, Alon Itai)}, authors tried to use other features, but we used just the time info.}
 
-However, even in cases when a Czech subtitle file has been made directly from an English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, the English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, while the Czech version has those deleted.
+However, even in the cases when a Czech subtitle file has been made directly from an English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, the English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, while the Czech version has those deleted.
 
-The result of this step is a list of pairs of Czech and English subtitle items. We do this step only on the chosen pair of files from the previous step, and only if the pair of files is chosen as a ``good'' candidate.
+The result of this step is a list of pairs of the Czech and English subtitle items. We do this step only on the chosen pair of files from the previous step, and only if the pair of the files is chosen as a ``good'' candidate.
 
 After this step, we almost have the final corpus. What we have to do before saving it into a final corpus is splitting the aligned items into chunks, as described in Section~\ref{sentence_splitting}. If both Czech and English have the same number of chunks, we split them and add those to the corpus; if the number is different, we ignore them.
 
@@ -768,22 +766,21 @@ After this step, we almost have the final corpus. What we have to do before savi
 \caption{Levenshtein distance for file-to-file alignment}\label{tolerance}
 \end{figure}
 
-
 The first approach is to take only the items with the same time as belonging to each other.
 
 However, the times are rarely exactly equal. One of the paper authors\footnote{Einav Itamar, Alon Itai (2008): \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora.} The sixth international conference on Language Resources and Evaluation, LREC 2008.} used 0.6\,s as a tolerance in order not to be confused by slight differences in timing.
 
 We observed that if we use a bigger tolerance, we have more subtitle pairs, but sometimes with worse quality (because sometimes we get totally different subtitles, not belonging to each other). We tried tolerance 0.6\,s (as suggested by the paper), and then 6\,s.
 
-For counting file to file alignment, we count editing distance of their time declarations, as illustrated in Figure~\ref{tolerance}; we use a dynamic algorithm for that.
+For counting file to file alignment, we count editing distance of their time marks, as illustrated in Figure~\ref{tolerance}; we use a dynamic algorithm for that.
 
-We take all the time information (both the starts and the ends) as vectors. Then, we count editing distance of those two vectors, where we take the two time informations as equal if they fall within tolerance, otherwise we take them as unequal. We score all possible pairs of Czech subtitle files on one side and English on the other for the given movie and we use the Levensthein distance as a score; the file pair with the shortest levensthein distance is the ``chosen'' file pair.
+We take all the time information (both the starts and the ends) as vectors. Then, we count editing distance of those two vectors, where we take the two time informations as equal if they fall within tolerance, otherwise we take them as unequal. We score all possible pairs of Czech subtitle files on one side and English on the other for the given movie and we use the Levensthein distance as a score; the file pair with the shortest Levensthein distance is the ``chosen'' file pair.
 
 We use Levensthein distance because there can be some small splitting, additions, and so on, but we want to take the pair of files, that have minimal number of these.
 
 For filtering out the ``bad'' movie pairs, we just throw away all that has editing distance higher than 30. (This was decided empirically by looking at some random subtitle files.)
 
-For subtitle to subtitle alignment, we take the subtitles that have a distance of both beginning and ending within the tolerance. Because the computation on the whole files would be really time consuming, we limited it to just the first 100 time declarations in the files.
+For subtitle to subtitle alignment, we take the subtitles that have a distance of both beginning and ending within the tolerance. Because the computation on the whole files would be very time consuming, we limited it to just the first 100 time marks in the files.
 
 
 %deleting this, since I covered it in previous section already
@@ -834,10 +831,10 @@ The chunk-to-chunk alignment is then simple -- chunks are aligned together if bo
 \begin{center}
 \includegraphics[width=0.5\textwidth]{figures/distance_align.pdf}
 \end{center}
-\caption{Illustration for the distance-based alignment. Circle represents subtitle, red line represent chosen alignment, black ones are some candidates, red circles are the subtitles that are aligned}\label{histograms}
+\caption{An illustration for the distance-based alignment. Circle represents subtitle, red line represent chosen alignment, black ones are some candidates, red circles are the subtitles that are aligned}\label{histograms}
 \end{figure}
 
-The idea that lead to the next approach was -- what if we didn't have any maximal tolerance and just took the subtitles that are closest to each other?
+The idea that lead to the next approach was -- what if we didn't have any maximal tolerance and just took the subtitles that are closest to each other.
 
 More concretely, we took the middle time of each chunk (in milliseconds) and counted distance from other chunk as an absolute difference of these middles. 
 
@@ -847,15 +844,15 @@ To find the best matching pairs in pair of two files, we took the closest Czech 
 
 Trivially implemented this algorithm would be quadratic to the size of subtitle file; however, we may dynamize it so even the worst case has linear time to the size of the subtitle file.
 
-In the file-to-file alignment case, we count this alignment for each pair of files and then we sum all the distances for a given pair; we then select the pair with the smallest sum as the correct one. If the subtitles are just translated from each other, the sum should be small and can be even zero, if the time marks are exactly the same.
+In the file-to-file alignment case, we count this alignment for each pair of files and then we sum all the distances for a given pair of files; we then select the pair with the smallest sum as the correct one. If the subtitles are just translated from each other, the sum should be small and can be even zero, if the time marks are exactly the same.
 
-We then selected given number of movies (we tried 6000 and 12000) with the smallest sum as the ``good'' movie pairs and then align them.
+We then selected given number of movies (we tried 6,000 and 12,000) with the smallest sum as the ``good'' movie pairs and then align them.
 
 \subsubsection{Baseline -- trivial alignment}
 As a baseline for comparison, the ``trivial'' algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
 
 \subsection{Evaluation of alignments}
-We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose? For a more scientific approach, we have to evaluate them; but it turns out it is not so easy.
+We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose. For having a more rigorous evaluation than just manual comparing of random files it was necessary to develop a metric which captures the quality of the alignment which is described later.
 
 \subsubsection{Size of corpus}
 One of the most simple evaluations is just the sheer size. Since the alignment classes are modular, we can actually use different file-to-file alignment together with subtitle-to-subtitle alignment.
@@ -881,13 +878,13 @@ One of the most simple evaluations is just the sheer size. Since the alignment c
 \caption{Size of corpus}\label{corpusize}
 \end{table}
 
-As you can see in Table~\ref{corpusize}, the highest tolerance produces the biggest corpus, while Distance-based alignment does not produce as much.
+As can be seen in Table~\ref{corpusize}, the highest tolerance produces the biggest corpus, while Distance-based alignment does not produce as much.
 
-What is interesting is that the Trivial alignment - that really takes \emph{everything} - has smaller corpus than the one with the higher tolerance.
+What is interesting is that the Trivial alignment -- that really takes \emph{everything} -- has smaller corpus than the one with the higher tolerance.
 
 
 \subsubsection{Manual alignment}
-Another measurement is to compare the alignment with human alignment.
+Another measurement is to compare the alignment with a human alignment.
 
 What is sometimes proposed in cases on alignment evaluation is letting users align something and then measure that against the aligner output.
 
@@ -895,28 +892,26 @@ The problem is -- what to manually align exactly in our case? We can manually al
 
 However, there is a bigger issue with the manual chunk-to-chunk alignment, that is -- which file pairs to manually align? Since we do not know the file-to-file aligner's results in advance, we should align all the file pairs -- but if there are, for example, 10 subtitle files on each language, it produces hundreds of pairs of files on which we should provide manual alignment, while the texts in all of them are \emph{mostly} the same, but \emph{not exactly} the same. This actually proved too hard and tedious to do.
 
-Plus, the aligner chooses just one pair, but a person would have to align all the possible pairs for no reason (a person can also produce different errors in different file pairs, which could be ``unfair'' to some of the aligners).
+Moreover, the aligner chooses just one pair, but a person would have to align all the possible pairs for no reason (a person can also produce different errors in different file pairs, which could be ``unfair'' to some of the aligners).
 
 Therefore, we manually annotated just the file-to-file alignment and we tried a different metric on the whole chunk-to-chunk alignment.
-
-
 
 \subsubsection{Counting precision and recall for file to file alignment}
 There are five cases of possible events:
 
 \begin{itemize}
-    \item With manual alignment, we found no possible matches and the aligner didn't mark it as a ``good'' movie - in this section, we call this \textit{true negative}
-    \item With manual alignment, we found possible matches, but the aligner didn't mark it as a ``good'' movie - in this section, we call this \textit{false negative}
+    \item With manual alignment, we found no possible matches and the aligner did not mark it as a ``good'' movie - in this section, we call this \textit{true negative}
+    \item With manual alignment, we found possible matches, but the aligner did not mark it as a ``good'' movie - in this section, we call this \textit{false negative}
     \item With manual alignment, we found no possible matches, the aligner marked it as a ``good'' movie and included it in corpus - in this section, we call this \textit{false positive}
     \item With manual alignment, we found possible matches, the aligner marked it as a ``good'' movie, but the match from aligner was not one of the correct ones -  we call this \textit{partly true positive}
     \item  With manual alignment, we found possible matches, the aligner marked it as a ``good'' movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
 \end{itemize}
 
-With some consideration, we count precision as \footnote{Technically, that is not precision or recall at all. However, we are not exactly sure how to call those.}
+With some consideration, we count precision as \footnote{Strictly speaking, it is not precision or recall at all. However, intuitively it captures similar qualities and it may be more confusing to use a different terminology.}
 
 $$\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}},$$ and recall as $$\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}.$$
 
-This means precision is the percentage of movies chosen by the aligner that are aligned correctly; recall is the percentage of movies, that \emph{can} be aligned (from manual alignment), that are aligned correctly. Results for the algorithms are in Table~\ref{align_score}.
+This means precision is the percentage of movies chosen by the aligner that are aligned correctly; recall is the percentage of movies that \emph{can} be aligned (from manual alignment), that are aligned correctly. Results for the algorithms are in Table~\ref{align_score}.
 
 \begin{table}[h]
 \begin{center}
@@ -938,7 +933,7 @@ We tried a different evaluation metric for testing the alignments.
 
 We imported the whole corpus (as created by an aligner) except for 30 randomly selected media sources into a database, then we took 20 chunks from each of the 30 files and queried it to a translation memory. We looked at the result this translation memory has given us and judged how much of it was relevant.
 
-We didn't test it on the real database (since building it multiple times would be too time consuming), we searched just for direct matches using standard Java\footnote{Standard Java, but it's in Scala} ``equals''.
+We did not test it on the real database (since building it multiple times would be too time consuming), we searched just for direct matches using standard Java\footnote{Standard Java, but it's in Scala} ``equals''.
 
 \subsubsection{Translation memory simulation result}
 
@@ -946,7 +941,7 @@ We counted two percentages for each configuration -- the one we called \emph{pre
 
 We also calculated a harmonized mean of those two.
 
-What also has to be noted here is that the result counts are not evenly distributed -- on the more ``popular'' sentences like ``I don't know'', we might have hundreds of matches; we receive only the first 30 matches. This will, of course, skew the precision slightly (since we take only 30 chunks as received); however, it still emulates the working of translation memory.
+What also has to be noted here is that the result counts are not evenly distributed -- for the more frequent sentences like ``I don't know'', we might have hundreds of matches; we receive only the first 30 matches. This will, of course, skew the precision slightly (since we take only 30 chunks as received); however, it still emulates the working of translation memory.
 
 Results of the experiment are tabulated in \ref{tm_simulation}.
 
@@ -971,17 +966,17 @@ Results of the experiment are tabulated in \ref{tm_simulation}.
 \end{table}
 
 \todo{Jo: Who?}
-We may notice that Distance is always worse than Tolerance. Also, we might notice, that every time we somehow allow more files, the precision goes down, but the coverage goes up.
+It can be noticed that the Distance is always worse than Tolerance. Also, we might notice, that every time we somehow allowed more files, the precision went down, but the coverage went up.
 
 The baseline algorithm is absurdly tolerant and produces actually bigger coverage than the tolerance-based algorithm with tolerance 600 ms. However, the precision is very low.
 
-Also note that even with the alignment with best coverage, we still covered only slightly more than one fourth of the file. We see that we really \emph{must} use fuzzy matching and, if possible, machine translation, both of which we use in the final software.
+Also note that even with the alignment with best coverage, we still covered only slightly more than one fourth of the file. We see that we really \emph{need to} use fuzzy matching and, if possible, machine translation, both of which we use in the final software.
 
 We chose the tolerance-based algorithm with 6s tolerance, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations. Users of Machine Translation can easily ignore a possible wrong translation, if they do not like it.
 
 \section{Running the alignment}
-The alignment is possible to re-run. The needed Scala objects with appropriate \texttt{main} methods are in \texttt{cz.filmtit.dataimport.alignment.tasks} package. However, it is untested for any other data than our data. The locations of the initial data, the \texttt{export.txt} file and the directory where the corpus will be located has to be set in \texttt{configuration.xml}.
+The alignment is possible to re-run. The needed Scala objects with appropriate \texttt{main} methods are in \texttt{cz.filmtit.dataimport.alignment.tasks} package. However, it is has not been tested on any other data than our data. The locations of the initial data, the \texttt{export.txt} file and the directory where the corpus will be located has to be set in \texttt{configuration.xml}.
 
 Alignment with any of the methods takes about 4 hours on Linux PC with Intel Core2 Quad CPU with 2.83GHz with 4GB and Linux.
 
-Also, the tests that produced the various numbers that you see in this section are in the same package; however, as they were intended to be run only once, they often have various paths and options hardcoded in the source code.
+Also, the tests that produced the various numbers that are placed in this section are in the same package. However, as they were intended to be run only once, they often have various paths and options hardcoded in the source code.

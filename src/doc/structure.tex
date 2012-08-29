@@ -19,7 +19,7 @@ The core layer also queries our machine translation server, which is running as 
 
 \subsection*{User Space}
 
-The middle-ware layer is called the User Space. Its task is to interact with the translation memory itself and mirror all GUI operations on the server side. The User Space is implemented in Java. It uses the same database as the Core and one database table is shared among them. The TM Core is used only as a service which is queried for translation suggestions. The interaction with the GUI is much more complicated because each operation from GUI has to be reflected in the US. The US provides a permanent storage of users' work to make the whole application including the users data available from the Internet. Except this function, the US provides the TM suggestion for the GUI and keeps them up to date (the TM should be gradually improving, so every time the user starts editing the document new translation suggestions are generated\todo{Jo:?}).
+The middle-ware layer is called the User Space. Its task is to interact with the translation memory itself and mirror all GUI operations on the server side. The User Space is implemented in Java. It uses the same database as the Core and one database table is shared among them. The TM Core is used only as a service which is queried for translation suggestions. The interaction with the GUI is much more complicated because each operation from GUI has to be reflected in the US. The US provides a permanent storage of users' work to make the whole application including the users data available from the Internet. Except this function, the US provides the TM suggestion for the GUI.
 
 \subsection*{GUI}
 
