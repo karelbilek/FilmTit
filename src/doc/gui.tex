@@ -7,7 +7,7 @@ The Graphical User Interface (GUI) is the part of the application that is loaded
 
 \begin{itemize}
 \item visualisation of the application and communication with the user in a user-friendly way, especially providing an efficient translation workspace adapted for translation of movie subtitles
-\item communication with the Userspace (see Chapter XXX) through the Remote Procedure Calls (see Chapter XXX), especially to provide the user with translation suggestions from the core translation memory (see Chapter XXX) and for data persistence
+\item communication with the User Space (see Chapter XXX) through the Remote Procedure Calls (see Chapter XXX), especially to provide the user with translation suggestions from the core translation memory (see Chapter XXX) and for data persistence
 \end{itemize}
 
 \section{Goals}
@@ -75,7 +75,7 @@ Please refer to the sitemap figure \ref{fig:sitemap} for an overview of the page
 \item About, showing basic information about the applicaton
 \item PlayerInfo, showing guidelines on how to run the media player
 \item ChangePassword, used as the target of the password change link sent by e-mail to users who forget their password, enabling them to set a new password
-\item AuthenticationValidationWindow, a special page that receives OpenID authentication data from an OpenID provider and passes them to Userspace for validation
+\item AuthenticationValidationWindow, a special page that receives OpenID authentication data from an OpenID provider and passes them to User Space for validation
 \item Blank, a special page with no contents and is used to temporarily hide the contents of another page
 \end{itemize}
 
@@ -157,7 +157,7 @@ Most of the RPCs contain the SessionID as one of their parameters to authenticat
 
 \todo{keep everything here or describe Offline Mode in a separate section?}
 
-The Offline Mode offers the user the possibility to continue translating a document even without a connection to the server. His translations are stored locally in his browser and sent to Userspace once he goes back online.
+The Offline Mode offers the user the possibility to continue translating a document even without a connection to the server. His translations are stored locally in his browser and sent to User Space once he goes back online.
 Support for storing the data is ensured by the HTML5 Local Storage feature, which provides an in-browser data storage, accessible from Javascript.
 Each object is stored as a pair of a unique string key and a string value (therefore, serialization to string is necessary to store complex objects).
 
@@ -283,7 +283,7 @@ subpackage cz.filmtit.client.widgets
 \subsection{Document Creation}
 
 In the most typical case, a user (already registered) will open the page with FilmTit and log in. Then, he will go to the DocumentCreator page to create a new document. A document corresponds to one movie, or more precisely, to one subtitle file being translated from one language to another. On this page, the user should specify the title of the movie (or series), the direction of the translation (e.g. from English to Czech) and provide the actual local file with the source subtitles. He can also set a document title different from the movie title, and set a file path to the corresponding movie video file on his filesystem.
-These information are sent to the Userspace and, after refining the movie specification through the MediaSelector, the new document is created and the page switches to TranslationWorkspace, filled with source subtitles (segmented to chunks) together with theit timing on the left side and corresponding empty translation text-boxes on the right side.
+These information are sent to the User Space and, after refining the movie specification through the MediaSelector, the new document is created and the page switches to TranslationWorkspace, filled with source subtitles (segmented to chunks) together with theit timing on the left side and corresponding empty translation text-boxes on the right side.
 
 See also the corresponding sequence diagram \ref{gui:sd:document_creation}.
 
@@ -296,8 +296,8 @@ See also the corresponding sequence diagram \ref{gui:sd:document_creation}.
 
 \subsection{Document Translation}
 
-At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate translation suggestions are generated for them and sent back. When received in the GUI, each translation result is set to the SubgestBox corresponding to its chunk, and can be displayed on activation of the translation text-box as a pop-up, with the suggestions sorted according to their estimated accuracy.
-The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the translation text-box, his translation is sent to the Userspace through the setUserTranslation call to be saved as the user translation of the chunk.
+At the same time, the subtitle chunks are sent through the User Space to the Core, where the appropriate translation suggestions are generated for them and sent back. When received in the GUI, each translation result is set to the SubgestBox corresponding to its chunk, and can be displayed on activation of the translation text-box as a pop-up, with the suggestions sorted according to their estimated accuracy.
+The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the translation text-box, his translation is sent to the User Space through the setUserTranslation call to be saved as the user translation of the chunk.
 
 See also the corresponding sequence diagram \ref{gui:sd:document_translation}.
 (Some technical details are ommitted for simplicity.)
@@ -323,4 +323,4 @@ A GET request is sent to the servlet.
 
 The servlet takes this and this, checks this and that, loads the chunks using Hibernate, creates the file like this, and returns that as the contents.
 
-\todo{The user translations are probably harvested by Userspace and Core independently of what the user does -- it probably does not fit into the GUI section at all...}
+\todo{The user translations are probably harvested by User Space and Core independently of what the user does -- it probably does not fit into the GUI section at all...}
