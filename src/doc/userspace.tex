@@ -1,16 +1,20 @@
 \section{Preliminaries}
 
-The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work persistent on the server and available always in the same state she finished her work.
+The User Space (or Userspace) is the middleware component of the application, interconnecting the Graphical User Interface (see Chapter XXX), the Core translation memory (see Chapter YYY) and the storage of user data.
+Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work persistent on the server and available always in the same state she finished her work.
 
-The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. All of the User Space code is implemented Java. It uses \emph{Hibernate} object-relational mapping library. The same \emph{PostgreSQL} database as in the TM Core is used. The in-memory \emph{hsqldb} database is used for the unit testing.
+The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. Most of the User Space code is implemented in Java. It uses \emph{Hibernate} object-relational mapping library to map the user objects into the database. The same \emph{PostgreSQL} database as in the TM Core is used. (The in-memory \emph{hsqldb} database is used for the unit testing.)
 
-Because the TM Core is a separate module it is also linked as dependency to the User Space, but they run together as one process in one Java Virtual Machine. Their communication is done by invoking the core methods returning objects of share classes.
+As the User Space component is run on the server but the GUI is run on the client computer, their communication is implemented using the Remote Procedure Calls (see Chapter XXX).
+The User Space provides the web service, implementing the RPCs, which are invoked by the GUI.
+
+Because the TM Core is a separate module, it is also linked as dependency to the User Space, but they run together as one process in one Java Virtual Machine. Their communication is done by invoking the core methods returning objects of share classes.
 
 \section{Architecture}
 
 To make the whole project as clear as possible we try to use as most as possible from the shared classes and prevent using the User Space specific classes. If some additional functionality is required and cannot be incorporated into the shared classes, mostly the database and core calls, we wrap the shared classes into distinct User Space classes.
 
-The server class which processes the calls on the first level contains the {\it Session} objects. These objects processes the calls with association the the particular logged in users. These two classes are not a part of the shared classes set.
+The \emph{Server} class which processes the calls on the first level contains the {\it Session} objects. These objects processes the calls with association the the particular logged in users. These two classes are not a part of the shared classes set.
 
 The session class contains an object representing the user (a wrapper for the shared class). Hash tables of active documents is there to access  them quickly. Both the document objects and translation results objects (which collect the source chunk, translation suggestion and the actual user's translation) are wrappers for the shared classes. Anyway, the inner shared objects are used for communication with other components.
 
@@ -99,5 +103,20 @@ Providing the feedback itself is done by a static method of the {\tt USTranslsat
 \section{Exporting Subtitle Files}
 \label{sec:export}
 
-TODO \todo{Write it}
+Users can export the files in both .srt and .sub format.
 
+Exporting the files is a straightforward task -- we just go through the chunks, maybe connect them to subtitle items if they have the same time, and save their contents.
+
+However, there is a problem with the formats. While .srt format uses time information, .sub format uses frames. For transfering between them, you have to know the FPS (frames per second) of the actual movie file. FPS varies across files (it is usually between 23 and 50, depending on the source of the movie file). 
+
+Right now, we ask the user for FPS when exporting. Another solution would be to read the FPS from video file, loaded through the player (more about the player in ???), since VLC plug-in can read the FPS using javascript; we didn't implement that due to time constraints.
+
+Another small issue with exporting is that we want to make the srt file downloadable. We cannot do that only using GWT and RPC, since GWT works through javascript, which cannot produce files to download. So instead we run a separate servlet, whose only responsibility is to produce .srt files. This servlet named \texttt{SubtitleDownloadServlet} is created at the start of the program, has a \texttt{FilmTitBackendServer} reference, and gets document ID and session ID through standard GET request.
+
+We can export three different type of file:
+\begin{itemize}
+    \item file with only the translated chunks, completely omitting the untranslated ones,
+    \item file with the translated chunks, with the source chunks at places where nothing is translated,
+    \item file with only the source chunks.
+\end{itemize}
+All three types in either .sub or .srt format. We also export to .txt, which is just the text of the subtitles without any time information.
