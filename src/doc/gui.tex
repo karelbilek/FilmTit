@@ -249,24 +249,48 @@ subpackage cz.filmtit.client.subgestbox
 
 An important class is the SubgestBox, or ``SUBtitle sugGESTion BOX'', which visualizes the TM results, offering a variety of means of navigation through them.
 
-\subsection{FileLoadWidget}
+\subsection{Playing the movie files}
+From the beginning, we wanted to be able to show the user the movie file along with the translations. However, legal issues, bandwith issues and disk issues bar us from actually uploading the files to our servers -- so, we tried to implement some kind of playing the users' movie files, from their disks, in the browser, and then communicating with this player via javascript, so we can somehow connect it with the translation GUI.
 
-subpackage cz.filmtit.client.widgets
+For this, we have to deal with two problems.
 
-a Widget which is a wrapper for a Java applet
+\subsubsection*{Video Playback (VLCWidget)}
+Playing the movie locally, from disk, is actually the lesser problem. We use VLC browser plugin for that.
 
-\todo{Karel should proudly describe what he did}
+VLC\footnote{\url{http://www.videolan.org/vlc/}, short for VideoLan Client} is a popular open source media player. One of its advantages is that it can handle almost any video format and any codec available.
 
-\subsection{Video Playback (VLCWidget)}
+VLC has also feature called ``browser plug-in''\footnote{For some reason, its name is different across VLC documentation. Sometimes, they use the name ``Mozilla plug-in'', sometimes ``Web plug-in'', sometimes ``browser plug-in''.}. The browser plug-in is not a part of standard VLC installation, but can be installed easily.
 
-ensured by the VLCWidget, which is a Widget wrapper to the VLC plugin
+This browser plug-in can be used for playing local files, in the browser, given that the file address is known. It is possible to rewind forward/backward/stop, all through javascript.
 
-subpackage cz.filmtit.client.widgets
+There are some slight annoyances in the plug-in, though. One of them is, that you can't really jump on an exact time location in the video file. Most video files have so-called seek frames, which can appear more or less often (depending on the setting of the encoder), and VLC plugin always jumps at the closest preceding seek frame. The difference can be quite big (even up to 20 seconds). This bars us for playing exactly the time slot of a given subtitle.
 
-\todo{Karel should proudly describe what he did}
+The other annoyance is that sometimes, the plugins just freezes without any warning right after jump on some position. We have found out that it is somehow connected to the files played; with the exact same movie files, the exact same positions cause the player to crash, but slightly moved positions are OK.
+
+The first issue is solved by not playing just the part with one subtitle, but bigger, 30 seconds ``windows''. The entire movie is split to these 30 second windows, and once the user switches in the TranslationWorkspace from subtitle in one window to a subtitle in another window, the whole new window is played. It is actually better than playing just the time of the subtitle, since the user has more context to translate the movie's sentences.
+
+The second issue is solved by detecting the crashes and restarting the whole plugin in the case of crash with slightly moved windows.
+
+All is implemented in \texttt{cz.filmtit.client.widgets.VLCWidget}. Apart from that, the \texttt{VLCWidget} displays the subtitles on the left and on the right of the VLC browser plugin (original on the left, translated on the right).
+
+We intentionally didn't implement very sophisticated controls for the player (since it would make the design too complicated). All the player can do is replay the whole current window or pause the playing\todo{I will maybe implement the unpausing if I got time. If I don't have time, I won't.}.
+
+\subsubsection*{Java applet for reading the filename}
+The bigger problem is actually \emph{reading the name of the file} before giving it to VLC player plugin.
+
+The browsers are generally built to give pages as little access to user's system as possible (understandably so). That includes the filepaths of the files. Even the recent HTML5 standards, that do have access to the file itself, can't read the filename.
+
+The only way we found, that would be usable across the browsers and systems, was to use a Java applet. Java applets have access to users' disk and can read the filenames; they have to be signed by a certificate, but that certificate can be self-signed.
+
+This is implemented in \texttt{cz.filmtit.client.widgets.FileLoadWidget}.
+
+The problem with this approach becomes evident -- we are now dependent on two external, non-standard, separate plug-ins for the task of playing video files -- VLC plugin and Java plugin. Both have to be installed separately, both often cause issues in various browsers (not only in theory). On the other hand, we acchieved the almost impossible task -- playing movie files from users' disk on their browsers. When we warn the users that this functionality is experimental and carefully explain them the two plugins and their installation, we believe the current implementation is OK.
+
 
 \subsection{Parsing and segmentation}
-% (maybe Karel?)
+We already wrote about parsing in the chapter~\ref{parsing_subs}. As we mentioned there, we are reusing the same classes for dataimport (where we parsed and segmented thousands of files) in the GUI.
+
+More information about the parsing can be found in the chapter~\ref{parsing_subs}.
 
 \section{Typical Usage}
 % (Honza)
