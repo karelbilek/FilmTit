@@ -1,6 +1,6 @@
 \section{Preliminaries}
 
-The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the user's work persistent on the server and available always in the same state they finished their work.
+The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the users' work persistent on the server and available always in the same state they finished their work.
 
 The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. All of the User Space code is implemented in Java. It uses the \emph{Hibernate} object-relational mapping library. The same \emph{PostgreSQL} database as in the TM Core is used. The in-memory \emph{hsqldb} database is used for unit testing.
 
@@ -10,7 +10,7 @@ Because the TM Core is a separate module, it is also linked as a dependency to t
 
 To make the whole project as clear as possible, we try to use as much as possible from the shared classes and avoid using the User Space specific classes. If some additional functionality is required and cannot be incorporated into the shared classes, mostly the database and core calls, we wrap the shared classes into distinct User Space classes.
 
-The server class which processes the calls on the first level contains the {\it Session} objects. These objects process the calls with association to the particular logged in users. These two classes are not a part of the set of shared classes.
+The \emph{Server} class which processes the calls on the first level contains the {\it Session} objects. These objects process the calls with association to the particular logged in users. These two classes are not a part of the set of shared classes.
 
 The session class contains an object representing the user (a wrapper for the shared class). A hash table of active documents is there to access  them quickly. Both the document objects and translation result objects (which collect the source chunk, translation suggestion and the actual user's translation) are wrappers for the shared classes. However, the inner shared objects are used for communication with other components.
 
@@ -22,7 +22,7 @@ The User Space services are available via the RPC calls from the client side. Wh
 
 After a user logs in, a Session object is created. It contains a unique session ID the client uses for authentication of its calls. A session object contains information about the user -- the user's settings and a set of the documents owned by the user available via the User object, and a hash table of documents which are currently in use with loaded chunks. When the user is logged in all of the calls are processed in the session class.
 
-Until the user does not explicitly requests a document, only basic information about the document remains loaded into memory (basic facts about the movie, such as the time of the last changes of the document). Only if the user opens the document for editing or requests the export of the subtitle file, all the document chunks with the translation suggestions and already finished user translations are loaded. However, if the list of owned documents is queried, empty documents arrive to the client no matter if the documents are loaded in the User Space.
+If the user does not explicitly requests a document, only basic information about the document remains loaded into memory (basic facts about the movie, such as the time of the last changes of the document). Only if the user opens the document for editing or requests the export of the subtitle file, all the document chunks with the translation suggestions and already finished user translations are loaded. However, if the list of owned documents is queried, empty documents arrive to the client no matter if the documents are loaded in the User Space.
 
 There is also a thread running in the server that checks how long the sessions are opened without any user actions. If this time exceeds the predefined session time out limit, either a short limit for common sessions or a long limit for permanent sessions, the session is terminated. Another situations when a session is terminated is when the user logs in although he already owns a session or explicitly logs out. When a session ends, basic information about the session is written to the database (user, start time, end time) to enable us to compute statistics about the usage of the application later.
 
@@ -99,20 +99,20 @@ Providing the feedback itself is done by a static method of the {\tt USTranslsat
 \section{Exporting Subtitle Files}
 \label{sec:export}
 
-Users can export the files in both .srt and .sub format.
+Users can export the files in .srt format. We decided to ignore .sub format because, as is shown in \ref{sec:properties}, in the initial data, the .sub percentage was minimal and the work needed would be too big.\todo{Make sure we delete the option from GUI and from source}
 
 Exporting the files is a straightforward task -- we just go through the chunks, maybe connect them to subtitle items if they have the same time, and save their contents.
 
-However, there is a problem with the formats. While .srt format uses time information, .sub format uses frames. For transfering between them, you have to know the FPS (frames per second) of the actual movie file. FPS varies across files (it is usually between 23 and 50, depending on the source of the movie file).
+%However, there is a problem with the formats. While .srt format uses time information, .sub format uses frames. For transfering between them, you have to know the FPS (frames per second) of the actual movie file. FPS varies across files (it is usually between 23 and 50, depending on the source of the movie file).
 
-Right now, we ask the user for FPS when exporting. Another solution would be to read the FPS from video file, loaded through the player (more about the player in ???), since VLC plug-in can read the FPS using javascript; we didn't implement that due to time constraints.
+%Right now, we ask the user for FPS when exporting. Another solution would be to read the FPS from video file, loaded through the player (more about the player in ???), since VLC plug-in can read the FPS using javascript; we didn't implement that due to time constraints.
 
-Another small issue with exporting is that we want to make the srt file downloadable. We cannot do that only using GWT and RPC, since GWT works through javascript, which cannot produce files to download. So instead we run a separate servlet, whose only responsibility is to produce .srt files. This servlet named \texttt{SubtitleDownloadServlet} is created at the start of the program, has a \texttt{FilmTitBackendServer} reference, and gets document ID and session ID through standard GET request.
+The issue with exporting is that we want to make the srt file downloadable. We cannot do that only using GWT and RPC, since GWT works through javascript, which cannot produce files to download. So instead we run a separate servlet, which only responsibility is to produce .srt files. This servlet named \texttt{SubtitleDownloadServlet} is created at the start of the program, has a \texttt{FilmTitBackendServer} reference, and gets document ID, session ID and the file type through standard GET request. We check if the session ID is correct, then check, if the user owns the given document, and if he does, create the file.
 
-We can export three different type of file:
+We can export three different types of file:
 \begin{itemize}
     \item file with only the translated chunks, completely omitting the untranslated ones,
     \item file with the translated chunks, with the source chunks at places where nothing is translated,
     \item file with only the source chunks.
 \end{itemize}
-All three types in either .sub or .srt format. We also export to .txt, which is just the text of the subtitles without any time information.
+All three types in either .srt or .txt format. The .txt format is just the text of the subtitles without any time information.

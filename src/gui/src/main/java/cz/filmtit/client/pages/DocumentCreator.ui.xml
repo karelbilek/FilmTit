@@ -13,7 +13,7 @@
 
 
                 <b:ControlGroup>
-                    <b:ControlLabel>Title of the movie or the TV show:</b:ControlLabel>
+                    <b:ControlLabel>Title of the movie or TV show:</b:ControlLabel>
                     <b:Controls>
                         <b:TextBox ui:field="txtMovieTitle"></b:TextBox>
                     </b:Controls>
@@ -61,10 +61,17 @@
                         <b:RadioButton ui:field="rdbEncodingIso" name="file encoding">iso-8859-2</b:RadioButton>
                     </b:Controls>
                 </b:ControlGroup>
-                <b:ControlGroup>
+                <b:ControlGroup ui:field="fileUploadControlGroup">
                     <b:Controls>
                         <lgf:FileUploadExt ui:field="fileUpload" />
                         <b:Label ui:field="lblUploadProgress" visible="false"></b:Label>
+                    </b:Controls>
+                </b:ControlGroup>
+                <b:ControlGroup ui:field="filePasteControlGroup" visible="false">
+                    <b:ControlLabel>The HTML5 file reading interface is not supported
+                        by your browser, please paste the file contents here:</b:ControlLabel>
+                    <b:Controls>
+                        <b:TextArea ui:field="txtFilePaste" height="100px"/>
                     </b:Controls>
                 </b:ControlGroup>
             </b:Fieldset>
