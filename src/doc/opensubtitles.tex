@@ -53,7 +53,7 @@ The contents of OS.org is all user-generated, and users of OS.org, when uploadin
 %From this data we will create a parallel corpus of ...
 
 \section{The initial data properties}
-
+\label{sec:properties}
 \subsection*{Format}
 The OpenSubtitles data consisted of the following files:
 \begin{itemize}
@@ -91,6 +91,8 @@ There was also one curious issue with the media sources. While looking more care
 \subsection*{Cleaning up -- results}
 After performing all the mentioned filtering, we had 2,543 MB in 110,312 gzipped subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
+When we did a simple check to find out, how many subtitles are actually in \texttt{srt} format we found out, that from 110,312 subtitles, 432 are not regular \texttt{srt} and might actually be \texttt{sub} (but sometimes, they are, for example, HTML files, or just strange binary data). That means that only 0.39\% of subtitle files are not \texttt{srt}. We are noting it here, because we later based some of our decision based on this
+
 All previous cleanup was done as one of the first things when we received the data; it is not included in the \emph{dataimport} module and the module already expects these data filtered out.
 
 Later in development, we noticed that some files have incorrect language written in the table file; files, that should be in Czech, were in  Hungarian, and so on. We added language detection, based on letter trigrams, later; that detection is, however, already in the \emph{dataimport} module and is done directly before aligning the files (which will be described later).
@@ -105,6 +107,7 @@ Later in development, we noticed that some files have incorrect language written
 \end{figure}
 
 \section{Loading subtitles, parsing}
+\label{parsing_subs}
 \subsection*{Loading subtitles}
 The subtitles were gzipped, as already noted. Gunzipping all the files to disk would take unnecessary space, so we load the files using \texttt{GZIPInputStream}, which is a part of the standard Java library.
 
@@ -977,7 +980,7 @@ Also note that even with the alignment with best coverage, we still covered only
 We chose the tolerance-based algorithm with 6s tolerance, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations. Users of Machine Translation can easily ignore a possible wrong translation, if they do not like it.
 
 \section{Running the alignment}
-The alignment is possible to re-run it. The needed objects with appropriate \texttt{main} methods are in \texttt{cz.filmtit.dataimport.alignment.tasks} package. However, it is untested for any other data than our data. The locations of the initial data, the \texttt{export.txt} file and the directory where the corpus will be located has to be set in \texttt{configuration.xml}.
+The alignment is possible to re-run. The needed Scala objects with appropriate \texttt{main} methods are in \texttt{cz.filmtit.dataimport.alignment.tasks} package. However, it is untested for any other data than our data. The locations of the initial data, the \texttt{export.txt} file and the directory where the corpus will be located has to be set in \texttt{configuration.xml}.
 
 Alignment with any of the methods takes about 4 hours on Linux PC with Intel Core2 Quad CPU with 2.83GHz with 4GB and Linux.
 
