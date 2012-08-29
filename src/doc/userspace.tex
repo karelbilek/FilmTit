@@ -99,20 +99,22 @@ Providing the feedback itself is done by a static method of the {\tt USTranslsat
 \section{Exporting Subtitle Files}
 \label{sec:export}
 
-Users can export the files in both .srt and .sub format.
+Users can export the files in .srt format. We decided to ignore .sub format because, as is shown in \ref{sec:properties}, in the initial data, the .sub percentage was minimal and the work needed would be too big.\todo{Make sure we delete the option from GUI and from source}
 
 Exporting the files is a straightforward task -- we just go through the chunks, maybe connect them to subtitle items if they have the same time, and save their contents.
 
-However, there is a problem with the formats. While .srt format uses time information, .sub format uses frames. For transfering between them, you have to know the FPS (frames per second) of the actual movie file. FPS varies across files (it is usually between 23 and 50, depending on the source of the movie file). 
+%However, there is a problem with the formats. While .srt format uses time information, .sub format uses frames. For transfering between them, you have to know the FPS (frames per second) of the actual movie file. FPS varies across files (it is usually between 23 and 50, depending on the source of the movie file). 
 
-Right now, we ask the user for FPS when exporting. Another solution would be to read the FPS from video file, loaded through the player (more about the player in ???), since VLC plug-in can read the FPS using javascript; we didn't implement that due to time constraints.
+%Right now, we ask the user for FPS when exporting. Another solution would be to read the FPS from video file, loaded through the player (more about the player in ???), since VLC plug-in can read the FPS using javascript; we didn't implement that due to time constraints.
 
-Another small issue with exporting is that we want to make the srt file downloadable. We cannot do that only using GWT and RPC, since GWT works through javascript, which cannot produce files to download. So instead we run a separate servlet, whose only responsibility is to produce .srt files. This servlet named \texttt{SubtitleDownloadServlet} is created at the start of the program, has a \texttt{FilmTitBackendServer} reference, and gets document ID and session ID through standard GET request.
+The issue with exporting is that we want to make the srt file downloadable. We cannot do that only using GWT and RPC, since GWT works through javascript, which cannot produce files to download. So instead we run a separate servlet, which only responsibility is to produce .srt files. This servlet named \texttt{SubtitleDownloadServlet} is created at the start of the program, has a \texttt{FilmTitBackendServer} reference, and gets document ID, session ID and the file type through standard GET request. We check if the session ID is correct, then check, if the user owns the given document, and if he does, create the file.
 
-We can export three different type of file:
+We can export three different types of file:
 \begin{itemize}
     \item file with only the translated chunks, completely omitting the untranslated ones,
     \item file with the translated chunks, with the source chunks at places where nothing is translated,
     \item file with only the source chunks.
 \end{itemize}
-All three types in either .sub or .srt format. We also export to .txt, which is just the text of the subtitles without any time information.
+All three types in either .srt or .txt format. The .txt format is just the text of the subtitles without any time information.
+
+Originally, we supported .sub too, but we would need to ask user for FPS (frames per second) for exporting to .sub, because while .srt format uses time information, .sub format uses frames. The FPS varies from file to file and usually, the user doesn't even know it.
