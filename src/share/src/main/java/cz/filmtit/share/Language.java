@@ -8,6 +8,20 @@ public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, S
 
     EN      ("en", "English"),
     CS      ("cs", "Czech"),
+    DA      ("da", "Danish"),
+    NL      ("nl", "Dutch"),
+    FI      ("fi", "Finnish"),
+    FR      ("fr", "French"),
+    DE      ("de", "German"),
+    HU      ("hu", "Hungarian"),
+    IT      ("it", "Italian"),
+    NO      ("no", "Norwegian"),
+    PT      ("pt", "Portuguese"),
+    RO      ("ro", "Romanian"),
+    RU      ("ru", "Russian"),
+    ES      ("es", "Spanish"),
+    SV      ("sv", "Swedish"),
+    TR      ("tr", "Turkish"),
     UNKNOWN ("?", "Unknown language");
 
     private String code;
