@@ -975,3 +975,10 @@ The baseline algorithm is absurdly tolerant and produces actually bigger coverag
 Also note that even with the alignment with best coverage, we still covered only slightly more than one fourth of the file. We see that we really \emph{must} use fuzzy matching and, if possible, machine translation, both of which we use in the final software.
 
 We chose the tolerance-based algorithm with 6s tolerance, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations. Users of Machine Translation can easily ignore a possible wrong translation, if they do not like it.
+
+\section{Running the alignment}
+The alignment is possible to re-run it. The needed objects with appropriate \texttt{main} methods are in \texttt{cz.filmtit.dataimport.alignment.tasks} package. However, it is untested for any other data than our data. The locations of the initial data, the \texttt{export.txt} file and the directory where the corpus will be located has to be set in \texttt{configuration.xml}.
+
+Alignment with any of the methods takes about 4 hours on Linux PC with Intel Core2 Quad CPU with 2.83GHz with 4GB and Linux.
+
+Also, the tests that produced the various numbers that you see in this section are in the same package; however, as they were intended to be run only once, they often have various paths and options hardcoded in the source code.

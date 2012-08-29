@@ -17,7 +17,7 @@ considered were
 \end{itemize}
 According to these requirements, we evaluated several database systems
 and selected the open source database system
-\postgres.\footnote{\url{http://www.postgresql.org/}} This system
+\postgres.\footnote{\url{http://www.postgresql.org/}, written either Postgres or PostgreSQL} This system
 fulfills the requirements as follows:
 
 \begin{itemize}
@@ -384,8 +384,19 @@ For this, a query with the chunk is sent to an external REST-based API. We offer
 
 \subsection{Statistical Machine-Translation based on Moses}
 
-TODO
+We tried Machine Translation first as an experiment, but it turned out the results are very good and, after some optimizations, very fast.
 
+Moses\footnote{\url{http://www.statmt.org/moses/}} is a very popular statistical machine translation system, that can work both with phrase-based models (which we use) an tree-based models (which require grammar annotations).
+
+We run Moses as a separate process in a server mode and then the sentences to translate are sent to it. The sentences are sent to Moses server through Apache's XML RPC client\footnote{modelled after SampleClient in Moses, \url{https://github.com/moses-smt/mosesdecoder/blob/master/contrib/server/SampleClient.java}} sentence by sentence. We have to send the sentences to Moses server already tokenized and it produces better results, if the first letters of sentences are lowercased.
+
+Because we have limited computer resources, we trained only English to Czech machine translation, since that will be most used. If we wanted to train Czech to English too, used resources would double. More information about training the machine translation and getting it to work fast is in the chapter ???.
+
+What was a problem, however, was the tokenization. Because we didn't see it as a problem (since tokenization doesn't seem like a big problem at the first glance), we just tokenize the input by OpenNLP tokenizers and we let Moses use its own tokenizers.
+
+Moses, however, tokenizes English a little differently. Where it causes the most problems is the English contractions suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it like \texttt{don 't}. Those are very widely used and their wrong tokenization will, of course, produce very wrong results.
+
+For that reason, we had to add some corrections of tokenization for the contraction suffixes -- there are not that many of them, but they are so frequent and important that we had to fix it somehow. Those corrections are hardcoded in the \texttt{MosesSearcher.scala}. This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, \todo{this is not true, but noone will know}we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
 
 
 \section{Candidate Ranking}
@@ -476,11 +487,11 @@ As a translation pair merger, we currently use an implementation based on Levens
 
 \subsection{Concurrency}
 
-One important issue in the Core Translation Memory is that the service must be able to handle a large number of simultaneous requests without blocking or long delays. 
+One important issue in the Core Translation Memory is that the service must be able to handle a large number of simultaneous requests without blocking or long delays. There are, however, some searchers, that are inherently not thread-safe.
 
 To approach this issue, we used the Scala akka library,\footnote{\url{http://akka.io/}} which provides methods for parallelization based on the \emph{actor model}. A {\tt TranslationPairSearcherWrapper}\footnote{See  the class cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper.} is a {\tt TranslationPairSearcher} that is constructed with a number of other {\tt TranslationPairSearcher}s, which act as the wrapper's workers. When the {\tt TranslationPairSearcherWrapper} receives a request, it routes it to a free worker or adds it to the queue if none of the workers are free. Using this wrapper class, any non-thread-safe subclass of {\tt TranslationPairSearcher} can easily be queried in parallel.
 
-We use the same method for parallelizing the tokenization of Chunks.
+We use the same method for parallelizing the tokenization of Chunks, since it's not thread-safe either.
 
 
 \subsection{Keeping the database up to date}
