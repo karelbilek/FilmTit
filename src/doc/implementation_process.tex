@@ -633,7 +633,10 @@ Possible solutions:
 
 \subsubsection{Chunks Saving / Loading}
 
-original idea: parse the subtitle file in GUI and keep it there; decision kept: no sense sending the chunks to US and then back again, also would cause unnecessary load on the server
+We originally decided that the subtitle file will be parsed in the GUI, 
+to avoid unnecessary sending of the data from GUI to User Space and then back from User Space to GUI; parsing the file in User Space would also cause unnecessary load on the server.
+
+original idea: GUI and keep it there; decision kept: 
 
 problem: how to do editing when the Workspace expects to get the SRT file?
 
@@ -646,7 +649,10 @@ solution: first save all chunks, then start loading the trabslation suggestions
 
 
 \subsubsection{Login}
-it is therefore neccessary that the user can log in without the application\'s main window being reloaded so that the user does not lose unsaved data.
+
+A requirement we had on the login functions was that they do not require reloading the page. This is because it might happen that the user\'s sessionID expires, which would lead to his last request being lost in case of realoding the page. However, not reloading the page enables us to resend the request once the user is logged back in.
+
+This was easy to do in case of the Simple Login. In case of OpenID Login, it lead to a rather complicated procedure (see Section~\ref{subsubsec:gui:openid}), which requires opening a new window for the user to authenticate on the OpenID provider webpage.
 
 \subsection{Final Development}
 \label{subsec:final_development}
