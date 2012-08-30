@@ -20,11 +20,11 @@ import cz.filmtit.share.User;
 /**
  * Entry point for the FilmTit GWT web application,
  * including the GUI creation.
+ * Behaves as a static class.
  *
  * @author Honza Václ
  *
  */
-
 public class Gui implements EntryPoint {
 
     ///////////////////////////////////////
@@ -57,24 +57,42 @@ public class Gui implements EntryPoint {
         return pageHandler;
     }
     
+    /**
+     * Returns the panel in which the VLC player should be displayed.
+     */
     public static HTMLPanel getPanelForVLC() {
         return guiStructure.getPanelForVLC();
     }
 
     // Login state fields
 
+    /**
+     * True if user is logged in, false if not.
+     */
     private static boolean loggedIn = false;
     
+    /**
+     * True if user is logged in, false if not.
+     */
     public static boolean isLoggedIn() {
 		return loggedIn;
 	}
 
+    /**
+     * The user that is currently logged in, or null if no user is logged in.
+     */
 	private static User user;
 
+    /**
+     * The user that is currently logged in, or null if no user is logged in.
+     */
     public static User getUser() {
 		return user;
 	}
 
+    /**
+     * The name of the user that is currently logged in, or null if no user is logged in.
+     */
     public static String getUsername() {
 		if (user != null) {
 	    	return user.getName();			
@@ -85,9 +103,7 @@ public class Gui implements EntryPoint {
 	}
 
     /**
-     * 
-     * @return The id of the user logged in,
-     * or -1 if there is none.
+     * The id of the user that is currently logged in, or -1 if no user is logged in.
      */
     public static long getUserID() {
 		if (user != null) {
@@ -98,11 +114,17 @@ public class Gui implements EntryPoint {
 		}
 	}
 
+    /**
+     * The active sessionID, or null if no user is logged in.
+     */
 	private static String sessionID;
     
     private static final String SESSIONID = "sessionID";
     
-    // persistent session ID via cookies (set to null to unset)
+    /**
+     * Set the active sessionID, or set null to unset the sessionID.
+     * Made persistent via cookies.
+     */
     public static void setSessionID(String newSessionID) {
          if (newSessionID == null) {
               Cookies.removeCookie(SESSIONID);
@@ -112,7 +134,10 @@ public class Gui implements EntryPoint {
          sessionID = newSessionID;
     }
 
-    // persistent session ID via cookies (null if not set)
+    /**
+     * Get the active sessionID, or null if no user is logged in.
+     * Made persistent via cookies.
+     */
     public static String getSessionID() {
          if (sessionID == null) {
               sessionID = Cookies.getCookie(SESSIONID);
