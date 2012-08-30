@@ -43,6 +43,7 @@ As noted above, a Moses machine translation server is running as a completely se
 
 
 \section{Sharing the Implementation among the Project}
+\label{sec:shared_classes}
 
 Because all parts of the projects are Java based, we can share a set of classes between the GUI and the server to avoid unnecessary redundancy and to make the project structure clearer.
 
@@ -50,12 +51,12 @@ However, as noted in the GWT documentation,\footnote{\url{https://developers.goo
 
 \begin{itemize}
 \item The shared classes cannot reference any class that is not translatable to JavaScript through GWT (for example, any third-party libraries).
-\item The shared classes can use only a subset of the Java Runtime Library. E.g. we could not use \texttt{java.util.regex}, which is not implemented in GWT; we had to use \texttt{com.google.gwt.regexp.shared} instead.
+\item The shared classes can use only a subset of the Java Runtime Library. E.g.\ we could not use \texttt{java.util.regex}, which is not implemented in GWT; we had to use \texttt{com.google.gwt.regexp.shared} instead.
 % I dont think this was the main case, there were more such cases...
 \item Serialization works differently in GWT. What this effectively meant for us is that, even when we use the general \texttt{List} interface for a property, we cannot set the value to an instance of a subtype of \texttt{List} that is not implemented in GWT. More specifically -- we wanted to use \texttt{scala.collection.JavaConverters.AsJava[List]} for Scala $\Leftrightarrow$ Java conversion, but it was not possible, since it uses its own implementation of Java \texttt{List} interface.
 \end{itemize}
 
-Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by the Java compiler to JVM bytecode (except for direct insertions of Javascript code of course), but not the other way around.
+Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by the Java compiler to JVM bytecode (except for direct insertions of JavaScript code of course), but not the other way around.
 
 Structure of the shared classes follows the terms mentioned in the Glossary as can be seen in Figure~\ref{projectStructure:logical}. Detailed UML diagram of the shared classes is in Figure~\ref{fig:shared_uml} and Figure~\ref{fig:shared_uml_helping}.
 
