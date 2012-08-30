@@ -164,13 +164,14 @@ Each object is stored as a pair of a unique string key and a string value (there
 The Offline Mode support is separated into three parts: the LocalStorageHandler, the Storable interface, and classes implementing the interface (i.e. the SetUserTranslation class).
 
 \subsubsection{Storable interface}
+\label{gui:subsubsec:storable}
 
 This interface defines methods that need to be implemented by a class to be storable in the Local Storage, especially:
 
 \begin{itemize}
 \item toKeyValuePair() -- to serialize the object into a pair of a key and a value
 
-\item static fromKeyValuePair(KeyValuePair) -- a factory method that deserializes the object from a pair of a key and a value (not actually defined by the interface; for a discussion on that matter see Implementation Process \todo{ref})
+\item static fromKeyValuePair(KeyValuePair) -- a factory method that deserializes the object from a pair of a key and a value (not actually defined by the interface; for a discussion on that matter see Section~\ref{ip:subsubsec:offline})
 
 \item onLoadFromLocalStorage() -- invoked by the LocalStorageHandler when the user decides to upload the object
 \end{itemize}

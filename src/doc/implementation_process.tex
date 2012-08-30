@@ -1,6 +1,6 @@
 \section{Timeline}
 
-The following section describes the project development, progress and decision as we did through the time the the project was developed. After series of informal talk the project officially started in December 2011 \todo{I thought we started later} and was submitted in September 2012.
+The following section describes the project development, progress and decisions we took through the time the project was developed. After series of informal talks, the project officially started in December 2011 \todo{I thought we started later} and was submitted in September 2012.
 
 \subsection{Initial project meetings and early implementation decisions}
 
@@ -102,7 +102,7 @@ Ultimately we came up with 3 solutions, but none of them pleases us enough:
 
 \item the user chooses the file in the file browser and then copies the file path from the browser inputbox into a textbox; this is probably even less userfriendly
 
-\item a Java applet is loaded to choose the file as Java applets do not have such restrictions as Javascript, and then passes the path to the application; it seems to us as an \todo{overkill} to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly (we have also encountered an alternative using Flash for the same purpose, but we still prefer using Java to Flash)
+\item a Java applet is loaded to choose the file as Java applets do not have such restrictions as Javascript, and then passes the path to the application; it seems to us too heavy-weight to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly (we have also encountered an alternative using Flash for the same purpose, but we still prefer using Java to Flash)
 \end{itemize}
 
 We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet. \todo{we dont have that, right?}
@@ -114,7 +114,13 @@ After having implemented a very basic version of all three parts of the project,
 
 At this stage we found out that we are not fully taking advantage of using the Java technologies for all parts of project and decided to totally redesign the User Space and Client parts.
 
-Originally, we wanted to keep the traditional translation memory structure where each sentence can have several matches and these matches can have several translations in the memory, as is depicted in the figure \ref{fig:original_scheme}. Anyway, this scheme did not reflect much the way we worked with the data in the ???core??? that time -- suitable matches were provided from the table of translation pairs based on indexes built over the table. Moreover, there were very few matches having multiple different translations in the data, and the design of the GUI was a little bit confusing because it placed the text of matches to a more prominent place than the translation suggestions, despite the fact that the user is most probably not as concerned about the matches as he is about the actual translation suggestions. This lead to a scheme which is depicted in figure \ref{fig:new_scheme}.
+Originally, we wanted to keep the traditional translation memory structure where each sentence can have several matches and these matches can have several translations in the memory, as is depicted in Figure~\ref{fig:original_scheme}. However, this scheme did not reflect much the way we worked with the data
+%in the ???core???
+in the Core
+that time --
+suitable matches were provided from the table of translation pairs based on indexes built over the table \todo{I dont undersatnd this sentence --RR}
+and there were very few matches having multiple different translations in the data.
+Also, the design of the GUI was a little bit confusing because the text of the matches was placed more prominently than the translation suggestions, despite the fact that the user is probably much more interested in the actual translation suggestions than in the matches. This lead to a modified scheme which is depicted in figure \ref{fig:new_scheme}.
 
 \begin{figure}
 \begin{center}
@@ -123,16 +129,18 @@ Originally, we wanted to keep the traditional translation memory structure where
 \caption{Current scheme of the work with translation memory.}\label{fig:new_scheme}
 \end{figure}
 
-We agreed on the shared classes that all parts of the project should use. We more or less adopted the design of the classes from the core and started to use in the whole project. This step required to re-implement the Scala classes in Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}. \todo{but where is it?!}
+We agreed on the shared classes that all parts of the project should use. We more or less adopted the design of the classes from the core and started to use them in the whole project. This step required to re-implement the Scala classes in Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}. \todo{but where is it?!}
+\todo{hey, the ref is invalid since the section does not exist!}
+From a later point of view, it appears to be an important decision to agree on the shared classes, which made the cooperation between the modules easier and less verbose. 
 
-We started the work on the project with the new design soon, anyway this started the period of the biggest struggle with technologies. It took us almost two months to have a first running version of the application.
+\todo{does this REALLY belong to subsec:introducing_shared_classes ?!?!?!?!}
 
-The very first version of the application was a page where it was only possible to upload a subtitle file and to do the translation, without any possibility to load an already saved subtitle document or download the result of the translation, without any sessions or users; it was just a page where you edit the subtitles.
-At that time we used machine translation from the MyMemory service (which is in fact Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. \todo{so we took Moses}
+We started the work on the project with the new design soon, which lead to a period of the biggest struggle with technologies. It took us almost two months to have the first running version of the application.
+
+The very first version of the application was a page where it was only possible to upload a subtitle file and to do the translation, without any possibility to load an already saved subtitle document or download the result of the translation, without any sessions or users; it was just a page where you edit the subtitles (which later became the Translation Workspace).
+At that time we used machine translation from the MyMemory service (which in fact wraps Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. \todo{so we took Moses}
 
 We also used API of IMDB.com to receive information about movies but the movie meta data was not used in the evaluation the matches at that time. (We had to switch to Freebase later because the IMDB service was discontinued.)
-
-From a later point of view, it appears to be an important decision to agree on the shared classes, which made the cooperation between the modules easier and less verbose. 
 
 \subsection{The Main Development Phase}
 
@@ -166,7 +174,7 @@ Moreover, the user has the possibility to change his username and/or password on
 
 \subsubsection{Chunk Splitting}
 
-\todo{people who did that should add the text}
+\todo{people who did that should add the text !!!}
 
 ideas:
 
@@ -189,21 +197,24 @@ Therefore: a shared Parser class which is compiled both into java bytecode and u
 
 \todo{please check whether this is true}
 
-Originally, we simply used the time strings acquired from the subtitle files to represent the timing, as we only displayed them to the user.
+% Originally, we simply used the time strings acquired from the subtitle files to represent the timing, as we only displayed them to the user.
+% 
+% This was sufficient at the beginning; however, once we began fitting the media player to the actual subtitle lines, we needed to parse the time strings and convert them to a one-ineteger representation of time in miliseconds (we also needed that for editing the timing, which came later).
 
-This was sufficient at the beginning; however, once we began fitting the media player to the actual subtitle lines, we needed to parse the time strings and convert them to a one-ineteger representation of time in miliseconds (we also needed that for editing the timing, which came later).
+After a period of repesenting the time simply as a string, we created a class, SrtTime, that represents the time in the SRT format as a set of four integers (the SRT format of time is ``hh:mm:ss,ttt'' -- hours:minutes:seconds,miliseconds).
+%\footnote{a milisecond is a thousandth of a second, thus the usage of the letter ``t'' to represent it; alternatively, knowing that the word ``second'' stands for the second diminuation of the hour, you can think of the milisecond as a third diminuation of the hour, also leading to the letter ``t''}).
+We then decided to move all time handling logic into this class, so that we can ensure the correctness and consistency of the timing throughout the application.
+The class provides various constructors, getters and setters for all formats we need, also performing validity checks.
+% (one string, a set of strings, a set of integers, one integer being the time in miliseconds). It also implements cloning, comparison and subtraction.
 
-Finally, we created a class, SrtTime, that represents the time in the SRT format as a set of four integers (the SRT format of time is ``hh:mm:ss,ttt'' -- hours:minutes:seconds,miliseconds\footnote{a milisecond is a thousandth of a second, thus the usage of the letter ``t'' to represent it; alternatively, knowing that the word ``second'' stands for the second diminuation of the hour, you can think of the milisecond as a third diminuation of the hour, also leading to the letter ``t''}).
-It provides constructors, getters and setters for all formats we need (one string, a set of strings, a set of integers, one integer being the time in miliseconds). It also implements cloning, comparison and subtraction.
-
-At that moment, we decided to use the SRT format only for the sake of simplicity.
-At first it was thought to be only a temporary state, with a plan to add SUB format support later. However, we eventually found out that not only is the SRT time format easier to use (you do not need to know the Frames-Per-Second property of the movie file),
-but also approximately 98\% of subtitles on the internet appear to be in the SRT format \todo{please correct the number and add some source}.
-Thus, we decided to discontinue support for the SUB format and only support SRT.
+At first, we decided to use the SRT format only for the sake of simplicity.
+It was thought to be only a temporary state, with a plan to add SUB format support later. However, we eventually found out that not only is the SRT time format easier to use (it is not necessary to know the Frames-Per-Second property of the movie file),
+but also approximately 98\% of subtitles on the internet appear to be in the SRT format \todo{please correct the number and add some source !!!}.
+Thus, we decided to discontinue support for the SUB format and only support SRT (the only major difference between these formats is actually the format of the time).
 
 \subsubsection{Chunk Annotations}
 
-\todo{people who did that should add the text}
+\todo{people who did that should add the text !!!}
 
 named entities = first reason for annotations
 
@@ -232,9 +243,11 @@ However, logging in the GUI is much more tricky, as there is no ``standard outpu
 
 Actually, it should be noted here that when using the GWT Development Mode, there is a console available to the programmer, where e.g. exceptions can be inspected, and GWT even provides the GWT.log() method to explicitely log messages to the Development Console -- which was found out only later. However, we still find it more useful to be able to see the debug messages even when not running the Development Mode; moreover, some of the members of our team were unable to run the application in the Development Mode successfully.
 
-The preliminary logging solutions included various implementations of the common practice of ``debug prints'' (which is often used by programmers if the support for effective debugging is little or none). In our situation, the debug prints were typically ensured by window alerts; we also tried changing the page title or statusbar for a less aggressive way of showing debug prints. Still, none of these solutions can be used in a larger scale.
+The preliminary logging solutions included various implementations of the common practice of ``debug prints'' (which is often used by programmers if the support for effective debugging is little or none) --
+%In our situation, the debug prints were typically ensured by window alerts; we also tried changing the page title or statusbar for a less aggressive way of showing debug prints. Still, none of these solutions can be used in a larger scale.
+window alerts, changing the page title or the statusbar text.
 
-The solution we soon took for the development phase was to add a debug window at the bottom of each page, and an (in the end) static method Gui.log() that prints the log messages into that window.
+The solution we soon took for the development phase was to add a debug window at the bottom of each page, and a static method Gui.log() that prints the log messages into that window.
 This proved to be very useful: once we added a large enough amount of logging, we were able to locate many issues that were appearing only using the contents of this window, often also guessing their causes as well.
 
 The debug window served its purpose well; however, it obviously could not be left to appear in the final version of application.
@@ -259,21 +272,30 @@ It is to be noted that in case of exceptions comming through the RPCs, the stack
 
 \subsubsection{Implementing the RPCs}
 
-From the start it was obvious to us that we want to use a well-estabilished method to implement the Remode Procedure Calls. Our first idea was to directly send and receive JSON messages because they have a format of a Javascript object, so we thought that this would be easy and efficient to implement in GWT (it is possible to read the object from string into memore simply using Javascript eval() function). However, there are three facts that we later found out that made us change our decision. The first one is that, although it is possible to directly use eval() function to convert the JSON message into the in-memory object representation, this practice is not recommended for security reasons (any Javascript code can be injected and it would be directly executed with no constraints). Therefore, the recommended practice is to use a JSON parser, which validates the JSON object before calling eval(). A related issue is that although GWT sometimes does use JSON internally, it does not provide a JSON parser to be used by the programmer, so one has to use an additional library. And finally, we found out that GWT already implements a mechanism to send RPCs (in which, as a matter of fact, the messages are actually serialized to JSON).
+From the start it was obvious to us that we want to use a well-estabilished method to implement the Remode Procedure Calls.
+We noted in the specification that we would probably use JSON for the message serialization.
+Fortunately, GWT does provide a ready-to-use Remote Service implementation, where the programmer only has to define the set of RPCs as an interface, implement the interface on the server side, and invoke an RPC on the client side by implementing the GWT AsyncCallback interface.
+Everything else is handled automatically by GWT (which, as a matter of fact, does actually serialize the messages to JSON internally).
+% Our first idea was to directly send and receive JSON messages because they have a format of a Javascript object, so we thought that this would be easy and efficient to implement in GWT (it is possible to read the object from string into memore simply using Javascript eval() function). However, there are three facts that we later found out that made us change our decision.
+% The first one is that, although it is possible to directly use eval() function to convert the JSON message into the in-memory object representation, this practice is not recommended for security reasons (any Javascript code can be injected and it would be directly executed with no constraints). Therefore, the recommended practice is to use a JSON parser, which validates the JSON object before calling eval().
+% A related issue is that although GWT sometimes does use JSON internally, it does not provide a JSON parser to be used by the programmer, so one has to use an additional library.
+% And finally, we found out that GWT already implements a mechanism to send RPCs (in which, as a matter of fact, the messages are actually serialized to JSON).
 
 The type of an RPC parameter or return value can be any GWT-compilable type. Because this type must be known both to the server and to the client, we use only primitive types and shared classes SEE XXX. Each class sendable through GWT RPC mechanism must implement the GWT IsSerializable interface (which is only a marker, i.e. it does not have any abstract methods) and a parameter-less constructor; this also holds for the checked exceptions, which are technically only a special type of a return value.
 
-Because of Javascript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g. in logging in or changing user settings. In such situations, the page or dialog is "deactivated" on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is "reactivated", either with a success message or an error message, depending on the result of the RPC.
+Because of Javascript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g. in logging in or changing user settings. In such situations, the page or dialog is ``deactivated'' on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is ``reactivated'', either with a success message or an error message, depending on the result of the RPC.
 
-In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID is used. Originally it was created by the GUI and sent to User Space, but we soon found this to be inappropriate (TODO why -- collisions, anything else?) and the User Space now generates the authID.
+In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID, generated by the User Space, is used.
+% Originally it was created by the GUI and sent to User Space, but we soon found this to be inappropriate so the User Space now generates the authID.
 
 \subsubsection{Failed RPC Requests Handling}
 
-Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
+% Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
 
 We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
 
-The first thing was to turn the calls from methods into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary.
+The first thing was to turn the calls into objects,\footnote{This is very similar to the XXX design pattern. %I found it but I forgot the name.
+} so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary.
 
 We identified the response that we usually get in case of network problems (it is a StatusCodeException with the status code 0). The problems can be temporary or permanent; in case of temporary problems, the default response of showing an error message was found to be highly inappropriate, as it would suffice only to resend the call. Therefore, we introduced retrying the call for three more times in such case with short delays, before showing an error message to the user.
 
@@ -336,27 +358,26 @@ After using default GWT look, we decided to use Twitter Bootstrap -- good decisi
 
 Trying to be user friendly
 
-- expected behavior
-
-- as litle controls as possible
-
-- can be controlled by mouse (except for typing)
-
-- TranslationWorkspace can be controlled by keyboard (efficiency)
-
-- other pages must be controlled by mouse ... user spends most time in Translation Workspace so occasional clicking should not be a problem; it feels more natural to us
+\begin{itemize}
+\item expected behavior
+\item as litle controls as possible
+%- can be controlled by mouse %(except for typing)
+\item TranslationWorkspace can be controlled both by mouse and by keyboard, as the user is expected to spend most of the time in Translation Workspace by typing, and the need to switch between the mouse and the keyboard would decrease his efficiency
+\item other pages controlled only by mouse, which feels natural enough; a typical user spends most of the time in Translation Workspace, therefore having to use the mouse on the other pages is not expected to be an efficiency problem
+\end{itemize}
 
 changing data .. idea: it should be possible to change anything if there is not a strong reason why not
+\begin{itemize}
+\item change document title, movie title... by clicking on it (seems natural, added a tooltip)
 
-- change document title, movie title... by clicking on it (seems natural, added a tooltip)
+\item change timing or source text: we think that this is not usually required so it is under a double click to prevent unwanted activation (and a tooltip again)
 
-- change timing or source text: we think that this is not usually required so it is under a double click to prevent unwanted activation (and a tooltip again)
+\item we offer the user the possibility to change the source text because if there is an error, the suggestions might be incorrect (the suggestions are regenerated on changing the source)
 
-- we offer the user the possibility to change the source text because if there is an error, the suggestions might be incorrect (the suggestions are regenerated on changing the source)
+\item we do not offer deleting chunks because this would be difficult to implement properly in GUI; however, the default behavior is not to export the untranslated chunks, so not translating a chunk is roughly equivalent to deleting it
 
-- we do not offer deleting chunks because this would be difficult to implement properly in GUI; however, the default behavior is not to export the untrabslated chunks, so not translating a chunk is roughly equivalent to deleting it
-
-- we do not allow to change the source subtitle file (this would actually mean deleting the whole old document and creating a new one, probably only keeping the title -- so we leave this for the user to do himself); however, smaller edits can be done directly in TW
+\item we do not allow to change the source subtitle file (this would actually mean deleting the whole old document and creating a new one, probably only keeping the title -- so we leave this for the user to do himself); however, smaller edits can be done directly in TW
+\begin{itemize}
 
 \subsubsection{Subtitle Formats}
 
@@ -364,7 +385,7 @@ first support for SRT and SUB
 
 more and more problems with SUB
 
-internal format of time is SUB
+internal format of time is SRT
 
 finally decided to support only SRT
 
@@ -372,7 +393,7 @@ finally decided to support only SRT
 
 - easier to process (e.g. changing the timing), easier to sync to the player
 
-We also support exporting the subtitles in plain text format, i.e. only the text without timing information.
+(We also support exporting the subtitles in plain text format, i.e. only the text without timing information.)
 
 \subsubsection{GUI Pages}
 
@@ -406,106 +427,128 @@ User Space started as nice but not robust -- it was not prepared to receiving er
 
 TODO: When we tried it out, we were getting tons of errors, so some checks were added and locks were introduced, so now it works nicely.
 
+\todo{probably remove this subsub}
+
 \subsubsection{Handling Parsing Errors}
 
-At first, errors in parsing were not handled at all: the file was simply expected to be in the correct format, and if it was not, more or less random exceptions would be thrown from the parser.
+% At first, the subtitle files were expected to be in the correct format -- no explicit checks were performed and if an error was encountered, the file was rejected.
+% The SrtTime class was then added 
 
-We were improving the situation gradually, eventually creating a new exception class, InvalidDocumentFormatException, which is thrown by the parser, with a message containing details about the error that can be shown to the user.
-Validation of times was improved by adding the SrtTime class (XXX odkaz, snad uz to nekde je), which checks even whether the number ranges are valid for the given field (e.g. whether the minute is between 0 and 59).
+We found that since many subtitle files are partly or fully generated by people, and probably also because the SRT format has no official specification, errors in the files are very common. Rejecting even the files with only minor errors (such as a surplus or missing newline, or an incorrect time format which we check thoroughly) showed to be unnecessarily strict, as typically most of the file is correct and the number of errors is small.
 
-Also, as a preliminary check, we refuse any file which is larger than 500 kB. We introduced this check because it is very fast and efficient.
+We decided to introduce heuristics to decide whether to reject the whole file: if the number of recoverable errors is lower than 10, the erroneous parts are skipped and the rest of the file is parsed.
+
+\todo{Karel to nejak upravoval, tak at si to sem napise}
+
+% However, this lead to also rejecting
+% We were improving the situation gradually, eventually creating a new exception class, InvalidDocumentFormatException, which is thrown by the parser, with a 
+% Also, as a preliminary check, we refuse any file which is larger than 500 kB. We introduced this check because it is very fast and efficient.
 
 \subsubsection{Offline Mode}
+\label{ip:subsubsec:offline}
 
-At first, the whole app should be able to work offline.
+At first, our intention was to make the whole application able to run offline. However, it was not a priority and was not even part of the official specification.
+Eventually, we decided that the only part that has to be able to work offline is the Translation Workspace, as doing the translation itself is the most time-consuming part of the whole process for a user. We believe that the user can prepare everything while online, wait until the translation suggestions are loaded, and then spend some time offline translating the document.
 
-Eventually, decided that the only part that must be able to work offline is the Translation Workspace.
+We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the aplication offline
+-- e.g. the whole application would have to be stored offline, which we wanted to avoid in the first place by designing FilmTit as a web application.
+However, it is obvious that the data created by the user in Offline Mode must be stored locally even if the application is closed.
+Thus, only storing setUserTranslation calls and invoking them once the user goes back online turned out to be sufficient.
 
-If user closes the app, we cannot do anything anyway -- the whole app would have to be stored offline which we wanted to avoid in the first place.
+% (this is only a discussion explaining why not to support more, I would leave it out)
+%
+% Creating documents and exporting documents: not possible in Offline Mode.
+% Settings: does not make much sense in Offline mode.
+%
+% Only thing that IMHO could actually be useful is preloading multiple documents, so that user can got to doc list and back again and translate multiple documents, not only the opened one.
+% Would have to preload suggestions -- would have to change the way they are handled since now they are not stored permanently anywhere, are always regenerated on opening the TW.
+% The question which documents to preload -- all of them? Too unefficient. Only the ones that user chooses? Yes, but he has to be able to choose them in a user-friendly way. Probably simplest: store the documents that the user opens. However, there is then little difference between the targetted state and the current state: the only difference is that now the user must open multiple tabs and leave them opened, while in the proposed state he could open them one after another and work on them in one tab only (although StopTranslationResults would probably have to be modified as well so that the user does not have to leave the TW open and wait for all of the suggestions to load). \todo{nevim jak se anglicky rekne ze to je malo muziky za hodne penez}
 
-Creating documents and exporting documents: not possible in Offline Mode.
-Settings: does not make much sense in Offline mode.
+\paragraph{Technology}
 
-Eventually, only saving SetUserTranslation calls.
-
-Only thing that IMHO could actually be useful is preloading multiple documents, so that user can got to doc list and back again and translate multiple documents, not only the opened one.
-Would have to preload suggestions -- would have to change the way they are handled since now they are not stored permanently anywhere, are always regenerated on opening the TW.
-The question which documents to preload -- all of them? Too unefficient. Only the ones that user chooses? Yes, but he has to be able to choose them in a user-friendly way. Probably simplest: store the documents that the user opens. However, there is then little difference between the targetted state and the current state: the only difference is that now the user must open multiple tabs and leave them opened, while in the proposed state he could open them one after another and work on them in one tab only (although StopTranslationResults would probably have to be modified as well so that the user does not have to leave the TW open and wait for all of the suggestions to load). \todo{nevim jak se anglicky rekne ze to je malo muziky za hodne penez}
-
-Decided to use Local Storage -- similar to cookies but better.
-Like Cookies, the stored object has two ``useful'' fields, the name (or key) and the contents (or value). However, the Local Storage has several advanages over cookies:
+We decided to use the HTML5 Local Storage, which is similar to the well-known cookies mechanism from which it evolved.
+Like Cookies, the stored object has two ``useful'' string fields, the name (or ``key'') and the contents (or ``value'').
+However, the Local Storage has several advantages over cookies:
 
 \begin{itemize}
-\item larger size limit
-\item objects are not sent to the browser on loading the page as with cookies but are stored and retrieved on request. This would be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within Javascript is an advantage.
+\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within Javascript is an advantage.
+\item The size limit both for individual objects and for the total ammount of data stored is larger.
+\item Instead of setting expiry time, the programmer simply decides whether the objects should be stored temporarily (for a browser session) or permanently (which is our case).
+\item The API is cleaner.
 \end{itemize}
 
-Thanks to the similarity of Local Storage to cookies, it would be quite easy to implement a fallback for browsers without Local Storage support using cookies. We decided not to do that because, as far as we know, most browsers installed on users\' computers do support Local Storage. However, we might add this feature in future if there is a need for it.
+Still, thanks to the similarity of Local Storage to cookies, it would be quite easy to implement a fallback for browsers without Local Storage support using cookies. We decided not to do that because, as far as we know, most browsers installed on users\' computers nowadays do support Local Storage. However, we might add this feature in future if there is a need for it.
 
-First idea: serialize and deserialize using JSON!
+\paragraph{Serialization}
+Because the necessary serialization is special -- we need to serialize into a set of two strings, the key and the value, with the key being a unique yet intelligible identifier of the object -- we decided to implement our own serialization, defined by the Storable interface which is described in Section~\ref{gui:subsubsec:storable}.
+However, we encountered an issue with Java support for interfaces: Java does not support neither constructors nor static methods in interfaces.
+Still we need to use the one or the other for deserialization (or a hack, such as using an empty constructor and then loading the data into the empty object, which would enable us to define the method in the interface, but would break several good programming practices otherwise and therefore we decided not to use it).
+The Java reasoning is understandable -- one could specify the one or the other, but they could never be invoked through the interface without specifying the implementing class, so there is no point in including them.
+We agree that including methods that can never be invoked is strange. However, we would understand if these methods were removed from the interface during compilation; still, it would be helpful if the classes implementing the interface would be automatically checked for implementation of such methods, both in IDE and at compile time.
 
-Later realization: would need an external library for that (TODO see RPCs), decided to write custom serialization.
+% We decided to define a static factory method fromKeyValuePair that all Storable classes must implement; however, it has to be commented out in the source code of the Storable interface, as well as the ``@Override'' annotation in the implementation classes. Still, we prefer to keep these in the code to make our point.
 
-Created a Storable interface defining serialization and deserialization methods -- toKeyValuePair and fromKeyValuePair.
-
-Issue encountered: Java does not support neither constructors nor static methods in interfaces, but we need to use one or the other for deserialization (or a hack, such as using an empty constructor and then loading the data into the empty object, which would enable us to define the method in the interface but would break several good programming practices otherwise and therefore we decided not to use it).
-
-\todo{check whether there is a coding pattern for that - probably ask Stepan}
-
-Java reasoning: one could specify them, but they could be invoked only on the implementing class anyway (i.e. they could never be invoked through the interface without specifying the implementing class), so there is no point in including them.
-
-Our reaction: we agree that including methods that can never be invoked is strange. However, we would not mind if these methods were removed from the interface during compilation; still, it would be helpful if the classes implementing the interface would be automatically checked for implementation of such methods, both in IDE and at compile time.
-
-We decided to define a static factory method fromKeyValuePair that all Storable classes must implement; however, it has to be commented out in the source code of the Storable interface, as well as the ``@Override'' annotation in the implementation classes. Still, we prefer to keep these in the code to make our point.
-
-
-Currently only implemented by one class (SetUserTranslation), but is desinged to be easily extendable if we decide to store other data in Local Storage as well.
-
+\paragraph{Extendability}
+Although currently only one class, SetUserTranslation, can be stored in Offline Mode, the Offline Mode support is desinged to be easily extendable if we decide to store other data in Local Storage as well.
 To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the Storable interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
+(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if nescessary.)
 
-In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if nescessary.
-
-How to identify the objects correctly:
-
-\begin{itemize}
-
-\item add a special object describing the other objects:
+\paragraph{Object Identification}
+When some objects are stored in the Local Storage, they can only be accessed through the Local Storage interface, which is flat and does not support any advanced structures -- the programmer can only get the number of all of the objects in the storage, iterate over their keys, and retrieve a value of an object based on its key. (Plus setting and deleting the objects of course.)
+Thus, we had to find our own way to identify the objects correctly, so that we correctly inform the user about objects he has stored (not objects that other users stored) and correctly deserialize them and perform any actions required -- this means that not only the object contents but also an identifier of its class and of the current user have to be included. We found two possible solutions:
 
 \begin{itemize}
-\item not reliable, user can interrupt the application at any time and can also change the values stored by the app
-\item but could at least be used as a non-authoritative cache
-\item now all object keys must be loaded to know the contents of the storage (but takes at most a few seconds in a typical case)
-\item decided that this might be good to add in future but there seems to be no need at the moment
+
+\item store a special object or objects in the storage, describing the other objects:
+
+\begin{itemize}
+\item efficient retrieval of the description of the contents of the storage
+\item could simulate a simple file-system with a tree structure of files and folders
+\item the object key can be any uniquely generated string
+\item not reliable as the user can interrupt the application at any time and can also change the values stored by the application
+\item could still be used as a non-authoritative cache
 \end{itemize}
 
 \item each object contains all necessary information in its key
 
 \begin{itemize}
-\item started with the ``key fields'' of the objects (document id and chunk index in case of SetUserTranslation)
-\item then also added the class name to make it extendable (although it has not been extended)
-\item then added username because there might be various FilmTit users using the same browser
-\item and eventually changed username into user ID because now the user can change his username
+\item simpler to implement
+\item very little danger of data corruption
+\item keeps the flat structure
+\item the object key must include all important information to identify the object
+\item all object keys must be loaded to know the contents of the storage (but it takes at most a few seconds in a typical case)
 \end{itemize}
 
 \end{itemize}
+
+We decided to use the second approach, which we believe should be always used to prevent data corruption; however, we think that it would be beneficial to also implement and add the first approach as an additional layer of abstraction above the individual objects.
+
+% \item decided that this might be good to add in future but there seems to be no need at the moment
+% \item started with the ``key fields'' of the objects (document id and chunk index in case of SetUserTranslation)
+% \item then also added the class name to make it extendable (although it has not been extended)
+% \item then added username because there might be various FilmTit users using the same browser
+% \item and eventually changed username into user ID because now the user can change his username
 
 \subsubsection{Hibernate Issues}
 
-Before starting the project nobody of us had an experience with a object-relation mapping library for Java. Initially we were thinking also about not using such library and operate directly with the \emph{JDBC} connection. That was the option we chose for the translation memory core where we work only with few tables with not complicated relations. About the User Spaces where we expected much more complicated structure we thought that using a object-relation mapping would more beneficial and decided to use one. 
+Before starting the project, nobody of us had any experience with an object-relation mapping library for Java. Initially we were also thinking about not using such a library and using the \emph{JDBC} connection directly -- that was the option we chose for the translation memory core where we work only with a few tables with simple relations. Concerning the User Space, where we expected much more complicated structure, we thought that using an object-relation mapping would be more beneficial and decided to use one.
+% AN object-relation mapping!!! for X's sake, it begins with an "[o]", how can you say "a object..."?! or is it because you say [vobjekt]? :-)
 
-After doing a little research on the Internet we found out that Hibernate seems to be the most frequently used library for object relation mapping and decided to use it too. There were more than 20,000 discussions on \emph{stackoverflow.com} which gave us hope that solution for any problems we might have had could be easily found on the Internet. 
+After doing a little research on the Internet, we found out that Hibernate seems to be the most frequently used library for object relation mapping and decided to use it. There were more than 20,000 discussions on \emph{stackoverflow.com} which gave us hope that solution for any problems we might have could be easily found on the Internet. 
 
-Details of the mapping itself could be found in section \ref{subsec:database_mapping}, the structure of the mapped database is in figure \ref{fig:em_of_us}. Here we will focus on the database mapping from the development perspective.
+Details of the mapping itself can be found in Section~\ref{subsec:database_mapping}, the structure of the mapped database is in Figure~\ref{fig:em_of_us}. Here we will focus on the database mapping from the development perspective.
 
-Because we started with Hibernate version 3, all properties we wanted make persistent must have had their getters and setters. The requirement to have a getter and setter for each property may sound as violating the encapsulation feature of the Object Oriented Programming, but luckily the method can be private. (Hibernate probably access them via reflection.) Classes also must have parameter-less constructor, but it also can be private.
+Because we started with Hibernate version 3, all properties we wanted to make persistent had to provide getters and setters. The requirement to have a getter and a setter for each property may sound as violating the encapsulation feature of the Object Oriented Programming, but in fact the getters and setters can be private (as Hibernate can still access them via reflection). Each class also must have a parameter-less constructor, but it also can be private.
 
-New versions of Hibernate allow to use directly the fields of the classes, but since the mapped classes are usually wrappers of the shared classes, the fields are not directly accessible from the mapped class, we used the getters and setters for all properties to be consistent. Despite we ended up using Hibernate version 4.1.0, we are quite conservative in terms of using its features and keep all the mapping in separate XML files despite it can be done by annotations directly in the source file and do not access fields directly, but always use getters and setters.
+New versions of Hibernate allow to use the fields of the classes directly, but since the mapped classes are usually wrappers of the shared classes, most of the fields are only accessed through getters and setters in the rest of the application, so we just use getters and setters for all the properties. Despite we ended up using Hibernate version 4.1.0, we are quite conservative in terms of using its features and keep all the mapping in separate XML files despite it can be done by annotations directly in the source file and do not access fields directly, but always use getters and setters.
+% "the fields are not directly accessible from the mapped class" ?!?!?! WTF ?!?!?! you can make a class which cannot access its own fields???
 
-Previously mentioned features of Hibernate were very often also source of bugs -- mostly forgetting to add a private setter. Very often mistake was also forgetting to add a property in the mapping and finding out it is not persistent. (When a new property was added it was usually not covered in tests at that time so it took some time find it.)
+The previously mentioned requirements of Hibernate were very often sources of minor bugs -- mostly forgetting to add a private setter (which soon lead to exceptions and was easy to find), or forgetting to add a new property into the mapping (which did not lead to immediately observable errors, as this only had the result of the property not being persistent; moreover, when a new property was added, it was usually not covered in tests at that time, so it typically took some time to find the bug.)
 
-Another problem was that despite the Hibernate can adjust the database scheme to the mapping, it was often not able to change it in a proper way and it was necessary to drop the User Space tables in the database and let the Hibernate to create them from the scratch. This of course always caused loss of the data we tested the application on.
+Another problem was that although Hibernate can adjust the database scheme to the mapping if the mapping changes, it was often not able to change it in a proper way and it was necessary to drop the User Space tables in the database and let Hibernate create them from scratch. This of course always caused loss of the data we tested the application on. More importantly, this means that it would be very hard to change the mapping in the application once it is released -- it would probably require managing the database scheme changes partly or fully manually.
 
-During debugging of one bug (it was happening that the same translation results was appearing in the database with different database IDs) it appeared how useful is to use the database constraints. If we had had it before this bug would have been found right away and it would not take so much time to find it. After this experience we added constrains everywhere where it was possible.
+% haha, I would just keep that a secret so that they let us defend it :-D
+% During debugging of one bug (it was happening that the same translation results was appearing in the database with different database IDs) it appeared how useful is to use the database constraints. If we had had it before this bug would have been found right away and it would not take so much time to find it. After this experience we added constrains everywhere where it was possible.
 
 \subsubsection{Media Source}
 
@@ -515,54 +558,58 @@ https problems
 
 adding the "null" option
 
-\subsubsection{GUI Refactoring}
+\todo{this is a todo for Jo I am afraid}
 
-TODO: have that here or not??? Yes!
-
-Started as 1 class (GUI.java) which grew and grew.
-
-The RPCs handling moved to a separate class.
-
-Subgestbox class.
-
-Introduced UiBinder for designing the GUI.
-
-The notion of pages, each having its own java class and an UiBinder template.
-
-Introducing the PageHandler.
-
-The RPCs turned into individual classes in cz.filmtit.client.callables
-
-The pages moved to cz.filmtit.client.pages and all are displayed simply by creating the class.
-
-The notion of Dialogs, residing in cz.filmtit.client.dialogs, with Dialog being the superclass (peviously just hardcoded somewhere).
-
-The sbgetsbox gets its own subpackage.
-
-Gui made static
-
+% not very interesting I am afraid
+%
+% \subsubsection{GUI Refactoring}
+% 
+% TODO: have that here or not??? Yes!
+% 
+% Started as 1 class (GUI.java) which grew and grew.
+% 
+% The RPCs handling moved to a separate class.
+% 
+% Subgestbox class.
+% 
+% Introduced UiBinder for designing the GUI.
+% 
+% The notion of pages, each having its own java class and an UiBinder template.
+% 
+% Introducing the PageHandler.
+% 
+% The RPCs turned into individual classes in cz.filmtit.client.callables
+% 
+% The pages moved to cz.filmtit.client.pages and all are displayed simply by creating the class.
+% 
+% The notion of Dialogs, residing in cz.filmtit.client.dialogs, with Dialog being the superclass (peviously just hardcoded somewhere).
+% 
+% The sbgetsbox gets its own subpackage.
+% 
+% Gui made static
 
 \subsubsection{Subgestboxes}
 
 One of the most important features of the application's user interface is the behaviour of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, SubgestBox, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
 
 \paragraph{SuggestBox?}
-First, we were thinking about a GWT's pre-implemented SuggestBox, probably with some slight adjustments. But we have realized that with our quite specialized demands of its behaviour and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the older classes in the inheritance chain. However, we have drawn some inspiration from the SuggestBox class implementation, for example using a PopupPanel to show the suggestions proved to be quite an elegant solution.
+First, we were thinking about the GWT pre-implemented SuggestBox, probably with some slight adjustments. However, we realized that with our specialized demands on its behaviour and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the more general classes in the inheritance chain. Still, we have drawn some inspiration from the SuggestBox class implementation; for example, using a PopupPanel to show the suggestions proved to be quite an elegant solution.
 
 \paragraph{Base widget}
-For some time, we were using a usual TextBox with the suggestions pop-up extension, switching after a while to a TextArea to offer a multi-line input. But since we also needed some text formatting inside the box (e.g. for the named entities' annotation highlighting and also for the user formatting, for example italicized text) and this is could not be added by simply extending the TextArea, we have once again switched the base class, this last time to RichTextArea.
+For some time, we were using a common TextBox with the suggestions pop-up extension, switching after a while to a TextArea to offer multi-line input. But since we also needed some text formatting inside the box (e.g. for the named entities' annotation highlighting or for the user formatting, such as italicized text) which could not be added by a simple extension to the TextArea, we have once again switched the base class, this last time to the RichTextArea.
+(Eventually, none of the formatting is supported in the current version, but we decided to keep the RichTextArea implementation to have an easy way of possibly adding such functionality in future.)
 
 \paragraph{Fake and real}
-The RichTextArea, being based on the IFrame HTML element, provided all the functionality we have requested (although some of it is not as simply accessible as we expected), but there was yet another problem with it. Having one IFrame for each chunk on the page, i.e. hundreds of them for an average movie, turned out to be quite a significant performance problem -- the browser often became irresponsive. In the end, we have solved this issue by distinguishing so-called ``fake'' and ``real'' SubgestBoxes; the former being simple TextAreas and displayed as default in the translation workspace, on focus transforming into the latter, the real IFrame-based SubgestBoxes with all the functionality.
+The RichTextArea, being based on the IFrame HTML element, provided all the functionality we have requested (although some of it is not as simply accessible as we expected), but there was yet another problem with it. Having one IFrame for each chunk on the page, i.e. hundreds of them for an average movie, turned out to be quite a significant performance problem -- the browser often became irresponsive. In the end, we have solved this issue by distinguishing so-called ``fake'' and ``real'' SubgestBoxes; the former being simple TextAreas and displayed by default in the translation workspace, on focus transforming into the latter, the real IFrame-based SubgestBoxes with all the functionality.
 
 \paragraph{Focus handling}
-With all the complexity of the SubgestBoxes switching and suggestion selection (and initially, also because of the asynchronicity of the suggestion arrivals), we could not rely on the default focus handling mechanisms of the browser. If we wanted to provide a keyboard-only control for the user when translating (which is often a key to an effective translation speed), we had to devise our own mechanism of the focus traversal between the SubgestBoxes and/or the suggestion pop-ups. This issue, seemingly simple, proved to be quite complex to cover to all the implications and in the end, some cross-browser inconsistencies (not captured by GWT) had to be solved manually by a browser-dependent code. As usual, particularly one of the hints found on the web-forums proved to be very useful, namely the suggestion of always wrapping the setFocus method in a ScheduledDeferred command.
+With all the complexity of the SubgestBoxes switching and suggestion selection (and initially, also because of the asynchronicity of the suggestions arrivals), we could not rely on the default focus handling mechanisms of the browser. If we wanted to provide a keyboard-only control for the user when translating (which is often a key to an effective translation speed), we had to devise our own mechanism of the focus traversal between the SubgestBoxes and/or the suggestion pop-ups. This issue, seemingly simple, proved to be quite complex to cover all the implications and, in the end, some cross-browser inconsistencies (not captured by GWT) had to be solved manually by pieces of browser-dependent code. As usual, particularly one of the hints found on the web-forums proved to be very useful, namely the suggestion of always wrapping the setFocus method in a ScheduleDeferred command.
 
 \paragraph{Automatic scrolling}
 In order to relieve the user of manual scrolling when going through the SubgestBoxes in the translation workspace and avoid the whole-page auto-scroll when the focus is gone outside the page, we used the ScrollPanel's method ensureVisible to automatically scroll each focused SubgestBox to a fixed place in the browser window (currently it is approximately 2/5 of the window's height), later rewritten more generally to be used independently on any ScrollPanel. However, this feature also partly clashed with the suggestions popping up, so there had to be also lots of tuning and experimenting with the command deferring.
 
 \paragraph{Endlines}
-Since it was our intention also to allow multi-line inputs in the SubgestBox (reflecting for example the cases of translations being sometimes significantly longer than the original chunk), we had to cope with an issue of RichTextArea of inconsistent newline handling in different browsers, expressed by table \ref{implprocess:RichTextAreaNewlines}. Our solution was to keep this different formatting while the user is translating, convert it to our unified format (i.e. every newline represented by the \verb=\n= character, stripping of beginning and trailing newlines and shortening sequences of them into one) when the translations are sent to be saved in the userspace, and show the newlines as \verb=<br />= when loaded from the userspace again. This behaves quite well in all the tested browsers and does not interfere much with the idea of the RichTextArea's HTML-based system.
+Since it was our intention to also allow multi-line inputs in the SubgestBox (reflecting for example the cases of translations being sometimes significantly longer than the original chunk), we had to cope with an issue of RichTextArea of inconsistent newline handling in different browsers, expressed by Table~\ref{implprocess:RichTextAreaNewlines}. Our solution was to keep this different formatting while the user is translating, convert it to our unified format (i.e. every newline represented by the \verb=\n= character, stripping of beginning and trailing newlines and shortening sequences of them into one) when the translations are sent to be saved in the userspace, and to show the newlines as \verb=<br />= when loaded from the userspace again. This behaves quite well in all of the tested browsers and does not interfere much with the idea of the RichTextArea's HTML-based system.
 
 \begin{table}[h]
 \begin{center}
@@ -589,50 +636,59 @@ Opera   & \verb=first linesecond line= & \verb=<p>first line</p><p>second= line<
 \end{table}
 
 \paragraph{Automatic resizing}
-With the possibility of allowing multi-line inputs, we had to manage somehow the size adjustments of the input area. And since the RichTextArea itself does not have any pre-implemented tools for this purpose, again we had to devise our own. And because of the difficulties with the newline handling (see above), we have abandoned the direction of counting lines manually and built the mechanism on getting the scrollHeight property of the input area. Then, auto-growing of the SubgestBox is relatively easy, but auto-shrinking turned out to be more difficult, because the scrollHeight does not decrease. So a simple trick of setting the size to one line in the beginning of each adjustments was employed and fortunately did not significantly affect the performance.
+With the possibility of allowing multi-line inputs, we had to manage the size adjustments of the input area. And since the RichTextArea itself does not have any pre-implemented tools for this purpose, we again had to devise our own.
+Because of the difficulties with the newline handling (see above), we have abandoned the direction of counting lines manually and built the mechanism on getting the scrollHeight property of the input area. Then, auto-growing of the SubgestBox is relatively easy, but auto-shrinking turned out to be more difficult, because the scrollHeight does not decrease. So a simple trick of setting the size to one line at the beginning of each adjustments was employed and fortunately did not significantly affect the performance.
 
 \paragraph{Popup widget}
 The suggestion pop-up widget has not come through so many fundamental changes, rather some styling or minor adjustments. Since its introduction, the CellList class was used as a base for this widget, only initially the cell rendering was implemented by hand as a simple table. Later, for the sake of clarity and convenience, we also switched this rendering to the UiBinder template-based structure, namely SuggestionPopupStructure. This way, its structure is more readable, more easily stylable and even supposedly faster in its displaying.
 
 \paragraph{Fake vs. real styling}
-When introducing the ``fake'' SubgestBox, as opposed to the ``real'' one, we were facing also an issue of making them visually as similar as possible, not to bother the user with this implementation workaround. But since we were overriding GWT and GWT-Bootstrap's styling, we had to be very specific in the CSS class identification to address and change the SubgestBox' visual appearance. Unfortunately, one of the side-effects of this was for example a need to change the CSS identification when the basic widget for the ``fake'' SubgestBox changed from a TextBox to a TextArea.
-
-...?
+When introducing the ``fake'' SubgestBox, as opposed to the ``real'' one, we were also facing an issue of making them visually as similar as possible, not to bother the user with this implementation workaround. But since we were overriding GWT and GWT-Bootstrap styling, we had to be very specific in the CSS class identification to address and change the SubgestBox' visual appearance. Unfortunately, one of the side-effects of this was for example a need to change the CSS identification when the basic widget for the ``fake'' SubgestBox changed from a TextBox to a TextArea.
 
 \subsubsection{Subtitles Export}
 
-When implementing the feature of exporting the subtitles, we encountered an unexpected issue:
-GWT cannot create a file, neither on server (beacause it is all Javascript) nor on the user's computer (because of security restrictions).
+When implementing the subtitles export feature, we encountered an unexpected issue:
+GWT cannot create a new file, neither on server (beacause it is all Javascript) nor on the user\'s computer (because of security restrictions).
 
-Possible solutions:
+We found several possbile solutions:
 
 \begin{itemize}
 
 \item export the subtitles into a textarea
 \begin{itemize}
-\item not really what a user expects
+\item the easiest to implement
+\item not what a user expects
+\item not easy to use for the user
 \end{itemize}
 
-\item send the exported subtitles to user's e-mail address
+\item send the exported subtitles to user\'s e-mail address
 \begin{itemize}
-\item not really what a user expects
+\item quite easy to implement becase we already have implmented the e-mail sending
+\item might be useful for some users
+\item not what a user expects
 \item can be hard to use for the user
 \item might be added as a special feature but should not be the only or primary way
 \end{itemize}
 
 \item create a temporary file on the server and offer a download link to the user
 \begin{itemize}
+\item expected behavior from the user (file download using the browser)
+\item reasonably reliable
+\item reasonably easy to implement
+\item should handle access rights in Jetty which is an added complication
 \item creating temporary files is not very clean
-\item should handle access rights in Jetty
 \end{itemize}
 
 \item create a new servlet (using JSP) for downloading the file
 \begin{itemize}
-\item we were afraid that it would be too much extra work
-\item it turned out not to be so difficult so we used that
+\item expected behavior from the user (file download using the browser)
+\item probably the cleanest possible solution
+\item we were afraid that it would be too much extra work, but we realized that it was not so difficult
 \end{itemize}
 
 \end{itemize}
+
+Eventually, we decided for the last option as the best one; therefore, the User Space actually consists of two servlets, one to handle RPCs and another for file download.
 
 \subsubsection{Chunks Saving / Loading}
 
