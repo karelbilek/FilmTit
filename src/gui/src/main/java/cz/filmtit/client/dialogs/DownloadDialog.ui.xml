@@ -16,20 +16,16 @@
                     <b:ControlGroup>
                         <b:ControlLabel for="wayInput">What to save?</b:ControlLabel>
                         <b:Controls>
-                            <b:RadioButton ui:field="target" name="way">Translated version</b:RadioButton>
+                            <b:RadioButton ui:field="target" name="way">Translated version (untranslated parts left out)</b:RadioButton>
                             <b:RadioButton ui:field="targetthrowback" name="way">Translated with original where untranslated</b:RadioButton>
                             <b:RadioButton ui:field="source" name="way">Source</b:RadioButton>
                         </b:Controls>
                     </b:ControlGroup>
 
                     <b:ControlGroup>
-                        <b:ControlLabel>TODO: FPS</b:ControlLabel>
-                    </b:ControlGroup>
-                    <b:ControlGroup>
                         <b:Controls styleName="downloadButtons">
-                            <b:Button size="LARGE" ui:field="srtButton">SRT</b:Button>
-                            <!-- <b:Button size="LARGE" ui:field="subButton">SUB</b:Button>  -->
-                            <b:Button size="LARGE" ui:field="txtButton">TXT</b:Button>
+                            <b:Button size="LARGE" ui:field="srtButton" title="The subtitles in SRT file format, to be used in a media player.">SRT</b:Button>
+                            <b:Button size="LARGE" ui:field="txtButton" title="Only the text of the subtitles, with no timings.">TXT</b:Button>
                         </b:Controls>
                     </b:ControlGroup>
 
