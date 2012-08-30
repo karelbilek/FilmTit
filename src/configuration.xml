@@ -33,15 +33,14 @@
         <subtitles_folder>/filmtit/data/export/files/</subtitles_folder>
 
         <!--folder with the already aligned chunks, have to be created if you want to run align-->
-        <data_folder>/filmtit/data/aligned_Aug16/</data_folder>
+        <data_folder>/filmtit/data/aligned/</data_folder>
         <file_mediasource_mapping>/filmtit/data/files/export_final.txt</file_mediasource_mapping>
         <batch_size>100</batch_size>
         <mediasource_cache>/tmp/mediasource_cache</mediasource_cache>
-
     </import>
 
     <userspace>
-        <maximum_suggestions_count>50</maximum_suggestions_count>
+        <maximum_suggestions_count>25</maximum_suggestions_count>
         <session_timeout_limit>3600000</session_timeout_limit>
         <permanent_session_timeout_limit>1209600000</permanent_session_timeout_limit>
         <server_address>http://localhost:8080</server_address>
@@ -59,15 +58,16 @@
                 <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>
                 <entry key="mail.filmtit.registrationBody">
                     Congratulation,
-                    your email address was registered on Filmtit.
+                    your email address was registered in the FilmTit app.
                     Your login: %userlogin%
-                    Password: %userpass%
+                    Your password: %userpass%
                 </entry>
                 <entry key="mail.filmtit.forgottenPassBody">
                     Hello,
-                    there was a request for changing the password
-                    for the account: %userlogin%
-                    You can change your password by clicking on this link: %changeurl%
+                    we received a request for changing your password in the FilmTit app
+                    Username: %userlogin%
+
+                    You can change your password using this URL: %changeurl%
                 </entry>
                 <entry key="mail.filmtit.address">filmtit@gmail.com</entry>
                 <entry key="mail.filmtit.password">jkhrjj2012</entry>
@@ -91,6 +91,6 @@
     </core>
 
     <mosesURL>u-pl17.ms.mff.cuni.cz:8080</mosesURL>
-    <freebase_key>AIzaSyCBD3hth3xlXTa9FDet4zMiAh0vAjtvbp0</freebase_key>
+    <freebase_key></freebase_key>
 
 </configuration>
