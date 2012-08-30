@@ -13,25 +13,33 @@ import cz.filmtit.dataimport.alignment.io.AlignedFilesWriter._
  * Task object, that just does the one, final alignment, without any second guesses
  */
 object FinalAlignment {
-  def final_alignment() {
-    val c = new Configuration("configuration.xml")
-    val l1 = Language.EN
-    val l2 = Language.CS
+  def main(args:Array[String]) {
+    val c = new Configuration(args(0))
+    val l1 = c.l1
+    val l2 = c.l2
+    val tolerance = 6000L
 
-    val mapping = new SubtitleMapping(c, false)
-    println("mapdan")
-    val filename ="../alignment_file2file/leven"
-    println("B")
-    val alignment =  new LevenstheinChunkAlignment(l1, l2, 6000L)
-    println("C")
+    val mapping = new SubtitleMapping(c, true)
+    println("mapping done")
+    
+    
+    val counter = new LevenstheinDistanceCounter(tolerance)
+
+
+    val aligner = new Aligner(
+      new LevenstheinSubtitleFileAlignment(l1,l2, counter),
+      new LevenstheinChunkAlignment(l1, l2, tolerance),
+      new LevenstheinGoodFilePairChooser(counter),
+      c,
+      l1, l2
+    )
+
 
     val file = new File(filename)
-    println("D")
     val map = loadFilePairsToMap(file, c)
 
-    println("pred alignerem")
-    val aligner:Aligner = new Aligner(new SubtitleFileAlignmentFromFile(l1, l2, map), alignment, new GoodFilePairChooserFromFile(map), c, l1, l2)
+    println("before aligning")
     aligner.align(mapping)
-    println("po nem")
+    println("after aligning")
   }
 }
