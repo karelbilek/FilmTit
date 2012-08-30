@@ -10,6 +10,10 @@
 		 <b:Paragraph>
 	            Playing movie file is not an easy task. Because of that, we require two plug-ins to install.
 	        </b:Paragraph>
+	        
+	        <b:Paragraph>
+    	           (Also, please note that the video player is still very experimental and won't always work.)
+    	    </b:Paragraph>
 
 		<b:Heading size="3">Java</b:Heading>
 	    <b:Paragraph>
@@ -41,6 +45,11 @@
 		 <b:Heading size="5">Mac OS X</b:Heading>
        	<b:Paragraph>
 			For Mac OS X, you need to install <a href="http://www.videolan.org/vlc/download-macosx.html">both VLC and VLC plugin from videolan website</a>
+		</b:Paragraph>
+		
+		<b:Heading size="3">Player</b:Heading>
+       	<b:Paragraph>
+       	    Player doesn't play exactly the time of the subtitle, but 30 second long context around the subtitle. You can stop the player or replay the whole context.
 		</b:Paragraph>
     </g:HTMLPanel>
 </ui:UiBinder> 

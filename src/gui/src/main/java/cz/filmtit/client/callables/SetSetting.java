@@ -1,7 +1,7 @@
 package cz.filmtit.client.callables;
 
 import cz.filmtit.client.Callable;
-import cz.filmtit.client.pages.Settings;
+import cz.filmtit.client.ReceivesSettings;
 import cz.filmtit.share.exceptions.InvalidValueException;
 
 /**
@@ -11,7 +11,7 @@ public abstract class SetSetting<T> extends Callable<Void> {
 	
 	// parameters
 	protected T setting;
-	private Settings settingsPage;
+	private ReceivesSettings settingsPage;
 
 	@Override
 	public String getName() {
@@ -20,7 +20,7 @@ public abstract class SetSetting<T> extends Callable<Void> {
 	
     @Override
     public void onSuccessAfterLog(Void o) {
-    	settingsPage.success();
+    	settingsPage.settingSuccess();
     }
     
     @Override
@@ -36,7 +36,7 @@ public abstract class SetSetting<T> extends Callable<Void> {
 
     @Override
     protected void onFinalError(String message) {
-        settingsPage.error(message);
+        settingsPage.settingError(message);
     }
     
     // constructor
@@ -44,7 +44,7 @@ public abstract class SetSetting<T> extends Callable<Void> {
      * Does <b>not</b> enqueue the call immediately,
      * call enqueue() explicitely!
      */
-    public SetSetting(T setting, Settings settingsPage) {
+    public SetSetting(T setting, ReceivesSettings settingsPage) {
 		super();
 		
 		this.setting = setting;
