@@ -4,7 +4,7 @@ import cz.filmtit.core.Configuration
 import cz.filmtit.share.Language
 import cz.filmtit.dataimport.SubtitleMapping
 import cz.filmtit.dataimport.alignment.aligners.distance.LinearSubtitlePairCounter
-import cz.filmtit.dataimport.alignment.aligners.levensthein.LevenstheinChunkAlignment
+import cz.filmtit.dataimport.alignment.aligners.levensthein._
 import java.io.File
 import cz.filmtit.dataimport.alignment.model._
 import cz.filmtit.dataimport.alignment.io.AlignedFilesWriter._
