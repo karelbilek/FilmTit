@@ -2,7 +2,6 @@ package cz.filmtit.client.callables;
 
 import com.github.gwtbootstrap.client.ui.Modal;
 import cz.filmtit.client.Callable;
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.Dialog;
