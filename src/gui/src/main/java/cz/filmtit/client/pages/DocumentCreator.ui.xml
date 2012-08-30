@@ -91,6 +91,19 @@
             </b:Fieldset>
 
 
+            <b:Fieldset>
+                <b:Legend>Machine translation</b:Legend>
+                
+
+                <b:ControlGroup>
+                    <b:ControlLabel>Include machine translation:</b:ControlLabel>
+                    <b:Controls>
+                        <b:CheckBox ui:field="useMT"></b:CheckBox>
+                    </b:Controls>
+                </b:ControlGroup>
+            </b:Fieldset>
+
+            
 
             <b:Fieldset>
                 <b:FormActions ui:field="bottomControlGroup">

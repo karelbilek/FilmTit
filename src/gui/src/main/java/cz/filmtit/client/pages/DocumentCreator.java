@@ -27,11 +27,16 @@ import org.vectomatic.file.FileReader;
 import org.vectomatic.file.FileUploadExt;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
+import cz.filmtit.share.User;
+import cz.filmtit.client.ReceivesSettings;
+import cz.filmtit.client.callables.LoadSettings;
+import cz.filmtit.client.callables.SetUseMT;
+
 
 import java.util.Iterator;
 
 
-public class DocumentCreator extends Composite {
+public class DocumentCreator extends Composite implements ReceivesSettings {
 
 	private static DocumentCreatorUiBinder uiBinder = GWT
 			.create(DocumentCreatorUiBinder.class);
@@ -140,14 +145,8 @@ public class DocumentCreator extends Composite {
         btnApplet.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                /*if (widgetToRemove!=null) {
-                    Window.alert("snadmazu");
-                    try {
-                        widgetToRemove.hide();
-                    } catch (Exception e) {
-                        Window.alert(e.toString());
-                    }
-                }*/
+                
+                
                 FileLoadWidget.setDocumentCreator(DocumentCreator.this);
                 FileLoadWidget loadWidget = new FileLoadWidget();
                 bottomControlGroup.add(loadWidget);
@@ -156,6 +155,20 @@ public class DocumentCreator extends Composite {
 
         
         Gui.getGuiStructure().contentPanel.setWidget(this);
+        
+        //send settings
+        deactivate();
+		new LoadSettings(this);
+	}
+		
+	@Override
+	public void onSettingsReceived(User user) {
+		useMT.setValue(user.getUseMoses());
+        reactivate();
+	}
+	
+	protected boolean getUseMT() {
+	    return useMT.getValue();
 	}
 
 
@@ -167,20 +180,44 @@ public class DocumentCreator extends Composite {
     
     @UiField
     FormActions bottomControlGroup;
+    
+    String subtext_temp;
 
     private void createDocumentFromText(String subtext) {
         btnCreateDocument.setEnabled(false);
         lblCreateProgress.setVisible(true);
         lblCreateProgress.setText("Creating the document...");
-        FilmTitServiceHandler.createDocument(
+        
+        subtext_temp = subtext;
+		
+        new SetUseMT(useMT.getValue(), this).enqueue();
+        //calls settingSuccess() after we set the useMT (this is too complicated... I just want to set useTM, this calling is too complicated...)
+                
+        
+    }
+    
+    
+    @Override
+	public void settingSuccess() {
+	    String subtext = subtext_temp;
+	    subtext_temp = "";
+        
+		FilmTitServiceHandler.createDocument(
                 getTitle(),
                 getMovieTitle(),
                 getChosenLanguage(),
                 subtext,
                 getChosenSubFormat(),
-                getMoviePathOrNull());
-        // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success
-    }
+                getMoviePathOrNull()
+                );                
+    // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success
+                
+	}
+	
+	@Override
+	public void settingError(String message) {
+		com.google.gwt.user.client.Window.alert("Some error happened.");
+	}
 	
     @UiField
     TextBox txtTitle;
@@ -222,11 +259,23 @@ public class DocumentCreator extends Composite {
     @UiField
     TextArea txtFilePaste;
 
-
+    @UiField
+    CheckBox useMT;
+    
     @UiField
     Button btnCreateDocument;
     @UiField
     Label lblCreateProgress;
+    
+    private void deactivate() {
+        btnCreateDocument.setEnabled(false);
+    }
+    
+    private void reactivate() {
+        btnCreateDocument.setEnabled(true); 
+    }   
+    
+    
 
 
     @UiField
@@ -283,6 +332,7 @@ public class DocumentCreator extends Composite {
         }
         else return "srt";	// default value
     }
+
 
 
 

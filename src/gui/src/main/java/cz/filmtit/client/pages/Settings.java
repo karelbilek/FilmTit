@@ -204,12 +204,14 @@ public class Settings extends Composite implements ReceivesSettings {
 		btnReset.setEnabled(false);
 	}
 	
-	public void success() {
+	@Override
+	public void settingSuccess() {
 		success++;
 		decrementWaitingFor();
 	}
 	
-	public void error(String message) {
+	@Override
+	public void settingError(String message) {
 		errors.append(message);
 		errors.append(' ');
 		error++;
