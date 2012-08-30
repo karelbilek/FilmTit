@@ -319,6 +319,7 @@ See also the corresponding sequence diagram \ref{gui:sd:document_creation}.
 \end{figure}
 
 \subsection{Document Translation}
+\label{sec:document_translation}
 
 At the same time, the subtitle chunks are sent through the User Space to the Core, where the appropriate translation suggestions are generated for them and sent back. When received in the GUI, each translation result is set to the SubgestBox corresponding to its chunk, and can be displayed on activation of the translation text-box as a pop-up, with the suggestions sorted according to their estimated accuracy.
 The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the translation text-box, his translation is sent to the User Space through the setUserTranslation call to be saved as the user translation of the chunk.
