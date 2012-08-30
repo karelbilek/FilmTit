@@ -14,6 +14,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.client.dialogs.LoginDialog.Tab;
+import cz.filmtit.client.callables.Logout;
 
 public class WelcomeScreen extends Composite {
 
@@ -29,7 +30,7 @@ public class WelcomeScreen extends Composite {
         login.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (Gui.isLoggedIn()) {
-                	FilmTitServiceHandler.logout();
+                	new Logout();
                 } else {
                 	new LoginDialog();
                 }

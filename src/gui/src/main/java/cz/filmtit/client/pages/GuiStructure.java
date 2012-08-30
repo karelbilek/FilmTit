@@ -14,6 +14,7 @@ import com.github.gwtbootstrap.client.ui.*;
 import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.Logout;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.User;
 
@@ -46,7 +47,7 @@ public class GuiStructure extends Composite {
         // top menu handlers
         logout.addClickHandler(new ClickHandler() {
              public void onClick(ClickEvent event) {
-            	 FilmTitServiceHandler.logout();
+            	 new Logout();
              }
         });
 

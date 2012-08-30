@@ -28,7 +28,7 @@ public class RegisterUser extends Callable<Boolean> {
                 loginDialog.close();
                 Gui.log("registered as " + username);
                 Gui.getPageHandler().setPageUrl(Page.DocumentCreator);
-                FilmTitServiceHandler.simpleLogin(username, password, null);
+                new SimpleLogin(username, password, null);
                 displayWindow("You successfully registered with the username '" + username + "'!");
             } else {
                 // false means unavailable username

@@ -29,6 +29,7 @@ import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 import cz.filmtit.share.User;
 import cz.filmtit.client.ReceivesSettings;
+import cz.filmtit.client.callables.CreateDocument;
 import cz.filmtit.client.callables.LoadSettings;
 import cz.filmtit.client.callables.SetUseMT;
 
@@ -188,7 +189,7 @@ public class DocumentCreator extends Composite {
         
         
 		
-        FilmTitServiceHandler.createDocument(
+        new CreateDocument(
                 getTitle(),
                 getMovieTitle(),
                 getChosenLanguage(),

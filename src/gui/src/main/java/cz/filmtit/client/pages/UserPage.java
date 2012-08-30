@@ -27,6 +27,7 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.ChangeDocumentTitle;
 import cz.filmtit.client.callables.ChangeMovieTitle;
+import cz.filmtit.client.callables.DeleteDocument;
 import cz.filmtit.client.callables.GetListOfDocuments;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
@@ -200,7 +201,7 @@ public class UserPage extends Composite {
        deleteButton.setFieldUpdater(new FieldUpdater<Document, String>() {
            public void update(int index, Document doc, String value) {
         	   if (Window.confirm("Do you really want to delete the document " + doc.getTitle() + "?")) {
-        		   FilmTitServiceHandler.deleteDocument(doc.getId());
+        		   new DeleteDocument(doc.getId());
         	   }
            }
        });

@@ -5,6 +5,8 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
+
+import cz.filmtit.client.callables.LoadDocumentFromDB;
 import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
@@ -355,7 +357,7 @@ public class PageHandler {
 		    		loadPage(Page.UserPage);
 					Gui.log("failure on loading document: documentId -1 is not valid!");
 		    	} else {
-		            FilmTitServiceHandler.loadDocumentFromDB(documentId);
+		            new LoadDocumentFromDB(documentId);
 		    	}
 				break;
 			case DocumentCreator:

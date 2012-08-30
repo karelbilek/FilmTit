@@ -68,7 +68,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 		 * Called when MediaSelector returns
 		 */
 		public void selectSource(MediaSource selectedMediaSource) {
-            FilmTitServiceHandler.selectSource(documentId, selectedMediaSource, workspace);
+            new SelectSource(documentId, selectedMediaSource, workspace);
             mediaSelector = null;
 		}
        

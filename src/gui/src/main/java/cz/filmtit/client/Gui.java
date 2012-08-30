@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.web.bindery.event.shared.UmbrellaException;
 
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.CheckSessionID;
 import cz.filmtit.client.callables.LogGuiMessage;
 import cz.filmtit.client.pages.GuiStructure;
 import cz.filmtit.share.LevelLogEnum;
@@ -151,7 +152,7 @@ public class Gui implements EntryPoint {
     		guiStructure = new GuiStructure();
             
     		// check whether user is logged in or not
-    		FilmTitServiceHandler.checkSessionID();
+    		new CheckSessionID();
     		
 		}
 		
