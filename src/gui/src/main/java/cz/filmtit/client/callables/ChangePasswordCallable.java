@@ -37,7 +37,7 @@ import com.google.gwt.user.client.*;
                 Gui.log("changed password for user " + username);
                 Gui.getPageHandler().loadBlankPage();
                 Gui.getPageHandler().setPageUrl(Page.UserPage);
-                FilmTitServiceHandler.simpleLogin(username, password, null);
+                new SimpleLogin(username, password, null);
                 displayWindow("You successfully changed the password for your username '" + username + "'!");
             } else {
                 Gui.log("ERROR: password change didn't succeed - token invalid");
@@ -56,7 +56,11 @@ import com.google.gwt.user.client.*;
         }
 
 
-        // constructor
+        /**
+         * change password in case of forgotten password;
+         * user chooses a new password,
+         * user authentication is done by the token sent to user's email
+         */
 		public ChangePasswordCallable(String username, String password, String token) {
 			super();
 			this.username = username;

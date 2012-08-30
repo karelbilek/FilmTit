@@ -11,6 +11,7 @@ import cz.filmtit.client.callables.DeleteDocumentSilently;
 import cz.filmtit.client.callables.GetTranslationResults;
 import cz.filmtit.client.callables.SaveSourceChunks;
 import cz.filmtit.client.callables.SetChunkTimes;
+import cz.filmtit.client.callables.SetUserTranslation;
 import cz.filmtit.client.dialogs.TimeEditDialog;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
@@ -512,7 +513,7 @@ public class TranslationWorkspace extends Composite {
           }
 
           private void sendChunks(List<TimedChunk> timedchunks) {
-        	  FilmTitServiceHandler.getTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
+        	  new GetTranslationResults(timedchunks, SendChunksCommand.this, TranslationWorkspace.this);
           }
      }
 
@@ -526,7 +527,7 @@ public class TranslationWorkspace extends Composite {
           Gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-          FilmTitServiceHandler.setUserTranslation(chunkIndex, transresult.getDocumentId(),
+          new SetUserTranslation(chunkIndex, transresult.getDocumentId(),
                                           transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
           
           synchronizer.putTranslationResult(transresult);

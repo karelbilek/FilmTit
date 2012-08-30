@@ -4,7 +4,6 @@ import com.github.gwtbootstrap.client.ui.Modal;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import cz.filmtit.client.Callable;
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.share.AuthenticationServiceType;

@@ -15,6 +15,14 @@ import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.GoingOfflineDialog;
 import cz.filmtit.client.dialogs.GoingOnlineDialog;
 
+/**
+ * A static class that serves as a wrapper for Local Storage,
+ * providing methods to read objects from it and write objects to it,
+ * using the Storable interface.
+ * All manipulation with the Local Storage is to be done through this class.
+ * @author rur
+ *
+ */
 public class LocalStorageHandler {
 
 	// TODO: use a special object stored in the Storage as a descriptor of the data in the storage
@@ -25,6 +33,10 @@ public class LocalStorageHandler {
 	
 	private static boolean isStorageSupported = Storage.isLocalStorageSupported();
 	
+	/**
+	 * Checks the support for the Local Storage in the user's browser.
+	 * @return true if Local Storage can be used.
+	 */
     public static boolean isStorageSupported() {
 		return isStorageSupported;
 	}
@@ -34,7 +46,7 @@ public class LocalStorageHandler {
 	 */
 	private static int yetToUpload;
 	
-	public static void decrementYetToUpload () {
+	private static void decrementYetToUpload () {
 		yetToUpload--;
 		if (yetToUpload == 0) {
 			uploading = false;
@@ -65,6 +77,12 @@ public class LocalStorageHandler {
 	}
 	
 	private static int succeededCount;
+	
+	/**
+	 * To be called by a Storable after invoking its onLoadFromLocalStorage() method
+	 * if the method succeeds.
+	 * @param object The Storable is to pass a self-reference as a parameter.
+	 */
 	public static void SuccessOnLoadFromLocalStorage (Storable object) {
 		removeFromLocalStorage(object);
 		succeededCount++;
@@ -74,6 +92,13 @@ public class LocalStorageHandler {
 	private static int failedCount;
 	private static List<Storable> failedObjects;
 	private static Map<String, Integer> failedMessages;
+	
+	/**
+	 * To be called by a Storable after invoking its onLoadFromLocalStorage() method
+	 * if the method fails.
+	 * @param object The Storable is to pass a self-reference as a parameter.
+	 * @param errorMessage A message describing the error that occurred.
+	 */
 	public static void FailureOnLoadFromLocalStorage (Storable object, String errorMessage) {
 		failedCount++;
 		failedObjects.add(object);
@@ -88,10 +113,13 @@ public class LocalStorageHandler {
 	}
 	
 	/**
-	 * Whether the user is in online mode (default) or offline mode (experimental now).
+	 * Whether the user is in the Online Mode (default) or the Offline Mode.
 	 */
 	private static boolean online = true;
 	
+	/**
+	 * Whether the user is in the Online Mode (default) or the Offline Mode.
+	 */
 	public static boolean isOnline() {
 		return online;
 	}
@@ -101,6 +129,9 @@ public class LocalStorageHandler {
 	 */
 	private static boolean uploading = false;
 	
+	/**
+	 * Whether the user is now uploading data from offline mode.
+	 */
 	public static boolean isUploading() {
 		return uploading;
 	}
@@ -110,6 +141,9 @@ public class LocalStorageHandler {
 	 */
 	private static boolean offeringOfflineStorage = false;
 	
+	/**
+	 * Whether GoingOfflineDialog is currently open.
+	 */
 	public static boolean isOfferingOfflineStorage() {
 		return offeringOfflineStorage;
 	}
@@ -179,6 +213,14 @@ public class LocalStorageHandler {
 		}
 	}
 	
+	/**
+	 * Display a dialog asking the user whether they want to turn on the Offline Mode.
+	 * To be used if the user appears to be offline,
+	 * which is detected by a call failing with onProbablyOffline;
+	 * use only if the call implements Storable.
+	 * @param storableInError The Storable that decided to offer the user the Offline Mode;
+	 * will be stored offline if the user decides to turn the Offline Mode on.
+	 */
 	public static void offerOfflineStorage(Storable storableInError) {
 		if (queue == null) {
 			queue = new LinkedList<Storable>();
@@ -198,6 +240,9 @@ public class LocalStorageHandler {
 		}
 	}
 	
+	/**
+	 * This method is used by the GoingOfflineDialog to signal that the user cancelled the dialog.
+	 */
 	public static void cancelledOfflineStorageOffer () {
 		offeringOfflineStorage = false;
 		offeredOfflineStorage = true;
@@ -276,7 +321,12 @@ public class LocalStorageHandler {
 		}
 	}
 	
-	
+	/**
+	 * Takes the objects loaded from Local Storage
+	 * and invokes their onLoadFromLocalStorage() methods.
+	 * Called by the GoingOnlineDialog if the user decides
+	 * to upload objects stored in Local Storage from Offline Mode.
+	 */
 	public static void uploadUserObjects() {
 		
 		initUploadVariables(userObjects.size());
@@ -297,6 +347,12 @@ public class LocalStorageHandler {
 		
 	}
 	
+	/**
+	 * Takes the objects loaded from Local Storage
+	 * and invokes their onLoadFromLocalStorage() methods.
+	 * Called by the GoingOnlineDialog if the user decides
+	 * to retry uploading objects which did not succeed at first.
+	 */
 	public static void retryUploadUserObjects() {
 		
 		final List<Storable> objects = new LinkedList<Storable>(failedObjects);
@@ -325,6 +381,12 @@ public class LocalStorageHandler {
 		failedMessages = new HashMap<String, Integer>();
 	}
 	
+	/**
+	 * Takes the objects loaded from Local Storage
+	 * and deletes them from the Storage.
+	 * Called by the GoingOnlineDialog if the user decides
+	 * to delete objects which did not succeed at first.
+	 */
 	public static void deleteFailedObjects() {
 		for (Storable failedObject : failedObjects) {
 			removeFromLocalStorage(failedObject);

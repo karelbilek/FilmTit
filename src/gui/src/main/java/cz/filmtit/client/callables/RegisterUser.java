@@ -2,7 +2,6 @@ package cz.filmtit.client.callables;
 
 import com.github.gwtbootstrap.client.ui.Modal;
 import cz.filmtit.client.Callable;
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.Dialog;
@@ -28,7 +27,7 @@ public class RegisterUser extends Callable<Boolean> {
                 loginDialog.close();
                 Gui.log("registered as " + username);
                 Gui.getPageHandler().setPageUrl(Page.DocumentCreator);
-                FilmTitServiceHandler.simpleLogin(username, password, null);
+                new SimpleLogin(username, password, null);
                 displayWindow("You successfully registered with the username '" + username + "'!");
             } else {
                 // false means unavailable username
