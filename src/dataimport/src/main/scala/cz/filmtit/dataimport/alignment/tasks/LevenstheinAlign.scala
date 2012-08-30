@@ -40,12 +40,13 @@ object LevenstheinAlign {
     //        aligner.align(new SubtitleMapping(config));
 
     val mapping = new SubtitleMapping(config, true)
-    println("mapping dan")
+    println("mapping done")
     val pairs = aligner.alignFiles(mapping)
-    println("alignment dan")
+    println("alignment done")
     writeFilePairsToFile(pairs, new java.io.File(where))
 
 
+    //writing heldout
     val nonalignedMovies: Iterable[String] = mapping.moviesWithSubsEn.toSet -- pairs.map {
       _._1.filmID
     }
