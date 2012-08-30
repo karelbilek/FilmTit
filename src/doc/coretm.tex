@@ -142,6 +142,7 @@ def reindex()
 
 
 \subsection{Tokenization}
+\label{sec:tokenization}
 
 For all program-based retrieval methods, we tokenize, i.e.\ separate the input sentence into individual tokens,
 all inputs, using tokenizers provided by the Apache OpenNLP project.\footnote{\url{http://opennlp.apache.org/}}
@@ -383,6 +384,7 @@ As another backoff level, we use Machine Translation from external services.
 For this, a query with the chunk is sent to an external REST-based API. We offer a translation pair searcher for the free Machine Translation API of the MyMemory project.\footnote{ \url{http://mymemory.translated.net/doc/spec.php}} However, there is currently no machine translation service with an unlimited free API, and, for example, the MyMemory project has such a low daily quota (2500 requests/day) that the quota is quickly surpassed when translating subtitle files.
 
 \subsection{Statistical Machine-Translation based on Moses}
+\label{sec:statmtmoses}
 
 We tried Machine Translation first as an experiment, but it turned out the results are very good and, after some optimizations, very fast.
 
@@ -412,7 +414,7 @@ To learn the best combination of scores, we manually selected translations for h
 
 For the manual annotation required to estimate weights for the scores, we started the translation memory with only the corresponding backoff level (e.g.\ exact matching or fuzzy matching) and translated heldout subtitle files using the translation workspace. After uploading and finishing the subtitle files, the class {\tt cz.filmtit.dataimport.training.GenerateTrainingset} can be used to generate a CSV file in WEKA-compatible format which can then be used to train a model.
 
-For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example.
+For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example. We select 
 
 
 \subsection{Ranking for exact matches}

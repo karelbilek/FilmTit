@@ -68,6 +68,8 @@ $ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_
 
 \subsection{Importing Data}
 
+\label{sec:import}
+
 \subsubsection{Alignment}
 
 \todo{!}
@@ -221,7 +223,7 @@ The module-specific options for the Core TM are mostly related to performance.
 
 \end{lstlisting}
 
-\subsubsection{Userspace}
+\subsubsection{User Space}
 
 User space settings contains few constants influencing the behavior of the application and also fields that need be set correctly to make application running.
 
@@ -307,3 +309,62 @@ The configuration also specifies the URL of the running Moses instance and the k
 <mosesURL>u-pl17.ms.mff.cuni.cz:8080</mosesURL>
 <freebase_key>AIzaSyCBD3hth3xlXTa9FDet4zMiAh0vAjtvbp0</freebase_key>
 \end{lstlisting}
+
+
+\section{Adapting the TM to new language pairs}
+\label{sec:internationalization}
+
+The implementation currently uses the language pair English-Czech, however, the system is easily adaptable to new language pairs. In this section, we are briefly describing the necessary steps to adapt the system to a new language pairs.
+
+\subsection{Basic Setup: Exact and Fuzzy Matching}
+
+The most basic setup for internationalization uses the following backoff translation memories:
+
+\begin{itemize}
+	\item database-based exact retrieval and ranking
+	\item database-based fuzzy retrieval and ranking
+\end{itemize}
+
+Both levels work out of the box for the following languages that have a \postgres~text search configuration by default:
+
+\begin{itemize}
+	\item Danish
+	\item Dutch
+	\item English
+	\item Finnish
+	\item French
+	\item German
+	\item Hungarian
+	\item Italian
+	\item Norwegian
+	\item Portuguese
+	\item Romanian
+	\item Russian
+	\item Spanish
+	\item Swedish
+	\item Turkish
+	\item default “Simple” configuration
+\end{itemize}
+
+Additional text search configurations can also be found online.
+
+\subsubsection*{Necessary steps for setting up a new language pair}
+
+\begin{enumerate}
+	\item Specify the language pair in {\tt configuration.xml}. If the language does not belong to the languages above, it has to be added to the class {\tt cz.filmtit.share.Language}.
+	\item Currently, only sentence tokenizers for Czech and English are included, which means that for additional languages, a sentence tokenizer like e.g.\ {\tt EnglishSentenceTokenizer} that extends {\tt SentenceTokenizer}\footnote{In the package {\tt cz.filmtit.share.tokenizers}.} has to be created.
+\end{enumerate}
+
+After these steps have been taken, the data has to be aligned, imported and indexed. For more information, see Section~\ref{sec:import}.
+
+
+\subsection{Advanced Setup: Program-based Signatures and Machine Translation}
+
+A more advanced setup can use the levels from the basic setup or other program-based signature levels, as well as machine translation. 
+
+For this, it is necessary to do tokenization using an OpenNLP tokenizer. Although, it is possible to do this with a standard (unsupervised) tokenizer, it is recommended to use a tokenizer specifically trained for a given language. Pre-trained models for some language are available on the OpenNLP website\footnote{\url{http://opennlp.sourceforge.net/models.html}} and on github.\footnote{\url{https://github.com/utcompling/OpenNLP-Models}} The training of a tokenizer for a new language on the example of Czech is described in Section~\ref{sec:tokenization}. 
+
+For instructions on how to set up Moses as a backoff level, see Section~\ref{sec:statmtmoses}.
+
+
+

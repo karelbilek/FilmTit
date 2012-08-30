@@ -3,7 +3,7 @@
 %\usepackage[czech]{babel}
 \usepackage{a4wide}
 \usepackage{graphicx}
-\usepackage[textsize=tiny]{todonotes}
+\usepackage[textsize=footnotesize]{todonotes}
 \usepackage{setspace}
 
 \usepackage[left=2.5cm,top=3cm,bottom=3cm,right=2.5cm]{geometry}
@@ -155,8 +155,6 @@
 
 \item reactions and comments of real translators who tried to use the application
 
-\item want have Apache License $\Rightarrow$ cannot use Weka + sentence splitters from LanguageTool
-
 \end{itemize}
 }
 
@@ -171,6 +169,9 @@
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
+\part{Documentation}
+
+
 \chapter*{Glossary}
 \input{glossary}
 
@@ -181,13 +182,13 @@
 \chapter{General Introduction to the Area}
 \input{translationmemories}
 
-\chapter{Project structure}
+\chapter{Project Structure}
 \input{structure}
 
 %\chapter{Shared classes}
 %\input{share}
 
-\chapter{Building the corpus}
+\chapter{Building the Corpus}
 \input{opensubtitles}
 
 \chapter{Core Translation Memory}
@@ -199,21 +200,24 @@
 \chapter{Communication between GUI and US}
 \input{rpc}
 
-\chapter{Graphical interface}
+\chapter{Graphical Interface}
 \input{gui}
 
-\chapter{Technical Manual}
+\label{part:manuals}
+
+\part{Installation and Administration Manual}
+\chapter{Installation and Administration Manual}
 \input{technicalmanual}
 
+\part{User Manual}
 \chapter{User's manual}
 \input{usersmanual}
 
-\chapter{Implementation and Process}
-\input{implementation_process}
+\part{Development Process Documentation}
 
-\appendix
-\chapter{Specification (in Czech)}
-\input{specification}
+
+\chapter{Implementation and Development Process}
+\input{implementation_process}
 
 
 \end{document}

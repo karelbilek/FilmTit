@@ -35,7 +35,7 @@ Much complicated was to agree on the technology of the client. There were many d
 
 We decided to use GWT for several reasons.
 
-One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and Userspace. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the Userspace, but thanks to GWT we are even able to use exactly the same classes (placed in cz.filmtit.share) in GUI and in Userspace and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. (In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.)
+One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and User Space. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the User Space, but thanks to GWT we are even able to use exactly the same classes (placed in cz.filmtit.share) in GUI and in User Space and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. (In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.)
 
 However, there is a downside, which could have been expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had already been solved by others (although sometimes the only solution was not a nice or clean one, such as having to implement some methods directly in Javascript). Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
 
@@ -265,7 +265,7 @@ The type of an RPC parameter or return value can be any GWT-compilable type. Bec
 
 Because of Javascript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g. in logging in or changing user settings. In such situations, the page or dialog is "deactivated" on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is "reactivated", either with a success message or an error message, depending on the result of the RPC.
 
-In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID is used. Originally it was created by the GUI and sent to Userspace, but we soon found this to be inappropriate (TODO why -- collisions, anything else?) and the Userspace now generates the authID.
+In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID is used. Originally it was created by the GUI and sent to User Space, but we soon found this to be inappropriate (TODO why -- collisions, anything else?) and the User Space now generates the authID.
 
 \subsubsection{Failed RPC Requests Handling}
 
@@ -299,7 +299,7 @@ The two major issues with the StopTranslationResults request were:
 
 The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the StopTranslationResults request to this identifier. However, we soon found out that this would require a lot of overhead only to handle this probably not very common situation, so we dropped that idea as well.
 
-Finally, we decided for a compromise solution between those two. The StopTranslationResults request is now bound to individual chunks, which now have an added boolean field isActive. This field is set to true when the GetTranslationResults request arrives to the server, for each of the chunks on the request. The StopTranslationResults request contains a list of the chunks which translations should be stopped. On arrival of that request, Userspace simply sets the isActive field to false -- because Userspace and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Trabslation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
+Finally, we decided for a compromise solution between those two. The StopTranslationResults request is now bound to individual chunks, which now have an added boolean field isActive. This field is set to true when the GetTranslationResults request arrives to the server, for each of the chunks on the request. The StopTranslationResults request contains a list of the chunks which translations should be stopped. On arrival of that request, User Space simply sets the isActive field to false -- because User Space and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Trabslation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
 
 \subsubsection{User Management}
 
@@ -400,9 +400,9 @@ Eventually, the behavior was modified so that the URL is always changed to Welco
 
 (TODO: tidy a little, I dont like that subsubsection very much...)
 
-\subsubsection{Userspace Robustness}
+\subsubsection{User Space Robustness}
 
-Userspace started as nice but not robust -- it was not prepared to receiving erroneous data, it had concurrency issues especially when there were multiple users performing similar actions simultaneously, etc. This was probably caused by the fact that Userspace was developed several months before it was first used, due to delays in GUI development.
+User Space started as nice but not robust -- it was not prepared to receiving erroneous data, it had concurrency issues especially when there were multiple users performing similar actions simultaneously, etc. This was probably caused by the fact that User Space was developed several months before it was first used, due to delays in GUI development.
 
 TODO: When we tried it out, we were getting tons of errors, so some checks were added and locks were introduced, so now it works nicely.
 
@@ -633,7 +633,10 @@ Possible solutions:
 
 \subsubsection{Chunks Saving / Loading}
 
-original idea: parse the subtitle file in GUI and keep it there; decision kept: no sense sending the chunks to US and then back again, also would cause unnecessary load on the server
+We originally decided that the subtitle file will be parsed in the GUI, 
+to avoid unnecessary sending of the data from GUI to User Space and then back from User Space to GUI; parsing the file in User Space would also cause unnecessary load on the server.
+
+original idea: GUI and keep it there; decision kept: 
 
 problem: how to do editing when the Workspace expects to get the SRT file?
 
@@ -646,19 +649,29 @@ solution: first save all chunks, then start loading the trabslation suggestions
 
 
 \subsubsection{Login}
-it is therefore neccessary that the user can log in without the application\'s main window being reloaded so that the user does not lose unsaved data.
+
+A requirement we had on the login functions was that they do not require reloading the page. This is because it might happen that the user\'s sessionID expires, which would lead to his last request being lost in case of realoding the page. However, not reloading the page enables us to resend the request once the user is logged back in.
+
+This was easy to do in case of the Simple Login. In case of OpenID Login, it lead to a rather complicated procedure (see Section~\ref{subsubsec:gui:openid}), which requires opening a new window for the user to authenticate on the OpenID provider webpage.
 
 \subsection{Final Development}
 \label{subsec:final_development}
+
+\todo{since when is it "final development"?}
 
 Optimizations required: better to throw away translation pairs and generated every time user logs in
 
 Found many technical issues: %e.g. necessary to be able to stop loading generating the suggestions on the server at the moment - DONE
 
 
-We left to the end a lot issues which we considered to be only minor technical , which appeared to be a lot of intensive work.
+We left
+a lot issues which we considered to be only minor and technical
+to the end of the development process;
+naturally, many of them were eventually found to constitute a lot of intensive work.
 
-We estimated the 12$^\mathrm{th}$ August, 12 p.m. to be a day that we called the Feature Freeze which meant that after this date no new features were added to the project. At that time we started an intensive review of already existing code, debugging and working on the documentation. 
+We set the Feature Freeze to the 12$^\mathrm{th}$ August, 12 p.m.
+% Feature Freeze is an existing term, it is not our invention! :-)
+After the Feature Freeze, no new features were added to the project, and we started an intensive review of already existing code, debugging, and working on the documentation.
 
 \section{Evaluating the Development Process}
 
@@ -674,9 +687,17 @@ During the whole time we had little problems that our development process is not
 
 As a very first communication channel we established a mailing group at Google groups. All the notifications and comments from Github were redirected to that mailing group as well as results of Jenkins builds. Soon we started to receive dozens of Filmtit email every day and it started to be quite difficult the follow the conversations and find something in the conversation history.
 
-Because of that we tried to use the Piratedpad\footnote{http://www.piratenpad.de/}. It is free a web-based collaborative real-time editor, allowing authors to simultaneously edit a text document, and see all of the participants' edits in real-time, with the ability to display each author's text in their own color. There is also a chat box in the sidebar to allow meta communication run by the German Pirate Party. We tried to keep there personal plans and "todos", bug reports. After some time it became quite messy and the mailing group became the main communication channel again. We were also solving a lot of issues bilaterally using various instant messaging systems.
+Because of that we tried to use the Piratedpad\footnote{http://www.piratenpad.de/}. It is free a web-based collaborative real-time editor, allowing authors to simultaneously edit a text document, and see all of the participants' edits in real-time, with the ability to display each author's text in their own color. There is also a chat box in the sidebar to allow meta communication run by the German Pirate Party. We tried to keep there personal plans and ``todos'', bug reports. After some time it became quite messy and the mailing group became the main communication channel again. We were also solving a lot of issues bilaterally using various instant messaging systems.
 
-In July, when the most intensive work on project started, we launched a Skype conference. It has the same disadvantage as email conversation, that it is difficult to find easily find facts in the history, moreover when there were hundreds of messages every day. Because almost every time were at least some team members online, it was possible to ask for a summary of previous discussions almost every time and we managed to keep all the team member informed about everything important.
+In July, when the most intensive work on project started, we launched a Skype conference. It effectively replaced the personal meetings, which was much sought after as usually several members were out of Prague at a time, but fortunately they typically had internet connection.
+It also helped to solve many issues instantly and efficiently.
+However, it has a same disadvantage as email conversation -- it is difficult to easily find facts in the history -- but now with hundreds of messages every day to make things worse.
+Fortunately, because almost every time there were at least some team members online, it was always possible to ask for a summary of previous discussions and we managed to keep all the team members informed about everything important.
+
+Mid-August, however, there was a decline in using the Skype conference -- we found out that when all of the project members were online and the work on the project could have been expected to be very intensive, it often actually happened that very little work was done since most of the time was spent on discussions through Skype.
+Another issue was that some members tended to use the conference simply for chatting about non-related matters, %including me of course --R
+which later made it even harder or nearly impossible for the others to find important messages in the history.
+We then started to send the most important messages through the e-mail conference again and, eventually, we mostly switched back to it.
 
 \section{Possible Future Development}
 

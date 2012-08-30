@@ -3,6 +3,13 @@
 %% (documentation chapter for the FilmTit project) %%
 %% ----------------------------------------------- %%
 
+The Graphical User Interface (GUI) is the part of the application that is loaded by the user in his web browser. It is written mostly in Java but compiled by the Google Web Toolkit (GWT) into Javascript. Its main tasks are
+
+\begin{itemize}
+\item visualisation of the application and communication with the user in a user-friendly way, especially providing an efficient translation workspace adapted for translation of movie subtitles
+\item communication with the User Space (see Chapter XXX) through the Remote Procedure Calls (see Chapter XXX), especially to provide the user with translation suggestions from the core translation memory (see Chapter XXX) and for data persistence
+\end{itemize}
+
 \section{Goals}
 % (Honza)
 Our main goal is to offer a tool for the translators of the movie subtitles as easy and effective to use as possible. With the capabilities of the current web browsers, we decided to make FilmTit a web-based application, therefore sparing the user the need to download and install anything.
@@ -68,7 +75,7 @@ Please refer to the sitemap figure \ref{fig:sitemap} for an overview of the page
 \item About, showing basic information about the applicaton
 \item PlayerInfo, showing guidelines on how to run the media player
 \item ChangePassword, used as the target of the password change link sent by e-mail to users who forget their password, enabling them to set a new password
-\item AuthenticationValidationWindow, a special page that receives OpenID authentication data from an OpenID provider and passes them to Userspace for validation
+\item AuthenticationValidationWindow, a special page that receives OpenID authentication data from an OpenID provider and passes them to User Space for validation
 \item Blank, a special page with no contents and is used to temporarily hide the contents of another page
 \end{itemize}
 
@@ -150,7 +157,7 @@ Most of the RPCs contain the SessionID as one of their parameters to authenticat
 
 \todo{keep everything here or describe Offline Mode in a separate section?}
 
-The Offline Mode offers the user the possibility to continue translating a document even without a connection to the server. His translations are stored locally in his browser and sent to Userspace once he goes back online.
+The Offline Mode offers the user the possibility to continue translating a document even without a connection to the server. His translations are stored locally in his browser and sent to User Space once he goes back online.
 Support for storing the data is ensured by the HTML5 Local Storage feature, which provides an in-browser data storage, accessible from Javascript.
 Each object is stored as a pair of a unique string key and a string value (therefore, serialization to string is necessary to store complex objects).
 
@@ -249,24 +256,48 @@ subpackage cz.filmtit.client.subgestbox
 
 An important class is the SubgestBox, or ``SUBtitle sugGESTion BOX'', which visualizes the TM results, offering a variety of means of navigation through them.
 
-\subsection{FileLoadWidget}
+\subsection{Playing the movie files}
+From the beginning, we wanted to be able to show the user the movie file along with the translations. However, legal issues, bandwith issues and disk issues bar us from actually uploading the files to our servers -- so, we tried to implement some kind of playing the users' movie files, from their disks, in the browser, and then communicating with this player via javascript, so we can somehow connect it with the translation GUI.
 
-subpackage cz.filmtit.client.widgets
+For this, we have to deal with two problems.
 
-a Widget which is a wrapper for a Java applet
+\subsubsection*{Video Playback (VLCWidget)}
+Playing the movie locally, from disk, is actually the lesser problem. We use VLC browser plugin for that.
 
-\todo{Karel should proudly describe what he did}
+VLC\footnote{\url{http://www.videolan.org/vlc/}, short for VideoLan Client} is a popular open source media player. One of its advantages is that it can handle almost any video format and any codec available.
 
-\subsection{Video Playback (VLCWidget)}
+VLC has also feature called ``browser plug-in''\footnote{For some reason, its name is different across VLC documentation. Sometimes, they use the name ``Mozilla plug-in'', sometimes ``Web plug-in'', sometimes ``browser plug-in''.}. The browser plug-in is not a part of standard VLC installation, but can be installed easily.
 
-ensured by the VLCWidget, which is a Widget wrapper to the VLC plugin
+This browser plug-in can be used for playing local files, in the browser, given that the file address is known. It is possible to rewind forward/backward/stop, all through javascript.
 
-subpackage cz.filmtit.client.widgets
+There are some slight annoyances in the plug-in, though. One of them is, that you can't really jump on an exact time location in the video file. Most video files have so-called seek frames, which can appear more or less often (depending on the setting of the encoder), and VLC plugin always jumps at the closest preceding seek frame. The difference can be quite big (even up to 20 seconds). This bars us for playing exactly the time slot of a given subtitle.
 
-\todo{Karel should proudly describe what he did}
+The other annoyance is that sometimes, the plugins just freezes without any warning right after jump on some position. We have found out that it is somehow connected to the files played; with the exact same movie files, the exact same positions cause the player to crash, but slightly moved positions are OK.
+
+The first issue is solved by not playing just the part with one subtitle, but bigger, 30 seconds ``windows''. The entire movie is split to these 30 second windows, and once the user switches in the TranslationWorkspace from subtitle in one window to a subtitle in another window, the whole new window is played. It is actually better than playing just the time of the subtitle, since the user has more context to translate the movie's sentences.
+
+The second issue is solved by detecting the crashes and restarting the whole plugin in the case of crash with slightly moved windows.
+
+All is implemented in \texttt{cz.filmtit.client.widgets.VLCWidget}. Apart from that, the \texttt{VLCWidget} displays the subtitles on the left and on the right of the VLC browser plugin (original on the left, translated on the right).
+
+We intentionally didn't implement very sophisticated controls for the player (since it would make the design too complicated). All the player can do is replay the whole current window or pause the playing\todo{I will maybe implement the unpausing if I got time. If I don't have time, I won't.}.
+
+\subsubsection*{Java applet for reading the filename}
+The bigger problem is actually \emph{reading the name of the file} before giving it to VLC player plugin.
+
+The browsers are generally built to give pages as little access to user's system as possible (understandably so). That includes the filepaths of the files. Even the recent HTML5 standards, that do have access to the file itself, can't read the filename.
+
+The only way we found, that would be usable across the browsers and systems, was to use a Java applet. Java applets have access to users' disk and can read the filenames; they have to be signed by a certificate, but that certificate can be self-signed.
+
+This is implemented in \texttt{cz.filmtit.client.widgets.FileLoadWidget}.
+
+The problem with this approach becomes evident -- we are now dependent on two external, non-standard, separate plug-ins for the task of playing video files -- VLC plugin and Java plugin. Both have to be installed separately, both often cause issues in various browsers (not only in theory). On the other hand, we acchieved the almost impossible task -- playing movie files from users' disk on their browsers. When we warn the users that this functionality is experimental and carefully explain them the two plugins and their installation, we believe the current implementation is OK.
+
 
 \subsection{Parsing and segmentation}
-% (maybe Karel?)
+We already wrote about parsing in the chapter~\ref{parsing_subs}. As we mentioned there, we are reusing the same classes for dataimport (where we parsed and segmented thousands of files) in the GUI.
+
+More information about the parsing can be found in the chapter~\ref{parsing_subs}.
 
 \section{Typical Usage}
 % (Honza)
@@ -276,7 +307,7 @@ subpackage cz.filmtit.client.widgets
 \subsection{Document Creation}
 
 In the most typical case, a user (already registered) will open the page with FilmTit and log in. Then, he will go to the DocumentCreator page to create a new document. A document corresponds to one movie, or more precisely, to one subtitle file being translated from one language to another. On this page, the user should specify the title of the movie (or series), the direction of the translation (e.g. from English to Czech) and provide the actual local file with the source subtitles. He can also set a document title different from the movie title, and set a file path to the corresponding movie video file on his filesystem.
-These information are sent to the Userspace and, after refining the movie specification through the MediaSelector, the new document is created and the page switches to TranslationWorkspace, filled with source subtitles (segmented to chunks) together with theit timing on the left side and corresponding empty translation text-boxes on the right side.
+These information are sent to the User Space and, after refining the movie specification through the MediaSelector, the new document is created and the page switches to TranslationWorkspace, filled with source subtitles (segmented to chunks) together with theit timing on the left side and corresponding empty translation text-boxes on the right side.
 
 See also the corresponding sequence diagram \ref{gui:sd:document_creation}.
 
@@ -289,8 +320,8 @@ See also the corresponding sequence diagram \ref{gui:sd:document_creation}.
 
 \subsection{Document Translation}
 
-At the same time, the subtitle chunks are sent through the Userspace to the Core, where the appropriate translation suggestions are generated for them and sent back. When received in the GUI, each translation result is set to the SubgestBox corresponding to its chunk, and can be displayed on activation of the translation text-box as a pop-up, with the suggestions sorted according to their estimated accuracy.
-The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the translation text-box, his translation is sent to the Userspace through the setUserTranslation call to be saved as the user translation of the chunk.
+At the same time, the subtitle chunks are sent through the User Space to the Core, where the appropriate translation suggestions are generated for them and sent back. When received in the GUI, each translation result is set to the SubgestBox corresponding to its chunk, and can be displayed on activation of the translation text-box as a pop-up, with the suggestions sorted according to their estimated accuracy.
+The user can then choose any one of them (or none) and edit it (if necessary) to get the desired translation of the particular chunk. When the user leaves the translation text-box, his translation is sent to the User Space through the setUserTranslation call to be saved as the user translation of the chunk.
 
 See also the corresponding sequence diagram \ref{gui:sd:document_translation}.
 (Some technical details are ommitted for simplicity.)
@@ -318,4 +349,4 @@ A GET request is sent to the servlet.
 
 The servlet takes this and this, checks this and that, loads the chunks using Hibernate, creates the file like this, and returns that as the contents.
 
-\todo{The user translations are probably harvested by Userspace and Core independently of what the user does -- it probably does not fit into the GUI section at all...}
+\todo{The user translations are probably harvested by User Space and Core independently of what the user does -- it probably does not fit into the GUI section at all...}

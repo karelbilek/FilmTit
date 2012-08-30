@@ -19,7 +19,7 @@ The core layer also queries our machine translation server, which is running as 
 
 \subsection*{User Space}
 
-The middle-ware layer is called the User Space. Its task is to interact with the translation memory itself and mirror all GUI operations on the server side. The User Space is implemented in Java. It uses the same database as the Core and one database table is shared among them. The TM Core is used only as a service which is queried for translation suggestions. The interaction with the GUI is much more complicated because each operation from GUI has to be reflected in the US. The US provides a permanent storage of users' work to make the whole application including the users data available from the Internet. Except this function, the US provides the TM suggestion for the GUI and keeps them up to date (the TM should be gradually improving, so every time the user starts editing the document new translation suggestions are generated\todo{Jo:?}).
+The middle-ware layer is called the User Space. Its task is to interact with the translation memory itself and mirror all GUI operations on the server side. The User Space is implemented in Java. It uses the same database as the Core and one database table is shared among them. The TM Core is used only as a service which is queried for translation suggestions. The interaction with the GUI is much more complicated because each operation from GUI has to be reflected in the US. The US provides a permanent storage of users' work to make the whole application including the users data available from the Internet. Except this function, the US provides the TM suggestion for the GUI.
 
 \subsection*{GUI}
 
@@ -44,7 +44,7 @@ As noted above, a Moses machine translation server is running as a completely se
 
 \section{Sharing the Implementation among the Project}
 
-Because all parts of the projects are Java-based, we can share a set of classes between the GUI and the server to avoid unnecessary redundancy and to make the project structure clearer.
+Because all parts of the projects are Java based, we can share a set of classes between the GUI and the server to avoid unnecessary redundancy and to make the project structure clearer.
 
 However, as noted in the GWT documentation \footnote{\url{https://developers.google.com/web-toolkit/doc/latest/DevGuideCodingBasicsCompatibility} and \url{https://developers.google.com/web-toolkit/doc/latest/RefJreEmulation}}, not all Java classes are directly translatable to GWT. The main issues we encountered were:
 
@@ -54,7 +54,9 @@ However, as noted in the GWT documentation \footnote{\url{https://developers.goo
 \item Serialization works differently in GWT. What this effectively meant for us is that, even when we use the general \texttt{List} interface for some property, we cannot set it as a subtype of \texttt{List} that is not implemented in GWT. More specifically -- we wanted to use \texttt{scala.collection.JavaConverters.AsJava[List]} for Scala $\Leftrightarrow$ Java conversion, but it wasn't possible, since it uses its own implementation of Java's \texttt{List} interface.
 \end{itemize}
 
-Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by the Java compiler to JVM bytecode, but not the other way around.
+Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by the Java compiler to JVM bytecode (except for direct insertions of Javascript code of course), but not the other way around.
+
+Structure of the shared classes follows the terms mentioned in the Glossary as can be seen in Figure~\ref{projectStructure:logical}. Detailed UML diagram of the shared classes is in Figure~\ref{fig:shared_uml} and Figure~\ref{fig:shared_uml_helping}.
 
 
 \begin{figure}[h]
@@ -62,6 +64,22 @@ Therefore, shared classes could only use a subset of Java. Generally, what is tr
 \includegraphics{figures/shared_classes.pdf}
 \end{center}
 \caption{Scheme of the shared classes.}\label{projectStructure:logical}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.38]{figures/shared.pdf}
+\end{center}
+\caption{UML diagram of shared classes}
+\label{fig:shared_uml}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.38]{figures/shared2.pdf}
+\end{center}
+\caption{UML diagram of helping shared classes providing functionality needed among different modules}
+\label{fig:shared_uml_helping}
 \end{figure}
 
 \section{Usage of Third Party Libraries}
