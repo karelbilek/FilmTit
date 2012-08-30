@@ -66,17 +66,45 @@ $ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_
 
 \subsection{Step-by-Step Guide: Setting up the server with an existing database dump}
 
+The following guide contains examples for setting up the system on a plain Ubuntu system.
+
 \begin{enumerate}
 
-\item \textbf{Copy {\tt server-0.1.jar}, {\tt install\_czech\_to\_postgres.sh} and {\tt configuration.xml} to a production directory.} We use the directory {\tt /production} for illustration.
+\item \textbf{Copy the contents of the directory {\tt production} to a local directory.} We use the directory {\tt /production} for illustration. The directory {\tt production} contains the following files:
+
+\begin{itemize}
+	\item \textbf{server-0.1.jar} -- the FilmTit app
+	\item \textbf{configuration.xml} -- the default configuration file
+	\item \textbf{models} -- text processing models for Czech and English
+	\item \textbf{install\_czech\_configuration.sh} -- helper script for \postgres~text search configuration installation
+	\item \textbf{add\_configuration\_to\_db.sh} -- helper script for adding the Czech text search configuration to the database
+	\item \textbf{encz\_dump} -- dump of the database for the language pair English-Czech
+\end{itemize}
 
 \item \textbf{Install and setup a \postgres~database.} Before being able to import the database dump to the database, ensure that there is a running version of \postgres.\footnote{\postgres~installation guide: \url{http://wiki.postgresql.org/wiki/Detailed_installation_guides}} The system will run with a standard \postgres~setup, however it is recommended to adapt the \postgres~installation as described in Section~\ref{sec:dbconfig}.
+
+\vspace*{0.5em}
+\lstset{numbers=none, language=bash, caption={Installing \postgres~on Ubuntu.}}
+\begin{lstlisting}
+$ sudo apt-get install postgresql
+\end{lstlisting}
+\vspace*{0.5em}
+
 
 \item \textbf{Install the Czech \postgres~text search configuration:}
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Installing the Czech text search configuration to \postgres.}}
 \begin{lstlisting}
-$ /production/install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_name>
+$ cd /production
+
+#Install the Czech text search configuration in the tsearch_data folder of the Postgres installation
+$ ./install_czech_configuration.sh /usr/share/postgresql/9.1/tsearch_data
+
+#Create the empty database
+$ createdb filmtit
+
+#Install the text search configuration in the postgres database "filmtit" (user postgres)
+$ sudo -u postgres ./add_configuration_to_db.sh postgres filmtit
 \end{lstlisting}
 \vspace*{0.5em}
 
@@ -84,8 +112,7 @@ $ /production/install_czech_to_postgres.sh <postgres_directory> <postgres_user> 
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Importing the database dump into the database filmtit.}}
 \begin{lstlisting}
-$ createdb filmtit
-$ pg_restore -d filmtit -c database_dump
+$ sudo -u postgres psql -d filmtit -f encz_dump
 \end{lstlisting}
 \vspace*{0.5em}
 
@@ -94,7 +121,6 @@ $ pg_restore -d filmtit -c database_dump
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Running the server on port 8080.}}
 \begin{lstlisting}
-$ cd /production
 $ java -jar server-0.1.jar configuration.xml 8080
 \end{lstlisting}
 \vspace*{0.5em}
@@ -103,7 +129,6 @@ For the production setting, the server should be run in the background:
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Running the server on port 8080.}}
 \begin{lstlisting}
-$ cd /production
 $ nohup java -jar server-0.1.jar configuration.xml 8080 &
 \end{lstlisting}
 \vspace*{0.5em}
@@ -219,11 +244,11 @@ OpenNLP Maximum Entropy models for Named Entity Recognition are specified in the
 
 \subsection{Data Import}
 %TODO section?
-For the data import as described in section~\ref{sec:dataimport}, several files have to be specified.
+For the data import as described in Section~\ref{sec:import}, several files have to be specified.
 
 \begin{itemize}
         \item \verb#subtitles_folder# -- the folder containing the subtitle files for the initial import
-        \item \verb#data_folder# -- the folder the results of the alignment (see section~\ref{sec:dataimport})
+        \item \verb#data_folder# -- the folder the results of the alignment (see section~\ref{sec:import})
         \item \verb#file_mediasource_mapping# -- a CSV file that describes the source (movie or TV show) of the  subtitle files
         \item \verb#batch_size# -- the number of subtitle files that should be processed at the same time. A higher number will increase the memory consumption of the import process.
         \item \verb#mediasource_cache# -- the location of a cache file for the movie data queried from an external API for each subtitle file
@@ -269,7 +294,6 @@ The module-specific options for the Core TM are mostly related to performance.
 
     <max_number_of_concurrent_searchers>5</max_number_of_concurrent_searchers>
     <searcher_timeout>60</searcher_timeout> <!--in seconds-->
-
 </core>
 
 \end{lstlisting}
@@ -277,7 +301,9 @@ The module-specific options for the Core TM are mostly related to performance.
 \subsubsection{User Space}
 \label{subsec:user_scpace_settings}
 
-User space settings contains few constants influencing the behavior of the application and also fields that need be set correctly to make application running.
+\todo{Is this up-to-date?}
+
+User space settings contain few constants influencing the behavior of the application and also fields that need be set correctly to make the application run.
 
 \begin{itemize} 
 \item \verb#maximum_suggestions_count# -- maximum number of translation suggestions which are displayed to the user for one chunk, users can change this value in their user specific settings
@@ -354,7 +380,7 @@ Settings of the email subjects and bodies follows. In the registration email bod
 
 \subsubsection{APIs and keys}
 
-The configuration also specifies the URL of the running Moses instance and the keys for external APIs.
+The configuration also specifies the URL of the running Moses instance and the keys for external APIs. A Freebase key can be obtained via the Google API Console.\footnote{\url{http://wiki.freebase.com/wiki/How_to_obtain_an_API_key}}
 
 \lstset{numbers=none, language=XML, caption={APIs and keys}}
 \begin{lstlisting}
