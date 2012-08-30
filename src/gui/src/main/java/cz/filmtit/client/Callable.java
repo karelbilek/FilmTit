@@ -26,14 +26,28 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 
 	// static members
 	
+	/**
+	 * Provides access to the FilmTitService interface for actually invoking the calls.
+	 */
 	public static FilmTitServiceAsync filmTitService = GWT.create(FilmTitService.class);
 	
+	/**
+	 * Number of error windows displayed until now.
+	 * @see displayWindow()
+	 */
 	protected static int windowsDisplayed;
 	
+	/**
+	 * Queue of calls to be invoked later.
+	 * @see addCallToBeCalled(), callCallsToBeCalled()
+	 */
 	protected static HashMap<Long, LinkedList<Callable<?>>> toBeCalled = new HashMap<Long, LinkedList<Callable<?>>>();
 	
 	// non-static members
 	
+	/**
+	 * The timer of the call. If it fires before the call returns, the call is considered to be timed out.
+	 */
 	protected Timer timeOutTimer;
 	
 	/**
@@ -254,6 +268,9 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		}
 	}
 		
+	/**
+	 * invoked by the RPC mechanism if the call returns successfully
+	 */
     @Override
     public final void onSuccess(T returned) {
 		timeOutTimer.cancel();
@@ -270,6 +287,10 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     	}
     }
 
+    /**
+     * invoked by the RPC mechanism if the call returns unsuccessfully
+     * @param returned An exception thrown by the server
+     */
     @Override    
 	public final void onFailure(Throwable returned) {
 		timeOutTimer.cancel();
@@ -391,7 +412,9 @@ public abstract class Callable<T> implements AsyncCallback<T> {
     
     
     // timers
-    
+    /**
+	 * The timer of the call. If it fires before the call returns, the call is considered to be timed out.
+     */
     protected class CallTimer extends Timer {
 		/**
 		 * sets the timer to call timeOut() after callTimeOut miliseconds
@@ -406,6 +429,10 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		}
     }
     
+    /**
+     * A timer for post-poning of enqueueing the call.
+     * @see retry()
+     */
     protected class EnqueueTimer extends Timer {
 		/**
 		 * sets the timer to call enqueue() after the given number of miliseconds
