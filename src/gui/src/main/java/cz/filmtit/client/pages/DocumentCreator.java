@@ -207,7 +207,7 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
                 getMovieTitle(),
                 getChosenLanguage(),
                 subtext,
-                getChosenSubFormat(),
+                "srt",
                 getMoviePathOrNull()
                 );                
     // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success
@@ -234,11 +234,10 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
     ListBox lsbLanguage;
 
 
-    @UiField
+    /*@UiField
     RadioButton rdbFormatSrt;
     @UiField
-    RadioButton rdbFormatSub;
-
+    RadioButton rdbFormatSub;*/
 
     @UiField
     RadioButton rdbEncodingUtf8;
@@ -323,7 +322,7 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
         else return "utf-8";  // default value
     }
 
-    public String getChosenSubFormat() {
+    /*public String getChosenSubFormat() {
         if (rdbFormatSrt.getValue()) {
             return "srt";
         }
@@ -331,7 +330,7 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
             return "sub";
         }
         else return "srt";	// default value
-    }
+    }*/
 
 
 

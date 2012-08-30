@@ -43,14 +43,14 @@
             <b:Fieldset>
                 <b:Legend>Load subtitles file</b:Legend>
 
-                <b:ControlGroup>
+                <!--b:ControlGroup>
                     <b:ControlLabel>Subtitle file format:</b:ControlLabel>
                     <b:Controls>
                         <b:RadioButton ui:field="rdbFormatSrt" name="file format"
                                        value="true">.srt</b:RadioButton>
                         <b:RadioButton ui:field="rdbFormatSub" name="file format">.sub</b:RadioButton>
                     </b:Controls>
-                </b:ControlGroup>
+                </b:ControlGroup-->
 
                 <b:ControlGroup>
                     <b:ControlLabel>Choose file encoding:</b:ControlLabel>
@@ -96,9 +96,8 @@
                 
 
                 <b:ControlGroup>
-                    <b:ControlLabel>Include machine translation:</b:ControlLabel>
                     <b:Controls>
-                        <b:CheckBox ui:field="useMT"></b:CheckBox>
+                        <b:CheckBox ui:field="useMT">Include machine translation</b:CheckBox>
                     </b:Controls>
                 </b:ControlGroup>
             </b:Fieldset>
