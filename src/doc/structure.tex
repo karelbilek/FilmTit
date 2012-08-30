@@ -54,7 +54,7 @@ However, as noted in the GWT documentation \footnote{\url{https://developers.goo
 \item Serialization works differently in GWT. What this effectively meant for us is that, even when we use the general \texttt{List} interface for some property, we cannot set it as a subtype of \texttt{List} that is not implemented in GWT. More specifically -- we wanted to use \texttt{scala.collection.JavaConverters.AsJava[List]} for Scala $\Leftrightarrow$ Java conversion, but it wasn't possible, since it uses its own implementation of Java's \texttt{List} interface.
 \end{itemize}
 
-Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by the Java compiler to JVM bytecode, but not the other way around.
+Therefore, shared classes could only use a subset of Java. Generally, what is translatable with GWT to JavaScript is also translatable by the Java compiler to JVM bytecode (except for direct insertions of Javascript code of course), but not the other way around.
 
 Structure of the shared classes follows the terms mentioned in the Glossary as can be seen in Figure~\ref{projectStructure:logical}. Detailed UML diagram of the shared classes is in Figure~\ref{fig:shared_uml} and Figure~\ref{fig:shared_uml_helping}.
 

@@ -601,52 +601,47 @@ When introducing the ``fake'' SubgestBox, as opposed to the ``real'' one, we wer
 
 \subsubsection{Subtitles Export}
 
-Necessary to give the user the possibility to export the subtitles.
-
-Issue: GWT cannot create a file, neither on server (beacause it is all Javascript) nor on the user's computer (because of security restrictions).
+When implementing the feature of exporting the subtitles, we encountered an unexpected issue:
+GWT cannot create a file, neither on server (beacause it is all Javascript) nor on the user's computer (because of security restrictions).
 
 Possible solutions:
 
-- export the subtitles into a textarea
+\begin{itemize}
 
-  - not really what a user expects
+\item export the subtitles into a textarea
+\begin{itemize}
+\item not really what a user expects
+\end{itemize}
 
-- send the exported subtitles to user's e-mail address
+\item send the exported subtitles to user's e-mail address
+\begin{itemize}
+\item not really what a user expects
+\item can be hard to use for the user
+\item might be added as a special feature but should not be the only or primary way
+\end{itemize}
 
-  - not really what a user expects
-  
-  - can be hard to use for the user
-  
-  - might be added as a special feature but should not be the only or primary way
+\item create a temporary file on the server and offer a download link to the user
+\begin{itemize}
+\item creating temporary files is not very clean
+\item should handle access rights in Jetty
+\end{itemize}
 
-- create a temporary file on the server and offer a download link to the user
+\item create a new servlet (using JSP) for downloading the file
+\begin{itemize}
+\item we were afraid that it would be too much extra work
+\item it turned out not to be so difficult so we used that
+\end{itemize}
 
-  - creating temporary files is not very clean
-  
-  - should handle access rights in Jetty
-
-- create a new servlet (using JSP) for downloading the file
-
-  - we were afraid that it would be too much extra work
-  
-  - it turned out not to be so difficult so we used that
+\end{itemize}
 
 \subsubsection{Chunks Saving / Loading}
 
 We originally decided that the subtitle file will be parsed in the GUI, 
 to avoid unnecessary sending of the data from GUI to User Space and then back from User Space to GUI; parsing the file in User Space would also cause unnecessary load on the server.
 
-original idea: GUI and keep it there; decision kept: 
+Although we wanted to make everything as parallel as possible, we found out that we have to save all the chunks immediately after parsing so that they do not get lost; therefore, requesting the translation suggestions is only done after that, even though this means that the translation suggestions start arriving a little later.
 
-problem: how to do editing when the Workspace expects to get the SRT file?
-
-solution: Translation Workspace has two ways of accepting the data, one by getting the subtitle file contents and parsing it into chunks, the other one getting already parsed chunks from DB
-
-
-problem: chunks were saved only upon requesting the translations for them, so part of document was lost if user closed too early :-)
-
-solution: first save all chunks, then start loading the trabslation suggestions
-
+To also enable editing the files, the Translation Workspace became the only page that has two constructors -- one receiving the text of a subtitle file to parse, and the other getting an already parsed document from the database.
 
 \subsubsection{Login}
 
@@ -657,14 +652,21 @@ This was easy to do in case of the Simple Login. In case of OpenID Login, it lea
 \subsection{Final Development}
 \label{subsec:final_development}
 
+\todo{since when is it "final development"?}
+
 Optimizations required: better to throw away translation pairs and generated every time user logs in
 
 Found many technical issues: %e.g. necessary to be able to stop loading generating the suggestions on the server at the moment - DONE
 
 
-We left to the end a lot issues which we considered to be only minor technical , which appeared to be a lot of intensive work.
+We left
+a lot issues which we considered to be only minor and technical
+to the end of the development process;
+naturally, many of them were eventually found to constitute a lot of intensive work.
 
-We estimated the 12$^\mathrm{th}$ August, 12 p.m. to be a day that we called the Feature Freeze which meant that after this date no new features were added to the project. At that time we started an intensive review of already existing code, debugging and working on the documentation. 
+We set the Feature Freeze to the 12$^\mathrm{th}$ August, 12 p.m.
+% Feature Freeze is an existing term, it is not our invention! :-)
+After the Feature Freeze, no new features were added to the project, and we started an intensive review of already existing code, debugging, and working on the documentation.
 
 \section{Evaluating the Development Process}
 
@@ -680,9 +682,17 @@ During the whole time we had little problems that our development process is not
 
 As a very first communication channel we established a mailing group at Google groups. All the notifications and comments from Github were redirected to that mailing group as well as results of Jenkins builds. Soon we started to receive dozens of Filmtit email every day and it started to be quite difficult the follow the conversations and find something in the conversation history.
 
-Because of that we tried to use the Piratedpad\footnote{http://www.piratenpad.de/}. It is free a web-based collaborative real-time editor, allowing authors to simultaneously edit a text document, and see all of the participants' edits in real-time, with the ability to display each author's text in their own color. There is also a chat box in the sidebar to allow meta communication run by the German Pirate Party. We tried to keep there personal plans and "todos", bug reports. After some time it became quite messy and the mailing group became the main communication channel again. We were also solving a lot of issues bilaterally using various instant messaging systems.
+Because of that we tried to use the Piratedpad\footnote{http://www.piratenpad.de/}. It is free a web-based collaborative real-time editor, allowing authors to simultaneously edit a text document, and see all of the participants' edits in real-time, with the ability to display each author's text in their own color. There is also a chat box in the sidebar to allow meta communication run by the German Pirate Party. We tried to keep there personal plans and ``todos'', bug reports. After some time it became quite messy and the mailing group became the main communication channel again. We were also solving a lot of issues bilaterally using various instant messaging systems.
 
-In July, when the most intensive work on project started, we launched a Skype conference. It has the same disadvantage as email conversation, that it is difficult to find easily find facts in the history, moreover when there were hundreds of messages every day. Because almost every time were at least some team members online, it was possible to ask for a summary of previous discussions almost every time and we managed to keep all the team member informed about everything important.
+In July, when the most intensive work on project started, we launched a Skype conference. It effectively replaced the personal meetings, which was much sought after as usually several members were out of Prague at a time, but fortunately they typically had internet connection.
+It also helped to solve many issues instantly and efficiently.
+However, it has a same disadvantage as email conversation -- it is difficult to easily find facts in the history -- but now with hundreds of messages every day to make things worse.
+Fortunately, because almost every time there were at least some team members online, it was always possible to ask for a summary of previous discussions and we managed to keep all the team members informed about everything important.
+
+Mid-August, however, there was a decline in using the Skype conference -- we found out that when all of the project members were online and the work on the project could have been expected to be very intensive, it often actually happened that very little work was done since most of the time was spent on discussions through Skype.
+Another issue was that some members tended to use the conference simply for chatting about non-related matters, %including me of course --R
+which later made it even harder or nearly impossible for the others to find important messages in the history.
+We then started to send the most important messages through the e-mail conference again and, eventually, we mostly switched back to it.
 
 \section{Possible Future Development}
 

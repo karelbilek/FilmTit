@@ -142,6 +142,7 @@ def reindex()
 
 
 \subsection{Tokenization}
+\label{sec:tokenization}
 
 For all program-based retrieval methods, we tokenize, i.e.\ separate the input sentence into individual tokens,
 all inputs, using tokenizers provided by the Apache OpenNLP project.\footnote{\url{http://opennlp.apache.org/}}
@@ -383,6 +384,7 @@ As another backoff level, we use Machine Translation from external services.
 For this, a query with the chunk is sent to an external REST-based API. We offer a translation pair searcher for the free Machine Translation API of the MyMemory project.\footnote{ \url{http://mymemory.translated.net/doc/spec.php}} However, there is currently no machine translation service with an unlimited free API, and, for example, the MyMemory project has such a low daily quota (2500 requests/day) that the quota is quickly surpassed when translating subtitle files.
 
 \subsection{Statistical Machine-Translation based on Moses}
+\label{sec:statmtmoses}
 
 We tried Machine Translation first as an experiment, but it turned out the results are very good and, after some optimizations, very fast.
 
