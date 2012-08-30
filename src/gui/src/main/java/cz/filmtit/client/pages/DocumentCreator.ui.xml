@@ -79,7 +79,7 @@
 
             <b:Fieldset>
                 <b:Legend>Movie playback</b:Legend>
-                <b:NavLink ui:field="playerInfo" targetHistoryToken="PlayerInfo">Info on how to use the player</b:NavLink>
+                <b:NavLink ui:field="playerInfo" targetHistoryToken="PlayerInfo" styleName="playerInfoLink">Read this before using the playback</b:NavLink>
 
                 <b:ControlGroup>
                     <b:ControlLabel>Movie address on the disk:</b:ControlLabel>

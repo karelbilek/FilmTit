@@ -404,5 +404,9 @@ style copied from bootstrap's .modal and edited
     border-radius:6px;
 }
 
-
-
+.playerInfoLink {
+    list-style-type: none;
+    margin-left: 2em;
+    margin-bottom: 2em;
+    font-style: italic;
+}

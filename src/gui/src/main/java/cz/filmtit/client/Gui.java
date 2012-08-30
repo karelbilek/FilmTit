@@ -173,6 +173,7 @@ public class Gui implements EntryPoint {
      * @param logtext
      */
      public static void log(String logtext) {
+         /*
          // assemble message
     	 if (start == 0) {
              start = System.currentTimeMillis();
@@ -195,7 +196,7 @@ public class Gui implements EntryPoint {
              Window.setStatus(logtext);
          }
          // also log to development console
-         GWT.log(logtext);
+         GWT.log(logtext);*/
      }
      
      /**
