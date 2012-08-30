@@ -7,9 +7,9 @@
         <b:PageHeader>About FilmTit</b:PageHeader>
 
         <b:Heading size="6">What is FilmTit?</b:Heading>
-        <b:Paragraph>Filmtit is an easy way to quickly translate SRT and SUB movie subtitle files.</b:Paragraph>
+        <b:Paragraph>FilmTit is an easy way to quickly translate SRT movie subtitle files.</b:Paragraph>
 
-        <b:Paragraph>&copy; the filmtit group</b:Paragraph>
+        <b:Paragraph>&copy; 2012 the filmtit group</b:Paragraph>
        
 	</g:HTMLPanel>
 </ui:UiBinder> 

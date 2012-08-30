@@ -7,7 +7,7 @@
 
             <b:FluidContainer ui:field="container">
             			<b:Hero>
-            				<b:Heading size="1">Welcome to Filmtit</b:Heading>
+            				<b:Heading size="1">Welcome to FilmTit</b:Heading>
 
             				<b:Paragraph>Helping you translate your subtitle files.</b:Paragraph>
             			</b:Hero>
@@ -15,7 +15,7 @@
                         <b:FluidRow>
             				<b:Column size="4">
             					<b:Heading size="6">Have an account?</b:Heading>
-            					<b:Paragraph>Just login with your Filmtit or Google account and start translating...</b:Paragraph>
+            					<b:Paragraph>Just login with your FilmTit or Google account and start translating...</b:Paragraph>
             					<b:Button type="PRIMARY" ui:field="login">Login »</b:Button>
             				</b:Column>
 
@@ -26,8 +26,8 @@
                             </b:Column>
 
                             <b:Column size="4">
-                                <b:Heading size="6">About Filmtit</b:Heading>
-                                <b:Paragraph>Filmtit is an easy way to quickly translate SRT and SUB movie subtitle files.</b:Paragraph>
+                                <b:Heading size="6">About FilmTit</b:Heading>
+                                <b:Paragraph>Filmtit is an easy way to quickly translate SRT movie subtitle files.</b:Paragraph>
                                 <b:Button ui:field="about">Read more »</b:Button>
                             </b:Column>
 
