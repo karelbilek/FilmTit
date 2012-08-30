@@ -36,7 +36,7 @@ import cz.filmtit.client.callables.SetUseMT;
 import java.util.Iterator;
 
 
-public class DocumentCreator extends Composite implements ReceivesSettings {
+public class DocumentCreator extends Composite {
 
 	private static DocumentCreatorUiBinder uiBinder = GWT
 			.create(DocumentCreatorUiBinder.class);
@@ -156,12 +156,10 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
         
         Gui.getGuiStructure().contentPanel.setWidget(this);
         
-        //send settings
-        deactivate();
-		new LoadSettings(this);
+        
 	}
 		
-	@Override
+	/*@Override
 	public void onSettingsReceived(User user) {
 		useMT.setValue(user.getUseMoses());
         reactivate();
@@ -169,7 +167,7 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
 	
 	protected boolean getUseMT() {
 	    return useMT.getValue();
-	}
+	}*/
 
 
     public void addressSet(FileLoadWidget widget, String address) {
@@ -181,28 +179,16 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
     @UiField
     FormActions bottomControlGroup;
     
-    String subtext_temp;
+    
 
     private void createDocumentFromText(String subtext) {
         btnCreateDocument.setEnabled(false);
         lblCreateProgress.setVisible(true);
         lblCreateProgress.setText("Creating the document...");
         
-        subtext_temp = subtext;
+        
 		
-        new SetUseMT(useMT.getValue(), this).enqueue();
-        //calls settingSuccess() after we set the useMT (this is too complicated... I just want to set useTM, this calling is too complicated...)
-                
-        
-    }
-    
-    
-    @Override
-	public void settingSuccess() {
-	    String subtext = subtext_temp;
-	    subtext_temp = "";
-        
-		FilmTitServiceHandler.createDocument(
+        FilmTitServiceHandler.createDocument(
                 getTitle(),
                 getMovieTitle(),
                 getChosenLanguage(),
@@ -210,14 +196,10 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
                 "srt",
                 getMoviePathOrNull()
                 );                
-    // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success
-                
-	}
-	
-	@Override
-	public void settingError(String message) {
-		com.google.gwt.user.client.Window.alert("Some error happened.");
-	}
+    // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success       
+        
+    }
+    
 	
     @UiField
     TextBox txtTitle;
@@ -258,21 +240,21 @@ public class DocumentCreator extends Composite implements ReceivesSettings {
     @UiField
     TextArea txtFilePaste;
 
-    @UiField
+    /*@UiField
     CheckBox useMT;
-    
+    */
     @UiField
     Button btnCreateDocument;
     @UiField
     Label lblCreateProgress;
     
-    private void deactivate() {
+    /*private void deactivate() {
         btnCreateDocument.setEnabled(false);
     }
     
     private void reactivate() {
         btnCreateDocument.setEnabled(true); 
-    }   
+    } */  
     
     
 

@@ -91,7 +91,7 @@
             </b:Fieldset>
 
 
-            <b:Fieldset>
+            <!--b:Fieldset>
                 <b:Legend>Machine translation</b:Legend>
                 
 
@@ -100,7 +100,7 @@
                         <b:CheckBox ui:field="useMT">Include machine translation</b:CheckBox>
                     </b:Controls>
                 </b:ControlGroup>
-            </b:Fieldset>
+            </b:Fieldset-->
 
             
 
