@@ -34,7 +34,7 @@ fulfills the requirements as follows:
 
 For managing connections to the database in Java and Scala, we use JDBC, 
 which allows the database connection to easily use another DBMS. 
-In the XML-based configuration file (see the user's manual), the JDBC connector
+In the XML-based configuration file (see the installation manual, Chapter~\ref{chap:technical_manual}), the JDBC connector
 and username and password to the database have to be specified. When testing the
 translation memory with project-internal unit tests, we replace the production JDBC
 configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://hsqldb.org/}}).
@@ -361,12 +361,12 @@ Wikipedia and existing DBpedia dumps (DBpedia dumps are currently available for 
 our manual evaluation of the produced Named Entity recognizers showed that the 
 models trained on the Czech Named Entity corpus produced better results.
 
-More precisely, we approximated, that the DBPedia recognized far less cases and, therefore, had much lower RECALL, the PRECISION was only slightly better. We then decided, that lower RECALL is worse for our purposes -- it's better to show wrong translation to user than to not show anything.
+More precisely, we approximated, that the DBpedia recognized far less cases and, therefore, had much lower RECALL, the PRECISION was only slightly better. We then decided, that lower RECALL is worse for our purposes -- it is better to show wrong translation to user than to not show anything.
 
 \subsubsection*{Effectiveness}
-It's worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitles, there is not a single match, but the recognition of named entities takes the most time during the data import.  
+It is worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitles, there is not a single match, but the recognition of named entities takes the most time during the data import.  
 
-TODO:DATA HERE
+\todo{TODO:DATA HERE}
 
 
 \subsection{Full-text search}
@@ -392,9 +392,9 @@ Moses\footnote{\url{http://www.statmt.org/moses/}} is a very popular statistical
 
 We run Moses as a separate process in a server mode and then the sentences to translate are sent to it. The sentences are sent to Moses server through Apache's XML RPC client\footnote{modelled after SampleClient in Moses, \url{https://github.com/moses-smt/mosesdecoder/blob/master/contrib/server/SampleClient.java}} sentence by sentence. We have to send the sentences to Moses server already tokenized and it produces better results, if the first letters of sentences are lowercased.
 
-Because we have limited computer resources, we trained only English to Czech machine translation, since that will be most used. If we wanted to train Czech to English too, used resources would double. More information about training the machine translation and getting it to work fast is in the chapter ???.
+Because we have limited computer resources, we trained only English to Czech machine translation, since that will be most used. If we wanted to train Czech to English too, used resources would double. More information about training the machine translation and getting it to work fast is in the chapter ???\todo{Is it in the doc at all? Jindřich}.
 
-What was a problem, however, was the tokenization. Because we didn't see it as a problem (since tokenization doesn't seem like a big problem at the first glance), we just tokenize the input by OpenNLP tokenizers and we let Moses use its own tokenizers.
+What was a problem, however, was the tokenization. Because we did not see it as a problem (since tokenization does not seem like a big problem at the first glance), we just tokenize the input by OpenNLP tokenizers and we let Moses use its own tokenizers.
 
 Moses, however, tokenizes English a little differently. Where it causes the most problems is the English contractions suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it like \texttt{don 't}. Those are very widely used and their wrong tokenization will, of course, produce very wrong results.
 
@@ -404,9 +404,9 @@ For that reason, we had to add some corrections of tokenization for the contract
 \section{Candidate Ranking}
 \label{sec:ranking}
 
-After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and how well they fit the queried chunk. We use different methods for ranking the candidates retrieved by the various candidate retrieval methods. In the following, we will briefly describe the ranking methods for each retrieval method.
+After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and how well they fit the queried chunk. We use different methods for ranking the candidates retrieved by the various candidate retrieval methods. In the following section, we will briefly describe the ranking methods for each retrieval method.
 
-All ranking methods are based on a combination of scores. Depending on the retrieval method, we assign every translation pair candidate a set of scores, which are then combined into a final score.  Translation pairs are ordered by this score.
+All ranking methods are based on a combination of scores. Depending on the retrieval method, we assign every translation pair candidate a set of scores, which are then combined into a final score. Translation pairs are ordered by this score.
 
 To learn the best combination of scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}}
 
@@ -435,7 +435,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of high quality (in most good translation pair candidates,  the length source and target side should not differ in length significantly).
 	
 	\item \textbf{final punctuation}\\
-	Feature indicating wether the final punctuation of the queried chunk and the candidate translation match.
+	Feature indicating whether the final punctuation of the queried chunk and the candidate translation match.
 	
 	
 	
@@ -469,7 +469,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of high quality (in most good translation pair candidates,  the length source and target side should not differ in length significantly).
 	
 	\item \textbf{final punctuation}\\
-	Feature indicating wether the final punctuation of the queried chunk and the candidate translation match.
+	Feature indicating whether the final punctuation of the queried chunk and the candidate translation match.
 
 \end{itemize}
 
