@@ -131,7 +131,7 @@ One scenario is parsing the movie subtitle after the user uploads it for transla
 
 \subsubsection*{Parsing - first step}
 
-What both scenarios have in common is the first step. In it, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word ``chunk'' more generally in the source code than here in the documentation.} \texttt{UnprocessedParser} is an abstract class, that has two subclasses -- \texttt{UnprocessedParserSrt} and \texttt{UnprocessedParserSub}.
+What both scenarios have in common is the first step. In it, we take the text of the file and get only the subtitle items -- we call the subtitle item \texttt{UnprocessedChunk} and the first step \texttt{UnprocessedParser}.\footnote{As noted in the glossary, we use the word ``chunk'' in a more general sense in the source code than here in the documentation.} \texttt{UnprocessedParser} is an abstract class, that has two subclasses -- \texttt{UnprocessedParserSrt} and \texttt{UnprocessedParserSub}.
 
 Parsing the files is a relatively straightforward task, even though we have to deal with various edge cases.
 
@@ -907,7 +907,7 @@ There are five cases of possible events:
     \item  With manual alignment, we found possible matches, the aligner marked it as a ``good'' movie and the match from aligner was  one of the correct ones -  we call this \textit{fully true positive}
 \end{itemize}
 
-With some consideration, we count precision as \footnote{Strictly speaking, it is not precision or recall at all. However, intuitively it captures similar qualities and it may be more confusing to use a different terminology.}
+With some consideration, we count precision as \footnote{Strictly speaking, it is not precision or recall. However, intuitively it captures similar qualities and it may be more confusing to use a different terminology.}
 
 $$\frac{\text{fully true positive}}{\text{false positive}+\text{fully true positive}+\text{partly true positive}},$$ and recall as $$\frac{\text{fully true positive}}{\text{fully true positive}+\text{partly true positive}+\text{false negative}}.$$
 

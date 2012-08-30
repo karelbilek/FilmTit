@@ -252,8 +252,8 @@ public class GuiStructure extends Composite {
 	@UiField
     ScrollPanel contentPanel;
 	
-	@UiField
-	public TextArea txtDebug;
+	//@UiField
+	//public TextArea txtDebug;
 	
     @UiField
 	HTMLPanel panelForVLC;

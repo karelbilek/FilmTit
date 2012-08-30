@@ -1,6 +1,5 @@
 \label{chap:technical_manual}
 
-\todo{shouldnt this be called Installation manual? or Administrators manual?}
 
 \section{System Requirements and Setup}
 
@@ -21,6 +20,7 @@ The arguments specify the configuration file (see Section~\ref{sec:config}) and 
 
 
 \subsection{Database Configuration}
+\label{sec:dbconfig}
 
 The system will work with any standard \postgres~installation, however it is recommended to setup \postgres~to use more memory to assure the database runs fast. On our production server (with 4GB of memory), we use the following settings:
 
@@ -55,16 +55,67 @@ For more information on \postgres~memory management and how to adjust the shared
 For the fulltext search the \emph{TSearch2} tool is used. By default few world languages are available. If you want to use the tool for other languages you need to install the language support manually. For the Czech language we prepared an installation script which can run using following command.
 
 \vspace*{0.5em}
-\lstset{numbers=none, language=bash, caption={Installing Czech to \postgres}}
+\lstset{numbers=none, language=bash, caption={Installing the Czech text search configuration to \postgres.}}
 \begin{lstlisting}
 $ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_name>
 \end{lstlisting}
 \vspace*{0.5em}
 
 
-
-
 \section{Tasks}
+
+\subsection{Step-by-Step Guide: Setting up the server with an existing database dump}
+
+\begin{enumerate}
+
+\item \textbf{Copy {\tt server-0.1.jar}, {\tt install\_czech\_to\_postgres.sh} and {\tt configuration.xml} to a production directory.} We use the directory {\tt /production} for illustration.
+
+\item \textbf{Install and setup a \postgres~database.} Before being able to import the database dump to the database, ensure that there is a running version of \postgres.\footnote{\postgres~installation guide: \url{http://wiki.postgresql.org/wiki/Detailed_installation_guides}} The system will run with a standard \postgres~setup, however it is recommended to adapt the \postgres~installation as described in Section~\ref{sec:dbconfig}.
+
+\item \textbf{Install the Czech \postgres~text search configuration:}
+\vspace*{0.5em}
+\lstset{numbers=none, language=bash, caption={Installing the Czech text search configuration to \postgres.}}
+\begin{lstlisting}
+$ /production/install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_name>
+\end{lstlisting}
+\vspace*{0.5em}
+
+\item \textbf{Import the database dump.}
+\vspace*{0.5em}
+\lstset{numbers=none, language=bash, caption={Importing the database dump into the database filmtit.}}
+\begin{lstlisting}
+$ createdb filmtit
+$ pg_restore -d filmtit -c database_dump
+\end{lstlisting}
+\vspace*{0.5em}
+
+\item \textbf{Ensure the correct JDBC connector is specified in {\tt configuration.xml}.}
+\item \textbf{Run the server with the configuration on a suitable port.} 
+\vspace*{0.5em}
+\lstset{numbers=none, language=bash, caption={Running the server on port 8080.}}
+\begin{lstlisting}
+$ cd /production
+$ java -jar server-0.1.jar configuration.xml 8080
+\end{lstlisting}
+\vspace*{0.5em}
+
+For the production setting, the server should be run in the background:
+\vspace*{0.5em}
+\lstset{numbers=none, language=bash, caption={Running the server on port 8080.}}
+\begin{lstlisting}
+$ cd /production
+$ nohup java -jar server-0.1.jar configuration.xml 8080 &
+\end{lstlisting}
+\vspace*{0.5em}
+
+
+
+
+
+
+\end{enumerate}
+
+
 
 \subsection{Importing Data}
 

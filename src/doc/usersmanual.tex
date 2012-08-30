@@ -125,7 +125,9 @@ You can change the user settings by clicking the Settings link in the top menu o
 \subsection{Account and Logging in}
 \subsubsection{User name}
 
-You can change you user name by typing a different one. The user name has to unique within the Filmtit application, so if you pick an already existing user name, the system will propose to you a similar user name which is still free.
+User name has to be unique in FilmTit application. If user uses classic registration form, he can choose own user name. If user want register user name, which already exists, application send warning. Registration by openID is second way how get user name. User name from this registration is extracted from email.
+There is chance that two users have very similar email and extracted name will be same. Our app generates user name with numeric unique numeric code in this case. 
+User name can be change in page UserSettins, where can be old user name simple rewrite to new user name.
 \todo{will it? I dont think so!}
 you will have to find another user name which is free.
 

@@ -3,14 +3,44 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
              xmlns:g="urn:import:com.google.gwt.user.client.ui">
     <g:HTMLPanel>
+	<a href="javascript: history.go(-1)">Back to document creation</a>
+	
+        <b:PageHeader>Playback Info</b:PageHeader>
 
-        <b:PageHeader>Player Info</b:PageHeader>
+		 <b:Paragraph>
+	            Playing movie file is not an easy task. Because of that, we require two plug-ins to install.
+	        </b:Paragraph>
 
-        <b:Heading size="6">How to run the media player?</b:Heading>
-        <b:Paragraph>
-            Install the plugin, select a movie file on your disc when creating a document,
-            and relevant parts of the movie will be played to you while translating.
+		<b:Heading size="3">Java</b:Heading>
+	    <b:Paragraph>
+            For selecting the file from your disk, you need to have Java installed and Java applets allowed in your browser. You can test, whether you have Java installed, <a href="http://www.java.com/en/download/testjava.jsp">on this site on java.com</a>; installation instructions for Java are available <a href="http://www.java.com/en/download/help/index_installing.xml">here</a>.
         </b:Paragraph>
-       
+		<b:Paragraph>
+			If you don't want to install Java, you can still use the player, but you will need to write the address to the input field yourself.
+		</b:Paragraph>
+	
+		<b:Heading size="3">VLC plugin</b:Heading>
+		<b:Paragraph>
+			You need to have VLC web plugin installed for the actual playback. Installation of VLC is straigthforward for the major platforms.
+		</b:Paragraph>
+		
+		<b:Paragraph>
+			<a href="#PlayerDemo">You can test, whether you have VLC plugin installed, here.</a>
+		</b:Paragraph>
+	
+        <b:Heading size="5">Windows installation</b:Heading>
+        <b:Paragraph>
+            If you don't have the VLC plugin installed, you need to run VLC installer (download it <a href="http://www.videolan.org/vlc/download-windows.html">from VideoLAN website</a>), even if you have VLC already installed. While installing VLC, you have to check either "Mozilla plugin" (if you are not using IE) or "ActiveX plugin" (if you are using IE).
+        </b:Paragraph>
+
+        <b:Heading size="5">Ubuntu/debian/APT installation</b:Heading>
+		<b:Paragraph>
+			If  you don't have the VLC plugin installed and you have a linux installation with support for <code>apt</code>, like Debian or Ubuntu, you can install VLC plugin by installing <code>mozilla-plugin-vlc</code> package (for example by <code>apt-get install mozilla-plugin-vlc</code>, or in Aptitude).
+		</b:Paragraph>
+		
+		 <b:Heading size="5">Mac OS X</b:Heading>
+       	<b:Paragraph>
+			For Mac OS X, you need to install <a href="http://www.videolan.org/vlc/download-macosx.html">both VLC and VLC plugin from videolan website</a>
+		</b:Paragraph>
     </g:HTMLPanel>
 </ui:UiBinder> 

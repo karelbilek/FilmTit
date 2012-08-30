@@ -60,7 +60,7 @@
         </b:Row>
 
         </g:HTMLPanel>
-        <div style="position:absolute; bottom:-50em; right:0">
+        <!--div style="position:absolute; bottom:-50em; right:0">
         <b:FluidRow>
             <b:FluidRow>
                 <b:Label>Debug outputs:</b:Label>
@@ -69,7 +69,7 @@
                 <b:TextArea ui:field="txtDebug" width="200px" height="200px" />
             </b:FluidRow>
         </b:FluidRow>
-        </div>
+        </div-->
 
 
     </g:HTMLPanel>
