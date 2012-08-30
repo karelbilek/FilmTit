@@ -28,7 +28,7 @@
                     <b:ControlGroup>
                         <b:Controls styleName="downloadButtons">
                             <b:Button size="LARGE" ui:field="srtButton">SRT</b:Button>
-                            <b:Button size="LARGE" ui:field="subButton">SUB</b:Button>
+                            <!-- <b:Button size="LARGE" ui:field="subButton">SUB</b:Button>  -->
                             <b:Button size="LARGE" ui:field="txtButton">TXT</b:Button>
                         </b:Controls>
                     </b:ControlGroup>

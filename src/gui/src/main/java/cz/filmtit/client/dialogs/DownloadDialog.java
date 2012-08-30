@@ -28,19 +28,18 @@ public class DownloadDialog extends Dialog {
 	public DownloadDialog(Document document) {
 		super();
         initWidget(uiBinder.createAndBindUi(this));
-        target.setChecked(true);
+        target.setValue(true);
         this.document = document;
         
-        srtButton.addClickHandler(handlerForFormat("srt"));
-        subButton.addClickHandler(handlerForFormat("sub"));
-        txtButton.addClickHandler(handlerForFormat("txt"));
+        srtButton.addClickHandler(new HandlerForFormat("srt"));
+        txtButton.addClickHandler(new HandlerForFormat("txt"));
 	}
 
     String detectWay() {
-        if (source.isChecked()) {
+        if (source.getValue()) {
             return "source";
         }
-        if (target.isChecked()) {
+        if (target.getValue()) {
             return "target";
         }
         return "targetthrowback";
@@ -50,14 +49,19 @@ public class DownloadDialog extends Dialog {
         return "/download/download?docId="+document.getId()+"&sessionId="+Gui.getSessionID()+"&type="+format+"&way="+way;
     }
 
-    ClickHandler handlerForFormat(final String format) {
-        return new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Window.Location.assign(generateUrl(detectWay(), format));
-                close();
-            }
-        };
+    class HandlerForFormat implements ClickHandler {
+
+    	private String format;
+
+		public HandlerForFormat(String format) {
+    		this.format = format;
+		}
+    	
+		public void onClick(ClickEvent event) {
+            Window.Location.assign(generateUrl(detectWay(), format));
+            close();
+		}
+    	
     }
 
     @UiField
@@ -71,9 +75,6 @@ public class DownloadDialog extends Dialog {
 
     @UiField
 	Button srtButton;
-
-    @UiField
-    Button subButton;
 
     @UiField
     Button txtButton;
