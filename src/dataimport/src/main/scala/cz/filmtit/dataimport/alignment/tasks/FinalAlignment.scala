@@ -35,8 +35,6 @@ object FinalAlignment {
     )
 
 
-    val file = new File(filename)
-    val map = loadFilePairsToMap(file, c)
 
     println("before aligning")
     aligner.align(mapping)
