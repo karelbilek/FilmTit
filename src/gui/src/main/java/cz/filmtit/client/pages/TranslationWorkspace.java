@@ -221,8 +221,9 @@ public class TranslationWorkspace extends Composite {
             InlineLabel toLabel = new InlineLabel("0:0:30");
             Anchor pauseA = new Anchor("[pause]");
             Anchor replayA = new Anchor("[replay]");
+            Anchor closeA = new Anchor("[close player]");
    
-            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, synchronizer, fromLabel, toLabel, pauseA, replayA, 0, this);
+            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, synchronizer, fromLabel, toLabel, pauseA, replayA, closeA, 0, this);
             vlcPlayer.addStyleName("vlcPlayerDisplayed"); 
             this.subgestHandler = new SubgestHandler(this);
             fixedWrapper.add(vlcPlayer);
@@ -239,6 +240,8 @@ public class TranslationWorkspace extends Composite {
             playerStatusPanel.add(pauseA);
             playerStatusPanel.add(new InlineLabel(" "));
             playerStatusPanel.add(replayA);
+            playerStatusPanel.add(new InlineLabel(" "));
+            playerStatusPanel.add(closeA);
  
             fixedWrapper.add(playerStatusPanel);
             playerStatusPanel.addStyleName("statusPanel");
@@ -267,6 +270,11 @@ public class TranslationWorkspace extends Composite {
         VLCWidget newWidget = vlcPlayer.higherNonce();
         fixedWrapper.addAndReplaceElement(newWidget, "video");
         vlcPlayer = newWidget;
+    }
+    
+    public void turnOffPlayer() {
+        playerFixedPanel.removeFromParent();
+        vlcPlayer.hide();
     }
     
     ///////////////////////////////////////
