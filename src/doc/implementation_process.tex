@@ -164,26 +164,6 @@ The most primitive solution was iteratively trying to append numbers to the user
 
 Moreover, the user has the possibility to change his username and/or password on the Settings page.
 
-\subsubsection{Chunk Splitting}
-
-\todo{people who did that should add the text !!!}
-
-ideas:
-
-keep as it is, i.e. one timing = one chunk ... too long, too arbitrary
-
-split into sentences, joining already split sentences together ... very hard (probably impossible) to do reliably, would miss the advantage of subtitle files for alignment
-
-now: keep already existing splits, split on dialogue boundaries, slit on sentence boundaries (+ clean away irrelevant characters)
-
-... easy enough to do reliably (SOME NUMBER of errors)
-
-... arbitrary but not so much as the first solution
-
-... length is reasonable
-
-Important: to do the splitting in the same way when creating the database and when processing the user subtitles.
-Therefore: a shared Parser class which is compiled both into java bytecode and used in impoting, and into Javascript and used in GUI
 
 \subsubsection{Chunk Time Format}
 
@@ -214,7 +194,7 @@ chunk splitting by dashes denoting individual dialogue speakers: dashes need to 
 
 need to identify the newlines (irrelevant for translation suggestions but necessary to render the subtitles properly) -> annotations extended for newlines
 
-subtitle formatting for bold, italic, underline etc. Original idea: extended the annotations again (easy to do). Then: too much trouble, expecially for GUI. Decision: just strip off these, do not support that. Reasoning: used very little, no formal specification so has various formats, often the players do not support the formatting properly so we want to discourage the users from using the formatting
+subtitle formatting for bold, italic, underline etc. Original idea: extended the annotations again (easy to do). Then: too much trouble, especially for GUI. Decision: just strip off these, do not support that. Reasoning: used very little, no formal specification so has various formats, often the players do not support the formatting properly so we want to discourage the users from using the formatting
 
 chunk now has a set of methods to get and set the chunk and annotations correctly, using the notion of FORMS. The forms used are:
 
@@ -274,8 +254,6 @@ In one case, we would need an opposite direction RPC, i.e. the server to invoke 
 % Originally it was created by the GUI and sent to User Space, but we soon found this to be inappropriate so the User Space now generates the authID.
 
 \subsubsection{Failed RPC Requests Handling}
-
-% Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
 
 We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
 
@@ -368,22 +346,22 @@ changing data .. idea: it should be possible to change anything if there is not 
 
 \subsubsection{GUI Pages}
 
-We started having one page only, the Translation Workspace, which was sufficient for development of the application for several months. Later we added the Document  Creator page as the default one, which replaced itself by the Translation Workspace once a document was created, and this was sufficient for some more time. However, we eventually could not avoid adding more pages and the need to explicitely handle multiple pages became obvious.
+We started having one page only, the Translation Workspace, which was sufficient for development of the application for several months. Later we added the Document  Creator page as the default one, which replaced itself by the Translation Workspace once a document was created, and this was sufficient for some more time. However, we eventually could not avoid adding more pages and the need to explicitly handle multiple pages became obvious.
 
-We immediately found out a week point of GWT here: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switchng pages are really simple tasks. GWT, however, observes the idea of having one HTML file and one Javascript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
+We immediately found out a week point of GWT here: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switching pages are really simple tasks. GWT, however, observes the idea of having one HTML file and one JavaScript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
 
 The GWT way of switching pages is by replacing the contents of the Root Panel (which represents the visible part of a page), or any other Panel placed within the Root Panel (which we decided to use so that some elements, such as the menu, are present on all pages). The switching is done without reloading, simply by creating an instance of the new page and directly setting it as the contents of the panel (without any convenience functions for that to our knowledge).
 
-All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also Hyperlink widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a ValueChangeHandler).
-The URL contains an anchor with the name of the page (e.g. \#DocumentCreator or \#WelcomeScreen), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
+All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also {\tt Hyperlink} widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a {\tt ValueChangeHandler}).
+The URL contains an anchor with the name of the page (e.g.\ {\tt \#DocumentCreator} or {\tt \#WelcomeScreen}), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
 
-We decided to use the History class and Hyperlinks to implement the menu and page switching. We create a PageHandler class which implements the ValueChangeHandler -- it turns the anchor string into a value of Page enum, checks whther the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
+We decided to use the {\tt History} class and {\tt Hyperlinks} to implement the menu and page switching. We create a {\tt PageHandler} class which implements the {\tt ValueChangeHandler} -- it turns the anchor string into a value of {\tt Page} enum, checks whether the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
 
-However, we encountered one issue with the Hyperlinks: the ValueChangeHandler is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the Hyperlink class, we had to abandon the Hyperlinks and used NavLinks instead (a simple link with no default interaction with the History), with click handlers invoking the ValueChangeHandler.
+However, we encountered one issue with the {\tt Hyperlinks}: the {\tt ValueChangeHandler} is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the {\tt Hyperlink} class, we had to abandon the Hyperlinks and used {\tt NavLinks} instead (a simple link with no default interaction with the History), with click handlers invoking the {\tt ValueChangeHandler}.
 
-When reviewing the resulting code, we found out that the History class and the ValueChangeHandler do not provide any benefit to us any more, so we removed them completely. Only then did we find out that the History class can also correctly handle the browser's forward/backward button behavior, so we readded it, but it is only used for that purpose now.
+When reviewing the resulting code, we found out that the History class and the {\tt ValueChangeHandler} do not provide any benefit to us any more, so we removed them completely. Only then did we find out that the History class can also correctly handle the browser's forward/backward button behavior, so we readded it, but it is only used for that purpose now.
 
-Another issue encountered was the fact that passing the page name as an anchor name is not always convenient and sometimes is not possible at all. If the page requires some additional parameters -- such as the password change page, where the user can change his password based on a link sent to his mailbox, containing a temporary token and the username as parameters -- the resulting address looks odd (e.g. http://filmtit.cz/?username=a\&token=df5ds3f\#ChangePassword). Moreover, the OpenID validation mechanism we used requires URL of a return page as a parameter, to which it adds parameters containing information about the validation process, but it is only able to add the parameters at the end of the address, resulting in an incorrect URL. For such cases, we decided to offer an alternative way of specifying the oage to be loaded in the URL by setting the page parameter (e.g. http://filmtit.cz/?page=ChangePassword\&username=a\&token=df5ds3f).
+Another issue encountered was the fact that passing the page name as an anchor name is not always convenient and sometimes is not possible at all. If the page requires some additional parameters -- such as the password change page, where the user can change his password based on a link sent to his mailbox, containing a temporary token and the username as parameters -- the resulting address looks odd (e.g.\ {\tt http://filmtit.cz/?username=a\&token=df5ds3f\#ChangePassword}). Moreover, the OpenID validation mechanism we used requires URL of a return page as a parameter, to which it adds parameters containing information about the validation process, but it is only able to add the parameters at the end of the address, resulting in an incorrect URL. For such cases, we decided to offer an alternative way of specifying the oage to be loaded in the URL by setting the page parameter (e.g.\ {\tt http://filmtit.cz/?page=ChangePassword\&username=a\&token=df5ds3f}).
 
 This solution finally proved to offer all features required.
 
@@ -413,19 +391,10 @@ We decided to introduce heuristics to decide whether to reject the whole file: i
 At first, our intention was to make the whole application able to run offline. However, it was not a priority and was not even part of the official specification.
 Eventually, we decided that the only part that has to be able to work offline is the Translation Workspace, as doing the translation itself is the most time-consuming part of the whole process for a user. We believe that the user can prepare everything while online, wait until the translation suggestions are loaded, and then spend some time offline translating the document.
 
-We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the aplication offline
+We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the application offline
 -- e.g. the whole application would have to be stored offline, which we wanted to avoid in the first place by designing FilmTit as a web application.
 However, it is obvious that the data created by the user in Offline Mode must be stored locally even if the application is closed.
 Thus, only storing setUserTranslation calls and invoking them once the user goes back online turned out to be sufficient.
-
-% (this is only a discussion explaining why not to support more, I would leave it out)
-%
-% Creating documents and exporting documents: not possible in Offline Mode.
-% Settings: does not make much sense in Offline mode.
-%
-% Only thing that IMHO could actually be useful is preloading multiple documents, so that user can got to doc list and back again and translate multiple documents, not only the opened one.
-% Would have to preload suggestions -- would have to change the way they are handled since now they are not stored permanently anywhere, are always regenerated on opening the TW.
-% The question which documents to preload -- all of them? Too unefficient. Only the ones that user chooses? Yes, but he has to be able to choose them in a user-friendly way. Probably simplest: store the documents that the user opens. However, there is then little difference between the targetted state and the current state: the only difference is that now the user must open multiple tabs and leave them opened, while in the proposed state he could open them one after another and work on them in one tab only (although StopTranslationResults would probably have to be modified as well so that the user does not have to leave the TW open and wait for all of the suggestions to load). \todo{nevim jak se anglicky rekne ze to je malo muziky za hodne penez}
 
 \paragraph{Technology}
 
@@ -434,8 +403,8 @@ Like Cookies, the stored object has two ``useful'' string fields, the name (or `
 However, the Local Storage has several advantages over cookies:
 
 \begin{itemize}
-\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within Javascript is an advantage.
-\item The size limit both for individual objects and for the total ammount of data stored is larger.
+\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within JavaScript is an advantage.
+\item The size limit both for individual objects and for the total amount of data stored is larger.
 \item Instead of setting expiry time, the programmer simply decides whether the objects should be stored temporarily (for a browser session) or permanently (which is our case).
 \item The API is cleaner.
 \end{itemize}
@@ -445,7 +414,7 @@ Still, thanks to the similarity of Local Storage to cookies, it would be quite e
 \paragraph{Serialization}
 \label{par:process_serialization}
 
-Because the necessary serialization is special -- we need to serialize into a set of two strings, the key and the value, with the key being a unique yet intelligible identifier of the object -- we decided to implement our own serialization, defined by the Storable interface which is described in Section~\ref{gui:subsubsec:storable}.
+Because the necessary serialization is special -- we need to serialize into a set of two strings, the key and the value, with the key being a unique yet intelligible identifier of the object -- we decided to implement our own serialization, defined by the {\tt Storable} interface which is described in Section~\ref{gui:subsubsec:storable}.
 However, we encountered an issue with Java support for interfaces: Java does not support neither constructors nor static methods in interfaces.
 Still we need to use the one or the other for deserialization (or a hack, such as using an empty constructor and then loading the data into the empty object, which would enable us to define the method in the interface, but would break several good programming practices otherwise and therefore we decided not to use it).
 The Java reasoning is understandable -- one could specify the one or the other, but they could never be invoked through the interface without specifying the implementing class, so there is no point in including them.
@@ -454,9 +423,10 @@ We agree that including methods that can never be invoked is strange. However, w
 % We decided to define a static factory method fromKeyValuePair that all Storable classes must implement; however, it has to be commented out in the source code of the Storable interface, as well as the ``@Override'' annotation in the implementation classes. Still, we prefer to keep these in the code to make our point.
 
 \paragraph{Extendability}
-Although currently only one class, SetUserTranslation, can be stored in Offline Mode, the Offline Mode support is desinged to be easily extendable if we decide to store other data in Local Storage as well.
-To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the Storable interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
-(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if nescessary.)
+
+Although currently only one class, {\tt SetUserTranslation}, can be stored in Offline Mode, the Offline Mode support is designed to be easily extendable if we decide to store other data in Local Storage as well.
+To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the {\tt Storable} interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
+(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if necessary.)
 
 \paragraph{Object Identification}
 When some objects are stored in the Local Storage, they can only be accessed through the Local Storage interface, which is flat and does not support any advanced structures -- the programmer can only get the number of all of the objects in the storage, iterate over their keys, and retrieve a value of an object based on its key. (Plus setting and deleting the objects of course.)
@@ -518,10 +488,10 @@ Another problem was that although Hibernate can adjust the database scheme to th
 
 \subsubsection{Subgestboxes}
 
-One of the most important features of the application's user interface is the behaviour of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, SubgestBox, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
+One of the most important features of the application's user interface is the behavior of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, {\tt SubgestBox}, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
 
 \paragraph{SuggestBox?}
-First, we were thinking about the GWT pre-implemented SuggestBox, probably with some slight adjustments. However, we realized that with our specialized demands on its behaviour and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the more general classes in the inheritance chain. Still, we have drawn some inspiration from the SuggestBox class implementation; for example, using a PopupPanel to show the suggestions proved to be quite an elegant solution.
+First, we were thinking about the GWT pre-implemented {\tt SuggestBox}, probably with some slight adjustments. However, we realized that with our specialized demands on its behavior and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the more general classes in the inheritance chain. Still, we have drawn some inspiration from the {\tt SuggestBox} class implementation; for example, using a {\tt PopupPanel} to show the suggestions proved to be quite an elegant solution.
 
 \paragraph{Base widget}
 For some time, we were using a common TextBox with the suggestions pop-up extension, switching after a while to a TextArea to offer multi-line input. But since we also needed some text formatting inside the box (e.g. for the named entities' annotation highlighting or for the user formatting, such as italicized text) which could not be added by a simple extension to the TextArea, we have once again switched the base class, this last time to the RichTextArea.
