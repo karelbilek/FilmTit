@@ -10,3 +10,8 @@ result/documentation.pdf: *.tex
 
 clean:
 	rm -r result
+
+help: result/help.html
+
+result/help.html:
+	pandoc -o result/help.html usersmanual.tex
