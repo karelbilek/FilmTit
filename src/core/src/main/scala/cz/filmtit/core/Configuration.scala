@@ -74,12 +74,6 @@ class Configuration(configurationFile: InputStream) {
 
   val fileMediasourceMapping = new File((importXML \ "file_mediasource_mapping").text)
 
-  val expectedNumberOfTranslationPairs = (importXML \ "expected_number_of_translationpairs").text.toInt
-
-  private val heldoutXML = importXML \ "heldout"
-  val heldoutSize = (heldoutXML \ "size").text.toDouble //percentage of all data
-  val heldoutFile = new File((heldoutXML \ "path").text)
-
   //Userspace:
   private val userspaceXML = XMLFile \ "userspace"
   val maximumSuggestionsCount = (userspaceXML \ "maximum_suggestions_count").text.toInt

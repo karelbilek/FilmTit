@@ -37,12 +37,6 @@
         <file_mediasource_mapping>/filmtit/data/files/export_final.txt</file_mediasource_mapping>
         <batch_size>100</batch_size>
         <mediasource_cache>/tmp/mediasource_cache</mediasource_cache>
-
-        <expected_number_of_translationpairs>20000000</expected_number_of_translationpairs>
-        <heldout>
-            <size>0.02</size>
-            <path>/tmp/heldout.csv</path>
-        </heldout>
     </import>
 
     <userspace>
@@ -64,14 +58,16 @@
                 <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>
                 <entry key="mail.filmtit.registrationBody">
                     Congratulation,
-                    your email address was registered in Filmtit app
-                    with login : %userlogin% and pass : %userpass%
+                    your email address was registered in the FilmTit app.
+                    Your login: %userlogin%
+                    Your password: %userpass%
                 </entry>
                 <entry key="mail.filmtit.forgottenPassBody">
                     Hello,
-                    in FilmTit app we have request for change a password
-                    on account : %userlogin%
-                    you can change on this url : %changeurl%
+                    we received a request for changing your password in the FilmTit app
+                    Username: %userlogin%
+
+                    You can change your password using this URL: %changeurl%
                 </entry>
                 <entry key="mail.filmtit.address">filmtit@gmail.com</entry>
                 <entry key="mail.filmtit.password">jkhrjj2012</entry>

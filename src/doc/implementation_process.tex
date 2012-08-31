@@ -13,15 +13,15 @@ The regular project meetings where we discussed mostly the organizational aspect
 \end{itemize}
 
 which became very soon separate Maven modules, as we soon started using Maven for building the project.
-(After overcoming the problems connected with learning the new technology, we became quite satisfied with the decision to use Maven, because the possibility to combine all parts of the project with Apache Maven was helpful, although making the project run in Maven was very painful for us and we spent unnecessarily a lot of time by solving Maven issues, especially with dependencies.)
+After overcoming the problems connected with learning the new technology, we became quite satisfied with the decision to use Maven, because the possibility to combine all parts of the project with Apache Maven was helpful, although making the project run in Maven was very painful for us and we spent unnecessarily a lot of time by solving Maven issues, especially with dependencies.
 
 % despite + noun = in spite of + noun = although + clause
 
-Despite the fact that we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different parts of project, which remained surprisingly stable as well. 
+Despite the fact that we added further modules later, we consistently kept the initial project splitting into \emph{Core}, \emph{User Space} and \emph{GUI}. At the beginning we also assigned team members to the different parts of project, which remained surprisingly stable as well. Joachim and Karel took responsibility for the translation memory core, Jindřich and Pepa for the User Space and Rudolf and Jan started to learn the technologies for the GUI development.
 
-Before receiving the data from OpenSubtitles.org we were thinking about the source of data to fill the translation memory for the first time. There were several options -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL \todo{reference}, using sentences from a general purpose parallel corpus or getting the data from a subtitles server.
+Before receiving the data from OpenSubtitles.org we were thinking about the source of data to fill the translation memory for the first time. There were several options -- either using the subtitle part of the Czech-English parallel corpus CzEng developed at ÚFAL \footnote{\url{http://ufal.mff.cuni.cz/czeng/}}, using sentences from a general purpose parallel corpus or getting the data from a subtitles server.
 
-From the very beginning we intended to base the project on Java, mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with the language. We also decided to combine the code in Java and Scala programming languages and Apache Maven as a build manager. At that time there was only one team member who knew the Scala language. Although we repetitively expressed believes that everyone of us would learn it, at the end there was only one another person familiar with the Scala language -- which happened to be the bottleneck of work on the translation memory core.
+From the very beginning we intended to base the project on Java, mainly because there exist quite a lot of web technologies based on Java and everybody of us were at least a little bit familiar with the language. We also decided to combine the code in Java and Scala programming languages and use Apache Maven as a build manager. At that time there was only Joachim knew the Scala language. Although we repetitively expressed believes that everyone of us would learn it, at the end only Karel managed to learn it -- which happened to be the bottleneck of work on the translation memory core.
 	
 The decision to use both Java and Scala appeared to bring quite a lot of complications. On one hand, Scala allows to write concise and efficient code; on the other hand, most project members were not able to learn Scala sufficiently even to understand the Scala code properly, let alone actively producing Scala code, and only used Java.
 Although the interoperability between Scala and Java works well in most cases because both are based on the JVM, some problems remain. One of the problems of interoperability was, for example, that a \emph{List} object created in Scala is not compatible with Google Web Toolkit, which expects a standard Java \emph{List} implementation.
@@ -35,18 +35,18 @@ Much complicated was to agree on the technology of the client. There were many d
 
 We decided to use GWT for several reasons.
 
-One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and User Space. Not only is the interface defined by one simple Java class (FilmTitService.java), which is then used both by the GUI and the User Space, but thanks to GWT we are even able to use exactly the same classes (placed in cz.filmtit.share) in GUI and in User Space and send them easily through the FilmTitService interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and Javascript, together with mappings to and from the transport format. (In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.)
+One reason is that it integrates very well with the rest of the application, which is written in Java. A prominent example is the communication between GUI and User Space. Not only is the interface defined by one simple Java class ({\tt FilmTitService}), which is then used both by the GUI and the User Space, but thanks to GWT we are even able to use exactly the same classes (placed in {\tt cz.filmtit.share}) in GUI and in User Space and send them easily through the {\tt FilmTitService} interface. Thus, we avoided the trouble of having to keep each of these classes in two versions, Java and JavaScript, together with mappings to and from the transport format. (In fact, all of these do exist in the application, but only in the compiled code, completely hidden from the developer.)
 
-However, there is a downside, which could have been expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g. LinkedList), but only some of its methods are implemented (e.g. one can use removeFirst(), but pop() is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had already been solved by others (although sometimes the only solution was not a nice or clean one, such as having to implement some methods directly in Javascript). Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
+However, there is a downside, which could have been expected but is difficult to manage properly. It is obvious that GWT does not support everything that exists in Java -- instead, it supports only a subset of Java, with a lot of GWT-specific additions. This is perfectly reasonable, and, as the subset supported is large enough, should not cause any problems. However, the cut between supported and unsupported features is very misty -- often a class is supported (e.g.\ {\tt LinkedList}), but only some of its methods are implemented (e.g.\ one can use {\tt removeFirst()}, but {\tt pop()} is unsupported). Moreover, the IDE does not provide much support in this area, so often the only thing that a developer can rely on are Internet forums. Luckily, GWT is used by many developers and most of the issues that we encountered had already been solved by others (although sometimes the only solution was not a nice or clean one, such as having to implement some methods directly in JavaScript). Still, we spent a lot of debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
 
 A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE, similarly applicable also for IntelliJ IDE), possibly with debugging support. In GWT, there is a dedicated Development Mode for these debugging purposes, sparing the developer the need of recompiling all the GWT code for testing after each change. This proved to be very efficient in the first phases of the development when the GUI module was developed independently and, although it turned out to be quite difficult to set up the Development Mode once the GUI module was integrated with the rest of the project, it remained one of the most useful features of GWT.
 
-Another option that we found useful is the possibility to directly insert real Javascript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way how to do something that is supported in Javascript but unsupported in GWT.
+Another option that we found useful is the possibility to directly insert real JavaScript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way how to do something that is supported in JavaScript but unsupported in GWT.
 
-An important point also was that GWT is freeware, or more precisely, is licensed under the Apache License, v.~2.0 (TODO: citation for the license!), with several third-party software included in its distribution under other freeware licenses. It is even open-source, from which we benefited occasionally when examining the source code to understand some of its unexpected behavior, or even to extend some of its classes, overriding their behavior to fir our needs.
+An important point also was that GWT is freeware, or more precisely, is licensed under the Apache License, v.~2.0, with several third-party software included in its distribution under other free licenses. It is even open-source, from which we benefited occasionally when examining the source code to understand some of its unexpected behavior, or even to extend some of its classes, overriding their behavior to fir our needs.
 
 Although GWT can be integrated into a Maven project, it was far from flawless and a lot of time had to be spent on making everything work together, including maintaining the IDE support. We managed to do that in the end, but we had expected this to be much easier. The main reason (but not the only one) is the specific directory structure, different for the Maven project and for the GWT project, which has to be adjusted in the configuration of both the Maven plugins and the IDE.
-And still after setting everything correctly, some features remained unavailable to some of us, e.g. running GUI in Development Mode using Eclipse IDE.
+And still after setting everything correctly, some features remained unavailable to some of us, e.g.\ running GUI in Development Mode using Eclipse IDE.
 
 To conclude, we are happy that we decided to use GWT because of the benefits it brought to us, but we were disappointed by the number of complications that it brought as well. Were we to decide on a web framework to use for a similar project, we would still have to consider our decision carefully.
 
@@ -75,9 +75,9 @@ Very soon, we started to try to solve the video playback in the browser, which w
 We very soon had toy implementations of:
 
 \begin{itemize}
-\item a player using VLC plugin, to be incorporated into the web application
+\item a player using VLC plugin, to be incorporated into the web application (see Figure~\ref{fig:figures_desktop-app-player})
 
-\item a player as a desktop Java application, showing the web application in a frame
+\item a player as a desktop application, showing the web application in a frame
 \end{itemize}
 
 \begin{figure}[h!]
@@ -90,23 +90,22 @@ We very soon had toy implementations of:
 We decided for the web application only version, with no desktop variant, because, observing the development trends, it seems to us that the present and future of applications is in web applications. The benefits are e.g.\ that the learning curve is typically better for a web application, where the user is already familiar with most of the controls and work patterns, installation is not required, so anyone can start using the application immediately, it is easy to use OpenID registration.
 
 Still, there are disadvantages, especially the cross browser support issues, limited power, and larger bandwith consumption.
-A GWT added advanatage is that the bandwith consumption is actually closer to that of a standalone desktop app, because the application itself is stored in one Javascript file, which is downloaded at the beginning (similar to installing a desktop application, but it is done transparently), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
+A GWT added advantage is that the bandwith consumption is actually closer to that of a standalone desktop app, because the application itself is stored in one JavaScript file, which is downloaded at the beginning (similar to installing a desktop application, but it is done transparently), and the rest of the client-server interaction is done through RPCs (basically the same way as it would be done in a desktop application).
 
-\todo{player -- Karel should write something more about its development, the applet signing, etc.}
-
-An issue we encountered in developing the player and were not able to combat completely is letting the user choose a media file and passing its full filesystem path to the player. We found out that although it is quite easy to load a whole file from disc into memory, only its filename is passed to Javascript instead of the full path for security reasons. We did a thorough search on the internet but found out that there is most probably no clean way around this restriction.
+An issue we encountered in developing the player and were not able to combat completely is letting the user choose a media file and passing its full file system path to the player. We found out that although it is quite easy to load a whole file from disc into memory, only its filename is passed to JavaScript instead of the full path for security reasons. We did a thorough search on the Internet but found out that there is most probably no clean way around this restriction.
 
 Ultimately we came up with 3 solutions, but none of them pleases us enough:
 
 \begin{itemize}
-\item the user inputs the full path as a string into an input box; works well but is not user-friendly (most users probably do not even know that such a thing as a filepath exists)
+\item the user inputs the full path as a string into an input box; works well but is not user-friendly (most users probably do not even know that such a thing as a file path exists)
 
-\item the user chooses the file in the file browser and then copies the file path from the browser inputbox into a textbox; this is probably even less userfriendly
+\item the user chooses the file in the file browser and then copies the file path from the browser inputbox into a textbox; this is probably even less user-friendly
 
-\item a Java applet is loaded to choose the file as Java applets do not have such restrictions as Javascript, and then passes the path to the application; it seems to us too heavy-weight to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly (we have also encountered an alternative using Flash for the same purpose, but we still prefer using Java to Flash)
+\item a Java applet is loaded to choose the file as Java applets do not have such restrictions as JavaScript, and then passes the path to the application; it seems to us too heavy-weight to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly (we have also encountered an alternative using Flash for the same purpose, but we still prefer using Java to Flash)
 \end{itemize}
 
-We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet.
+Despite it has its disadvantages -- it is not particularly fast and from the users' view it could be considered not be really safe -- we decided for the third option.
+The first option is also available as a fallback for users who do not have Java running properly and thus cannot use the applet.
 
 \subsection{Introducing the shared classes}
 \label{subsec:introducing_shared_classes}
@@ -116,11 +115,8 @@ After having implemented a very basic version of all three parts of the project,
 At this stage we found out that we are not fully taking advantage of using the Java technologies for all parts of project and decided to totally redesign the User Space and Client parts.
 
 Originally, we wanted to keep the traditional translation memory structure where each sentence can have several matches and these matches can have several translations in the memory, as is depicted in Figure~\ref{fig:original_scheme}. However, this scheme did not reflect much the way we worked with the data
-%in the ???core???
-in the Core
-that time --
-suitable matches were provided from the table of translation pairs based on indexes built over the table \todo{I dont undersatnd this sentence --RR}
-and there were very few matches having multiple different translations in the data.
+in the Core, moreover there were not much cases where there would more translations for one match.
+
 Also, the design of the GUI was a little bit confusing because the text of the matches was placed more prominently than the translation suggestions, despite the fact that the user is probably much more interested in the actual translation suggestions than in the matches. This lead to a modified scheme which is depicted in figure \ref{fig:new_scheme}.
 
 \begin{figure}
@@ -130,17 +126,14 @@ Also, the design of the GUI was a little bit confusing because the text of the m
 \caption{Current scheme of the work with translation memory.}\label{fig:new_scheme}
 \end{figure}
 
-We agreed on the shared classes that all parts of the project should use. We more or less adopted the design of the classes from the core and started to use them in the whole project. This step required to re-implement the Scala classes in Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_structure}. \todo{but where is it?!}
-\todo{hey, the ref is invalid since the section does not exist!}
-From a later point of view, it appears to be an important decision to agree on the shared classes, which made the cooperation between the modules easier and less verbose. 
-
-\todo{does this REALLY belong to subsec:introducing\_shared\_classes ?!?!?!?!}
+We agreed on the shared classes that all parts of the project should use. We more or less adopted the design of the classes from the core and started to use them in the whole project. This step required to re-implement the Scala classes in Java and to drop a lot of code that was already done in the User Space and the client. The design of the classes was almost the same as is described in \ref{sec:shared_classes}. 
 
 We started the work on the project with the new design soon, which lead to a period of the biggest struggle with technologies. It took us almost two months to have the first running version of the application.
 
 The very first version of the application was a page where it was only possible to upload a subtitle file and to do the translation, without any possibility to load an already saved subtitle document or download the result of the translation, without any sessions or users; it was just a page where you edit the subtitles (which later became the Translation Workspace).
 
-At that time we used machine translation from the MyMemory service (which in fact wraps Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. Eventually, we managed to install an instance of Moses and to train it on our data, and even to optimize it so that it runs very efficiently.
+At that time we used machine translation from the MyMemory service (which in fact wraps Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. Based on that we decided to train our own Moses system. See Chapter~\ref{chap:moses} for details.
+% was in conflict: Eventually, we managed to install an instance of Moses and to train it on our data, and even to optimize it so that it runs very efficiently.
 
 We also used API of IMDB.com to receive information about movies but the movie meta data was not used in the evaluation the matches at that time. (We had to switch to Freebase later because the IMDB service was discontinued.)
 
@@ -205,7 +198,7 @@ The class provides various constructors, getters and setters for all formats we 
 
 At first, we decided to use the SRT format only for the sake of simplicity.
 It was thought to be only a temporary state, with a plan to add SUB format support later. However, we eventually found out that not only is the SRT time format easier to use (it is not necessary to know the Frames-Per-Second property of the movie file),
-but also approximately 98\% of subtitles on the internet appear to be in the SRT format \todo{please correct the number and add some source !!!}.
+but also approximately 99\% (according to data we have, see Section~\ref{sec:properties} for details) of subtitles on the Internet appear to be in the SRT format.
 Thus, we decided to discontinue support for the SUB format and only support SRT (the only major difference between these formats is actually the format of the time).
 
 \subsubsection{Chunk Annotations}
@@ -214,11 +207,11 @@ Thus, we decided to discontinue support for the SUB format and only support SRT 
 
 named entities = first reason for annotations
 
-chunk splitting by dashes denoting individual dialogue speekers: dashes need to be removed for translation suggestions generating because they are irrelevat but need be kept for correct rendering of text -> annotations extended to contain dialogue dashes
+chunk splitting by dashes denoting individual dialogue speakers: dashes need to be removed for translation suggestions generating because they are irrelevant but need be kept for correct rendering of text -> annotations extended to contain dialogue dashes
 
 need to identify the newlines (irrelevant for translation suggestions but necessary to render the subtitles properly) -> annotations extended for newlines
 
-subtitle formatting for bold, italic, underline etc. Original idea: extended the annotations again (easy to do). Then: too much trouble, expecially for GUI. Decision: just strip off these, do not support that. Reasoning: used very little, no formal specification so has various formats, often the players do not support the formatting properly so we want to discourage the users from using the formatting
+subtitle formatting for bold, italic, underline etc. Original idea: extended the annotations again (easy to do). Then: too much trouble, especially for GUI. Decision: just strip off these, do not support that. Reasoning: used very little, no formal specification so has various formats, often the players do not support the formatting properly so we want to discourage the users from using the formatting
 
 chunk now has a set of methods to get and set the chunk and annotations correctly, using the notion of FORMS. The forms used are:
 
@@ -232,92 +225,85 @@ text form: to be used in textarea -- with dashes, newlines as BACKSHLASH N chara
 
 \subsubsection{Logging}
 
-In US and core: easy, we use (whatever we use) \todo{pease specify}
-and print the logs to the standard output (which is typically redirected to a textfile).
+Logging the events in the Core and User Space is done using {\it JBoss log4j} in a straightforward way. However, logging in the GUI is much more tricky, as there is no ``standard output'' or ``console'' to write the logs to.
 
-However, logging in the GUI is much more tricky, as there is no ``standard output'' or ``console'' to write the logs to.
-
-Actually, it should be noted here that when using the GWT Development Mode, there is a console available to the programmer, where e.g. exceptions can be inspected, and GWT even provides the GWT.log() method to explicitely log messages to the Development Console -- which was found out only later. However, we still find it more useful to be able to see the debug messages even when not running the Development Mode; moreover, some of the members of our team were unable to run the application in the Development Mode successfully.
+Actually, it should be noted here that when using the GWT Development Mode, there is a console available to the programmer, where e.g. exceptions can be inspected, and GWT even provides the {\tt GWT.log()} method to explicitly log messages to the Development Console -- which was found out only later. However, we still find it more useful to be able to see the debug messages even when not running the Development Mode; moreover, some of the members of our team were unable to run the application in the Development Mode successfully.
 
 The preliminary logging solutions included various implementations of the common practice of ``debug prints'' (which is often used by programmers if the support for effective debugging is little or none) --
 %In our situation, the debug prints were typically ensured by window alerts; we also tried changing the page title or statusbar for a less aggressive way of showing debug prints. Still, none of these solutions can be used in a larger scale.
-window alerts, changing the page title or the statusbar text.
+window alerts, changing the page title or the status bar text.
 
-The solution we soon took for the development phase was to add a debug window at the bottom of each page, and a static method Gui.log() that prints the log messages into that window.
+The solution we soon took for the development phase was to add a debug window at the bottom of each page, and a static method {\tt Gui.log()} that prints the log messages into that window.
 This proved to be very useful: once we added a large enough amount of logging, we were able to locate many issues that were appearing only using the contents of this window, often also guessing their causes as well.
 
 The debug window served its purpose well; however, it obviously could not be left to appear in the final version of application.
-It even would not be as useful, since the errors that would appear in a window of a browser of an external user (i.e. not a member of our team) cannot be accessed from our side.
-However, there still might be errors that we would like to track and fix in future. This is a natural feature of most existing applications, and instead of denying it, we believe it is much better to try to count with it and prepare for it -- in our case, to find a way to make the GUI logs available to us on the server side instead of the cilent side.
+It even would not be as useful, since the errors that would appear in a window of a browser of an external user (i.e.\ not a member of our team) cannot be accessed from our side.
+However, there still might be errors that we would like to track and fix in future. This is a natural feature of most existing applications, and instead of denying it, we believe it is much better to try to count with it and prepare for it -- in our case, to find a way to make the GUI logs available to us on the server side instead of the client side.
 
-The ultimate solution we took is what we call ``remote logging''. Important messages are now sent to the server through an RPC, where they are both included into the server log and saved into the database for possible future use (together with the userID if possible).
-The minimal level of a meesage to be sent to the server can be set (debug, info, warn, error).
-We first wanted to simply replace the implementation of Gui.log() by the remote logging; however, the original logging method did not have log levels, and the ammount of log messages generated was far too large to send all of them through the RPC. So, the remote logging must be used explicitely; it is now used especially for unexpected exceptions and RPCs.
+The ultimate solution we took is what we call ``remote logging''. Important messages are now sent to the server through an RPC, where they are both included into the server log and saved into the database for possible future use (together with the {\tt userID} if possible).
+The minimal level of a message to be sent to the server can be set (debug, info, warn, error).
+We first wanted to simply replace the implementation of Gui.log() by the remote logging; however, the original logging method did not have log levels, and the amount of log messages generated was far too large to send all of them through the RPC. So, the remote logging must be used explicitly; it is now used especially for unexpected exceptions and RPCs.
 
 We were not able to catch unexpected exceptions at first, as a GWT application does not have any ``main'' method where we could add a try-catch block to catch exceptions not caught by the inner components (which are the unexpected exceptions).
-However, we eventually found out that GWT provides the static method GWT.setUncaughtExceptionHandler(), which enables the programmer to add a handler to catch all unexpected exceptions, which would otherwise escape to the browser.
-Therefore, we implemented an ``exception catcher'' that, when given an exception, gets its stacktrace as a string, and logs it together with its name.
+However, we eventually found out that GWT provides the static method {\tt GWT.setUncaughtExceptionHandler()}, which enables the programmer to add a handler to catch all unexpected exceptions, which would otherwise escape to the browser.
+Therefore, we implemented an ``exception catcher'' that, when given an exception, gets its stack trace as a string, and logs it together with its name.
 
-An interesting feature of GWT is that it provides stacktraces with filenames and line numbers from the Java source code, making it possible to use the stacktraces quite comfortably to debug the application.
+An interesting feature of GWT is that it provides stack traces with filenames and line numbers from the Java source code, making it possible to use the stack traces quite comfortably to debug the application.
 Unfortunately, they are not always completely reliable, as some information might be missing in some situations.
-Still, logging the exceptions with their stacktraces proved to be extremely useful in debugging the GUI.
+Still, logging the exceptions with their stack traces proved to be extremely useful in debugging the GUI.
 
-Later we also encountered ``umbrella exceptions'' -- an umbrella exception is an exception thrown when multiple exceptions have occured at once, and contains all of them. Its message and stacktrace are not useful at all because they only cover the creation and throwing of the umbrella exception itself, but do not reveal anything about the inner exceptions. Fortunately, it does contain these details in other fields, and the exception catcher was successfully extended to show information about the inner exceptions in case an umbrella exception is thrown.
+Later we also encountered ``umbrella exceptions'' -- an umbrella exception is an exception thrown when multiple exceptions have occurred at once, and contains all of them. Its message and stack trace are not useful at all because they only cover the creation and throwing of the umbrella exception itself, but do not reveal anything about the inner exceptions. Fortunately, it does contain these details in other fields, and the exception catcher was successfully extended to show information about the inner exceptions in case an umbrella exception is thrown.
 
-It is to be noted that in case of exceptions comming through the RPCs, the stacktraces are hardly ever useful as they do not contain information about the server classes where they originated.
+It is to be noted that in case of exceptions coming through the RPCs, the stack traces are hardly ever useful as they do not contain information about the server classes where they originated.
 
 \subsubsection{Implementing the RPCs}
 
-From the start it was obvious to us that we want to use a well-estabilished method to implement the Remode Procedure Calls.
+From the start it was obvious to us that we want to use a well-established method to implement the Remote Procedure Calls.
 We noted in the specification that we would probably use JSON for the message serialization.
-Fortunately, GWT does provide a ready-to-use Remote Service implementation, where the programmer only has to define the set of RPCs as an interface, implement the interface on the server side, and invoke an RPC on the client side by implementing the GWT AsyncCallback interface.
+Fortunately, GWT does provide a ready-to-use Remote Service implementation, where the programmer only has to define the set of RPCs as an interface, implement the interface on the server side, and invoke an RPC on the client side by implementing the GWT {\tt AsyncCallback} interface.
 Everything else is handled automatically by GWT (which, as a matter of fact, does actually serialize the messages to JSON internally).
-% Our first idea was to directly send and receive JSON messages because they have a format of a Javascript object, so we thought that this would be easy and efficient to implement in GWT (it is possible to read the object from string into memore simply using Javascript eval() function). However, there are three facts that we later found out that made us change our decision.
-% The first one is that, although it is possible to directly use eval() function to convert the JSON message into the in-memory object representation, this practice is not recommended for security reasons (any Javascript code can be injected and it would be directly executed with no constraints). Therefore, the recommended practice is to use a JSON parser, which validates the JSON object before calling eval().
-% A related issue is that although GWT sometimes does use JSON internally, it does not provide a JSON parser to be used by the programmer, so one has to use an additional library.
-% And finally, we found out that GWT already implements a mechanism to send RPCs (in which, as a matter of fact, the messages are actually serialized to JSON).
 
-The type of an RPC parameter or return value can be any GWT-compilable type. Because this type must be known both to the server and to the client, we use only primitive types and shared classes SEE XXX. Each class sendable through GWT RPC mechanism must implement the GWT IsSerializable interface (which is only a marker, i.e. it does not have any abstract methods) and a parameter-less constructor; this also holds for the checked exceptions, which are technically only a special type of a return value.
+The type of an RPC parameter or return value can be any GWT-compilable type. Because this type must be known both to the server and to the client, we use only primitive types and shared classes. Each class sendable through GWT RPC mechanism must implement the GWT {\tt IsSerializable} interface (which is only a marker, i.e. it does not have any abstract methods) and a parameter-less constructor; this also holds for the checked exceptions, which are technically only a special type of a return value.
 
-Because of Javascript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g. in logging in or changing user settings. In such situations, the page or dialog is ``deactivated'' on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is ``reactivated'', either with a success message or an error message, depending on the result of the RPC.
+Because of JavaScript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often we need the RPC to be synchronous and blocking, e.g.\ in logging in or changing user settings. In such situations, the page or dialog is ``deactivated'' on invoking the RPC (all active components are disabled -- e.g. the textboxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is ``reactivated'', either with a success message or an error message, depending on the result of the RPC.
 
-In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentiation in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the GetSessionID RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique authID, generated by the User Space, is used.
+In one case, we would need an opposite direction RPC, i.e. the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentication in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here we decided to use active polling -- the opener window regularly invokes the {\tt GetSessionID} RPC, which returns null if the authentication process has not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique {\tt authID}, generated by the User Space, is used.
 % Originally it was created by the GUI and sent to User Space, but we soon found this to be inappropriate so the User Space now generates the authID.
 
 \subsubsection{Failed RPC Requests Handling}
-
-% Originally, all the RPC requests followed the barebone AsyncCallback interface, where the request is sent to the server, and onSuccess() or onFailure() method of the callback are called once it returns, depending on the result. The default implementation of onFailure() was to display the error message to the user, the idea behind being that it is eiher a mistake of the user that he should be informed about, or a mistake of the server which he should be informed about as well. This was sufficient for most of the cases; however, it became clear to us that time to time, the requests fail for various reasons beyond our reach (usually temporary network problems), where the default behavior of simply informing the user (and usually throwing away the data he generated for the request) is often not welcome.
 
 We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
 
 The first thing was to turn the calls into objects,\footnote{This is very similar to the XXX design pattern. %I found it but I forgot the name.
 } so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with necessary boilerplate code and methods performing the default actions, to be overridden if necessary.
 
-We identified the response that we usually get in case of network problems (it is a StatusCodeException with the status code 0). The problems can be temporary or permanent; in case of temporary problems, the default response of showing an error message was found to be highly inappropriate, as it would suffice only to resend the call. Therefore, we introduced retrying the call for three more times in such case with short delays, before showing an error message to the user.
+We identified the response that we usually get in case of network problems (it is a {\tt StatusCodeException} with the status code 0). The problems can be temporary or permanent; in case of temporary problems, the default response of showing an error message was found to be highly inappropriate, as it would suffice only to resend the call. Therefore, we introduced retrying the call for three more times in such case with short delays, before showing an error message to the user.
 
-The retrial of calls has proven to be an efficient way to deal with problems, so we decided to extend it to all types of failures. However, in case of non-network errors, we soon found out that retrying the calls does not make sense in some situations; so we decided to keep the retrial as a default action which can be overridden in the exteding classes.
+The retrial of calls has proven to be an efficient way to deal with problems, so we decided to extend it to all types of failures. However, in case of non-network errors, we soon found out that retrying the calls does not make sense in some situations; so we decided to keep the retrial as a default action which can be overridden in the extending classes.
 
 We also added a timeout for each request after which the request is regarded as lost and is retried. Such situation is not at all typical, but we need to count with it to prevent the user from ``starvation'' (the user can always escape from any state by refreshing the page in the browser, but this can lead to an uncontrolled local data loss or even to objects being left in an inconsistent state -- such as a document without content).
 
 \subsubsection{Sending Translation Results}
 
-At first, the translation suggestions from the Translation Memory were requested and sent for each chunk individually. This had the theoretical advantage that the user received each of the translation suggestins as soon as possible. However, we found the overhead of the RPC calls to be unreasonable. Not only was the overall time necessary to load all the suggestions too long, but also a typical browser was unable to handle such a large number of requests and usually froze for long periods of time, often unfreezing only after all of the suggestions arrived.
+At first, the translation suggestions from the Translation Memory were requested and sent for each chunk individually. This had the theoretical advantage that the user received each of the translation suggestions as soon as possible. However, we found the overhead of the RPC calls to be unreasonable. Not only was the overall time necessary to load all the suggestions too long, but also a typical browser was unable to handle such a large number of requests and usually froze for long periods of time, often unfreezing only after all of the suggestions arrived.
 
 A simple solution seemed to be sending all of the chunks for translation in one request. However, such a request can take several minutes to complete, and we still wanted to keep the nice property of the application showing the suggestions as soon as possible at least for the first lines -- so that the user can start the translation immediately. Thus, we decided to send the request in batches, starting with a small size of the batch for the beginning of the file and gradually increasing the batch size.
 
 The first way to do that was an exponential increase, where each batch contains twice as many chunks as the previous one, starting with a batch of size one. This proved to solve the aforementioned problem of browser freezing; however, another problem arose. As the batch sizes grew larger and larger, the later requests often took several tens of seconds or even minutes to complete. Meanwhile, the user would often navigate away from the Translation Workspace, rendering the translation suggestions, including the currently being processed ones, obsolete. This was of course detected in GUI and the suggestions were thrown away on arrival, but still it meant that the server was working in vain for some time, possibly resulting in an unnecessarily slower responsiveness to other users (and even to the very same user as well).
 
-We introduced two further solutions. The first and simple one was limiting the size of the batch to 64 chunks (which typically only take about ??? seconds to process), so that the amount of useless work could not grow too large. The second one, which took us some time to think up and implement, was to stop the translation suggestions from being generated on the server, by issuing a StopTranslationResults request. (This breaks the typical model of procesing the queries, where once a query is sent, its processing is not influenced by queries that arrive later.)
+We introduced two further solutions. The first and simple one was limiting the size of the batch to 64 chunks (which typically only take about ???\ref{find it out} seconds to process), so that the amount of useless work could not grow too large. The second one, which took us some time to think up and implement, was to stop the translation suggestions from being generated on the server, by issuing a {\tt StopTranslationResults} request. (This breaks the typical model of processing the queries, where once a query is sent, its processing is not influenced by queries that arrive later.)
 
-The two major issues with the StopTranslationResults request were:
+The two major issues with the {\tt StopTranslationResults} request were:
 
-- to interrupt the suggestions generating which is already in process (which is done in parallel for the chunks in the batch, making this even harder).
+\begin{itemize}
+\item to interrupt the suggestions generating which is already in process (which is done in parallel for the chunks in the batch, making this even harder).
 
-- to identify what to stop and what to let continue.
+\item to identify what to stop and what to let continue.
+\end{itemize}
 
-The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the StopTranslationResults request to this identifier. However, we soon found out that this would require a lot of overhead only to handle this probably not very common situation, so we dropped that idea as well.
+The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the {\tt StopTranslationResults} request to this identifier. However, we soon found out that this would require a lot of overhead only to handle this probably not very common situation, so we dropped that idea as well.
 
-Finally, we decided for a compromise solution between those two. The StopTranslationResults request is now bound to individual chunks, which now have an added boolean field isActive. This field is set to true when the GetTranslationResults request arrives to the server, for each of the chunks on the request. The StopTranslationResults request contains a list of the chunks which translations should be stopped. On arrival of that request, User Space simply sets the isActive field to false -- because User Space and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Trabslation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
+Finally, we decided for a compromise solution between those two. The {\tt StopTranslationResults} request is now bound to individual chunks, which now have an added boolean field {\tt isActive}. This field is set to true when the {\tt GetTranslationResults} request arrives to the server, for each of the chunks on the request. The {\tt StopTranslationResults} request contains a list of the chunks which translations should be stopped. On arrival of that request, User Space simply sets the {\tt isActive} field to false -- because User Space and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Translation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
 
 \subsubsection{User Management}
 
@@ -375,55 +361,31 @@ changing data .. idea: it should be possible to change anything if there is not 
 \item we do not allow to change the source subtitle file (this would actually mean deleting the whole old document and creating a new one, probably only keeping the title -- so we leave this for the user to do himself); however, smaller edits can be done directly in TW
 \end{itemize}
 
-\subsubsection{Subtitle Formats}
-
-first support for SRT and SUB
-
-more and more problems with SUB
-
-internal format of time is SRT
-
-finally decided to support only SRT
-
-- AFAIK 99\% of subtitles are in SRT
-
-- easier to process (e.g. changing the timing), easier to sync to the player
-
-(We also support exporting the subtitles in plain text format, i.e. only the text without timing information.)
-
 \subsubsection{GUI Pages}
 
-We started having one page only, the Translation Workspace, which was sufficient for development of the application for several months. Later we added the Document  Creator page as the default one, which replaced itself by the Translation Workspace once a document was created, and this was sufficient for some more time. However, we eventually could not avoid adding more pages and the need to explicitely handle multiple pages became obvious.
+We started having one page only, the Translation Workspace, which was sufficient for development of the application for several months. Later we added the Document  Creator page as the default one, which replaced itself by the Translation Workspace once a document was created, and this was sufficient for some more time. However, we eventually could not avoid adding more pages and the need to explicitly handle multiple pages became obvious.
 
-We immediately found out a week point of GWT here: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switchng pages are really simple tasks. GWT, however, observes the idea of having one HTML file and one Javascript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
+We immediately found out a week point of GWT here: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switching pages are really simple tasks. GWT, however, observes the idea of having one HTML file and one JavaScript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
 
 The GWT way of switching pages is by replacing the contents of the Root Panel (which represents the visible part of a page), or any other Panel placed within the Root Panel (which we decided to use so that some elements, such as the menu, are present on all pages). The switching is done without reloading, simply by creating an instance of the new page and directly setting it as the contents of the panel (without any convenience functions for that to our knowledge).
 
-All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also Hyperlink widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a ValueChangeHandler).
-The URL contains an anchor with the name of the page (e.g. \#DocumentCreator or \#WelcomeScreen), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
+All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also {\tt Hyperlink} widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a {\tt ValueChangeHandler}).
+The URL contains an anchor with the name of the page (e.g.\ {\tt \#DocumentCreator} or {\tt \#WelcomeScreen}), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
 
-We decided to use the History class and Hyperlinks to implement the menu and page switching. We create a PageHandler class which implements the ValueChangeHandler -- it turns the anchor string into a value of Page enum, checks whther the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
+We decided to use the {\tt History} class and {\tt Hyperlinks} to implement the menu and page switching. We create a {\tt PageHandler} class which implements the {\tt ValueChangeHandler} -- it turns the anchor string into a value of {\tt Page} enum, checks whether the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
 
-However, we encountered one issue with the Hyperlinks: the ValueChangeHandler is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the Hyperlink class, we had to abandon the Hyperlinks and used NavLinks instead (a simple link with no default interaction with the History), with click handlers invoking the ValueChangeHandler.
+However, we encountered one issue with the {\tt Hyperlinks}: the {\tt ValueChangeHandler} is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the {\tt Hyperlink} class, we had to abandon the Hyperlinks and used {\tt NavLinks} instead (a simple link with no default interaction with the History), with click handlers invoking the {\tt ValueChangeHandler}.
 
-When reviewing the resulting code, we found out that the History class and the ValueChangeHandler do not provide any benefit to us any more, so we removed them completely. Only then did we find out that the History class can also correctly handle the browser's forward/backward button behavior, so we readded it, but it is only used for that purpose now.
+When reviewing the resulting code, we found out that the History class and the {\tt ValueChangeHandler} do not provide any benefit to us any more, so we removed them completely. Only then did we find out that the History class can also correctly handle the browser's forward/backward button behavior, so we readded it, but it is only used for that purpose now.
 
-Another issue encountered was the fact that passing the page name as an anchor name is not always convenient and sometimes is not possible at all. If the page requires some additional parameters -- such as the password change page, where the user can change his password based on a link sent to his mailbox, containing a temporary token and the username as parameters -- the resulting address looks odd (e.g. http://filmtit.cz/?username=a\&token=df5ds3f\#ChangePassword). Moreover, the OpenID validation mechanism we used requires URL of a return page as a parameter, to which it adds parameters containing information about the validation process, but it is only able to add the parameters at the end of the address, resulting in an incorrect URL. For such cases, we decided to offer an alternative way of specifying the oage to be loaded in the URL by setting the page parameter (e.g. http://filmtit.cz/?page=ChangePassword\&username=a\&token=df5ds3f).
+Another issue encountered was the fact that passing the page name as an anchor name is not always convenient and sometimes is not possible at all. If the page requires some additional parameters -- such as the password change page, where the user can change his password based on a link sent to his mailbox, containing a temporary token and the username as parameters -- the resulting address looks odd (e.g.\ {\tt http://filmtit.cz/?username=a\&token=df5ds3f\#ChangePassword}). Moreover, the OpenID validation mechanism we used requires URL of a return page as a parameter, to which it adds parameters containing information about the validation process, but it is only able to add the parameters at the end of the address, resulting in an incorrect URL. For such cases, we decided to offer an alternative way of specifying the oage to be loaded in the URL by setting the page parameter (e.g.\ {\tt http://filmtit.cz/?page=ChangePassword\&username=a\&token=df5ds3f}).
 
 This solution finally proved to offer all features required.
 
-We also had a discussion about the expected page to be loaded in various situations. E.g., if the user is in Translation Workspace and logs out, the URL page parameter stayed on Translation Workspace by default, although Welcome Screen is displayed instead because a logged out user does not have access to Translation Workspace. If he then logged back in without switching the page, the document he had opened before logging out was reopened again.
-Eventually, the behavior was modified so that the URL is always changed to Welcome Page when the user explicitely logs out, but the URL is not modified if the user is logged out automatically, typically because his Session ID expires. Reasoning: if he was logged out implicitely, it is probable that he did not want that and woud like to continue with his work as soon as possible. However, if he logged out explicitely, he probably finished his work and expects the application to be ``closed'', i.e. not remembering the last stae of his work.
+We also had a discussion about the expected page to be loaded in various situations. E.g.\ if the user is in Translation Workspace and logs out, the URL page parameter stayed on Translation Workspace by default, although Welcome Screen is displayed instead because a logged out user does not have access to Translation Workspace. If he then logged back in without switching the page, the document he had opened before logging out was reopened again.
+Eventually, the behavior was modified so that the URL is always changed to Welcome Page when the users explicitly log out, but the URL is not modified if the users are logged out automatically, typically because their Session ID expire. Reasoning: if they were logged out implicitly, it is probable that they did not want that and would like to continue with their work as soon as possible. However, if they logged out explicitly, they probably finished their work and expects the application to be ``closed'', i.e. not remembering the last state of their work.
 
-(TODO: tidy a little, I dont like that subsubsection very much...)
-
-\subsubsection{User Space Robustness}
-
-User Space started as nice but not robust -- it was not prepared to receiving erroneous data, it had concurrency issues especially when there were multiple users performing similar actions simultaneously, etc. This was probably caused by the fact that User Space was developed several months before it was first used, due to delays in GUI development.
-
-TODO: When we tried it out, we were getting tons of errors, so some checks were added and locks were introduced, so now it works nicely.
-
-\todo{probably remove this subsub}
+\todo{TODO: tidy a little, I dont like that subsubsection very much...)}
 
 \subsubsection{Handling Parsing Errors}
 
@@ -446,19 +408,10 @@ We decided to introduce heuristics to decide whether to reject the whole file: i
 At first, our intention was to make the whole application able to run offline. However, it was not a priority and was not even part of the official specification.
 Eventually, we decided that the only part that has to be able to work offline is the Translation Workspace, as doing the translation itself is the most time-consuming part of the whole process for a user. We believe that the user can prepare everything while online, wait until the translation suggestions are loaded, and then spend some time offline translating the document.
 
-We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the aplication offline
+We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the application offline
 -- e.g. the whole application would have to be stored offline, which we wanted to avoid in the first place by designing FilmTit as a web application.
 However, it is obvious that the data created by the user in Offline Mode must be stored locally even if the application is closed.
 Thus, only storing setUserTranslation calls and invoking them once the user goes back online turned out to be sufficient.
-
-% (this is only a discussion explaining why not to support more, I would leave it out)
-%
-% Creating documents and exporting documents: not possible in Offline Mode.
-% Settings: does not make much sense in Offline mode.
-%
-% Only thing that IMHO could actually be useful is preloading multiple documents, so that user can got to doc list and back again and translate multiple documents, not only the opened one.
-% Would have to preload suggestions -- would have to change the way they are handled since now they are not stored permanently anywhere, are always regenerated on opening the TW.
-% The question which documents to preload -- all of them? Too unefficient. Only the ones that user chooses? Yes, but he has to be able to choose them in a user-friendly way. Probably simplest: store the documents that the user opens. However, there is then little difference between the targetted state and the current state: the only difference is that now the user must open multiple tabs and leave them opened, while in the proposed state he could open them one after another and work on them in one tab only (although StopTranslationResults would probably have to be modified as well so that the user does not have to leave the TW open and wait for all of the suggestions to load). \todo{nevim jak se anglicky rekne ze to je malo muziky za hodne penez}
 
 \paragraph{Technology}
 
@@ -467,8 +420,8 @@ Like Cookies, the stored object has two ``useful'' string fields, the name (or `
 However, the Local Storage has several advantages over cookies:
 
 \begin{itemize}
-\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within Javascript is an advantage.
-\item The size limit both for individual objects and for the total ammount of data stored is larger.
+\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from server side; however, in our case, being only able to handle the objects from within JavaScript is an advantage.
+\item The size limit both for individual objects and for the total amount of data stored is larger.
 \item Instead of setting expiry time, the programmer simply decides whether the objects should be stored temporarily (for a browser session) or permanently (which is our case).
 \item The API is cleaner.
 \end{itemize}
@@ -476,7 +429,9 @@ However, the Local Storage has several advantages over cookies:
 Still, thanks to the similarity of Local Storage to cookies, it would be quite easy to implement a fallback for browsers without Local Storage support using cookies. We decided not to do that because, as far as we know, most browsers installed on users\' computers nowadays do support Local Storage. However, we might add this feature in future if there is a need for it.
 
 \paragraph{Serialization}
-Because the necessary serialization is special -- we need to serialize into a set of two strings, the key and the value, with the key being a unique yet intelligible identifier of the object -- we decided to implement our own serialization, defined by the Storable interface which is described in Section~\ref{gui:subsubsec:storable}.
+\label{par:process_serialization}
+
+Because the necessary serialization is special -- we need to serialize into a set of two strings, the key and the value, with the key being a unique yet intelligible identifier of the object -- we decided to implement our own serialization, defined by the {\tt Storable} interface which is described in Section~\ref{gui:subsubsec:storable}.
 However, we encountered an issue with Java support for interfaces: Java does not support neither constructors nor static methods in interfaces.
 Still we need to use the one or the other for deserialization (or a hack, such as using an empty constructor and then loading the data into the empty object, which would enable us to define the method in the interface, but would break several good programming practices otherwise and therefore we decided not to use it).
 The Java reasoning is understandable -- one could specify the one or the other, but they could never be invoked through the interface without specifying the implementing class, so there is no point in including them.
@@ -485,9 +440,10 @@ We agree that including methods that can never be invoked is strange. However, w
 % We decided to define a static factory method fromKeyValuePair that all Storable classes must implement; however, it has to be commented out in the source code of the Storable interface, as well as the ``@Override'' annotation in the implementation classes. Still, we prefer to keep these in the code to make our point.
 
 \paragraph{Extendability}
-Although currently only one class, SetUserTranslation, can be stored in Offline Mode, the Offline Mode support is desinged to be easily extendable if we decide to store other data in Local Storage as well.
-To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the Storable interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
-(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if nescessary.)
+
+Although currently only one class, {\tt SetUserTranslation}, can be stored in Offline Mode, the Offline Mode support is designed to be easily extendable if we decide to store other data in Local Storage as well.
+To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the {\tt Storable} interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
+(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if necessary.)
 
 \paragraph{Object Identification}
 When some objects are stored in the Local Storage, they can only be accessed through the Local Storage interface, which is flat and does not support any advanced structures -- the programmer can only get the number of all of the objects in the storage, iterate over their keys, and retrieve a value of an object based on its key. (Plus setting and deleting the objects of course.)
@@ -546,50 +502,13 @@ Another problem was that although Hibernate can adjust the database scheme to th
 % haha, I would just keep that a secret so that they let us defend it :-D
 % During debugging of one bug (it was happening that the same translation results was appearing in the database with different database IDs) it appeared how useful is to use the database constraints. If we had had it before this bug would have been found right away and it would not take so much time to find it. After this experience we added constrains everywhere where it was possible.
 
-\subsubsection{Media Source}
-
-was IMDB, is Freebase now
-
-https problems
-
-adding the "null" option
-
-\todo{this is a todo for Jo I am afraid}
-
-% not very interesting I am afraid
-%
-% \subsubsection{GUI Refactoring}
-% 
-% TODO: have that here or not??? Yes!
-% 
-% Started as 1 class (GUI.java) which grew and grew.
-% 
-% The RPCs handling moved to a separate class.
-% 
-% Subgestbox class.
-% 
-% Introduced UiBinder for designing the GUI.
-% 
-% The notion of pages, each having its own java class and an UiBinder template.
-% 
-% Introducing the PageHandler.
-% 
-% The RPCs turned into individual classes in cz.filmtit.client.callables
-% 
-% The pages moved to cz.filmtit.client.pages and all are displayed simply by creating the class.
-% 
-% The notion of Dialogs, residing in cz.filmtit.client.dialogs, with Dialog being the superclass (peviously just hardcoded somewhere).
-% 
-% The sbgetsbox gets its own subpackage.
-% 
-% Gui made static
 
 \subsubsection{Subgestboxes}
 
-One of the most important features of the application's user interface is the behaviour of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, SubgestBox, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
+One of the most important features of the application's user interface is the behavior of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, {\tt SubgestBox}, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
 
 \paragraph{SuggestBox?}
-First, we were thinking about the GWT pre-implemented SuggestBox, probably with some slight adjustments. However, we realized that with our specialized demands on its behaviour and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the more general classes in the inheritance chain. Still, we have drawn some inspiration from the SuggestBox class implementation; for example, using a PopupPanel to show the suggestions proved to be quite an elegant solution.
+First, we were thinking about the GWT pre-implemented {\tt SuggestBox}, probably with some slight adjustments. However, we realized that with our specialized demands on its behavior and appearance (especially formatting the suggestion items, later also multi-line input ability), this class would not be sufficient and we would probably need to extend one of the more general classes in the inheritance chain. Still, we have drawn some inspiration from the {\tt SuggestBox} class implementation; for example, using a {\tt PopupPanel} to show the suggestions proved to be quite an elegant solution.
 
 \paragraph{Base widget}
 For some time, we were using a common TextBox with the suggestions pop-up extension, switching after a while to a TextArea to offer multi-line input. But since we also needed some text formatting inside the box (e.g. for the named entities' annotation highlighting or for the user formatting, such as italicized text) which could not be added by a simple extension to the TextArea, we have once again switched the base class, this last time to the RichTextArea.

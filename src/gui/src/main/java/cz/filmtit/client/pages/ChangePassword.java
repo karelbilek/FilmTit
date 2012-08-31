@@ -15,9 +15,9 @@ import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.SubmitButton;
 
-import cz.filmtit.client.FilmTitServiceHandler;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.callables.ChangePasswordCallable;
 
 public class ChangePassword extends Composite {
 
@@ -71,7 +71,7 @@ public class ChangePassword extends Composite {
 		if (activated) {
 			if (checkForm()) {
 				deactivate();
-				FilmTitServiceHandler.changePassword(username, getPassword(), token);
+				new ChangePasswordCallable(username, getPassword(), token);
 				Gui.log("trying to change password for user " + username);
 			} else {
 				// TODO tell user what errors there are
