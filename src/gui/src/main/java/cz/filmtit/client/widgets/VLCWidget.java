@@ -112,6 +112,7 @@ public class VLCWidget extends HTML {
         hidden = true;
     }
 
+    @SuppressWarnings("deprecation")
     public VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
                         InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA, Anchor closeA,
                         int reloadedTimes, final TranslationWorkspace workspace) {
@@ -148,7 +149,9 @@ public class VLCWidget extends HTML {
         closeA.addClickListener(new ClickListener() {
             @Override
             public void onClick(Widget sender) {
-               workspace.turnOffPlayer();
+            	if (workspace != null) {
+                    workspace.turnOffPlayer();
+            	}
 
             }
         });
@@ -250,7 +253,7 @@ public class VLCWidget extends HTML {
 
     public static native double getStatusOfThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if (vlc) {
+        if (vlc && vlc.input) {
         	return vlc.input.time;
     	}
     	else {
