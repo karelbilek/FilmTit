@@ -1,6 +1,9 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder">
 	<div>
+
+    <!-- START paste pandoc code -->
+
 <p
 >(chap:users_manual)</p
 ><div id="about-the-filmtit-application"
@@ -94,7 +97,7 @@
     ><blockquote
     ><blockquote
       ><div class="figure"
-    ><img src="figures/vlc_installation.png" alt="image"
+    ><img src="figures/user_manual/vlc_installation.png" alt="image"
        /><p class="caption"
       >image</p
       ></div
@@ -403,5 +406,9 @@
       ></li
     ></ol
   ></div
->	</div>
+>
+
+    <!-- END paste pandoc code -->
+
+    </div>
 </ui:UiBinder>
