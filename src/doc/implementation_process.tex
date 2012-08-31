@@ -201,7 +201,7 @@ The class provides various constructors, getters and setters for all formats we 
 
 At first, we decided to use the SRT format only for the sake of simplicity.
 It was thought to be only a temporary state, with a plan to add SUB format support later. However, we eventually found out that not only is the SRT time format easier to use (it is not necessary to know the Frames-Per-Second property of the movie file),
-but also approximately 98\% of subtitles on the internet appear to be in the SRT format \todo{please correct the number and add some source !!!}.
+but also approximately 99\% (according to data we have, see Section~\ref{sec:properties} for details) of subtitles on the Internet appear to be in the SRT format.
 Thus, we decided to discontinue support for the SUB format and only support SRT (the only major difference between these formats is actually the format of the time).
 
 \subsubsection{Chunk Annotations}
@@ -210,7 +210,7 @@ Thus, we decided to discontinue support for the SUB format and only support SRT 
 
 named entities = first reason for annotations
 
-chunk splitting by dashes denoting individual dialogue speekers: dashes need to be removed for translation suggestions generating because they are irrelevat but need be kept for correct rendering of text -> annotations extended to contain dialogue dashes
+chunk splitting by dashes denoting individual dialogue speakers: dashes need to be removed for translation suggestions generating because they are irrelevant but need be kept for correct rendering of text -> annotations extended to contain dialogue dashes
 
 need to identify the newlines (irrelevant for translation suggestions but necessary to render the subtitles properly) -> annotations extended for newlines
 
@@ -263,7 +263,7 @@ It is to be noted that in case of exceptions coming through the RPCs, the stack 
 
 From the start it was obvious to us that we want to use a well-established method to implement the Remote Procedure Calls.
 We noted in the specification that we would probably use JSON for the message serialization.
-Fortunately, GWT does provide a ready-to-use Remote Service implementation, where the programmer only has to define the set of RPCs as an interface, implement the interface on the server side, and invoke an RPC on the client side by implementing the GWT AsyncCallback interface.
+Fortunately, GWT does provide a ready-to-use Remote Service implementation, where the programmer only has to define the set of RPCs as an interface, implement the interface on the server side, and invoke an RPC on the client side by implementing the GWT {\tt AsyncCallback} interface.
 Everything else is handled automatically by GWT (which, as a matter of fact, does actually serialize the messages to JSON internally).
 
 The type of an RPC parameter or return value can be any GWT-compilable type. Because this type must be known both to the server and to the client, we use only primitive types and shared classes. Each class sendable through GWT RPC mechanism must implement the GWT {\tt IsSerializable} interface (which is only a marker, i.e. it does not have any abstract methods) and a parameter-less constructor; this also holds for the checked exceptions, which are technically only a special type of a return value.
@@ -298,15 +298,17 @@ The first way to do that was an exponential increase, where each batch contains 
 
 We introduced two further solutions. The first and simple one was limiting the size of the batch to 64 chunks (which typically only take about ???\ref{find it out} seconds to process), so that the amount of useless work could not grow too large. The second one, which took us some time to think up and implement, was to stop the translation suggestions from being generated on the server, by issuing a {\tt StopTranslationResults} request. (This breaks the typical model of processing the queries, where once a query is sent, its processing is not influenced by queries that arrive later.)
 
-The two major issues with the StopTranslationResults request were:
+The two major issues with the {\tt StopTranslationResults} request were:
 
-- to interrupt the suggestions generating which is already in process (which is done in parallel for the chunks in the batch, making this even harder).
+\begin{itemize}
+\item to interrupt the suggestions generating which is already in process (which is done in parallel for the chunks in the batch, making this even harder).
 
-- to identify what to stop and what to let continue.
+\item to identify what to stop and what to let continue.
+\end{itemize}
 
-The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the StopTranslationResults request to this identifier. However, we soon found out that this would require a lot of overhead only to handle this probably not very common situation, so we dropped that idea as well.
+The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the {\tt StopTranslationResults} request to this identifier. However, we soon found out that this would require a lot of overhead only to handle this probably not very common situation, so we dropped that idea as well.
 
-Finally, we decided for a compromise solution between those two. The StopTranslationResults request is now bound to individual chunks, which now have an added boolean field isActive. This field is set to true when the GetTranslationResults request arrives to the server, for each of the chunks on the request. The StopTranslationResults request contains a list of the chunks which translations should be stopped. On arrival of that request, User Space simply sets the isActive field to false -- because User Space and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Trabslation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
+Finally, we decided for a compromise solution between those two. The {\tt StopTranslationResults} request is now bound to individual chunks, which now have an added boolean field {\tt isActive}. This field is set to true when the {\tt GetTranslationResults} request arrives to the server, for each of the chunks on the request. The {\tt StopTranslationResults} request contains a list of the chunks which translations should be stopped. On arrival of that request, User Space simply sets the {\tt isActive} field to false -- because User Space and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Translation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
 
 \subsubsection{User Management}
 
