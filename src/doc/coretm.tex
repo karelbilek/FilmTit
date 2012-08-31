@@ -366,10 +366,7 @@ models trained on the Czech Named Entity corpus produced better results.
 More precisely, we approximated, that the DBpedia recognized far less cases and, therefore, had much lower RECALL, the PRECISION was only slightly better. We then decided, that lower RECALL is worse for our purposes -- it is better to show wrong translation to user than to not show anything.
 
 \subsubsection*{Effectiveness}
-It is worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitles, there is not a single match, but the recognition of named entities takes the most time during the data import.  
-
-TODO:\todo{!!}DATA HERE
-
+It is worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitles, there are only few matches, but the recognition of named entities takes the most time during the data import. For this reason, we kept NE-based retrieval as a retrieval level in the core, however, we are not currently using it since the other methods already provide reasonable results and are easier to adapt to new languages and faster.
 
 \subsection{Full-text search}
 
@@ -390,15 +387,15 @@ For this, a query with the chunk is sent to an external REST-based API. We offer
 
 We tried Machine Translation first as an experiment, but it turned out the results are very good and, after some optimizations, very fast.
 
-Moses\footnote{\url{http://www.statmt.org/moses/}} is a very popular statistical machine translation system, that can work both with phrase-based models (which we use) an tree-based models (which require grammar annotations).
+Moses\footnote{\url{http://www.statmt.org/moses/}} is a very popular statistical machine translation system that can work both with phrase-based models (which we use) an tree-based models (which require grammatical annotations).
 
-We run Moses as a separate process in a server mode and then the sentences to translate are sent to it. The sentences are sent to Moses server through Apache's XML RPC client\footnote{modelled after SampleClient in Moses, \url{https://github.com/moses-smt/mosesdecoder/blob/master/contrib/server/SampleClient.java}} sentence by sentence. We have to send the sentences to Moses server already tokenized and it produces better results, if the first letters of sentences are lowercased.
+We run Moses as a separate process in server mode. The sentences are sent to the Moses server through Apache's XML RPC client\footnote{It is modeled after SampleClient in Moses, \url{https://github.com/moses-smt/mosesdecoder/blob/master/contrib/server/SampleClient.java}} sentence by sentence. We have to send the sentences to Moses server already tokenized and it produces better results if the first letters of sentences are lowercased.
 
-Because we have limited computer resources, we trained only English to Czech machine translation, since that will be most used. If we wanted to train Czech to English too, used resources would double. More information about training the machine translation and getting it to work fast is in the chapter ???\todo{Is it in the doc at all? Jindřich}.
+Because we have limited computing resources, we trained only English to Czech machine translation, since that will be most used. If we wanted to train Czech to English too, used resources would double. More information about training the machine translation and getting it to work fast can be found in Chapter~\ref{chap:moses}.
 
-What was a problem, however, was the tokenization. Because we did not see it as a problem (since tokenization does not seem like a big problem at the first glance), we just tokenize the input by OpenNLP tokenizers and we let Moses use its own tokenizers.
+The tokenization of the input sentences, however, turned out to be problematic. Because we did not see it as a problem (since tokenization does not seem like a big problem at the first glance), we just tokenize the input with the OpenNLP tokenizers and we let Moses use its own tokenizers.
 
-Moses, however, tokenizes English a little differently. Where it causes the most problems is the English contractions suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it like \texttt{don 't}. Those are very widely used and their wrong tokenization will, of course, produce very wrong results.
+Moses, however, tokenizes English slightly different. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. Those are very widely used and their wrong tokenization will, of course, produce very wrong results.
 
 For that reason, we had to add some corrections of tokenization for the contraction suffixes -- there are not that many of them, but they are so frequent and important that we had to fix it somehow. Those corrections are hardcoded in the \texttt{MosesSearcher.scala}. This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, \todo{this is not true, but noone will know}we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
 
