@@ -603,6 +603,12 @@ Although we wanted to make everything as parallel as possible, we found out that
 
 To also enable editing the files, the Translation Workspace became the only page that has two constructors -- one receiving the text of a subtitle file to parse, and the other getting an already parsed document from the database.
 
+\subsubsection{Finalizing and training the translation pair rankers}
+
+Although the candidate search was started early in the development process, the ranking of candidates was not completed until the main development phase. Since we base the ranking on combining various scores with weights, it is necessary to estimate these weights from data. In order to produce the annotated data for this, all other parts of the system had to be fully functional. Because of this, we could finalize the ranking and train the ranking models only later in the main development phase.
+
+
+
 \subsection{Final Development}
 \label{subsec:final_development}
 
