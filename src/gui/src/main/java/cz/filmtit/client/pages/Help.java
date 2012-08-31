@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.UIObject;
 
 import cz.filmtit.client.Gui;
@@ -19,7 +20,11 @@ public class Help extends UIObject {
 		setElement(uiBinder.createAndBindUi(this));
 		
 		Gui.getGuiStructure().contentPanel.setStyleName("help");
-		Document.get().getBody().appendChild(this.getElement());
+		
+		HTMLPanel htmlWrapper = new HTMLPanel(this.getElement().getInnerHTML());
+		Gui.getGuiStructure().contentPanel.setWidget(htmlWrapper);
+		
+		// Document.get().getBody().appendChild(this.getElement());
 		// Gui.getGuiStructure().contentPanel.setWidget(this);
 	}
 
