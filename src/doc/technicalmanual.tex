@@ -112,7 +112,7 @@ $ sudo -u postgres ./add_configuration_to_db.sh postgres filmtit
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Importing the database dump into the database filmtit.}}
 \begin{lstlisting}
-$ sudo -u postgres psql -d filmtit -f encz_dump
+$ sudo -u postgres pg_restore -d filmtit encz_dump
 \end{lstlisting}
 \vspace*{0.5em}
 
