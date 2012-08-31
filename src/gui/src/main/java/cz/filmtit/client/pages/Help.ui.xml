@@ -14,11 +14,7 @@
     >FilmTit</em
     > is a web application that assists amateur subtitle translators with translating movie and TV shows subtitles. In order to help save the amount of work spent on the translation, it provides suggestions on how the subtitles could be translated, based on a database of already existing translated subtitles.</p
   ><p
-  >You can translate any subtitle file you have from English to Czech or from Czech to English, making use of the millions of translations already made by other movie subtitles translators, coming from the tens of thousands of subtitle files in our database. From these, we always carefully select the most relevant ones for the lines that you are translating at the moment, which you can use as they are, post-edit them a little, or just use them for inspiration. And even if we find no similar lines in our database, there is always the machine translation system, ready to provide an automatically generated translation for any line you encounter.<sup
-    ><a href="#fn1" class="footnoteRef" id="fnref1"
-      >1</a
-      ></sup
-    ></p
+  >You can translate any subtitle file you have from English to Czech or from Czech to English, making use of the millions of translations already made by other movie subtitles translators, coming from the tens of thousands of subtitle files in our database. From these, we always carefully select the most relevant ones for the lines that you are translating at the moment, which you can use as they are, post-edit them a little, or just use them for inspiration. And even if we find no similar lines in our database, there is always the machine translation system, ready to provide an automatically generated translation for any line you encounter. (Currently, the machine translation is only available for translation from English to Czech. Also please note that the machine translation can contain mistakes, as there is no perfect machine translation system in existence.)</p
   ><p
   >Often it may be hard to fully understand the subtitles without seeing the movie; therefore, you have the possibility to load a movie file into the application, and the part of the movie that you are translating at a given moment will always be played to you, also showing he source subtitles (and the target ones as well if you have already translated them). Most of the movie formats and codecs are supported!</p
   ><p
@@ -26,11 +22,7 @@
   ><p
   >Similar to Google Documents, every single user operation is saved right after it is done – there is no need for saving the documents manually; even if your browser crashes, you can continue working on the subtitle document exactly at the place where you ended last time.</p
   ><p
-  >Your data are available from any computer at any time exactly in the state you left them.<sup
-    ><a href="#fn2" class="footnoteRef" id="fnref2"
-      >2</a
-      ></sup
-    > {The paragraph is more of an advertisement than truth. I would remove the whole para. We save the user translations transparently, yes. But this is the only place where this is done, everything else must be explicitely submited by the user. And even then, if he works in Offline Mode, he must then go online on the same computer in the same browser, so even then it is only half the truth.}Similarly to Google Documents, you do not have to worry about saving your work – your translations are automatically saved online right after you type them! {proposed new version of paragraph}To run the application, you need a web browser with HTML5 support (Opera v. 12 Firefox v. 14, Chrome v. 21, Safari v. 5.1.5, or higher {find versions exactly}). To use the optional video playback in your browser, you also need to have Java (at least version 1.6) and the VLC plugin (at least version 1.1.4).{add it, who knows it -- I just added my versions, for which it works... RR}</p
+  >Your data are available from any computer at any time exactly in the state you left them. (Except for the Offline Mode, where your data is saved to the server only when you go online again.) {The paragraph is more of an advertisement than truth. I would remove the whole para. We save the user translations transparently, yes. But this is the only place where this is done, everything else must be explicitely submited by the user. And even then, if he works in Offline Mode, he must then go online on the same computer in the same browser, so even then it is only half the truth.}Similarly to Google Documents, you do not have to worry about saving your work – your translations are automatically saved online right after you type them! {proposed new version of paragraph}To run the application, you need a web browser with HTML5 support (Opera v. 12 Firefox v. 14, Chrome v. 21, Safari v. 5.1.5, or higher). To use the optional video playback in your browser, you also need to have Java (at least version 1.6) and the VLC plugin (at least version 1.1.4).{add it, who knows it -- I just added my versions, for which it works... RR}</p
   ></div
 ><div id="installing-java-and-vlc-plugin"
 ><h1
@@ -393,21 +385,7 @@
   ><p
   >You can also change the title of the document, by clicking on the title and typing the original or change the movie title. If change change the name of movie, the same dialog as while creating a document will show (Figure fig:media_sources) where you can select the movie you meant.</p
   ></div
-><div class="footnotes"
-><hr
-   /><ol
-  ><li id="fn1"
-    ><p
-      >Currently, the machine translation is only available for translation from English to Czech. Also please note that the machine translation can contain mistakes, as there is no perfect machine translation system in existence. <a href="#fnref1" class="footnoteBackLink" title="Jump back to footnote 1">↩</a></p
-      ></li
-    ><li id="fn2"
-    ><p
-      >Except for the Offline Mode, where your data is saved to the server only when you go online again. <a href="#fnref2" class="footnoteBackLink" title="Jump back to footnote 2">↩</a></p
-      ></li
-    ></ol
-  ></div
 >
-
     <!-- END paste pandoc code -->
 
     </div>
