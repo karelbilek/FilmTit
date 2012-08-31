@@ -187,15 +187,15 @@ When loading the object from the Local Storage, these added fields are used to i
 
 Unlike the key, the value is defined solely by the implementing class and is stored and loaded ``as is''.
 
-The {\tt Storable} interface is currently only implemented by the {\tt SetUserTranslation} class, for reasons described in the Implementation Process \todo{ref}.
+The {\tt Storable} interface is currently only implemented by the {\tt SetUserTranslation} class, for reasons described in the Implementation Process chapter, section~\ref{par:process_serialization}.
 
 \subsubsection{SetUserTranslation}
 
 The {\tt SetUserTranslation} class defines its serialization key and value as follows:
 
 \begin{itemize}
-\item key = documentId;chunkId;partNumber
-\item value = chosenTranslationPair;userTranslation
+\item key = {\tt documentId;chunkId;partNumber}
+\item value = {\tt chosenTranslationPair;userTranslation}
 \end{itemize}
 
 The onLoadFromLocalStorage() method implementation invokes the setUserTranslation RPC.
