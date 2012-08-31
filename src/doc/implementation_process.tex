@@ -106,7 +106,7 @@ Ultimately we came up with 3 solutions, but none of them pleases us enough:
 \item a Java applet is loaded to choose the file as Java applets do not have such restrictions as Javascript, and then passes the path to the application; it seems to us too heavy-weight to create and load a whole applet only to get the file path, but it works quite well -- except for the users who do not have Java installed and working properly (we have also encountered an alternative using Flash for the same purpose, but we still prefer using Java to Flash)
 \end{itemize}
 
-We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet. \todo{we dont have that, right?}
+We decided to use the third option, with the first option also available as a fallback for users who do not have Java running properly and thus cannot use the applet.
 
 \subsection{Introducing the shared classes}
 \label{subsec:introducing_shared_classes}
@@ -139,7 +139,8 @@ From a later point of view, it appears to be an important decision to agree on t
 We started the work on the project with the new design soon, which lead to a period of the biggest struggle with technologies. It took us almost two months to have the first running version of the application.
 
 The very first version of the application was a page where it was only possible to upload a subtitle file and to do the translation, without any possibility to load an already saved subtitle document or download the result of the translation, without any sessions or users; it was just a page where you edit the subtitles (which later became the Translation Workspace).
-At that time we used machine translation from the MyMemory service (which in fact wraps Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. \todo{so we took Moses}
+
+At that time we used machine translation from the MyMemory service (which in fact wraps Google Translate), but there is a limited access per IP address and we soon began to reach the limit very frequently. It became obvious the we would have to change the source of machine translation. Eventually, we managed to install an instance of Moses and to train it on our data, and even to optimize it so that it runs very efficiently.
 
 We also used API of IMDB.com to receive information about movies but the movie meta data was not used in the evaluation the matches at that time. (We had to switch to Freebase later because the IMDB service was discontinued.)
 
@@ -175,24 +176,18 @@ Moreover, the user has the possibility to change his username and/or password on
 
 \subsubsection{Chunk Splitting}
 
-\todo{people who did that should add the text !!!}
+\todo{people who did that should check the text !!!}
 
-ideas:
+An interesting issue we had to solve was to find the best way of splitting the subtitle items into chunks. As opposed to the classical way of simply splitting documents into sentences, we had several possible ways of doing the splitting because of the nature of subtitle files.
+Although one subtitle item usually corresponds to one sentence, it often happens that either a too long sentence is split into several subtitle items, and/or short sentences are grouped together into one subtitle item. Moreover, the end-of-sentence delimiters (full stop, question mark, ellipsis etc.) are often left out. And finally, we also realized that there is another non-classical sentence delimiter that is typical for subtitles, which is the start-of-line dash, used in delimiting dialogues.
 
-keep as it is, i.e. one timing = one chunk ... too long, too arbitrary
+We decided to split the subtitle items into multile chunks,
+as keeping the split as it is seemed to be too arbitrary, and we would also miss the shortest sentences, which are the easiest ones to find in a translation memory. Therefore, we split the subtitle items on end-of-sentence delimiters (including the dialogu dashes), which naturally produces a small number of erroneous splits, but has been found to be reliable enough even using a simple splitter.
 
-split into sentences, joining already split sentences together ... very hard (probably impossible) to do reliably, would miss the advantage of subtitle files for alignment
+We also thought about trying to reconstruct the sentences that span more than one subtitle item. However, we found that very hard (or even probably impossible) to do reliably. Moreover, if we did that, we would miss the advantage of using the timing of the subtitle files for alignment. Therefore, we keep the splits originally present in the subtitle file, although we are aware that these splits bring some additional arbitrariness into our data.
 
-now: keep already existing splits, split on dialogue boundaries, slit on sentence boundaries (+ clean away irrelevant characters)
-
-... easy enough to do reliably (SOME NUMBER of errors)
-
-... arbitrary but not so much as the first solution
-
-... length is reasonable
-
-Important: to do the splitting in the same way when creating the database and when processing the user subtitles.
-Therefore: a shared Parser class which is compiled both into java bytecode and used in impoting, and into Javascript and used in GUI
+It is important that the splitting is done in exacly the same way when importing subtitles into the database and when processing the user subtitles.
+Therefore, we made the Parser a shared class, i.e. it is compiled both into Java bytecode (and used in importing) and into Javascript (and used in GUI).
 
 \subsubsection{Chunk Time Format}
 
