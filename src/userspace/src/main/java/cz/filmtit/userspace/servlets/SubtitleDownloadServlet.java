@@ -96,10 +96,10 @@ public class SubtitleDownloadServlet extends HttpServlet {
             String language2 = ConfigurationSingleton.getConf().l2().getCode();
 
             if (way == ChunkStringGenerator.SOURCE_SIDE) {
-                languageToFileName = document.getLanguage().getName();
+                languageToFileName = document.getLanguage().getCode();
             }
             else {
-                if (document.getLanguage().getName().equals(language1)) {
+                if (document.getLanguage().getCode().equals(language1)) {
                     languageToFileName = language2;
                 }
                 else {

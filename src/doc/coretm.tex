@@ -190,10 +190,6 @@ Recall: 0.9954658318039512
 F-Measure: 0.9962413283293529
 \end{lstlisting}
 
-%TODO: layout this (table or something)
-
-
-
 
 \subsection{Signature-based retrieval}
 
@@ -421,7 +417,7 @@ For creating positive and negative instances, chunks without any suggestions fro
 The ranking for exact matches uses a linear regression model with the following scores:
 
 \begin{itemize}
-	\item \textbf{translation pair count}\\%TODO: not really count
+	\item \textbf{translation pair count}\\
 	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_{p' \in P}{c(p')}  } $\ , where $c(p)$ is the count for the translation pair $p$ and $P$ is the set of all translation pair candidates for a query.
 	
 	\item \textbf{source-chunk edit distance}\\
@@ -451,7 +447,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	\item \textbf{full-text search score for the document}\\
 	The score assigned by the \postgres~full text search for the document that represents the translation pair candidate.
     
-	\item \textbf{translation pair count}\\%TODO: not really count
+	\item \textbf{translation pair count}\\
 	The translation pair count specifies how often a translation pair has been observed. This score is calculated as $\frac{c(p)}{ \sum_{p' \in P}{c(p')}  } $\ , where $c(p)$ is the count for the translation pair $p$ and $P$ is the set of all translation pair candidates for a query.
 	
 	\item \textbf{source-chunk edit distance}\\
