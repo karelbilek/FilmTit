@@ -257,6 +257,7 @@ public class Gui implements EntryPoint {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(e.getLocalizedMessage());
+		sb.append("\n");
 		
     	if (e instanceof UmbrellaException) {
     		Set<Throwable> causes = ((UmbrellaException)e).getCauses();
