@@ -10,6 +10,13 @@
             
                 <b:Paragraph>Authentication in progress...</b:Paragraph>
                 
+                <b:Paragraph>
+                    A new window should appear for you to log in.
+                    If it does not, your browser probably blocked it.
+                    In such case, please check the upper bar of your browser for blocked pop-ups
+                    and allow them for the FilmTit webpage.
+                </b:Paragraph>
+                
                 <b:Fieldset>
 
                     <b:ModalFooter>
