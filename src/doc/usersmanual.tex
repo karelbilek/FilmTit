@@ -6,34 +6,45 @@
 
 You can translate any subtitle file you have from English to Czech or from Czech to English, making use of the millions of translations already made by other movie subtitles translators, coming from the tens of thousands of subtitle files in our database. From these, we always carefully select the most relevant ones for the lines that you are translating at the moment, which you can use as they are, post-edit them a little, or just use them for inspiration. And even if we find no similar lines in our database, there is always the machine translation system, ready to provide an automatically generated translation for any line you encounter.\footnote{Currently, the machine translation is only available for translation from English to Czech. Also please note that the machine translation can contain mistakes, as there is no perfect machine translation system in existence.}
 
-Often it may be hard to fully understand the subtitles without seeing the movie; therefore, you have the possibility to load a movie file into the application, and the part of the movie that you are translating at a given moment will  always be played to you, also showing he source subtitles (and the target ones as well if you have already translated them). Most of the movie formats and codecs are supported! See XXX\todo{add!}
+Often it may be hard to fully understand the subtitles without seeing the movie; therefore, you have the possibility to load a movie file into the application, and the part of the movie that you are translating at a given moment will  always be played to you, also showing he source subtitles (and the target ones as well if you have already translated them). Most of the movie formats and codecs are supported!
+% we dont have any other manual for the player than that paragraph I am afraid
 
-FilmTit is a web application, which means you just have to open your favourite internet browser and you can start translating straight away -- no installation is necessary (although you may have to install Java and VLC for the video playback function, see XXX\todo{add!}). However, this does not mean that you have to be online to translate the subtitles! Once you get all the translation suggestions from the server, you can go to the Offline Mode, work on the translation offline, and all your work will be automatically saved on the server when you are online again! See XXX\todo{add!}
+FilmTit is a web application, which means you just have to open your favourite internet browser and you can start translating straight away -- no installation is necessary (although you may have to install Java and VLC for the video playback function, see Section~\ref{um:sec:installations}). However, this does not mean that you have to be online to translate the subtitles! Once you get all the translation suggestions from the server, you can go to the Offline Mode, work on the translation offline, and all your work will be automatically saved on the server when you are online again! See Section~\ref{um:sec:offlinemode}.
 
-Similar to Google Documents, every single user operation is saved right after it is done -- there is no need for saving the documents manually; even if your browser crashes, you can continue working on the subtitle document exactly at the place where you ended last time\todo{Note, Jo: But only if you have internet again?}. Your data are available from any computer at any time exactly in the state you left them.\footnote{Except for the Offline Mode, where your data is saved to the server only when you go online again.}
+Similar to Google Documents, every single user operation is saved right after it is done -- there is no need for saving the documents manually; even if your browser crashes, you can continue working on the subtitle document exactly at the place where you ended last time.
+%\todo{Note, Jo: But only if you have internet again? Well sure, there is the footnote saying that.}
+Your data are available from any computer at any time exactly in the state you left them.\footnote{Except for the Offline Mode, where your data is saved to the server only when you go online again.}
+\todo{The paragraph is more of an advertisement than truth. I would remove the whole para. We save the user translations transparently, yes. But this is the only place where this is done, everything else must be explicitely submited by the user. And even then, if he works in Offline Mode, he must then go online on the same computer in the same browser, so even then it is only half the truth.}
 
-To run the application, you need a web browser with HTML5 support (Opera v.12
-Firefox v.14, Chrome v.21, Safari v.5.1.5, or higher \todo{find versions exactly}). To use the optional video playback in your browser, you need to have installed Java (version ???) and the VLC plugin for ??? (version ???).\todo{add it, who knows it}
+Similarly to Google Documents, you do not have to worry about saving your work -- your translations are automatically saved online right after you type them!
+\todo{proposed new version of paragraph}
+
+To run the application, you need a web browser with HTML5 support (Opera v.~12
+Firefox v.~14, Chrome v.~21, Safari v.~5.1.5, or higher \todo{find versions exactly}). To use the optional video playback in your browser, you also need to have Java (at least version 1.6) and the VLC plugin (at least version 1.1.4).\todo{add it, who knows it -- I just added my versions, for which it works... RR}
 
 \section{Installing Java and VLC Plugin}
+\label{um:sec:installations}
 
 Having installed Java and VLC Plugin is necessary for using the video playback in the application. It still of course possible to use the application without these plugins if you are not planning to use the video playback.
 
 \subsection{Installing Java}
 
-If you do not have Java installed, your browser will notice it to you and will suggest to you to install the missing plugin. If that happens, please follow the browser instruction. If the installation via the browser fails, you will need to install Java manually. Which is described in the following paragraphs.
+If you do not have Java installed, your browser will notice that automatically and will suggest you to install the missing plugin. If that happens, please follow the browser instructions.
+
+If the installation via the browser fails, you will need to install Java manually, which is described in the following paragraphs.
 
 \subsubsection{Windows}
 
-For the manual installation, first download the Java Installer from the \emph{java.com} website. Go to \url{http://www.java.com} and click on "Free Java Download" button. The website will propose a suitable version for you. If you want to download a different version click on the " See all Java downloads" link. It is recommended to check the system requirements of the version you are going to download and read the license conditions.
+For a manual installation, first download the Java Installer from the \emph{java.com} website. Go to \url{http://www.java.com} and click on ``Free Java Download'' button. The website will propose a suitable version for you. (If you want to download a different version, click on the ``See all Java downloads'' link.) It is recommended to check the system requirements of the version you are going to download and to read the license conditions.
 
-After launching the installation guide, follow the instructions in the installation program. For more detailed description of the installation please see \url{http://www.java.com/en/download/help/windows_manual_download.xml}.
+After launching the installation guide, simply follow the instructions displayed. For a more detailed description of the installation, please see \url{http://www.java.com/en/download/help/windows_manual_download.xml}.
 
-After finishing the installation, it is recommend to reboot your system, however it is necessary to at least restart your browser.
+After finishing the installation, it is necessary to restart your browser.
+(It is recommended to reboot the whole system.)
 
 \subsubsection{Linux}
 
-To install Java on a Linux system, download the installation package similarly as is described for Windows. To do the installation from command line, please follow the instructions at \url{http://www.java.com/en/download/help/linux_install.xml#install}. It might not be enough to just install Java, it may be necessary to enable Java in your browser. To do so, follow the other instruction on the referred website.
+To install Java on a Linux system, download the installation package similarly as is described for Windows. To do the installation from the command line, please follow the instructions at \url{http://www.java.com/en/download/help/linux_install.xml#install}. (It might not be enough to just install Java -- it may also be necessary to manually enable Java in your browser. The instructions can be found on the same website.)
 
 After finishing the installation, it is necessary to restart your browser.
 
@@ -59,8 +70,9 @@ Instructions for installation on Linux systems can be found at \url{http://www.v
 
 
 \section{Registration and Login}
+\label{um:sec:login}
 
-We require the users to be logged into the application during their work. We do so to enable the users to save their work and return to it another time. However, there is also an Offline Mode, where the data is stored locally in your computer and uploaded to server once you go online -- see XXX.\todo{add!}
+We require the users to be logged into the application during their work. We do so to enable the users to save their work and return to it another time. However, there is also an Offline Mode, where the data is stored locally in your computer and uploaded to server once you go online -- see Section~\ref{um:sec:offlinemode}.
 
 \subsection{Registration and Basic Login}
 
@@ -92,7 +104,8 @@ You are automatically logged in after the registration. For logging in next time
 
 Another option to log into the application is using Google, Yahoo or Seznam account. After choosing the service you want to use, a pop-up window is opened. It may happen that your browser blocks this window -- if this happens, you need to allow the pop-up window to continue the logging process.
 
-You will see the login form of the service you have chosen. If you are currently already logged into the service, you will only see the confirmation request to allow the FilmTit application to access your account data (it is your user name in the service, your first name, surname, email and gender, depending on what you filled in in the particular service and what you allowed to be provided to the third party applications, but it is never the password to the original service). \todo{why do we get the name and gender if we dont use it???} After submitting your user name and user password and confirming that the FilmTit application can receive your authentication data, the pop-up window will be automatically closed. Within a few seconds you will be redirected to the list of documents you own (if this is your first time logging into the application, you have no documents yet, so you will see the New Document page instead).
+You will see the login form of the service you have chosen. If you are currently already logged into the service, you will only see the confirmation request to allow the FilmTit application to access your account data (it is your user name in the service, your first name, surname, email and gender, depending on what you filled in in the particular service and what you allowed to be provided to the third party applications, but it is never the password to the original service). \todo{why do we get the name and gender if we dont use it??? RR}
+After submitting your user name and user password and confirming that the FilmTit application can receive your authentication data, the pop-up window will be automatically closed. Within a few seconds you will be redirected to the list of documents you own (if this is your first time logging into the application, you have no documents yet, so you will see the New Document page instead).
 
 If you use OpenID Login, you do not have to register -- you are registered automatically on your first successful login. You also automatically get a user name and password for the Basic Login, which is sent to your e-mail address upon registration (if your OpenID provider provides us with one) and can be changed in the Settings.
 
@@ -163,6 +176,7 @@ If you disable the machine translation, you often do not receive any suggestions
 Please note that in the current version, machine translation is only available for translations from English to Czech.
 
 \section{Creating a New Document}
+\label{um:sec:doccreation}
 
 A document is a subtitle file in the source language (usually English) which you load into the application, together with its translation in the target language (usually Czech) which you produce with the help of the application. Creating a document means loading a subtitle file in the source language and starting to translate it. You can create a new document either by clicking the ``Create a new document'' button in the document list, or by clicking the ``New document'' link in the top menu.
 
@@ -175,7 +189,7 @@ A document is a subtitle file in the source language (usually English) which you
 
 While creating a document, you are asked to fill in the movie title and the document title (which defaults to the movie title, but you can set any name you like). In the case of TV series, please fill in the name of the series, not the name of the particular episode. An example of it can be to type ``Lost'' as the movie title and ``Lost S01E01'' as the document title. Then you are asked to choose the source language of the subtitles, encoding of the subtitle file and the path to the actual subtitle file you would like to translate. You should also make sure you selected the proper encoding of the source subtitle file. You can choose from UTF-8, windows-1280 and iso-8859-2, which are the most commonly used encodings for Central European languages. (Usually UTF-8 is the correct choice.)
 
-There is also an option to play the video of the movie you have on your computer. If you want to do so, click the "Load" button below the "Movie playback" headline and select the movie file. For this step you need to have Java and the VLC plugin installed as was mentioned before. Please be patient while doing it, loading the open file dialog can take a moment \todo{FEW MINUTES?!?!?!} on slower computers. 
+There is also an option to play the video of the movie you have on your computer. If you want to do so, click the "Load" button below the "Movie playback" headline and select the movie file. For this step you need to have Java and the VLC plugin installed as was mentioned before. Please be patient while doing it, loading the open file dialog can take a while on slower computers. 
 %(The browsers do not normally support opening the local files without posting them to the server, therefore we had to develop a non-standard solution.) \todo{the last sentence does not bother I user I am afraid, I would delete it}
 
 Then you can submit the document. Within seconds, a form containing movies with the title you provided should appear (see Figure~\ref{fig:media_sources}).
@@ -214,11 +228,13 @@ You can change the subtitle timing by double-clicking on it or the text of the o
 It is not necessary to save your work in any way, everything is save right after it is edited, so you can leave the document by clicking on a link or even close the browser and nothing will be lost. If the Internet connection breaks down you can continue working on the in the Offline Mode which is described in the following section.
 
 \section{Offline Mode}
+\label{um:sec:offlinemode}
 
 When the application realizes that it cannot connect to the server, it offers you to continue in Offline Mode (see Figure~\ref{fig:start_offline_mode}). When you turn on the Offline Mode, you can continue translating the document -- all translation suggestions that have already been loaded will be shown to you and all translations that you enter will be saved.
 (However, you cannot list the documents, open or create another document, or export or delete the documents.)
 
-\todo{you also cannot change the timing or the source text, although this would be perfectly possible: however, I have not added support for that, which I might probably do now}
+%\todo{you also cannot change the timing or the source text, although this would be perfectly possible: however, I have not added support for that, which I might probably do now}
+% not adding support for that since nobody seems to care
 
 If you refuse starting the Offline Mode, all the editing done without the Internet connection will be lost!
 
@@ -246,6 +262,7 @@ The information in Offline Mode are bound to your computer, browser and user. So
 \end{figure}
 
 \section{Operations with Documents}
+\label{um:sec:docoperations}
 
 You can list your documents by clicking on the "Document list" link in the top navigation of the application, see Figure~\ref{fig:document_list}. You can edit the document by clicking on the "Edit" button.
 
