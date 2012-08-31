@@ -48,9 +48,8 @@ kernel.shmmax = 2147483648
 kernel.shmall = 4194304
 \end{lstlisting}
 \vspace*{0.5em}
-\todo{put the real values here!}
 
-For more information on \postgres~memory management and how to adjust the shared memory settings for different operating systems, please see the \postgres~documentation on \emph{Resource Consumption}.\footnote{\url{http://www.postgresql.org/docs/9.1/static/runtime-config-resource.html}}
+Depending on the system configuration, it may also be necessary to increase {\tt shmpages}. For more information on \postgres~memory management and how to adjust the shared memory settings for different operating systems, please see the \postgres~documentation on \emph{Resource Consumption}.\footnote{\url{http://www.postgresql.org/docs/9.1/static/runtime-config-resource.html}}
 
 For the fulltext search the \emph{TSearch2} tool is used. By default few world languages are available. If you want to use the tool for other languages you need to install the language support manually. For the Czech language we prepared an installation script which can run using following command.
 
@@ -301,15 +300,14 @@ The module-specific options for the Core TM are mostly related to performance.
 \subsubsection{User Space}
 \label{subsec:user_scpace_settings}
 
-\todo{Is this up-to-date?}
-
-User space settings contain few constants influencing the behavior of the application and also fields that need be set correctly to make the application run.
+The User Space settings contain constants influencing the behavior of the application and also fields that need be set correctly to make the application run.
 
 \begin{itemize} 
 \item \verb#maximum_suggestions_count# -- maximum number of translation suggestions which are displayed to the user for one chunk, users can change this value in their user specific settings
 \item \verb#session_timeout_limit# -- time (in milliseconds) after which a user session is terminated if the user does not do any action in case the user did not set up she wants to be logged in permanently
 \item \verb#permanent_timeout_limit# -- time (in milliseconds) after which a user session is terminated if the user does not do any action in case the user did set up she wants to be logged in permanently
 \item \verb#server_address# -- URL of the web application, it is used in OpenID login to tell the OpenID providers where the browser should be redirected to after logging in
+
 \end{itemize}
 
 \lstset{numbers=none, language=XML, caption={First part of the User Space settings}}
@@ -374,6 +372,22 @@ Settings of the email subjects and bodies follows. In the registration email bod
              <entry key="mail.filmtit.password">jkhrjj2012</entry>
          </properties>
      </mail>
+\end{lstlisting}
+
+The last part of the User Space configuration is configuration of
+OpenID for Seznam.cz.
+
+\begin{itemize}
+\item \verb#seznamcz# -- URL of the Seznam.cz OpenID endpoint
+\item \verb#sreg# -- name of the URL variable with the authentication data
+\end{itemize}
+
+\lstset{numbers=none, language=XML, caption={First part of the User Space settings}}
+\begin{lstlisting}
+     <openid>
+         <seznamcz>http://id.seznam.cz/yadis</seznamcz>
+         <nickname>sreg</nickname>
+     </openid>
 </userspace>
 \end{lstlisting}
 
