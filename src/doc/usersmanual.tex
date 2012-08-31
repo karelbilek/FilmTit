@@ -6,21 +6,15 @@
 
 You can translate any subtitle file you have from English to Czech or from Czech to English, making use of the millions of translations already made by other movie subtitles translators, coming from the tens of thousands of subtitle files in our database. From these, we always carefully select the most relevant ones for the lines that you are translating at the moment, which you can use as they are, post-edit them a little, or just use them for inspiration. And even if we find no similar lines in our database, there is always the machine translation system, ready to provide an automatically generated translation for any line you encounter.\footnote{Currently, the machine translation is only available for translation from English to Czech. Also please note that the machine translation can contain mistakes, as there is no perfect machine translation system in existence.}
 
-Often it may be hard to fully understand the subtitles without seeing the movie; therefore, you have the possibility to load a movie file into the application, and the part of the movie that you are translating at a given moment will  always be played to you, also showing he source subtitles (and the target ones as well if you have already translated them). Most of the movie formats and codecs are supported!
+Often it may be hard to fully understand the subtitles without seeing the movie; therefore, you have the possibility to load a movie file into the application, and the part of the movie that you are translating at a given moment will  always be played to you, also showing he source subtitles (and the target ones as well if you have already translated them). Most of the movie formats and codecs are supported.
 % we dont have any other manual for the player than that paragraph I am afraid
 
 FilmTit is a web application, which means you just have to open your favourite internet browser and you can start translating straight away -- no installation is necessary (although you may have to install Java and VLC for the video playback function, see Section~\ref{um:sec:installations}). However, this does not mean that you have to be online to translate the subtitles! Once you get all the translation suggestions from the server, you can go to the Offline Mode, work on the translation offline, and all your work will be automatically saved on the server when you are online again! See Section~\ref{um:sec:offlinemode}.
 
-Similar to Google Documents, every single user operation is saved right after it is done -- there is no need for saving the documents manually; even if your browser crashes, you can continue working on the subtitle document exactly at the place where you ended last time.
-%\todo{Note, Jo: But only if you have internet again? Well sure, there is the footnote saying that.}
-Your data are available from any computer at any time exactly in the state you left them.\footnote{Except for the Offline Mode, where your data is saved to the server only when you go online again.}
-\todo{The paragraph is more of an advertisement than truth. I would remove the whole para. We save the user translations transparently, yes. But this is the only place where this is done, everything else must be explicitely submited by the user. And even then, if he works in Offline Mode, he must then go online on the same computer in the same browser, so even then it is only half the truth.}
-
 Similarly to Google Documents, you do not have to worry about saving your work -- your translations are automatically saved online right after you type them!
-\todo{proposed new version of paragraph}
 
 To run the application, you need a web browser with HTML5 support (Opera v.~12
-Firefox v.~14, Chrome v.~21, Safari v.~5.1.5, or higher). To use the optional video playback in your browser, you also need to have Java (at least version 1.6) and the VLC plugin (at least version 1.1.4).\todo{add it, who knows it -- I just added my versions, for which it works... RR}
+Firefox v.~14, Chrome v.~21, Safari v.~5.1.5, or higher). To use the optional video playback in your browser, you also need to have Java (at least version 1.6) and the VLC plugin (at least version 1.1.4).
 
 \section{Installing Java and VLC Plugin}
 \label{um:sec:installations}
@@ -104,7 +98,7 @@ You are automatically logged in after the registration. For logging in next time
 
 Another option to log into the application is using Google, Yahoo or Seznam account. After choosing the service you want to use, a pop-up window is opened. It may happen that your browser blocks this window -- if this happens, you need to allow the pop-up window to continue the logging process.
 
-You will see the login form of the service you have chosen. If you are currently already logged into the service, you will only see the confirmation request to allow the FilmTit application to access your account data (it is your user name in the service, your first name, surname, email and gender, depending on what you filled in in the particular service and what you allowed to be provided to the third party applications, but it is never the password to the original service). \todo{why do we get the name and gender if we dont use it??? RR}
+You will see the login form of the service you have chosen. If you are currently already logged into the service, you will only see the confirmation request to allow the FilmTit application to access your account data. It is your user name in the service, your first name, surname, email and gender, depending on what you filled in in the particular service and what you allowed to be provided to the third party applications. Nevertheless, it is never the password to the original service. FilmTit does not use orz keep any of the information provided by OpenID, except your email address.
 After submitting your user name and user password and confirming that the FilmTit application can receive your authentication data, the pop-up window will be automatically closed. Within a few seconds you will be redirected to the list of documents you own (if this is your first time logging into the application, you have no documents yet, so you will see the New Document page instead).
 
 If you use OpenID Login, you do not have to register -- you are registered automatically on your first successful login. You also automatically get a user name and password for the Basic Login, which is sent to your e-mail address upon registration (if your OpenID provider provides us with one) and can be changed in the Settings.
