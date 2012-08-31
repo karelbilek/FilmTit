@@ -23,6 +23,9 @@
                 <b:NavLink ui:field="settings" targetHistoryToken="Settings" visible="false">Settings</b:NavLink>
             </b:Nav>
             <b:Nav>
+                <b:NavLink ui:field="help" targetHistoryToken="Help" visible="true">Help</b:NavLink>
+            </b:Nav>
+            <b:Nav>
                 <b:NavText ui:field="offlineHint" visible="false">When you are online again, simply reopen or reload FilmTit (and log in).</b:NavText>
             </b:Nav>
 

@@ -12,6 +12,7 @@ import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
 import cz.filmtit.client.pages.ChangePassword;
 import cz.filmtit.client.pages.DocumentCreator;
+import cz.filmtit.client.pages.Help;
 import cz.filmtit.client.pages.PlayerInfo;
 import cz.filmtit.client.pages.PlayerDemo;
 import cz.filmtit.client.pages.Settings;
@@ -84,6 +85,7 @@ public class PageHandler {
 		Settings,
 		PlayerInfo,
 		PlayerDemo,
+		Help,
     }
     
     public PageHandler () {
@@ -282,6 +284,7 @@ public class PageHandler {
 		case About:
 		case PlayerInfo:
 		case PlayerDemo:
+		case Help:
 		
 			pageToLoad = suggestedPage;
 			break;
@@ -371,6 +374,9 @@ public class PageHandler {
 				break;
 			case Settings:
 				new Settings();
+				break;
+			case Help:
+				new Help();
 				break;
 	
 			// no other situation should happen
