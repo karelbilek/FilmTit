@@ -120,6 +120,15 @@
 	\setlength{\columnsep}{20mm}	
 
 
+\makeatletter
+\renewcommand{\thesection}{%
+  \ifnum\c@chapter<1 \@arabic\c@section
+  \else \thechapter.\@arabic\c@section
+  \fi
+}
+\makeatother
+
+
 \title{Filmtit documentation}
 \author{}
 %\date{} % Activate to display a given date or no date (if empty),
