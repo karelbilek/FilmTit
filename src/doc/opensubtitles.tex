@@ -97,7 +97,7 @@ All previous cleanup was done as one of the first things when we received the da
 
 Later in development, we noticed that some files have incorrect language written in the table file; files, that should be in Czech, were in  Hungarian, and so on. We added language detection, based on letter trigrams, later; that detection is, however, already in the \emph{dataimport} module and is done directly before aligning the files (which will be described later).
 
-%\todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
+%todo{!!!???do something with it??}Our use of the word \emph{chunk} is not consistent in this document, however, in this part, I will call "chunk" the part of data, that has time mark and is displayed on the screen at one time. With that definition, there is \todo{find out!!}XXX chunks in the data, in average, XXX chunks on one file.
 
 \begin{figure}[t]
 \begin{center}
@@ -965,7 +965,6 @@ Results of the experiment are tabulated in \ref{tm_simulation}.
 \caption{Size of corpus}\label{tm_simulation}
 \end{table}
 
-\todo{Jo: Who?}
 It can be noticed that the Distance is always worse than Tolerance. Also, we might notice, that every time we somehow allowed more files, the precision went down, but the coverage went up.
 
 The baseline algorithm is absurdly tolerant and produces actually bigger coverage than the tolerance-based algorithm with tolerance 600 ms. However, the precision is very low.
