@@ -14,4 +14,5 @@ clean:
 help: result/help.html
 
 result/help.html:
+	mkdir -p result
 	pandoc -o result/help.html usersmanual.tex
