@@ -30,9 +30,9 @@ GWT also provides a feature which makes the final web application similar in dif
 
 However, this ``unification'' is not complete, nor it is intended to be. It covers only the bigger and more crucial differences of the code behavior among various browsers, but does not address some slight variancies e.g.\ in design of the basic elements (and their most common behavior). This seems reasonable, because forcing each browser to interpret the code in the exact same way would mean hardcoding almost everything from scratch and not using many of their provided features, which would be probably impossible anyway. Nevertheless, some of these ``slight differences'' which we have encountered proved to be quite crucial for our intended design (especially in the event-handling domain), so lots of work had to be done to reasonably unify the application's behavior even among the major browsers.
 
-Still, our hope is that GWT development will continue and will keep up with the development of web browsers, allowing us to provide browser-up-to-date versions of FilmTit simply by acquiring a new version of GWT and recompiling the project.
+Still, our hope is that GWT development will continue and will keep up with the development of web browsers, allowing us to provide browser-up-to-date versions of FilmTit simply by acquiring a new version of GWT and recompiling the project. Currently, the application works well with Opera v.~12
+Firefox v.~14, Chrome v.~21 and Safari v.~5.1.5 or higher.
 
-\todo{who knows it, please add the browser support both here and to the user manual}
 
 \subsection{Designing by UiBinder}
 Another very useful and comfortable feature of the GWT for designing the user interface is the UiBinder. The idea behind this approach is to design the visual structure of the page (or its part) in an HTML-like way (this is called the {\em UiBinder template}) and its behavior and functionality in a Java class (called the {\em owner class} for the template). The UiBinder itself is then an object binding these two approaches together. This style of creating the web application supports the respected best practice to divide the visual design and the functionality. It also allows to create the web page's appearance in a way which is more natural to web designers (e.g. HTML-like), as well as more readable and modifiable. Other advantages include supposedly better performance (as the browsers can better optimize the rendering from the UiBinder templates than from the heavier-weight Java-based widgets and panels) and support for internationalization (not used by FilmTit at the moment).
@@ -53,8 +53,6 @@ The GUI is contained in the package {\tt cz.filmtit.client} (not {\tt cz.filmtit
 The GUI also makes use of the shared classes (package {\tt cz.filmtit.share}, see~\ref{sec:shared_classes}), which are written using only the intersection between standard Java and GWT-compilable Java and are therefore fully compilable both to Javascript and to Java bytecode.
 
 Some settings have to be done via several resource files in the webapp directory. (This is required by the Java Servlets technology used to deploy the application.)
-
-\todo{I already wrote a lot into the implementation process and I dont want to have duplicities in the documentation, so I am now keeping the development description in implementation process but moving detailed descriptions of the final solution from implementation process into this section. Prosim bud pacient :-)}
 
 \subsection{Gui.java}
 
@@ -93,10 +91,6 @@ The pages package also contains the {\tt GuiStructure}, which defines the conten
 
 A page is created and loaded by calling its constructor, which may require some parameters (such as {\tt documentID} for {\tt TranslationWorkspace}).
 Page loading and switching is handled by the {\tt PageHandler}, which also provides support for URLs: e.g.\ the About page can be accessed by a URL {\tt http://server/\#About} or {\tt http://server/?page=About} (the first one being the default), with the help of the GWT History class.
-
-\subsubsection{TranslationWorkspace}
-
-\todo{maybe describe in more detail, maybe not \\ I would delete it (Jindřich)}
 
 \subsection{Dialogs}
 
