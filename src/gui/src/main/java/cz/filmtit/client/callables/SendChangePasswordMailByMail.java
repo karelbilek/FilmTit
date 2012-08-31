@@ -69,7 +69,7 @@ import cz.filmtit.client.dialogs.Dialog;
 		}
 
 		@Override protected void call() {
-			filmTitService.sendChangePasswordMail(username, this);
+			filmTitService.sendChangePasswordMailByMail(email, this);
 		}    	
     }
 

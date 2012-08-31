@@ -82,9 +82,9 @@
                 <b:NavLink ui:field="playerInfo" targetHistoryToken="PlayerInfo" styleName="playerInfoLink">Read this before using the playback</b:NavLink>
 
                 <b:ControlGroup>
-                    <b:ControlLabel>Movie address on the disk:</b:ControlLabel>
+                    <b:ControlLabel title="Select a file using the Load button, or input the filepath into the box manually">Movie address on the disk:</b:ControlLabel>
                     <b:Controls>
-                        <b:TextBox ui:field="moviePath"></b:TextBox>
+                        <b:TextBox ui:field="moviePath" title="Select a file using the Load button, or input the filepath into this box manually"></b:TextBox>
                         <b:Button ui:field="btnApplet">Load</b:Button>
                     </b:Controls>
                 </b:ControlGroup>

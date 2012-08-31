@@ -824,14 +824,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 .setParameter("email", email).list();
         usHibernateUtil.closeAndCommitSession(dbSession);
 
+        boolean result;
         if (usersWithSuchMail.size() == 0) { return false; }
         else {
+        	result = true;
             for (Object userObj : usersWithSuchMail) {
-                 sendChangePasswordMail((USUser)userObj);
+                 result = result && sendChangePasswordMail((USUser)userObj);
             }
         }
 
-        return false;
+        return result;
     }
 
     /**

@@ -230,7 +230,12 @@ public class VLCWidget extends HTML {
 
     public static native double getStatusOfThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        return vlc.input.time; 
+        if (vlc) {
+        	return vlc.input.time;
+    	}
+    	else {
+    		return -1;
+    	}
     }-*/;
 
     public static native void stopPlayingThis(Element el) /*-{
