@@ -13,6 +13,7 @@ import java.util.Collection;
 
 public class VLCWidget extends HTML {
 
+
     long lastPosition=-10000000;
     static long WINDOWSIZE=30000; //in milliseconds
 
@@ -33,6 +34,7 @@ public class VLCWidget extends HTML {
             if (begin==0){
                 begin=1;
             }
+            int nonce = reloadedTimes * 1000;
             begin += nonce;
             end += nonce;
             currentLoaded = synchronizer.getTranslationResultsByTime(begin-5000, end);
@@ -50,8 +52,11 @@ public class VLCWidget extends HTML {
                 @Override
                 public void run() { 
                     if ((!stopped) && getStatus()==begin) {
-                        Window.alert("Chyba v prehravaci; zkusim ho restartovat.");
-                        workspace.reloadPlayer();
+                        if (reloadedTimes <= 5) {
+                            workspace.reloadPlayer();
+                        } else {
+                            Window.alert("There was an unexpected error with player.\nTry to open the subtitle again.");
+                        }
                     }
                 } 
             }.schedule(2000); 
@@ -78,7 +83,7 @@ public class VLCWidget extends HTML {
     
     public VLCWidget higherNonce() {
         return new VLCWidget(path, width, height,  sourceLabel,targetLabel, synchronizer, startLabel,
-                             endLabel, stopA, replayA, nonce+1000,workspace);
+                             endLabel, stopA, replayA, reloadedTimes+1,workspace);
     }
 
     InlineLabel startLabel;
@@ -87,7 +92,7 @@ public class VLCWidget extends HTML {
     SubtitleSynchronizer synchronizer;
     HTML sourceLabel;
     HTML targetLabel;
-    public int nonce;
+    public int reloadedTimes;
     TranslationWorkspace workspace;
     String path;
     int width;
@@ -97,7 +102,7 @@ public class VLCWidget extends HTML {
 
     public VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
                         InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA,
-                        int nonce, TranslationWorkspace workspace) {
+                        int reloadedTimes, TranslationWorkspace workspace) {
         super(buildVLCCode(path, width, height));
         this.path = path;
         this.width = width;
@@ -110,7 +115,7 @@ public class VLCWidget extends HTML {
         sourceLabel = left;
         this.startLabel = startLabel;
         this.endLabel = endLabel;
-        this.nonce=nonce;
+        this.reloadedTimes=reloadedTimes;
         this.workspace = workspace;
         stopA.addClickListener(new ClickListener() {
             @Override
