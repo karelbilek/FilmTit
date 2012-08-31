@@ -23,6 +23,9 @@ public class VLCWidget extends HTML {
     double end = WINDOWSIZE;
 
     public void maybePlayWindow(long position) {
+        if (hidden) {
+            return;
+        }
         if (position/WINDOWSIZE != lastPosition/WINDOWSIZE){
             
             long windownum = position/WINDOWSIZE;
@@ -76,6 +79,9 @@ public class VLCWidget extends HTML {
         s.append("width=\""+width+"\" ");
         s.append("height=\""+height+"\" ");
         s.append("target=\"file://");
+        if (!path.startsWith("/")) {
+            s.append("/");//windows paths don't begin with "/" but VLC needs that
+        }
         s.append(path);
         s.append("\" />");
         return s.toString();
@@ -83,7 +89,7 @@ public class VLCWidget extends HTML {
     
     public VLCWidget higherNonce() {
         return new VLCWidget(path, width, height,  sourceLabel,targetLabel, synchronizer, startLabel,
-                             endLabel, stopA, replayA, reloadedTimes+1,workspace);
+                             endLabel, stopA, replayA, closeA, reloadedTimes+1,workspace);
     }
 
     InlineLabel startLabel;
@@ -99,10 +105,16 @@ public class VLCWidget extends HTML {
     int height;
     Anchor stopA;
     Anchor replayA;
+    Anchor closeA;
+    
+    boolean hidden=false;
+    public void hide() {
+        hidden = true;
+    }
 
     public VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
-                        InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA,
-                        int reloadedTimes, TranslationWorkspace workspace) {
+                        InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA, Anchor closeA,
+                        int reloadedTimes, final TranslationWorkspace workspace) {
         super(buildVLCCode(path, width, height));
         this.path = path;
         this.width = width;
@@ -121,7 +133,7 @@ public class VLCWidget extends HTML {
             @Override
             public void onClick(Widget sender) {
                 stopped=true;
-                stopPlaying();    
+                togglePlaying();    
             }
         });
         replayA.addClickListener(new ClickListener() {
@@ -129,6 +141,14 @@ public class VLCWidget extends HTML {
             public void onClick(Widget sender) {
                 stopPlaying();
                 playPart(begin, end);
+
+            }
+        });
+        
+        closeA.addClickListener(new ClickListener() {
+            @Override
+            public void onClick(Widget sender) {
+               workspace.turnOffPlayer();
 
             }
         });
@@ -273,21 +293,38 @@ public class VLCWidget extends HTML {
     }
     
     public void stopPlaying() {
+        if (hidden) {
+            return;
+        }
         stopPlayingThis(this.getElement());
     }
 
     public void startPlaying() {
+        if (hidden) {
+            return;
+        }
         startPlayingThis(this.getElement());
+    }
+    
+    public void togglePlaying() {
+        if (hidden) {
+            return;
+        }
+        togglePlayingThis(this.getElement());
     }
 
 
     public void playPart(double start, double end) {
+        if (hidden) {
+            return;
+        }
         double startD = start;
         double endD = end;
         try {
             playPartOfThis(this.getElement(), startD, endD, this);
         } catch (Exception e) {
-            Window.alert("NEEEEEEEE");
+            
+            //Window.alert("NEEEEEEEE");
         }
     }
 }
