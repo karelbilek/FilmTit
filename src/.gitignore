@@ -15,7 +15,9 @@
 
 */target*
 
+doc/result*
 
+gui/src/main/webapp/WEB-INF/lib/
 
 #IntelliJ stuff
 
