@@ -257,9 +257,8 @@ public class Session {
      * @throws InvalidValueException Throws an exception if an invalid email address is provided.
      */
     public Void setEmail(String email) throws InvalidValueException {
-        if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email)) {
-            throw new InvalidValueException("'" + email + "' is not a valid email address.");
-        }
+
+        Emailer.validateEmail(email);
 
         user.setEmail(email);
         saveUser();

@@ -7,7 +7,6 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 
 import cz.filmtit.client.callables.LoadDocumentFromDB;
-import cz.filmtit.client.pages.About;
 import cz.filmtit.client.pages.AuthenticationValidationWindow;
 import cz.filmtit.client.pages.Blank;
 import cz.filmtit.client.pages.ChangePassword;
@@ -79,7 +78,6 @@ public class PageHandler {
 		UserPage,
 		ChangePassword,
 		AuthenticationValidationWindow,
-		About,
 		TranslationWorkspace,
 		DocumentCreator,
 		Settings,
@@ -281,7 +279,6 @@ public class PageHandler {
     	case Blank:
     	case ChangePassword:
     	case AuthenticationValidationWindow:
-		case About:
 		case PlayerInfo:
 		case PlayerDemo:
 		case Help:
@@ -345,9 +342,6 @@ public class PageHandler {
 				break;
 	    	case AuthenticationValidationWindow:
 	    		new AuthenticationValidationWindow();
-				break;
-			case About:
-	    		new About();
 				break;
 			case PlayerDemo:
     			new PlayerDemo();

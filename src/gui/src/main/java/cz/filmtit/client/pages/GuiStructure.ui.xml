@@ -11,9 +11,6 @@
                 <b:NavLink ui:field="welcomeScreen" targetHistoryToken="WelcomeScreen">Start</b:NavLink>
             </b:Nav>
             <b:Nav>
-                <b:NavLink ui:field="about" targetHistoryToken="About">About</b:NavLink>
-            </b:Nav>
-            <b:Nav>
                 <b:NavLink ui:field="userPage" targetHistoryToken="UserPage" visible="false">Document list</b:NavLink>
             </b:Nav>
             <b:Nav>
