@@ -580,11 +580,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
+    	logger.debug("registration l. 582", name + " --- " + pass + " --- " + email + " --- " + openId);
 
         validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
+        	logger.debug("registration l. 589", "seeems good");
             USUser user = null;
 
             // pass validation
@@ -604,6 +606,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return true;
         } else {
             // bad, there is already a user with the given name
+        	logger.debug("registration l. 608", "bad, there is already a user with the given name");
 
             return false;
         }
@@ -616,7 +619,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @return true if registration is successful, false otherwise
      */
     public Boolean registration(String openId, Authentication data) throws InvalidValueException {
-
+    	logger.debug("registration l. 619", openId + " --- " + data);
         if (data != null){
             Random r = new Random();
             int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
