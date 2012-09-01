@@ -1,9 +1,8 @@
 \label{chap:technical_manual}
 
+\section{System Requirements and Setup}
 
-\chapter{System Requirements and Setup}
-
-\section{Running the Server}
+\subsection{Running the Server}
 
 The system is cross-platform, requiring only Java 1.6 or newer and \postgres~(tested with version 9.1, but should generally work with version >8.3). The system was tested on Windows XP, Windows 7, Mac OS X and Ubuntu.
 
@@ -19,7 +18,7 @@ java -jar server-0.1.jar configuration.xml 8080
 The arguments specify the configuration file (see Section~\ref{sec:config}) and the port the server should run on. Although it is not strictly necessary, it is recommended to run the server with a maximum heap size of 500MB ({\tt -Xmx500m}).
 
 
-\section{Database Configuration}
+\subsection{Database Configuration}
 \label{sec:dbconfig}
 
 The system will work with any standard \postgres~installation, however it is recommended to setup \postgres~to use more memory to assure the database runs fast. On our production server (with 4GB of memory), we use the following settings:
@@ -60,9 +59,9 @@ $ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_
 \vspace*{0.5em}
 
 
-\chapter{Tasks}
+\section{Tasks}
 
-\section{Step-by-Step Guide: Setting up the server with an existing database dump}
+\subsection{Step-by-Step Guide: Setting up the server with an existing database dump}
 
 The following guide contains examples for setting up the system on a plain Ubuntu system.
 
@@ -140,16 +139,16 @@ $ nohup java -jar server-0.1.jar configuration.xml 8080 &
 
 
 
-\section{Importing Data}
+\subsection{Importing Data}
 
 \label{sec:import}
 
-\subsection{Alignment}
+\subsubsection{Alignment}
 
 \todo{!}
 
 
-\subsection{Import}
+\subsubsection{Import}
 
 After all necessary paths are specified in the configuration file, the import can be run as follows:
 
@@ -161,7 +160,7 @@ $ java -Xmx3G -classpath /deployed/server-0.1.jar cz.filmtit.dataimport.database
 \vspace*{0.5em}
 
 
-\subsection{Setting up the indexes}
+\subsubsection{Setting up the indexes}
 
 For the imported translation pairs, indexes for fast retrieval are created by running:
 
@@ -175,14 +174,14 @@ $ java -Xmx3G -classpath /deployed/server-0.1.jar cz.filmtit.dataimport.database
 
 
 
-\chapter{Configuration}
+\section{Configuration}
 \label{sec:config}
 
 The configuration for the server is contained in the file \verb#configuration.xml#, which has to be specified on startup.
 
 In this section, we will give a brief overview over the properties specified in the configuration file and its default values.
 
-\section{General settings}
+\subsection{General settings}
 L1 and L2 specify the ISO 639-1 codes of the source and target languages used in the translation memory.
 \lstset{numbers=none, language=XML, caption={Languages}}
 \begin{lstlisting}
@@ -190,7 +189,7 @@ L1 and L2 specify the ISO 639-1 codes of the source and target languages used in
 <l2>cs</l2>
 \end{lstlisting}
 
-\section{Database}
+\subsection{Database}
 
 The database connection must be specified as a valid JDBC connector. By default, the DBMS is the local Postgres database \verb#filmtit# with default username and password.
 
@@ -203,7 +202,7 @@ The database connection must be specified as a valid JDBC connector. By default,
 </database>
 \end{lstlisting}
 
-\section{Text processing models}
+\subsection{Text processing models}
 
 For various text processing tasks within the translation memory, 
 it is necessary to specify a number of model files.
@@ -240,7 +239,7 @@ OpenNLP Maximum Entropy models for Named Entity Recognition are specified in the
 </ner_models>
 \end{lstlisting}
 
-\section{Data Import}
+\subsection{Data Import}
 
 For the data import as described in Section~\ref{sec:import}, several files have to be specified.
 
@@ -269,9 +268,9 @@ For the data import as described in Section~\ref{sec:import}, several files have
 \end{lstlisting}
 
 
-\section{Module-Specific Options}
+\subsection{Module-Specific Options}
 
-\subsection{Core TM}
+\subsubsection{Core TM}
 
 The module-specific options for the Core TM are mostly related to performance.
 
@@ -296,7 +295,7 @@ The module-specific options for the Core TM are mostly related to performance.
 
 \end{lstlisting}
 
-\subsection{User Space}
+\subsubsection{User Space}
 \label{subsec:user_scpace_settings}
 
 The User Space settings contain constants influencing the behavior of the application and also fields that need be set correctly to make the application run.
@@ -391,7 +390,7 @@ OpenID for Seznam.cz.
 \end{lstlisting}
 
 
-\subsection{APIs and keys}
+\subsubsection{APIs and keys}
 
 The configuration also specifies the URL of the running Moses instance and the keys for external APIs. A Freebase key can be obtained via the Google API Console.\footnote{\url{http://wiki.freebase.com/wiki/How_to_obtain_an_API_key}}
 
@@ -402,12 +401,12 @@ The configuration also specifies the URL of the running Moses instance and the k
 \end{lstlisting}
 
 
-\chapter{Adapting the TM to new language pairs}
+\section{Adapting the TM to new language pairs}
 \label{sec:internationalization}
 
 The implementation currently uses the language pair English-Czech, however, the system is easily adaptable to new language pairs. In this section, we are briefly describing the necessary steps to adapt the system to a new language pairs.
 
-\section{Basic Setup: Exact and Fuzzy Matching}
+\subsection{Basic Setup: Exact and Fuzzy Matching}
 
 The most basic setup for internationalization uses the following backoff translation memories:
 
@@ -449,7 +448,7 @@ Additional text search configurations can also be found online.
 After these steps have been taken, the data has to be aligned, imported and indexed. For more information, see Section~\ref{sec:import}.
 
 
-\section{Advanced Setup: Program-based Signatures and Machine Translation}
+\subsection{Advanced Setup: Program-based Signatures and Machine Translation}
 
 A more advanced setup can use the levels from the basic setup or other program-based signature levels, as well as machine translation. 
 
