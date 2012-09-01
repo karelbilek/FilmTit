@@ -123,15 +123,6 @@
 	\setlength{\columnsep}{20mm}	
 
 
-\makeatletter
-\renewcommand{\thesection}{%
-  \ifnum\c@chapter<1 \@arabic\c@section
-  \else \thechapter.\@arabic\c@section
-  \fi
-}
-\makeatother
-
-
 \title{Filmtit documentation}
 \author{}
 %\date{} % Activate to display a given date or no date (if empty),
@@ -220,20 +211,18 @@
 
 \label{part:manuals}
 
-\part{Installation and Administration Manual}
-
-%\chapter{Installation and Administration Manual}
-\input{technicalmanual}
-
-\part{User Manual}
-
-%\chapter{User's manual}
-\input{usersmanual}
-
 \part{Development Process Documentation}
 
-%\chapter{Implementation and Development Process}
+\chapter{Implementation and Development Process}
 \input{implementation_process}
+
+\part{Manuals}
+
+\chapter{Technical Manual}
+\input{technicalmanual}
+
+\chapter{User Manual}
+\input{usersmanual}
 
 
 \end{document}
