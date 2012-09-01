@@ -311,9 +311,8 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 
 .chunkmark {
     height: 24px;
-    font-size: large;
+    color: #999;
     font-weight: bold;
-    color: #333;
 }
 
 /* grouping: */

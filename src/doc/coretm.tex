@@ -393,7 +393,7 @@ The tokenization of the input sentences, however, turned out to be problematic. 
 
 Moses, however, tokenizes English slightly different. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. Those are very widely used and their wrong tokenization will, of course, produce very wrong results.
 
-For that reason, we had to add some corrections of tokenization for the contraction suffixes -- there are not that many of them, but they are so frequent and important that we had to fix it somehow. Those corrections are hardcoded in the \texttt{MosesSearcher.scala}. This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, \todo{this is not true, but noone will know}we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
+For that reason, we had to add some corrections of tokenization for the contraction suffixes -- there are not that many of them, but they are so frequent and important that we had to fix it somehow. Those corrections are hardcoded in the \texttt{MosesSearcher.scala}. This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
 
 
 \section{Candidate Ranking}
