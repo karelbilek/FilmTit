@@ -7,7 +7,7 @@
 
     <class name="USDocument" table="Documents">
         <id name="databaseId" type="long" column="Id">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
 
         <property name="ownerDatabaseId" type="long" column="userId" />

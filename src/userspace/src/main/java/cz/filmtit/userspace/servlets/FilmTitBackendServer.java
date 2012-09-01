@@ -523,7 +523,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         else {
             // since it's neither in the in process table nor the finished table,
             // the authentication must have failed
-            throw new AuthenticationFailedException("Authentication failed.");
+            throw new AuthenticationFailedException("Authentication failed for authID: " + String.valueOf(authID));
         }
     }
 
@@ -582,6 +582,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
         validateEmail(email);
+        boolean  isOpenIdRegistration = openId == null ? false : !openId.isEmpty();
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -600,7 +601,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             user.saveToDatabase(dbSession);
 
             usHibernateUtil.closeAndCommitSession(dbSession);
-            sendRegistrationMail(user, pass);
+
+            sendRegistrationMail(user, pass,isOpenIdRegistration);
             logger.info("Login","Registered user " + user.getUserName());
             return true;
         } else {
@@ -752,8 +754,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param pass User's password
      * @return Sign if sending email was succesful.
      */
-    public boolean sendRegistrationMail(USUser user , String pass){
+    public boolean sendRegistrationMail(USUser user , String pass, boolean openId){
         Emailer email = new Emailer();
+        if (openId) email.openIDSource();
         if (user.getEmail() != null && (!user.getEmail().isEmpty())) {
             return email.sendRegistrationMail(
                     user.getEmail(),

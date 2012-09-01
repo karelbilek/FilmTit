@@ -7,7 +7,7 @@
 
     <class name="cz.filmtit.userspace.Session" table="SessionLog">
         <id name="databaseId" type="long" column="Id">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
 
         <property name="sessionStart" type="long" column="startTime" />

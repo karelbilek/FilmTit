@@ -9,6 +9,7 @@ package cz.filmtit.userspace;
 
 import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.share.exceptions.InvalidValueException;
+import sun.misc.Regexp;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -43,10 +44,15 @@ public class Emailer {
      private USLogger logger = USLogger.getInstance();
 
     /**
+     *  Sign of source openID source
+     */
+      private boolean  openIDsource;
+    /**
      * Creates an empty object and sets the properties.
      */
     public Emailer() {
         fetchConfig();
+        this.openIDsource = false;
     }
 
     /**
@@ -106,10 +112,16 @@ public class Emailer {
     public boolean sendRegistrationMail(String recipient , String login , String pass){
         // fills in the email items from the configuarion
         String messageTemp = (String)configuration.getProperty("mail.filmtit.registrationBody");
+        if (this.openIDsource){
+            messageTemp = (String)configuration.getProperty("mail.filmtit.registrationOpenIDBody");
+        }
+        else{
+            messageTemp = (String)configuration.getProperty("mail.filmtit.registrationBody");
+        }
         String message = messageTemp.replace("%userlogin%",login).replace("%userpass%", pass);
         String subject = (String)configuration.getProperty("mail.filmtit.registrationSubject");
         // and sends the email (which also fills the data items of the object)
-        return sendMail(recipient, subject, message);
+        return sendMail(recipient, subject, this.delWhiteSpace(message));
     }
 
     /**
@@ -140,6 +152,12 @@ public class Emailer {
     }
 
     /**
+     * Setting openID source
+     */
+    public void openIDSource(){
+        this.openIDsource = true;
+    }
+    /**
      * Gets information if the object has collected all data items necessary to send an email.
      * @return Sign if the object has collected all data items necessary to send an email.
      */
@@ -165,6 +183,9 @@ public class Emailer {
 
     }
 
+   /**
+    *  Testing email address
+    */
     public static boolean validateEmail(String email) throws InvalidValueException {
         if (email.isEmpty()) return true; // empty email for registration
         if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email)) {
@@ -173,4 +194,11 @@ public class Emailer {
         return true;
     }
 
+    /**
+     *  Deleting whitespace
+     */
+
+    private String delWhiteSpace(String text){
+        return text.replaceAll(" {2,}" ,"");
+    }
 }
