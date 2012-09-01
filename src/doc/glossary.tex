@@ -18,7 +18,7 @@ A \emph{chunk} is a piece of text, that is getting translated. As we will descri
 Every chunk has a \emph{surface form} -- that means the text, that is being translated. The surface form is without any non-textual information -- we store these in annotations.
 
 \subsection*{Annotations}
-Every chunk also has \emph{annotations} -- non-textual information, that might be used at some point, but are not sent to translation memory for querying. By that, we mean positions of named entities, original position of newlines and dialog marks (``-'') -- none of these go into the translation memory core.
+Every chunk also has \emph{annotations} -- non-textual information, that might be used at some point, but is not sent to translation memory for querying. By that, we mean positions of named entities, original position of newlines and dialog marks (``-'') -- none of these go into the translation memory core.
 
 \subsection*{Timed chunk}
 A \emph{timed chunk} is a chunk, that also have a time information and information about order, in which it appears in subtitle file.
@@ -27,7 +27,7 @@ A \emph{timed chunk} is a chunk, that also have a time information and informati
 A text that might be a translation of a given chunk, comming either from the Translation Memory or from Machine Translation. It typically also contains the matched text found in the Translation Memory, and a score.
 
 \subsection*{Translation result}
-The chunks are wrapped in to the \emph{Translation result} objects which contains the the timed chunk from the original subtitle file, a chunk produced by the user as a translation of the original chunk, a list of translation suggestions from translation memory.
+The chunks are wrapped in to the \emph{Translation result} objects which contains the timed chunk from the original subtitle file, a chunk produced by the user as a translation of the original chunk, and a list of translation suggestions from translation memory.
 
 \subsection*{Subtitle item}
 In this document, we will call \emph{subtitle item} the whole text, that has a time declaration in the video file and has a clear time information and is displayed in the video in a given time when playing. This differs from the \emph{timed chunk}, because we might split the subtitle item into more chunks and translate them differently.
