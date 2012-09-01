@@ -7,9 +7,10 @@
 
     <class name="cz.filmtit.userspace.LogMessage" table="log">
         <id name="databaseId" type="long" column="Id">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
 
+        <property name="userId" type="long" column="userid" />
         <property name="date" type="timestamp" column="date" />
         <property name="context" type="java.lang.String" column="context" />
         <property name="messageType"  type="java.lang.Integer" column="type" />
