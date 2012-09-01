@@ -7,7 +7,7 @@
 
     <class name="USUser" table="Users">
         <id name="databaseId" type="long" column="Id">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
 
         <property name="userName" type="java.lang.String" column="userName" />
