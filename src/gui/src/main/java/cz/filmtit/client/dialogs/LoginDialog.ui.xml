@@ -70,6 +70,12 @@
 
             <b:Form type="HORIZONTAL" ui:field="formRegister" visible="false">
                 <b:Fieldset>
+                
+                    <b:Paragraph>
+                        If you have an account on Google, Seznam or Yahoo, you can log in without registration using OpenID.
+                        (Just click "Log in with OpenID".)
+                    </b:Paragraph>
+                    <!-- <b:NavLink ui:field="linkOpenidLogin">Log in with OpenID</b:NavLink> -->
 
                     <b:Alert ui:field="alertRegister" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
                     
