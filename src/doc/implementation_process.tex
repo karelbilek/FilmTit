@@ -526,10 +526,11 @@ The {\tt RichTextArea}, being based on the IFrame HTML element, provided all the
 Another issues as focus handling, automatic scrolling, dealing with endlines (see Table~\ref{implprocess:RichTextAreaNewlines} for details) and automatic resizing had to be solved in order to make the Translation Workspace more user-friendly.
 
 \begin{table}[h]
+\smaller
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
-browser & getText()             & getHTML() \\
+\textbf{Browser} & \textbf{getText()}             & \textbf{getHTML()} \\
 \hline
 Firefox & \verb=first linesecond line= & \verb=first line<br>second line<br><br>= \\
 \hline
