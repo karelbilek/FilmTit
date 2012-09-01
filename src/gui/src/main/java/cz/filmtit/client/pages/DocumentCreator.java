@@ -150,6 +150,8 @@ public class DocumentCreator extends Composite {
                 FileLoadWidget.setDocumentCreator(DocumentCreator.this);
                 FileLoadWidget loadWidget = new FileLoadWidget();
                 bottomControlGroup.add(loadWidget);
+                btnApplet.setLoadingText("Loading....");
+                btnApplet.state().loading();
            }
         });
 
@@ -173,6 +175,8 @@ public class DocumentCreator extends Composite {
     public void addressSet(FileLoadWidget widget, String address) {
        
 		moviePath.setText(address);
+		btnApplet.state().reset();
+        
 
     }
     
