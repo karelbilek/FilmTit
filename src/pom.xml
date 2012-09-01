@@ -93,7 +93,6 @@
                         <include>**/*Spec.*</include>
                     </includes>
 
-                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>  
 

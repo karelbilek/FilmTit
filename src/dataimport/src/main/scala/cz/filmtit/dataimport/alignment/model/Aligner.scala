@@ -42,7 +42,7 @@ class Aligner(
        val pairs = mapping.moviesWithSubsBothLangs.flatMap{ movieID =>
            val files = mapping.getSubtitles(movieID)
            println("aligning file<->file")
-           println("size je : "+files.size)
+           println("size is : "+files.size)
            subtitleFileAlignment.alignFiles(files)
        }
        println("done")
@@ -62,9 +62,9 @@ class Aligner(
     */
    def align(mapping:SubtitleMapping, printDifferentSentenceLengths:Boolean=false) {
       
-       println("vstup do mapping")
+       println("entering mapping")
        val goodFilePairs = alignFiles(mapping)
-       println("Goodpairs bude "+goodFilePairs.size)
+       println("goodFilePairs size "+goodFilePairs.size)
        goodFilePairs.foreach { pair=>
            println("another : "+pair._1.filmID)
 

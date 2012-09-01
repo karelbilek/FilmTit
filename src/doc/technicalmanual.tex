@@ -149,8 +149,14 @@ $ nohup java -jar server-0.1.jar configuration.xml 8080 &
 
 \subsubsection{Alignment}
 
-\todo{!}
+For importing the data from the ``raw'' subtitle files, the directory with \texttt{.gz} files has to be correctly in \texttt{configuration.xml} in \texttt{subtitles_folder}, \texttt{file_mediasource_mapping} file has to be set correctly, and the \texttt{data_folder} folder has to exist (also, if there were some previous experiments, the contents has to be removed).
 
+Then, for the same alignment we used (as described in~\ref{sec:aligning_subtitles}),the alignment class has to be run as follows:\todo{I have no idea if it actually works. I would have to try it and I don't have time right now. But it should.}
+
+\lstset{numbers=none, language=bash, caption={Running the alignment}}
+\begin{lstlisting}
+$ java -classpath /deployed/server-0.1.jar cz.filmtit.dataimport.alignment.tasks.FinalAlignment configuration.xml
+\end{lstlisting}
 
 \subsubsection{Import}
 
@@ -474,16 +480,16 @@ For this, it is necessary to do tokenization using an OpenNLP tokenizer. Althoug
 For instructions on how to set up Moses as a backoff level, see Section~\ref{sec:statmtmoses}.
 
 \section{Running Moses server}
-Moses server can be running on either separate computer or the same computer, as the FilmTit system. You connect to Moses server via HTTP and sent it sentences to translate as remote procedure calls; however, there is no kind of authentification, so you need to secure your Moses server for example by your network infrastructure or risk unauthorized translations request.
+Moses server can be running on either separate computer or the same computer, as the FilmTit system. The main process connect to Moses server via HTTP and sent it sentences to translate as remote procedure calls; however, there is no kind of authentification, so the Moses server has to be secored for example by a network infrastructure; if it's not, there exists a risk of an unauthorized translations request.
 
-Moses is an experimental software and it's obvious from the slightly complicated installation; we will present an easy way to install Moses on operating systems with APT package system (ubuntu, debian) and a way to run Moses with our models, which are on \todo{who knows}the accompanying portable media; if you have a different operating system, you \todo{write it better}will have to install according to the Moses website.
+Moses is an experimental software and it's obvious from the slightly complicated installation; we will present an easy way to install Moses on an operating systems with APT package system (ubuntu, debian) and a way to run Moses with our models, which are on \todo{WHERE??}the accompanying portable media; on different operating systems, the steps should be similar, but the official Moses website\footnote{\url{http://statmt.org/moses}} should be consulted further.
 
-Except for APT, you will also need git and GCC. You will also need \texttt{sudo} privileges.
+Except for APT, git is needed for the initial download and GCC for Moses building. If \texttt{libboost} and \texttt{lobxmlrpc} are not installed, \texttt{sudo} privileges are also needed.
 
 \subsection{Installing Moses server}
 \begin{enumerate}
     \item
-First, you need to checkout Moses from their git repository.
+First, Moses has to be checked out from the official git repository.
 
 \lstset{numbers=none, language=bash, caption={Checking out the Moses from repository}}
 \begin{lstlisting}
@@ -491,7 +497,7 @@ git clone git://github.com/moses-smt/mosesdecoder.git
 \end{lstlisting}
 
 \item
-Second, you need to install \texttt{boost} libraries.
+Second, \texttt{boost} libraries have to be installed. If they are not, it can be done by the following.
 
 \lstset{numbers=none, language=bash, caption={Installing \texttt{boost} from APT}}
 \begin{lstlisting}
@@ -499,7 +505,7 @@ sudo apt-get install libboost-all-dev
 \end{lstlisting}
 
 \item
-You also need to install xml rpc libraries.
+Xml rpc have to be installed, too. If they are not, it can be done by the following.
 
 \lstset{numbers=none, language=bash, caption={Installing \texttt{xml rpc} from APT}}
 \begin{lstlisting}
@@ -507,7 +513,7 @@ sudo apt-get install libxmlrpc-c3-dev
 \end{lstlisting}
 
 \item
-Now you can finally build the moses server. If you have for example 4 cores, you can build moses by following.
+Now the Moses server can be finally installed. If for example 4 cores are available, moses can be built by following.
 
 \lstset{numbers=none, language=bash, caption={Building Moses}}
 \begin{lstlisting}
@@ -515,16 +521,16 @@ cd mosesdecoder
 ./bjam  --with-xmlrpc-c=/usr/bin/ -j4
 \end{lstlisting}
 
-If you have boost at nonstandard location, you will have to specify it with the \texttt{-{}-with-boost=/path/to/boost} switch.
+If boost is at nonstandard location, it will have to be specified it with the \texttt{-{}-with-boost=/path/to/boost} switch.
 
 \item
 Moses server should now be compiled at \texttt{mosesdecoder/bin/mosesserver}.
 \end{enumerate}
 
 \subsection{Running Moses server}
-For running Moses server, you will need our folder with data models. \todo{Who knows}This data should be supplied with the something something.
+For running Moses server with our data, our folder with models is needed. \todo{Who knows}This data should be supplied with the something something.
 
-Now, let's suppose our data with models are at folder \texttt{/data/} and mosesdecoder is at folder \texttt{/bin/}. Then, you can easily start the server at port \texttt{8081} with 4 threads (recommended number of threads is number of cores) by running
+Now, let's suppose our data with models are at folder \texttt{/data/} and mosesdecoder is at folder \texttt{/bin/}. Then, the server can be easily started at port \texttt{8081} with 4 threads (recommended number of threads is number of cores) by running
 
 \lstset{numbers=none, language=bash, caption={Running Moses server}}
 \begin{lstlisting}
@@ -532,4 +538,4 @@ cd /data/
 /bin/mosesdecoder/bin/mosesserver -threads 4  --server-port 8081 -f config.ini 
 \end{lstlisting}
 
-and let the Moses server start. Nothing more is needed.
+and letting the Moses server start. Nothing more is needed.
