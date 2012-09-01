@@ -522,7 +522,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         else {
             // since it's neither in the in process table nor the finished table,
             // the authentication must have failed
-            throw new AuthenticationFailedException("Authentication failed.");
+            throw new AuthenticationFailedException("Authentication failed for authID: " + String.valueOf(authID));
         }
     }
 
