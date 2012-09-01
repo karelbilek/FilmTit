@@ -147,9 +147,13 @@ public class Gui implements EntryPoint {
     
     // Other fields
 
+    /**
+     * Cookies should be valid for 1 year.
+     * This method calculates the desired expiry date for a cookie.
+     */
     @SuppressWarnings("deprecation")
     public static Date getDateIn1Year() {
-        // cookies should be valid for 1 year (GWT does not support anything better than the deprecated things it seems)
+        // (GWT does not support anything better than the deprecated things it seems)
         Date in1year = new Date();
         in1year.setYear(in1year.getYear() + 1);
     	return in1year;

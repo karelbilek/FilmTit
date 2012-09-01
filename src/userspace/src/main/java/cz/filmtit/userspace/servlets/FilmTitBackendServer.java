@@ -497,7 +497,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public SessionResponse getSessionID(int authID) throws AuthenticationFailedException, InvalidValueException {
-        if (finishedAuthentications.containsKey(authID)) {
+        logger.debug("getSessionID", Integer.toString(authID));
+    	if (finishedAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
         	// cancel the authentication session
@@ -580,11 +581,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
+    	logger.debug("registration l. 582", name + " --- " + pass + " --- " + email + " --- " + openId);
 
         validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
+        	logger.debug("registration l. 589", "seeems good");
             USUser user = null;
 
             // pass validation
@@ -604,6 +607,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             return true;
         } else {
             // bad, there is already a user with the given name
+        	logger.debug("registration l. 608", "bad, there is already a user with the given name");
 
             return false;
         }
@@ -616,7 +620,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @return true if registration is successful, false otherwise
      */
     public Boolean registration(String openId, Authentication data) throws InvalidValueException {
-
+    	logger.debug("registration l. 619", openId + " --- " + data);
         if (data != null){
             Random r = new Random();
             int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
@@ -664,25 +668,38 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 .setParameter("username", name + '%').list(); //UPDATE hibernate for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         int count = UserResult.size();
-        String newName= "";
         if (count > 0)
         {
+        	// there is a user with the same or similar name, so we will generate a unique one
+            String newName= "";
             long num = count;
             int round = 0;
+            
             do {
-            newName = new StringBuilder(name).append(count).toString();
-            num = num << 2 ;
-            round++;
+	            // if we got to far, try a different series (this shouldn't happen anyway)
                 if (round > 63) {
                     count++;
                     num = count;
                     round = 0;
                 }
-                System.out.println("Check "+newName + "num:" + String.valueOf(num));
-            } while (checkUser(newName,null,CheckUserEnum.UserName) != null);
+            	
+            	// generate a new name as name + num
+	            newName = new StringBuilder(name).append(num).toString();
+	            System.out.println("Check "+newName + "num:" + String.valueOf(num));
+	            
+	            // in the next round, try with num *= 2
+	            num = num << 2 ;
+	            round++;
+	            
+            }
+            while (checkUser(newName,null,CheckUserEnum.UserName) != null);
 
+            return newName;
         }
-        return newName;
+        else {
+        	assert count == 0 : "there is no user with the same or similar name, so we can just use it";
+        	return name;
+        }
     }
 
 
