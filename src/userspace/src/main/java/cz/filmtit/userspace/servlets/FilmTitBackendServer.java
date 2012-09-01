@@ -497,7 +497,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public SessionResponse getSessionID(int authID) throws AuthenticationFailedException, InvalidValueException {
-        if (finishedAuthentications.containsKey(authID)) {
+        logger.debug("getSessionID", Integer.toString(authID));
+    	if (finishedAuthentications.containsKey(authID)) {
             // the authentication process was successful
         	
         	// cancel the authentication session
@@ -667,25 +668,38 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                 .setParameter("username", name + '%').list(); //UPDATE hibernate for more constraints
         usHibernateUtil.closeAndCommitSession(dbSession);
         int count = UserResult.size();
-        String newName= "";
         if (count > 0)
         {
+        	// there is a user with the same or similar name, so we will generate a unique one
+            String newName= "";
             long num = count;
             int round = 0;
+            
             do {
-            newName = new StringBuilder(name).append(count).toString();
-            num = num << 2 ;
-            round++;
+	            // if we got to far, try a different series (this shouldn't happen anyway)
                 if (round > 63) {
                     count++;
                     num = count;
                     round = 0;
                 }
-                System.out.println("Check "+newName + "num:" + String.valueOf(num));
-            } while (checkUser(newName,null,CheckUserEnum.UserName) != null);
+            	
+            	// generate a new name as name + num
+	            newName = new StringBuilder(name).append(num).toString();
+	            System.out.println("Check "+newName + "num:" + String.valueOf(num));
+	            
+	            // in the next round, try with num *= 2
+	            num = num << 2 ;
+	            round++;
+	            
+            }
+            while (checkUser(newName,null,CheckUserEnum.UserName) != null);
 
+            return newName;
         }
-        return newName;
+        else {
+        	assert count == 0 : "there is no user with the same or similar name, so we can just use it";
+        	return name;
+        }
     }
 
 
