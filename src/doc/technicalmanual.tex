@@ -58,6 +58,8 @@ $ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_
 \end{lstlisting}
 \vspace*{0.5em}
 
+\subsection{Running the Server}
+
 
 \section{Tasks}
 
@@ -114,6 +116,8 @@ $ sudo -u postgres pg_restore -d filmtit encz_dump
 \vspace*{0.5em}
 
 \item \textbf{Ensure the correct JDBC connector is specified in {\tt configuration.xml}.}
+\item (optional) \textbf{Ensure the correct Moses server is specified in \texttt{configuration.xml}} -- installing and Moses server is specified in \todo{where?}XXX. Currently, we are for testing running a Moses server with our models on server and port \texttt{u-pl17.ms.mff.cuni.cz:8080}; this is \emph{highly} temporary and \emph{\textbf{will}} be stopped in the near future.
+
 \item \textbf{Run the server with the configuration on a suitable port.} 
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Running the server on port 8080.}}
@@ -456,5 +460,63 @@ For this, it is necessary to do tokenization using an OpenNLP tokenizer. Althoug
 
 For instructions on how to set up Moses as a backoff level, see Section~\ref{sec:statmtmoses}.
 
+\section{Running Moses server}
+Moses server can be running on either separate computer or the same computer, as the FilmTit system. You connect to Moses server via HTTP and sent it sentences to translate as remote procedure calls; however, there is no kind of authentification, so you need to secure your Moses server for example by your network infrastructure or risk unauthorized translations request.
 
+Moses is an experimental software and it's obvious from the slightly complicated installation; we will present an easy way to install Moses on operating systems with APT package system (ubuntu, debian) and a way to run Moses with our models, which are on \todo{who knows}the accompanying portable media; if you have a different operating system, you \todo{write it better}will have to install according to the Moses website.
 
+Except for APT, you will also need git and GCC. You will also need \texttt{sudo} privileges.
+
+\subsection{Installing Moses server}
+\begin{enumerate}
+    \item
+First, you need to checkout Moses from their git repository.
+
+\lstset{numbers=none, language=bash, caption={Checking out the Moses from repository}}
+\begin{lstlisting}
+git clone git://github.com/moses-smt/mosesdecoder.git
+\end{lstlisting}
+
+\item
+Second, you need to install \texttt{boost} libraries.
+
+\lstset{numbers=none, language=bash, caption={Installing \texttt{boost} from APT}}
+\begin{lstlisting}
+sudo apt-get install libboost-all-dev
+\end{lstlisting}
+
+\item
+You also need to install xml rpc libraries.
+
+\lstset{numbers=none, language=bash, caption={Installing \texttt{xml rpc} from APT}}
+\begin{lstlisting}
+sudo apt-get install libxmlrpc-c3-dev
+\end{lstlisting}
+
+\item
+Now you can finally build the moses server. If you have for example 4 cores, you can build moses by following.
+
+\lstset{numbers=none, language=bash, caption={Building Moses}}
+\begin{lstlisting}
+cd mosesdecoder
+./bjam  --with-xmlrpc-c=/usr/bin/ -j4
+\end{lstlisting}
+
+If you have boost at nonstandard location, you will have to specify it with the \texttt{-{}-with-boost=/path/to/boost} switch.
+
+\item
+Moses server should now be compiled at \texttt{mosesdecoder/bin/mosesserver}.
+\end{enumerate}
+
+\subsection{Running Moses server}
+For running Moses server, you will need our folder with data models. \todo{Who knows}This data should be supplied with the something something.
+
+Now, let's suppose our data with models are at folder \texttt{/data/} and mosesdecoder is at folder \texttt{/bin/}. Then, you can easily start the server at port \texttt{8081} with 4 threads (recommended number of threads is number of cores) by running
+
+\lstset{numbers=none, language=bash, caption={Running Moses server}}
+\begin{lstlisting}
+cd /data/
+/bin/mosesdecoder/bin/mosesserver -threads 4  --server-port 8081 -f config.ini 
+\end{lstlisting}
+
+and let the Moses server start. Nothing more is needed.

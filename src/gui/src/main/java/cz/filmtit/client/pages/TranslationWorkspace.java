@@ -1,30 +1,25 @@
 package cz.filmtit.client.pages;
 
-import com.google.gwt.user.client.*;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-
-import cz.filmtit.client.*;
-import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.client.callables.ChangeSourceChunk;
-import cz.filmtit.client.callables.CreateDocument;
-import cz.filmtit.client.callables.DeleteDocumentSilently;
-import cz.filmtit.client.callables.GetTranslationResults;
-import cz.filmtit.client.callables.SaveSourceChunks;
-import cz.filmtit.client.callables.SetChunkTimes;
-import cz.filmtit.client.callables.SetUserTranslation;
-import cz.filmtit.client.dialogs.TimeEditDialog;
-import cz.filmtit.client.subgestbox.SubgestBox;
-import cz.filmtit.client.subgestbox.SubgestHandler;
-import cz.filmtit.client.widgets.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import cz.filmtit.client.Gui;
+import cz.filmtit.client.PageHandler.Page;
+import cz.filmtit.client.SubtitleSynchronizer;
+import cz.filmtit.client.callables.*;
+import cz.filmtit.client.dialogs.TimeEditDialog;
+import cz.filmtit.client.subgestbox.SubgestBox;
+import cz.filmtit.client.subgestbox.SubgestHandler;
+import cz.filmtit.client.widgets.VLCWidget;
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.Parser;
 
@@ -625,7 +620,7 @@ public class TranslationWorkspace extends Composite {
         sourcemarks.setStyleName("chunkmark");
         sourcemarks.setTitle("This line is part of the one-screen dialog.");
         if (chunk.isDialogue()) {
-            sourcemarks.setHTML(sourcemarks.getHTML() + " - ");
+            sourcemarks.setHTML(sourcemarks.getHTML() + " &ndash; ");
         }
         if (! sourcemarks.getHTML().isEmpty()) {
             table.setWidget(index + 1, SOURCE_DIALOGMARK_COLNUMBER, sourcemarks);
