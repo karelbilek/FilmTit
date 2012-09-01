@@ -581,7 +581,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
 
-          validateEmail(email);
+        validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -741,7 +741,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     public boolean sendRegistrationMail(USUser user , String pass){
         Emailer email = new Emailer();
-        if (user.getEmail() != null) {
+        if (user.getEmail() != null && (!user.getEmail().isEmpty())) {
             return email.sendRegistrationMail(
                     user.getEmail(),
                     user.getUserName(),
@@ -802,7 +802,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public Boolean sendChangePasswordMail(String username){
         USUser user = checkUser(username, null, CheckUserEnum.UserName);
-        if (user != null){
+        if ((user != null) && (user.getEmail() != null) && (!user.getEmail().isEmpty())){
             return sendChangePasswordMail(user);
         }
 
@@ -952,9 +952,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Validates an email address -- throws an exception if it is not valid.
      */
     private void validateEmail(String email) throws InvalidValueException {
-      if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email)){
-            throw new InvalidValueException("Email address " + email + " is not valid.");
-        }
+        Emailer.validateEmail(email);
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
