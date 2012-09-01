@@ -536,7 +536,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         USUser user = checkUser(username, password, CheckUserEnum.UserNamePass);
         if (user == null) { return  null; }
         else {
-            logger.info("Login","User " + user.getUserName() + "logged in.");
+            logger.info("Login","User " + user.getUserName() + " logged in.");
             return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
     }
@@ -549,7 +549,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public SessionResponse openIDLogin(String openId) {
         USUser user = checkUser(openId);
         if (user != null){
-            logger.info("Login","User " + user.getUserName() + "logged in.");
+            logger.info("Login","User " + user.getUserName() + " logged in.");
             return new SessionResponse(generateSession(user), user.sharedUserWithoutDocuments());
         }
         return null;
@@ -564,7 +564,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
         session.logout();
-        logger.info("Login","User " + session.getUser().getUserName() + "logged out.");
+        logger.info("Login","User " + session.getUser().getUserName() + " logged out.");
         activeSessions.remove(sessionID);
 
         return null;
@@ -581,8 +581,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      */
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
-    	logger.debug("registration l. 582", name + " --- " + pass + " --- " + email + " --- " + openId);
-
         validateEmail(email);
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
@@ -603,11 +601,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
             usHibernateUtil.closeAndCommitSession(dbSession);
             sendRegistrationMail(user, pass);
-            logger.info("Login","Registered user" + user.getUserName());
+            logger.info("Login","Registered user " + user.getUserName());
             return true;
         } else {
             // bad, there is already a user with the given name
-        	logger.debug("registration l. 608", "bad, there is already a user with the given name");
 
             return false;
         }
@@ -620,7 +617,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @return true if registration is successful, false otherwise
      */
     public Boolean registration(String openId, Authentication data) throws InvalidValueException {
-    	logger.debug("registration l. 619", openId + " --- " + data);
         if (data != null){
             Random r = new Random();
             int pin = r.nextInt(9000) + 1000; // 4 random digits, the first one non-zero
@@ -1038,7 +1034,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                             || thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
                         activeSessions.remove(thisSession.getUser());
                         thisSession.kill();
-                        logger.info("SessionTimeOut","Session of user " + thisSession.getUser().getUserName() + "timed out.");
+                        logger.info("SessionTimeOut","Session of user " + thisSession.getUser().getUserName() + " timed out.");
                         activeSessions.remove(sessionID);
                     }
 
