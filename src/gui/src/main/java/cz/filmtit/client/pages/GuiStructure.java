@@ -1,16 +1,15 @@
 package cz.filmtit.client.pages;
 
 
+import com.github.gwtbootstrap.client.ui.Brand;
 import com.github.gwtbootstrap.client.ui.NavLink;
-import com.github.gwtbootstrap.client.ui.TextArea;
+import com.github.gwtbootstrap.client.ui.NavText;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import com.github.gwtbootstrap.client.ui.*;
-
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.Logout;
@@ -28,10 +27,9 @@ public class GuiStructure extends Composite {
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
-		allMenuItems = new NavLink[]{ documentCreator, about, welcomeScreen, userPage, settings, help };
+		allMenuItems = new NavLink[]{ documentCreator, welcomeScreen, userPage, settings, help };
 		
 		documentCreator.addClickHandler(new MenuClickHandler(Page.DocumentCreator));
-		about.addClickHandler(new MenuClickHandler(Page.About));
 		welcomeScreen.addClickHandler(new MenuClickHandler(Page.WelcomeScreen));
 		userPage.addClickHandler(new MenuClickHandler(Page.UserPage));
 		settings.addClickHandler(new MenuClickHandler(Page.Settings));
@@ -99,7 +97,6 @@ public class GuiStructure extends Composite {
 		welcomeScreen.setVisible(false);
 		userPage.setVisible(true);
 		documentCreator.setVisible(true);
-		about.setVisible(true);
 		settings.setVisible(true);
 		help.setVisible(true);
 		
@@ -120,7 +117,6 @@ public class GuiStructure extends Composite {
 		welcomeScreen.setVisible(true);
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
-		about.setVisible(true);
 		settings.setVisible(false);
 		help.setVisible(true);
 
@@ -140,7 +136,6 @@ public class GuiStructure extends Composite {
 		welcomeScreen.setVisible(false);
 		userPage.setVisible(false);
 		documentCreator.setVisible(false);
-		about.setVisible(false);
 		settings.setVisible(false);
 		help.setVisible(false);
 		
@@ -171,9 +166,6 @@ public class GuiStructure extends Composite {
 	NavLink settings;
 
 	@UiField
-	NavLink about;
-	
-	@UiField
 	NavLink help;
 	
 	/**
@@ -202,8 +194,6 @@ public class GuiStructure extends Composite {
 
 	private NavLink page2menuItem (Page page) {
 		switch (page) {
-		case About:
-			return about;
 		case WelcomeScreen:
 			return welcomeScreen;
 		case UserPage:
