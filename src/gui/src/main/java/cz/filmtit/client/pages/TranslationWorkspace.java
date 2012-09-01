@@ -118,6 +118,7 @@ public class TranslationWorkspace extends Composite {
     private static final int SOURCE_DIALOGMARK_COLNUMBER = 1;
     private static final int TARGET_DIALOGMARK_COLNUMBER = 3;
 
+    private String videoPath = null;
     private boolean isVideo=false;
 
     VLCWidget vlcPlayer;
@@ -125,8 +126,11 @@ public class TranslationWorkspace extends Composite {
         return vlcPlayer;
     }
     
+    //UI elements for VLC
     HTMLPanel playerFixedPanel = null;
     HTMLPanel fixedWrapper = null;
+    
+    
     // UI binder fields
     @UiField
     ScrollPanel scrollPanel;
@@ -145,8 +149,11 @@ public class TranslationWorkspace extends Composite {
     //      Initialization               //
     //                                   //
     ///////////////////////////////////////
+    
+    
+    
 
-    public TranslationWorkspace(Document doc, String path, DocumentOrigin documentOrigin) {
+    public TranslationWorkspace(Document doc, String videoPath, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
         Gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);
@@ -155,7 +162,8 @@ public class TranslationWorkspace extends Composite {
         // id = Random.nextInt(Integer.MAX_VALUE);
         currentWorkspace = this;
         
-        isVideo = path!=null;
+        isVideo = (videoPath!=null);
+        this.videoPath = videoPath;
         
         setCurrentDocument(doc);
         
@@ -194,63 +202,10 @@ public class TranslationWorkspace extends Composite {
         translationHPanel.setCellWidth(scrollPanel, "100%");
         //translationHPanel.setCellWidth(emptyPanel, "0%");
 
-        if (isVideo) {
-            HTMLPanel panelForVLC = Gui.getPanelForVLC();
-            playerFixedPanel = new HTMLPanel("");
-            
-            panelForVLC.add(playerFixedPanel);
-            playerFixedPanel.setWidth("100%");
-            playerFixedPanel.setHeight("250px");
-            playerFixedPanel.addStyleName("fixedPlayer");
-            table.addStyleName("tableMoved");
-            
-            fixedWrapper = new HTMLPanel("");
-            fixedWrapper.setWidth("984 px");
-
-
-            HTML leftLabel = new HTML("");
-            leftLabel.addStyleName("subtitleDisplayedLeft");
-            fixedWrapper.addStyleName("fixedPlayerWrapper");
-            fixedWrapper.add(leftLabel);
-
-
-            HTML rightLabel = new HTML("");
-            rightLabel.addStyleName("subtitleDisplayedRight");
-            
-            InlineLabel fromLabel = new InlineLabel("0:0:0");
-            InlineLabel toLabel = new InlineLabel("0:0:30");
-            Anchor pauseA = new Anchor("[pause]");
-            Anchor replayA = new Anchor("[replay]");
-            Anchor closeA = new Anchor("[close player]");
-   
-            vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, synchronizer, fromLabel, toLabel, pauseA, replayA, closeA, 0, this);
-            vlcPlayer.addStyleName("vlcPlayerDisplayed"); 
-            this.subgestHandler = new SubgestHandler(this);
-            fixedWrapper.add(vlcPlayer);
-
-            fixedWrapper.add(rightLabel);
-           
-            HTMLPanel playerStatusPanel = new HTMLPanel("");
-            playerStatusPanel.add(new InlineLabel("currently playing from "));
-            playerStatusPanel.add(fromLabel);
-            playerStatusPanel.add(new InlineLabel(" to "));
-            playerStatusPanel.add(toLabel);
- 
-            playerStatusPanel.add(new InlineLabel(" "));
-            playerStatusPanel.add(pauseA);
-            playerStatusPanel.add(new InlineLabel(" "));
-            playerStatusPanel.add(replayA);
-            playerStatusPanel.add(new InlineLabel(" "));
-            playerStatusPanel.add(closeA);
- 
-            fixedWrapper.add(playerStatusPanel);
-            playerStatusPanel.addStyleName("statusPanel");
-            
-            playerFixedPanel.add(fixedWrapper);
-
-        } else {
-            this.subgestHandler = new SubgestHandler(this);
-        }
+        
+        
+        
+        this.subgestHandler = new SubgestHandler(this);
         
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
         table.setWidget(0, SOURCETEXT_COLNUMBER, new Label("Original"));
@@ -604,6 +559,14 @@ public class TranslationWorkspace extends Composite {
     
 
      public void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
+          if (isVideo) {
+              playerFixedPanel = new HTMLPanel("");
+              fixedWrapper = new HTMLPanel("");
+
+              vlcPlayer = VLCWidget.initVLCWidget(videoPath, playerFixedPanel, table, fixedWrapper, synchronizer, this);            
+          }
+          
+          
           Scheduler.get().scheduleIncremental(new ShowOriginalCommand(original));
           Scheduler.get().scheduleIncremental(new ShowUserTranslatedCommand(translated));
           prepareSendChunkCommand(untranslated) ; 
