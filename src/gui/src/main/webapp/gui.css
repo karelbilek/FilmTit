@@ -410,3 +410,26 @@ style copied from bootstrap's .modal and edited
     margin-bottom: 2em;
     font-style: italic;
 }
+
+/* HELP section */
+
+div.figure {
+	width: 100%;
+	text-align: center;
+	margin: 2em 0;
+}
+
+p.caption {
+	color: #333;
+	font-weight: bold;
+}
+
+div.help h1, div.help h2, div.help h3, div.help h4, div.help h5, div.help h6 {
+	margin: 1em 0 0.2em 0;
+	
+}
+
+div.help {
+	padding-bottom: 5em;
+}
+
