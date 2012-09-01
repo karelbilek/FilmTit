@@ -6,7 +6,7 @@
 <hibernate-mapping package="cz.filmtit.share">
 
     <class name="cz.filmtit.share.MediaSource" table="mediasources">
-        <id name="id" type="long" column="source_id">
+        <id name="id" type="long" column="source_id" unsaved-value="-9223372036854775808">
             <generator class="increment"/>
         </id>
 
