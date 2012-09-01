@@ -64,8 +64,13 @@
                     Your password: %userpass%
                 </entry>
                 <entry key="mail.filmtit.registrationBody">
-                    Hello user %userlogin%,
+                    Hello %userlogin%,
+
                     Thank you for using FilmTit.
+                    Your registration was successful and you can start translating now!
+                    See at http://filmtit.cz
+
+                    FilmTit
                 </entry>
                 <entry key="mail.filmtit.forgottenPassBody">
                     Hello,
