@@ -25,6 +25,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	public static final char HM_DELIMITER = ':';
 	public static final char MS_DELIMITER = ':';
 	public static final char ST_DELIMITER = ',';
+    public static final String ZERO_TIME = "00:00:00,000";
     
                                                             //negative time appears time to time
     public static final RegExp timeExtractor  = RegExp.compile("(-?[0-9]+):(-?[0-9]+):(-?[0-9]+)[,:.](-?[0-9]+)");

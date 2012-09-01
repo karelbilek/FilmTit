@@ -323,18 +323,13 @@ public class TranslationWorkspace extends Composite {
      * and now probably holds a reference to an open MediaSelector
       */
      public void processText(String subtext, String subformat, CreateDocument createDocumentCall) {
-          // dump the input text into the debug-area:
-    	  // Gui.log("processing the following input:\n" + subtext + "\n");
 
-          //chunkmap = new HashMap<ChunkIndex, TimedChunk>();
-          //reverseTimeMap = new TreeMap<Double, TranslationResult>();
-
-          // determine format (from corresponding radiobuttons) and choose parser:
+          // choose the appropriate parser:
           Parser subtextparser;
-          if (subformat == "sub") {  // i.e. ".sub" is checked
+          if (subformat == "sub") {
                subtextparser = Parser.PARSER_SUB;
           }
-          else {  // i.e. ".srt" is checked
+          else {
                assert subformat == "srt" : "One of the subtitle formats must be chosen.";
                subtextparser = Parser.PARSER_SRT;
           }
@@ -353,10 +348,10 @@ public class TranslationWorkspace extends Composite {
         	  Window.alert("There was an error parsing the subtitle file:\n" + e.getMessage());
         	  // logging
         	  Gui.log("There was an error parsing the subtitle file!");
-        	  Gui.exceptionCatcher(e, false);
+              //Gui.exceptionCatcher(e, false);
         	  // action
-        	  Gui.getPageHandler().loadPage(Page.DocumentCreator);
-        	  new DeleteDocumentSilently(currentDocument.getId());
+        	  Gui.getPageHandler().loadPage(Page.DocumentCreator, true);
+              new DeleteDocumentSilently(currentDocument.getId());
         	  // return prematurely
         	  return;
 		  }
