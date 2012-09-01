@@ -6,6 +6,7 @@ import com.google.gwt.user.client.Element;
 import cz.filmtit.share.*;
 import cz.filmtit.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import java.util.List;
 import java.util.LinkedList;
@@ -133,25 +134,25 @@ public class VLCWidget extends HTML {
         this.endLabel = endLabel;
         this.reloadedTimes=reloadedTimes;
         this.workspace = workspace;
-        stopA.addClickListener(new ClickListener() {
+        stopA.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 stopped=true;
                 togglePlaying();    
             }
         });
-        replayA.addClickListener(new ClickListener() {
+        replayA.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 stopPlaying();
                 playPart(begin, end);
 
             }
         });
         
-        closeA.addClickListener(new ClickListener() {
+        closeA.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
             	if (workspace != null) {
                     workspace.turnOffPlayer();
             	}
@@ -244,12 +245,14 @@ public class VLCWidget extends HTML {
     //I will try to discover this later, not now though
     public static native void togglePlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        vlc.playlist.togglePause();
+        if (vlc) {
+            vlc.playlist.togglePause();
+        }
     }-*/;
 
     public static native void startPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if (!vlc.playlist.isPlaying) {
+        if (vlc && !vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
     }-*/;
@@ -266,7 +269,7 @@ public class VLCWidget extends HTML {
 
     public static native void stopPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if (vlc.playlist.isPlaying) {
+        if (vlc && vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
     }-*/;
@@ -274,24 +277,28 @@ public class VLCWidget extends HTML {
     static double watchend=0;
     public static native void playPartOfThis(Element el, double start, double end, VLCWidget widget) /*-{
         var vlc = el.querySelector("#video");
-        vlc.input.time = start;
+        
+        if (vlc) {
+            vlc.input.time = start;
 
-        watchend = end;
-        if (!vlc.playlist.isPlaying) {
-            vlc.playlist.togglePause();
+            watchend = end;
+            
+            if (!vlc.playlist.isPlaying) {
+                vlc.playlist.togglePause();
+            }
+            setTimeout(function look() { 
+                var it = vlc.input.time;
+                widget.@cz.filmtit.client.widgets.VLCWidget::updateGUI(D)(it);
+
+                if(it>watchend) {
+                    if (vlc.playlist.isPlaying) {
+                        vlc.playlist.togglePause();
+                    }
+                } else {
+                    setTimeout(look, 600);
+                } 
+            }, 600);
         }
-        setTimeout(function look() { 
-            var it = vlc.input.time;
-            widget.@cz.filmtit.client.widgets.VLCWidget::updateGUI(D)(it);
-
-            if(it>watchend) {
-                if (vlc.playlist.isPlaying) {
-                    vlc.playlist.togglePause();
-                }
-            } else {
-                setTimeout(look, 600);
-            } 
-        }, 600);
     }-*/;
 
     public double getStatus() {
