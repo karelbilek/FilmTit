@@ -57,9 +57,10 @@
                 <entry key="mail.filmtit.registrationSubject">Registration on Filmtit</entry>
                 <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>
                 <entry key="mail.filmtit.registrationOpenIDBody" >
-                    Thank you for using FilmTit. Altough you are using OpenID, we have created a FilmTit registration for you in
-                    case that there should be any problems with your OpenID provider. This is just a backup account for you to
-                    keep and you can safely continue using your OpenID login.
+                    Thank you for using FilmTit. Altough you are using OpenID, we have created a
+                    FilmTit registration for you in case that there should be any problems with your
+                    OpenID provider. This is just a backup account for you to keep and you can
+                    safely continue using your OpenID login.
                     Your login: %userlogin%
                     Your password: %userpass%
                 </entry>
