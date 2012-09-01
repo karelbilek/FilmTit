@@ -56,11 +56,16 @@
                 <entry key="mail.smtps.auth">true</entry>
                 <entry key="mail.filmtit.registrationSubject">Registration on Filmtit</entry>
                 <entry key="mail.filmtit.forgottenPassSubject">Request for change password on Filmtit</entry>
-                <entry key="mail.filmtit.registrationBody">
-                    Congratulation,
-                    your email address was registered in the FilmTit app.
+                <entry key="mail.filmtit.registrationOpenIDBody" >
+                    Thank you for using FilmTit. Altough you are using OpenID, we have created a FilmTit registration for you in
+                    case that there should be any problems with your OpenID provider. This is just a backup account for you to
+                    keep and you can safely continue using your OpenID login.
                     Your login: %userlogin%
                     Your password: %userpass%
+                </entry>
+                <entry key="mail.filmtit.registrationBody">
+                    Hello user %userlogin%,
+                    Thank you for using FilmTit.
                 </entry>
                 <entry key="mail.filmtit.forgottenPassBody">
                     Hello,
@@ -70,7 +75,7 @@
                     You can change your password using this URL: %changeurl%
                 </entry>
                 <entry key="mail.filmtit.address">filmtit@gmail.com</entry>
-                <entry key="mail.filmtit.password">jkhrjj2012</entry>
+                <entry key="mail.filmtit.password">2012</entry>
             </properties>
         </mail>
         <openid>

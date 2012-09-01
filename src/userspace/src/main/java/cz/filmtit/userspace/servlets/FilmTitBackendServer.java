@@ -584,6 +584,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     	logger.debug("registration l. 582", name + " --- " + pass + " --- " + email + " --- " + openId);
 
         validateEmail(email);
+        boolean  isOpenIdRegistration = openId == null ? false : !openId.isEmpty();
         // create user
         USUser check = checkUser(name,pass,CheckUserEnum.UserName);
         if (check == null){
@@ -602,8 +603,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             user.saveToDatabase(dbSession);
 
             usHibernateUtil.closeAndCommitSession(dbSession);
-            sendRegistrationMail(user, pass);
-            logger.info("Login","Registered user" + user.getUserName());
+
+            sendRegistrationMail(user, pass,isOpenIdRegistration);
+
+                logger.info("Login","Registered user" + user.getUserName());
             return true;
         } else {
             // bad, there is already a user with the given name
@@ -756,8 +759,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param pass User's password
      * @return Sign if sending email was succesful.
      */
-    public boolean sendRegistrationMail(USUser user , String pass){
+    public boolean sendRegistrationMail(USUser user , String pass, boolean openId){
         Emailer email = new Emailer();
+        if (openId) email.openIDSource();
         if (user.getEmail() != null && (!user.getEmail().isEmpty())) {
             return email.sendRegistrationMail(
                     user.getEmail(),
