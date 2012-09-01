@@ -50,12 +50,13 @@ The initial results are shown below.
 \end{tabular}
 \end{center}
 
-\caption{Initial results (note that the time is not directly comparable with the times below thanks to the pre-filtering, as described below)}\label{moses:initialresults}
+\caption{Initial results (note that the time is not directly comparable with the times below due to the pre-filtering, as described below)}\label{moses:initialresults}
 \end{table}
 
-We were very pleasantly surprised that our initial results were better than Google Translate, without really doing anything ``smart'' on our part. This is, however, definitely caused by a smaller domain. On the \texttt{newstest2012} set, Google's results were still quite good, while ours were terribly low\todo{I don't have time to show concrete numbers now. If I have more time, will do.}; the phrases in newspapers are completely different than phrases in subtitles.
+We were very pleasantly surprised that our initial results were better than Google Translate, without really doing anything ``smart'' on our part. This is, however, definitely caused by a smaller domain. On the \texttt{newstest2012} set, Google's results were still quite good, while ours were terribly low; the phrases in newspapers are completely different from phrases in subtitles.
+%\todo{I don't have time to show concrete numbers now. If I have more time, will do.}
 
-The time looked good on the first glance; however, real times observed didn't line up with the results with the model. The difference was actually caused by EMT filtering (seen on \ref{moses:initial} as ``filter''). EMT, before doing the final tests, actually filters the models in such a way that only needed parts are loaded; the actual time of the final test is, then, much lower.
+The time looked good on the first glance; however, real times observed did not line up with the results of using the model. The difference was caused by EMT filtering (seen in Table~\ref{moses:initial} as ``filter''). EMT, before doing the final tests, actually filters the models in such a way that only needed parts are loaded; the actual time of the final test is, then, much lower.
 
 Also, even when we did not optimize for time spent on initial learning, the learning phase was too long to make any experiments effective. We addressed this issue, too.
 
