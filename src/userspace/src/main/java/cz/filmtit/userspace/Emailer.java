@@ -8,6 +8,7 @@ package cz.filmtit.userspace;
  */
 
 import cz.filmtit.core.ConfigurationSingleton;
+import cz.filmtit.share.exceptions.InvalidValueException;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -164,6 +165,12 @@ public class Emailer {
 
     }
 
-
+    public static boolean validateEmail(String email) throws InvalidValueException {
+        if (email.isEmpty()) return true; // empty email for registration
+        if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email)) {
+            throw new InvalidValueException("'" + email + "' is not a valid email address.");
+        }
+        return true;
+    }
 
 }
