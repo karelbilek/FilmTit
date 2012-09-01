@@ -123,6 +123,13 @@ public class LogMessage extends DatabaseObject {
 		return user;
 	}
 
+    private long getUserId() {
+        if (user == null) { return -1; }
+        return user.getDatabaseId();
+    }
+
+    private void setUserId(long userId) {}
+
     /**
      * Since it does not wrap any object, it gets directly the database ID.
      * @return The database ID.

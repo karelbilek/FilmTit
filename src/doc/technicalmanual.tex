@@ -341,7 +341,8 @@ Settings of the email subjects and bodies follows. In the registration email bod
 \item \verb#mail.filmtit.forgottenPassSubject# -- subject for forgotten password email
 \item \verb#mail.filmtit.forgottenPassBody# -- text body for forgotten password email
 \item \verb#mail.filmtit.registrationSubject# -- subject for registration email
-\item \verb#mail.filmtit.registrationBody# -- text body of registration email
+\item \verb#mail.filmtit.registrationBody# -- text body of email, which is send during classic form registration 
+\item \verb#mail.filmtit.registrationOpenIDBody# -- text body of email, which is send during openID registration 
 \end{itemize}
 
 \lstset{numbers=none, language=XML, caption={Settings for sending emails, second part of the User Space settings.}}
@@ -358,12 +359,24 @@ Settings of the email subjects and bodies follows. In the registration email bod
              <entry key="mail.smtps.auth">true</entry>
              <entry key="mail.filmtit.registrationSubject">Registration on Filmtit</entry>
              <entry key="mail.filmtit.forgottenPassSubject">Request for changing your password on Filmtit</entry>
-             <entry key="mail.filmtit.registrationBody">
-                 Congratulation,
-                 your email address was registered on Filmtit.
-                 Your login: %userlogin%
-                 Password: %userpass%
-             </entry>
+             <entry key="mail.filmtit.registrationOpenIDBody" >
+                    Thank you for using FilmTit. Altough you are using OpenID,  
+                    we have created a FilmTit registration for you in
+                    case that there should be any problems with your OpenID 
+                    provider. This is just a backup account for you to
+                    keep and you can safely continue using your OpenID login.
+                    Your login: %userlogin%
+                    Your password: %userpass%
+                </entry>
+                <entry key="mail.filmtit.registrationBody">
+                    Hello %userlogin%,
+
+                    Thank you for using FilmTit.
+                    Your registration was successful and you can start translating now!
+                    See you at http://filmtit.cz
+
+                    FilmTit
+                </entry>
              <entry key="mail.filmtit.forgottenPassBody">
                  Hello,
                  there was a request for changing the password
