@@ -29,7 +29,7 @@ import cz.filmtit.share.LoginSessionResponse;
 			loginDialog.close();
 			
             // open the authentication window
-			Window.open(url, "AuthenticationWindow", "width=400,height=500");
+			Window.open(url, "AuthenticationWindow", "width=600,height=500");
 			
 			// start polling for SessionID
 			new SessionIDPolling(authID);
