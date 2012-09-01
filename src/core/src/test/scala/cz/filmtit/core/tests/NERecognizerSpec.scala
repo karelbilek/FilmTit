@@ -43,7 +43,6 @@ class NERecognizerSpec extends Spec {
       val chunk: Chunk = "My name is Peter Fonda and I work for IBM Inc. in New York"
       personNER.detect(chunk)
       placeNER.detect(chunk)
-      println(toAnnotatedString(chunk))
       assertEquals(
         "My name is <Person> and I work for IBM Inc. in <Place>",
         toAnnotatedString(chunk)
