@@ -7,7 +7,7 @@
 
     <class name="USTranslationResult" table="translationresults">
         <id name="databaseId" type="long" column="id">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
 
         <properties name="uniq" unique="true">

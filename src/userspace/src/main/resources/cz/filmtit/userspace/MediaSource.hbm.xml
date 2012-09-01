@@ -7,7 +7,7 @@
 
     <class name="cz.filmtit.share.MediaSource" table="mediasources">
         <id name="id" type="long" column="source_id">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
 
         <property name="title" type="text" column="title" />
