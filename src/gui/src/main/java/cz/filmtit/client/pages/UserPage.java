@@ -122,7 +122,7 @@ public class UserPage extends Composite {
 					// refresh to show the original one
 					Gui.getPageHandler().refresh();
 				}
-				else if (newTitle.equals(doc.getMovie().toString())) {
+				else if (doc.getMovie() != null && doc.getMovie().toString().equals(newTitle)) {
 					// not changed, ignore
 				}
 				else {
