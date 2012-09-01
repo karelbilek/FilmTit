@@ -1,7 +1,5 @@
 \label{chap:moses}
 
-\todo{This whole chapter is VERY dense and VERY technical. I will have to rewrite it to something more readable..... MAYBE... DAMN THERE IS NO  TIME FOR ANYTHING}
-
 Although our initial plan was to show translation memory only to the translator, we found out that we can also use the corpus to train a model for statistical machine translation. However, we also found that despite getting quite good results from the translation, the durations for getting the translations were too long, compared to the translation memory.
 
 In this chapter, we will describe, how we trained the models, our results and how we managed to get the time cost down. The final model is a part of our project; the script to produce the model from the aligned data is not included, since it would require changes to EMS source code\footnote{EMS is the Experiment Management System, a system for managing Moses experiments, \url{http://www.statmt.org/moses/?n=FactoredTraining.EMS}}, which are untested at the moment and beyond the scope of this project.
@@ -109,11 +107,11 @@ As described in the original paper, pruning the table actually did increase the 
 \subsection{Binarizing the models}
 All models -- reordering model, language model and translation table (both pruned and upruned) -- can be binarized. Binarization is a process in which the table is written in such a format that can be read from disk and loaded to memory only on-demand.
 
-Binarizing is done primarily for decrease of needed memory instead of making the translation faster. Actually, we originally expected the binarized models to be slower, since disk reading is slower than memory reading.
+Binarizing is done primarily for a decrease of the memory requirement, not for making the translation faster. Actually, we originally expected the binarized models to be slower, since  reading from disk  is slower than reading from memory.
 
 Binarizing is also not a part of EMS (probably because it is expected to use the filtering, which cleans the models according to the test set), so we also had to add it to the source.
 
-With the experiments, we \emph{had} to binarize the reordering models and the language models, because the unbinarized versions doesn't fit into the 4GB memory. However, with the pruned translation table, we could try both binarized and unbinarized version, because unbinarized version fits into memory.
+With the experiments, we \emph{had} to binarize the reordering models and the language models, because the unbinarized versions do not fit into the 4GB memory. However, with the pruned translation table, we could try both binarized and unbinarized version, because unbinarized version fits into memory.
 
 In the tables below, we will write \emph{Time per sentence} as \emph{tps} to save space.
 
@@ -136,14 +134,14 @@ In the tables below, we will write \emph{Time per sentence} as \emph{tps} to sav
 
 We can notice that with the binarized models, the translation is actually \emph{faster}, if only for a small margin. We think that this is because the on-demand loading actually loads the needed items into memory, so they are not read from disk.
 
-We can also notice that unpruned binarized table takes about as much memory as pruned binarized table, but the time per sentence is much bigger.
+We can also notice that the unpruned binarized table takes about as much memory as the pruned binarized table, but the time per sentence is much bigger.
 
-We can also notice that for the pruned table, the time is almost inversely proportional to the number of threads, but not in the case of unpruned table. We can only speculate why is it so; maybe it is because the disk performance is ``hitting'' us more in the case of bigger unpruned table.
+Another issue is that for the pruned table, the time is almost inversely proportional to the number of threads, but not in the case of the unpruned table. We can only speculate why this is the case; maybe it is because the disk performance is ``hitting'' us more in the case of the bigger unpruned table.
 
 \subsection{Smaller cube pruning}
-Cube pruning is a way to search in a hypothesis space in phrase-based translations\footnote{More described in \emph{Hierarchical Phrase-Based Translation}, David Chiang, 2007}. It adds numbers of hypotheses into a stack which is then pruned; this number can be set up as \texttt{cube-pruning-pop-limit}.
+Cube pruning is a way to search the hypothesis space in phrase-based translations\footnote{For more information, see \emph{Hierarchical Phrase-Based Translation}, David Chiang, 2007}. It adds a number of  hypotheses into a stack, which is then pruned; this number can be set up as \texttt{cube-pruning-pop-limit}.
 
-It has been implemented in Moses and is default when using EMS, the number is set as 5000. We found out that by setting this number smaller, we can make the translation faster with small change in the BLEU score. 
+It has been implemented in Moses and is default when using EMS, the number is set as 5000. We found out that by decreasing this number, we can make the translation faster with only a minor change in BLEU score.
 
 \begin{table}[h]
 \begin{center}
@@ -169,10 +167,10 @@ It has been implemented in Moses and is default when using EMS, the number is se
 \caption{Pruning the phrase table}\label{moses:cubepruning}
 \end{table}
 
-The BLEU is, except for very small stack size, very slightly changed, while time is dramatically reduced by smaller stack size. For that reason, we chose 250 as our stack size; the BLEU loss is not that significant, while we push down the time to 7 millisecond.
+The BLEU score is, except for very small stack size, changed only slightly, while the time is dramatically reduced by a smaller stack size. For that reason, we chose 250 as our stack size; the BLEU loss is not that significant, while we push down the time to 7 millisecond.
 
 \subsection{Multithreading}
-Moses can be run in multithreading mode. Too many threads or too little threads can make the translation slow.
+Moses can be run in multithreading mode. Too many threads or too few threads can make the translation slow.
 
 We tried the model, described above, on various numbers of threads. (All with cube pruning size 250).
 
@@ -200,18 +198,19 @@ We can see that the time is optimal, when the number of threads is the same as t
 
 \subsubsection*{Final model}
 To reiterate, our final Moses settings:
+
 \begin{itemize}
     \item uses all models binarized,
-    \item uses pruned translation table,
+    \item uses a pruned translation table,
     \item uses cube pruning with stack sized 250,
     \item uses the same number of threads as cores.
 \end{itemize}
 
-This model (which means the actual model files, the \texttt{moses.ini} file and the script to run Moses as a server with correct settings) are both part of the project and on the virtual machine.
+This model (i.e.\ the actual model files, the \texttt{moses.ini} file and the script to run Moses as a server with correct settings) are both part of the project and on the virtual machine.
 
 \subsection{Virtual machine}
-All experiments were done on testing machine.
+All experiments were done on a testing machine.
 
-Production machine, which were given to us by \todo{how to write it better?}mr. Fučík, had less cores and less memory, so we actually \emph{had} to use all binarized models (since unbinarized translation table doesn't fit into memory) and, because of 2 cores, we use only 2 threads. Also, we have a slight problem with the space, since the reordering model alone takes about 7GB of space, and together with the space of database it barely fits on the virtual machine, so because of Moses, we have to run with only 1.5GB of free space.
+The production machine, which we were provided by the university, had less cores and less memory, so we actually \emph{had} to use all binarized models (since unbinarized translation table does not fit into memory) and, because there are only 2 cores, we use only 2 threads. Also, we have a slight problem with the space, since the reordering model alone takes about 7GB of space, and together with the space of database it barely fits on the virtual machine, so because of Moses, we have to run with only 1.5GB of free space.
 
-However, we think inclusion of machine translation is worth it, since translation memory give results only in some cases, while machine translation always returns something, and thanks to small domain, the results are quite good and fast.
+However, we think that the inclusion of machine translation is worth it, since the translation memory cannot provide results for all cases, while machine translation always returns something, and thanks to the small domain, the results are quite good and fast.
