@@ -112,8 +112,11 @@ public class VLCWidget extends HTML {
         hidden = true;
     }
 
+
+
+
     @SuppressWarnings("deprecation")
-    public VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
+    protected VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
                         InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA, Anchor closeA,
                         int reloadedTimes, final TranslationWorkspace workspace) {
         super(buildVLCCode(path, width, height));
@@ -330,6 +333,64 @@ public class VLCWidget extends HTML {
             //Window.alert("NEEEEEEEE");
         }
     }
+    
+    
+    
+    public static VLCWidget initVLCWidget(String path, HTMLPanel playerFixedPanel, FlexTable table, HTMLPanel fixedWrapper, SubtitleSynchronizer synchronizer, TranslationWorkspace workspace) {
+        HTMLPanel panelForVLC = Gui.getPanelForVLC();
+        
+        
+        panelForVLC.add(playerFixedPanel);
+        playerFixedPanel.setWidth("100%");
+        playerFixedPanel.setHeight("250px");
+        playerFixedPanel.addStyleName("fixedPlayer");
+        table.addStyleName("tableMoved");
+        
+        fixedWrapper.setWidth("984 px");
+
+
+        HTML leftLabel = new HTML("");
+        leftLabel.addStyleName("subtitleDisplayedLeft");
+        fixedWrapper.addStyleName("fixedPlayerWrapper");
+        fixedWrapper.add(leftLabel);
+
+
+        HTML rightLabel = new HTML("");
+        rightLabel.addStyleName("subtitleDisplayedRight");
+        
+        InlineLabel fromLabel = new InlineLabel("0:0:0");
+        InlineLabel toLabel = new InlineLabel("0:0:30");
+        Anchor pauseA = new Anchor("[pause]");
+        Anchor replayA = new Anchor("[replay]");
+        Anchor closeA = new Anchor("[close player]");
+
+        VLCWidget vlcPlayer = new VLCWidget(path, 400, 225, leftLabel, rightLabel, synchronizer, fromLabel, toLabel, pauseA, replayA, closeA, 0, workspace);
+        vlcPlayer.addStyleName("vlcPlayerDisplayed"); 
+        fixedWrapper.add(vlcPlayer);
+
+        fixedWrapper.add(rightLabel);
+       
+        HTMLPanel playerStatusPanel = new HTMLPanel("");
+        playerStatusPanel.add(new InlineLabel("currently playing from "));
+        playerStatusPanel.add(fromLabel);
+        playerStatusPanel.add(new InlineLabel(" to "));
+        playerStatusPanel.add(toLabel);
+
+        playerStatusPanel.add(new InlineLabel(" "));
+        playerStatusPanel.add(pauseA);
+        playerStatusPanel.add(new InlineLabel(" "));
+        playerStatusPanel.add(replayA);
+        playerStatusPanel.add(new InlineLabel(" "));
+        playerStatusPanel.add(closeA);
+
+        fixedWrapper.add(playerStatusPanel);
+        playerStatusPanel.addStyleName("statusPanel");
+        
+        playerFixedPanel.add(fixedWrapper);
+        return vlcPlayer;
+    }
+    
+    
 }
 
 
