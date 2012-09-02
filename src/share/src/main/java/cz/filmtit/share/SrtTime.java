@@ -114,8 +114,12 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	public String getStringT() {
 		return Integer.toString(t);
 	}
-	
-	// setters from int
+
+    /**
+     * Set hours
+     * @param h  Int
+     * @throws InvalidValueException If  h > 99
+     */
 	public void setH(int h) throws InvalidValueException {
 		if (0 <= h && h <= 99) {
 			this.h = h;
@@ -126,6 +130,12 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			throw new InvalidValueException("Value of h must be 0 <= h <= 99, '" + h + "' is invalid!");
 		}
 	}
+
+    /**
+     * Set minutes
+     * @param m  Int
+     * @throws InvalidValueException If  m > 59
+     */
 	public void setM(int m) throws InvalidValueException {
 		if (0 <= m && m <= 59) {
 			this.m = m;
@@ -136,6 +146,12 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			throw new InvalidValueException("Value of m must be 0 <= m <= 59, '" + m + "' is invalid!");
 		}
 	}
+
+    /**
+     * Set seconds
+     * @param s  Int
+     * @throws InvalidValueException If  s > 59
+     */
 	public void setS(int s) throws InvalidValueException {
 		if (0 <= s && s <= 59) {
 			this.s = s;
@@ -146,6 +162,11 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			throw new InvalidValueException("Value of s must be 0 <= s <= 59, '" + s + "' is invalid!");
 		}
 	}
+    /**
+     * Set miliseconds
+     * @param t  Int
+     * @throws InvalidValueException If  t > 999
+     */
 	public void setT(int t) throws InvalidValueException {
 		if (0 <= t && t <= 999) {
 			this.t = t;
@@ -157,7 +178,11 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		}
 	}
 
-	// setters from String
+    /**
+     * Set hours from String
+     * @param h  String
+     * @throws InvalidValueException If  h > 99 or not representing number
+     */
 	public void setH(String h) throws InvalidValueException {
 		if (h == null || h.isEmpty()) {
 			setH(0);
@@ -171,6 +196,12 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			}
 		}
 	}
+
+    /**
+     * Set minutes from String
+     * @param m  String
+     * @throws InvalidValueException If  m > 59 or not representing number
+     */
 	public void setM(String m) throws InvalidValueException {
 		if (m == null || m.isEmpty()) {
 			setM(0);
@@ -184,6 +215,12 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			}
 		}
 	}
+
+    /**
+     * Set seconds from String
+     * @param s  String
+     * @throws InvalidValueException If  h > 59 or not representing number
+     */
 	public void setS(String s) throws InvalidValueException {
 		if (s == null || s.isEmpty()) {
 			setS(0);
@@ -197,6 +234,12 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			}
 		}
 	}
+
+    /**
+     * Set miliseconds from String
+     * @param t  String
+     * @throws InvalidValueException If  t > 999 or not representing number
+     */
 	public void setT(String t) throws InvalidValueException {
 		if (t == null || t.isEmpty()) {
 			setT(0);
@@ -211,13 +254,26 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		}
 	}
 
-	// constructors
+    /**
+     * Creates instance with integres
+     * @param h Hours
+     * @param m Minutes
+     * @param s Seconds
+     * @param t Miliseconds
+     * @throws InvalidValueException
+     */
 	public SrtTime(int h, int m, int s, int t) throws InvalidValueException {
 		setH(h);
 		setM(m);
 		setS(s);
 		setT(t);
 	}
+
+    /**
+     * Gets instance from String, which represents time
+     * @param time
+     * @throws InvalidValueException if string is not in valid time format
+     */
 	public SrtTime(String time) throws InvalidValueException {
         if (timeExtractor.test(time)) {
             MatchResult mr = timeExtractor.exec(time);
@@ -237,7 +293,8 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	}
 	
 	/**
-	 * hh:mm:ss,ttt
+     * To format hh:mm:ss,ttt
+     * @return  Date string
 	 */
 	@Override
 	public String toString() {
@@ -273,7 +330,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	}
 	
 	/**
-	 * 
+	 *  Represents time in ms
 	 * @return The time represented by this object, in miliseconds.
 	 */
 	public int toMs() {
@@ -366,6 +423,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	/**
 	 * hh:mm:ss,ttt - hh:mm:ss,ttt
 	 * (to be used to display in GUI)
+     * @return String for Gui diplaying
 	 */
 	public static String toDisplayInterval(Object start, Object end) {
 		StringBuilder sb = new StringBuilder();
@@ -381,6 +439,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	/**
 	 * hh:mm:ss,ttt --> hh:mm:ss,ttt
 	 * (to be used to export to SRT)
+     * @return string for Export subtitle format
 	 */
 	public static String toSrtInterval(Object start, Object end) {
 		StringBuilder sb = new StringBuilder();
@@ -389,7 +448,11 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 		sb.append(end);
 		return sb.toString();
 	}
-	
+
+    /**
+     * Create copy of object
+     * @return  StrTime
+     */
 	public SrtTime clone() {
 		SrtTime result = null;
 		try {
