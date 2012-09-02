@@ -12,6 +12,8 @@ import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.InvalidValueException;
+
 import java.util.*;
 
 /**
@@ -38,6 +40,17 @@ public class SaveSourceChunks extends Callable<Void> {
         	if (workspace != null) {
                 workspace.showSources(chunks);
         	}
+        }
+        
+        @Override
+        public void onFailureAfterLog(Throwable returned) {
+	        if (returned instanceof InvalidValueException) {
+	        	// the file format is invalid, lets delete the document
+	        	onFinalError(returned.getLocalizedMessage());
+	        }
+	        else {
+		        super.onFailureAfterLog(returned);
+	        }
         }
         
         @Override
