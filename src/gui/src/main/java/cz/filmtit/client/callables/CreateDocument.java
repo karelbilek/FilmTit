@@ -10,6 +10,7 @@ import cz.filmtit.client.ReceivesSelectSource;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.MediaSelector;
+import cz.filmtit.client.pages.DocumentCreator;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 import cz.filmtit.share.DocumentResponse;
@@ -37,6 +38,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 		private Dialog mediaSelector;
 		private long documentId;
 		private TranslationWorkspace workspace;
+		private DocumentCreator documentCreator;
 		
         @Override
         public String getName() {
@@ -47,6 +49,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
         public void onSuccessAfterLog(DocumentResponse result) {
 
             workspace = new TranslationWorkspace(result.document, moviePath, DocumentOrigin.NEW);
+            documentCreator.reactivate();
             documentId = result.document.getId();
             mediaSelector = new MediaSelector(result.mediaSourceSuggestions, this);
             
@@ -93,9 +96,10 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 		 * (without source chunks, which have to be added by calling SaveSourceChunks).
 		 * On return creates a Translation Workspace where it starts parsing the subtitle text
 		 * and lets the user select the media source opening a MediaSelector.
+		 * @param documentCreator the document creator used to create the document
 		 */
 		public CreateDocument(String documentTitle, String movieTitle, String language,
-				String subtext, String subformat, String moviePath) {
+				String subtext, String subformat, String moviePath, DocumentCreator documentCreator) {
 			super();
 			
 			this.documentTitle = documentTitle;
@@ -104,6 +108,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 			this.subtext = subtext;
 			this.subformat = subformat;
 			this.moviePath = moviePath;
+			this.documentCreator = documentCreator;
 			
 			enqueue();
 		}

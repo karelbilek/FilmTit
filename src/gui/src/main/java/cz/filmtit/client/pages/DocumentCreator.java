@@ -165,7 +165,7 @@ public class DocumentCreator extends Composite {
         
         Gui.getGuiStructure().contentPanel.setWidget(this);
         
-        
+        Gui.getPageHandler().setCurrentDocumentCreator(this);
 	}
 		
 	/*@Override
@@ -205,7 +205,8 @@ public class DocumentCreator extends Composite {
                 getChosenLanguage(),
                 subtext,
                 "srt",
-                getMoviePathOrNull()
+                getMoviePathOrNull(),
+                this
                 );                
     // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success       
         
@@ -268,15 +269,6 @@ public class DocumentCreator extends Composite {
     } */  
     
     
-
-
-    @UiField
-    NavLink playerInfo;
-    @UiHandler("playerInfo")
-    void showPlayerInfo(ClickEvent e) {
-    	Gui.getPageHandler().loadPage(Page.PlayerInfo);
-    }
-    
     @UiField
     Button btnApplet;
 
@@ -311,6 +303,15 @@ public class DocumentCreator extends Composite {
         }
         else return "utf-8";  // default value
     }
+    
+    /**
+     * prepare for being reshown to the user
+     */
+
+	public void reactivate() {
+        btnCreateDocument.setEnabled(true);
+        lblCreateProgress.setVisible(false);
+	}
 
     /*public String getChosenSubFormat() {
         if (rdbFormatSrt.getValue()) {
