@@ -2,6 +2,8 @@ package cz.filmtit.share;
 
 import java.io.Serializable;
 /**
+ * Represents a language.
+ *
  * @author Joachim Daiber
  */
 public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
@@ -66,8 +68,8 @@ public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, S
     /**
      * Gets a string representing the translation direction,
      * using language codes.
-     * @param from
-     * @param to
+     * @param from Source Language
+     * @param to Target Language
      * @return e.g. "en>cs"
      */
     public static String getTranslationDirectionCodes(Language from, Language to) {
@@ -86,8 +88,8 @@ public enum Language implements com.google.gwt.user.client.rpc.IsSerializable, S
     /**
      * Gets a string representing the translation direction,
      * using language names.
-     * @param from
-     * @param to
+     * @param from Source language
+     * @param to Target language
      * @return e.g. "English > Czech"
      */
     public static String getTranslationDirectionNames(Language from, Language to) {
