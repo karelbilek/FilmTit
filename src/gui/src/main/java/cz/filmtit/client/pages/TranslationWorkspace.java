@@ -120,7 +120,10 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
-    private SubgestHandler subgestHandler;
+    /**
+     * Handles events for all {@link SubgestBox} instances in this workspace.
+     */
+    public SubgestHandler subgestHandler;
 
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
     private Widget activeSuggestionWidget = null;

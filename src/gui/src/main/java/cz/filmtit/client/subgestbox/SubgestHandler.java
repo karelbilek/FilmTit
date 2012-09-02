@@ -12,7 +12,7 @@ import cz.filmtit.client.pages.TranslationWorkspace;
 
 
 /**
- * Universal event-handler for SubgestBoxes.
+ * Universal event-handler for all {@link SubgestBox} instances in one {@link TranslationWorkspace} instance.
  */
 public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, BlurHandler {
 	
