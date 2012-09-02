@@ -249,11 +249,11 @@ function.
 
  \For{$token \in tokens$}{
 
-   \uIf{$|token| = 1$}{
+   \uIf{$|tokens| = 1$}{
      ret += \Lower{token}
-   } \uElseIf{$|token| = 2$}{
+   } \uElseIf{$|tokens| = 2$}{
      ret += \Lower{\Take{3, token}}
-   } \uElseIf{$|token| = 3$}{
+   } \uElseIf{$|tokens| = 3$}{
      ret += \Lower{\Take{2, token}}
    } \Else{
      ret += \Lower{\Take{1, token}}
@@ -263,9 +263,6 @@ function.
  \Return ret joined by " "
  \caption{{\tt FirstLetter} function.}
 \end{algorithm}
-
-\todo{I dont understand the code, I guess |token| should be |tokens|}
-
 
 
 \subsection{Signature-Based Retrieval: Named Entities}
@@ -403,7 +400,7 @@ The tokenization of the input sentences, however, turned out to be problematic. 
 we simply tokenized the input with the OpenNLP tokenizers and we let Moses use its own tokenizers.
 
 Moses, however, tokenizes English slightly differently. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. Although there is only a small number of such cases, the contractions are very widely used and their wrong tokenization
-drammatically decreases the quality of the translations produced.
+dramatically decreases the quality of the translations produced.
 % will, of course, produce very wrong results.
 
 For that reason, we had to add several corrections of tokenization for the contraction suffixes.
@@ -425,9 +422,7 @@ To learn the best combination of scores, we manually selected translations for h
 
 For the manual annotation required to estimate weights for the scores, we started the translation memory with only the corresponding backoff level (e.g.\ exact matching or fuzzy matching) and manually translated several heldout subtitle files using the translation workspace (no post-editing was done, the annotators were instructed to only choose the best translation suggestion if possible). After uploading and finishing the subtitle files, the class {\tt cz.filmtit.dataimport.training.GenerateTrainingset} can be used to generate a CSV file in WEKA-compatible format which can then be used to train a model.
 
-For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example. We select 
-
-\todo{seems like a missing idea}
+For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example.
 
 \subsection{Ranking for Exact Matches}
 
@@ -447,7 +442,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of a high quality -- in most cases of well-aligned texts, the source and target side does not differ in length significantly.
 	
 	\item \textbf{final punctuation}\\
-	Feature indicating whether the final punctuations of the queried chunk and the candidate translation match.
+	Feature indicating whether the final punctuation of the queried chunk and the candidate translation match.
 	
 	
 	
@@ -480,7 +475,7 @@ The ranking for exact matches uses a linear regression model with the following 
 	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of a high quality -- in most cases of well-aligned texts, the source and target side does not differ in length significantly.
 	
 	\item \textbf{final punctuation}\\
-	Feature indicating whether the final punctuations of the queried chunk and the candidate translation match.
+	Feature indicating whether the final punctuation of the queried chunk and the candidate translation match.
 
 \end{itemize}
 
