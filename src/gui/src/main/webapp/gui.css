@@ -10,7 +10,11 @@
 }
 
 .scrollPanel.translating {
-	
+
+}
+
+.translationWorkspace {
+    padding-bottom: 320px !important;
 }
 
 .parsing {
