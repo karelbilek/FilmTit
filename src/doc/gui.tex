@@ -292,47 +292,49 @@ Because of performance reasons, the SubgestBoxes in the Translation Workspace ar
 
 \subsection{Playing the Movie Files}
 
-From the beginning, we wanted to be able to show the user the movie file along with the translations. However, legal issues, bandwith issues and disk issues bar us from actually uploading the files to our servers -- so, we tried to implement some kind of playing the users' movie files, from their disks, in the browser, and then communicating with this player via JavaScript, so we can somehow connect it with the translation GUI.
+From the beginning, we wanted to be able to show the user the movie file along with translations. However, legal issues, bandwidth issues and disk issues bar us from actually uploading the files to our servers -- so, we tried to implement a browser-based player for the users' movie files. Users should be able to play movies from their disks in the browser, and the translation workspace should be able to communicate with this player via JavaScript.
 
 For this, we have to deal with two problems.
 
 \subsubsection*{Video playback (VLCWidget)}
-Playing the movie locally, from disk, is actually the lesser problem. We use VLC browser plugin for that.
 
-VLC\footnote{\url{http://www.videolan.org/vlc/}, short for VideoLan Client} is a popular open source media player. One of its advantages is that it can handle almost any video format and any codec available.
+Playing the movie locally, from disk, is actually the lesser problem. We use the VLC browser plugin for that.
 
-VLC has also feature called ``browser plug-in''\footnote{For some reason, its name is different across VLC documentation. Sometimes, they use the name ``Mozilla plug-in'', sometimes ``Web plug-in'', sometimes ``browser plug-in''.}. The browser plug-in is not a part of standard VLC installation, but can be installed easily.
+VLC\footnote{\url{http://www.videolan.org/vlc/}, short for VideoLan Client} is a popular open source media player. One of its advantages is that it can handle almost any video format and any popular codec available.
 
-This browser plug-in can be used for playing local files, in the browser, given that the file address is known. It is possible to rewind forward/backward/stop, all through JavaScript.
+VLC has also a feature called ``browser plug-in''\footnote{For some reason, its name is different across the VLC documentation. Sometimes, the name ``Mozilla plug-in'' is used, sometimes ``Web plug-in'', sometimes ``browser plug-in''.}. The browser plug-in is not a part of the standard VLC installation, but can be installed easily.
 
-There are some slight difficulties in the plug-in, though. One of them is, that it is not possible to jump on an exact time location in the video file. Most video files have so-called seek frames, which can appear more or less often (depending on the setting of the encoder), and VLC plugin always moves to the closest preceding seek frame. The difference can be quite big (even up to 20 seconds). This bars us for playing exactly the time slot of a given subtitle.
+This browser plug-in can be used for playing local files in the browser, given that the file address is known. It is possible to rewind forward/backward/stop, all through JavaScript.
 
-The other difficulty is that sometimes, the plugins just freezes without any warning after a move to a position. We have found out that it is somehow connected to the files played; with the exact same movie files, the exact same positions cause the player to crash, but slightly moved positions are all right.
+There are some slight difficulties in the plug-in, though. One of them is, that it is not possible to jump on an exact time location in the video file. Most video files have so-called seek frames, which can appear more or less often (depending on the setting of the encoder), and the VLC plugin always moves to the closest preceding seek frame. The difference can be quite big (even up to 20 seconds). This bars us from playing exactly the time slot of a given subtitle.
 
-The first issue is solved by not playing just the part with one subtitle, but bigger, 30 seconds ``windows''. The entire movie is split to these 30 second windows, and once the user switches in the {\tt TranslationWorkspace} from subtitle in one window to a subtitle in another window, the whole new window is played. It is actually better than playing just the time of the subtitle, since the user has more context to translate the movie's sentences.
+The other difficulty is that sometimes, the plugin just freezes without any warning after a move to a position. We have found out that it is somehow connected to the files played; with the exact same movie files, the exact same positions cause the player to crash, but slightly moved positions are not problematic.
 
-The second issue is solved by detecting the crashes and restarting the whole plugin in the case of crash with slightly moved windows.
+The first issue is solved by not playing just the part with one subtitle, but bigger, 30 seconds ``windows''. The entire movie is split into these 30 second windows, and once the user switches from the subtitle in one window to a subtitle in another window in the {\tt TranslationWorkspace}, the whole new window is played. It is actually better than playing just the time of the subtitle, since the user has more context to translate the movie's sentences.
 
-All is implemented in \texttt{cz.filmtit.client.widgets.VLCWidget}. Apart from that, the \texttt{VLCWidget} displays the subtitles on the left and on the right of the VLC browser plugin (original on the left, translated on the right).
+The second issue is resolved by detecting the crashes and restarting the whole plugin in the case of a crash with slightly moved windows.
 
-We intentionally did not implement very sophisticated controls for the player (since it would make the design too complicated). All the player can do is replay the whole current window or pause the playing.
+The entire player is implemented in \texttt{cz.filmtit.client.widgets.VLCWidget}. Apart from that, the \texttt{VLCWidget} displays the subtitles on the left and on the right of the VLC browser plugin (original subtitles on the left, translated on the right).
+
+We intentionally did not implement very sophisticated controls for the player (since it would make the design too complicated). The functionality of the player is restricted to replaying the whole current window or pausing the playing.
 
 \subsubsection*{Java applet for reading the filename}
 The bigger problem is actually \emph{reading the name of the file} before giving it to VLC player plugin.
 
-The browsers are generally built to give pages as little access to user's system as possible (understandably so). That includes the file paths of the files. Even the recent HTML5 standards, that do have access to the file itself, cannot read the filename.
+Modern browsers are generally built to give websites as little access to user's system as possible (and understandably so!). These restrictions include the file paths of uploaded files. Even the recent HTML5 standards that do have access to the file itself cannot read the filename.
 
-The only way we found, that would be usable across the browsers and systems, was to use a Java applet. Java applets have access to users' disk and can read the filenames; they have to be signed by a certificate, but that certificate can be self-signed.
+The only way we found that would be usable across web browsers and operating systems, was to use a Java applet. Java applets have access to the user's disk and can read the filenames; they have to be signed by a certificate, but that certificate can be self-signed.
 
 This is implemented in \texttt{cz.filmtit.client.widgets.FileLoadWidget}.
 
-The problem with this approach becomes evident -- we are now dependent on two external, non-standard, separate plug-ins for the task of playing video files -- VLC plugin and Java plugin. Both have to be installed separately, both often cause issues in various browsers (not only in theory). On the other hand, we achieved the almost impossible task -- playing movie files from users' disk on their browsers. When the is warn users that this functionality is experimental and carefully explain them the two plugins and their installation, we believe the current implementation is acceptable.
+The problem with this approach becomes evident -- we are now dependent on two external, non-standard, separate plug-ins for the task of playing video files -- the VLC plugin and the Java plugin. Both have to be installed separately, both often cause issues in various browsers (not only in theory). On the other hand, we achieved the almost impossible task -- playing movie files from user's disk in their browsers. If we therefore warn users that this functionality is experimental and carefully explain the two plugins and their installation, we believe the current implementation is acceptable.
+
 
 
 \subsection{Parsing and Segmentation}
-We already wrote about parsing in the chapter~\ref{parsing_subs}. As we mentioned there, we are reusing the same classes for {\tt dataimport} module (where we parsed and segmented thousands of files) in the GUI.
+We already introduced the parsing in Chapter~\ref{parsing_subs}. As we mentioned there, we are reusing the classes of the {\tt dataimport} module (where we parsed and segmented thousands of files) in the GUI.
 
-More information about the parsing can be found in the chapter~\ref{parsing_subs}.
+More information about the parsing can be found in Chapter~\ref{parsing_subs}.
 
 \section{Typical Usage}
 % (Honza)
