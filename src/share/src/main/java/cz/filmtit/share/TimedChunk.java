@@ -6,6 +6,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a chunk with its timing.
+ *
+ * @author Karel Bílek, Jaochim Daiber
+ */
 public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.IsSerializable,
         Serializable, Comparable<TimedChunk> {
 
