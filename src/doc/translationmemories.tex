@@ -11,7 +11,7 @@ In those cases, the subtitles -- now in text format instead of bitmap, as in DVD
 
 We do not deal with the type of subtitle that are in non-textual formats at all; all subtitles we have in our database and that users translate are only textual.
 
-\subsection{Translating subtitles}
+\subsection{Translating Subtitles}
 Professional translation of movie subtitles and unofficial fan translation is very different for several reasons.
 
 While making a professional translation of the subtitles, the translators can see the whole screenplay of the movie, accompanied with a lot of notes concerning the expressiveness of the utterances and using the rhetorical devices (culture references, sarcasm etc.), on the other hand they often do not see the movie at all.\footnote{For an illustration, how script, given to a translator may look like, see \url{http://www.flickr.com/photos/fuxoft/5731288526/in/photostream/}; also you can read some articles about creating movie translations (in Czech) \url{http://www.fffilm.name/search/label/titulky}}
@@ -69,7 +69,7 @@ In the examples in Table~\ref{subtitleFormats}, a mixup of letters ``l'' and ``I
 
 Before the advent of fast internet connections, movies were often unofficially shared using just physical media; because of that, movies were sometimes split into multiple video files to be put on a separate CDs. For this reason, some subtitles are sometimes split in a half.
 
-\subsection{Current tools}
+\subsection{Current Tools}
 
 There are several freeware tools for amateur subtitle translation. They are usually standalone applications. The GUI of such applications typically consists of two columns, the first one with the subtitle items in the original language, the second one to be completed with the translation. Some of them offer also a synchronized playback of video during the translation. We did not find an application which would be web based and specialized on subtitles translation. An overview of such tools is in Table~\ref{subtitles_tools}.
 
@@ -123,7 +123,7 @@ There are also some obstacles in using translation memory systems. Professional 
 
 In contrast to complete machine translation, it is still the human translator who controls the whole process of translation. Nevertheless, improvements in machine translation allow to provide a machine translation output together with TM candidates.
 
-\subsection{Usual implementation}
+\subsection{Usual Implementation}
 
 A simple option is to provide only candidate sentences where the sentences in the source language match  each other exactly. Usually, the database is relatively sparse and probably no sentences would be retrieved. In such cases a fuzzy matching algorithm is used to retrieve also similar sentences where the similarity is usually a metric based on the Levensthein editing distance.
 
@@ -146,7 +146,7 @@ Originally a bottom-up dynamic programming algorithm was used -- a distance of t
 
 For bigger databases the online algorithms begin to be very slow a preprocessing of the database is necessary. Some sophisticated indexing methods are used, among them the suffix trees or $n$-gram indexes. The candidates retrieved from such indexes are later examined more carefully.
 
-\subsection{Current TM tools}
+\subsection{Current TM Tools}
 
 The tool most frequently used by professional translators is \emph{SDL Trados}. It was originally developed by the German company Trados which was later acquired by its biggest rival, British SDL. It became popular mostly because of its integration to Microsoft Office starting in the mid nineties. It is a very complex software. Except the actual tool for the end users, it includes central servers where a translation agency can gather its data and from where the data can be distributed to the translators' PCs and sophisticated tools for team work. Other popular translation memories are DeJaVu by the French company Atril and Wordfast by an American company of the same name. According to a 2006 survey\footnote{Elina Lagoudaki (2006): \emph{Translation Memories Survey 2006: Users' perceptions around TM use}. Translating and the Computer 2006, London: Aslib.} 54\,\% of professional translators world wide used products by Trados or SDL, 17\,\% Wordfast and 16\,\% Deja Vu.
 
