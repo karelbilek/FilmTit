@@ -8,6 +8,11 @@ import cz.filmtit.client.pages.Settings;
  */
 public class SetPermanentlyLoggedIn extends SetSetting<Boolean> {
 
+    /**
+     * Stay logged in permanently (for 1 month) instead of 1 hour (sets the session timeout)
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitly!
+     */
 	public SetPermanentlyLoggedIn(Boolean setting, Settings settingsPage) {
 		super(setting, settingsPage);
 	}

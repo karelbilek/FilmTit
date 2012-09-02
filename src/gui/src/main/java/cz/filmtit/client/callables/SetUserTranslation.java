@@ -14,18 +14,25 @@ import cz.filmtit.share.*;
 
 import java.util.*;
 
+/**
+ * Save the user translation of the given chunk (no matter whether it is user's own translation or a suggestion taken over or post-edited).
+ * The ID of the TranslationPair chosen for post-editing is also sent, providing feedback which then can be used to improve future suggestions.
+ * If in Offline Mode, the user translation is not sent to User Space but is saved in the Local Storage.
+ * @author rur
+ *
+ */
 public class SetUserTranslation extends Callable<Void> implements Storable {
 	
 	// parameters
-	ChunkIndex chunkIndex;
-	long documentId;
-	String userTranslation;
-	long chosenTranslationPair;
+	private ChunkIndex chunkIndex;
+	private long documentId;
+	private String userTranslation;
+	private long chosenTranslationPair;
 
 
     @Override
     public String getName() {
-        return "setUserTranslation("+chunkIndex.toString()+","+documentId+","+userTranslation+","+chosenTranslationPair+")";
+        return getNameWithParameters(chunkIndex, documentId, userTranslation, chosenTranslationPair);
     }
 
     @Override
@@ -35,7 +42,11 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
     	}
     }
     
-    // constructor
+    /**
+	 * Save the user translation of the given chunk (no matter whether it is user's own translation or a suggestion taken over or post-edited).
+	 * The ID of the TranslationPair chosen for post-editing is also sent, providing feedback which then can be used to improve future suggestions.
+	 * If in Offline Mode, the user translation is not sent to User Space but is saved in the Local Storage.
+     */
 	public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
 			String userTranslation, long chosenTranslationPair) {		
 		super();

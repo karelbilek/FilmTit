@@ -25,10 +25,17 @@ public class LogGuiMessage implements AsyncCallback<Void> {
 	public static LevelLogEnum logLevel = LevelLogEnum.Warning;
 	
 	// parameters
-	LevelLogEnum level;
-	String context;
-	String message;
+	private LevelLogEnum level;
+	private String context;
+	private String message;
 	
+	/**
+	 * Logs the message with the given context to the server,
+	 * if its level is high enough (>= LogGuiMessage.logLevel).
+	 * @param level The supported levels are DebugNotice, Notice, Warning and Error.
+	 * @param context The context specifies the type of the message and should be constant for each instance of a similar message; it can contain e.g.\ a class name, a method name or an RPC name. The message should be as detailed as to provide all necessary information, including e.g.\ values of variables or a stack trace if applicable.
+	 * @param message
+	 */
 	public LogGuiMessage(LevelLogEnum level, String context, String message) {
 		super();
 		

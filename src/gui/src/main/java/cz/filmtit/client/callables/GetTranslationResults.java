@@ -16,129 +16,143 @@ import cz.filmtit.share.*;
 
 import java.util.*;
 
-	public class GetTranslationResults extends Callable<List<TranslationResult>> {
-		
-		// parameters
-		List<TimedChunk> chunks;
-		SendChunksCommand command;
-		TranslationWorkspace workspace;
-		
-		int id;
-		static int nextId = 0;
+/**
+ * Get the list of possible translations of the given chunk.
+ * The TranslationResult instance contains zero or more translation suggestions, which come from the Translation Memory and/or the Machine Translation System.
+ * Shows the results in Translation Workspace on success.
+ * @author rur
+ *
+ */
+public class GetTranslationResults extends Callable<List<TranslationResult>> {
 	
-        @Override
-        public String getName() {
-            return "GetTranslationResults (chunks size: "+chunks.size()+")";
-        }
+	// parameters
+	private List<TimedChunk> chunks;
+	private SendChunksCommand command;
+	private TranslationWorkspace workspace;
+	
+	private int id;
+	private static int nextId = 0;
 
-        @Override
-        protected boolean onEachReturn(Object returned) {
-            if (workspace.getStopLoading()) {
-            	return false;
-            }
-            else {
-                workspace.removeGetTranslationsResultsCall(id);
-                return true;
-            }
+    @Override
+    public String getName() {
+        return "GetTranslationResults (chunks size: "+chunks.size()+")";
+    }
+
+    @Override
+    protected boolean onEachReturn(Object returned) {
+        if (workspace.getStopLoading()) {
+        	return false;
         }
-        
-		@Override	
-        public void onSuccessAfterLog(List<TranslationResult> newresults) {
-        	if (newresults == null || newresults.isEmpty() ||
-        			!newresults.get(0).getSourceChunk().isActive ||
-        			newresults.size() != chunks.size()) {
-        		// expected suggestions for all chunks but did not get them
-        		// retry
-        		hasReturned = false;
-        		if (!retry()) {
-        			// cannot retry
-        			
-        			// tell workspace that these chunks won't arrive
-        			for (TimedChunk chunk : chunks) {
-            			workspace.noResult(chunk.getChunkIndex());
-					}
-        			// request next translations
-        			command.execute();
-        			// say error
-        			displayWindow("Some of the translation suggestions did not arrive. " +
-        					"You can ignore this or you can try refreshing the page.");
-        		}
-        	}
-        	else {
-        		// got suggestions alright
-                for (TranslationResult newresult:newresults) {
-                    workspace.showResult(newresult);                	
-                }
-    			// request next translations
-                command.execute();
-        	}
+        else {
+            workspace.removeGetTranslationsResultsCall(id);
+            return true;
         }
-		
-		@Override
-		protected void onProbablyOffline(Throwable returned) {
-			// tell workspace not to expect any more results
-			Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-				@Override
-				public void execute() {
-        			// tell workspace that these chunks won't arrive
-        			for (TimedChunk chunk : chunks) {
-            			workspace.noResult(chunk.getChunkIndex());
-					}
-        			// tell workspace that no other chunk translations will arrive either
-        			command.noMoreResults();
+    }
+    
+	@Override	
+    public void onSuccessAfterLog(List<TranslationResult> newresults) {
+    	if (newresults == null || newresults.isEmpty() ||
+    			!newresults.get(0).getSourceChunk().isActive ||
+    			newresults.size() != chunks.size()) {
+    		// expected suggestions for all chunks but did not get them
+    		// retry
+    		hasReturned = false;
+    		if (!retry()) {
+    			// cannot retry
+    			
+    			// tell workspace that these chunks won't arrive
+    			for (TimedChunk chunk : chunks) {
+        			workspace.noResult(chunk.getChunkIndex());
 				}
-			});
-			if (LocalStorageHandler.isOnline()) {
-				displayWindow("Some of the translation suggestions cannot arrive " +
-						"because there is no connection to the server, " +
-						"probably because you are offline. " +
-						"You can try refreshing the page once back online.");
-			}
-			else {
-				displayWindow("You went offline before some of the translation suggestions arrived. " +
-						"You can try refreshing the page once back online to get them, " +
-						"or you can just do without them.");
-			}
-		}
-		
-		@Override
-		protected void onFinalError(String message) {
-			// tell workspace that these chunks won't arrive
-			for (TimedChunk chunk : chunks) {
-    			workspace.noResult(chunk.getChunkIndex());
-			}
-			// TODO: request next translations or not based on the type of error
+    			// request next translations
+    			command.execute();
+    			// say error
+    			displayWindow("Some of the translation suggestions did not arrive. " +
+    					"You can ignore this or you can try refreshing the page.");
+    		}
+    	}
+    	else {
+    		// got suggestions alright
+            for (TranslationResult newresult:newresults) {
+                workspace.showResult(newresult);                	
+            }
 			// request next translations
-			command.execute();
-			// say error
-			displayWindow("Some of the translation suggestions did not arrive. " +
-				"You can ignore this or you can try refreshing the page. " +
-				"Error message: " + message);
-        }
-		
-		// constructor
-		public GetTranslationResults(List<TimedChunk> chunks,
-				SendChunksCommand command, TranslationWorkspace workspace) {
-			super();
-			
-			this.chunks = chunks;
-			this.command = command;
-			this.workspace = workspace;
-			
-			// + 5s for each chunk
-			callTimeOut += 5000 * chunks.size();
-			
-			enqueue();
+            command.execute();
+    	}
+    }
+	
+	@Override
+	protected void onProbablyOffline(Throwable returned) {
+		// tell workspace not to expect any more results
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+    			// tell workspace that these chunks won't arrive
+    			for (TimedChunk chunk : chunks) {
+        			workspace.noResult(chunk.getChunkIndex());
+				}
+    			// tell workspace that no other chunk translations will arrive either
+    			command.noMoreResults();
+			}
+		});
+		if (LocalStorageHandler.isOnline()) {
+			displayWindow("Some of the translation suggestions cannot arrive " +
+					"because there is no connection to the server, " +
+					"probably because you are offline. " +
+					"You can try refreshing the page once back online.");
 		}
-
-		@Override protected void call() {
-			id = nextId++;
-			workspace.addGetTranslationsResultsCall(id, this);
-            filmTitService.getTranslationResults(Gui.getSessionID(), chunks, this);
-		}
-		
-		public void stop() {
-			new StopTranslationResults(chunks);
+		else {
+			displayWindow("You went offline before some of the translation suggestions arrived. " +
+					"You can try refreshing the page once back online to get them, " +
+					"or you can just do without them.");
 		}
 	}
+	
+	@Override
+	protected void onFinalError(String message) {
+		// tell workspace that these chunks won't arrive
+		for (TimedChunk chunk : chunks) {
+			workspace.noResult(chunk.getChunkIndex());
+		}
+		// TODO: request next translations or not based on the type of error
+		// request next translations
+		command.execute();
+		// say error
+		displayWindow("Some of the translation suggestions did not arrive. " +
+			"You can ignore this or you can try refreshing the page. " +
+			"Error message: " + message);
+    }
+	
+	/**
+	 * Get the list of possible translations of the given chunk.
+	 * The TranslationResult instance contains zero or more translation suggestions, which come from the Translation Memory and/or the Machine Translation System.
+	 * Shows the results in Translation Workspace on success.
+	 */
+	public GetTranslationResults(List<TimedChunk> chunks,
+			SendChunksCommand command, TranslationWorkspace workspace) {
+		super();
+		
+		this.chunks = chunks;
+		this.command = command;
+		this.workspace = workspace;
+		
+		// + 5s for each chunk
+		callTimeOut += 5000 * chunks.size();
+		
+		enqueue();
+	}
+
+	@Override protected void call() {
+		id = nextId++;
+		workspace.addGetTranslationsResultsCall(id, this);
+        filmTitService.getTranslationResults(Gui.getSessionID(), chunks, this);
+	}
+	
+	/**
+	 * Stops the translation results generation.
+	 */
+	public void stop() {
+		new StopTranslationResults(chunks);
+	}
+}
 

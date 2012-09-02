@@ -8,6 +8,11 @@ import cz.filmtit.client.pages.Settings;
  */
 public class SetPassword extends SetSetting<String> {
 
+    /**
+     * Change user's password.
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitly!
+     */
 	public SetPassword(String setting, Settings settingsPage) {
 		super(setting, settingsPage);
 	}

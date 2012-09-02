@@ -8,6 +8,11 @@ import cz.filmtit.client.pages.Settings;
  */
 public class SetMaximumNumberOfSuggestions extends SetSetting<Integer> {
 
+    /**
+     * Set maximum number of suggestions to show for each line.
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitly!
+     */
 	public SetMaximumNumberOfSuggestions(Integer setting, Settings settingsPage) {
 		super(setting, settingsPage);
 	}

@@ -17,6 +17,14 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.LocalStorageHandler;
 
+/**
+ * Informs the user that there are stored items from Offline Mode
+ * and offers to upload them.
+ * Then informs the user about the result,
+ * offering to retry the upload or to delete the data in case of error.
+ * @author rur
+ *
+ */
 public class GoingOnlineDialog extends Dialog {
 
 	private static GoingOnlineDialogUiBinder uiBinder = GWT
@@ -26,6 +34,10 @@ public class GoingOnlineDialog extends Dialog {
 			UiBinder<Widget, GoingOnlineDialog> {
 	}
 
+	/**
+	 * Shows the dialog.
+	 * @param count number of items found in Local Storage
+	 */
 	public GoingOnlineDialog(int count) {
 		super();
 		initWidget(uiBinder.createAndBindUi(this));
