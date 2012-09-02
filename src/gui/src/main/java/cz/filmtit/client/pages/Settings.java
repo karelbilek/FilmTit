@@ -27,6 +27,10 @@ import cz.filmtit.client.callables.*;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.User;
 
+/**
+ *  Enables the user to change several settings,
+ *  such as his password or the maximum number of translation suggestions to show
+ */
 public class Settings extends Composite implements ReceivesSettings {
 
 	private static SettingsUiBinder uiBinder = GWT

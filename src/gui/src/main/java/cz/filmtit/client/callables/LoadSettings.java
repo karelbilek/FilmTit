@@ -12,6 +12,9 @@ import cz.filmtit.share.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 
+/**
+ * Retrieves the User object with the user settings.
+ */
 public class LoadSettings extends Callable<SessionResponse> {
     	
     	// parameters

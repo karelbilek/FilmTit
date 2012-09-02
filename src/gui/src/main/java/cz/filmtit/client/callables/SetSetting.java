@@ -42,7 +42,7 @@ public abstract class SetSetting<T> extends Callable<Void> {
     // constructor
     /**
      * Does <b>not</b> enqueue the call immediately,
-     * call enqueue() explicitely!
+     * call enqueue() explicitly!
      */
     public SetSetting(T setting, ReceivesSettings settingsPage) {
 		super();

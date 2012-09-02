@@ -86,6 +86,10 @@ public class PageHandler {
 		Help,
     }
     
+    /**
+     * Creates an instance of the PageHandler which starts reponding to page swicth requests.
+     * It also retrieves the page requested in the Url and loads it on its creation.
+     */
     public PageHandler () {
     	
     	History.addValueChangeHandler(historyChangeHandler);
