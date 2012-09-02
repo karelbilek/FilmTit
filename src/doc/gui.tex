@@ -338,6 +338,18 @@ We already introduced the parsing in Chapter~\ref{parsing_subs}. As we mentioned
 
 More information about the parsing can be found in Chapter~\ref{parsing_subs}.
 
+\section{Logging}
+\label{gui:logging}
+In User Space and Core, we use \emph{Log4J}, which implements the standard Java Logging interface for logging.
+
+The situation with the GUI is not so easy. GWT provides some default logging tools which work in GWT development mode, but not in production. (As a temporary solution, we used a debugging console in GUI, but it is turned off in the final version.)
+
+The final solution we wrote is what we call ``remote logging''. Important messages are now sent to the server through an RPC, where they are both included into the server log and saved into the database for possible future use (together with the {\tt userID} if possible).
+
+The minimal level of a message to be sent to the server can be set (debug, info, warn, error). We log important GUI events and exceptions with their stack traces in order be able to react on potential bug reports later.
+
+There were some technical difficulties -- mainly catching unexpected exceptions in GWT and umbrella exceptions. An umbrella exception is a GWT exception thrown when multiple exceptions have occurred at once, and it contains all of them. Its message and stack trace are not useful at all because they only cover the creation and throwing of the umbrella exception itself, but do not reveal anything about the inner exceptions.
+
 \section{Typical Usage}
 % (Honza)
 
