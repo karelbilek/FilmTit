@@ -5,7 +5,10 @@ import akka.actor.Actor
 import java.io.IOException
 
 /**
+ * An Actor for tokenizing [[cz.filmtit.share.Chunk]]s.
+ *
  * @author Joachim Daiber
+ * @author Karel Bilek
  */
 
 object TokenizerActor {
@@ -35,8 +38,5 @@ class TokenizerActor(val tokenizer:Tokenizer) extends Actor {
     
   }
 
- /*override def preRestart(reason: Throwable, message: Option[Any]) {
-    message foreach { self forward _ }
-  }*/
 
 }

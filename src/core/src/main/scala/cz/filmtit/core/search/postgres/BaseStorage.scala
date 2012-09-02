@@ -10,12 +10,10 @@ import collection.mutable.{ListBuffer, HashSet}
 import scala.collection.JavaConverters._
 import cz.filmtit.core.model.TranslationMemory
 
-
 /**
  * Base class for all translation pair storages using Postgres.
  *
  * @author Joachim Daiber
- *
  */
 
 abstract class BaseStorage(

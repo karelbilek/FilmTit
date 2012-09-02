@@ -14,7 +14,7 @@ import collection.mutable.ListBuffer
  * A signature string is a representation of a Chunk that is used
  * to index the chunks in the database. A Signature can have
  * annotations, if the [[cz.filmtit.core.model.storage.TranslationPairStorage]]
- * is reversible, the annotations will be wrote to the database.
+ * is reversible, the annotations will be written to the database.
  *
  * @author Joachim Daiber
  */

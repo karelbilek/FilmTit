@@ -14,12 +14,20 @@ import cz.filmtit.share.exceptions.{SearcherNotAvailableException, LanguageNotSu
 
 
 /**
+ * TranslationPairSearcherWrapper is a TranslationPairSearcher that can be constructed from a list of
+ * [[cz.filmtit.core.model.TranslationPairSearcher]]s, which we call workers. It will distribute its
+ * requests to its workers and return the result once it is produced by on of the workers.
+ *
+ * The Akka routing strategy is [[akka.routing.SmallestMailboxRouter]].
+ *
  * @author Joachim Daiber
+ * @author Karel Bilek
  */
 
 class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher], val searcherTimeout: Int)
   extends TranslationPairSearcher(searchers.head.l1, searchers.head.l2, readOnly = true) {
 
+  //The Actor system and workers.
   val system = ActorSystem()
   val workers = searchers map { searcher =>
     system.actorOf(Props(new TranslationPairSearcherActor(searcher)))
@@ -27,6 +35,7 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
 
   def size: Int = searchers.size
 
+  //The router for routing requests to works
   val router = system.actorOf(Props[TranslationPairSearcherActor].withRouter(
     SmallestMailboxRouter(routees = workers).withSupervisorStrategy(
       OneForOneStrategy(maxNrOfRetries = 10) {
@@ -37,7 +46,7 @@ class TranslationPairSearcherWrapper(val searchers: List[TranslationPairSearcher
      )
   )
 
-  //some heavy scala magic
+  //Timeout for workers
   implicit val timeout = Timeout(searcherTimeout seconds)
 
   /**

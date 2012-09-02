@@ -5,6 +5,8 @@ import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
 import cz.filmtit.core.model.data.ChunkUtils.toAnnotatedString
 
 /**
+ * A ranker for Named Entities.
+ *
  * @author Joachim Daiber
  */
 
@@ -12,7 +14,7 @@ class FuzzyNERanker extends BaseRanker {
 
   val lambdas = (0.95, 0.05)
 
-  def getScoreNames: List[String] = List()
+  def getScoreNames: List[String] = List("edit_distance", "genre_match")
   def getScores(chunk: Chunk, mediaSource: MediaSource, pair: TranslationPair, totalCount: Int): List[Double] = List()
 
 

@@ -5,6 +5,8 @@ import cz.filmtit.core.search.postgres.BaseStorage
 import cz.filmtit.share.{TranslationSource, TranslationPair, Language, Chunk}
 
 /**
+ * An entirely Postgres-based first letter translation pair searcher.
+ *
  * @author Joachim Daiber
  */
 

@@ -6,15 +6,21 @@ import weka.classifiers.Classifier
 import weka.core._
 
 /**
+ * A ranker for translation pairs based on a WEKA classifier. The classifier is used to
+ * classify each translation pair and the confidence/probability value returned by the
+ * WEKA classifier is used as the score for each translation pair.
+ *
  * @author Joachim Daiber
  */
 
 abstract class WEKARanker(val modelFile: File)  extends BaseRanker {
 
+  //Read the classifier from the external file.
   val classifier: Classifier = SerializationHelper.read(new FileInputStream(modelFile)).asInstanceOf[Classifier]
   val attributes = new FastVector()
   (getScoreNames ::: List("class")).foreach{ n: String => attributes.addElement(new Attribute(n)) }
 
+  //Create a WEKA dataset
   val wekaPoints = new Instances("Dataset", attributes, 0)
   wekaPoints.setClassIndex(wekaPoints.numAttributes()-1)
 

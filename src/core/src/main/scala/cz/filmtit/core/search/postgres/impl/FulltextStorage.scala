@@ -8,6 +8,8 @@ import cz.filmtit.core.Configuration
 
 /**
  * Postgres-based storage using a full-text index.
+ *
+ * @author Joachim Daiber
  */
 class FulltextStorage(
   l1: Language,
@@ -24,7 +26,11 @@ class FulltextStorage(
 
   override def warmup() {}
 
-
+  /**
+   * Chunks that should be queried with this searcher must have at least this number of content words.
+   * This is tested by creating the vector for the chunk and then testing if the size of the query
+   * is >= MIN_QUERY_LENGTH.
+   */
   val MIN_QUERY_LENGTH = 2
 
   override def candidates(chunk: Chunk, language: Language): List[TranslationPair] = {

@@ -1,5 +1,4 @@
 package cz.filmtit.core.search.postgres.impl
-import cz.filmtit.core.concurrency.tokenizer.TokenizerWrapper
 
 import cz.filmtit.core.search.postgres.BaseSignatureStorage
 import cz.filmtit.core.model._

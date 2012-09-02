@@ -5,6 +5,11 @@ import cz.filmtit.share.TranslationPair
 import cz.filmtit.core.model.TranslationMemory
 import cz.filmtit.core.{Configuration, Factory}
 
+/**
+ * Utility methods used in tests related to the Core Translation Memory.
+ *
+ * @author Joachim Daiber
+ */
 object TestUtil {
 
   def createTMWithDummyContent(configuration: Configuration): TranslationMemory = {

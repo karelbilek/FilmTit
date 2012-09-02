@@ -5,6 +5,8 @@ import cz.filmtit.share.TranslationPair
 import cz.filmtit.core.model.TranslationPairMerger
 
 /**
+ * A [[cz.filmtit.core.model.TranslationPairMerger]] based on Levenshtein distance.
+ *
  * @author Joachim Daiber
  */
 
@@ -41,8 +43,6 @@ class LevenshteinMerger(minEditDistance: Int = 1) extends TranslationPairMerger 
   }
 
   def merge(pairs: List[TranslationPair], n: Int): List[TranslationPair] = {
-
-    //TODO: performance! don't merge out of first n pairs
 
     var pairsToBeRemoved = Set[Int]()
 

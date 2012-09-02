@@ -8,6 +8,8 @@ import cz.filmtit.core.model.Patterns
 import scala.Double
 
 /**
+ * Translation pair ranker for exact matches.
+ *
  * @author Joachim Daiber
  */
 
@@ -44,4 +46,4 @@ trait ExactRanker extends BaseRanker {
 }
 
 class ExactWekaRanker(modelFile: File) extends WEKARanker(modelFile) with ExactRanker
-class ExactLRRanker(weights: List[Double]) extends LinearInterpolationRanker(weights: List[Double]) with ExactRanker
+class ExactLRRanker(weights: List[Double]) extends LinearRegressionRanker(weights: List[Double]) with ExactRanker

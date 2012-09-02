@@ -5,11 +5,13 @@ import cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper
 import cz.filmtit.share.TranslationSource
 
 /**
+ * A back off level in a [[cz.filmtit.core.tm.BackoffTranslationMemory]]. On the level, candidates are retrieved
+ * using the searcher object, ranked using the ranker object and used if their score is above the threshold value.
+ *
  * @author Joachim Daiber
  */
 
 class BackoffLevel(val searcher: TranslationPairSearcher, val ranker: Option[TranslationPairRanker], val threshold: Double, val translationType: TranslationSource) {
-
 
   override def toString = "[%s, %s]".format(
       searcher match {
