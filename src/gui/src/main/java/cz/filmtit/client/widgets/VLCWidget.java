@@ -25,8 +25,8 @@ public class VLCWidget extends HTML {
 
     private Collection<TranslationResult> currentLoaded = null;
 
-    private double begin = 1;
-    private double end = WINDOWSIZE;
+    
+    private double nowPlayPartID = -1;
 
     /**
      * Plays window 30s around a given time. It also tries to detect whether
@@ -42,15 +42,11 @@ public class VLCWidget extends HTML {
             long windownum = position/WINDOWSIZE;
             lastPosition=position;
             
-            
-            begin = windownum*WINDOWSIZE;
-            end = (windownum+1)*WINDOWSIZE;
-            if (begin==0){
-                begin=1;
-            }
             int nonce = reloadedTimes * 1000;
-            begin += nonce;
-            end += nonce;
+            
+            final double begin =( (windownum>0)? (windownum*WINDOWSIZE) : 1)+nonce;
+            final double end = ((windownum+1)*WINDOWSIZE)+nonce;
+           
             currentLoaded = synchronizer.getTranslationResultsByTime(begin-5000, end);
             
             String beginString = TimedChunk.millisToTime((long)(begin), false).toString();
@@ -58,17 +54,19 @@ public class VLCWidget extends HTML {
             startLabel.setText(beginString);
             endLabel.setText(endString);
 
-            stopped=false;
             playPart(begin, end);
+            
+            final double playPartID = java.lang.Math.random();
+            nowPlayPartID = playPartID;
             
             //getting around the VLC bug when it randomly stops 
             new com.google.gwt.user.client.Timer() { 
                 @Override
                 public void run() { 
-                    if ((!stopped) && getStatus()==begin) {
+                    if (getStatus()==begin && nowPlayPartID == playPartID) {
                         if (reloadedTimes <= 5) {
-                            //Window.alert("I want to reload stuff.");
-                            workspace.reloadPlayer();
+                            Window.alert("I want to reload stuff.");
+                            //workspace.reloadPlayer();
                         } else {
                             Window.alert("There was an unexpected error with player.\nTry to open the subtitle again.");
                         }
@@ -79,7 +77,6 @@ public class VLCWidget extends HTML {
         }
     }
 
-    private boolean stopped = true;
 
     /**
      * Builds the &lt;embed&gt; VLC code.
@@ -177,7 +174,7 @@ public class VLCWidget extends HTML {
         stopA.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                stopped=true;
+                nowPlayPartID=-1;
                 togglePlaying();    
             }
         });
@@ -185,7 +182,7 @@ public class VLCWidget extends HTML {
             @Override
             public void onClick(ClickEvent event) {
                 stopPlaying();
-                playPart(begin, end);
+                playPart(currentStart, currentEnd);
 
             }
         });
@@ -306,14 +303,14 @@ public class VLCWidget extends HTML {
     //I found out that comments inside JSNI can cause troubles. So I am not doing it.
     private static native void togglePlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if (vlc!==null) {
+        if (vlc!==null && vlc.playlist!==undefined) {
             vlc.playlist.togglePause();
         }
     }-*/;
 
     private static native void startPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if ((vlc!==null) && !vlc.playlist.isPlaying) {
+        if ((vlc!==null) && vlc.playlist!==undefined && !vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
     }-*/;
@@ -330,7 +327,7 @@ public class VLCWidget extends HTML {
 
     private static native void stopPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if ((vlc!==null) && vlc.playlist.isPlaying) {
+        if ((vlc!==null) && vlc.playlist!==undefined && vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
     }-*/;
@@ -348,7 +345,7 @@ public class VLCWidget extends HTML {
     private static native void playPartOfThis(Element el, double start, double end, VLCWidget widget) /*-{
         var vlc = el.querySelector("#video");
         
-        if (vlc!==null) {
+        if (vlc!==null && vlc.playlist!==undefined) {
             vlc.input.time = start;
 
             watchend = end;
@@ -358,7 +355,7 @@ public class VLCWidget extends HTML {
                 vlc.playlist.togglePause();
             }
             setTimeout(function look() { 
-                if (vlc!==null) {
+                if (vlc!==null && vlc.playlist!==undefined) {
                     var it = vlc.input.time;
                     widget.@cz.filmtit.client.widgets.VLCWidget::updateGUI(D)(it);
                     
@@ -475,8 +472,8 @@ public class VLCWidget extends HTML {
         HTML rightLabel = new HTML("");
         rightLabel.addStyleName("subtitleDisplayedRight");
         
-        InlineLabel fromLabel = new InlineLabel("0:0:0");
-        InlineLabel toLabel = new InlineLabel("0:0:30");
+        InlineLabel fromLabel = new InlineLabel("00:00:00");
+        InlineLabel toLabel = new InlineLabel("00:00:30");
         Anchor pauseA = new Anchor("[pause]");
         Anchor replayA = new Anchor("[replay]");
         Anchor closeA = new Anchor("[close player]");

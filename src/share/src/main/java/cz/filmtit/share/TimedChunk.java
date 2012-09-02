@@ -255,6 +255,14 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         Long framelong = (long) frame;
         return new StringBuilder().append(framelong.toString());
     }
+    
+    private static String maybeMillisWithZero(long what) {
+        if (what>=10) {
+            return ""+what;
+        } else {
+            return "0"+what;
+        }
+    }
 
     /**
      * Converts milliseconds to time string.
@@ -267,7 +275,10 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
         long seconds = ((long)(allMillis / 1000)) % 60;
         long minutes = ((long)(allMillis / (1000*60))) % 60;
         long hours = ((long)(allMillis / (1000*60*60)));
-        StringBuilder res = new StringBuilder().append(hours).append(":").append(minutes).append(":").append(seconds);
+        StringBuilder res = new StringBuilder().
+            append(maybeMillisWithZero(hours)).append(":").
+            append(maybeMillisWithZero(minutes)).append(":").
+            append(maybeMillisWithZero(seconds));
         if (includeMillis) {
             res = res.append(".").append(millis);
         }
