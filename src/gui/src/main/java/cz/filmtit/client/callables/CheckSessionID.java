@@ -12,10 +12,17 @@ import cz.filmtit.share.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 
+/**
+ * Validates the given sessionID. To be used with a sessionID that does not result from invoking neither simpleLogin nor getSessionID (such as a sessionID stored in a cookie).
+ * Sets the sessionID and the User object if the sessionID is valid.
+ * Sets the logged in state accordingly on return.
+ * @author rur
+ *
+ */
 public class CheckSessionID extends Callable<SessionResponse> {
     	
     	// parameters
-    	String sessionID;
+    	private String sessionID;
     	
         @Override
         public String getName() {
@@ -43,7 +50,11 @@ public class CheckSessionID extends Callable<SessionResponse> {
             Gui.logged_out();
         }
 
-        // constructor
+        /**
+		 * Validates the given sessionID. To be used with a sessionID that does not result from invoking neither simpleLogin nor getSessionID (such as a sessionID stored in a cookie).
+		 * Sets the sessionID and the User object if the sessionID is valid.
+		 * Sets the logged in state accordingly on return.
+         */
     	public CheckSessionID() {
     		super();
     		

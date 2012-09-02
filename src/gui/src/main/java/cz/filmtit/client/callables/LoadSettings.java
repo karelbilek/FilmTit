@@ -14,17 +14,13 @@ import com.google.gwt.user.client.*;
 
 /**
  * Retrieves the User object with the user settings.
+ * Passes them to the settingsReceiver on success.
  */
 public class LoadSettings extends Callable<SessionResponse> {
     	
     	// parameters
-    	ReceivesSettings settingsReceiver;
+    	private ReceivesSettings settingsReceiver;
     	
-        @Override
-        public String getName() {
-            return "LoadSettings";
-        }
-
         @Override
         public void onSuccessAfterLog(SessionResponse response) {
             if (response != null) {
@@ -46,7 +42,10 @@ public class LoadSettings extends Callable<SessionResponse> {
             Gui.logged_out();
         }
 
-        // constructor
+        /**
+		 * Retrieves the User object with the user settings.
+		 * Passes them to the settingsReceiver on success.
+         */
     	public LoadSettings(ReceivesSettings settingsReceiver) {
     		super();
     		

@@ -6,18 +6,24 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.Dialog;
 
+/**
+ * Register a user with the given username and password, also setting the e-mail address if provided and sending registration info to it.
+ * Logs in the user on success, informs the user in case of errors (the username is already taken or other errors, such as an invalid e-mail address).
+ * @author rur
+ *
+ */
 public class RegisterUser extends Callable<Boolean> {
     	
     	// parameters
-    	String username;
-    	String password;
-    	String email;
-    	Dialog loginDialog;
-    	String openid = null;
+    	private String username;
+    	private String password;
+    	private String email;
+    	private Dialog loginDialog;
+    	private String openid = null;
 
         @Override
         public String getName() {
-            return "RegisterUser("+username+","+password+","+email+")";
+            return getNameWithParameters(username, password, email);
         }
 
 
@@ -44,7 +50,10 @@ public class RegisterUser extends Callable<Boolean> {
                     "Error message: " + message);
         };
 
-        // constructor
+        /**
+		 * Register a user with the given username and password, also setting the e-mail address if provided and sending registration info to it.
+		 * Logs in the user on success, informs the user in case of errors (the username is already taken or other errors, such as an invalid e-mail address).
+         */
 		public RegisterUser(String username, String password, String email,
 				Dialog registrationForm) {
 			super();

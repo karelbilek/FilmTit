@@ -8,6 +8,11 @@ import cz.filmtit.client.pages.Settings;
  */
 public class SetEmail extends SetSetting<String> {
 
+    /**
+     * Change user's e-mail.
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitly!
+     */
 	public SetEmail(String setting, Settings settingsPage) {
 		super(setting, settingsPage);
 	}
