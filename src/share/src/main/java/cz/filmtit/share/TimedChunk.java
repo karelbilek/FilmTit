@@ -90,14 +90,12 @@ public class TimedChunk extends Chunk implements com.google.gwt.user.client.rpc.
     }
 
     public StringBuilder getSubForm(double fps) {
-        // TODO: check if the annotations are resolved properly
         String displayForm = getFormatedForm("- ", "|");
 
         return getSubTime(fps).append("{").append(displayForm).append("}").append("\n");
     }
 
     public StringBuilder getSrtForm(int order, double fps) {
-        // TODO: check if the annotations are resolved properly
         String displayForm = getFormatedForm("- ", "\n");
        
         return new StringBuilder().append(order).append("\n").append(getSrtTime(fps)).append("\n").append(displayForm).append("\n\n");
