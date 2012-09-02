@@ -31,7 +31,10 @@ import cz.filmtit.client.callables.GetListOfDocuments;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
 
-
+/**
+ * A page providing listing of user documents and the possibility to edit them
+ *
+ */
 public class UserPage extends Composite {
 
 	private static UserPageUiBinder uiBinder = GWT
@@ -40,6 +43,9 @@ public class UserPage extends Composite {
 	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
 	}
 
+	/**
+	 * Shows the page and loads the list of user's documents.
+	 */
 	public UserPage() {
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -231,7 +237,10 @@ public class UserPage extends Composite {
     	Gui.getPageHandler().setDocumentId(document.getId());
     	Gui.getPageHandler().loadPage(Page.TranslationWorkspace);
     }
-
+    
+    /**
+     * Called by GetListOfDocuments to show the documents of the user.
+     */
     public void setDocuments(List<Document> documents) {
         if (documents.size() == 0) {
             emptyLabel.setText("You don't have any documents. Let's create some!"); 

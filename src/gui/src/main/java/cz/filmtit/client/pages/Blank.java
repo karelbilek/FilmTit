@@ -7,6 +7,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
 
+/**
+ * A special page with no contents and is used to temporarily hide the contents of another page.
+ * @author rur
+ *
+ */
 public class Blank extends Composite {
 
 	private static BlankUiBinder uiBinder = GWT.create(BlankUiBinder.class);
@@ -14,6 +19,9 @@ public class Blank extends Composite {
 	interface BlankUiBinder extends UiBinder<Widget, Blank> {
 	}
 
+	/**
+	 * Show a blank page.
+	 */
 	public Blank() {
 		initWidget(uiBinder.createAndBindUi(this));
 		

@@ -7,6 +7,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
 
+/**
+ * A page showing guidelines on how to run the media player.
+ * @author karel
+ *
+ */
 public class PlayerInfo extends Composite {
 
 	private static PlayerInfoUiBinder uiBinder = GWT
@@ -15,6 +20,9 @@ public class PlayerInfo extends Composite {
 	interface PlayerInfoUiBinder extends UiBinder<Widget, PlayerInfo> {
 	}
 
+	/**
+	 * Shows the page.
+	 */
 	public PlayerInfo() {
 		initWidget(uiBinder.createAndBindUi(this));
 		

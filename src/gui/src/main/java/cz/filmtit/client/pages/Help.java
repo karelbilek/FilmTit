@@ -8,6 +8,11 @@ import com.google.gwt.user.client.ui.UIObject;
 
 import cz.filmtit.client.Gui;
 
+/**
+ * A page showing the user manual of the application.
+ * @author rur
+ *
+ */
 public class Help extends UIObject {
 
 	private static HelpUiBinder uiBinder = GWT.create(HelpUiBinder.class);
@@ -15,6 +20,9 @@ public class Help extends UIObject {
 	interface HelpUiBinder extends UiBinder<Element, Help> {
 	}
 
+	/**
+	 * Shows the page.
+	 */
 	public Help() {
 		setElement(uiBinder.createAndBindUi(this));
 		
