@@ -1,7 +1,7 @@
 \label{chap:userspace}
 \section{Preliminaries}
 
-The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory and to reflect all the users' GUI activity and make the users' work persistent on the server and available always in the same state they finished their work.
+The User Space component is a server process that provides the web service. Its main tasks are to mediate the services of the translation memory, to reflect all the users' GUI activity and to make the users' work persistent on the server and available always in the state they finished it.
 
 The User Space is a Java Servlet which is run using the \emph{Jetty WebServer}. All of the User Space code is implemented in Java. It uses the \emph{Hibernate} object-relational mapping library. The same \emph{PostgreSQL} database as in the TM Core is used. The in-memory \emph{hsqldb} database is used for unit testing.
 
@@ -13,9 +13,11 @@ To make the whole project as clear as possible, we try to use as much as possibl
 
 The \emph{Server} class which processes the calls on the first level contains the {\it Session} objects. These objects process the calls with association to the particular logged in users. These two classes are not a part of the set of shared classes.
 
-The session class contains an object representing the user (a wrapper for the shared class). A hash table of active documents is there to access  them quickly. Both the document objects and translation result objects (which collect the source chunk, translation suggestion and the actual user's translation) are wrappers for the shared classes. However, the inner shared objects are used for communication with other components.
+The session class contains an object representing the user (a wrapper for the shared class). It also contains a hash table of active documents of the user that should be possible to access quickly.
+Both the document objects and translation result objects (which consist of the source chunk, a list of translation suggestions and the actual user's translation) are wrappers for the shared classes. However, the inner shared objects are used for communication with other components.
 
-The more basic level than the translation result uses exactly the shared classes structure.
+%The more basic level than the translation result uses exactly the shared classes structure.
+% RR: deleting sentence I dont understand
 
 \section{Functionality Overview}
 
