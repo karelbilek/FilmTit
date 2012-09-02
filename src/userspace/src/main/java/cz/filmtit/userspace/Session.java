@@ -541,15 +541,21 @@ public class Session {
                 throw new InvalidChunkIdException("Mismatch in documents IDs of the chunks.");
             }
 
-            // test the timing
-            if (!timingRegexp.matcher(chunk.getStartTime()).matches()) {
-                throw new InvalidValueException("The start time value '" + chunk.getStartTime() + "' has wrong format.");
+            // test the start timing
+            try {
+                new SrtTime(chunk.getStartTime());
             }
-            if (!timingRegexp.matcher(chunk.getEndTime()).matches()) {
-                throw new InvalidValueException("The end time value '" + chunk.getEndTime() + "' has wrong format.");
+            catch (InvalidValueException e) {
+                throw new InvalidValueException("The start time value '" + chunk.getStartTime() + "' has wrong format. " + e.getLocalizedMessage());
             }
-
-
+            // test the end timing
+            try {
+                new SrtTime(chunk.getEndTime());
+            }
+            catch (InvalidValueException e) {
+                throw new InvalidValueException("The end time value '" + chunk.getEndTime() + "' has wrong format. " + e.getLocalizedMessage());
+            }
+            
             USTranslationResult usTranslationResult = new USTranslationResult(chunk);
             usTranslationResult.setDocument(document);
             usTranslationResults.add(usTranslationResult);
