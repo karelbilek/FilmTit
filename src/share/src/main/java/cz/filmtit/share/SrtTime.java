@@ -108,35 +108,55 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 
 	// setters from String
 	public void setH(String h) throws InvalidValueException {
-		try {
-			setH(Integer.parseInt(h));
+		if (h == null || h.isEmpty()) {
+			setH(0);
 		}
-		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of h must be an ineteger, '" + h + "' is invalid!");
+		else {
+			try {
+				setH(Integer.parseInt(h));
+			}
+			catch (NumberFormatException e) {
+				throw new InvalidValueException("Value of h must be an ineteger, '" + h + "' is invalid!");
+			}
 		}
 	}
 	public void setM(String m) throws InvalidValueException {
-		try {
-			setM(Integer.parseInt(m));
+		if (m == null || m.isEmpty()) {
+			setM(0);
 		}
-		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of m must be an ineteger, '" + m + "' is invalid!");
+		else {
+			try {
+				setM(Integer.parseInt(m));
+			}
+			catch (NumberFormatException e) {
+				throw new InvalidValueException("Value of m must be an ineteger, '" + m + "' is invalid!");
+			}
 		}
 	}
 	public void setS(String s) throws InvalidValueException {
-		try {
-			setS(Integer.parseInt(s));
+		if (s == null || s.isEmpty()) {
+			setS(0);
 		}
-		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of s must be an ineteger, '" + s + "' is invalid!");
+		else {
+			try {
+				setS(Integer.parseInt(s));
+			}
+			catch (NumberFormatException e) {
+				throw new InvalidValueException("Value of s must be an ineteger, '" + s + "' is invalid!");
+			}
 		}
 	}
 	public void setT(String t) throws InvalidValueException {
-		try {
-			setT(Integer.parseInt(t));
+		if (t == null || t.isEmpty()) {
+			setT(0);
 		}
-		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of t must be an ineteger, '" + t + "' is invalid!");
+		else {
+			try {
+				setT(Integer.parseInt(t));
+			}
+			catch (NumberFormatException e) {
+				throw new InvalidValueException("Value of t must be an ineteger, '" + t + "' is invalid!");
+			}
 		}
 	}
 
@@ -225,6 +245,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	 * the validity of the chunk start time and end time,
 	 * this being the start time
 	 * and that being the end time.
+	 * @return -1, 0 or 1 if this is <, == or > than that
 	 */
 	@Override
 	public int compareTo(SrtTime that) {
