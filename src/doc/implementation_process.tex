@@ -186,36 +186,19 @@ dependency; on the other hand, when we ran into some problems with using
 it, we found out that \emph{openid4java} is much more frequently 
 discussed on the \emph{StackOverflow.com} forum and that there is a 
 bigger chance that we would be able to find some advice for potential 
-problems.
+problems. 
 
-The \emph{openid4java} library is much bigger than \emph{JOpenID} (it has megabytes whereas \emph{JOpenID} has tens of kilobytes) and supports not only logging in but also providing an OpenID endpoint service. When we found out that the problems with the libraries were because of wrongly set Maven dependencies, we turned back to \emph{JOpenID} library which is much easier to use.
-
-At the end we decided to use the \emph{JOpenID} library, and to support Google, Yahoo and Seznam accounts. The library contains Google and Yahoo by default. We decided to also add support for \emph{Seznam.cz} as one of the biggest Czech OpenID providers\footnote{http://www.netmonitor.cz/verejne-vystupy}. Seznam provides the authentication data (we are particularly interested in the user name and email which we use in our application) in a different form than the other OpenID providers, therefore it was necessary to write our own parser of the authentication data ({\tt{cz.filmtit.userspace.login.SeznamData}}).
-
-We do not support generic OpenID because the library does not support it. After doing some research on the Czech developers forums, we concluded that just a very small percentage of users actually know what OpenID is; therefore, allowing to login via Google and Seznam accounts seems sufficient.
+However, as discussed in \ref{us:openid}, \emph{openid4java} is easier to implement, so we used that, even for its biggest shortcoming -- users are not able to set their own OpenID provider.
 
 The support for OpenID was finished in July, the parser for the authentication data from Seznam was added at the beginning of August.
-
-A question to solve was what to do when the user logs in through OpenID for the first time. We were thinking about requiring an explicit registration from the user in such case, but then decided that we probably do not need any more data than we already get from the OpenID provider. Therefore, we decided to register the user transparently in such situation.
-Because it can happen that e.g.\ the OpenID provider is temporarily unavailable, ceases to provide his services or that the user closes his account at the provider, we decided to offer the user a possibility to log in to his account even without OpenID. For that reason, we create a full account for such users, generating a username and password and sending these to his e-mail address (which usually can be acquired from the OpenID provider). The users have the possibility to change his username and/or password on the Settings page.
 
 \subsubsection{Chunk Splitting}
 
 An interesting issue, also from the linguistic view, we had to solve was to find the best way of splitting the subtitle items into chunks. As opposed to the classical way of simply splitting documents into sentences, we had several possible ways of doing the splitting because of the nature of subtitle files.
-Although one subtitle item usually corresponds to one sentence, it often happens that either a too long sentence is split into several subtitle items, and/or short sentences are grouped together into one subtitle item. Moreover, the end-of-sentence delimiters (full stop, question mark, ellipsis etc.) are often left out.
-And finally, we also realized that there is another non-classical sentence delimiter that is typical for subtitles, which is the start-of-line dash, used in delimiting dialogues.
 
-We decided to split the subtitle items into multiple chunks,
-as keeping the split as it is seemed to be too arbitrary, and we would 
-also miss the shortest sentences, which are the easiest ones to find in a 
-translation memory. Therefore, we split the subtitle items on end-of-
-sentence delimiters (including the dialogue dashes), which naturally 
-produces a small number of erroneous splits, but has been found to be 
-reliable enough even using a simple splitter.
+We talk about chunk splitting more in chapter~\ref{os:sentence_splitting}.
 
-We also thought about trying to reconstruct the sentences that span more than one subtitle item. However, we found that very hard (or even probably impossible) to do reliably. Moreover, if we did that, we would miss the advantage of using the timing of the subtitle files for alignment. Therefore, we keep the splits originally present in the subtitle file, although we are aware that these splits bring some additional arbitrariness into our data.
-
-It is important that the splitting is done in exactly the same way when importing subtitles into the database and when processing the user subtitles. Therefore, we made the Parser a shared class, i.e.\ it is compiled both into Java bytecode (and used in importing) and into JavaScript (and used in GUI).
+We then realized that it is important that the splitting the same when importing subtitles into the database and when processing the user subtitles (as discussed in~\ref{os:guiparsing}), so we made it a shared class.
 
 %\subsubsection{Chunk Time Format}
 %

@@ -95,6 +95,28 @@ Another issue to be mentioned here is the handling of document deletion. When th
 
 Providing the feedback itself is done by a static method of the {\tt USTranslsationResult} class. This method returns all the translation results what have not been used for feedback before ({\tt hasSentFeedback} flag set to false). The translation results are provided with a reference to a document they belong to which allows to resolve the media source later. If the translation results are form a document that has been flagged as ready to be deleted, both the translation results and the document are deleted. Otherwise, the flag informing about having provided the feedback is set.
 
+\subsection{OpenID}
+\label{us:openid}
+Apart from normal login, we also use OpenID for registration and login.
+
+OpenID\footnote{http://openid.net/} is ``an open standard that describes how users can be authenticated in a decentralized manner, eliminating the need for services to provide their own ad hoc systems and allowing users to consolidate their digital identities'' (from Wikipedia) \footnote{http://en.wikipedia.org/wiki/OpenID}.
+
+We use \emph{JOpenID} for OpenID authentication. The positive aspect of \emph{JOpenID} is that is easy to implement and use; the negative aspect is, that it doesn't support arbitrary OpenID URLs, so we (as a web app developers) have to list the OpenID providers and let user to choose. From JOpenID documentation\footnote{http://code.google.com/p/jopenid/wiki/FAQ}:
+
+\begin{quote}Yes OpenID standards contains two parts: \textbf{discovery} and \textbf{authentication}. Discovery is the process where the RP uses email or URL to look up the address of OP. It is complex, and may confuse the end users.
+
+Instead, Web UI designer should give end users the chooses of their familiar OpenID accounts, such as Google account, Yahoo account, etc.
+
+JOpenID only supports OpenID authentication because the discovery protocol is hard to use, and difficult to implement. You will find that JOpenID meets your 99.9\% requirements.
+\end{quote}
+
+We support Google and Seznam.cz\footnote{\url{http://seznam.cz}, Czech web portal, biggest Czech OpenID provider}; this is done by implementing {\tt{cz.filmtit.userspace.login.SeznamData}}. We think that just a very small percentage of users actually know what OpenID is; therefore, allowing to login via Google and Seznam accounts seems sufficient.
+
+However, there is a question to solve -- what to do when the user logs in through OpenID for the first time, because the user still needs to be in our database as a regular user. We were thinking about requiring an explicit registration, but that is unneccessary and complicated. Therefore, we register the OpenID user transparently.
+
+Because we register the users as full users, we generate a username and password for them and then send these to their e-mail address, which  can be acquired from the OpenID provider. Users can then log-in without the OpenID provider and  have the possibility to change their username and/or password on the Settings page.
+
+
 \section{Exporting Subtitle Files}
 \label{sec:export}
 

@@ -113,6 +113,7 @@ The subtitles were gzipped, as already noted. Gunzipping all the files to disk w
 Most of the Czech subtitles were in \texttt{Windows-1250} encoding, but a small minority of them were in UTF-8. Some files were not in correct \texttt{gzip} format. Other than these issues, reading the files themselves was quite straightforward.
 
 \subsection{GUI Parsing}
+\label{os:guiparsing}
 Before we start to talk about parsing, let us take a small sidestep to GUI.
 
 We wanted to move the parsing of the users' uploaded subtitles to the client side. The most important reason was that we did not want to add work to the server. Therefore it was necessary to implement the parsing in the shared classes to make it available both in the GWT based GUI and the dataimport module.
@@ -142,13 +143,15 @@ When the user uploads a file, as the second step, we take those unprocessed chun
 When we are building the corpus, though, we do not split the subtitle items into sentences right away. We first do alignment of files and subtitle items, which is describe below, and only then split the chunks into sentences, again using \texttt{TitChunkSeparator}.
 
 \section{Sentence Splitting}
-\label{sentence_splitting}
+\label{os:sentence_splitting}
 \subsection*{Basic idea}
 Quite early on, we decided, that we should not add the whole subtitle items into the translation memory, but that we should split them to smaller parts.
 
 As you can see on Graph~\ref{splitting:chunks}, we decided that we \emph{do} want to break subtitle items into sentences wherever possible and add those to database separately, but we do \emph{not} want to join the sentences that were already broken into multiple items.
 
 One of the reasons for \emph{not} joining sentences together is that it is not trivial to tell if the sentence ends with a given item or not. The other reason is that the user will also have the sentences in his original subtitles split in this way. We would then, for translation, need to join his sentences in the same way - but then, we would have to break them again when exporting out again.
+
+On the other hand, the reason for \emph{not} keeping only the splitting to subtitle items and for splitting into more smaller chunks is, that the splitting into subtitle items seems sometimes too arbitrary and we would miss the shortest sentences, which are the easiest ones to find in a translation memory.
 
 \begin{figure}[t]
 \begin{center}
@@ -752,7 +755,7 @@ However, even in the cases when a Czech subtitle file has been made directly fro
 
 The result of this step is a list of pairs of the Czech and English subtitle items. We do this step only on the chosen pair of files from the previous step, and only if the pair of the files is chosen as a ``good'' candidate.
 
-After this step, we almost have the final corpus. What we have to do before saving it into a final corpus is splitting the aligned items into chunks, as described in Section~\ref{sentence_splitting}. If both Czech and English have the same number of chunks, we split them and add those to the corpus; if the number is different, we ignore them.
+After this step, we almost have the final corpus. What we have to do before saving it into a final corpus is splitting the aligned items into chunks, as described in Section~\ref{os:sentence_splitting}. If both Czech and English have the same number of chunks, we split them and add those to the corpus; if the number is different, we ignore them.
 
 
 \subsection{Approaches}
@@ -830,7 +833,7 @@ The chunk-to-chunk alignment is then simple -- chunks are aligned together if bo
 \begin{center}
 \includegraphics[width=0.5\textwidth]{figures/distance_align.pdf}
 \end{center}
-\caption{An illustration for the distance-based alignment. Circle represents subtitle, red line represent chosen alignment, black ones are some candidates, red circles are the subtitles that are aligned}\label{histograms}
+\caption{An illustration for the distance-based alignment. Circle represents subtitle, red line represent chosen alignment, black ones are some candidates, red circles are the subtitles that are aligned}\label{distance_align}
 \end{figure}
 
 The idea that lead to the next approach was -- what if we didn't have any maximal tolerance and just took the subtitles that are closest to each other.
