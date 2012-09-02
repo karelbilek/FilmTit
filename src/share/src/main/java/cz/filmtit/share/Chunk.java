@@ -142,6 +142,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         return displayForm;
     }
 
+
     public boolean isDialogue() {
         for (Annotation annotation: annotations) {
             if (annotation.getType() == AnnotationType.DIALOGUE) {
