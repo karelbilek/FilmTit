@@ -2,6 +2,8 @@ package cz.filmtit.share;
 import java.io.Serializable;
 
 /**
+ * Type representing a source of translation pair, i.e. which method has been used to retrieve it.
+ *
  * @author Joachim Daiber
  */
 public enum TranslationSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {

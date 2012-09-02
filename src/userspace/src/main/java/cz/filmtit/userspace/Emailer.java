@@ -152,7 +152,7 @@ public class Emailer {
     }
 
     /**
-     * Setting openID source
+     * Sets openID source
      */
     public void openIDSource(){
         this.openIDsource = true;
@@ -183,9 +183,12 @@ public class Emailer {
 
     }
 
-   /**
-    *  Testing email address
-    */
+    /**
+     * Validating email
+     * @param email  string which should be email
+     * @return validity of email
+     * @throws InvalidValueException when given string is not mail
+     */
     public static boolean validateEmail(String email) throws InvalidValueException {
         if (email.isEmpty()) return true; // empty email for registration
         if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email)) {
@@ -195,9 +198,10 @@ public class Emailer {
     }
 
     /**
-     *  Deleting whitespace
+     * Deleting more like 2 whitespaces on line
+     * @param text with whitespaces
+     * @return  text without whitespaces
      */
-
     private String delWhiteSpace(String text){
         return text.replaceAll(" {2,}" ,"");
     }
