@@ -1,8 +1,8 @@
 package cz.filmtit.share;
 
-import java.io.Serializable;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
+
+import java.io.Serializable;
 
 /**
  * Enum for log levels in remote GUI logging
@@ -62,7 +62,7 @@ public enum LevelLogEnum implements Comparable<LevelLogEnum>, Serializable, IsSe
 
     /**
      * Converts the log level to string.
-     * @return
+     * @return  Text description
      */
     @Override
      public String toString() {

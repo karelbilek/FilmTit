@@ -20,46 +20,97 @@ import java.io.Serializable;
 public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializable {
 	
 	private static final long serialVersionUID = 3413134158754151331L;
-	
-	// constants
+
+
+      //Constans for creating time
+
+    /**
+     * Delimiter between hours and minutes
+     */
 	public static final char HM_DELIMITER = ':';
+    /**
+     * Delimiter between minutes and seconds
+     */
 	public static final char MS_DELIMITER = ':';
+    /**
+     * Delimiter between seconds and miliseconds
+     */
 	public static final char ST_DELIMITER = ',';
+    /**
+     * String represents zero time
+     */
     public static final String ZERO_TIME = "00:00:00,000";
-    
-                                                            //negative time appears time to time
+
+    /**
+     *   Regexp for extract parts of time
+     */
+//negative time appears time to time
     public static final RegExp timeExtractor  = RegExp.compile("(-?[0-9]+):(-?[0-9]+):(-?[0-9]+)[,:.](-?[0-9]+)");
-	
+
+
 	// values (h m s could be byte)
 	private int h;
 	private int m;
 	private int s;
 	private int t;
-	
-	// getters to int
+
+    /**
+     * Gets hours
+     * @return Int
+     */
 	public int getH() {
 		return h;
 	}
+
+    /**
+     * Gets minutes
+     * @return  Int
+     */
 	public int getM() {
 		return m;
 	}
+
+    /**
+     * Gets seconds
+     * @return Int
+     */
 	public int getS() {
 		return s;
 	}
+
+    /**
+     * Gets miliseconds
+     * @return Int
+     */
 	public int getT() {
 		return t;
 	}
-	
-	// getter to String
+
+    /**
+     * Gets hours
+     * @return String
+     */
 	public String getStringH() {
 		return Integer.toString(h);
 	}
+    /**
+     * Gets minutes
+     * @return String
+     */
 	public String getStringM() {
 		return Integer.toString(m);
 	}
+    /**
+     * Gets seconds
+     * @return String
+     */
 	public String getStringS() {
 		return Integer.toString(s);
 	}
+    /**
+     * Gets miliseconds
+     * @return String
+     */
 	public String getStringT() {
 		return Integer.toString(t);
 	}
@@ -112,7 +163,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 			setH(Integer.parseInt(h));
 		}
 		catch (NumberFormatException e) {
-			throw new InvalidValueException("Value of h must be an ineteger, '" + h + "' is invalid!");
+			throw new InvalidValueException("Value of h must be an integer, '" + h + "' is invalid!");
 		}
 	}
 	public void setM(String m) throws InvalidValueException {
@@ -290,8 +341,7 @@ public class SrtTime implements Comparable<SrtTime>, Serializable, IsSerializabl
 	}
 	
 	public static final String DISPLAY_INTERVAL_DELIMITER = " - ";
-	
-	// TODO: Object -> SrtTime
+
 	/**
 	 * hh:mm:ss,ttt - hh:mm:ss,ttt
 	 * (to be used to display in GUI)
