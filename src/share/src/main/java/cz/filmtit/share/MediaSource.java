@@ -14,37 +14,74 @@ import java.util.Set;
 public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
 	private static final long serialVersionUID = 5899275001958847886L;
-
+    /**
+     * Long identificator
+     */
     private Long id = Long.MIN_VALUE;
+    /**
+     * title of film
+     */
     private String title;
+    /**
+     * release year
+     */
     private String year;
+    /**
+     * Genres, which characterize each film
+     */
     private Set<String> genres;
+    /**
+     * Url of icon
+     */
     private String thumbnailURL;
 
     public MediaSource() {
 		// nothing
 	}
 
+    /**
+     * Sets identificator
+     * @param id identificator
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Gets title of MediaSource
+     * @return  String      */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Sets title of MediaSource
+     * @param title
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     * Gets year of MediaSource
+     * @return   String  year
+     */
     public String getYear() {
         return year;
     }
 
+    /**
+     * Sets year of MediaSource
+     * @param year
+     */
     public void setYear(String year) {
         this.year = year;
     }
 
+    /**
+     * Gets genres
+     * @return all genres
+     */
     public Set<String> getGenres() {
         if (genres == null)
             return new HashSet<String>();
@@ -52,14 +89,26 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
             return genres;
     }
 
+    /**
+     * Gets MediaSources identificator
+     * @return identificator
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets genres
+     * @param genres
+     */
     public void setGenres(Set<String> genres) {
         this.genres = genres;
     }
 
+    /**
+     * Creates string representation.
+     * @return  If is year non-empty reates "title (year)"  otherwise  "title"
+     */
     @Override
     public String toString() {
         String str = title;
@@ -99,6 +148,12 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         return genresBuilder.toString();
     }
 
+    /**
+     * Creates instance
+     * @param title  Title of MediaSource
+     * @param year   Year of MediaSource
+     * @param genres Genres of MediaSource separated by space
+     */
     public MediaSource(String title, String year, String genres) {
         this.title = title;
         this.year = year;
@@ -106,10 +161,20 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         this.genres.addAll(Arrays.asList(genres.split(",[ ]*")));
     }
 
+    /**
+     * Instance withou genres
+     * @param title  Title of MediaSource
+     * @param year   Year of MediaSource
+     */
     public MediaSource(String title, String year) {
         this(title, year, "");
     }
 
+    /**
+     * Compares two MediaSource objects if they are same
+     * @param o obect which should be MediaSource
+     * @return  True if are the same object or have same properties otherwise false
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -124,6 +189,10 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     }
 
+    /**
+     * Generates hasCodes for instance MediaSource
+     * @return Int Combinations of hashCodes of properties
+     */
     @Override
     public int hashCode() {
         int result = title.hashCode();
@@ -133,10 +202,18 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
         return result;
     }
 
+    /**
+     * Sets url of thumbnail
+     * @param thumbnailURL  url
+     */
     public void setThumbnailURL(String thumbnailURL) {
         this.thumbnailURL = thumbnailURL;
     }
 
+    /**
+     * Gets url of thumbnail
+     * @return  url
+     */
     public String getThumbnailURL() {
         return thumbnailURL;
     }

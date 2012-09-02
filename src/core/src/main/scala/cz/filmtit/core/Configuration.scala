@@ -107,6 +107,7 @@ class Configuration(configurationFile: InputStream) {
   val SeznamEndpoint = (userspaceXML \ "openid" \ "seznamcz").text
   val SeznamNick =   (userspaceXML \ "openid" \ "nickname").text
 
+
   val freebaseKey: String = (XMLFile \ "freebase_key").text
 
 

@@ -1,9 +1,11 @@
 package cz.filmtit.share;
 
-import cz.filmtit.share.annotations.*;
+import cz.filmtit.share.annotations.Annotation;
+import cz.filmtit.share.annotations.AnnotationType;
+
 import java.io.Serializable;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class representing the result sent from the core corresponding to the request by a source-chunk,
