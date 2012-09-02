@@ -66,7 +66,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     public enum CheckUserEnum {
         UserName,
         UserNamePass,
-        OpenId
     }
 
     /**
@@ -301,6 +300,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Get the list of lists of possible translations of the given chunks.
+     * @param sessionID Session ID
+     * @param chunks List of timed chunks to which translation suggestion should generated
+     * @return List of translation results with suggestions
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
@@ -311,7 +315,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Stop generating translation results for the given chunks
      * (to be used when the getTranslationResults call has been called
-     * with the given chunks.
+     * with the given chunks). The call is propagated further to the core where the
+     * actual stopping happens.
+     * @param sessionID Session ID
+     * @param chunks List of timed chunks for which the suggestion generation should be stopped.
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     @Override
     public Void stopTranslationResults(String sessionID, List<TimedChunk> chunks)
@@ -321,6 +331,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Set the user translation of the given chunk.
+     * @param sessionID Session ID
+     * @param chunkIndex Identifier of the chunk that has been changed
+     * @param documentId ID of the document the chunk belongs to
+     * @param userTranslation New user translation
+     * @param chosenTranslationPairID ID of translation suggestion picked by the user
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
      */
     @Override
     public Void setUserTranslation(String sessionID, ChunkIndex chunkIndex, long documentId,
@@ -331,6 +350,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Change the start time of the given chunk to the new value.
+     * @param sessionID Session ID
+     * @param chunkIndex Identifier of the chunk that has been changed
+     * @param documentId ID of the document the chunk belongs
+     * @param newStartTime New value of chunk start time
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
      */
     @Override
     public Void setChunkStartTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newStartTime)
@@ -340,6 +367,14 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Change the end time of the given chunk to the new value.
+     * @param sessionID Session ID
+     * @param chunkIndex Identifier of the chunk that has been changed
+     * @param documentId ID of the document the chunk belongs
+     * @param newEndTime New value of chunk end time
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
      */
     @Override
     public Void setChunkEndTime(String sessionID, ChunkIndex chunkIndex, long documentId, String newEndTime)
@@ -349,6 +384,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Change the start time and end time of the given chunk to the values.
+     * @param sessionID Session ID
+     * @param chunkIndex Identifier of the chunk that has been changed
+     * @param documentId ID of the document the chunk belongs
+     * @param newStartTime New value of chunk start time
+     * @param newEndTime New value of chunk end time
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
      */
     @Override
 	public Void setChunkTimes(String sessionID, ChunkIndex chunkIndex,
@@ -366,6 +410,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Change the source text of the chunk,
      * resulting in new translation suggestions
      * which are sent as the result.
+     * @param sessionID Session ID
+     * @param chunk Chunk whose source text has been changed
+     * @param newDbForm New text of the chunk in database form
+     * @return Translation result with generated suggestions
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
      */
     @Override
     public TranslationResult changeText(String sessionID, TimedChunk chunk, String newDbForm)
@@ -375,6 +426,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Remove the chunk from the document, together with its translation if it exists.
+     * @param sessionID Session ID
+     * @param chunkIndex Index of chunk to be deleted
+     * @param documentId ID of the document the chunk belongs to
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
      */
     @Override
     public Void deleteChunk(String sessionID, ChunkIndex chunkIndex, long documentId)
@@ -387,7 +445,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     /**
-     * Register a user with the given username and password, setting the given e-mail and sending registration info to it.
+     * Get the URL of a window to show to the user for him to log in using his OpenID
+     * @param serviceType Type of service user is using to log in (e.g. Google, Seznam etc.)
+     * @return Pair of authentication token used for asking for session ID and URL where the user
+     *          should authenticate.
      */
     @Override
     public LoginSessionResponse getAuthenticationURL(AuthenticationServiceType serviceType) {
@@ -429,9 +490,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Send the URL of the response from the OpenID provider to Userspace for validation.
-     * @param authID
-     * @param responseURL
-     * @return
+     * @param authID Token used for identification of the Open ID respond
+     * @param responseURL URL where the OpenID proveider redirected the user
+     * @return Flag if the authentication was successful
      */
     @Override
     public Boolean validateAuthentication(int authID, String responseURL) {
@@ -489,11 +550,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Poll the Userspace to find out whether the user has already successfully logged in using his OpenID.
-     * @param authID
-     * @return
-     * @throws AuthenticationFailedException
-     * @throws InvalidValueException
+     * Poll the Userspace to find out whether the user has already
+     * successfully logged in using his OpenID.
+     * @param authID Token used for identification of the request
+     * @return Pair of newly generated session ID and user object containing the user settings
+     * @throws AuthenticationFailedException  Throws an exception if the authentication failed
+     * @throws InvalidValueException Throws an exception if an email address is provided in wrong format.
      */
     @Override
     public SessionResponse getSessionID(int authID) throws AuthenticationFailedException, InvalidValueException {
@@ -529,6 +591,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Try to log in the user with the given username and password.
+     * @param username User name
+     * @param password User's password
      * @return Tuple containing session ID and the information about user.
      */
     @Override
@@ -543,7 +607,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Logs in a user (creates a session) using the openID (already authenticated).
-     * @param openId
+     * @param openId Open ID identifier of the user.
      * @return Tuple containing session ID and the information about user.
      */
     public SessionResponse openIDLogin(String openId) {
@@ -556,9 +620,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Invalidate the user session with the given sessionID
-     * @param sessionID
-     * @throws InvalidSessionIdException
+     * Invalidate the user session with the given sessionID.
+     * @param sessionID Session ID.
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
@@ -571,13 +635,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Register new user with given cretitials.
+     * Register new user with given properties.
      * @param name Picked user name.
      * @param pass Password
      * @param email Email address
-     * @param openId OpenID identifyier in case it is an openID registration
-     * @return flag - succes registration
-     * @throws InvalidValueException
+     * @param openId OpenID identifier in case it is an openID registration
+     * @return Flag if the registration has been successful.
+     * @throws InvalidValueException Throws an exception if an email address is provided in wrong format.
      */
     @Override
     public Boolean registration(String name, String pass, String email, String openId) throws InvalidValueException {
@@ -614,8 +678,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Register the user with the given openId
-     * @param openId
-     * @param data
+     * @param openId  Users OpenId identifier
+     * @param data Authentication data from the open ID authentication that preceded the registration.
      * @return true if registration is successful, false otherwise
      */
     public Boolean registration(String openId, Authentication data) throws InvalidValueException {
@@ -653,9 +717,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * From email gets unique userName
-     * @param email
-     * @return  unique login
+     * Finds a free user name based on the user email. It is used in registration
+     * of the user using OpenId.
+     * @param email Users email
+     * @return Unique username
      */
     private String getUniqueName(String email){
 
@@ -706,11 +771,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * user chooses a new password,
      * user authentication is done by the token sent to user's email
      * There needs to be a valid token for changing the password.
-     * @param userName
-     * @param pass
-     * @param stringToken
+     * @param userName User name
+     * @param pass Password
+     * @param stringToken Generated token for password change identification
      * @return  flag - success changing
-     * TODO: throw an exception
      */
     @Override
     public Boolean changePassword(String userName, String pass, String stringToken){
@@ -733,7 +797,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Sends an email informing user about possibility of change his password.
      * @param user User who is about to change his password
-     * @return  Sign if sending email was succesful.
+     * @return  Sign if sending email was successful.
      */
     public Boolean sendChangePasswordMail(USUser user){
         Emailer email = new Emailer();
@@ -752,7 +816,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * it is in a hashed form in the user object and the plain text form is thrown away after registration.
      * @param user Newly registered user
      * @param pass User's password
-     * @return Sign if sending email was succesful.
+     * @return Sign if sending email was successful.
      */
     public boolean sendRegistrationMail(USUser user , String pass, boolean openId){
         Emailer email = new Emailer();
@@ -767,6 +831,12 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return false;
     }
 
+    /**
+     * Method creating a HttpServletRequest from an URL returned by the OpenID provider.
+     * It is copied from the JOpenID tutorial.
+     * @param url URL where the OpenId login redirected the user
+     * @return HttpServletRequest made of the URL
+     */
     static HttpServletRequest createRequest(String url) throws UnsupportedEncodingException {
         int pos = url.indexOf('?');
         if (pos==(-1))
@@ -797,7 +867,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
 
     /**
-     * Check if found sessionId is still active
+     * Check if found sessionId is still active. If yes returns the same data as at the
+     * time of logging in, return null otherwise.
+     * @param sessionID Session ID
+     * @return Pair of session ID and user object if the session is still active, null otherwise.
      */
     @Override
     public SessionResponse checkSessionID(String sessionID){
@@ -813,7 +886,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * to the user's email address.
      * @param username registered username of the user
      * @return true on success, false if username is incorrect or there is no email address
-     * TODO: throw an exception
      */
     @Override
     public Boolean sendChangePasswordMail(String username){
@@ -830,7 +902,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * to the user's email address.
      * @param email registered e-mail address of the user
      * @return true on success, false if username is incorrect or there is no email address
-     * TODO: throw an exception
      */
     @Override
     public Boolean sendChangePasswordMailByMail(String email) throws InvalidValueException {
@@ -870,15 +941,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Get hash of string
-     * if return same string like input - problem with algortithm
+     * Get hash of string of a string using BCrypt library. It is used to store passwords safely.
+     * @param pass Password to be hashed.
      */
     public static String passHash(String pass){
         return BCrypt.hashpw(pass,BCrypt.gensalt(12));
     }
     /**
-     *  generate session;
-     *
+     * Creates a new session with given user and generates is session ID.
+     * @param user Owner of new session.
+     * @return New session ID.
      */
     private String generateSession(USUser user){
         IdGenerator idGenerator = new IdGenerator();
@@ -903,12 +975,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Check if user exists
-     *  switch according CheckUserEnum
-     *     CheckName - return first user of given name
-     *     CheckNamePass - return user with given name and pass
+     * Check if user exists. If the type is UserName, in is OpenID user and existence of
+     * a user name is enough. If the type is UserNamePass, it is checked based on the
+     * user name and password.
+     * @param username User name
+     * @param password Password
+     * @param type Type of user checking
+     * @return User object if the user object, null otherwise.
      */
-    public static USUser checkUser(String username , String password, CheckUserEnum type){
+    public static USUser checkUser(String username, String password, CheckUserEnum type){
         org.hibernate.Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
 
         List userDbResult = dbSession.createQuery("select d from USUser d where d.userName like :username")
@@ -941,7 +1016,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Check for a user with the given openid.
-     * @param openid
+     * @param openid OpenId identifier of the user
      * @return The corresponding user if there is one, null if there is not.
      */
     private USUser checkUser(String openid){
@@ -965,7 +1040,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return (USUser)UserResult.get(0);
     }
     /**
-     * Validates an email address -- throws an exception if it is not valid.
+     * Validates an email address using the Apache commons validator.
+     * Throws an exception if it is not valid, does nothing otherwise.
+     * @throws InvalidValueException Throws an exception if it is not valid.
      */
     private void validateEmail(String email) throws InvalidValueException {
         Emailer.validateEmail(email);
@@ -976,7 +1053,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
     /**
-     * Stay logged in permanently (for 1 month) instead of 1 hour (sets the session timeout)
+     * Stay logged in permanently (for 1 month by default) instead of 1 hour (sets the session timeout)
+     * @param sessionID Session ID
+     * @param permanentlyLoggedIn Flag if the user wants to be logged in permanently.
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     public Void setPermanentlyLoggedIn(String sessionID, boolean permanentlyLoggedIn) throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).setPermanentlyLoggedIn(permanentlyLoggedIn);
@@ -984,6 +1065,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Change user's e-mail.
+     * @param sessionID Session ID
+     * @param email New users email
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidValueException Throws an excpetion if the email address is not valid.
      */
     public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setEmail(email);
@@ -991,6 +1077,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Set maximum number of suggestions to show for each line.
+     * @param sessionID Session ID
+     * @param number Flag if the moses translation should be used.
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidValueException Throws an exception if the given number is invalid (negative or over 100)
      */
     public Void setMaximumNumberOfSuggestions(String sessionID, int number) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setMaximumNumberOfSuggestions(number);
@@ -998,6 +1089,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Include MT results in translation suggestions.
+     * @param sessionID Session ID
+     * @param useMoses Flag if the moses translation should be used.
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     public Void setUseMoses(String sessionID, boolean useMoses) throws InvalidSessionIdException {
         return getSessionIfCan(sessionID).setUseMoses(useMoses);
@@ -1005,6 +1100,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Change user's username.
+     * @param sessionID Session ID
+     * @param username New user name
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     @Override
     public Void setUsername(String sessionID, String username)
@@ -1013,6 +1112,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
     /**
      * Change user's password.
+     * @param sessionID Session ID
+     * @param password New password
+     * @return Void
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     @Override
     public Void setPassword(String sessionID, String password)
@@ -1027,6 +1130,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * authenticated openIDs without sessions, token for changing password) should be timed out.
      */
     class WatchSessionTimeOut extends Thread {
+        /**
+         * Runs the thread.
+         */
         public void run() {
             while(true) {
                 // removing already existing sessions  that timed out
@@ -1053,7 +1159,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                     }
 
                 }
-
                 for (Integer authID : authDataInProgress.keySet()) {
                     if (authDataInProgress.get(authID).getCreationTime() + OPEN_ID_AUTH_TIME_OUT < new Date().getTime()) {
                         authDataInProgress.remove(authID);
@@ -1066,7 +1171,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
                     }
                 }
 
-
                 // sleep for a minute and try it again
                 try { Thread.sleep(60 * 1000); }
                 catch (Exception e) {}
@@ -1077,9 +1181,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Gets flag if there is such document available in given session.
-     * @param sessionId
-     * @param documentId
-     * @return
+     * @param sessionId Session ID
+     * @param documentId ID of the queried document
+     * @return Flag if the document is available
      */
     public boolean canReadDocument(String sessionId, long documentId) {
         try {
@@ -1091,10 +1195,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     /**
-     * Gets the session if there exist session with such ID. Throws an exception otherwise.
-     * @param sessionId
-     * @return
-     * @throws InvalidSessionIdException
+     * Gets the session if there exist session with such ID. Throws an exception otherwise. It is used
+     * in processing in all of the RPC calls when a session is involved.
+     * @param sessionId Session ID
+     * @return Session of given ID
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      */
     private Session getSessionIfCan(String sessionId) throws InvalidSessionIdException {
         if (!activeSessions.containsKey(sessionId)) {
@@ -1111,9 +1216,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param fps        Frames per second (important for subrip format)
      * @param type       Format of the subtitles
      * @param converter  Converter of the translation results to text format
-     * @return
-     * @throws InvalidSessionIdException
-     * @throws InvalidDocumentIdException
+     * @return Subtitle file as string.
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     public String getSourceSubtitles(String sessionID, long documentID, double fps, TimedChunk.FileType type,
                                      ChunkStringGenerator.ResultToChunkConverter converter) throws InvalidSessionIdException, InvalidDocumentIdException {
@@ -1124,11 +1229,11 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     /**
      * Gets an active document by ID. If the document hasn't been active before (i.e. the translation results
      * haven't been loaded) it is loaded completely.
-     * @param sessionID
-     * @param documentID
-     * @return
-     * @throws InvalidSessionIdException
-     * @throws InvalidDocumentIdException
+     * @param sessionID Session ID
+     * @param documentID ID of a document to be returned
+     * @return Active document of given ID
+     * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */
     public USDocument getActiveDocument(String sessionID, long documentID)
             throws InvalidSessionIdException, InvalidDocumentIdException {
@@ -1137,6 +1242,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 
     /**
      * Log the given message from GUI on server.
+     * @param level Level of the message (e.g. warn, info)
+     * @param context Context in which the logged event occurred (e.g. logging in, creating document)
+     * @param message Message of the log
+     * @param sessionID Session ID of the session where the event happened if a user was looged in that time
      */
     @Override
     public Void logGuiMessage(LevelLogEnum level, String context , String message, String sessionID){
