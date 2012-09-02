@@ -1,11 +1,12 @@
 package cz.filmtit.share;
 
 
-import java.io.Serializable;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.rpc.IsSerializable;
-
-import com.google.gwt.regexp.shared.*;
 import cz.filmtit.share.exceptions.InvalidValueException;
+
+import java.io.Serializable;
 
 /**
  * Represents one time in an SRT file, which has the format of
@@ -13,7 +14,6 @@ import cz.filmtit.share.exceptions.InvalidValueException;
  * Provides int getters, int and String setters, convertors to and from a String,
  * a comparator and a subtractor.
  * The object is internaly represented by four integers.
- * TODO: convertor from miliseconds if needed
  * @author rur, KB
  *
  */
