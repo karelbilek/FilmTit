@@ -293,3 +293,23 @@ RPCs that manipulate individual chunks take either the whole chunks or only thei
 \subsection{InvalidValueException}
 
 The {\tt InvalidValueException} is thrown by a method if a value provided by the user, such as an e-mail address or a password, does not have the required format. It always contains details about the nature of the error as the message, which usually should be shown to the user.
+
+
+\section{Chunk and annotations}
+
+Annotations (explained in the Glossary, chapter~\ref{sec:glossary}) were 
+initially created for Named Entity Searcher, which marks Named Entities such as Person, Place, Organization (described in greater level in chapter~\ref{core:nent}).
+
+Later, we found out that the same classes can be elegantly used for other features of chunk, like dashes or newlines -- because they are irrelevant for translation (core disregards annotations), but needed for rendering.
+
+Another possible annotation usage for the future is subtitle formatting (bold, italic and underlined text).
+However, it seemed to be too complex, especially in the GUI, so we decided to not implement it in the current version of the application, because it is used very little and has no formal specification.
+
+A Chunk has a set of methods to retrieve and set the annotations correctly, using the notion of forms. The forms used are:
+
+\begin{itemize}
+	\item \emph{database form:} the text as stored in the subtitle file, only cleaned -- formatting stripped off (bold, italic etc.), non-printable characters turned into spaces, multiple spaces replaced by one space only and newlines are stored as PIPE characters.
+	\item \emph{surface form and annotations:} the surface form is the text to be used to generate the translation suggestions, without dashes and with newline turned into spaces
+	\item \emph{GUI form:} the HTML form to be displayed in the GUI. Newlines are turned into {\tt <br />} tags.
+	\item \emph{text form:} the form to be used in HTML textareas -- with dashes, newlines are generated as {\tt \verb#\n#} characters.
+\end{itemize}

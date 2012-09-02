@@ -200,43 +200,6 @@ We talk about chunk splitting more in chapter~\ref{os:sentence_splitting}.
 
 We then realized that it is important that the splitting the same when importing subtitles into the database and when processing the user subtitles (as discussed in~\ref{os:guiparsing}), so we made it a shared class.
 
-%\subsubsection{Chunk Time Format}
-%
-%% Originally, we simply used the time strings acquired from the subtitle files to represent the timing, as we only displayed them to the user.
-%% 
-%% This was sufficient at the beginning; however, once we began fitting the media player to the actual subtitle lines, we needed to parse the time strings and convert them to a one-ineteger representation of time in miliseconds (we also needed that for editing the timing, which came later).
-%
-%After a period of representing the time simply as a string, we created a class, {\tt SrtTime}, that represents the time in the SRT format as a set of four integers (the SRT format of time is ``hh:mm:ss,ttt'' -- hours:minutes:seconds,miliseconds).
-%%\footnote{a milisecond is a thousandth of a second, thus the usage of the letter ``t'' to represent it; alternatively, knowing that the word ``second'' stands for the second diminuation of the hour, you can think of the milisecond as a third diminuation of the hour, also leading to the letter ``t''}).
-%We then decided to move all time handling logic into this class, so that we can ensure the correctness and consistency of the timing throughout the application.
-%The class provides various constructors, getters and setters for all formats we need, also performing validity checks.
-%% (one string, a set of strings, a set of integers, one integer being the time in miliseconds). It also implements cloning, comparison and subtraction.
-%
-%At first, we decided to use the SRT format only for the sake of simplicity.
-%It was thought to be only a temporary state, with a plan to add SUB format support later. However, we eventually found out that not only is the SRT time format easier to use (it is not necessary to know the Frames-Per-Second property of the movie file),
-%but as we saw in the opensubtitles.org data (see section~\ref{sec:properties}) also approximately 99\% of subtitles on the Internet appear to be in the SRT format.
-%Thus, we decided to discontinue support for the SUB format and only support SRT (the only major difference between these formats is actually the format of the time).
-
-\subsubsection{Chunk Annotations}
-
-The initial reason for annotations on the chunks was for the Named Entity Searcher, which marks Named Entities such as Person, Place, Organization in the text and the user should be able to correct those if they differ and source and translation.
-
-Later, another level of annotation was that chunks are often split by dashes denoting individual dialogue speakers. The dashes need to be removed for generating suggestions because they are irrelevant for this step, however they need be kept for correct rendering of the text.
-
-Other annotations include newlines, which are often part of the chunks to ensure that they fit on a single screen. Again, the newline character is irrelevant for generating translation suggestions, but it is necessary to render the subtitles properly.
-
-Another possible annotation is subtitle formatting for bold, italic and underlined text. Initially, we wanted to extended the annotations again. However, it seemed to be too complex, especially in the GUI, so we decided to strip off subtitle formatting in the current version of the application. The reason for this is that it is used very little and there is no formal specification, which means that there exist various formats. Often, media players do not support the formatting properly, so we want to discourage the users from using the formatting.
-
-A Chunk has a set of methods to retrieve and set the annotations correctly, using the notion of forms. The forms used are:
-
-\begin{itemize}
-	\item \emph{database form:} the text as stored in the subtitle file, only cleaned -- formatting stripped off (bold, italic etc.), non-printable characters turned into spaces, multiple spaces replaced by one space only and newlines are stored as PIPE characters.
-	\item \emph{surface form and annotations:} the surface form is the text to be used to generate the translation suggestions, without dashes and with newline turned into spaces
-	\item \emph{GUI form:} the HTML form to be displayed in the GUI. Newlines are turned into {\tt <br />} tags.
-	\item \emph{text form:} the form to be used in HTML textareas -- with dashes, newlines are generated as {\tt \verb#\n#} characters.
-\end{itemize}
-
-
 \subsubsection{Logging}
 
 In User Space and Core, we use Log4J, which implements the standard Java Logging interface for logging.
