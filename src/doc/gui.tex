@@ -286,7 +286,9 @@ When each of the loaded objects has either succeeded or failed, the user is info
 
 \subsection{SubgestBox}
 
-An important class is the {\tt SubgestBox}, or ``SUBtitle sugGESTion BOX'', which visualizes the TM results, offering a variety of means of navigation through them.
+An important class is the {\tt SubgestBox}, or ``SUBtitle sugGESTion BOX'', which provides a textbox-like interface and visualizes the TM results, offering a variety of means of navigation through them. It is based on the IFrame HTML element to support also multi-line and formatted inputs. The TM results are shown as a pop-up suggestion list when the textbox is focused. Another features like auto-scrolling to a certain place of the screen and height auto-adjustment for multi-line inputs were added to improve the user experience. The behaviour and features mentioned requires a custom event handling, this is provided by the SubgestHandler class (common to all the SubgestBoxes within a Translation Workspace).
+
+Because of performance reasons, the SubgestBoxes in the Translation Workspace are not initially all loaded as IFrames (since it would cause a heavy load for the browser to handle), but as simple text-areas instead. The conversion to the ``real'' SubgestBoxes only takes place at the moment of their first focusing. The preliminary text-areas are represented as objects of the FakeSubgestBox class, inner class of the SubgestBox.
 
 \subsection{Playing the movie files}
 
