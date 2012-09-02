@@ -200,21 +200,9 @@ We talk about chunk splitting more in chapter~\ref{os:sentence_splitting}.
 
 We then realized that it is important that the splitting the same when importing subtitles into the database and when processing the user subtitles (as discussed in~\ref{os:guiparsing}), so we made it a shared class.
 
-\subsubsection{Logging}
+\subsubsection{Logging GUI}
 
-In User Space and Core, we use Log4J, which implements the standard Java Logging interface for logging.
-
-The situation with the GUI is not so easy. GWT provides some default logging tools which are able in while running the application in the development mode in IDE, anyway it does not provide tool for logging a common run of the application.
-
-Originally, we created a debugging console which was present directly in the user interface which was only a temporary solution, because it is 
-certainly not a good practice to show such technical details to an end user.
-
-The final solution we took is what we call ``remote logging''. Important messages are now sent to the server through an RPC, where they are both included into the server log and saved into the database for possible future use (together with the {\tt userID} if possible).
-The minimal level of a message to be sent to the server can be set (debug, info, warn, error). We log important GUI events and mainly exceptions with their stack traces in order be able to react on potential bug reports later.
-
-There appeared some technical difficulties -- catching unexpected exceptions in GWT and umbrella exceptions. an umbrella exception is an exception thrown when multiple exceptions have occurred at once, and contains all of them. Its message and stack trace are not useful at all because they only cover the creation and throwing of the umbrella exception itself, but do not reveal anything about the inner exceptions.
-
-This was solved and the remote logging mechanism was ready to use at the beginning of August.
+After a while we found out that logging GUI errors is as important as logging userspace and core errors. We describe the GUI logging in section~\label{gui:logging}; we first had a temporary debugging console, we switched it to remote logging mechanism at the beginning of August.
 
 \subsubsection{Implementing the RPCs}
 
