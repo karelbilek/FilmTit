@@ -22,10 +22,10 @@ A \emph{chunk} is a piece of text that is to be translated at once. As we will d
 Unfortunately, in the code itself, we also often use the term \emph{chunk} for the whole subtitle item. This is an error on our part, caused by not exactly defining all the terms beforehand and just using the term \emph{subtitle chunk} for everything.
 
 \subsection*{Surface form}
-Every chunk has a \emph{surface form} -- that means the text, that is being translated. The surface form is without any non-textual information -- we store these in annotations.
+Every chunk has a \emph{surface form} -- that means the text that is being translated. The surface form is without any non-textual information -- we store these in annotations.
 
 \subsection*{Annotations}
-Every chunk also has \emph{annotations} -- non-textual information, that might be used at some point, but is not sent to the translation memory for querying. They mark positions of named entities, original position of newlines and dialog marks (``-'') -- none of these are thought to be relevant for translation.
+Every chunk also has \emph{annotations} -- non-textual information that might be used at some point, but is not sent to the translation memory for querying. They mark positions of named entities, original position of newlines and dialog marks (``-'') -- none of these are thought to be relevant for translation.
 
 \subsection*{Timed chunk}
 A \emph{timed chunk} is a chunk that also carries timing information from its subtitle item and information about order in which it appears in the subtitle item.
