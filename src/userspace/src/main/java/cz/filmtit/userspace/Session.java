@@ -699,6 +699,11 @@ public class Session {
         USDocument document = activeDocuments.get(documentId);
 
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
+
+        if (new SrtTime(newStartTime).compareTo(new SrtTime(tr.getEndTime())) > 0) {
+            throw new InvalidValueException("Start time would be later than end time.");
+        }
+
         tr.setStartTime(newStartTime);
         saveTranslationResult(document, tr);
         return  null;
@@ -726,6 +731,10 @@ public class Session {
         USDocument document = getActiveDocument(documentId);
 
         USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
+
+        if (new SrtTime(tr.getStartTime()).compareTo(new SrtTime(newEndTime)) > 0) {
+            throw new InvalidValueException("Start time would be later than end time.");
+        }
 
         tr.setEndTime(newEndTime);
         saveTranslationResult(document, tr);

@@ -139,7 +139,6 @@ public class TimeEditDialog extends Composite {
 		};
 		
 		// add column styles
-		// TODO: define the styles
 		hColumn.setCellStyleNames("numerical2digits");
 		mColumn.setCellStyleNames("numerical2digits");
 		sColumn.setCellStyleNames("numerical2digits");
@@ -249,26 +248,55 @@ public class TimeEditDialog extends Composite {
 	@UiHandler("timesForm")
 	void submit(Form.SubmitEvent e) {
 		
+		deactivate();
+		
 		// if times changed
 		if (!startTimeOrig.equals(startTimeWorking) ||
 				!endTimeOrig.equals(endTimeWorking)) {
 			
-			// set new times in chunks
-			for (TimedChunk chunk : chunks) {
-				chunk.setStartTime(startTimeWorking.toString());
-				chunk.setEndTime(endTimeWorking.toString());
+			if (checkTimes()) {
+				// set new times in chunks
+				for (TimedChunk chunk : chunks) {
+					chunk.setStartTime(startTimeWorking.toString());
+					chunk.setEndTime(endTimeWorking.toString());
+				}
+				
+				// set new times in workspace
+				workspace.changeTimeLabels(chunks);
+				
+				// set new times in DB
+				for (TimedChunk chunk : chunks) {
+					new SetChunkTimes(chunk);
+				}
 			}
-			
-			// set new times in workspace
-			workspace.changeTimeLabels(chunks);
-			
-			// set new times in DB
-			for (TimedChunk chunk : chunks) {
-				new SetChunkTimes(chunk);
+			else {
+				reactivate();
 			}
 		}
 		
 		dialogBox.hide();
+	}
+	
+	/**
+	 * Check whether the timing is OK.
+	 * @return
+	 */
+	private boolean checkTimes() {
+		if (startTimeWorking.compareTo(endTimeWorking) == -1) {
+			return true;
+		}
+		else {
+			Window.alert("The beginning time must be earlier than the end time!");
+			return false;
+		}
+	}
+
+	private void deactivate() {
+		submitButton.setEnabled(false);
+	}
+ 
+	private void reactivate() {
+		submitButton.setEnabled(true);
 	}
  
 }

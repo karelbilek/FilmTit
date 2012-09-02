@@ -3,7 +3,7 @@ package cz.filmtit.share.annotations;
 import java.io.Serializable;
 
 /**
- *  Definition of annotation type like enums.
+ *  Definition of annotation types.
  *
  */
 
@@ -32,8 +32,8 @@ public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializa
     }
 
     /**
-     * Gets text description
-     * @return
+     * Gets the text description
+     * @return The text description
      */
     public String getDescription() {
         return description;
@@ -41,7 +41,7 @@ public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializa
 
     /**
      * Sets text description
-     * @param description
+     * @param description The text description
      */
     public void setDescription(String description) {
         this.description = description;

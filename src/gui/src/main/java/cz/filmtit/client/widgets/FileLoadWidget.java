@@ -7,48 +7,70 @@ import cz.filmtit.client.pages.DocumentCreator;
 
 import com.google.gwt.user.client.Window;
 
-
+/**
+ * Widget that calls the applet and prints the file address to DocumentCreator GUI.
+ * The applet is called as soon as the widget is created.
+ *
+ * @author Karel Bílek
+ */
 public class FileLoadWidget extends HTML {
 
-    //this is ugly but can't really be helped due to the order the javascripts are called
-    static DocumentCreator creator;
-    public static void setDocumentCreator(DocumentCreator dc) {
-        creator = dc;
-    }
+    // creator that will display the file address
+    static private DocumentCreator creator;
 
-    public static native void exportStaticLoadFile(FileLoadWidget flw) /*-{
+    /**
+     * Because the applet has to know what exactly to call, a global procedure
+     * is exported. (Unlike java, javascript is functional)
+     * @param flw
+     */
+    private static native void exportStaticLoadFile(FileLoadWidget flw) /*-{
         $wnd.setFileAddress = $entry(flw.@cz.filmtit.client.widgets.FileLoadWidget::setFileAddress(Ljava/lang/String;));
-        
 
     }-*/;
 
-    public static native void removeStaticLoadFile() /*-{
+    //deexported what is in the previous one
+    private static native void removeStaticLoadFile() /*-{
         $wnd.setLoadedFile = 0;
     }-*/;
 
-    static String htmlCode = "<applet code=\"cz.filmtit.client.applet.Main.class\" archive=\"applet.jar\">";
+    private static String htmlCode =
+            "<applet code=\"cz.filmtit.client.applet.Main.class\" archive=\"applet.jar\">";
 
-    public FileLoadWidget() {
-        super(htmlCode);        
+    /**
+     *  Creates a loadwidget.
+     * @param dc "Father" - a DocumentCreator where the address will be written.
+     */
+    public FileLoadWidget(DocumentCreator dc) {
+        super(htmlCode);
+        creator = dc;
         exportStaticLoadFile(this); 
     }
 
     private String address = "";
-    
+
+    /**
+     * Procedure, called by the applet after file is chosen.
+     * (IDEs will maybe show that it's not used, but it's used by JNI code.)
+     * It calls the creator.addressSet.
+     * @param s The address.
+     */
     public void setFileAddress(String s) {
         address = s;
         creator.addressSet(this, s);
     }
 
+    /**
+     * Returns the address.
+     * @return The address of the file.
+     */
     public String getAddress() {
         return address;
     }
 
-    @Override
-    public void onLoad() {
-        //exportStaticLoadFile(this);
-    }
 
+    /**
+     * Removes the global exported function.
+     */
     @Override
     public void onUnload() {
         removeStaticLoadFile();

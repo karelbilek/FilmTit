@@ -11,6 +11,7 @@ import opennlp.tools.tokenize.Tokenizer
 import org.apache.xmlrpc.client.XmlRpcClient
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl
 import cz.filmtit.share.exceptions.{LanguageNotSupportedException, SearcherNotAvailableException}
+import util.matching.Regex
 
 /**
  * Translation pair searcher using standard Moses server 
@@ -26,23 +27,69 @@ import cz.filmtit.share.exceptions.{LanguageNotSupportedException, SearcherNotAv
  * @author Karel Bílek
  */
 
+/**
+ * Helper object to hold all different regexes, that are needed
+ * to make the Moses translation look either "nicer" (+-detokenizing),
+ * or the other way - better for
+ * Moses (+- tokenizing). We also have to sort that out
+ */
 object MosesServerSearcher {
-  val spaceBefDiaRegex = """\s([.!?,])""".r
-  val apoRegex = """^\p{Lu}""".r
+
+
+  /**
+   * Checks if sentence begins with capital letter, so we can lowercase it before sending it to
+   * Moses (and then, re-upper case it)
+   */
   val capitalLetterRegex = """^\p{Lu}""".r
-  val apostropheAfterRegex = """(\S)&apos;""".r
-  val apostropheRegex = """'(\S)""".r
+
+  /**
+   *  Detects multiple spaces.
+   */
   val spaceRegex = """\s+(\s)""".r
+
+  /**
+   * Detects unknown words.
+   */
   val unkRegex = """\|UNK""".r
-  val ntRegex = """\s+n &apos;t""".r
-  val pureAposRegex = """ &apos; """.r
+
+
+  /**
+   * Runs a list of regexes on string.
+   * @param string String to run the regexes on
+   * @param regexes Sequence of regexes together with what to replace it on. It is run
+   *                from left to right.
+   * @return Resulting string.
+   */
+  def cleanUpString(string:String, regexes:Seq[Pair[Regex, String]]):String =
+    regexes.foldLeft(string){
+      case (string, (regex, replacement)) => regex.replaceAllIn(string, replacement)
+    }
 }
 
+
+/**
+ * Moses searcher, that sends the sentence tokenized to remote moses server.
+ * @constructor Creates a MosesServerSearcher.
+ * @param l1 Source language
+ * @param l2 Target language
+ * @param regexesBeforeServer regexes that are run before sending to moses
+ * @param regexesAfterServer regexes, that are run after moses (don't )
+ * @param url Url of the remote Moses server (url:port)
+ * @param genericTranslationScore The score with which the moses searcher returns the sentences
+ * @param numberOfTries How many times is the Moses server called
+ * @param repeatAfterMilliseconds After how many milliseconds is server contacted again?
+ */
 class MosesServerSearcher(
   l1: Language,
   l2: Language,
+
+  regexesBeforeServer: Seq[Pair[Regex, String]],
+  regexesAfterServer: Seq[Pair[Regex, String]],
+
   url: java.net.URL,
-  genericTranslationScore: Double = 0.7
+  genericTranslationScore: Double = 0.7,
+  numberOfTries:Int = 4,
+  repeatAfterMilliseconds:Long = 1000
 ) extends TranslationPairSearcher(l1, l2) {
 
   val config = new XmlRpcClientConfigImpl()
@@ -50,6 +97,11 @@ class MosesServerSearcher(
   val client = new XmlRpcClient()
   client.setConfig(config)
 
+  /**
+   * Only sends the text to server. Tries it 4 times with the pause of 1 second.
+   * @param source The <b>exact</b> text to send to server.
+   * @return What <b>exactly</b> server returned. Without any cleanup.
+   */
   def getRawTranslation(source:String):String = {
     val mosesParams = new java.util.HashMap[String,String]()
     mosesParams.put("text", source)
@@ -72,10 +124,10 @@ class MosesServerSearcher(
             (Some(translation), None)
         } catch {
             case e:Exception=>
-            Thread.sleep(1000)
+            Thread.sleep(repeatAfterMilliseconds)
             (None, Some(e))
         }
-   }.take(4).toIterable
+   }.take(numberOfTries).toIterable
    
    val res = tries.find{_._1.isDefined}
    if (res.isDefined) {
@@ -87,6 +139,11 @@ class MosesServerSearcher(
 
   }
 
+  /**
+   * Sends the string to moses and does some cleanup.
+   * @param sourceTokens Already tokenized source string
+   * @return Cleaned up result.
+   */
   def prepareAndSendToMoses(sourceTokens:Array[String]):String = {
    
     import MosesServerSearcher._
@@ -104,28 +161,35 @@ class MosesServerSearcher(
         }
 
      val joinedSource = uncapitalizedTokens.reduceLeftOption(_+" "+_).get
-     
-     //scala sucks with regexes
-     val toSend = ntRegex.replaceAllIn(
-                    apostropheAfterRegex.replaceAllIn(
-                      apostropheRegex.replaceAllIn(joinedSource, """&apos;$1"""), 
-                    """$1 &apos;"""), 
-                  "n &apos;t");
 
-     val translation = getRawTranslation(toSend) 
 
-	 val translationWithoutSpaces = spaceBefDiaRegex.replaceAllIn(spaceRegex.replaceAllIn(translation, " "), "$1")
+
+     val cleanedUpSource = cleanUpString(joinedSource, regexesBeforeServer)
+
+
+     val translation = getRawTranslation(cleanedUpSource)
+
+     val cleanedUpTarget = cleanUpString(translation,
+       Pair(spaceRegex, " ")+:Pair(unkRegex, "")+:regexesAfterServer)
+
      
      val res = if (wasCapitalizedSource) {
-        translationWithoutSpaces.capitalize
+       cleanedUpTarget.capitalize
      } else {
-        translationWithoutSpaces
+       cleanedUpTarget
      }
-     val resUnk = pureAposRegex.replaceAllIn(unkRegex.replaceAllIn(res, ""), "'")
-     resUnk
+
+
+     res
  
   }
-  
+
+  /**
+   * Queries moses for a chunk
+   * @param chunk Chunk to translate
+   * @param language Language of the chunk (must be l1 of the searcher)
+   * @return The one candidate from Moses (it never returns more than one)
+   */
   def candidates(chunk: Chunk, language: Language): List[TranslationPair] = { 
     if (language != l1) {
       throw new LanguageNotSupportedException("Moses can translate from "+l1.getName+" to "+l2.getName+", you requested "+language.getName)
@@ -139,10 +203,21 @@ class MosesServerSearcher(
         )
     )
   }
-  
+
+  /**
+   * Does nothing.
+   */
   def close() {}
 
+  /**
+   * Moses requires tokenization, even when it's then slightly changed by regexes.
+   * @return True.
+   */
   def requiresTokenization = true
 
+  /**
+   * Name of searcher.
+   * @return "Moses" string.
+   */
   override def toString = "Moses"
 }

@@ -2,53 +2,30 @@ package cz.filmtit.client;
 import java.util.*;
 import cz.filmtit.share.*;
 
+/**
+ * Class, that holds the currently displayed subtitle chunks (both source and targets)
+ * and helps to get them quickly according to both ChunkIndex and time.
+ *
+ * It was created because the various maps were used throughout the TranslationWorkspace,
+ * but we found out that it's more clean to move the functionality connected with retrieving
+ * chunks to special class.
+ *
+ * @author Karel Bílek
+ */
 public class SubtitleSynchronizer {
+
     private Map<ChunkIndex, TimedChunk> chunkByIndex = new HashMap<ChunkIndex, TimedChunk>();
     private Map<ChunkIndex, Integer> indexesOfDisplayed = new HashMap<ChunkIndex, Integer>();
     private TreeMap<ChunkTimePosition, TranslationResult> resultsByTime = 
         new TreeMap<ChunkTimePosition, TranslationResult>();
-    
-    class ChunkTimePosition implements Comparable<ChunkTimePosition> {
-        public double time;
-        public int part;
-        
-        public ChunkTimePosition (double time, int part) {
-            this.time = time;
-            this.part = part;
-        }
 
-        public ChunkTimePosition(TimedChunk chunk) {
-            this.time=(double)(chunk.getStartTimeLong());
-            this.part = chunk.getPartNumber();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof ChunkTimePosition)) {
-                return false;
-            }
-            ChunkTimePosition other = (ChunkTimePosition) o;
-            return (Math.abs(other.time-time)<1 && other.part == part); 
-        }
-
-        @Override
-        public int compareTo(ChunkTimePosition other) {
-            if (Math.abs(other.time - time)<1) {
-                //stejny cas
-                return this.part - other.part;
-            } else {
-                if (time > other.time) {
-                    return 1;
-                } else if (time < other.time) {
-                    return -1;
-                }
-                return 0;
-            }
-        }
-
-    }
-
-
+    /**
+     * Returns translation results that start between two time points.
+     * It should be in O(log n) time, according to Java documentation of TreeMap.
+     * @param start Start time in milliseconds
+     * @param end End time in milliseconds
+     * @return translation results that start between two time points
+     */
     public Collection<TranslationResult> getTranslationResultsByTime(double start, double end) {
         ChunkTimePosition posStart = new ChunkTimePosition(start, 0);
         ChunkTimePosition posEnd = new ChunkTimePosition(end, 100);
@@ -65,7 +42,8 @@ public class SubtitleSynchronizer {
      * starting with partNumber = 1,
      * until there is no such chunk.
      * This might be made more efficient by having a storage of lists of chunks
-     * indexed by ids.
+     * indexed by ids; however, it is not very slow, given that every chunk usually has
+     * maximally 3 partnumbers.
      * @param id
      * @return
      */
@@ -82,56 +60,156 @@ public class SubtitleSynchronizer {
 		}
 		return result;
     }
-    
-    public void putSourceChunk(TranslationResult tr, Integer index, boolean isDisplayed) {
-        putSourceChunk(tr.getSourceChunk(), index, isDisplayed);
+
+    /**
+     * Remembers a source chunk
+     * @param tr Translation result, of which we want to remember source chunk.
+     * @param displayedIndex If it's displayed, the index of the suggestbox. If it's not, it's ignored.
+     * @param isDisplayed Is this chunk displayed within suggestbox?
+     */
+    public void putSourceChunk(TranslationResult tr, Integer displayedIndex, boolean isDisplayed) {
+        putSourceChunk(tr.getSourceChunk(), displayedIndex, isDisplayed);
     }
 
-    public void putSourceChunk(TimedChunk chunk, Integer index, boolean isDisplayed) {
+    /**
+     * Remembers a source chunk
+     * @param chunk Source chunk to remember.
+     * @param displayedIndex If it's displayed, the index of the suggestbox. If it's not, it's ignored.
+     * @param isDisplayed Is this chunk displayed within suggestbox?
+     */
+    public void putSourceChunk(TimedChunk chunk, Integer displayedIndex, boolean isDisplayed) {
         ChunkIndex chunkIndex = chunk.getChunkIndex();
         chunkByIndex.put(chunkIndex, chunk);
         if (isDisplayed) {
-            indexesOfDisplayed.put(chunkIndex, index);
+            indexesOfDisplayed.put(chunkIndex, displayedIndex);
         }
     }
 
+    /**
+     * Remember a translation result.
+     * @param result Translation result to remember.
+     */
     public void putTranslationResult(TranslationResult result) {
         TimedChunk chunk = result.getSourceChunk();
         resultsByTime.put(new ChunkTimePosition(chunk), result);
     }
 
+    /**
+     * Gets chunk by a given index.
+     * @param index ChunkIndex that we want.
+     * @return The chunk with a given index.
+     */
     public TimedChunk getChunkByIndex(ChunkIndex index) {
         return chunkByIndex.get(index);
     }
 
+    /**
+     * Do we have a chunk with a given index?
+     * @param index  ChunkIndex that we want.
+     * @return True iff we have a given index.
+     */
     public boolean hasChunkWithIndex(ChunkIndex index) {
         return chunkByIndex.containsKey(index);
     }
 
+    /**
+     * Gets index of suggestbox of a given chunkindex.
+     * @param chunkIndex Chunkindex that we want an index for.
+     * @return index of suggestbox.
+     */
     public int getIndexOf(ChunkIndex chunkIndex) {
         return indexesOfDisplayed.get(chunkIndex);
     }
 
-
+    /**
+     * Gets index of suggestbox of a given chunk.
+     * @param chunk Chunk that we want an index for.
+     * @return index of suggestbox.
+     */
     public int getIndexOf(TimedChunk chunk) {
         return getIndexOf(chunk.getChunkIndex());
     }
 
+    /**
+     * Is chunk with this chunkindex displayed in suggestbox?
+     * @param chunkIndex Chunkindex of chunk that we are looking for.
+     * @return true iff it is.
+     */
     public boolean isChunkDisplayed(ChunkIndex chunkIndex) {
         return indexesOfDisplayed.containsKey(chunkIndex);
     }
 
-
+    /**
+     * Is this chunk displayed in suggestbox?
+     * @param chunk  chunk that we are looking for.
+     * @return true iff it is.
+     */
     public boolean isChunkDisplayed(TimedChunk chunk) {
         return isChunkDisplayed(chunk.getChunkIndex());
     }
 
+    /**
+     * Is chunk with this translation result displayed in suggestbox?
+     * @param tr translationresult that we are looking for.
+     * @return true iff it is.
+     */
     public boolean isChunkDisplayed(TranslationResult tr) {
         return isChunkDisplayed(tr.getSourceChunk());
     }
+
+    /**
+     * Gets index of suggestbox of a given translation result.
+     * @param tr Translation result that we want an index for.
+     * @return index of suggestbox.
+     */
     public int getIndexOf(TranslationResult tr) {
         return getIndexOf(tr.getSourceChunk());
     }
 
  
+}
+
+/**
+ * Class, representing position of chunk in time.
+ * Time only is not sufficient, because when two chunks are displayed at the same time,
+ * the order is still important.
+ */
+class ChunkTimePosition implements Comparable<ChunkTimePosition> {
+    public double time;
+    public int part;
+
+    public ChunkTimePosition (double time, int part) {
+        this.time = time;
+        this.part = part;
+    }
+
+    public ChunkTimePosition(TimedChunk chunk) {
+        this.time=(double)(chunk.getStartTimeLong());
+        this.part = chunk.getPartNumber();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChunkTimePosition)) {
+            return false;
+        }
+        ChunkTimePosition other = (ChunkTimePosition) o;
+        return (Math.abs(other.time-time)<1 && other.part == part);
+    }
+
+    @Override
+    public int compareTo(ChunkTimePosition other) {
+        if (Math.abs(other.time - time)<1) {
+            //the same time
+            return this.part - other.part;
+        } else {
+            if (time > other.time) {
+                return 1;
+            } else if (time < other.time) {
+                return -1;
+            }
+            return 0;
+        }
+    }
+
 }
