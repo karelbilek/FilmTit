@@ -195,20 +195,10 @@ The support for OpenID was finished in July, the parser for the authentication d
 \subsubsection{Chunk Splitting}
 
 An interesting issue, also from the linguistic view, we had to solve was to find the best way of splitting the subtitle items into chunks. As opposed to the classical way of simply splitting documents into sentences, we had several possible ways of doing the splitting because of the nature of subtitle files.
-Although one subtitle item usually corresponds to one sentence, it often happens that either a too long sentence is split into several subtitle items, and/or short sentences are grouped together into one subtitle item. Moreover, the end-of-sentence delimiters (full stop, question mark, ellipsis etc.) are often left out.
-And finally, we also realized that there is another non-classical sentence delimiter that is typical for subtitles, which is the start-of-line dash, used in delimiting dialogues.
 
-We decided to split the subtitle items into multiple chunks,
-as keeping the split as it is seemed to be too arbitrary, and we would 
-also miss the shortest sentences, which are the easiest ones to find in a 
-translation memory. Therefore, we split the subtitle items on end-of-
-sentence delimiters (including the dialogue dashes), which naturally 
-produces a small number of erroneous splits, but has been found to be 
-reliable enough even using a simple splitter.
+We talk about chunk splitting more in chapter~\ref{os:sentence_splitting}.
 
-We also thought about trying to reconstruct the sentences that span more than one subtitle item. However, we found that very hard (or even probably impossible) to do reliably. Moreover, if we did that, we would miss the advantage of using the timing of the subtitle files for alignment. Therefore, we keep the splits originally present in the subtitle file, although we are aware that these splits bring some additional arbitrariness into our data.
-
-It is important that the splitting is done in exactly the same way when importing subtitles into the database and when processing the user subtitles. Therefore, we made the Parser a shared class, i.e.\ it is compiled both into Java bytecode (and used in importing) and into JavaScript (and used in GUI).
+We then realized that it is important that the splitting the same when importing subtitles into the database and when processing the user subtitles (as discussed in~\ref{os:guiparsing}), so we made it a shared class.
 
 %\subsubsection{Chunk Time Format}
 %
