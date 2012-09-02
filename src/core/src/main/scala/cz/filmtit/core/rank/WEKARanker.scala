@@ -36,12 +36,20 @@ abstract class WEKARanker(val modelFile: File)  extends BaseRanker {
         case (s, i) => inst.setValue(i, s)
       }
 
-      val score = classifier.distributionForInstance(inst) match {
-        case r: Array[Double] if r.length > 1  => r(1) //Result of classification
-        case r: Array[Double] if r.length == 1 => r(0) //Result of regression
+      try {
+        val score = classifier.distributionForInstance(inst) match {
+          case r: Array[Double] if r.length > 1  => r(1) //Result of classification
+          case r: Array[Double] if r.length == 1 => r(0) //Result of regression
+        }
+        pair.setScore( score )
+
+      } catch {
+        //If there was an error with any of the scores, WEKA will throw a NullPointerException. In this rare case,
+        //we must set the score to 0.0
+        case e: NullPointerException => pair.setScore( 0.0 )
       }
 
-      pair.setScore( score )
+
     }
 
     pairs.sorted
