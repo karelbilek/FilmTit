@@ -38,10 +38,25 @@ public class LogMessage extends DatabaseObject {
         date = new Date();
     }
 
+    /**
+     * Creates a new Log event of given properties.
+     * @param type  Type of the event
+     * @param context   Context in which the event happened (e.g. logging in, loading document etc.)
+     * @param message   Actual text of the log event
+     * @param logTime   Time when the event happened
+     */
     public LogMessage(int type, String context , String message, Date logTime){
     	this(type, context, message, logTime, null);
     }
-    
+
+    /**
+     * Creates a new Log event of given properties.
+     * @param type  Type of the event
+     * @param context   Context in which the event happened (e.g. logging in, loading document etc.)
+     * @param message   Actual text of the log event
+     * @param logTime   Time when the event happened
+     * @param user  User who is logged in to the client
+     */
     public LogMessage(int type, String context , String message, Date logTime, USUser user){
      setMessageType(type);
      setContext(context);
@@ -118,16 +133,28 @@ public class LogMessage extends DatabaseObject {
         return date;
     }
 
-
+    /**
+     * Gets the user for who the event has been logged.
+     * @return User that caused the event
+     */
     private USUser getUser() {
 		return user;
 	}
 
+    /**
+     * Gets id of the user who caused the event. It is used by Hibernate only.
+     * @return Id of the user who caused the event
+     */
     private long getUserId() {
         if (user == null) { return -1; }
         return user.getDatabaseId();
     }
 
+    /**
+     * Setter of the id of user who caused the event. It does nothing but it is required
+     * by Hibernate to be present in the class.
+     * @param userId An arbitrary number
+     */
     private void setUserId(long userId) {}
 
     /**
