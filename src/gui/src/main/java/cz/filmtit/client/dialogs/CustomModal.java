@@ -8,6 +8,10 @@ import com.google.gwt.user.client.Window;
  * - disabled animation for Opera browser
  */
 public class CustomModal extends Modal {
+	
+	/**
+	 * Creates the modal.
+	 */
     public CustomModal() {
         super();
         if (Window.Navigator.getUserAgent().matches(".*Opera.*")) {

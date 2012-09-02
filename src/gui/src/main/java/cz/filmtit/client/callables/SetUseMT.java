@@ -9,6 +9,11 @@ import cz.filmtit.client.ReceivesSettings;
  */
 public class SetUseMT extends SetSetting<Boolean> {
 
+    /**
+     * Include MT results in translation suggestions.
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitly!
+     */
 	public SetUseMT(Boolean setting, ReceivesSettings settingsPage) {
 		super(setting, settingsPage);
 	}

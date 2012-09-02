@@ -15,6 +15,11 @@ import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.client.dialogs.LoginDialog.Tab;
 import cz.filmtit.client.callables.Logout;
 
+/**
+ * A page displayed as the first page of the application
+ * @author rur
+ *
+ */
 public class WelcomeScreen extends Composite {
 
 	private static WelcomeScreenUiBinder uiBinder = GWT
@@ -23,6 +28,9 @@ public class WelcomeScreen extends Composite {
 	interface WelcomeScreenUiBinder extends UiBinder<Widget, WelcomeScreen> {
 	}
 
+	/**
+	 * Shows the page.
+	 */
 	public WelcomeScreen() {
 		initWidget(uiBinder.createAndBindUi(this));
 		

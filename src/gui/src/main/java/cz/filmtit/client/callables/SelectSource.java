@@ -13,16 +13,23 @@ import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
 import java.util.*;
 
+/**
+ * Sets the media source of the document after creating a new document.
+ * The media source represents the movie or series which the subtitles come from.
+ * Starts requesting translation suggestions in Translation Workspace on successful return.
+ * @author rur
+ *
+ */
 public class SelectSource extends Callable<Void> {
     	
     	// parameters
-    	long documentID;	
-    	MediaSource selectedMediaSource;
-		TranslationWorkspace workspace;
+    	private long documentID;	
+    	private MediaSource selectedMediaSource;
+    	private TranslationWorkspace workspace;
    
         @Override
         public String getName() {
-            return "selectSource("+documentID+")";
+        	return getNameWithParameters(documentID);
         }
 
         @Override
@@ -37,7 +44,11 @@ public class SelectSource extends Callable<Void> {
         	onSuccessAfterLog(null);
         }
 
-        // constructor
+        /**
+		 * Sets the media source of the document after creating a new document.
+		 * The media source represents the movie or series which the subtitles come from.
+		 * Starts requesting translation suggestions in Translation Workspace on successful return.
+         */
 		public SelectSource(long documentID, MediaSource selectedMediaSource, TranslationWorkspace workspace) {
 			super();
 			

@@ -20,6 +20,10 @@ public class ChangePassToken {
         return token;
     }
 
+    /**
+     * @param token - string which is used like  key
+     * Creates active instance of ChangePassToken, which is valid 1h hour
+     */
     public ChangePassToken(String token){
         setToken(token);
         // set validity of token now()+1h
@@ -31,29 +35,53 @@ public class ChangePassToken {
         active = true;
 
     }
-
+    /**
+     * @param token - string which is used like key
+     * Find out if actual instance of ChangePassToken
+     * contains same token like key and if actual instance
+     * is valid
+     * @return Validity of actual instance to token
+     */
     public boolean isValidToken(String token){
         // token is the same and its validity isn`t off
         return ( (this.token.compareTo(token)==0) && (isValidTime()) && (this.active()));
     }
 
+
+   /**
+    * Checks if actual instance is still active and
+    * its time limit is not expired
+    * @return Validity of actual instance
+    */
     public boolean  isValidTime() {
         Date actual = new Date();
         return ((validTo.compareTo(actual) > 0) && (this.active()));
     }
 
+   /**
+    * Deactivates actual instance
+    */
     public void deactivate() {
         this.active = false;
     }
 
+   /**
+    * Activates actual instance
+    */
     public boolean active() {
         return this.active;
     }
 
+   /**
+    * Sets time limit of validation
+    */
     private void setValidTo(Date validTo) {
         this.validTo = validTo;
     }
 
+   /**
+    * Sets token to actual instance
+    */
     private void setToken(String token) {
         this.token = token;
     }

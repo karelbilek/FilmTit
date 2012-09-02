@@ -16,7 +16,11 @@ import cz.filmtit.client.callables.Logout;
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.User;
 
-
+/**
+ * Defines the content panel, into which the individual pages are loaded, and the top menu, which enables the users to log in and out and to switch pages.
+ * @author rur
+ *
+ */
 public class GuiStructure extends Composite {
 	
 	private static GuiStructureUiBinder uiBinder = GWT.create(GuiStructureUiBinder.class);
@@ -24,6 +28,9 @@ public class GuiStructure extends Composite {
 	interface GuiStructureUiBinder extends UiBinder<Widget, GuiStructure> {
 	}
 
+	/**
+	 * Initializes the Gui structure.
+	 */
 	public GuiStructure() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
@@ -256,6 +263,9 @@ public class GuiStructure extends Composite {
     @UiField
 	HTMLPanel panelForVLC;
 
+    /**
+     * Returns the panel in which the VLC player is to be shown.
+     */
     public HTMLPanel getPanelForVLC() {
         return panelForVLC;
     }

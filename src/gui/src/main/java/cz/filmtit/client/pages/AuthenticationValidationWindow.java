@@ -14,6 +14,11 @@ import com.github.gwtbootstrap.client.ui.Paragraph;
 
 import cz.filmtit.client.callables.ValidateAuthentication;
 
+/**
+ * A special page that receives OpenID authentication data from an OpenID provider and passes them to User Space for validation.
+ * @author rur
+ *
+ */
 public class AuthenticationValidationWindow extends Composite {
 
 	private static AuthenticationValidationWindowUiBinder uiBinder = GWT
@@ -23,6 +28,9 @@ public class AuthenticationValidationWindow extends Composite {
 			UiBinder<Widget, AuthenticationValidationWindow> {
 	}
 
+	/**
+	 * Creates the page and sends the URL to User Space for validation.
+	 */
 	public AuthenticationValidationWindow() {
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -75,6 +83,9 @@ public class AuthenticationValidationWindow extends Composite {
     @UiField
 	Button btnCancel;
 
+    /**
+     * Called when validation is successful.
+     */
 	public void loggedIn() {
 		paraValidation.setText("Logged in successfully! You can now close this window.");
 		// TODO: If user logged in for the first time, we need to create a username for him.
@@ -83,11 +94,17 @@ public class AuthenticationValidationWindow extends Composite {
 		close();
 	}
 
+	/**
+	 * Called when validation fails.
+	 */
 	public void logInFailed() {
 		paraValidation.setText("Not logged in! Authentication validation failed.");
 		btnCancel.setText("Close");
 	}
 
+	/**
+	 * Called when validation fails.
+	 */
 	public void logInFailed(String message) {
 		paraValidation.setText("Not logged in! Authentication validation failed: " + message);
 		btnCancel.setText("Close");

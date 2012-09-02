@@ -20,7 +20,9 @@ import cz.filmtit.client.ReceivesSelectSource;
 import cz.filmtit.share.MediaSource;
 
 
-
+/**
+ * Lets the user select the intended media source from the list of suggestions.
+ */
 public class MediaSelector extends Dialog {
     private List<MediaSource> suggestions;
     private MediaSource selected;
@@ -31,7 +33,7 @@ public class MediaSelector extends Dialog {
     interface MediaSelectorUiBinder extends UiBinder<Widget, MediaSelector> {
     }
 
-    static class MediaCell extends AbstractCell<MediaSource> {
+    private static class MediaCell extends AbstractCell<MediaSource> {
 
         @Override
         public void render(Cell.Context context, MediaSource value, SafeHtmlBuilder sb) {
@@ -64,8 +66,13 @@ public class MediaSelector extends Dialog {
     /**
      * To be called on submit.
      */
-    ReceivesSelectSource receiver;
+    private ReceivesSelectSource receiver;
     
+    /**
+     * Lets the user select the intended media source from the list of suggestions.
+     * @param suggestions MediaSource suggestions.
+     * @param receiver A class that waits for the user to select the media source and then sets it.
+     */
     public MediaSelector(List<MediaSource> suggestions, ReceivesSelectSource receiver) {
     	super();
         listbox = new CellList<MediaSource>(new MediaCell());

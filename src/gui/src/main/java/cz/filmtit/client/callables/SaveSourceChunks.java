@@ -14,11 +14,18 @@ import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
 import java.util.*;
 
+/**
+ * Save the given source chunks as the contents of the given document
+ * (which was already created by calling createNewDocument).
+ * Shows the sources in TranslationWorkspace on success.
+ * @author rur
+ *
+ */
 public class SaveSourceChunks extends Callable<Void> {
 		
 		// parameters
-		List<TimedChunk> chunks;
-        TranslationWorkspace workspace;
+		private List<TimedChunk> chunks;
+		private TranslationWorkspace workspace;
 		private CreateDocument createDocumentCall;
 	
         @Override
@@ -44,8 +51,10 @@ public class SaveSourceChunks extends Callable<Void> {
 	        super.onFinalError(message);
         }
 		
-		// constructor
-        /**
+		/**
+		 * Save the given source chunks as the contents of the given document
+		 * (which was already created by calling createNewDocument).
+		 * Shows the sources in TranslationWorkspace on success.
 	     * @param createDocument reference to the call that created the document
 	     * and now probably holds a reference to an open MediaSelector
          */

@@ -19,6 +19,11 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.ChangePasswordCallable;
 
+/**
+ * This page is used as the target of the password change link sent by e-mail to users who forget their password, enabling them to set a new password.
+ * @author rur
+ *
+ */
 public class ChangePassword extends Composite {
 
 	private static ChangePasswordUiBinder uiBinder = GWT
@@ -30,6 +35,10 @@ public class ChangePassword extends Composite {
 	private String username;
 	private String token;
 	
+	/**
+	 * Shows the page and checks whether the URL contains all required parameters.
+	 * If not, switches to Welcome Screen.
+	 */
 	public ChangePassword() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
@@ -83,6 +92,9 @@ public class ChangePassword extends Composite {
 	
 	boolean activated = true;
 	
+	/**
+	 * Disable the controls of the page.
+	 */
 	public void deactivate() {
 		activated = false;
 		txtPassword.setEnabled(false);
@@ -90,19 +102,19 @@ public class ChangePassword extends Composite {
 		btnChangePassword.setEnabled(false);
 	}
 	
-    public String getPassword() {
+	private String getPassword() {
         return txtPassword.getText();
     }
         
-    public boolean checkForm() {
+    private boolean checkForm() {
         return checkPassword();
     }
     
-    public boolean checkPassword() {
+    private boolean checkPassword() {
         return checkPasswordsMatch() && checkPasswordStrength();
     }
     
-    public boolean checkPasswordsMatch() {
+    private boolean checkPasswordsMatch() {
         String password = txtPassword.getText();
         String passwordRepeat = txtPasswordRepeat.getText();
     	if (password.equals(passwordRepeat)) {
@@ -112,7 +124,7 @@ public class ChangePassword extends Composite {
     	}
 	}
     
-    public boolean checkPasswordStrength() {
+    private boolean checkPasswordStrength() {
         String password = getPassword();
         // TODO (but maybe keep that way)
         if (password.length() >= 3) {

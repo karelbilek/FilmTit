@@ -15,20 +15,28 @@ import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.MediaSource;
 
+/**
+ * Creates the document
+ * (without source chunks, which have to be added by calling SaveSourceChunks).
+ * On return creates a Translation Workspace where it starts parsing the subtitle text
+ * and lets the user select the media source opening a MediaSelector.
+ * @author rur
+ *
+ */
 public class CreateDocument extends Callable<DocumentResponse> implements ReceivesSelectSource {
 
 		// parameters
-		String documentTitle;
-        String movieTitle;
-		String language;
-		String subtext;
-        String subformat;
-		String moviePath;	
+		private String documentTitle;
+		private String movieTitle;
+		private String language;
+		private String subtext;
+		private String subformat;
+		private String moviePath;	
 		
 		// results to store before MediaSelector returns
 		private Dialog mediaSelector;
-		long documentId;
-		TranslationWorkspace workspace;
+		private long documentId;
+		private TranslationWorkspace workspace;
 		
         @Override
         public String getName() {
@@ -80,7 +88,12 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 			}
 		}
 		
-		// constructor
+		/**
+		 * Creates the document
+		 * (without source chunks, which have to be added by calling SaveSourceChunks).
+		 * On return creates a Translation Workspace where it starts parsing the subtitle text
+		 * and lets the user select the media source opening a MediaSelector.
+		 */
 		public CreateDocument(String documentTitle, String movieTitle, String language,
 				String subtext, String subformat, String moviePath) {
 			super();

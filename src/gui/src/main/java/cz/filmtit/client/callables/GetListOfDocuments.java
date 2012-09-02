@@ -13,41 +13,42 @@ import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
 import java.util.*;
 
-    public class GetListOfDocuments extends Callable<List<Document>> {
+/**
+ * Returns all documents owned by the user, ordered by date and time of last change.
+ * The documents returned are then shown on the userpage.
+ * @author rur
+ *
+ */
+public class GetListOfDocuments extends Callable<List<Document>> {
 
-    	// parameters
-    	UserPage userpage;
-    	
-        @Override
-        public String getName() {
-            return "getListOfDocuments";
-        }
+	// parameters
+	private UserPage userpage;
+	
+    @Override
+    public void onSuccessAfterLog(List<Document> result) {
+        Gui.log("received " + result.size() + " documents");
         
-        @Override
-        public void onSuccessAfterLog(List<Document> result) {
-            Gui.log("received " + result.size() + " documents");
-            
-            userpage.setDocuments(result);
-            for (Document d:result) {
-                Gui.log("GUI Dalsi document. Ma "+d.getTranslationResults().size()+" prfku.");
-            }
+        userpage.setDocuments(result);
+        for (Document d:result) {
+            Gui.log("GUI Dalsi document. Ma "+d.getTranslationResults().size()+" prfku.");
         }
+    }
 
-            
+    /**
+     * Returns all documents owned by the user, ordered by date and time of last change.
+     * The documents returned are then shown on the userpage.
+     */
+	public GetListOfDocuments(UserPage userpage) {
+		super();
 
-
-        // constructor
-		public GetListOfDocuments(UserPage userpage) {
-			super();
-
-			this.userpage = userpage;
-			
-			enqueue();
-		}
-        
-
-		@Override protected void call() {
-	        filmTitService.getListOfDocuments(Gui.getSessionID(), this);
-		}
-
+		this.userpage = userpage;
+		
+		enqueue();
 	}
+    
+
+	@Override protected void call() {
+        filmTitService.getListOfDocuments(Gui.getSessionID(), this);
+	}
+
+}

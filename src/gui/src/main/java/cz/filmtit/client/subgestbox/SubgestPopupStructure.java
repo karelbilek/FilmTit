@@ -10,7 +10,11 @@ import com.github.gwtbootstrap.client.ui.Paragraph;
 
 import cz.filmtit.share.TranslationPair;
 
-
+/**
+ * Displays translation suggestions for a {@link SubgestBox}.
+ * @author honza
+ *
+ */
 public class SubgestPopupStructure extends Composite {
 
 	private static SubgestPopupStructureUiBinder uiBinder = GWT.create(SubgestPopupStructureUiBinder.class);

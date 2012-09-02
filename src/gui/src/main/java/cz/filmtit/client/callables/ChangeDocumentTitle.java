@@ -6,6 +6,11 @@ import cz.filmtit.client.PageHandler;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.share.Document;
 
+/**
+ * Sets a different title for the document.
+ * @author rur
+ *
+ */
 public class ChangeDocumentTitle extends Callable<Void> {
 
 	private long documentID;
@@ -16,6 +21,9 @@ public class ChangeDocumentTitle extends Callable<Void> {
 		return getNameWithParameters(documentID, newTitle);
 	}
 	
+	/**
+	 * Sets a different title for the document.
+	 */
 	public ChangeDocumentTitle(long documentID, String newTitle) {
 		super();
 		
