@@ -29,10 +29,12 @@
                                 <b:Heading size="6">About FilmTit</b:Heading>
                                 <b:Paragraph>Filmtit is an easy way to quickly translate SRT movie subtitle files.</b:Paragraph>
                                 <b:Button ui:field="about">Read more »</b:Button>
+                                <b:Paragraph>&nbsp;</b:Paragraph>
+                                <b:Paragraph>Subtitle data provided by <a href="http://www.opensubtitles.org">www.opensubtitles.org</a></b:Paragraph>
                             </b:Column>
 
-
             			</b:FluidRow>
+
             </b:FluidContainer>
 
 
