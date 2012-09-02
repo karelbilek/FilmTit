@@ -23,7 +23,49 @@ The official description of GWT is as follows:
 
 Google Web Toolkit (GWT) is a development toolkit for building and optimizing complex browser-based applications. Its goal is to enable productive development of high-performance web applications without the developer having to be an expert in browser quirks, XMLHttpRequest, and JavaScript. GWT is used by many products at Google, including Google Wave and the new version of AdWords. It's open source, completely free, and used by thousands of developers around the world.
 
-More about decision for using GWT can be found in \ref{subsubsec:implementation:gwt}.
+
+%More about decision for using GWT can be found in \ref{subsubsec:implementation:gwt}.
+\subsection{Reasons for Using GWT and Discussion}
+\label{sec:reasonsForGWT}
+
+We decided to use GWT for several reasons.
+One reason is that it integrates very well with the rest of the 
+application, which is written in Java. A prominent example is the 
+communication between GUI and User Space. Not only is the interface 
+defined by one simple Java class ({\tt FilmTitService}), which is then 
+used both by the GUI and the User Space, but thanks to GWT we are even 
+able to use exactly the same classes (placed in {\tt cz.filmtit.share}) 
+in GUI and in User Space and send them easily through the {\tt 
+FilmTitService} interface. Thus, we avoided the trouble of having to keep 
+each of these classes in two versions, Java and JavaScript, together with 
+mappings to and from the transport format. (In fact, all of these do 
+exist in the application, but only in the compiled code, completely 
+hidden from the developer.)
+
+However, there is a downside, which could have been expected but is 
+difficult to manage properly. It is obvious that GWT does not support 
+everything that exists in Java -- instead, it supports only a subset of 
+Java, with many GWT-specific additions. This is perfectly reasonable, 
+and, as the subset supported is large enough, should not cause any 
+problems. The IDE does not provide much support in this area, so often the only thing 
+that a developer can rely on are Internet forums. Luckily, GWT is used by 
+many developers and most of the issues that we encountered had already 
+been solved by others (although sometimes the only solution was not a 
+nice or clean one, such as having to implement some methods directly in 
+JavaScript). Still, we spent much debugging time on problems that were actually problems of GWT that had to be worked around, instead of being problems of our code.
+
+A requirement that we had for the web technology was to offer an IDE (in GWT realized by a plugin for Eclipse IDE, similarly applicable also for the IntelliJ IDE), possibly with debugging support. In GWT, there is a dedicated Development Mode for these debugging purposes, sparing the developer the need of recompiling all the GWT code for testing after each change. This proved to be very efficient in the first phases of the development when the GUI module was developed independently and, although it turned out to be quite difficult to set up the Development Mode once the GUI module was integrated with the rest of the project, it remained one of the most useful features of GWT.
+
+Another option that we found useful is the possibility to directly insert real Javascript code into GWT methods. Although it is not very clean and cannot benefit from some of the features of GWT, it is sometimes the only way to do something that is supported in Javascript but unsupported in GWT.
+
+An important point also was that GWT is freeware, or more precisely, is licensed under the Apache License, v.~2.0, with several third-party software libraries included in its distribution under other freeware licenses. It is even open-source, from which we benefited occasionally when examining the source code to understand some of its unexpected behavior, or even to extend some of its classes, overriding their behavior to suit our needs.
+
+Although GWT can be integrated into a Maven project, it was far from flawless and a significant amount of time had to be spent on making everything work together, including maintaining the IDE support. We managed to do that in the end, but we had expected this to be much easier. 
+The main reason (but not the only one) is the specific directory structure, different for the Maven project and for the GWT project, which has to be adjusted in the configuration of both the Maven plugins and the IDE.
+And still after setting everything correctly, some features remained unavailable to some of us, e.g.\ running GUI in Development Mode using Eclipse IDE.
+
+To conclude, we are happy that we decided to use GWT because of the benefits it brought to us, but we were disappointed by the number of complications that it brought as well. Were we to decide on a web framework to use for a similar project, we would still have to consider our decision carefully.
+
 
 \subsection{Browser Support and Optimization}
 GWT also provides a feature which makes the final web application similar in different major browsers and optimized to a certain degree for each of them. This feature is called {\em deferred binding} and it is based on generating different versions of the JavaScript code during compile time, only one of which needs to be loaded by a particular client browser at runtime. This process is by default maintained by the GWT compiler itself, so that the developer does not have to worry about it.

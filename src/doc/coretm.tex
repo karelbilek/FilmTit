@@ -338,10 +338,9 @@ The corpus contains manual named entity annotations of a large number of named e
 shows an overview of the NE types annotated in the corpus.
 
 
-\begin{figure}[h!]
+\begin{figure}[h]
 	\centering
-		\includegraphics[width=16
-		 cm]{figures/core/CzechNECorpus.pdf}
+		\includegraphics[width=10.5cm]{figures/core/CzechNECorpus.pdf}
 	\caption{Named entity types in the Czech Named Entity corpus. Source: Czech Named Entity corpus documentation.}
 	\label{fig:figures_core_CzechNECorpus}
 \end{figure}
@@ -488,7 +487,7 @@ One important issue in the Core Translation Memory is that the service must be a
 
 To approach this issue, we used the Scala akka library,\footnote{\url{http://akka.io/}} which provides methods for parallelization based on the \emph{actor model}. A {\tt TranslationPairSearcherWrapper}\footnote{See  the class cz.filmtit.core.concurrency.searcher.TranslationPairSearcherWrapper.} is a {\tt TranslationPairSearcher} that is constructed with a number of other {\tt TranslationPairSearcher}s, which act as the wrapper's workers. When the {\tt TranslationPairSearcherWrapper} receives a request, it routes it to a free worker or adds it to the queue if none of the workers are free. Using this wrapper class, any non-thread-safe subclass of {\tt TranslationPairSearcher} can easily be queried in parallel.
 
-We use the same method for parallelizing the tokenization of Chunks, since it's not thread-safe either.
+We use the same method for parallelizing the tokenization of Chunks, since it is not thread-safe either.
 
 
 \subsection{Keeping the database up to date}
