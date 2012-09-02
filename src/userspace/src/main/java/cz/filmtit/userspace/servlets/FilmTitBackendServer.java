@@ -102,7 +102,13 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Map of active sessions (i.e. logged in Users)
      */
     private Map<String, Session> activeSessions =
-            Collections.synchronizedMap(new HashMap<String,Session>());
+            Collections.synchronizedMap(new HashMap<String, Session>());
+    /**
+     * Map of user IDs and sessionIds assigned to them
+     */
+    private Map<Long, String> usersSessionIds =
+            Collections.synchronizedMap(new HashMap<Long, String>());
+
     /**
      * Map of active tokens generated for changing password.
      */
@@ -958,7 +964,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param user Owner of new session.
      * @return New session ID.
      */
-    private String generateSession(USUser user){
+    private synchronized String generateSession(USUser user){
         IdGenerator idGenerator = new IdGenerator();
         String newSessionID = idGenerator.generateId(SESSION_ID_LENGTH);
 
@@ -966,18 +972,30 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             newSessionID = idGenerator.generateId(SESSION_ID_LENGTH);
         }
 
+        removeSessionIfExist(user, false);
         Session session = new Session(user);
 
-        // check if there isn't a session from the same user
-        for (String oldSessionId : activeSessions.keySet()) {
-            if (activeSessions.get(oldSessionId).getUserDatabaseId() == user.getDatabaseId()) {
-                Session sessionToRemove = activeSessions.get(oldSessionId);
-                sessionToRemove.terminateOnNewLogin();
-                activeSessions.remove(oldSessionId);
-            }
-        }
         activeSessions.put(newSessionID, session);
+        usersSessionIds.put(user.getDatabaseId(), newSessionID);
         return newSessionID;
+    }
+
+    /**
+     * Safely removes session of a given user if exists
+     * @param user User whose session is supposed to be removed
+     */
+    private synchronized void removeSessionIfExist(USUser user, boolean kill) {
+        if (usersSessionIds.containsKey(user.getDatabaseId())) {
+            String oldSessionId = usersSessionIds.get(user.getDatabaseId());
+            Session sessionToRemove = activeSessions.get(oldSessionId);
+
+
+           if (kill) { sessionToRemove.kill(); }
+           else { sessionToRemove.terminateOnNewLogin(); }
+
+            activeSessions.remove(oldSessionId);
+            usersSessionIds.remove(user.getDatabaseId());
+        }
     }
 
     /**
@@ -1075,7 +1093,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @param email New users email
      * @return Void
      * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
-     * @throws InvalidValueException Throws an excpetion if the email address is not valid.
+     * @throws InvalidValueException Throws an exception if the email address is not valid.
      */
     public Void setEmail(String sessionID, String email) throws InvalidSessionIdException, InvalidValueException {
         return getSessionIfCan(sessionID).setEmail(email);
@@ -1142,15 +1160,17 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         public void run() {
             while(true) {
                 // removing already existing sessions  that timed out
-                for (String sessionID : activeSessions.keySet()) {
+                Map<String, Session> activeSessionCopy = new HashMap<String, Session>();
+                activeSessionCopy.putAll(activeSessions);
+
+                for (String sessionID : activeSessionCopy.keySet()) {
                     long now = new Date().getTime();
-                    Session thisSession = activeSessions.get(sessionID);
+                    Session thisSession = activeSessionCopy.get(sessionID);
                     if ((thisSession.isPermanent() && thisSession.getLastOperationTime() + PERMANENT_SESSION_TIME_OUT_LIMIT < now)
                             || thisSession.getLastOperationTime() + SESSION_TIME_OUT_LIMIT < now) {
-                        activeSessions.remove(thisSession.getUser());
-                        thisSession.kill();
                         logger.info("SessionTimeOut","Session of user " + thisSession.getUser().getUserName() + " timed out.");
-                        activeSessions.remove(sessionID);
+                        activeSessionCopy.remove(sessionID);
+                        removeSessionIfExist(thisSession.getUser(), true);
                     }
 
                 }
