@@ -15,6 +15,8 @@ import java.util.ArrayList
 import scala.Some
 
 /**
+ * A [[cz.filmtit.core.model.MediaSourceFactory]] based on data from Freebase.com.
+ *
  * @author Joachim Daiber
  */
 
@@ -29,10 +31,22 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
 
   def urlApiKey = if (apiKey != null && !apiKey.equals("")) "&key=" + apiKey else ""
 
+  /**
+   * Regular expression pattern to identify TV Shows, which are in the format
+   *
+   * "Scrubs" My first kill
+   *
+   * This may have to be adapted to new input data.
+   */
   val tvShowPattern = "\"(.+)\" .+".r
   implicit val formats = net.liftweb.json.DefaultFormats
 
-
+  /**
+   * Query the Freebase API.
+   *
+   * @param query the query
+   * @return a JSON object with the returned data
+   */
   def query(query: String): JValue = {
     val freebaseData = Source.fromURL(
       "https://api.freebase.com/api/service/mqlread?query=%s%s".format(URLEncoder.encode(query, "utf-8"), urlApiKey)
@@ -53,6 +67,12 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     }
   }
 
+  /**
+   * Retrieve more information abount a Freebase entity of type /film/film
+   *
+   * @param mid identifier of the entitiy
+   * @return
+   */
   def mediaSourceFromFilm(mid: String): Option[MediaSource] = {
     val result = query(
       """ {"query":
@@ -99,6 +119,13 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     Some(ms)
   }
 
+
+  /**
+   * Retrieve more information abount a Freebase entity of type /tv/tv_programme
+   *
+   * @param mid identifier of the entitiy
+   * @return
+   */
   def mediaSourceFromTVShow(mid: String): Option[MediaSource] = {
     val result = query(
       """ {"query":
@@ -190,6 +217,12 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     moviesFromFreebase
   }
 
+  /**
+   * Retrieve a MediaSource for the suggestion in JSON format.
+   *
+   * @param jsonObject JSON representation of the suggestion
+   * @return
+   */
   def getMediaSource(jsonObject: JValue): Option[MediaSource] = {
     if ((jsonObject \ "notable" \ "id").equals(new JString("/film/film"))) {
       mediaSourceFromFilm((jsonObject \ "mid").extract[String])
@@ -200,6 +233,12 @@ class FreebaseMediaSourceFactory(val apiKey: String, val n: Int = 10) extends Me
     }
   }
 
+  /**
+   * Retrieve information about a media source by its title.
+   *
+   * @param title the title of the movie/TV show
+   * @return
+   */
   def getMoviesByTitle(title: String): JValue = {
     val response = title match {
       case tvShowPattern(titleShow) => {

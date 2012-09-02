@@ -259,7 +259,7 @@ public class TranslationWorkspace extends Composite {
             playerFixedPanel.removeFromParent();
     	}
     	if (vlcPlayer != null) {
-            vlcPlayer.hide();    		
+            vlcPlayer.setHiddenTrue();
     	}
     }
     

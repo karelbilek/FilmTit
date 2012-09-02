@@ -16,7 +16,10 @@ import collection.parallel.ParSeq
 import opennlp.tools.tokenize.Tokenizer
 
 /**
+ * A Wrapper for [[opennlp.tools.tokenize.Tokenizer]] workers.
+ *
  * @author Joachim Daiber
+ * @author Karel Bilek
  */
 
 class TokenizerWrapper(val tokenizers: ParSeq[Tokenizer], val tokenizerTimeout: Int) {

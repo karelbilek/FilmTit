@@ -3,10 +3,9 @@ package cz.filmtit.core
 import cz.filmtit.share.Chunk
 
 /**
+ * General Utils used in the Scala code.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 object Utils {

@@ -8,10 +8,11 @@ import io.Source
 import cz.filmtit.share.MediaSource
 
 /**
+ * A [[cz.filmtit.core.model.MediaSourceFactory]] based on data from Freebase.com.
+ *
+ * @deprecated This is deprecated since the IMDB API service was stopped.
+ *
  * @author Joachim Daiber
- *
- *
- *
  */
 
 class IMDBMediaSourceFactory extends MediaSourceFactory {
@@ -31,11 +32,11 @@ class IMDBMediaSourceFactory extends MediaSourceFactory {
 
   def getSuggestions(title: String): java.util.List[MediaSource] = getSuggestions(title, "")
 
-  def queryFirstBest(title: String, year: String): JSONObject = {
+  private def queryFirstBest(title: String, year: String): JSONObject = {
     new JSONObject(queryAll(title, year).next())
   }
 
-  def queryAll(title: String, year: String): Iterator[String] = {
+  private def queryAll(title: String, year: String): Iterator[String] = {
     val tvShowPattern = "\"(.+)\" .+".r
 
     val response = title match {

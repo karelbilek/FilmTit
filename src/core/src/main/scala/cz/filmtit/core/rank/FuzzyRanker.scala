@@ -7,6 +7,8 @@ import cz.filmtit.core.model.Patterns
 import scala.Double
 
 /**
+ * Translation pair ranker for fuzzy matches.
+ *
  * @author Joachim Daiber
  */
 
@@ -52,4 +54,4 @@ trait FuzzyRanker extends BaseRanker {
 }
 
 class FuzzyWekaRanker(modelFile: File) extends WEKARanker(modelFile) with FuzzyRanker
-class FuzzyLRRanker(weights: List[Double]) extends LinearInterpolationRanker(weights: List[Double]) with FuzzyRanker
+class FuzzyLRRanker(weights: List[Double]) extends LinearRegressionRanker(weights: List[Double]) with FuzzyRanker

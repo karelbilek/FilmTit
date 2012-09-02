@@ -12,7 +12,6 @@ import cz.filmtit.share._
 import collection.mutable.ListBuffer
 import exceptions.{SearcherNotAvailableException, LanguageNotSupportedException}
 
-
 /**
  * Simple [[cz.filmtit.core.model.TranslationMemory]] implementation with
  * a number of backoff TMs. Each TM can have a threshold score (over which
@@ -38,6 +37,12 @@ class BackoffTranslationMemory(
     case _ => null
   }
 
+  /**
+   * Returns the tokenizer for a language.
+   *
+   * @param language the requested language
+   * @return
+   */
   def tokenizer(language:Language) = language match {
     case `l1` => tokenizerl1
     case `l2` => tokenizerl2
@@ -50,6 +55,7 @@ class BackoffTranslationMemory(
   ): List[TranslationPair] = {
 
 
+    //If the Chunk is not active (the request was canceled), the query is aborted.
     if(!chunk.isActive) {
       List[TranslationPair]()
     }

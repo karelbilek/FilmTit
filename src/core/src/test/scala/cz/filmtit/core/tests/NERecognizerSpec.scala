@@ -20,7 +20,6 @@ import cz.filmtit.core.model.data.ChunkUtils._
  * @author Joachim Daiber
  */
 
-
 @RunWith(classOf[JUnitRunner])
 class NERecognizerSpec extends Spec {
   val configuration = new Configuration(new File("configuration.xml"))

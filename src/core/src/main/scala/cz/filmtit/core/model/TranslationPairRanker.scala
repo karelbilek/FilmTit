@@ -4,7 +4,7 @@ import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
 
 /**
  * Assigns scores to translation pairs retrieved from the database or external
- * services.
+ * services and orders them by their score.
  *
  * @author Joachim Daiber
  */

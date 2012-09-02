@@ -4,10 +4,18 @@ import scala.collection.JavaConversions._
 import cz.filmtit.share.annotations.AnnotationType
 import cz.filmtit.share.Chunk
 
+/**
+ * Core-specific methods for working with [[cz.filmtit.share.Chunk]] objects.
+ */
 object ChunkUtils {
-    
 
- 
+  /**
+   * Converts the chunk into a String using the function specified as the format parameter.
+   *
+   * @param chunk the chunk to be converted
+   * @param format a function converting each instance of an annotation to a String
+   * @return
+   */
  def toAnnotatedString(
     chunk: Chunk,
     format: (AnnotationType, String) => String = 

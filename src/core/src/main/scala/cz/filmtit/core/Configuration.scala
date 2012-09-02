@@ -9,7 +9,8 @@ import java.io.{FileInputStream, InputStream, File}
 import opennlp.tools.tokenize.{TokenizerModel, Tokenizer}
 
 /**
- * Configuration file for the external files and databases required by the TM.
+ * Configuration for the external files and databases required by the TM.
+ * This Configuration class reads an XML file that contains all properities.
  *
  * @author Joachim Daiber
  */

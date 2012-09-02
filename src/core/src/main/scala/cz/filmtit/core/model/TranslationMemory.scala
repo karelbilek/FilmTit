@@ -82,7 +82,16 @@ trait TranslationMemory {
    */
   def mediaStorage: MediaStorage
 
+  /**
+   * Tokenize the Chunk with the tokenizer corresponding to its language.
+   *
+   * @param chunk the chunk to be tokenized
+   * @param language the language of the chunk
+   */
   def tokenize(chunk:Chunk, language:Language)
 
+  /**
+   * Closes the translation memory (perform all required actions, e.g. closing the database connection).
+   */
   def close()
 }
