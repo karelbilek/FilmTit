@@ -8,7 +8,7 @@ Since there were more strategies how to process the ``raw'' data which looked eq
 
 In this chapter, we discuss these steps, together with a more detailed description of the data we received. We will also discuss various strategies for measuring the quality of the corpus.
 
-\section{Retrieving data}
+\section{Retrieving Data}
 
 There are hundreds to thousands of subtitle files in any major language available on the Internet, and all of those can be easily downloaded individually, file by file. However, for building a bigger corpus, we need the biggest number of subtitles possible -- and it is problematic to download from most of the servers in bigger batches (due to the anti-robot protection and so on).
 
@@ -52,9 +52,9 @@ The contents of OS.org is all user-generated, and users of OS.org, when uploadin
 
 %From this data we will create a parallel corpus of ...
 
-\section{The initial data properties}
+\section{The Initial Data Properties}
 \label{sec:properties}
-\subsection*{Format}
+\subsubsection*{Format}
 The OpenSubtitles data consisted of the following files:
 \begin{itemize}
     \item file, called \texttt{export.txt.gz}, which was a tab-separated table, having information about one subtitle file on one line. The information consisted of:
@@ -75,20 +75,20 @@ The OpenSubtitles data consisted of the following files:
 \end{itemize}
 All these files were packed into a \texttt{tar} file, with a size of 3,076 MB.
 
-\subsection*{Cleaning up -- non-existent files}
+\subsubsection*{Cleaning up -- non-existent files}
 As you can see even just by looking at the numbers, the data in the database and the files do not match up exactly. So the initial clean-up was getting only the intersection of files we have and the files that are in the database. 
 
 The intersection is 39,712 Czech subtitle files and 97,991 English files of 15,881 media sources -- 3,032 MB of zipped data.
 
-\subsection*{Cleaning up -- split subtitles}
+\subsubsection*{Cleaning up -- split subtitles}
 The other step in cleanup is -- for simplicity -- removing the subtitles that are split to multiple files; we assumed that those split into more parts are probably just split version the complete ones. 81\,\% of subtitles are in one piece and only 1.7\,\% movies have subtitles only in multiple files. By deleting subtitles split into more files, we completely lose the Czech side of 64 movies and English the side of 218 movies, which is 3,5\% in total.
 
-\subsection*{Cleaning up -- Carmencita}
+\subsubsection*{Cleaning up -- Carmencita}
 There was also one peculiar issue with the media sources. While looking more carefully at the data, we found there were 228 Czech subtitles files, 814 files in total having one particular movie ID and containing absolutely different content. This movie was Carmencita, a 21 seconds long silent film from 1894\footnote{See \url{http://en.wikipedia.org/wiki/File:Carmencita.ogg} for details.}. We concluded this very probably happened due to a server error at OS.org, because the movie has the ID {\tt tt0000001} at IMDB. We deleted those as well.
 
 %Because OpenSubtitles internally uses IMDB for adding information about movies and TV shows to subtitles, it was not hard to align subtitles of same movies and TV show episodes together, since all movie names used the same format (name and year), and the TV episodes were all correctly marked.
 
-\subsection*{Cleaning up -- results}
+\subsubsection*{Cleaning up -- results}
 After performing all the mentioned filtering, we had 2,543 MB in 110,312 gzipped subtitle files (32,705 Czech, 77,607 English) of 15,552 movies / TV shows' episodes.
 
 When we did a simple check to find out, how many subtitles are actually in \texttt{srt} format we found out, that from 110,312 subtitles, 432 are not regular \texttt{srt} and might actually be \texttt{sub} (but sometimes, they are, for example, HTML files, or just strange binary data). That means that only 0.39\% of subtitle files are not \texttt{srt}. We are noting it here, because we later based some of our decision based on this
@@ -105,14 +105,14 @@ Later in development, we noticed that some files have incorrect language written
 \caption{How do the data flow from the original archive to the database. We do not talk about the Moses server in this chapter; but it is here to illustrate that the aligned corpus is used in two ways -- in building the DB for the translation memory and in building the phrase table for MT.}\label{dataflow}
 \end{figure}
 
-\section{Loading subtitles, parsing}
+\section{Loading Subtitles, Parsing}
 \label{parsing_subs}
-\subsection*{Loading subtitles}
+\subsection{Loading Subtitles}
 The subtitles were gzipped, as already noted. Gunzipping all the files to disk would take unnecessary space, so we load the files using \texttt{GZIPInputStream}, which is a part of the standard Java library.
 
 Most of the Czech subtitles were in \texttt{Windows-1250} encoding, but a small minority of them were in UTF-8. Some files were not in correct \texttt{gzip} format. Other than these issues, reading the files themselves was quite straightforward.
 
-\subsection*{GUI parsing}
+\subsection{GUI Parsing}
 Before we start to talk about parsing, let us take a small sidestep to GUI.
 
 We wanted to move the parsing of the users' uploaded subtitles to the client side. The most important reason was that we did not want to add work to the server. Therefore it was necessary to implement the parsing in the shared classes to make it available both in the GWT based GUI and the dataimport module.
@@ -121,7 +121,7 @@ This is, by the way, one of the benefits of having the dataimport module a part 
 
 However, because of this, we had to write the parsing classes in such a way, that would compile with both GWT and the Java compiler. What that effectively meant was not using the standard Java Regular Expression classes, but special GWT classes.
 
-\subsection*{Parsing}
+\subsection{Parsing}
 Parsing the subtitles themselves was not a hard task, using GWT's regular expression classes. Even though \texttt{sub} is considerably less popular, we decided to not neglect it and built a parser for it, too.
 
 However, there are two scenarios, depending on when parsing is needed.
@@ -141,7 +141,7 @@ When the user uploads a file, as the second step, we take those unprocessed chun
 
 When we are building the corpus, though, we do not split the subtitle items into sentences right away. We first do alignment of files and subtitle items, which is describe below, and only then split the chunks into sentences, again using \texttt{TitChunkSeparator}.
 
-\section{Sentence splitting}
+\section{Sentence Splitting}
 \label{sentence_splitting}
 \subsection*{Basic idea}
 Quite early on, we decided, that we should not add the whole subtitle items into the translation memory, but that we should split them to smaller parts.
@@ -161,22 +161,22 @@ To reiterate: we split sentences only within one subtitle item, and we do not jo
 
 For the same reasons as parsing, we split sentences in the client GUI when the users upload their subtitles. That limits us in the choice of splitting algorithms, basically to just using regular expressions; any algorithms, based on some machine-learned models, are not applicable here -- we cannot link a library to the GWT code and use a model, loaded from a file.
 
-\subsection*{Dialogues}
+\subsubsection*{Dialogues}
 Dialogues are sometimes marked with a dash in the beginning. An example can be seen in Figure~\ref{splitting:chunks}. A dialogue is \emph{always} a new sentence.
 
-\subsection*{Punctuation marks on newlines}
+\subsubsection*{Punctuation marks on newlines}
 While punctuation marks (!?.) do not always end a sentence, they \emph{do} end a sentence when they are right before a newline character. For this reason, we do split sentences on punctuation marks before newlines.
 
 This and the previous rule are implemented in the \texttt{TitChunkSeparator}, that is, after applying them, calling \texttt{SentenceTokenizer} for rule-based sentence splitting.
 
-\subsection*{Rule-based sentence splitting}
+\subsubsection*{Rule-based sentence splitting}
 Besides the two aforementioned rules, we use rule-based sentenced splitting (or Sentence Tokenizing) derived from code from Daniel Naber's LanguageTools.\footnote{\url{http://www.languagetool.org/}, retrieved 20.08.2012.} The code was heavily edited by us, but only for better clarity and usage of GWT regex classes, the functionality was unchanged. The code is in package \texttt{cz.filmtit.share.tokenizers}; the base class is named \texttt{SentenceTokenizer}.
 
 The rules are, actually, not \emph{that} sophisticated; they rule out common abbreviations, names of months, cases like \texttt{I (really!) did it.}, and so on.
 
 In the rule-based classes, the list of possible words before the punctuation that do not break the sentence have to be explicitly written in the code (because GWT has a problem with reading files). Therefore, if there was a need of adding a new language to FilmTit, this would have to be added. On the other hand, similar data are publicly available for every language in, for example, the Wiktionary project.
 
-\section{Aligning the subtitles}
+\section{Aligning the Subtitles}
 \label{sec:aligning_subtitles}
 The most crucial part in building the corpus is to group the subtitles of the same movie together.
 
@@ -189,7 +189,7 @@ We used two different approaches for this. Both of them need to solve these thre
 
 Implementation of all techniques described below are in the \texttt{cz.filmtit.dataimport.alignment} package.
 
-\subsection{File to file alignment}
+\subsection{File to File Alignment}
 
 As you could read in previous sections, we \emph{do} have some mapping from subtitles to movies. Now, we have to find out for each movie, which English and Czech file matches best together; we will throw away the rest of the files except for this one chosen pair for each movie.\footnote{Throwing away meant in the sense of building the corpus; we still have the original data, of course.}
 
@@ -745,7 +745,7 @@ On average, there is 2.1 Czech subtitle files and 5 English subtitle files per m
 
 If we take for \emph{each} movie \emph{all} the pairs, where Czech is one side and English on the other (but both have the same movie), we have 235.825 such pairs (reminding, we originally had 139.538 files).
 
-\subsection{Subtitle to subtitle alignment}
+\subsection{Subtitle to Subtitle Alignment}
 As written above, translations of subtitles are usually done directly from other subtitles, so the alignment is entirely based on time marks. We do \emph{not} look at any other features.\footnote{In \emph{Using Movie Subtitles for Creating a Large-Scale Bilingual Corpora (Einav Itamar, Alon Itai)}, authors tried to use other features, but we used just the time info.}
 
 However, even in the cases when a Czech subtitle file has been made directly from an English one, there are still cases where, for example, one chunk is split into two chunks, two are merged into one and so on. Sometimes, the English version of the subtitles is done for people with hearing impairment and, therefore, describes all the sounds, while the Czech version has those deleted.
@@ -850,7 +850,7 @@ We then selected given number of movies (we tried 6,000 and 12,000) with the sma
 \subsubsection{Baseline -- trivial alignment}
 As a baseline for comparison, the ``trivial'' algorithm just takes first filepair that it sees for a given movie, then takes all the movies, and then aligns first chunk on source side with first chunk on target side, second with the second one and so on.
 
-\subsection{Evaluation of alignments}
+\subsection{Evaluation of Alignments}
 We have two slightly different approaches to counting the alignment of subtitles. The question is, which one to choose. For having a more rigorous evaluation than just manual comparing of random files it was necessary to develop a metric which captures the quality of the alignment which is described later.
 
 \subsubsection{Size of corpus}
@@ -972,7 +972,7 @@ Also note that even with the alignment with best coverage, we still covered only
 
 We chose the tolerance-based algorithm with 6s tolerance, since it has the best harmonic mean and mainly has the biggest coverage with still relatively precise translations. Users of Machine Translation can easily ignore a possible wrong translation, if they do not like it.
 
-\section{Running the alignment}
+\section{Running the Alignment}
 The alignment can also be re-run. The needed Scala objects with appropriate \texttt{main} methods are in \texttt{cz.filmtit.dataimport.alignment.tasks} package. However, it is has not been tested on any other data than our data. The locations of the initial data, the \texttt{export.txt} file and the directory where the corpus will be located has to be set in \texttt{configuration.xml}.
 
 Alignment with any of the methods takes about 4 hours on a Linux PC with Intel Core2 Quad CPU with 2.83GHz with 4GB of memory.

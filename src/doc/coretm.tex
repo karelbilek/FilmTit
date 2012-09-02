@@ -51,7 +51,7 @@ configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://h
 \end{lstlisting}
 
 
-\subsection{Retrieving Media Source information}
+\subsection{Retrieving Media Source Information}
 
 For retrieving information about media sources, we initially used a free IMDB API (\url{http://imdbapi.com/}). However, it showed that this API might become unavailable in the future and indeed, as of July 30, the API had been shut down. To avoid complications early, we switched to the Freebase API.\footnote{\url{http://www.freebase.com/}} Freebase is a large knowledge base of structured data based on data extracted from Wikipedia and other publicly available resources and continually extended by users.
 
@@ -71,7 +71,7 @@ retrieved in the first step according to their quality and how well they
 match the query. If the quality of the retrieved candidates exceeds a
 minimum quality threshold, they will be sent to the user.
 
-\subsection{Backoff translation memories}
+\subsection{Backoff Translation Memories}
 
 The idea of a backoff translation memory is to use multiple ways of
 retrieving and ranking candidate translation pairs from the database and
@@ -86,14 +86,14 @@ the \emph{ranker} do not meet the threshold, then the query is sent to the
 next level of the backoff translation memory. 
 
 
-\section{Candidate retrieval}
+\section{Candidate Retrieval}
 \label{sec:candidate_retrieval}
 
 We implemented several methods for efficiently retrieving candidate
 translation pairs from the database. 
 
 
-\subsection{Translation pair searchers}
+\subsection{Translation Pair Searchers}
 
 Every translation pair searcher implements the interface {\tt TranslationPairSearcher} and therefore must implement the method 
 
@@ -194,8 +194,7 @@ F-Measure: 0.99624
 % F-Measure: 0.9962413283293529
 \end{lstlisting}
 
-\subsection{Signature-based retrieval}
-
+\subsection{Signature-Based Retrieval}
 
 The most general method is the usage of indexed signature strings. There are two implementations of signature-based retrieval in the project: In the first method, signatures are created fully within the \postgres~database (database-based signatures) and in the second, the signatures are created on the server and only stored and retrieved in the
 database (program-based signatures).  
@@ -224,7 +223,7 @@ Several signature functions are used in the translation memory
 implementation. In the following sections, the signature functions and related issues will be illustrated.
 
 
-\subsection{Signature-based retrieval: Exact matches}
+\subsection{Signature-Based Retrieval: Exact Matches}
 
 The first signature function is for retrieving exact matches. For this,
 the signature function consists of the first letters of each word in the
@@ -269,7 +268,7 @@ function.
 
 
 
-\subsection{Signature-based retrieval: Named Entities}
+\subsection{Signature-Based Retrieval: Named Entities}
 
 The second, more fuzzy signature function uses named entity recognition
 to provide matches. Named entity recognition is the task of finding
@@ -372,7 +371,7 @@ For this reason,
 % we keep NE-based retrieval as a retrieval level in the core, however
 we are not currently using it; the other methods already provide reasonable results, are faster and are easier to adapt to new languages.
 
-\subsection{Full-text search}
+\subsection{Full-Text Search}
 
 As another, more fuzzy level of retrieval, we use the full-text search included in \postgres. In  \postgres~full-text search, documents (in our case translation pairs) are tokenized and normalized. The result of this process is a vector of normalized tokens ({\tt tsvector}). The normalization step can include lowercasing, stemming, using synonyms from a dictionary or removing stop words.
 % I didnt understand it so I changed it, but maybe I understood it wrong
@@ -383,12 +382,12 @@ The tokenization and normalization for a specific language is described in a tex
 When querying candidates for a Chunk, we use the {\tt ts\_rank}\footnote{\url{http://www.postgresql.org/docs/9.1/static/functions-textsearch.html}} function to pre-sort the candidates and the {\tt ts\_rank} score is later used as one of the scores in the ranking of translation pair candidates. One problem that the full-text search as a method of candidate retrieval shows, is that some of the candidates are unreasonably large documents that still have high scores because their token overlaps with the query are reasonable. We approach this problem by using our own ranking functions for translation pairs, as described in Section~\ref{sec:ranking}.
 
 
-\subsection{External services}
+\subsection{External Services}
 
 As another backoff level, we use Machine Translation from external services.
 For this, a query with the chunk is sent to an external REST-based API. We offer a translation pair searcher for the free Machine Translation API of the MyMemory project.\footnote{ \url{http://mymemory.translated.net/doc/spec.php}} However, there is currently no machine translation service with an unlimited free API, and, for example, the MyMemory project has such a low daily quota (2500 requests/day) that the quota is quickly surpassed when translating subtitle files.
 
-\subsection{Statistical Machine-Translation based on Moses}
+\subsection{Statistical Machine-Translation Based on Moses}
 \label{sec:statmtmoses}
 
 We tried Machine Translation first as an experiment, but the results turned out to be very good and, after some optimizations, also provided very quickly.
@@ -419,14 +418,14 @@ All ranking methods are based on a combination of scores. Depending on the retri
 
 To learn the best combination of scores, we manually selected translations for heldout subtitle files and then used those annotations as positive and negative examples for training a model using the WEKA machine learning toolkit.\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}}
 
-\subsection{Training the models}
+\subsection{Training the Models}
 
 For the manual annotation required to estimate weights for the scores, we started the translation memory with only the corresponding backoff level (e.g.\ exact matching or fuzzy matching) and translated heldout subtitle files using the translation workspace. After uploading and finishing the subtitle files, the class {\tt cz.filmtit.dataimport.training.GenerateTrainingset} can be used to generate a CSV file in WEKA-compatible format which can then be used to train a model.
 
 For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example. We select 
 
 
-\subsection{Ranking for exact matches}
+\subsection{Ranking for Exact Matches}
 
 The ranking for exact matches uses a linear regression model with the following scores:
 
@@ -452,7 +451,7 @@ The ranking for exact matches uses a linear regression model with the following 
 
 
 
-\subsection{Ranking for full-text search matches}
+\subsection{Ranking for Full-Text Search Matches}
 
 
 
@@ -484,7 +483,7 @@ The ranking for exact matches uses a linear regression model with the following 
 
 
 
-\section{Merging similar candidates}
+\section{Merging Similar Candidates}
 
 After all translation pair candidates are retrieved and ranked on each level, we attempt to merge translation pairs that are too similar, so not to present the user with several choices that differ only very slightly.
 
@@ -494,7 +493,7 @@ As a translation pair merger, we currently use an implementation based on Levens
 
 
 
-\section{Technical issues}
+\section{Technical Issues}
 
 \subsection{Concurrency}
 
@@ -505,7 +504,7 @@ To approach this issue, we used the Scala akka library,\footnote{\url{http://akk
 We use the same method for parallelizing the tokenization of Chunks, since it is not thread-safe either.
 
 
-\subsection{Keeping the database up to date}
+\subsection{Keeping the Database Up-To-Date}
 
 Since we want to ensure good retrieval performance, the core database is read-only in production mode. The user's translations that are stored in the User Space already are periodically added to the core database as new translation pairs and the indexes of all searchers are updated in turn.
 

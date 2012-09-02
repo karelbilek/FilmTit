@@ -63,7 +63,7 @@ $ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_
 
 \section{Tasks}
 
-\subsection{Step-by-Step Guide: Setting up the server with an existing database dump}
+\subsection{Step-by-Step Guide: Setting up the Server with an Existing Database Dump}
 
 The following guide contains examples for setting up the system on a plain Ubuntu system.
 
@@ -191,7 +191,7 @@ The configuration for the server is contained in the file \verb#configuration.xm
 
 In this section, we will give a brief overview over the properties specified in the configuration file and its default values.
 
-\subsection{General settings}
+\subsection{General Settings}
 L1 and L2 specify the ISO 639-1 codes of the source and target languages used in the translation memory.
 \lstset{numbers=none, language=XML, caption={Languages}}
 \begin{lstlisting}
@@ -212,7 +212,7 @@ The database connection must be specified as a valid JDBC connector. By default,
 </database>
 \end{lstlisting}
 
-\subsection{Text processing models}
+\subsection{Text Processing Models}
 
 For various text processing tasks within the translation memory, 
 it is necessary to specify a number of model files.
@@ -413,7 +413,7 @@ OpenID for Seznam.cz.
 \end{lstlisting}
 
 
-\subsubsection{APIs and keys}
+\subsubsection{APIs and Keys}
 
 The configuration also specifies the URL of the running Moses instance and the keys for external APIs. A Freebase key can be obtained via the Google API Console.\footnote{\url{http://wiki.freebase.com/wiki/How_to_obtain_an_API_key}}
 
@@ -424,7 +424,7 @@ The configuration also specifies the URL of the running Moses instance and the k
 \end{lstlisting}
 
 
-\section{Adapting the TM to new language pairs}
+\section{Adapting the TM to new Language Pairs}
 \label{sec:internationalization}
 
 The implementation currently uses the language pair English-Czech, however, the system is easily adaptable to new language pairs. In this section, we are briefly describing the necessary steps to adapt the system to a new language pairs.
@@ -479,7 +479,7 @@ For this, it is necessary to do tokenization using an OpenNLP tokenizer. Althoug
 
 For instructions on how to set up Moses as a backoff level, see Section~\ref{sec:statmtmoses}.
 
-\section{Running the Moses server}
+\section{Running the Moses Server}
 
 The Moses server can be running on either a separate computer or the same computer, as on the FilmTit system. The main process connects to the Moses server via HTTP and sends it sentences to translate as remote procedure calls; however, there is no kind of authentication, so the Moses server has to be secured, for example by a network infrastructure; if it is not, there is a risk of unauthorized translation requests.
 
@@ -487,7 +487,7 @@ Moses is an experimental software and it is obvious from the slightly complicate
 
 Except for APT, git is needed for the initial download and GCC for building Moses. If \texttt{libboost} and \texttt{lobxmlrpc} are not installed, \texttt{sudo} privileges are also needed.
 
-\subsection{Installing Moses server}
+\subsection{Installing the Moses Server}
 \begin{enumerate}
     \item
 First, Moses has to be checked out from the official git repository.
@@ -528,7 +528,7 @@ If boost is at non-standard location, it will have to be specified it with the \
 The Moses server should now be compiled at \texttt{mosesdecoder/bin/mosesserver}.
 \end{enumerate}
 
-\subsection{Running Moses server}
+\subsection{Running the Moses Server}
 For running the Moses server with our data, the folder with our models is needed. \todo{Who knows}This data should be supplied with the project.
 
 Now, let us suppose that our data with models are at folder \texttt{/data/} and mosesdecoder is at folder \texttt{/bin/}. Then, the server can be easily started at port \texttt{8081} with 4 threads (recommended number of threads is number of cores) by running
