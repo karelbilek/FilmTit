@@ -268,13 +268,13 @@ public class TimeEditDialog extends Composite {
 				for (TimedChunk chunk : chunks) {
 					new SetChunkTimes(chunk);
 				}
+				
+				dialogBox.hide();
 			}
 			else {
 				reactivate();
 			}
 		}
-		
-		dialogBox.hide();
 	}
 	
 	/**

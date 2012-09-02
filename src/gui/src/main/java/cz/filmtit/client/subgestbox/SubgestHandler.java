@@ -16,7 +16,7 @@ import cz.filmtit.client.pages.TranslationWorkspace;
  */
 public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, BlurHandler {
 	
-    TranslationWorkspace workspace;
+    private TranslationWorkspace workspace;
 
 	/**
 	 * Creates a new SubgestHandler within the given workspace.

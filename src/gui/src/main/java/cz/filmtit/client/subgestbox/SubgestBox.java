@@ -414,6 +414,11 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         return !this.getTextWithNewlines().equals(this.lastText);
     }
 
+    /**
+     * Replace the text remembered as the last saved text with the current text.
+     * To be used when the text is sent to be saved as the user translation
+     * via SetUserTranslation.
+     */
     protected void updateLastText() {
         this.lastText = this.getTextWithNewlines();
     }
