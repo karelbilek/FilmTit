@@ -170,7 +170,7 @@ class MosesServerSearcher(
      val translation = getRawTranslation(cleanedUpSource)
 
      val cleanedUpTarget = cleanUpString(translation,
-       Pair(spaceRegex, " ")+:Pair(unkRegex, "")+:regexesBeforeServer)
+       Pair(spaceRegex, " ")+:Pair(unkRegex, "")+:regexesAfterServer)
 
      
      val res = if (wasCapitalizedSource) {
