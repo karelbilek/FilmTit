@@ -27,7 +27,7 @@ import java.io.{File, FileInputStream}
 import opennlp.tools.tokenize.{TokenizerME, WhitespaceTokenizer, Tokenizer}
 
 /**
- * Factories for default implementations of various classes
+ * Factory for the default implementations of various classes.
  *
  * @author Joachim Daiber
  *
@@ -37,11 +37,26 @@ object Factory {
 
   val logger = LogFactory.getLog("Factory")
 
+  /**
+   * Create a JDBC connection for an in-memory database.
+   *
+   * This is used for testing purposes.
+   *
+   * @return in-memory database JDBC connector
+   */
   def createInMemoryConnection(): Connection = {
     Class.forName("org.hsqldb.jdbcDriver")
     DriverManager.getConnection("jdbc:hsqldb:mem:filmtitdb;sql.syntax_pgs=true;check_props=true", "sa", "")
   }
 
+
+  /**
+   * Create a production JDBC database connector.
+   *
+   * @param configuration the FilmTit configuration object
+   * @param readOnly specifies if the database connection should be read-only
+   * @return
+   */
   def createConnection(configuration: Configuration, readOnly: Boolean = true): Connection = {
     Class.forName("org.postgresql.Driver")
 
@@ -66,12 +81,26 @@ object Factory {
     connection
   }
 
-  def createNERecognizersFromConfiguration(configuration: Configuration, wrapperl1:TokenizerWrapper, wrapperl2:TokenizerWrapper) = {
+  /**
+   * Create NE recognizers from the configuration using the two tokenizer wrappers.
+   *
+   * @param configuration the FilmTit configuration object
+   * @param wrapperl1 the TokenizerWrapper for the first language
+   * @param wrapperl2 the TokenizerWrapper for the second language
+   * @return
+   */
+  def createNERecognizersFromConfiguration(configuration: Configuration, wrapperl1: TokenizerWrapper, wrapperl2: TokenizerWrapper) = {
     (createNERecognizers(configuration.l1, configuration, wrapperl1),
       createNERecognizers(configuration.l2, configuration, wrapperl2))
 
   }
 
+  /**
+   * Create a fully in-memory translation memory for testing.
+   *
+   * @param configuration the FilmTit configuration object
+   * @return
+   */
   def createInMemoryTM(configuration: Configuration): TranslationMemory = {
     val connection = createInMemoryConnection()
 
@@ -85,6 +114,14 @@ object Factory {
       searcherTimeout = configuration.searcherTimeout)
   }
 
+  /**
+   * Create a production translation memory from the configuration.
+   *
+   * @param configuration the FilmTit configuration object
+   * @param readOnly specifies if the database connection should be read-only
+   * @param useInMemoryDB
+   * @return
+   */
   def createTMFromConfiguration(
     configuration: Configuration,
     readOnly: Boolean = true,
@@ -100,6 +137,19 @@ object Factory {
     )
 
 
+  /**
+   * Create a translation memory from exact parameters.
+   *
+   * @param l1 the first language
+   * @param l2 the second language
+   * @param connection the database connection
+   * @param configuration the FilmTit configuration object
+   * @param maxNumberOfConcurrentSearchers the maximum number of searcher running concurrently
+   * @param searcherTimeout maximum timeout for searchers
+   * @param indexing specifies whether the TM is created for indexing purposes
+   * @param useInMemoryDB specifies whether an in-memory database should be used
+   * @return
+   */
   def createTM(
     l1: Language, l2: Language,
     connection: Connection,
@@ -129,9 +179,21 @@ object Factory {
     }
 
     if (!indexing) {
-      //Third level: Moses
+       //Third level: Moses 
+      val regexesBefore = Seq(
+         ("""'(\S)""".r, """&apos;$1"""), //replacing apostrophe
+         ("""(\S)&apos;""".r, """$1 &apos;"""), //space before apostrophe
+         ("""\s+n &apos;t""".r , "n &apos;t")  //n't
+      )
+    
+      val regexesAfter = Seq(
+        ("""\s([.!?,])""".r, "$1"), //space before diacritics
+        (""" &apos; """.r, """'""")  //apostrophe back
+      )
+      
+      
       val mosesSearchers = (1 to 30).map { _ =>
-        new MosesServerSearcher(l1, l2, configuration.mosesURL)
+        new MosesServerSearcher(l1, l2,regexesBefore, regexesAfter, configuration.mosesURL)
       }.toList
 
       levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.5, TranslationSource.EXTERNAL_MT)
@@ -217,6 +279,13 @@ object Factory {
     }
   }
 
+  /**
+   * Create a tokenizer wrapper for the specified language from the configuration.
+   *
+   * @param language the language of the tokenizer wrapper
+   * @param conf the FilmTit configuration object
+   * @return
+   */
   def createTokenizerWrapper(language:Language, conf:Configuration) = {
     val tokenizers = (0 to 10).par.map{_=>createTokenizer_(language, conf)}
     new TokenizerWrapper(tokenizers, conf.searcherTimeout)

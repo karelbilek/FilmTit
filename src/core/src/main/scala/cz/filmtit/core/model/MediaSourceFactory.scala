@@ -1,10 +1,11 @@
 package cz.filmtit.core.model
 
-import _root_.java.util
 import cz.filmtit.share.MediaSource
 import collection.mutable.HashMap
 
 /**
+ * Interface for factories for [[cz.filmtit.share.MediaSource]] objects.
+ *
  * @author Joachim Daiber
  */
 

@@ -3,10 +3,9 @@ package cz.filmtit.core.model.names
 import cz.filmtit.share.Chunk
 import cz.filmtit.share.annotations.AnnotationType
 
-
 /**
- * Interface for named entity recognizers. NE should be added as annotations
- * to the [[cz.filmtit.core.model.data.AnnotatedChunk]].
+ * Interface for named entity recognizers. Named Entities should be added as annotations
+ * to the [[cz.filmtit.share.Chunk]].
  *
  * @author Joachim Daiber
  */

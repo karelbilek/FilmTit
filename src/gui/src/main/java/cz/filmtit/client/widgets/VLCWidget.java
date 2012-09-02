@@ -13,17 +13,26 @@ import java.util.LinkedList;
 import java.util.Collection;
 import com.google.gwt.event.shared.UmbrellaException;
 
+/**
+ * Class that implemepts VLC playing.
+ *
+ * @author Karel Bílek
+ */
 public class VLCWidget extends HTML {
 
+    private long lastPosition=-10000000;
+    private static long WINDOWSIZE=30000; //in milliseconds
 
-    long lastPosition=-10000000;
-    static long WINDOWSIZE=30000; //in milliseconds
+    private Collection<TranslationResult> currentLoaded = null;
 
-    Collection<TranslationResult> currentLoaded = null;
+    
+    private double nowPlayPartID = -1;
 
-    double begin = 1;
-    double end = WINDOWSIZE;
-
+    /**
+     * Plays window 30s around a given time. It also tries to detect whether
+     * the VLC stopped playing when it shouldn't and therefore probably crashed.
+     * @param position A given time around which to play the window.
+     */
     public void maybePlayWindow(long position) {
         if (hidden) {
             return;
@@ -33,15 +42,11 @@ public class VLCWidget extends HTML {
             long windownum = position/WINDOWSIZE;
             lastPosition=position;
             
-            
-            begin = windownum*WINDOWSIZE;
-            end = (windownum+1)*WINDOWSIZE;
-            if (begin==0){
-                begin=1;
-            }
             int nonce = reloadedTimes * 1000;
-            begin += nonce;
-            end += nonce;
+            
+            final double begin =( (windownum>0)? (windownum*WINDOWSIZE) : 1)+nonce;
+            final double end = ((windownum+1)*WINDOWSIZE)+nonce;
+           
             currentLoaded = synchronizer.getTranslationResultsByTime(begin-5000, end);
             
             String beginString = TimedChunk.millisToTime((long)(begin), false).toString();
@@ -49,17 +54,19 @@ public class VLCWidget extends HTML {
             startLabel.setText(beginString);
             endLabel.setText(endString);
 
-            stopped=false;
             playPart(begin, end);
+            
+            final double playPartID = java.lang.Math.random();
+            nowPlayPartID = playPartID;
             
             //getting around the VLC bug when it randomly stops 
             new com.google.gwt.user.client.Timer() { 
                 @Override
                 public void run() { 
-                    if ((!stopped) && getStatus()==begin) {
+                    if (getStatus()==begin && nowPlayPartID == playPartID) {
                         if (reloadedTimes <= 5) {
-                            //Window.alert("Chtel bych reloadovat.");
-                            workspace.reloadPlayer();
+                            Window.alert("I want to reload stuff.");
+                            //workspace.reloadPlayer();
                         } else {
                             Window.alert("There was an unexpected error with player.\nTry to open the subtitle again.");
                         }
@@ -70,9 +77,14 @@ public class VLCWidget extends HTML {
         }
     }
 
-    boolean stopped = true;
-    
-   
+
+    /**
+     * Builds the &lt;embed&gt; VLC code.
+     * @param path Path of file on user's disk.
+     * @param width Width of player
+     * @param height Height of player
+     * @return HTML code
+     */
     public static String buildVLCCode(String path, int width, int height) {
         StringBuilder s = new StringBuilder();
         s.append("<embed type=\"application/x-vlc-plugin\" ");
@@ -89,7 +101,11 @@ public class VLCWidget extends HTML {
         s.append("\" />");
         return s.toString();
     }
-    
+
+    /**
+     * Returns VLC widget with higher nonce. Used only when restarting VLC.
+     * @return VLC widget with higher nonce
+     */
     public VLCWidget higherNonce() {
         return new VLCWidget(path, width, height,  sourceLabel,targetLabel, synchronizer, startLabel,
                              endLabel, stopA, replayA, closeA, reloadedTimes+1,workspace);
@@ -111,14 +127,32 @@ public class VLCWidget extends HTML {
     Anchor closeA;
     
     boolean hidden=false;
-    public void hide() {
+
+    /**
+     * Hides the VLC player. It doesn't actually hide anything, it is only
+     * used to tell VLC that it is hidden, so javascript don't get errors.
+     */
+    public void setHiddenTrue() {
         hidden = true;
     }
 
 
-
-
-    @SuppressWarnings("deprecation")
+    /**
+     * Creates a new VLC widget.
+     * @param path Path of file on the disk.
+     * @param width Width of the VLC player.
+     * @param height Height of the VLC Player.
+     * @param left HTML on the left side of player.
+     * @param right HTML on the right side of player.
+     * @param synchronizer SubtitleSynchronizer to tell the VLCWidget the right subtitles around time
+     * @param startLabel Where to write start time.
+     * @param endLabel Where to write end time.
+     * @param stopA Link for stopping the player.
+     * @param replayA Link for replaying the current window
+     * @param closeA Link for closing the player.
+     * @param reloadedTimes How many times has VLC been reloaded already?
+     * @param workspace Workspace where the widget is loaded
+     */
     protected VLCWidget(String path, int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer,
                         InlineLabel startLabel, InlineLabel endLabel, Anchor stopA, Anchor replayA, Anchor closeA,
                         int reloadedTimes, final TranslationWorkspace workspace) {
@@ -136,10 +170,11 @@ public class VLCWidget extends HTML {
         this.endLabel = endLabel;
         this.reloadedTimes=reloadedTimes;
         this.workspace = workspace;
+
         stopA.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                stopped=true;
+                nowPlayPartID=-1;
                 togglePlaying();    
             }
         });
@@ -147,7 +182,7 @@ public class VLCWidget extends HTML {
             @Override
             public void onClick(ClickEvent event) {
                 stopPlaying();
-                playPart(begin, end);
+                playPart(currentStart, currentEnd);
 
             }
         });
@@ -167,13 +202,23 @@ public class VLCWidget extends HTML {
 
     }
 
+    /**
+     * Replaces the contents of HTML element, if it is actually different from what we want to replace it with.
+     * @param elem Element where we want to put text.
+     * @param what Text that we want to put there. newlines are converted to &lt;br&gt;. No check for HTML
+     *             is done, so beware XSS issues. (I am not sure if we actually do check for XSS anywhere.)
+     */
     public static void maybeSetHTML(HTML elem, String what) {
         String withBr =what.replaceAll("\n", "<br/>");
         if (!elem.getHTML().equals(withBr)) {
             elem.setHTML(withBr);
         }
     }
-    
+
+    /**
+     * Updates GUI, when VLC player is at some time. (IDE might show that it's not used, but it is used by JNI)
+     * @param time What is the current time?
+     */
     public void updateGUI(double time) {
         try {
                 //it is null at the very beginning
@@ -206,6 +251,13 @@ public class VLCWidget extends HTML {
         }
     }
 
+    /**
+     * Returns all chunks that are displayed at a given time.
+     * @param subset The subset of chunks that we search in. It should be already sorted
+     *               (it is what we get from TreeSet)
+     * @param time The given time.
+     * @return TranslationResults that are displayed at a given time.
+     */
     public List<TranslationResult> getCorrect(Collection<TranslationResult> subset, double time) {
         //subset should be already sorted by starting times
         List<TranslationResult> res=null;
@@ -238,29 +290,32 @@ public class VLCWidget extends HTML {
         return res;    
     }
 
+    /**
+     * Plays a very short 10 millisecond long part of video.
+     * It is here just to prevent VLC from displaying ugly "loading video" screen.
+     */
     @Override
     protected void onLoad() {
-        //this is here just to prevent VLC from displaying that ugly "loading video"
         playPart(1,10);
     }
 
-    //I am not sure how reusable this code is/how much they can call each other.
-    //I will try to discover this later, not now though
-    public static native void togglePlayingThis(Element el) /*-{
+    //====================JSNI code====================
+    //I found out that comments inside JSNI can cause troubles. So I am not doing it.
+    private static native void togglePlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if (vlc!==null) {
+        if (vlc!==null && vlc.playlist!==undefined) {
             vlc.playlist.togglePause();
         }
     }-*/;
 
-    public static native void startPlayingThis(Element el) /*-{
+    private static native void startPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if ((vlc!==null) && !vlc.playlist.isPlaying) {
+        if ((vlc!==null) && vlc.playlist!==undefined && !vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
     }-*/;
 
-    public static native double getStatusOfThis(Element el) /*-{
+    private static native double getStatusOfThis(Element el) /*-{
         var vlc = el.querySelector("#video");
         if ((vlc!==null) && vlc.input) {
         	return vlc.input.time;
@@ -270,20 +325,27 @@ public class VLCWidget extends HTML {
     	}
     }-*/;
 
-    public static native void stopPlayingThis(Element el) /*-{
+    private static native void stopPlayingThis(Element el) /*-{
         var vlc = el.querySelector("#video");
-        if ((vlc!==null) && vlc.playlist.isPlaying) {
+        if ((vlc!==null) && vlc.playlist!==undefined && vlc.playlist.isPlaying) {
             vlc.playlist.togglePause();
         }
     }-*/;
-    
-    
-    
 
-    public static native void playPartOfThis(Element el, double start, double end, VLCWidget widget) /*-{
+
+    /**
+     * Plays a part of video and then periodically checks if the end has not been stepped over.
+     * If it has, it stops the video.
+     * It also periodically updates the gui.
+     * @param el Element where the embedd should be.
+     * @param start Start of the part.
+     * @param end End of the part.
+     * @param widget This widget.
+     */
+    private static native void playPartOfThis(Element el, double start, double end, VLCWidget widget) /*-{
         var vlc = el.querySelector("#video");
         
-        if (vlc!==null) {
+        if (vlc!==null && vlc.playlist!==undefined) {
             vlc.input.time = start;
 
             watchend = end;
@@ -293,7 +355,7 @@ public class VLCWidget extends HTML {
                 vlc.playlist.togglePause();
             }
             setTimeout(function look() { 
-                if (vlc!==null) {
+                if (vlc!==null && vlc.playlist!==undefined) {
                     var it = vlc.input.time;
                     widget.@cz.filmtit.client.widgets.VLCWidget::updateGUI(D)(it);
                     
@@ -314,37 +376,53 @@ public class VLCWidget extends HTML {
             }, 600);
         }
     }-*/;
+    //====================END OF JSNI code====================
 
-    public double getStatus() {
+
+    /**
+     * Tells the current time of VLC player.
+     * @return The current time of VLC player.
+     */
+    private double getStatus() {
         return getStatusOfThis(this.getElement());
     }
-    
-    public void stopPlaying() {
+
+    private void stopPlaying() {
         if (hidden) {
             return;
         }
         stopPlayingThis(this.getElement());
     }
 
-    public void startPlaying() {
+    private void startPlaying() {
         if (hidden) {
             return;
         }
         startPlayingThis(this.getElement());
     }
-    
-    public void togglePlaying() {
+
+    private void togglePlaying() {
         if (hidden) {
             return;
         }
         togglePlayingThis(this.getElement());
     }
 
+    //This is better to make public because I don't trust JSNI.
+    /**
+     * Current start of playing movie window.
+     * Used in JSNI, that's the reason why it's public, shouldn't be changed.
+     */
     public double currentStart = 0;
+
+    /**
+     * Current end of playing movie window.
+     * Used in JSNI, that's the reason why it's public, shouldn't be changed.
+     */
     public double currentEnd = 0;
     
 
-    public void playPart(double start, double end) {
+    private void playPart(double start, double end) {
         if (hidden) {
             return;
         }
@@ -358,10 +436,21 @@ public class VLCWidget extends HTML {
             Window.alert("Unexpected exception "+e);
         }
     }
-    
-    
-    
-    public static VLCWidget initVLCWidget(String path, HTMLPanel playerFixedPanel, FlexTable table, HTMLPanel fixedWrapper, SubtitleSynchronizer synchronizer, TranslationWorkspace workspace) {
+
+
+    /**
+     * Construct a VLC widget for Workspace. Should be used instead of constructor which is protected.
+     * @param path Path of file.
+     * @param playerFixedPanel Top fixed panel where the player will be.
+     * @param table Table of the player.
+     * @param fixedWrapper Wrapper for the fixed class.
+     * @param synchronizer Synchronizer, that holds the subtitles.
+     * @param workspace Workspace that will get changed and that created the VLC widget.
+     * @return The new VLC widget.
+     */
+    public static VLCWidget initVLCWidget(String path, HTMLPanel playerFixedPanel, FlexTable table,
+                                          HTMLPanel fixedWrapper, SubtitleSynchronizer synchronizer,
+                                          TranslationWorkspace workspace) {
         HTMLPanel panelForVLC = Gui.getPanelForVLC();
         
         
@@ -383,8 +472,8 @@ public class VLCWidget extends HTML {
         HTML rightLabel = new HTML("");
         rightLabel.addStyleName("subtitleDisplayedRight");
         
-        InlineLabel fromLabel = new InlineLabel("0:0:0");
-        InlineLabel toLabel = new InlineLabel("0:0:30");
+        InlineLabel fromLabel = new InlineLabel("00:00:00");
+        InlineLabel toLabel = new InlineLabel("00:00:30");
         Anchor pauseA = new Anchor("[pause]");
         Anchor replayA = new Anchor("[replay]");
         Anchor closeA = new Anchor("[close player]");

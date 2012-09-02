@@ -17,7 +17,6 @@ import cz.filmtit.core.Utils.chunkFromString
  * @author Joachim Daiber
  */
 
-
 @RunWith(classOf[JUnitRunner])
 class DataSpec extends Spec {
 

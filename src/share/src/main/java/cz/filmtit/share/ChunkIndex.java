@@ -13,8 +13,8 @@ public class ChunkIndex implements com.google.gwt.user.client.rpc.IsSerializable
     private volatile int partNumber;
 
     /**
-     * Gets which part of subtitle item is the chunk part of.
-     * @return
+     * Gets which part of the subtitle item is the chunk part of.
+     * @return Number of part of the subtitle item is the chunk part of
      */
     public int getPartNumber() {
 		return partNumber;

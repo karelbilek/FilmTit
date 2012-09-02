@@ -3,10 +3,14 @@ package cz.filmtit.core.rank
 import cz.filmtit.share.{TranslationPair, MediaSource, Chunk}
 
 /**
+ * A translation pair ranker based on Linear Regression. The parameters (weights) of this
+ * model can be estimated using the WEKA machine learning toolkit and it is not necessary
+ * to add WEKA as a dependency for this ranker.
+ *
  * @author Joachim Daiber
  */
 
-abstract class LinearInterpolationRanker(val weights: List[Double]) extends BaseRanker {
+abstract class LinearRegressionRanker(val weights: List[Double]) extends BaseRanker {
 
   override def rank(chunk: Chunk, mediaSource: MediaSource, pairs: List[TranslationPair]): List[TranslationPair] = {
 

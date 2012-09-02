@@ -16,7 +16,6 @@ import cz.filmtit.core.io.data.FreebaseMediaSourceFactory
  * @author Joachim Daiber
  */
 
-
 @RunWith(classOf[JUnitRunner])
 class MediaSourceFactorySpec extends Spec {
 

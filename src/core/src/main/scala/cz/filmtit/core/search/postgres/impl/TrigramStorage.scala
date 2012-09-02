@@ -7,11 +7,10 @@ import cz.filmtit.core.Configuration
 import java.sql.Connection
 
 /**
- * Postgres-based retrieval via vector-based full text search.
+ * Postgres-based retrieval via fulltext search based on character trigrams.
  *
  * @author Joachim Daiber
  */
-
 
 class TrigramStorage(
   l1: Language,
