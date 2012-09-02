@@ -7,6 +7,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
 
+/**
+ * A page showing a VLC player demo to test whether the user's browser supports it.
+ * @author karel
+ *
+ */
 public class PlayerDemo extends Composite {
 
 	private static PlayerDemoUiBinder uiBinder = GWT
@@ -15,6 +20,9 @@ public class PlayerDemo extends Composite {
 	interface PlayerDemoUiBinder extends UiBinder<Widget, PlayerDemo> {
 	}
 
+	/**
+	 * Shows the page and plays the video.
+	 */
 	public PlayerDemo() {
 		initWidget(uiBinder.createAndBindUi(this));
 		

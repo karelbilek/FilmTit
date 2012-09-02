@@ -25,7 +25,11 @@ import cz.filmtit.share.parsing.Parser;
 
 import java.util.*;
 
-
+/**
+ * The main page of the application where the actual translations take place.
+ * @author rur
+ *
+ */
 public class TranslationWorkspace extends Composite {
 
 	private static TranslationWorkspaceUiBinder uiBinder = GWT.create(TranslationWorkspaceUiBinder.class);
@@ -59,6 +63,10 @@ public class TranslationWorkspace extends Composite {
      */
     private boolean stopLoading = false;
     
+    /**
+     * Stops loading of translation suggestions into this workspace.
+     * @param stopLoading
+     */
 	public void setStopLoading(boolean stopLoading) {
         for (GetTranslationResults getTranslationResults : sentGetTranslationsResultsCalls.values()) {
 			getTranslationResults.stop();
@@ -67,10 +75,18 @@ public class TranslationWorkspace extends Composite {
 		Gui.log("stopLoading set for the workspace");
 	}
 
+	/**
+	 * Checks whether loading of translation suggestions has been stopped.
+	 */
 	public boolean getStopLoading() {
 		return stopLoading;
 	}
 
+	/**
+	 * The document can be either newly created or loaded from the database.
+	 * @author rur
+	 *
+	 */
 	public enum DocumentOrigin { NEW, FROM_DB }
 	
 	// private DocumentOrigin documentOrigin;
@@ -81,17 +97,20 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
     
-    public Document currentDocument;
+    private Document currentDocument;
 
-    public Document getCurrentDocument() {
-         return currentDocument;
-    }
+//    public Document getCurrentDocument() {
+//         return currentDocument;
+//    }
 
-    public void setCurrentDocument(Document currentDocument) {
+    private void setCurrentDocument(Document currentDocument) {
          this.currentDocument = currentDocument;
          Gui.getPageHandler().setDocumentId(currentDocument.getId());
     }
     
+    /**
+     * Handles the subtitles of the current document.
+     */
     SubtitleSynchronizer synchronizer = new SubtitleSynchronizer();
 
 
@@ -101,6 +120,9 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
 
+    /**
+     * Handles events for all {@link SubgestBox} instances in this workspace.
+     */
     public SubgestHandler subgestHandler;
 
     private List<SubgestBox.FakeSubgestBox> targetBoxes;
@@ -116,14 +138,18 @@ public class TranslationWorkspace extends Composite {
     private String videoPath = null;
     private boolean isVideo=false;
 
-    VLCWidget vlcPlayer;
+    private VLCWidget vlcPlayer;
+    
+    /**
+     * Returns the player associated with this workspace.
+     */
     public VLCWidget getVlcPlayer(){
         return vlcPlayer;
     }
     
     //UI elements for VLC
-    HTMLPanel playerFixedPanel = null;
-    HTMLPanel fixedWrapper = null;
+    private HTMLPanel playerFixedPanel = null;
+    private HTMLPanel fixedWrapper = null;
     
     
     // UI binder fields
@@ -145,9 +171,9 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
     
-    
-    
-
+    /**
+     * Creates and shows the workspace.
+     */
     public TranslationWorkspace(Document doc, String videoPath, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
@@ -215,13 +241,19 @@ public class TranslationWorkspace extends Composite {
 	}
 
     
-    //getting around the VLC bug when it randomly stops 
+    /**
+     * Restarts the player.
+     * Getting around the VLC bug when it randomly stops. 
+     */
     public void reloadPlayer() {
         VLCWidget newWidget = vlcPlayer.higherNonce();
         fixedWrapper.addAndReplaceElement(newWidget, "video");
         vlcPlayer = newWidget;
     }
     
+    /**
+     * Closes the player.
+     */
     public void turnOffPlayer() {
     	if (playerFixedPanel != null) {
             playerFixedPanel.removeFromParent();
@@ -265,7 +297,7 @@ public class TranslationWorkspace extends Composite {
     //                                   //
     ///////////////////////////////////////
     
-    int lastIndex = 0;
+    private int lastIndex = 0;
 
     /**
      * Goes through TranslationResults of an already existing document
@@ -373,23 +405,30 @@ public class TranslationWorkspace extends Composite {
           // now the user can close the browser, chunks are safely saved
      }
 
-     SendChunksCommand sendChunksCommand;
+     private SendChunksCommand sendChunksCommand;
      
-     boolean translationStarted=false;
+     private boolean translationStarted=false;
      /**
       * Creates the SendChunksCommand and, if possible, executes it
       * @param chunklist
       */
-     void prepareSendChunkCommand(List<TimedChunk> chunklist) {
+     private void prepareSendChunkCommand(List<TimedChunk> chunklist) {
            
            
               sendChunksCommand = new SendChunksCommand(chunklist);
           
      }
 
+     /**
+      * Called when the user selects the media source.
+      */
      public void setSourceSelectedTrue() {
          this.sourceSelected = true;
      }
+     
+     /**
+      * Starts requesting trabslation suggestions if not waiting for anything.
+      */
      public void startShowingTranslationsIfReady() {
          if (sourceSelected) {
             if (sendChunksCommand!=null) {
@@ -497,7 +536,7 @@ public class TranslationWorkspace extends Composite {
      //                                   //
      ///////////////////////////////////////
 
-     class ShowUserTranslatedCommand implements RepeatingCommand {
+     private class ShowUserTranslatedCommand implements RepeatingCommand {
         LinkedList<TranslationResult> resultsToDisplay = new LinkedList<TranslationResult>();
 
         public ShowUserTranslatedCommand(List<TranslationResult> chunks) {
@@ -519,7 +558,7 @@ public class TranslationWorkspace extends Composite {
         }
      }
 
-     class ShowOriginalCommand implements RepeatingCommand {
+     private class ShowOriginalCommand implements RepeatingCommand {
          LinkedList<TimedChunk> chunksToDisplay = new LinkedList<TimedChunk>();
         
          /**
@@ -548,7 +587,7 @@ public class TranslationWorkspace extends Composite {
      }
     
 
-     public void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
+     private void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
           if (isVideo) {
               playerFixedPanel = new HTMLPanel("");
               fixedWrapper = new HTMLPanel("");
@@ -562,6 +601,11 @@ public class TranslationWorkspace extends Composite {
           prepareSendChunkCommand(untranslated) ; 
           startShowingTranslationsIfReady() ; 
      }
+     
+     /**
+      * Shows the source chunks.
+      * @param chunks
+      */
      public void showSources(List<TimedChunk> chunks) {
         dealWithChunks(chunks, new LinkedList<TranslationResult>(), chunks);
      }
@@ -644,7 +688,7 @@ public class TranslationWorkspace extends Composite {
      * (i.e. which are parts of the same chunk actually).
      * Very rough and very TODO now.
      */
-    class TimeChangeHandler implements DoubleClickHandler {
+    private class TimeChangeHandler implements DoubleClickHandler {
 
     	private TimedChunk chunk;
     	
@@ -689,7 +733,7 @@ public class TranslationWorkspace extends Composite {
      * Used to change the source of a chunk.
      * Rough and probably TODO now.
      */
-    class SourceChangeHandler implements DoubleClickHandler {
+    private class SourceChangeHandler implements DoubleClickHandler {
 
     	private ChunkIndex chunkIndex;
     	private Label label;
@@ -727,6 +771,9 @@ public class TranslationWorkspace extends Composite {
 		}
     }
     
+    /**
+     * Shows the real subgestbox instead of the fake one.
+     */
     public void replaceFake(TimedChunk chunk, SubgestBox.FakeSubgestBox fake, SubgestBox real) {
         table.remove(fake);
         int id = synchronizer.getIndexOf(chunk);
@@ -735,11 +782,11 @@ public class TranslationWorkspace extends Composite {
         real.setFocus(true);
     }
 
-    public TranslationResult getTranslationResultForIndex(int id) {
-        SubgestBox sb = targetBoxes.get(id).getFather();
-        TranslationResult tr = sb.getTranslationResult();
-        return tr;
-    }
+//    public TranslationResult getTranslationResultForIndex(int id) {
+//        SubgestBox sb = targetBoxes.get(id).getFather();
+//        TranslationResult tr = sb.getTranslationResult();
+//        return tr;
+//    }
 
     /**
      * Add the given TranslationResult to the current listing interface.
@@ -849,7 +896,9 @@ public class TranslationWorkspace extends Composite {
         return true;
     }
 
-
+    /**
+     * Scrolls the page so that the subgestbox isvisible to the user.
+     */
     public void ensureVisible(SubgestBox subbox) {
         Window.scrollTo(
                 Window.getScrollLeft(),
@@ -878,7 +927,9 @@ public class TranslationWorkspace extends Composite {
         return realOffset;
     }-*/;
 
-
+    /**
+     * Sets the subgestbox that is currently active.
+     */
     public void setActiveSuggestionWidget(Widget w) {
         this.activeSuggestionWidget = w;
     }

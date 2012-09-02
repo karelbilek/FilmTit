@@ -35,7 +35,11 @@ import cz.filmtit.client.callables.SetUseMT;
 
 import java.util.Iterator;
 
-
+/**
+ * This page is used to create a new document.
+ * @author rur
+ *
+ */
 public class DocumentCreator extends Composite {
 
 	private static DocumentCreatorUiBinder uiBinder = GWT
@@ -46,8 +50,11 @@ public class DocumentCreator extends Composite {
 
     boolean copyingTitle = true;
 
-    protected FileReader freader;
+    private FileReader freader;
 
+    /**
+     * Shows the page.
+     */
 	public DocumentCreator() {
 		initWidget(uiBinder.createAndBindUi(this));
 		
@@ -193,7 +200,7 @@ public class DocumentCreator extends Composite {
         
 		
         new CreateDocument(
-                getTitle(),
+                getDocumentTitle(),
                 getMovieTitle(),
                 getChosenLanguage(),
                 subtext,
@@ -273,29 +280,26 @@ public class DocumentCreator extends Composite {
     @UiField
     Button btnApplet;
 
-    public String getMoviePathOrNull() {
+    private String getMoviePathOrNull() {
         if (moviePath.getText()==null || moviePath.getText().equals("")) {
             return null;
         }
         return moviePath.getText();
     }
 
-
-
-
-    public String getTitle() {
+    private String getDocumentTitle() {
         return txtTitle.getText();
     }
 
-    public String getMovieTitle() {
+    private String getMovieTitle() {
         return txtMovieTitle.getText();
     }
 
-    public String getChosenLanguage() {
+    private String getChosenLanguage() {
         return lsbLanguage.getValue();
     }
 
-    public String getChosenEncoding() {
+    private String getChosenEncoding() {
         if (rdbEncodingUtf8.getValue()) {
             return "utf-8";
         }

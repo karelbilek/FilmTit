@@ -12,11 +12,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Represents a subtitle chunk.
  * @author Joachim Daiber
  */
 public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-	public boolean isActive = true;
+    /**
+     *  Flag if the chunk is active and therefore core should generate
+     */
+    public boolean isActive = true;
 	
     private volatile String surfaceForm = "";
     
@@ -25,10 +29,19 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     @GwtTransient
     private String[] tokens = null;
 
+    /**
+     * Gets flag if the tokenization of the chunk has been done.
+     * @return
+     */
     public boolean isTokenized() {
         return (tokens != null);
     }
 
+    /**
+     * Sets the array of chunk tokens if the it has not been set before.
+     * @param tokens Array of chunk tokens.
+     * @throws Exception Throws an exception if the resetting of tokenization is attempted.
+     */
     public void setTokens(String[] tokens) throws Exception {
         if (tokens== null) {
             throw new Exception("Cannot unset tokens");
@@ -39,6 +52,11 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.tokens = tokens;
     }
 
+    /**
+     * Gets tokenized chunk as an array of tokens.
+     * @return Array of tokens.
+     * @throws Exception Throws an exception if the chunk hasn't been tokenized.
+     */
     public String[] getTokens() throws Exception {
         if (isTokenized()) {
             return tokens;
@@ -49,39 +67,51 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         }
     }
 
+    /**
+     * Default constructor for GWT.
+     */
     public Chunk() {
     	// nothing
     }
 
+    /**
+     * Crates chunk from surface form and annotations
+     * @param surfaceForm Chunks surface form
+     * @param annotations Annotations of the chunk (e.g. if it is a dialog)
+     */
     public Chunk(String surfaceForm, List<Annotation> annotations) {
         this.surfaceForm = surfaceForm.replace('\u0000',' ');
         this.annotations=annotations;
     }
 
-    
+
+    /**
+     * Creates a chunk from surface form.
+     * @param surfaceForm
+     */
     public Chunk(String surfaceForm) {
         this.surfaceForm = surfaceForm.replace('\u0000',' ');
     }
 
     /**
-     * Only the string, with no annotations (newlines are turned into spaces).
-     * @return
+     * Gets only the string, with no annotations (newlines are turned into spaces).
+     * @return Surface form of the chunk
      */
     public String getSurfaceForm() {
         return surfaceForm;
     }
 
     /**
-     * The string with annotations, as in an SRT file (newlines are turned into |).
-     * @return
+     * Gets the string with annotations, as in an SRT file (newlines are turned into |).
+     * @return Chunk string with annotations
      */
     public String getDatabaseForm() {
         return getFormatedForm("- "," | ");
     }
 
     /**
-     * The string with annotations, as in an SRT file (newlines are turned into |).
-     * @return
+     * Sets the string with annotations, as in an SRT file (newlines are turned into |).
+     * @param form Chunk string with annotations
      */
     public void setDatabaseForm(String form) {
         copyFromOther(Parser.getChunkFromText(form));
@@ -90,7 +120,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     /**
      * The string with annotations, as in an SRT file (newlines are turned into |).
      * Deletes previously existing format annotations.
-     * @return
+     * @param form Chunk string with annotations
      */
     public void setDatabaseFormForce(String form) {
         //how the heck is this different from the previous one?
@@ -99,7 +129,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     /**
      * Copies data from other chunk.
-     * @param other chunk to copy data from
+     * @param other Chunk to copy data from
      */
     public void copyFromOther(Chunk other) {
         setSurfaceForm(other.getSurfaceForm());
@@ -154,7 +184,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     /**
      * Only the string, with no annotations (newlines are turned into spaces).
-     * @return
+     * @return Surface form of the chunk
      */
     public void setSurfaceForm(String surfaceform) {
         this.surfaceForm = surfaceform.replace('\u0000', ' ');
@@ -207,8 +237,8 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
     }
  
     /**
-     * The string with annotations in HTML form (newlines are turned into <br />).
-     * @return
+     * Gets the string with annotations in HTML form (newlines are turned into <br />).
+     * @return GUI form of the chunk text
      */
     public String getGUIForm(){
         return getFormatedForm("- ", "<br />");
@@ -235,7 +265,8 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 //    }
     
     /**
-     * Add new annotations, keeping the original ones.
+     * Adds new annotations, keeping the original ones.
+     * @param annotations Annotations to be added
      */
     public void addAnnotations(Collection<Annotation> annotations) {
         if (this.annotations == null)
@@ -246,7 +277,7 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
 
     /**
      * Set new formatting annotations, deleting the previous ones.
-     * @param annotations
+     * @param annotations Annotations to be set
      */
     public void setFormattingAnnotations(Collection<Annotation> annotations) {
     	// remove old formatting annotations = readd non-formatting annotations
@@ -270,6 +301,10 @@ public class Chunk implements com.google.gwt.user.client.rpc.IsSerializable, Ser
         this.annotations = newAnnotations;
     }
 
+    /**
+     * Removes annotation of given index in the list of annotations.
+     * @param index Annotation index
+     */
     public void removeAnnotation(int index) {
         if (this.annotations != null)
             this.annotations.remove(index);

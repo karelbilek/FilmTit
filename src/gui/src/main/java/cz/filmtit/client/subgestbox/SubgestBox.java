@@ -33,6 +33,19 @@ import cz.filmtit.share.annotations.AnnotationType;
 /**
  * Variant of a TextBox with pop-up suggestions
  * taken from the given TranslationResult.
+ * 
+ * The SubgestBox, or SUBtitle sugGESTion BOX,
+ * provides a textbox-like interface and visualizes the TM results,
+ * offering a variety of means of navigation through them.
+ * It is based on the IFrame HTML element to support also multi-line and formatted inputs.
+ * 
+ * The TM results are shown as a pop-up suggestion list when the textbox is focused in a {@link SubgestPopupStructure}.
+ * 
+ * Another features like auto-scrolling to a certain place of the screen and height auto-adjustment for multi-line inputs
+ * were added to improve the user experience.
+ * The behaviour and features mentioned requires a custom event handling,
+ * this is provided by a {@link SubgestHandler} instance
+ * (common to all the SubgestBoxes within a {@link TranslationWorkspace}).
  */
 public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
 	private TimedChunk chunk;
