@@ -11,6 +11,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.LocalStorageHandler;
 
+/**
+ * Informs the user that there is no connection to the server
+ * and offers them to turn on the Offline Mode.
+ * @author rur
+ *
+ */
 public class GoingOfflineDialog extends Dialog {
 
 	private static GoingOfflineDialogUiBinder uiBinder = GWT
@@ -20,6 +26,9 @@ public class GoingOfflineDialog extends Dialog {
 			UiBinder<Widget, GoingOfflineDialog> {
 	}
 
+	/**
+	 * Shows the dialog.
+	 */
 	public GoingOfflineDialog() {
 		super();
 		initWidget(uiBinder.createAndBindUi(this));

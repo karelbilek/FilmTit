@@ -14,7 +14,11 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.share.Document;
 
 
-
+/**
+ * A dialog that enables the user to download the subtitles.
+ * @author rur
+ *
+ */
 public class DownloadDialog extends Dialog {
 
 	private static DownloadDialogUiBinder uiBinder = GWT
@@ -23,8 +27,12 @@ public class DownloadDialog extends Dialog {
 	interface DownloadDialogUiBinder extends UiBinder<Widget, DownloadDialog> {
 	}
 	
-    Document document;
+    private Document document;
 
+    /**
+     * Shows the dialog.
+     * @param document
+     */
 	public DownloadDialog(Document document) {
 		super();
         initWidget(uiBinder.createAndBindUi(this));
@@ -35,7 +43,7 @@ public class DownloadDialog extends Dialog {
         txtButton.addClickHandler(new HandlerForFormat("txt"));
 	}
 
-    String detectWay() {
+    private String detectWay() {
         if (source.getValue()) {
             return "source";
         }
@@ -45,11 +53,11 @@ public class DownloadDialog extends Dialog {
         return "targetthrowback";
     }
 
-    String generateUrl(String way, String format) {
+    private String generateUrl(String way, String format) {
         return "/download/download?docId="+document.getId()+"&sessionId="+Gui.getSessionID()+"&type="+format+"&way="+way;
     }
 
-    class HandlerForFormat implements ClickHandler {
+    private class HandlerForFormat implements ClickHandler {
 
     	private String format;
 

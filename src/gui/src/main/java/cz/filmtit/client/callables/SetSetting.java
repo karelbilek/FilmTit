@@ -6,6 +6,7 @@ import cz.filmtit.share.exceptions.InvalidValueException;
 
 /**
  * An ancestor to methods setting some settings.
+ * The settings page is informed about the success or failure on return.
  */
 public abstract class SetSetting<T> extends Callable<Void> {
 	
@@ -39,7 +40,6 @@ public abstract class SetSetting<T> extends Callable<Void> {
         settingsPage.settingError(message);
     }
     
-    // constructor
     /**
      * Does <b>not</b> enqueue the call immediately,
      * call enqueue() explicitly!

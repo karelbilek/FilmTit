@@ -8,6 +8,11 @@ import cz.filmtit.client.pages.Settings;
  */
 public class SetUsername extends SetSetting<String> {
 
+    /**
+     * Change user's username.
+     * Does <b>not</b> enqueue the call immediately,
+     * call enqueue() explicitly!
+     */
 	public SetUsername(String setting, Settings settingsPage) {
 		super(setting, settingsPage);
 	}

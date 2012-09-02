@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.Widget;
@@ -19,7 +18,12 @@ import cz.filmtit.client.callables.SendChangePasswordMailByMail;
 import cz.filmtit.client.callables.SimpleLogin;
 import cz.filmtit.share.AuthenticationServiceType;
 
-
+/**
+ * A dialog enabling the user to log in, register, or retrieve forgotten password.
+ * Also shows error messages in case the requested operation fails.
+ * @author rur
+ *
+ */
 public class LoginDialog extends Dialog {
 
 	private static LoginDialogUiBinder uiBinder = GWT
@@ -527,11 +531,19 @@ public class LoginDialog extends Dialog {
 	
     // TODO: these methods should be elsewhere and should be made better
     
+    /**
+     * Checks whether the username can be used
+     * (does not check whether it is free).
+     */
     public static boolean checkUsername(String username) {
         // TODO
     	return (!username.isEmpty());
     }
     
+    /**
+     * Checks whether the email is not completely invalid in a simple way.
+     * A full check is performed in User Space.
+     */
     public static boolean checkEmailValidity(String email) {
         // TODO
     	if (email.length() >= 5 && email.contains("@") && email.contains(".")) {
@@ -541,6 +553,9 @@ public class LoginDialog extends Dialog {
     	}
     }
     
+    /**
+     * Checks whether the two passwords are identical.
+     */
     public static boolean checkPasswordsMatch(String password1, String password2) {
     	if (password1.equals(password2)) {
     		return true;
@@ -549,6 +564,9 @@ public class LoginDialog extends Dialog {
     	}
 	}
     
+    /**
+     * Checks whether the password matches the password strength policy.
+     */
     public static boolean checkPasswordStrength(String password) {
         // TODO (but maybe keep that way)
         if (password.length() >= 3) {

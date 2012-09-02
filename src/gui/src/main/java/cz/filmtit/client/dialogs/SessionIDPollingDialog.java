@@ -11,7 +11,11 @@ import com.google.gwt.user.client.ui.Widget;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.callables.SessionIDPolling;
 
-
+/**
+ * Shown when waiting for OpenID login process to complete in GUI.
+ * @author rur
+ *
+ */
 public class SessionIDPollingDialog extends Dialog {
 
 	private static SessionIDPollingDialogUiBinder uiBinder = GWT
@@ -21,8 +25,13 @@ public class SessionIDPollingDialog extends Dialog {
 			UiBinder<Widget, SessionIDPollingDialog> {
 	}
 
-	SessionIDPolling sessionIDPolling;
+	private SessionIDPolling sessionIDPolling;
 	
+	/**
+	 * Shows the dialog.
+	 * @param sessionIDPolling The callable polling the User Space for session ID.
+	 * Passed to be able to cancel the polling from within the dialog by clicking the Cancel button.
+	 */
 	public SessionIDPollingDialog(SessionIDPolling sessionIDPolling) {
 		super();
 		initWidget(uiBinder.createAndBindUi(this));

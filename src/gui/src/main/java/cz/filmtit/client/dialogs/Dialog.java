@@ -28,6 +28,9 @@ public abstract class Dialog extends Composite {
     @UiField
     CustomModal dialogBox;
     
+    /**
+     * Calls {@link onHide} if the modal is closed by user.
+     */
     @UiHandler("dialogBox")
     final void modalClosed(HiddenEvent e) {
     	if (!closedByClose) {
@@ -61,12 +64,18 @@ public abstract class Dialog extends Composite {
 	}
 
 	/**
-     * Elements enabled and disabled on callind reactivate() and deactivate() respectively.
+     * Elements enabled and disabled on calling reactivate() and deactivate() respectively.
      */
     protected HasEnabled[] enablableElements;
     
+    /**
+     * The element to be focused on opening the dialog.
+     */
     protected Focusable focusElement;
     
+    /**
+     * Shows the dialog and focuses focusElement
+     */
     public Dialog() {
     	
     	// show the Dialog when everything is prepared
