@@ -402,17 +402,20 @@ The tokenization of the input sentences, however, turned out to be problematic. 
 % (since tokenization does not seem like a big problem at the first glance),
 we simply tokenized the input with the OpenNLP tokenizers and we let Moses use its own tokenizers.
 
-Moses, however, tokenizes English slightly differently. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. These are very widely used and their wrong tokenization
+Moses, however, tokenizes English slightly differently. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. Although there is only a small number of such cases, the contractions are very widely used and their wrong tokenization
 drammatically decreases the quality of the translations produced.
 % will, of course, produce very wrong results.
 
-For that reason, we had to add some corrections of tokenization for the contraction suffixes -- there are not that many of them, but they are so frequent and important that we had to fix it somehow. Those corrections are hardcoded in the \texttt{MosesSearcher.scala}. This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
-\todo{this will require more rewriting, I will push now and do that afterwards}
+For that reason, we had to add several corrections of tokenization for the contraction suffixes.
+% -- there is only a small number of them, but they are very frequent and important that we had to fix it somehow.
+Those corrections are hardcoded in the \texttt{MosesSearcher.scala}.
+An optimal solution would be to use exactly the same tokenizers both in our application and in Moses training; we leave this as a possible future improvement.
+% This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
 
 \section{Candidate Ranking}
 \label{sec:ranking}
 
-After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and how well they fit the queried chunk. We use different methods for ranking the candidates retrieved by the various candidate retrieval methods. In the following section, we will briefly describe the ranking methods for each retrieval method.
+After retrieving candidates for a query, the candidate translation pairs must be ranked according to their quality and their similarity to the queried chunk. We use different methods for ranking the candidates retrieved by the various candidate retrieval methods. In the following section, we will briefly describe the ranking methods for each retrieval method.
 
 All ranking methods are based on a combination of scores. Depending on the retrieval method, we assign every translation pair candidate a set of scores, which are then combined into a final score. Translation pairs are ordered by this score.
 
@@ -420,10 +423,11 @@ To learn the best combination of scores, we manually selected translations for h
 
 \subsection{Training the Models}
 
-For the manual annotation required to estimate weights for the scores, we started the translation memory with only the corresponding backoff level (e.g.\ exact matching or fuzzy matching) and translated heldout subtitle files using the translation workspace. After uploading and finishing the subtitle files, the class {\tt cz.filmtit.dataimport.training.GenerateTrainingset} can be used to generate a CSV file in WEKA-compatible format which can then be used to train a model.
+For the manual annotation required to estimate weights for the scores, we started the translation memory with only the corresponding backoff level (e.g.\ exact matching or fuzzy matching) and manually translated several heldout subtitle files using the translation workspace (no post-editing was done, the annotators were instructed to only choose the best translation suggestion if possible). After uploading and finishing the subtitle files, the class {\tt cz.filmtit.dataimport.training.GenerateTrainingset} can be used to generate a CSV file in WEKA-compatible format which can then be used to train a model.
 
 For creating positive and negative instances, chunks without any suggestions from the translation memory are ignored. If a translation pair was selected, it is used as a positive example. If no translation pair was selected by the user, a random translation pair from the first ten suggestions is selected and used as a negative example. We select 
 
+\todo{seems like a missing idea}
 
 \subsection{Ranking for Exact Matches}
 
@@ -440,10 +444,10 @@ The ranking for exact matches uses a linear regression model with the following 
 	Percentage indicting how much the genres of the queried media source overlap with the genres of the sources of the translation pair.
 
 	\item \textbf{length difference between source and translation}\\
-	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of high quality (in most good translation pair candidates,  the length source and target side should not differ in length significantly).
+	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of a high quality -- in most cases of well-aligned texts, the source and target side does not differ in length significantly.
 	
 	\item \textbf{final punctuation}\\
-	Feature indicating whether the final punctuation of the queried chunk and the candidate translation match.
+	Feature indicating whether the final punctuations of the queried chunk and the candidate translation match.
 	
 	
 	
@@ -472,12 +476,11 @@ The ranking for exact matches uses a linear regression model with the following 
 	\item \textbf{length difference between query and source}\\
 	The length difference between the queried chunk and the source side of the translation pair candidate 
 
-
 	\item \textbf{length difference between source and translation}\\
-	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of high quality (in most good translation pair candidates,  the length source and target side should not differ in length significantly).
+	The length difference between the source and target side of the translation pair candidate may indicate that an alignment is not of a high quality -- in most cases of well-aligned texts, the source and target side does not differ in length significantly.
 	
 	\item \textbf{final punctuation}\\
-	Feature indicating whether the final punctuation of the queried chunk and the candidate translation match.
+	Feature indicating whether the final punctuations of the queried chunk and the candidate translation match.
 
 \end{itemize}
 
@@ -485,7 +488,7 @@ The ranking for exact matches uses a linear regression model with the following 
 
 \section{Merging Similar Candidates}
 
-After all translation pair candidates are retrieved and ranked on each level, we attempt to merge translation pairs that are too similar, so not to present the user with several choices that differ only very slightly.
+After all translation pair candidates are retrieved and ranked on each level, we attempt to merge translation pairs that are too similar, not to present the user with several choices that differ only very slightly.
 
 As a translation pair merger, we currently use an implementation based on Levenshtein distance, which removes all candidates whose similarity to a higher-scoring candidate are below a given threshold (1 by default).
 
@@ -506,7 +509,7 @@ We use the same method for parallelizing the tokenization of Chunks, since it is
 
 \subsection{Keeping the Database Up-To-Date}
 
-Since we want to ensure good retrieval performance, the core database is read-only in production mode. The user's translations that are stored in the User Space already are periodically added to the core database as new translation pairs and the indexes of all searchers are updated in turn.
+Since we want to ensure good retrieval performance, the core database is read-only in production mode. The user's translations that are stored in the User Space are periodically added to the core database as new translation pairs and the indexes of all searchers are updated in turn.
 
 
 
