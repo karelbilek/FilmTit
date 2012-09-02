@@ -639,9 +639,8 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public Void logout(String sessionID) throws InvalidSessionIdException {
         Session session = getSessionIfCan(sessionID);
-        session.logout();
+        removeSessionIfExist(session.getUser(), null);
         logger.info("Login","User " + session.getUser().getUserName() + " logged out.");
-        activeSessions.remove(sessionID);
 
         return null;
     }
@@ -984,17 +983,19 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Safely removes session of a given user if exists
      * @param user User whose session is supposed to be removed
      */
-    private synchronized void removeSessionIfExist(USUser user, boolean kill) {
+    private synchronized void removeSessionIfExist(USUser user, Boolean kill) {
         if (usersSessionIds.containsKey(user.getDatabaseId())) {
             String oldSessionId = usersSessionIds.get(user.getDatabaseId());
             Session sessionToRemove = activeSessions.get(oldSessionId);
 
+            if (sessionToRemove != null) {
+                if (kill == null) { sessionToRemove.logout(); }
+                else if (kill) { sessionToRemove.kill(); }
+                else { sessionToRemove.terminateOnNewLogin(); }
 
-           if (kill) { sessionToRemove.kill(); }
-           else { sessionToRemove.terminateOnNewLogin(); }
-
-            activeSessions.remove(oldSessionId);
-            usersSessionIds.remove(user.getDatabaseId());
+                activeSessions.remove(oldSessionId);
+                usersSessionIds.remove(user.getDatabaseId());
+            }
         }
     }
 

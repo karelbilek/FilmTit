@@ -3,7 +3,8 @@
              xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
              xmlns:g="urn:import:com.google.gwt.user.client.ui">
     <g:HTMLPanel>
-	<a href="javascript: history.go(-1)">Back to document creation</a>
+    
+    <b:NavLink ui:field="backLink" targetHistoryToken="DocumentCreator">Back to document creation</b:NavLink>
 	
         <b:PageHeader>Playback Info</b:PageHeader>
 
@@ -29,7 +30,7 @@
 		</b:Paragraph>
 		
 		<b:Paragraph>
-			<a href="#PlayerDemo">You can test, whether you have VLC plugin installed, here.</a>
+		    <b:NavLink ui:field="playerDemoLink" targetHistoryToken="PlayerDemo">You can test, whether you have VLC plugin installed, here.</b:NavLink>
 		</b:Paragraph>
 	
         <b:Heading size="5">Windows installation</b:Heading>

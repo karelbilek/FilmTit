@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.callables.Logout;
@@ -61,6 +62,14 @@ public class GuiStructure extends Composite {
 		RootPanel rootPanel = RootPanel.get();
         rootPanel.add(this, 0, 0);
 
+	}
+	
+	/**
+	 * Displays the given page in the content panel
+	 * @param page
+	 */
+	public void showPageInPanel(Widget page) {
+		contentPanel.setWidget(page);
 	}
 	
     ///////////////////////////////////////
@@ -192,6 +201,10 @@ public class GuiStructure extends Composite {
 
 		@Override
 		public void onClick(ClickEvent event) {
+			if (pageUrl == Page.DocumentCreator) {
+				// loading a new DocumentCreator
+				Gui.getPageHandler().forgetCurrentDocumentCreator();
+			}
 			Gui.getPageHandler().loadPage(pageUrl, true);
 		}
 		
