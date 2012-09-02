@@ -49,7 +49,7 @@ public class ChangePassToken {
 
 
    /**
-    * Check if actual instance is still active and
+    * Checks if actual instance is still active and
     * its time limit is not expired
     * @return Validity of actual instance
     */
@@ -59,28 +59,28 @@ public class ChangePassToken {
     }
 
    /**
-    * Deactivate actual instance
+    * Deactivates actual instance
     */
     public void deactivate() {
         this.active = false;
     }
 
    /**
-    * Activate actual instance
+    * Activates actual instance
     */
     public boolean active() {
         return this.active;
     }
 
    /**
-    * Set time limit of validation
+    * Sets time limit of validation
     */
     private void setValidTo(Date validTo) {
         this.validTo = validTo;
     }
 
    /**
-    * Set token to actual instance
+    * Sets token to actual instance
     */
     private void setToken(String token) {
         this.token = token;

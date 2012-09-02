@@ -67,7 +67,7 @@ public class SeznamData{
     }
 
     /**
-     * Get extracted login
+     * Gets extracted login
      * @return   login
      */
     public String getLogin(){
@@ -75,7 +75,7 @@ public class SeznamData{
     }
 
     /**
-     * Get extracted openID
+     * Gets extracted openID
      * @return  openID
      */
     public String getOpenId(){
@@ -83,7 +83,7 @@ public class SeznamData{
     }
 
     /**
-     Get extracted email address
+     Gets extracted email address
      * @return email address
      */
     public String getEmail(){

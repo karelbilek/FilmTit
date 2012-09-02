@@ -42,6 +42,10 @@ public class USLogger {
         logDbLevel = LevelLogEnum.DebugNotice;
     }
 
+    /**
+     * Gets instance of USLogger
+     * @return instance of USLogger
+     */
     public synchronized static USLogger getInstance(){
         if (logger == null){
             logger = new USLogger();
@@ -118,7 +122,7 @@ public class USLogger {
     }
 
     /**
-     * Log message with debug level
+     *Creates log message with debug level
      * @param context base of log
      * @param message whole message to log
      */
@@ -127,7 +131,7 @@ public class USLogger {
     }
 
     /**
-     * Log message with info level
+     * Creates log message with info level
      * @param context base of log
      * @param message whole message to log
      */
@@ -136,7 +140,7 @@ public class USLogger {
     }
 
     /**
-     * Log message with warning level
+     * Creates log message with warning level
      * @param context base of log
      * @param message whole message to log
      */
@@ -145,7 +149,7 @@ public class USLogger {
     }
 
     /**
-     * Log message with error level
+     * Creates log message with error level
      * @param context base of log
      * @param message whole message to log
      */

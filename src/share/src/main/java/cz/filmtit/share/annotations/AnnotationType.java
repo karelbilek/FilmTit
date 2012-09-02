@@ -2,12 +2,11 @@ package cz.filmtit.share.annotations;
 
 import java.io.Serializable;
 
-//There is only one class for all types of annotations
-//basically because Java doesn't have enum inheritance
-//And I thought using enums is easier for everyone
-//
-//downside: less general
-//upside: all annotations are defined on one place
+/**
+ *  Definition of annotation type like enums.
+ *
+ */
+
 public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
     PLACE("Place"),
@@ -16,23 +15,43 @@ public enum AnnotationType implements com.google.gwt.user.client.rpc.IsSerializa
     LINEBREAK("LineBreak"),
     DIALOGUE("Dialogue");
 
+    /**
+     * Text description of type
+     */
     private String description;
 
     AnnotationType() {
     }
 
+    /**
+     * Creates object with description
+     * @param description item enum like string
+     */
     AnnotationType(String description) {
         this.description=description;
     }
 
+    /**
+     * Gets text description
+     * @return
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Sets text description
+     * @param description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     * Creates annotation from text description
+     * @param description  - text description
+     * @return  AnnotationType item
+     */
     public static AnnotationType fromDescription(String description) {
         if (description.equals("Place")) {
             return PLACE;
