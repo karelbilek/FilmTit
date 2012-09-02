@@ -33,7 +33,7 @@ public class TimedAuthenticationWrapper {
      * Gets the time the object was created.
      * @return The time the object was created.
      */
-    public long getCreationTime() { return getCreationTime(); }
+    public long getCreationTime() { return creationTime; }
 
     /**
      * Gets the JOpenID authentication object.
