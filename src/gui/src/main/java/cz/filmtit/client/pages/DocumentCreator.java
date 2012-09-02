@@ -154,8 +154,8 @@ public class DocumentCreator extends Composite {
             public void onClick(ClickEvent event) {
                 
                 
-                FileLoadWidget.setDocumentCreator(DocumentCreator.this);
-                FileLoadWidget loadWidget = new FileLoadWidget();
+                //FileLoadWidget.setDocumentCreator(DocumentCreator.this);
+                FileLoadWidget loadWidget = new FileLoadWidget(DocumentCreator.this);
                 bottomControlGroup.add(loadWidget);
                 btnApplet.setLoadingText("Loading....");
                 btnApplet.state().loading();
