@@ -13,16 +13,28 @@ import java.util.Date;
  */
 public class USLogger {
 
+    /**
+     * Instacne of USLogger
+     */
     private static USLogger logger = null;
+    /**
+     *  Level log message for console
+     */
     private LevelLogEnum logConsoleLevel;
+    /**
+     * Level log message for db
+     */
     private LevelLogEnum logDbLevel;
     /**
      * Instance of the singleton class for managing database sessions.
      */
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
+    /**
+     *   Apache logger for console
+     */
     private Log jLogger =  null;
-    private LevelLogEnum base = LevelLogEnum.Notice;
+
 
     private USLogger(){
         jLogger = LogFactory.getLog("Userspace/Gui");
@@ -36,6 +48,7 @@ public class USLogger {
         }
         return logger;
     }
+
 
 
     /**
@@ -104,18 +117,38 @@ public class USLogger {
         }
     }
 
+    /**
+     * Log message with debug level
+     * @param context base of log
+     * @param message whole message to log
+     */
     public void debug(String context, String message){
         log(LevelLogEnum.DebugNotice,context,message);
     }
 
+    /**
+     * Log message with info level
+     * @param context base of log
+     * @param message whole message to log
+     */
     public void info(String context, String message){
         log(LevelLogEnum.Notice,context,message);
     }
 
+    /**
+     * Log message with warning level
+     * @param context base of log
+     * @param message whole message to log
+     */
     public void warning(String context, String message){
         log(LevelLogEnum.Warning,context,message);
     }
 
+    /**
+     * Log message with error level
+     * @param context base of log
+     * @param message whole message to log
+     */
     public void error(String context, String message){
         log(LevelLogEnum.Error,context,message);
     }

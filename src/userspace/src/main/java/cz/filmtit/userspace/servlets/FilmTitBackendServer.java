@@ -449,9 +449,15 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
             // if no exception was thrown, everything is OK
             if (isSeznamOpenId(authentication.getIdentity())){
                 SeznamData seznam = new SeznamData(responseURL);
-                authentication.setEmail(seznam.getEmail());
-                authentication.setFirstname(seznam.getLogin());
-                authentication.setIdentity(seznam.getOpenId());
+                if (seznam.isOk())
+                {
+                    authentication.setEmail(seznam.getEmail());
+                    authentication.setFirstname(seznam.getLogin());
+                    authentication.setIdentity(seznam.getOpenId());
+                }
+                else{
+                    throw  new UnsupportedEncodingException("Seznam data not parsed");
+                }
             }
 
             finishedAuthentications.put(authID, new TimedAuthenticationWrapper(authentication));
