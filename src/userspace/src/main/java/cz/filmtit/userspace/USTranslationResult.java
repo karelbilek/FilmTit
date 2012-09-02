@@ -131,7 +131,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * Sets the original text of the chunk. It is used by Hibenrate only.
+     * Sets the original text of the chunk. It is used by Hibernate only.
      * @param text Original text of the chunk.
      * @throws IllegalAccessException
      */
@@ -195,7 +195,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * Gets the chunk identifier which is unique within a document and is used for identifying the
+     * Gets the subtitle item identifier which is unique within a document and is used for identifying the
      * chunks during the communication between the GUI and User Space. The getter of the wrapped
      * object is called.
      * @return The chunk identifier.
@@ -205,7 +205,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     }
 
     /**
-     * Sets the chunk identifier which is unique within a document. The property is immutable.
+     * Sets the subtitle item identifier which is unique within a document. The property is immutable.
      * Once the value is set, later attempts to reset the value throw an exception. The setter
      * of the wrapped object is called in this method.
      * @param sharedId A new value of the chunk identifier.
@@ -232,7 +232,7 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
     /**
      * The database ID is not used in the wrapped object, it does nothing. (Called by the setDatabaseId setter
      * in DatabaseObject.)
-     * @param setSharedDatabaseId
+     * @param setSharedDatabaseId Subtitle item ID
      */
     protected void setSharedClassDatabaseId(long setSharedDatabaseId) { }
 

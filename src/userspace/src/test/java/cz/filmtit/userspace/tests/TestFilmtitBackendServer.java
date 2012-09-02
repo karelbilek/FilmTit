@@ -198,6 +198,14 @@ public class TestFilmtitBackendServer {
         activeSessionsField.setAccessible(true);
         activeSessionsField.set(server, activeSessions);
 
+        Map<Long, String> usersSessionIds = Collections.synchronizedMap(new HashMap<Long, String>());
+        usersSessionIds.put(session.getUserDatabaseId(), sessionId);
+
+        Field usersSessionIdsField = FilmTitBackendServer.class.getDeclaredField("usersSessionIds");
+        usersSessionIdsField.setAccessible(true);
+        usersSessionIdsField.set(server, usersSessionIds);
+
+
         return sessionId;
     }
 
