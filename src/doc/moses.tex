@@ -9,8 +9,8 @@ Since we focus mainly on English to Czech translation, we modeled, trained and t
 This chapter requires some knowledge of phrase-based translation models and Moses in general. If you are not familiar with either, the short version of this chapter is that we are getting -- on subtitles -- better results with our machine translation than Google Translate, we are getting it fast, and we were able to fit it on a rather small virtual machine.
 
 
-\section{Initial setup}
-\subsection{Initial settings}
+\section{Initial Setup}
+\subsection{Initial Settings}
 
 For training machine translation, we use our subtitle corpus, aligned by techniques described in Section~\ref{sec:aligning_subtitles}. Since we want to be more exact in this case, we used a more strict alignment, with 0.6\,s tolerance.
 
@@ -36,7 +36,7 @@ For reference on quality, we also translated the test set with Google Translate.
 \end{figure}
 
 We can see the initial set-up in Figure~\ref{moses:initial}.
-\subsection{Initial results}
+\subsection{Initial Results}
 
 The initial results are shown below.
 
@@ -60,8 +60,8 @@ The time looked good on the first glance; however, real times observed did not l
 
 Also, even when we did not optimize for time spent on initial learning, the learning phase was too long to make any experiments effective. We addressed this issue, too.
 
-\section{Changes in the set-up}
-\subsection{Tuning set size}
+\section{Changes in the Setup}
+\subsection{Tuning Set Size}
 The biggest issue with the training was actually the MERT tuning. If we cut down the number of phrases for MERT tuning, the time for tuning decreases significantly, while the BLEU doesn't decrease that much.
 \begin{table}[h]
 \begin{center}
@@ -76,12 +76,12 @@ The biggest issue with the training was actually the MERT tuning. If we cut down
 \caption{Tuning set size decrease}\label{moses:initialresults}
 \end{table}
 
-\subsection{Turning off the filtering}
+\subsection{Turning Off the Filtering}
 To know the real time of the translation, we needed to turn off the filtering in EMT, which required some slight modification in the source code. 
 
 However, after that, we found out, that unfiltered models simply will not fit into the memory of the machine. Therefore, we had to both binarize the models and prune the phrase table.
 
-\subsection{Pruning the phrase table}
+\subsection{Pruning the Phrase Table}
 Retrieving suitable elements from the translation table takes most of the time of the entire translation task. Therefore, making it smaller would make the translation task quicker.
 
 As a first idea, we tried to prune the phrase table by using some factoring like short stems instead of full words. However, this showed up as a dead end; too short stems produce an absolutely empty phrase table, and longer stems do not shrink the phrase table significantly.
@@ -105,7 +105,7 @@ As described in the original paper, pruning the table actually did increase the 
 \caption{Pruning the phrase table}\label{moses:tablepruning}
 \end{table}
 
-\subsection{Binarizing the models}
+\subsection{Binarizing the Models}
 All models -- reordering model, language model and translation table (both pruned and upruned) -- can be binarized. Binarization is a process in which the table is written in such a format that can be read from disk and loaded to memory only on-demand.
 
 Binarizing is done primarily for a decrease of the memory requirement, not for making the translation faster. Actually, we originally expected the binarized models to be slower, since  reading from disk  is slower than reading from memory.
@@ -139,7 +139,7 @@ We can also notice that the unpruned binarized table takes about as much memory 
 
 Another issue is that for the pruned table, the time is almost inversely proportional to the number of threads, but not in the case of the unpruned table. We can only speculate why this is the case; maybe it is because the disk performance is ``hitting'' us more in the case of the bigger unpruned table.
 
-\subsection{Smaller cube pruning}
+\subsection{Smaller Cube Pruning}
 Cube pruning is a way to search the hypothesis space in phrase-based translations\footnote{For more information, see \emph{Hierarchical Phrase-Based Translation}, David Chiang, 2007}. It adds a number of  hypotheses into a stack, which is then pruned; this number can be set up as \texttt{cube-pruning-pop-limit}.
 
 It has been implemented in Moses and is default when using EMS, the number is set as 5000. We found out that by decreasing this number, we can make the translation faster with only a minor change in BLEU score.
@@ -209,7 +209,7 @@ To reiterate, our final Moses settings:
 
 This model (i.e.\ the actual model files, the \texttt{moses.ini} file and the script to run Moses as a server with correct settings) are both part of the project and on the virtual machine.
 
-\subsection{Virtual machine}
+\subsection{Virtual Machine}
 All experiments were done on a testing machine.
 
 The production machine, which we were provided by the university, had less cores and less memory, so we actually \emph{had} to use all binarized models (since unbinarized translation table does not fit into memory) and, because there are only 2 cores, we use only 2 threads. Also, we have a slight problem with the space, since the reordering model alone takes about 7GB of space, and together with the space of database it barely fits on the virtual machine, so because of Moses, we have to run with only 1.5GB of free space.

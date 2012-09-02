@@ -1,4 +1,4 @@
-This chapter describes the design and implementation of the core translation memory. The core translation memory is the part of the project that is responsible for retrieving and ranking suitable suggestions for chunks in the subtitle file that the user is translating.
+This chapter describes the design and implementation of the core translation memory. The core translation memory is the part of the project that is responsible for retrieving and ranking suitable translation suggestions for chunks in the subtitle file that the user is translating.
 
 \section{Preliminaries}
 
@@ -35,9 +35,9 @@ fulfills the requirements as follows:
 \end{itemize}
 
 For managing connections to the database in Java and Scala, we use JDBC, 
-which allows the database connection to easily use another DBMS. 
+which would allow the database connection to easily use another DBMS. 
 In the XML-based configuration file (see the installation manual, Chapter~\ref{chap:technical_manual}), the JDBC connector
-and username and password to the database have to be specified. When testing the
+has to be specified, together with the username and password to the database. When testing the
 translation memory with project-internal unit tests, we replace the production JDBC
 configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://hsqldb.org/}}).
 
@@ -53,9 +53,9 @@ configuration with a temporary in-memory database (HSQLDB\footnote{\url{http://h
 
 \subsection{Retrieving Media Source Information}
 
-For retrieving information about media sources, we initially used a free IMDB API (\url{http://imdbapi.com/}). However, it showed that this API might become unreliable in the future and indeed, as of July 30, the API had been shut down. To avoid complications early, we switched to the Freebase API\footnote{\url{http://www.freebase.com/}}. Freebase is a large knowledge base of structured data based on data extracted from Wikipedia and other publicly available resources and continually extended by users.
+For retrieving information about media sources, we initially used a free IMDB API (\url{http://imdbapi.com/}). However, it showed that this API might become unavailable in the future and indeed, as of July 30, the API had been shut down. To avoid complications early, we switched to the Freebase API.\footnote{\url{http://www.freebase.com/}} Freebase is a large knowledge base of structured data based on data extracted from Wikipedia and other publicly available resources and continually extended by users.
 
-To retrieve media source candidates, first a full text search query with the title and a restriction to entities of type \emph{film}\footnote{Freebase type: /film/film.} and \emph{TV program}\footnote{Freebase type: /tv/tv\_program.} is sent to the Freebase API. Afterwards additional information for each candidate is retrieved and the {\tt MediaSource} objects are sent to the GUI for the best match to be selected by the user.
+To retrieve media source candidates, first a full text search query with the title and a restriction to entities of type \emph{film}\footnote{Freebase type: /film/film.} and \emph{TV program}\footnote{Freebase type: /tv/tv\_program.} is sent to the Freebase API. Afterwards additional information for each candidate is retrieved and the {\tt MediaSource} objects are sent to the GUI as media source suggestions for the user to select the best one.
 
 
 
@@ -65,7 +65,7 @@ To retrieve media source candidates, first a full text search query with the tit
 The core translation memory consists of the database of chunks and media
 sources (movies and TV shows) which are indexed in several ways for fast
 retrieval. A query to the translation memory generally proceeds in two
-steps: In a first step, translation pairs for a chunk are retrieved from
+steps: In the first step, translation pairs for a chunk are retrieved from
 the database. The second step consists of ranking the candidates
 retrieved in the first step according to their quality and how well they
 match the query. If the quality of the retrieved candidates exceeds a
@@ -146,10 +146,10 @@ def reindex()
 \subsection{Tokenization}
 \label{sec:tokenization}
 
-For all program-based retrieval methods, we tokenize, i.e.\ separate the input sentence into individual tokens,
-all inputs, using tokenizers provided by the Apache OpenNLP project.\footnote{\url{http://opennlp.apache.org/}}
+For all program-based retrieval methods, we tokenize all inputs, i.e.\ we separate each input sentence into individual tokens (typically words). 
+We use the tokenizers provided by the Apache OpenNLP project.\footnote{\url{http://opennlp.apache.org/}}
 OpenNLP provides both unsupervised and supervised methods of tokenization. 
-As a default tokenizer, we use an unsupervised tokenizer that splits the input
+As the default tokenizer, we use an unsupervised tokenizer that splits the input
 based on whitespace. This method has the advantage that it is applicable to any new
 language without requiring further training, however the result is of moderate
 quality and often leads to problems in latter processing steps (e.g. Named Entity Recognition).
@@ -160,8 +160,8 @@ models provided by the OpenNLP project.
 
 \subsubsection*{Czech ME tokenizer}
 
-For Czech, no such model existed, so we trained a ME tokenizer
-model on data from the Prague Dependency Treebank\footnote{\url{http://ufal.mff.cuni.cz/pdt2.0/}}. Scheme of the process is in fogure \ref{fig:tokenizer}. 
+For Czech, no such model existed, so we trained a Maximum Entropy tokenizer
+model on data from the Prague Dependency Treebank.\footnote{\url{http://ufal.mff.cuni.cz/pdt2.0/}} Scheme of the process is in figure \ref{fig:tokenizer}. 
 
 We produced a script that creates training data in the following format:
 \begin{verbatim}
@@ -185,11 +185,14 @@ On a test dataset from the Prague Dependency Treebank, the ME tokenizer achieved
 
 \lstset{caption={Accuracy for the Czech ME tokenizer.}}
 \begin{lstlisting}
-Precision: 0.9970180340649772
-Recall: 0.9954658318039512
-F-Measure: 0.9962413283293529
+% I guess 5 digits are sufficient
+Precision: 0.99702
+Recall: 0.99547
+F-Measure: 0.99624
+% Precision: 0.9970180340649772
+% Recall: 0.9954658318039512
+% F-Measure: 0.9962413283293529
 \end{lstlisting}
-
 
 \subsection{Signature-Based Retrieval}
 
@@ -209,6 +212,7 @@ connected to the translation pairs table.
 	\label{fig:figures_core_signatures}
 \end{figure}
 
+\todo{I find the German exapmpes confusing. Czech would be: Ahoj Petře! Jsem tvůj otec.}
 
 \subsubsection*{Database-based signatures}
 
@@ -260,7 +264,7 @@ function.
  \caption{{\tt FirstLetter} function.}
 \end{algorithm}
 
-
+\todo{I dont understand the code, I guess |token| should be |tokens|}
 
 
 
@@ -284,8 +288,8 @@ Chunk 2:   Thomas saw the girl.
 Signature: <Person> saw the girl
 \end{lstlisting}
 
-Using the named entity-based signature, Chunk 2 can be retrieved as a
-candidate for chunk 1. Since an exact match would be preferable, this 
+Using the named entity-based signature, Chunk~2 can be retrieved as a
+candidate for Chunk~1. Since an exact match would be preferable, this 
 will only be used if there is no better fitting candidate in the
 database.
 
@@ -297,20 +301,20 @@ models for persons, organizations and places that are available through the
 OpenNLP project.
 
 For Czech, no such models were available, hence we trained our own models based
-on various data sources and then chose the best models from the comparison 
-of two approaches of acquiring training data.
+on various data sources and then chose the best models based on a comparison 
+of two approaches of acquiring the training data.
 
 
 \subsubsection*{First approach: Training data based on Wikipedia and DBpedia}
 
 Our first approach to acquiring named entity recognition training data for Czech 
-was based on the Pig NLProc utility\footnote{\url{https://github.com/ogrisel/pignlproc}}.
-Pig is an Apache project providing platform that features a SQL-like syntax
+was based on the Pig NLProc utility.\footnote{\url{https://github.com/ogrisel/pignlproc}}
+Pig is an Apache project providing platform that features an SQL-like syntax
 for data analysis based on Apache Hadoop. The Pig NLProc utility provides a number
 of Pig scripts to extract natural language processing training data from Wikipedia
 and DBpedia.
 
-DBpedia is a \footnote{\url{http://dbpedia.org/About}} community project for extracting 
+DBpedia\footnote{\url{http://dbpedia.org/About}} is a community project for extracting 
 structured data from Wikipedia. Based on user-created mappings of Wikipedia info boxes to
 an ontology, DBpedia provides data that allows to easily select DBpedia entites that 
 correspond to persons, organizations, places, etc.
@@ -325,7 +329,7 @@ For Czech, user-generated mappings for many info boxes are already available, ho
 the DBpedia data for Czech is not yet available. Hence, we downloaded the DBpedia
 extraction framework with the Czech data and ran the extraction process ourselves.
 With the resulting data and the Pig NLProc scripts (which required minimal changes
-for issues of compatibility), we produced training data for named entities of the types
+to resolve compatibility issues), we produced training data for named entities of the types
 Person, Place and Organization.
 
 
@@ -346,27 +350,34 @@ shows an overview of the NE types annotated in the corpus.
 
 
 We wrote scripts that convert the XML-based format of the corpus to the format required by OpenNLP, 
-manually selected the annotation types and trained the OpenNLP named entity recognizers on the resulting data.
+manually selected the annotation types we were interested in and trained the OpenNLP named entity recognizers on the resulting data.
 
 
 \subsubsection*{Selecting the best approach}
 
-Both approaches showed to have their unique advantages and disadvantages. While the first approach is 
+Both approaches showed to have distinct advantages and disadvantages. While the first approach is 
 only minimally supervised and can easily be extended to other languages that have a local version of 
 Wikipedia and existing DBpedia dumps (DBpedia dumps are currently available for 97 languages\footnote{\url{http://wiki.dbpedia.org/Downloads37}}), 
-our manual evaluation of the produced Named Entity recognizers showed that the 
+our manual evaluation of the Named Entity recognizers produced showed that the 
 models trained on the Czech Named Entity corpus produced better results.
 
-More precisely, we approximated, that the DBpedia recognized far less cases and, therefore, had much lower RECALL, the PRECISION was only slightly better. We then decided, that lower RECALL is worse for our purposes -- it is better to show wrong translation to user than to not show anything.
+More precisely,
+% ??? we approximated, that
+the DBpedia recognized far less cases and, therefore, had much lower RECALL, with its PRECISION being only slightly better. We then decided that lower RECALL is worse for our purposes -- it is better to show a sightly wrong translation to the user than not to show anything.
 
 \subsubsection*{Effectiveness}
-It is worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitles, there are only few matches, but the recognition of named entities takes the most time during the data import. For this reason, we kept NE-based retrieval as a retrieval level in the core, however, we are not currently using it since the other methods already provide reasonable results and are easier to adapt to new languages and faster.
+It is worth noting that the overall effectiveness of using named entity-based retrieval was worse than we anticipated. In most subtitle files, there are only few matches, but the recognition of named entities takes the most time during the data import.
+For this reason,
+% we keep NE-based retrieval as a retrieval level in the core, however
+we are not currently using it; the other methods already provide reasonable results, are faster and are easier to adapt to new languages.
 
 \subsection{Full-Text Search}
 
-As another, more fuzzy level of retrieval, we use the full-text search included in \postgres. In  \postgres~full-text search, documents (in our case translation pairs) are tokenized and normalized. The result of this process is vector of normalized tokens ({\tt tsvector}). The normalization step can include lowercasing, stemming or synonyms from a dictionary and removes stop words. \postgres~builds an index over the token vector of all documents, against which queries can be run. To convert a string to a query, it is tokenized and normalized and the resulting normalized tokens are connected with an {\tt AND} operator.
+As another, more fuzzy level of retrieval, we use the full-text search included in \postgres. In  \postgres~full-text search, documents (in our case translation pairs) are tokenized and normalized. The result of this process is a vector of normalized tokens ({\tt tsvector}). The normalization step can include lowercasing, stemming, using synonyms from a dictionary or removing stop words.
+% I didnt understand it so I changed it, but maybe I understood it wrong
+\postgres~builds an index over the token vector of all documents, against which queries can be run. To convert a string to a query, it is tokenized and normalized and the resulting normalized tokens are connected by an {\tt AND} operator.
 
-The tokenization and normalization for a specific language is described in a text search configuration.\footnote{\url{http://www.postgresql.org/docs/9.1/static/textsearch-intro.html}} By default, \postgres~includes text search configurations for the following languages: Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Turkish and the default ``Simple'' configuration. For Czech, a text search configuration is available from postgres.cz\footnote{\url{http://postgres.cz/wiki/Instalace_PostgreSQL}} For installation instructions, please see the technical manual in chapter~\ref{chap:technical_manual}.
+The tokenization and normalization for a specific language is described in a text search configuration.\footnote{\url{http://www.postgresql.org/docs/9.1/static/textsearch-intro.html}} By default, \postgres~includes text search configurations for the following languages: Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Turkish and the default ``Simple'' configuration. For Czech, a text search configuration is available from postgres.cz.\footnote{\url{http://postgres.cz/wiki/Instalace_PostgreSQL}} For installation instructions, please see the technical manual in Chapter~\ref{chap:technical_manual}.
 
 When querying candidates for a Chunk, we use the {\tt ts\_rank}\footnote{\url{http://www.postgresql.org/docs/9.1/static/functions-textsearch.html}} function to pre-sort the candidates and the {\tt ts\_rank} score is later used as one of the scores in the ranking of translation pair candidates. One problem that the full-text search as a method of candidate retrieval shows, is that some of the candidates are unreasonably large documents that still have high scores because their token overlaps with the query are reasonable. We approach this problem by using our own ranking functions for translation pairs, as described in Section~\ref{sec:ranking}.
 
@@ -379,20 +390,24 @@ For this, a query with the chunk is sent to an external REST-based API. We offer
 \subsection{Statistical Machine-Translation Based on Moses}
 \label{sec:statmtmoses}
 
-We tried Machine Translation first as an experiment, but it turned out the results are very good and, after some optimizations, very fast.
+We tried Machine Translation first as an experiment, but the results turned out to be very good and, after some optimizations, also provided very quickly.
 
 Moses\footnote{\url{http://www.statmt.org/moses/}} is a very popular statistical machine translation system that can work both with phrase-based models (which we use) an tree-based models (which require grammatical annotations).
 
 We run Moses as a separate process in server mode. The sentences are sent to the Moses server through Apache's XML RPC client\footnote{It is modeled after SampleClient in Moses, \url{https://github.com/moses-smt/mosesdecoder/blob/master/contrib/server/SampleClient.java}} sentence by sentence. We have to send the sentences to Moses server already tokenized and it produces better results if the first letters of sentences are lowercased.
 
-Because we have limited computing resources, we trained only English to Czech machine translation, since that will be most used. If we wanted to train Czech to English too, used resources would double. More information about training the machine translation and getting it to work fast can be found in Chapter~\ref{chap:moses}.
+Because of limited computing resources, we trained only English to Czech machine translation, since we consider this translation direction to be the primary one. If we wanted to train Czech to English too, resources required would double. More information about training the machine translation and getting it to work fast can be found in Chapter~\ref{chap:moses}.
 
-The tokenization of the input sentences, however, turned out to be problematic. Because we did not see it as a problem (since tokenization does not seem like a big problem at the first glance), we just tokenize the input with the OpenNLP tokenizers and we let Moses use its own tokenizers.
+The tokenization of the input sentences, however, turned out to be problematic. Because we did not expect any issues,
+% (since tokenization does not seem like a big problem at the first glance),
+we simply tokenized the input with the OpenNLP tokenizers and we let Moses use its own tokenizers.
 
-Moses, however, tokenizes English slightly different. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. Those are very widely used and their wrong tokenization will, of course, produce very wrong results.
+Moses, however, tokenizes English slightly differently. This causes problems with the contractions of English suffixes like \texttt{-n't} and \texttt{-'ll}. For example, we tokenize \texttt{don't} as \texttt{do n't}, Moses tokenizes it as \texttt{don 't}. These are very widely used and their wrong tokenization
+drammatically decreases the quality of the translations produced.
+% will, of course, produce very wrong results.
 
 For that reason, we had to add some corrections of tokenization for the contraction suffixes -- there are not that many of them, but they are so frequent and important that we had to fix it somehow. Those corrections are hardcoded in the \texttt{MosesSearcher.scala}. This is not an ideal solution (for example, it will break with addition of a new language); more optimal solution would be to use the same tokenizers in our application and in Moses training. However, we noticed it only later, when there was no time for correction on either our database or the Moses corpus.
-
+\todo{this will require more rewriting, I will push now and do that afterwards}
 
 \section{Candidate Ranking}
 \label{sec:ranking}
