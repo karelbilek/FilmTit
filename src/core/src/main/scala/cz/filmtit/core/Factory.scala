@@ -129,9 +129,21 @@ object Factory {
     }
 
     if (!indexing) {
-      //Third level: Moses
+       //Third level: Moses 
+      val regexesBefore = Seq(
+         ("""'(\S)""".r, """&apos;$1"""), //replacing apostrophe
+         ("""(\S)&apos;""".r, """$1 &apos;"""), //space before apostrophe
+         ("""\s+n &apos;t""".r , "n &apos;t")  //n't
+      )
+    
+      val regexesAfter = Seq(
+        ("""\s([.!?,])""".r, "$1"), //space before diacritics
+        (""" &apos; """.r, """'""")  //apostrophe back
+      )
+      
+      
       val mosesSearchers = (1 to 30).map { _ =>
-        new MosesServerSearcher(l1, l2, configuration.mosesURL)
+        new MosesServerSearcher(l1, l2,regexesBefore, regexesAfter, configuration.mosesURL)
       }.toList
 
       levels ::= new BackoffLevel(new TranslationPairSearcherWrapper(mosesSearchers, 30*60), None, 0.5, TranslationSource.EXTERNAL_MT)
