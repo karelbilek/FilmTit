@@ -415,7 +415,8 @@ public class Session {
             setParameter("title", selectedMediaSource.getTitle()).setParameter("year", selectedMediaSource.getYear()).list();
 
         if (sourcesFromDb.size() == 0) {
-            dbSession.save(selectedMediaSource);
+            try { dbSession.save(selectedMediaSource); }
+            catch (Exception e) {}
             document.setMediaSource(selectedMediaSource);
         }
         else {
@@ -743,6 +744,40 @@ public class Session {
         }
 
         tr.setEndTime(newEndTime);
+        saveTranslationResult(document, tr);
+        return  null;
+    }
+
+    /**
+     * Change the start time and end time of the given chunk to the values.
+     * @param chunkIndex Identifier of the chunk that has been changed
+     * @param documentId ID of the document the chunk belongs
+     * @param newStartTime New value of chunk start time
+     * @param newEndTime New value of chunk end time
+     * @return Void
+     * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
+     * @throws InvalidChunkIdException Throws an exception when such chunk does not exist in the document.
+     */
+    public Void setChunkTimes(ChunkIndex chunkIndex, long documentId, String newStartTime, String newEndTime)
+            throws InvalidValueException, InvalidDocumentIdException {
+
+        if (!timingRegexp.matcher(newStartTime).matches()) {
+            throw new InvalidValueException("Wrong format of the timing '" + newStartTime + "'.");
+        }
+        if (!timingRegexp.matcher(newEndTime).matches()) {
+            throw new InvalidValueException("Wrong format of the timing '" + newEndTime + "'.");
+        }
+
+        USDocument document = getActiveDocument(documentId);
+
+        USTranslationResult tr = document.getTranslationResultForIndex(chunkIndex);
+
+        if (new SrtTime(newStartTime).compareTo(new SrtTime(newEndTime)) > 0) {
+            throw new InvalidValueException("Start time would be later than end time.");
+        }
+
+        tr.setEndTime(newEndTime);
+        tr.setStartTime(newStartTime);
         saveTranslationResult(document, tr);
         return  null;
     }
