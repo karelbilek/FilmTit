@@ -16,7 +16,7 @@ import com.google.gwt.user.client.Window;
 public class FileLoadWidget extends HTML {
 
     // creator that will display the file address
-    private DocumentCreator creator;
+    static private DocumentCreator creator;
 
     /**
      * Because the applet has to know what exactly to call, a global procedure
