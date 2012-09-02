@@ -5,9 +5,7 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.*;
 
-import com.google.gwt.user.client.Window;
 import cz.filmtit.share.SrtTime;
-import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.exceptions.InvalidValueException;
 import cz.filmtit.share.exceptions.ParsingException;
 
@@ -22,7 +20,7 @@ import cz.filmtit.share.exceptions.ParsingException;
 public class UnprocessedParserSrt extends UnprocessedParser {
 
 
-    private static final int MAX_ERRORS_PER_FILE = 20;
+    private static final int MAX_ERRORS_PER_FILE = 10;
     private int currentErrors = 0;
     
     /**
@@ -76,7 +74,7 @@ public class UnprocessedParserSrt extends UnprocessedParser {
             String line = lines[linenumber];
 		
             //skip the number lines
-            if (!reSubNumberLine.test(line) ) { 
+            if (!reSubNumberLine.test(line) ) {
                 if ( reTimesLine.test(line)) {
                     MatchResult mr = reTimesLine.exec(line);
                     String maybeStartTime = mr.getGroup(1).trim();
@@ -95,18 +93,15 @@ public class UnprocessedParserSrt extends UnprocessedParser {
                         startTime = maybeStartTime;
                         endTime = maybeEndTime;
                     } else {
-                        //if we have been ignoring the exception
+                        //if we have been ignoring the exception:
                         startTime = SrtTime.ZERO_TIME;
                         endTime = SrtTime.ZERO_TIME;
                     }
                 }
                 else if ( ! line.isEmpty() ) {
                     if (! isTimeSet) {
-                        System.out.println("Chyba - ["+line+"]");
-                        //System.out.println("text - ["+text+"]");
-
                         maybeThrow(new ParsingException("Subtitle timing line missing or malformed", linenumber + 1, true));
-                        //if we have been ignoring the exception
+                        //if we have been ignoring the exception:
                         startTime = SrtTime.ZERO_TIME;
                         endTime = SrtTime.ZERO_TIME;
                     }
@@ -118,8 +113,9 @@ public class UnprocessedParserSrt extends UnprocessedParser {
                 else {
                     // empty line
                     // creating the chunk(s) from what was gathered recently...
-
-                    sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+                    if (! titText.equals(EMPTY_STRING)) {
+                        sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+                    }
                     
                     // ...and resetting
                     titText = EMPTY_STRING;
@@ -129,14 +125,22 @@ public class UnprocessedParserSrt extends UnprocessedParser {
 		}  // for-loop over lines
         
 
-        if ( (sublist.size() == 0)
-                && endTime.equals(SrtTime.ZERO_TIME) ) {
-            // the only "parsed" chunk was malformed somehow - no reason to recover
-            throw new ParsingException("Wrong format of the whole subtitle file", 0, false);
-        }
 
 		// adding the last tit (after it, there was no empty line from splitting):
-        sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+        if (! titText.equals(EMPTY_STRING)) {
+            sublist.add(new UnprocessedChunk(startTime, endTime, titText));
+        }
+
+        // check whether at least one of the parsed subtitles is correct
+        boolean ok = false;
+        for (UnprocessedChunk chunk : sublist) {
+            if (! chunk.getEndTime().equals(SrtTime.ZERO_TIME)) {
+                ok = true;
+            }
+        }
+        if (!ok) {
+            throw new ParsingException("Wrong format of the whole subtitle file", 0, false);
+        }
 
 		return sublist;
 	}
