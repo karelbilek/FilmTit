@@ -362,7 +362,7 @@ public class PageHandler {
 		    	}
 				break;
 			case DocumentCreator:
-				new DocumentCreator();
+				reshowCurrentDocumentCreator();
 				break;
 			case UserPage:
 				new UserPage();
@@ -486,6 +486,36 @@ public class PageHandler {
 				documentId = -1;
 				Gui.log("WARNING: invalid documentId (" + id + ") set as parameter!");
 			}
+		}
+	}
+
+	private DocumentCreator currentDocumentCreator;
+	
+	/**
+	 * remembers the current document creator
+	 */
+	public void setCurrentDocumentCreator(DocumentCreator documentCreator) {
+		currentDocumentCreator = documentCreator;
+	}
+
+	/**
+	 * forgets the current document creator
+	 */
+	public void forgetCurrentDocumentCreator() {
+		currentDocumentCreator = null;
+	}
+
+	/**
+	 * shows again the current document creator,
+	 * or shows a new document creator if there is none remembered
+	 */
+	public void reshowCurrentDocumentCreator() {
+		if (currentDocumentCreator != null) {
+	    	Gui.getPageHandler().setPageUrl(Page.DocumentCreator);
+	        Gui.getGuiStructure().showPageInPanel(currentDocumentCreator);
+		}
+		else {
+			new DocumentCreator();
 		}
 	}
 

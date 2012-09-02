@@ -4,7 +4,7 @@
              xmlns:g="urn:import:com.google.gwt.user.client.ui">
     <g:HTMLPanel>
 
-	<a href="javascript: history.go(-1)">Back to player information</a>
+    <b:NavLink ui:field="backLink" targetHistoryToken="PlayerInfo">Back to player information</b:NavLink>
         <b:PageHeader>Playback Demo</b:PageHeader>
 
 		 <b:Paragraph>

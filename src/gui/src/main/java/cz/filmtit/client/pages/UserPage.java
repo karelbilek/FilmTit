@@ -259,6 +259,8 @@ public class UserPage extends Composite {
     
     @UiHandler("btnDisplayCreator")
     void onClick(ClickEvent event) {
+		// loading a new DocumentCreator
+		Gui.getPageHandler().forgetCurrentDocumentCreator();
     	Gui.getPageHandler().loadPage(Page.DocumentCreator);
     }
 

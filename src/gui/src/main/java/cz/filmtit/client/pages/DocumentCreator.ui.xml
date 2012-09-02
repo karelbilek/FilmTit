@@ -62,6 +62,7 @@
                     </b:Controls>
                 </b:ControlGroup>
                 <b:ControlGroup ui:field="fileUploadControlGroup">
+                    <b:ControlLabel>Choose file with subtitles:</b:ControlLabel>
                     <b:Controls>
                         <lgf:FileUploadExt ui:field="fileUpload" />
                         <b:Label ui:field="lblUploadProgress" visible="false"></b:Label>
