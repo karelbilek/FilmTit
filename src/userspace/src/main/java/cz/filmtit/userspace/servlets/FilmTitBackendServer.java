@@ -405,11 +405,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
 			long documentId, String newStartTime, String newEndTime)
             throws InvalidSessionIdException, InvalidChunkIdException,
             InvalidDocumentIdException, InvalidValueException {
-		
-		Session session = getSessionIfCan(sessionID);
-		session.setChunkStartTime(chunkIndex, documentId, newStartTime);
-		session.setChunkEndTime(chunkIndex, documentId, newEndTime);
-		return null;
+        return getSessionIfCan(sessionID).setChunkTimes(chunkIndex, documentId, newStartTime, newEndTime);
 	}
 
     /**

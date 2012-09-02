@@ -9,11 +9,11 @@
         <b:PageHeader>Playback Info</b:PageHeader>
 
 		 <b:Paragraph>
-	            Playing a video file from a disk in a browser is a pretty hard task. Because of that, we require two plug-ins to install.
+	            Playing a video file from the hard disk in a browser is not an easy task. Because of this, we require two plug-ins to be installed.
 	        </b:Paragraph>
 	        
 	        <b:Paragraph>
-    	           (Also, please note that the video player is still very experimental and won't always work.)
+                Please note that the video player is still very experimental and will not always work with any configuration.
     	    </b:Paragraph>
 
 		<b:Heading size="3">Java</b:Heading>
@@ -21,36 +21,36 @@
             For selecting the file from your disk, you need to have Java installed and Java applets allowed in your browser. You can test, whether you have Java installed, <a href="http://www.java.com/en/download/testjava.jsp">on this site on java.com</a>; installation instructions for Java are available <a href="http://www.java.com/en/download/help/index_installing.xml">here</a>.
         </b:Paragraph>
 		<b:Paragraph>
-			If you don't want to install Java, you can still use the player, but you will need to write the address to the input field yourself.
+			If you don't want to install Java, you can still use the player, but you will need to write the address of the movie file to the input field yourself.
 		</b:Paragraph>
 	
 		<b:Heading size="3">VLC plugin</b:Heading>
 		<b:Paragraph>
-			You need to have VLC web plugin installed for the actual playback. Installation of VLC is straigthforward for the major platforms.
+			You also need to have the VLC web plugin installed for the actual playback. Installation of VLC is straight-forward for all major platforms.
 		</b:Paragraph>
 		
 		<b:Paragraph>
-		    <b:NavLink ui:field="playerDemoLink" targetHistoryToken="PlayerDemo">You can test, whether you have VLC plugin installed, here.</b:NavLink>
+		    <b:NavLink ui:field="playerDemoLink" targetHistoryToken="PlayerDemo">You can test if you have the VLC plugin installed here.</b:NavLink>
 		</b:Paragraph>
 	
         <b:Heading size="5">Windows installation</b:Heading>
         <b:Paragraph>
-            If you don't have the VLC plugin installed, you need to run VLC installer (download it <a href="http://www.videolan.org/vlc/download-windows.html">from VideoLAN website</a>), even if you have VLC already installed. While installing VLC, you have to check either "Mozilla plugin" (if you are not using IE) or "ActiveX plugin" (if you are using IE).
+            If you don't have the VLC plugin installed, you need to run the VLC installer (download it <a href="http://www.videolan.org/vlc/download-windows.html">from the VideoLAN website</a>), even if you have VLC already installed. While installing VLC, you have to check either "Mozilla plugin" (if you are not using IE) or "ActiveX plugin" (if you are using IE).
         </b:Paragraph>
 
         <b:Heading size="5">Ubuntu/debian/APT installation</b:Heading>
 		<b:Paragraph>
-			If  you don't have the VLC plugin installed and you have a linux installation with support for <code>apt</code>, like Debian or Ubuntu, you can install VLC plugin by installing <code>mozilla-plugin-vlc</code> package (for example by <code>apt-get install mozilla-plugin-vlc</code>, or in Aptitude).
+			If  you don't have the VLC plugin installed and you have a Linux installation with support for <code>apt</code>, like Debian or Ubuntu, you can install the VLC plugin by installing the <code>mozilla-plugin-vlc</code> package (for example by <code>apt-get install mozilla-plugin-vlc</code>, or using Aptitude).
 		</b:Paragraph>
 		
 		 <b:Heading size="5">Mac OS X</b:Heading>
        	<b:Paragraph>
-			For Mac OS X, you need to install <a href="http://www.videolan.org/vlc/download-macosx.html">both VLC and VLC plugin from videolan website</a>
+			For Mac OS X, you need to install <a href="http://www.videolan.org/vlc/download-macosx.html">both VLC and the VLC plugin from the VideoLAN website</a>
 		</b:Paragraph>
 		
 		<b:Heading size="3">Player</b:Heading>
        	<b:Paragraph>
-       	    Player doesn't play exactly the time of the subtitle, but 30 second long context around the subtitle. You can stop the player or replay the whole context.
+       	    The player doesn't play exactly the time of the subtitle, but a 30 second long context around the subtitle. You can stop the player or replay the whole context.
 		</b:Paragraph>
     </g:HTMLPanel>
 </ui:UiBinder> 
