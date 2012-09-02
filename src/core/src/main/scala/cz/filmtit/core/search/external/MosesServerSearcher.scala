@@ -1,17 +1,11 @@
 package cz.filmtit.core.search.external
 
-import java.net.{UnknownHostException, URLEncoder}
-import io.Source
-import org.apache.commons.logging.LogFactory
-import org.json.{JSONArray, JSONObject}
 import cz.filmtit.core.model.TranslationPairSearcher
-import collection.mutable.ListBuffer
 import cz.filmtit.share.{Language, TranslationPair, TranslationSource, Chunk}
-import opennlp.tools.tokenize.Tokenizer
 import org.apache.xmlrpc.client.XmlRpcClient
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl
 import cz.filmtit.share.exceptions.{LanguageNotSupportedException, SearcherNotAvailableException}
-import util.matching.Regex
+import scala.util.matching.Regex
 
 /**
  * Translation pair searcher using standard Moses server 
