@@ -335,6 +335,7 @@ public class Gui implements EntryPoint {
     	Gui.loggedIn = true;
     	Gui.user = user;
         // actions
+    	Gui.getPageHandler().forgetCurrentDocumentCreator();
     	Gui.getGuiStructure().logged_in(user);
     	Gui.pageHandler.loadPage();
     	Callable.callCallsToBeCalled();
@@ -363,6 +364,7 @@ public class Gui implements EntryPoint {
     	Gui.user = null;
     	Gui.setSessionID(null);
         // actions
+    	Gui.getPageHandler().forgetCurrentDocumentCreator();
         Gui.getGuiStructure().logged_out();
         if (goToWelcomeScreen) {
         	Gui.pageHandler.loadPage(Page.WelcomeScreen);
