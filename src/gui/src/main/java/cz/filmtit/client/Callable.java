@@ -308,8 +308,18 @@ public abstract class Callable<T> implements AsyncCallback<T> {
 		        	// the user session is no longer valid
 		            onInvalidSession();
 		        } else {
-		        	// a "generic" failure
-		            onFailureAfterLog(returned);
+		        	// onFailureAfterLog()
+		        	if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 500) {
+		        		// server error
+		        		Throwable serverError = new Throwable(
+		        				"An unexpected error occured on the server. Please try again. If the problem persists, please contact the administrators.",
+		        				returned);
+		        		onFailureAfterLog(serverError);
+		        	}
+		        	else {
+			        	// a "generic" failure
+			        	onFailureAfterLog(returned);
+		        	}
 		        }
         	}
     	} else {
