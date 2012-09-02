@@ -49,12 +49,13 @@ kernel.shmall = 4194304
 
 Depending on the system configuration, it may also be necessary to increase {\tt shmpages}. For more information on \postgres~memory management and how to adjust the shared memory settings for different operating systems, please see the \postgres~documentation on \emph{Resource Consumption}.\footnote{\url{http://www.postgresql.org/docs/9.1/static/runtime-config-resource.html}}
 
-For the fulltext search the \emph{TSearch2} tool is used. By default few world languages are available. If you want to use the tool for other languages you need to install the language support manually. For the Czech language we prepared an installation script which can run using following command.
+For full-text search, the full-text search integrated in Postgres is used (this used to be \emph{TSearch2}). By default, a  number of languages are available. If one wants to use additional languages, they must be installed manually. For the Czech language, we prepared an installation script which can run using following command (example for running the command on an Ubuntu Linux system).
 
 \vspace*{0.5em}
-\lstset{numbers=none, language=bash, caption={Installing the Czech text search configuration to \postgres.}}
+\lstset{numbers=none, language=bash, caption={Installing the Czech text search configuration in a local \postgres~database.}}
 \begin{lstlisting}
-$ ./install_czech_to_postgres.sh <postgres_directory> <postgres_user> <database_name>
+$ ./install_czech_configuration.sh /usr/share/postgresql/9.1/tsearch_data
+$ sudo -u postgres ./add_configuration_to_db.sh postgres filmtit
 \end{lstlisting}
 \vspace*{0.5em}
 
