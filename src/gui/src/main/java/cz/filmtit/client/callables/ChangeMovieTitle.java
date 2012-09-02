@@ -9,6 +9,14 @@ import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.MediaSelector;
 import cz.filmtit.share.MediaSource;
 
+/**
+ * Returns media source suggestions based on newMovieTitle, and opens a MediaSelector with them.
+ * The movie title is not changed yet:
+ * this is only done on calling selectSource.
+ * If there is only one suggestion, selects the media source automatically without opening a MediaSelector.
+ * @author rur
+ *
+ */
 public class ChangeMovieTitle extends Callable<List<MediaSource>> implements
 		ReceivesSelectSource {
 
@@ -20,6 +28,12 @@ public class ChangeMovieTitle extends Callable<List<MediaSource>> implements
 		return getNameWithParameters(documentID, newMovieTitle);
 	}
 	
+	/**
+	 * Returns media source suggestions based on newMovieTitle, and opens a MediaSelector with them.
+	 * The movie title is not changed yet:
+	 * this is only done on calling selectSource.
+	 * If there is only one suggestion, selects the media source automatically without opening a MediaSelector.
+	 */
 	public ChangeMovieTitle(long documentID, String newMovieTitle) {
 		super();
 		

@@ -16,8 +16,13 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import java.util.*;
 
+/**
+ * Remove the given document from the list of user's documents.
+ * @author rur
+ *
+ */
 public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
-    long documentId;
+	private long documentId;
     
     @Override
     public String getName() {
@@ -45,7 +50,10 @@ public class DeleteDocument extends cz.filmtit.client.Callable<Void> {
         Gui.getPageHandler().refreshIf(Page.UserPage);
     	super.onFinalError(message);
     }
-        
+     
+    /**
+     * Remove the given document from the list of user's documents.
+     */
     public DeleteDocument(long id) {
         super();
         

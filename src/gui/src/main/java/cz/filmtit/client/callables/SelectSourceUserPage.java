@@ -14,11 +14,19 @@ import com.google.gwt.core.client.*;
 import cz.filmtit.share.*;
 import java.util.*;
 
+/**
+ * Sets the media source of the document when changing the movie name on UserPage.
+ * The media source represents the movie or series which the subtitles come from.
+ * Refreshes the UserPage on success if refreshOnSuccess set to true.
+ * Refreshes it always on failure.
+ * @author rur
+ *
+ */
 public class SelectSourceUserPage extends Callable<Void> {
     	
     	// parameters
-    	long documentID;	
-    	MediaSource selectedMediaSource;
+    	private long documentID;	
+    	private MediaSource selectedMediaSource;
 		private boolean refreshOnSuccess;
    
         @Override
@@ -39,7 +47,12 @@ public class SelectSourceUserPage extends Callable<Void> {
             super.onFinalError(message);
         }
 
-        // constructor
+        /**
+		 * Sets the media source of the document when changing the movie name on UserPage.
+		 * The media source represents the movie or series which the subtitles come from.
+		 * Refreshes the UserPage on success if refreshOnSuccess set to true.
+		 * Refreshes it always on failure.
+         */
 		public SelectSourceUserPage(long documentID, MediaSource selectedMediaSource, boolean refreshOnSuccess) {
 			super();
 			

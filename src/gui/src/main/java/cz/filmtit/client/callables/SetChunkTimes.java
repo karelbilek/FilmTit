@@ -9,7 +9,7 @@ import cz.filmtit.share.TimedChunk;
 
 /**
  * Updated the chunk's start time and end time in the UserSpace database.
- *
+ * @author rur
  */
 public class SetChunkTimes extends Callable<Void> {
 
@@ -17,15 +17,15 @@ public class SetChunkTimes extends Callable<Void> {
 	
 	@Override
 	public String getName() {
-		return "setChunkTimes(" + chunk.getChunkIndex() + " " + chunk.getStartTime() + " - " + chunk.getEndTime() + ")";
+		return getNameWithParameters(chunk.getChunkIndex(), chunk.getStartTime(), chunk.getEndTime());
 	}
 	
 	
 	/**
 	 * Updated the chunk's start time and end time in the UserSpace database.
-	 * TODO: change to SetChunkTimes(TimedChunk... chunks)
 	 */
 	public SetChunkTimes(TimedChunk chunk) {
+		// TODO: change to SetChunkTimes(TimedChunk... chunks)
 		super();
 		
 		this.chunk = chunk;

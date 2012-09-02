@@ -6,6 +6,14 @@ import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 
+/**
+ * Change the source text of the chunk,
+ * resulting in new translation suggestions
+ * which are sent as the result
+ * and shown in the Translation Workspace.
+ * @author rur
+ *
+ */
 public class ChangeSourceChunk extends Callable<TranslationResult> {
 
 	private TimedChunk chunk;
@@ -17,6 +25,12 @@ public class ChangeSourceChunk extends Callable<TranslationResult> {
 		return getNameWithParameters(chunk, newText);
 	}
 	
+	/**
+	 * Change the source text of the chunk,
+	 * resulting in new translation suggestions
+	 * which are sent as the result
+	 * and shown in the Translation Workspace.
+	 */
 	public ChangeSourceChunk(TimedChunk chunk, String newText, TranslationWorkspace workspace) {
 		super();
 		

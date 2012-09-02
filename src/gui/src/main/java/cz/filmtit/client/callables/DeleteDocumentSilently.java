@@ -21,7 +21,7 @@ import java.util.*;
  * e.g. if there is an exception while parsing its subtitles.
  */
 public class DeleteDocumentSilently extends cz.filmtit.client.Callable<Void> {
-    long documentId;
+    private long documentId;
     
     @Override
     public String getName() {
@@ -46,6 +46,11 @@ public class DeleteDocumentSilently extends cz.filmtit.client.Callable<Void> {
     	// do not display the login dialog
     }
         
+    /**
+     * Tries to delete the given document but does not display any errors to the user.
+     * To be used if the document deletion command is sent by the application,
+     * e.g. if there is an exception while parsing its subtitles.
+     */
     public DeleteDocumentSilently(long id) {
         super();
         

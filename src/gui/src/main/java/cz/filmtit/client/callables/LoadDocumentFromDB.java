@@ -16,12 +16,18 @@ import cz.filmtit.share.*;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import java.util.*;
 
+/**
+ * Loads the document with the given documentID, with source chunks but without translation suggestions (these have to be explicitly requested by getTranslationResults).
+ * Shows the document in Translation Workspace after successfully loading it.
+ * @author rur
+ *
+ */
 public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
-    long documentId;
+    private long documentId;
     
     @Override
     public String getName() {
-        return "LoadDocumentFromDB("+documentId+")";
+    	return getNameWithParameters(documentId);
     }
 
     @Override
@@ -63,10 +69,14 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
     	super.onFinalError(message);
     }
     
-    public LoadDocumentFromDB(long id) {
+    /**
+	 * Loads the document with the given documentID, with source chunks but without translation suggestions (these have to be explicitly requested by getTranslationResults).
+	 * Shows the document in Translation Workspace after successfully loading it.
+     */
+    public LoadDocumentFromDB(long documentID) {
         super();
         
-        documentId = id;
+        this.documentId = documentID;
         
         callTimeOut *= 2;
         
