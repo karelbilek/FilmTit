@@ -338,6 +338,17 @@ We already introduced the parsing in Chapter~\ref{parsing_subs}. As we mentioned
 
 More information about the parsing can be found in Chapter~\ref{parsing_subs}.
 
+
+\subsection{Manipulating with the Documents and Subtitle Items}
+
+The user is provided with the options to change some of the properties of the given document or subtitle item. Within the document listing, they can change the title of a document or the corresponding movie without affecting its contents. Also, in the Translation Workspace, a subtitle item can be edited in more ways than only inside the textboxes. The timing can be changed, which is a useful feature especially when used with the embedded player. The user is also allowed to change the source text, this is used typically when there is an error in the original subtitles, because that could deteriorate the quality of the suggestions for this item.
+
+We do not offer explicit deleting of the chunks; however, the default behavior is that the untranslated chunks are not exported, so not translating a chunk is roughly equivalent to deleting it. We also do not allow to change the source subtitle file (this would actually mean deleting the whole old document and creating a new one, probably only keeping the title -- so we leave this for the user to do himself), although smaller edits can be done directly in Translation Workspace (see above).
+
+Most of the non-textbox editing are accessible via clicking or double-clicking on the corresponding text or number. When there was a doubt about the intuitiveness of such action, a tooltip is provided as a hint for the user.
+
+
+
 \section{Logging}
 \label{gui:logging}
 In User Space and Core, we use \emph{Log4J}, which implements the standard Java Logging interface for logging.
@@ -351,7 +362,6 @@ The minimal level of a message to be sent to the server can be set (debug, info,
 There were some technical difficulties -- mainly catching unexpected exceptions in GWT and umbrella exceptions. An umbrella exception is a GWT exception thrown when multiple exceptions have occurred at once, and it contains all of them. Its message and stack trace are not useful at all because they only cover the creation and throwing of the umbrella exception itself, but do not reveal anything about the inner exceptions.
 
 \section{Typical Usage}
-% (Honza)
 
 \subsection{Document Creation}
 
