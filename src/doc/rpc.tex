@@ -8,7 +8,16 @@ This chapter describes the communication interface between the GUI and the User 
 
 GUI communicates with User Space via the Google Web Toolkit RemoteService implementation.
 
-A \emph{remote procedure call} is a method providing interaction between the client (the GUI) and the server (the Userspace). The shared class {\tt FilmTitService} \emph{defines} the FilmTitService interface, an API for the communication, by specifying the RPCs as methods with a name, a set of parameters, a return type and checked exceptions. The User Space class {\tt FilmTitBackendServer} must \emph{implement} each of the defined RPCs. The interface provides \emph{asynchronous} RPC methods -- the responses are processed by \emph{callbacks}. A class in {\tt cz.filmtit.client.callables} may \emph{invoke} the RPC, passing the required parameters to the GWT RPC mechanism which ensures their delivery to the server and the execution of the implementation method.
+\subsection{RPC in general}
+A \emph{remote procedure call} is a method providing interaction between the client (the GUI) and the server (the Userspace).
+
+From the start, it was obvious to us that we want to use a well-established method to implement the Remote Procedure Calls. GWT provides a ready-to-use Remote Service implementation, where the programmer only has to define the set of RPCs as an interface, implement the interface on the server side, and invoke an RPC on the client side by implementing the GWT {\tt AsyncCallback} interface.
+Everything else is handled automatically and transparently by GWT.
+
+The type of an RPC parameter or its return value can be any GWT-compilable type. Because this type must be known both to the server and to the client, we use only primitive types and shared classes. Each class sendable through the GWT RPC mechanism must implement the GWT {\tt IsSerializable} interface (which is only a marker, i.e.\ it does not have any abstract methods) and a parameter-less constructor; this also holds for the checked exceptions, which are technically only a special type of a return value.
+
+\subsection{Our implementation}
+The shared class {\tt FilmTitService} \emph{defines} the FilmTitService interface, an API for the communication, by specifying the RPCs as methods with a name, a set of parameters, a return type and checked exceptions. The User Space class {\tt FilmTitBackendServer} must \emph{implement} each of the defined RPCs. The interface provides \emph{asynchronous} RPC methods -- the responses are processed by \emph{callbacks}. A class in {\tt cz.filmtit.client.callables} may \emph{invoke} the RPC, passing the required parameters to the GWT RPC mechanism which ensures their delivery to the server and the execution of the implementation method.
 
 The callable class must implement an asynchronous callback by implementing the methods {\tt onSuccess()} and {\tt onFailure()}, which are called by the GWT RPC mechanism when the RPC \emph{returns}, i.e.\ returns a value or fails with an exception and the result is received by GUI. Failure is defined as the RPC server implementation throwing an exception, which is passed as a parameter to {\tt onFailure()}. Otherwise, the returned value is passed to {\tt onSuccess()}.
 In case of common points of failure that do not qualify as an exceptional state, such as user registration attempt with an already existing username, the common failure is typically signalled by the return value instead (typically a null or a false).
@@ -21,6 +30,26 @@ Most of the RPCs can only be invoked by a logged in user. Such RPCs always have 
 A {\tt sessionID} is a unique identifier of a logged in user, valid for 1 hour (or 1 month if the user decided to be ``permanently logged in''), managed by the User Space.
 
 The parameters, return values and exceptions thrown must be GWT-serializable, and their types must be supported both by GUI and User Space. Therefore, we either use types supported both by GWT and Java (such as int, String or List) or the Shared classes (see Section~\ref{sec:shared_classes}).
+
+\subsection{Some issues}
+
+Because of JavaScript and browser limitations, the RPC mechanism of GWT only allows asynchronous calls from client to server. This suited our needs often, but we had to go around these limits in some situations. Quite often, we need the RPC to be synchronous and blocking, e.g.\ in logging in or changing user settings. In such situations, the page or dialog is ``deactivated'' on invoking the RPC (all active components are disabled -- e.g.\ the text boxes are read-only, the buttons do not respond to clicks), a reference to the page or dialog is passed to the class invoking the RPC, and when the RPC returns, the page or dialog is ``reactivated'', either with a success message or an error message, depending on the result of the RPC.
+
+In one case, we would need an opposite direction RPC, i.e.\ the server to invoke the RPC on the client. This is when authenticating the user through OpenID, where we have to perform the authentication in a new window -- the new window then receives the result of the authentication, but it cannot be easily passed directly into the opener window. Here, we decided to use active polling -- the opener window regularly invokes the {\tt GetSessionID} RPC, which returns null if the authentication process has{ not yet finished, this being a signal for the GUI to continue polling. To link together the opener window and the authentication window, a unique {\tt authID}, generated by the User Space, is used.
+
+\subsubsecion{Failed RPC Requests Handling}
+
+We decided that our general error handling strategy should be to try to solve all problems without user interaction, and to inform the user only about user-generated errors (such as incorrect SRT file format or session timeout) or critical errors (such as permanent loss of connection to server).
+
+The first thing was to turn the calls into objects, so that they store their parameters and can be called again on failure. We also created a generic superclass for them, Callable, filled with the necessary boilerplate code and methods performing the default actions, to be overridden if necessary.
+
+We identified the response that we usually get in case of network problems (it is a {\tt StatusCodeException} with the status code 0). The problems can be temporary or permanent; in case of temporary problems, the default response of showing an error message was found to be highly inappropriate, as it would suffice only to resend the call. Therefore, we introduced retrying the call for three more times in such case with short delays, before showing an error message to the user.
+
+The retrial of calls has proven to be an efficient way to deal with problems, so we decided to extend it to all types of failures. However, in case of non-network errors, we soon found that retrying the calls does not make sense in some situations; so we decided to keep the retrial as a default action which can be overridden in the extending classes.
+
+We also added a timeout for each request after which the request is regarded as lost and is retried. Such a situation is not at all typical, but we need to expect  it to prevent the user from ``starvation'' (the user can always escape from any state by refreshing the page in the browser, but this can lead to an uncontrolled local data loss or even to objects being left in an inconsistent state -- such as a document without content).
+
+
 
 \section{Manipulating Documents}
 \label{sec:rpc:doc}
