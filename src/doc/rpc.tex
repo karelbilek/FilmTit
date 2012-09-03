@@ -59,6 +59,28 @@ A document is always identified by its {\tt documentID} (a long number generated
 A chunk in the document can always be identified by its {\tt ChunkIndex}, but for convenience in some cases the whole chunk is sent instead.
 First, we introduce all the RPCs manipulating the documents. Then, we illustrate a typical sequence of RPCs invoked on document creation.
 
+\subsection{Sending translation results -- discussion}
+\label{sec:rpc:discussion_sending_results}
+
+At first, the translation suggestions from the Translation Memory were requested and sent for each chunk individually. This had the theoretical advantage that the user received each of the translation suggestions as soon as possible. However, we found the overhead of the RPC calls to be unreasonable. Not only was the overall time necessary to load all the suggestions too long, but also a typical browser was unable to handle such a large number of requests and usually froze for long periods of time, often unfreezing only after all of the suggestions arrived.
+
+A simple solution seemed to be sending all of the chunks for translation in one request. However, such a request can take several minutes to complete, and we still wanted to keep the nice property of the application of showing the suggestions as soon as possible at least for the first lines -- so that the user can start the translation immediately. Thus, we decided to send the request in batches, starting with a small size of the batch for the beginning of the file and gradually increasing the batch size.
+
+The first way to do that was an exponential increase, where each batch contains twice as many chunks as the previous one, starting with a batch of size one. This proved to solve the aforementioned problem of browser freezing; however, another problem arose. As the batch sizes grew larger and larger, the later requests often took several tens of seconds or even minutes to complete. Meanwhile, the user would often navigate away from the Translation Workspace, rendering the translation suggestions, including the currently being processed ones, obsolete. This was of course detected in GUI and the suggestions were thrown away on arrival, but still it meant that the server was working in vain for some time, possibly resulting in an unnecessarily slower responsiveness to other users (and even to the very same user as well).
+
+We introduced two further solutions. The first and simple one was limiting the size of the batch to 64 chunks (which typically take at most 5 seconds on the server side), so that the amount of useless work could not grow too large. The second solution was to stop the translation suggestions from being generated on the server, by issuing a {\tt StopTranslationResults} request. (This breaks the typical model of processing the queries, where once a query is sent, its processing is not influenced by queries that arrive later.)
+
+The two major issues with the {\tt StopTranslationResults} request were:
+
+\begin{itemize}
+	\item to interrupt the suggestions generating which is already in process (which is done in parallel for the chunks in the batch, making this even harder).
+	\item to identify what to stop and what to let continue.
+\end{itemize}
+
+The first idea was to mark the whole document as closed, and to check this when generating the suggestions. However, this would cause problems if the same document was immediately reopened by the user, and even larger problems if the user already had the document opened twice -- this can easily happen by mistake, the logical reaction of the user is then to close one of the Translation Workspaces, and then he would stop receiving suggestions even in the other opened Workspace. Thus, we then decided to create an identifier for each Translation Workspace instance and to bind the {\tt StopTranslationResults} request to this identifier. However, we soon found out that this would require additional overhead only to handle this probably not very common situation, so we dropped that idea as well.
+
+Finally, we decided for a compromise solution between those two. The {\tt StopTranslationResults} request is now bound to individual chunks, which now have an added boolean field {\tt isActive}. This field is set to true when the {\tt GetTranslationResults} request arrives to the server, for each of the chunks on the request. The {\tt StopTranslationResults} request contains a list of the chunks which translations should be stopped. On arrival of that request, User Space simply sets the {\tt isActive} field to false -- because User Space and Core share the same memory and because only references to the chunks are passed around, this change is visible in core even though the chunks have already been sent for translation. The necessary overhead is minimal, and there is no "false alarm" in the typical case. The only unsolved case is the situation where the same batch of chunks are sent for translation at the same time from two different instances of Translation Workspace with the same document opened, and then one of these Workspaces is closed, causing the suggestions generation to stop even for the batch from the other Workspace. Although this situation is unlikely and non-critical (the suggestions would be missing only for this one batch, the later batches would be translated correctly), we still offer a general solution by repeating all request on failure (unless it is obvious that the failure will reoccur).
+
 \subsection{Whole Document Operations}
 
 \subsubsection{DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)}
