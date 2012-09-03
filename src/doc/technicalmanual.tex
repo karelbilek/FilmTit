@@ -149,9 +149,9 @@ $ nohup java -jar server-0.1.jar configuration.xml 8080 &
 
 \subsubsection{Alignment}
 
-For importing the data from the ``raw'' subtitle files, the directory with \texttt{.gz} files has to be correctly in \texttt{configuration.xml} in \texttt{subtitles\_folder}, \texttt{file\_mediasource\_mapping} file has to be set correctly, and the \texttt{data\_folder} folder has to exist (also, if there were some previous experiments, the contents has to be removed).
+For importing the data from the ``raw'' subtitle files, the directory with \texttt{.gz} files has to be set correctly in \texttt{configuration.xml} in \texttt{subtitles\_folder}, the \texttt{file\_mediasource\_mapping} file has to be set correctly, and the \texttt{data\_folder} folder has to exist (also, if there were some previous experiments, the contents have to be removed).
 
-Then, for the same alignment we used (as described in~\ref{sec:aligning_subtitles}),the alignment class has to be run as follows:
+Then, to perform the same alignment as we did (as described in~\ref{sec:aligning_subtitles}), the alignment class has to be run as follows:
 
 %\todo{I have no idea if it actually works. I would have to try it and I don't have time right now. But it should.}
 
@@ -189,7 +189,7 @@ $ java -Xmx3G -classpath /deployed/server-0.1.jar cz.filmtit.dataimport.database
 \section{Configuration}
 \label{sec:config}
 
-The configuration for the server is contained in the file \verb#configuration.xml#, which has to be specified on startup.
+The configuration for the server is defined by the file \verb#configuration.xml#, which has to be specified on startup.
 
 In this section, we will give a brief overview over the properties specified in the configuration file and its default values.
 
@@ -225,7 +225,7 @@ The system will search for the models in the folder \verb#model_path#.
 <model_path>models/</model_path>
 \end{lstlisting}
 
-OpenNLP Maximum Entropy tokenizer models are specified in the \verb#tokenizers# section. If for a specific language, no tokenizer model is specified, the translation memory will use the default OpenNLP WhitespaceTokenizer.
+OpenNLP Maximum Entropy tokenizer models are specified in the \verb#tokenizers# section. If for a specific language no tokenizer model is specified, the translation memory will use the default OpenNLP WhitespaceTokenizer.
 \lstset{numbers=none, language=XML, caption={Tokenizers}, }
 \begin{lstlisting}
 <tokenizers>
@@ -257,9 +257,9 @@ For the data import as described in Section~\ref{sec:import}, several files have
 
 \begin{itemize}
         \item \verb#subtitles_folder# -- the folder containing the subtitle files for the initial import
-        \item \verb#data_folder# -- the folder the results of the alignment (see section~\ref{sec:import})
-        \item \verb#file_mediasource_mapping# -- a CSV file that describes the source (movie or TV show) of the  subtitle files
-        \item \verb#batch_size# -- the number of subtitle files that should be processed at the same time. A higher number will increase the memory consumption of the import process.
+        \item \verb#data_folder# -- the folder for the results of the alignment (see section~\ref{sec:import})
+        \item \verb#file_mediasource_mapping# -- a CSV file that describes the sources (movie or TV show) of the  subtitle files
+        \item \verb#batch_size# -- the number of subtitle files that should be processed at the same time; a higher number will increase the memory consumption of the import process
         \item \verb#mediasource_cache# -- the location of a cache file for the movie data queried from an external API for each subtitle file
         
 \end{itemize}
@@ -288,8 +288,8 @@ The module-specific options for the Core TM are mostly related to performance.
 
 \begin{itemize}
         \item \verb#max_number_of_concurrent_searchers# -- specifies the maximum number of searchers that will be created concurrently. By default, 5 searchers will be created and requests will be scheduled among them.
-        \item \verb#searcher_timeout# -- specifies the maximum time the scheduler will wait for a searcher to respond. If the time is exceeded, the scheduler will retry a different searcher.
-        \item \verb#ranking# -- specifies models used for different rankers, the model files are serialized WEKA classifiers.
+        \item \verb#searcher_timeout# -- specifies the maximum time the scheduler will wait for a searcher to respond. If the time is exceeded, the scheduler will retry with a different searcher.
+        \item \verb#ranking# -- specifies models used for different rankers; the model files are serialized WEKA classifiers.
 
 \end{itemize}
 
@@ -310,27 +310,27 @@ The module-specific options for the Core TM are mostly related to performance.
 \subsubsection{User Space}
 \label{subsec:user_scpace_settings}
 
-The User Space settings contain constants influencing the behavior of the application and also fields that need be set correctly to make the application run.
+The User Space settings contain constants influencing the behavior of the application and also fields that need to be set correctly to make the application run.
 
 \begin{itemize} 
-\item \verb#maximum_suggestions_count# -- maximum number of translation suggestions which are displayed to the user for one chunk, users can change this value in their user specific settings
-\item \verb#session_timeout_limit# -- time (in milliseconds) after which a user session is terminated if the user does not do any action in case the user did not set up she wants to be logged in permanently
-\item \verb#permanent_timeout_limit# -- time (in milliseconds) after which a user session is terminated if the user does not do any action in case the user did set up she wants to be logged in permanently
-\item \verb#server_address# -- URL of the web application, it is used in OpenID login to tell the OpenID providers where the browser should be redirected to after logging in
-
+\item \verb#maximum_suggestions_count# -- default maximum number of translation suggestions which are displayed to the user for one chunk; users can change this value in their user settings
+\item \verb#session_timeout_limit# -- time (in milliseconds) of user inactivity after which the user session is terminated (in case the user did not turn on the permanent login)
+\item \verb#permanent_timeout_limit# -- time (in milliseconds) of user inactivity after which the user session is terminated (in case the user did turn on the permanent login)
+\item \verb#server_address# -- URL of the web application, used especially in OpenID login to provide the OpenID provider with a return URL to redirect the user to after authentication
+% btw GUI could acquire the URL and send it to US
 \end{itemize}
 
 \lstset{numbers=none, language=XML, caption={First part of the User Space settings}}
 \begin{lstlisting}
 <userspace>
-     <maximum_suggestions_count>25</maximum_suggestions_count>
+     <maximum_suggestions_count>5</maximum_suggestions_count>
      <session_timeout_limit>3600000</session_timeout_limit>
      <permanent_session_timeout_limit>1209600000</permanent_session_timeout_limit>
      <server_address>http://localhost:8080</server_address>
 \end{lstlisting}
 
 
-The second part of the User Space setting concerns sending email from the application. Administrator can set the mailer server, account and text of the messages. Settings needed to establish a connection are listed first.
+The second part of the User Space setting concerns sending email from the application. The administrator can set the outgoing email server, account details and texts of the messages. Settings needed to establish the connection are listed first.
 
 \begin{itemize}
    \item \verb#mail.transport.protocol# -- protocol for sending
@@ -343,14 +343,14 @@ The second part of the User Space setting concerns sending email from the applic
 	\item \verb#mail.filmtit.password# -- account password
 \end{itemize}
 
-Settings of the email subjects and bodies follows. In the registration email body you can use {\tt \%userlogin\%} and {\tt \%userpass\%} templates which are later substituted by the real user name and password values at the time the email is sent. Similarly, {\tt \%userlogin\%} and {\tt \%changeurl\%} templates can be used in the email which is sent to the user when he forgets his password.
+Settings of the email subjects and bodies follows. In the registration email body you can use {\tt \%userlogin\%} and {\tt \%userpass\%} templates which are later substituted by the real user name and password values at the time the email is sent. Similarly, {\tt \%userlogin\%} and {\tt \%changeurl\%} templates can be used in the email which is sent to the user when they forget their password.
 
 \begin{itemize}
-\item \verb#mail.filmtit.forgottenPassSubject# -- subject for forgotten password email
-\item \verb#mail.filmtit.forgottenPassBody# -- text body for forgotten password email
-\item \verb#mail.filmtit.registrationSubject# -- subject for registration email
-\item \verb#mail.filmtit.registrationBody# -- text body of email, which is send during classic form registration 
-\item \verb#mail.filmtit.registrationOpenIDBody# -- text body of email, which is send during openID registration 
+\item \verb#mail.filmtit.forgottenPassSubject# -- email subject for forgotten password email
+\item \verb#mail.filmtit.forgottenPassBody# -- email body for forgotten password email
+\item \verb#mail.filmtit.registrationSubject# -- email subject for registration email
+\item \verb#mail.filmtit.registrationBody# -- body of email which is sent during classical registration 
+\item \verb#mail.filmtit.registrationOpenIDBody# -- body of email which is sent during openID registration 
 \end{itemize}
 
 \lstset{numbers=none, language=XML, caption={Settings for sending emails, second part of the User Space settings.}}
@@ -402,7 +402,7 @@ OpenID for Seznam.cz.
 
 \begin{itemize}
 \item \verb#seznamcz# -- URL of the Seznam.cz OpenID endpoint
-\item \verb#sreg# -- name of the URL variable with the authentication data
+\item \verb#nickname# -- name of the URL variable with the authentication data
 \end{itemize}
 
 \lstset{numbers=none, language=XML, caption={First part of the User Space settings}}
