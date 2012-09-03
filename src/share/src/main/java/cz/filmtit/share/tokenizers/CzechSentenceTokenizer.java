@@ -1,5 +1,7 @@
 /*Copyright 2012 FilmTit authors - Karel Bílek, Josef Čech, Joachim Daiber, Jindřich Libovický, Rudolf Rosa, Jan Václ
 
+Copyright (C) 2007 Daniel Naber
+
 This file is part of FilmTit.
 
 FilmTit is free software: you can redistribute it and/or modify
