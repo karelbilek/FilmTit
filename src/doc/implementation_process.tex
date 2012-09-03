@@ -223,18 +223,7 @@ We considered the user management to be just a minor technical issue. However, t
 
 We started to implement the OpenID login support in May (see Section~\ref{subsubsec:openid}). When we met some technical difficulties, we decided to implement our own registration and login first.
 
-Because our own experience was that requiring a registration from a web service often prevented us from using it, we decided to make the registration as easy as possible. We have no constraints on user names (except for non-emptiness) and very little constraints on password (only it must be at least 3 characters long).
-
-We think the most important feature of a password is for the user to remember it, so we leave the assessment of the strength to the user. The password strength constraints are often rather arbitrary and many classes of strong passwords do not pass them, it is hard to develop a reasonable strength measure. E.g.\ a whole sentence, a "passphrase", is a very strong password; however, it usually does not pass measures requiring use of specific classes of characters. And vice versa, a password using very unusual characters (e.g.\ Czech letters with diacritic signs) can be impossible to break even if it is quite short, because the attacker simply does not try out such characters that are uncommon in passwords; still it often does not pass typical minimum password length constraints.
-
-Moreover, we are not forced to pay much attention to the security of the application - it does not contain any sensitive data whose compromising would pose a threat to the users of the application and the benefit to the attacker successfully breaking into a user account is close to none.
-
-We allow the user to work in multiple browser tabs or windows, provided it is the same session (i.e.\ it has the same {\tt SessionID}), because we believe it is natural to work on multiple translations at once, to have the Document List opened to see the translation progress, etc. The user himself is responsible for having the same document opened multiple times, which is not expected behavior and so changes to the document in one Translation Workspace are not projected into the other Workspace until reloaded.
-
-However, we decided to disallow one user having multiple sessions at one time, as we believe that this is neither expected nor required behavior, and could potentially confuse the user. We believe that such a state is usually caused by a mistake, e.g.\ user A forgetting to log out on PC 1, then moving to PC 2, and at the same time user B using the application on PC 1 under user A's account by mistake.
-We do not support multiple users collaborating on one subtitle file at the moment.
-
-If a user registers through OpenID, we have to assign a user name to him (the unique OpenID identifier we get is typically a long hash, which does not look like a nice user name), see Section~\ref{subsubsec:gui_openid}. Because the user name is at least partly generated, the user might not like it. Therefore, we offer each user the possibility to change the user name (provided that the one he chooses is free). The user name is only used to authenticate the user (if not using OpenID login) and is displayed in the top right corner in the application; the internal unique identifier of a user is his user id, an integer assigned to each user on registration that never changes.
+For more information about user management, see part \ref{us:usermanag}.
 
 \subsubsection{GUI Look and Feel}
 
