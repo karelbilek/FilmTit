@@ -15,7 +15,7 @@ java -jar server-0.1.jar configuration.xml 8080
 \end{lstlisting}
 \vspace*{0.5em}
 
-The arguments specify the configuration file (see Section~\ref{sec:config}) and the port the server should run on. Although it is not strictly necessary, it is recommended to run the server with a maximum heap size of 500MB ({\tt -Xmx500m}).
+The arguments specify the configuration file (see Section~\ref{sec:config}) and the port the server should run on. Although it is not strictly necessary, it is recommended to run the server with a maximum heap size of at least 500MB ({\tt -Xmx500m}).
 
 
 \subsection{Database Configuration}
@@ -49,7 +49,7 @@ kernel.shmall = 4194304
 
 Depending on the system configuration, it may also be necessary to increase {\tt shmpages}. For more information on \postgres~memory management and how to adjust the shared memory settings for different operating systems, please see the \postgres~documentation on \emph{Resource Consumption}.\footnote{\url{http://www.postgresql.org/docs/9.1/static/runtime-config-resource.html}}
 
-For full-text search, the full-text search integrated in Postgres is used (this used to be \emph{TSearch2}). By default, a  number of languages are available. If one wants to use additional languages, they must be installed manually. For the Czech language, we prepared an installation script which can run using following command (example for running the command on an Ubuntu Linux system).
+For full-text search, the full-text search integrated in Postgres is used (this used to be \emph{TSearch2}). By default, a  number of languages are available, including English but excluding Czech. If one wants to use additional languages, they must be installed manually. For the Czech language, we prepared an installation script which can run using the following command (an example for running the command on an Ubuntu Linux system).
 
 \vspace*{0.5em}
 \lstset{numbers=none, language=bash, caption={Installing the Czech text search configuration in a local \postgres~database.}}
@@ -58,8 +58,6 @@ $ ./install_czech_configuration.sh /usr/share/postgresql/9.1/tsearch_data
 $ sudo -u postgres ./add_configuration_to_db.sh postgres filmtit
 \end{lstlisting}
 \vspace*{0.5em}
-
-\subsection{Running the Server}
 
 
 \section{Tasks}
@@ -70,7 +68,7 @@ The following guide contains examples for setting up the system on a plain Ubunt
 
 \begin{enumerate}
 
-\item \textbf{Copy the contents of the directory {\tt production} to a local directory.} We use the directory {\tt /production} for illustration. The directory {\tt production} contains the following files:
+\item \textbf{Copy the contents of the {\tt production} directory to a local directory.} We use the directory {\tt /production} for illustration. The {\tt production} directory contains the following files:
 
 \begin{itemize}
 	\item \textbf{server-0.1.jar} -- the FilmTit app
@@ -78,7 +76,7 @@ The following guide contains examples for setting up the system on a plain Ubunt
 	\item \textbf{models} -- text processing models for Czech and English
 	\item \textbf{install\_czech\_configuration.sh} -- helper script for \postgres~text search configuration installation
 	\item \textbf{add\_configuration\_to\_db.sh} -- helper script for adding the Czech text search configuration to the database
-	\item \textbf{encz\_dump} -- dump of the database for the language pair English-Czech
+	\item \textbf{encz\_dump} -- dump of the database for the English-Czech language pair
 \end{itemize}
 
 \item \textbf{Install and setup a \postgres~database.} Before being able to import the database dump to the database, ensure that there is a running version of \postgres.\footnote{\postgres~installation guide: \url{http://wiki.postgresql.org/wiki/Detailed_installation_guides}} The system will run with a standard \postgres~setup, however it is recommended to adapt the \postgres~installation as described in Section~\ref{sec:dbconfig}.
