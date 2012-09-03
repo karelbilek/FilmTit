@@ -429,7 +429,7 @@ The configuration also specifies the URL of the running Moses instance and the k
 \section{Adapting the TM to new Language Pairs}
 \label{sec:internationalization}
 
-The implementation currently uses the language pair English-Czech, however, the system is easily adaptable to new language pairs. In this section, we are briefly describing the necessary steps to adapt the system to a new language pairs.
+The implementation currently uses the English-Czech language pair, however, the system is easily adaptable to new language pairs. In this section, we are briefly describing the necessary steps to adapt the system to a new language pair.
 
 \subsection{Basic Setup: Exact and Fuzzy Matching}
 
@@ -475,20 +475,20 @@ After these steps have been taken, the data has to be aligned, imported and inde
 
 \subsection{Advanced Setup: Program-based Signatures and Machine Translation}
 
-A more advanced setup can use the levels from the basic setup or other program-based signature levels, as well as machine translation. 
+A more advanced setup can use the levels from the basic setup, or other program-based signature levels, as well as machine translation. 
 
-For this, it is necessary to do tokenization using an OpenNLP tokenizer. Although, it is possible to do this with a standard (unsupervised) tokenizer, it is recommended to use a tokenizer specifically trained for a given language. Pre-trained models for some language are available on the OpenNLP website\footnote{\url{http://opennlp.sourceforge.net/models.html}} and on github.\footnote{\url{https://github.com/utcompling/OpenNLP-Models}} The training of a tokenizer for a new language on the example of Czech is described in Section~\ref{sec:tokenization}. 
+For this, it is necessary to do tokenization using an OpenNLP tokenizer. Although it is possible to do this with a standard (unsupervised) tokenizer, it is recommended to use a tokenizer specifically trained for a given language. Pre-trained models for some languages are available on the OpenNLP website\footnote{\url{http://opennlp.sourceforge.net/models.html}} and on github.\footnote{\url{https://github.com/utcompling/OpenNLP-Models}} The training of a tokenizer for a new language is described in Section~\ref{sec:tokenization} on the example of Czech. 
 
 For instructions on how to set up Moses as a backoff level, see Section~\ref{sec:statmtmoses}.
 
 \section{Running the Moses Server}
 \label{sec:installAndRunMoses}
 
-The Moses server can be running on either a separate computer or the same computer, as on the FilmTit system. The main process connects to the Moses server via HTTP and sends it sentences to translate as remote procedure calls; however, there is no kind of authentication, so the Moses server has to be secured, for example by a network infrastructure; if it is not, there is a risk of unauthorized translation requests.
+The Moses server can be run either on a separate computer, or on the same computer as the FilmTit system. The main process connects to the Moses server via HTTP and requests sentence translations through remote procedure calls. However, there is no authentication, so the Moses server has to be secured in other ways, for example by the network infrastructure; if it is not, there is a risk of unauthorized translation requests.
 
-Moses is an experimental software and it is obvious from the slightly complicated installation; we will present an easy way to install Moses on an operating systems with the APT package system (ubuntu, debian) and a way to run Moses with our models, which can be found on the accompanying portable media; on different operating systems, the steps should be similar, but the official Moses website\footnote{\url{http://statmt.org/moses}} should be consulted for further information.
+Moses is an experimental software, which is one of the reasons for its slightly complicated installation. However, we will present an easy way to install Moses on an operating systems with the APT package system (Ubuntu, Debian) and a way to run Moses with our models, which can be found on the accompanying portable media; on different operating systems, the steps should be similar, but the official Moses website\footnote{\url{http://statmt.org/moses}} should be consulted for further information.
 
-Except for APT, git is needed for the initial download and GCC for building Moses. If \texttt{libboost} and \texttt{lobxmlrpc} are not installed, \texttt{sudo} privileges are also needed.
+Except for APT, git is needed for the initial download and GCC for building of Moses. If \texttt{libboost} and \texttt{lobxmlrpc} are not installed, \texttt{sudo} privileges are also required.
 
 \subsection{Installing the Moses Server}
 \begin{enumerate}
@@ -525,7 +525,7 @@ cd mosesdecoder
 ./bjam  --with-xmlrpc-c=/usr/bin/ -j4
 \end{lstlisting}
 
-If boost is at non-standard location, it will have to be specified it with the \texttt{-{}-with-boost=/path/to/boost} switch.
+If boost has been installed to a non-standard location, it has to be specified with the \texttt{-{}-with-boost=/path/to/boost} switch.
 
 \item
 The Moses server should now be compiled at \texttt{mosesdecoder/bin/mosesserver}.
@@ -535,7 +535,7 @@ The Moses server should now be compiled at \texttt{mosesdecoder/bin/mosesserver}
 
 For running the Moses server with our data, the folder with our models is needed. This data is supplied with the project.
 
-Now, let us suppose that our data with models are at folder \texttt{/data/} and mosesdecoder is at folder \texttt{/bin/}. Then, the server can be easily started at port \texttt{8081} with 4 threads (recommended number of threads is number of cores) by running
+Now, let us suppose that our data with models are at folder \texttt{/data/} and mosesdecoder is at folder \texttt{/bin/}. Then, the server can be easily started at port \texttt{8081} with 4 threads (the recommended number of threads is the number of cores) by running
 
 \lstset{numbers=none, language=bash, caption={Running Moses server}}
 \begin{lstlisting}
