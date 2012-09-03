@@ -53,7 +53,7 @@ and take care of her.\\
 \label{subtitleFormats}
 \end{table}
 
-\emph{SRT} or \emph{SubRip} is a format from the eponymous GPL program, used mainly for converting the bitmap-based subtitles on DVDs to text data. There is no formal specification of the subtitle file format, perhaps because of its simplicity.\footnote{Some kind of ``specification" can be found on the website of the Matroska codec -- \url{http://matroska.org/technical/specs/subtitles/srt.html}.}
+\emph{SRT} or \emph{SubRip} is a format from the eponymous GPL program, used mainly for converting the bitmap-based subtitles on DVDs to text data. There is no formal specification of the subtitle file format, perhaps because of its simplicity.\footnote{Some kind of ``specification'' can be found on the website of the Matroska codec, which can read \texttt{srt} files -- \url{http://matroska.org/technical/specs/subtitles/srt.html}.}
 
 A \emph{SRT} file does not have any header and contains everything as plain text. Each subtitle item consists of three or four lines and is separated from the previous and the next one by an empty line. The first line is the order of the subtitle in the movie, the second line contains the absolute time in the movie when the subtitle shows up and when it disappears. The time is expressed with the precision of milliseconds. The next several lines contain the actual text of the subtitle. It can also contain simple HTML-like formatting tags, although support for those varies across media players.
 
