@@ -87,6 +87,7 @@ For enhancing the visual appearance of our application to a modern look without 
 Similarly to other third-party libraries used by FilmTit, the GWT-Bootstrap library is attached as a Maven dependency and downloaded automatically from its own Maven repository.
 
 
+
 \section{GUI Structure}
 % (Honza/Ruda)
 
@@ -102,6 +103,26 @@ The main class is Gui.java. It defines the web application itself, providing an 
 It behaves as a static class, except for the {\tt onModuleLoad()} method required by GWT, which corresponds to the {\tt main()} function.
 
 \subsection{Pages}
+
+\subsubsection{GWT -- discussion}
+\label{gui:gwt}
+Very soon, we found out a week point of GWT: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switching pages are really simple tasks. GWT, however, uses the idea of having one HTML file and one JavaScript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
+
+The GWT way of switching pages is by replacing the contents of the Root Panel (which represents the visible part of a page), or any other Panel placed within the Root Panel (which we decided to use so that some elements, such as the menu, are present on all pages). The switching is done without reloading, simply by creating an instance of the new page and directly setting it as the contents of the panel (without any convenience functions for that to our knowledge).
+
+All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also {\tt Hyperlink} widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a {\tt ValueChangeHandler}).
+The URL contains an anchor with the name of the page (e.g.\ {\tt \#DocumentCreator} or {\tt \#WelcomeScreen}), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
+
+We decided to use the {\tt History} class and {\tt Hyperlinks} to implement the menu and page switching. We create a {\tt PageHandler} class which implements the {\tt ValueChangeHandler} -- it turns the anchor string into a value of Page enum, checks whether the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
+
+However, we encountered one issue with the {\tt Hyperlinks}: the {\tt ValueChangeHandler} is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the {\tt Hyperlink} class, we had to abandon the Hyperlinks and used {\tt NavLinks} instead (a simple link with no default interaction with the History), with click handlers invoking the {\tt ValueChangeHandler}.
+
+We also had a discussion about the expected page to be loaded in various situations. E.g.\ if the user is in Translation Workspace and logs out, the URL page parameter stayed on Translation Workspace by default, although Welcome Screen is displayed instead because a logged out user does not have access to Translation Workspace. If he then logged back in without switching the page, the document he had opened before logging out was reopened again.
+
+Eventually, the behavior was modified so that the URL is always changed to Welcome Page when the users explicitly log out, but the URL is not modified if the users are logged out automatically, typically because their Session ID expire. Reasoning: if they were logged out implicitly, it is probable that they did not want that and would like to continue with their work as soon as possible. However, if they logged out explicitly, they probably finished their work and expects the application to be ``closed'', i.e.\ not remembering the last state of their work.
+
+
+\subsubsection{Structure}
 
 The subpackage {\tt cz.filmtit.client.pages} defines the pages of the application.
 Please refer to the sitemap figure \ref{fig:sitemap} for an overview of the pages, which are:
@@ -191,12 +212,40 @@ The subclasses often override this by showing the message in a Dialog (invoking 
 Most of the RPCs contain the {\tt sessionID} as one of their parameters to authenticate the user. All of such RPCs can thus throw an {\tt InvalidSessionIdException}, to which the default action is to show the Login Dialog to the user.
 
 \subsection{Offline Mode}
+\label{gui:offlinemode}
 
 The Offline Mode offers the users the possibility to continue translating a document even without a connection to the server. Their translations are stored locally in his browser and sent to User Space once they go back online.
 Support for storing the data is ensured by the HTML5 Local Storage feature, which provides an in-browser data storage, accessible from JavaScript.
 Each object is stored as a pair of a unique string key and a string value (therefore, serialization to string is necessary to store complex objects).
 
+
+
+\subsubsection{Motivation}
+
+We decided that the only part that has to be able to work offline is the Translation Workspace, as doing the translation itself is the most time-consuming part of the whole process for a user. We believe that the user can prepare everything while online, wait until the translation suggestions are loaded, and then spend some time offline translating the document.
+
+We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the application offline
+-- e.g.\ the whole application would have to be stored offline, which we wanted to avoid in the first place by designing FilmTit as a web application.
+However, it is obvious that the data created by the user in Offline Mode must be stored locally even if the application is closed.
+Thus, only storing {\tt setUserTranslation} calls and invoking them once the user goes back online turned out to be sufficient.
+
+
+We decided to use HTML5 Local Storage, which is similar to the well-known cookies mechanism from which it evolved.
+Like Cookies, the stored object has two ``useful'' string fields, the name (or ``key'') and the contents (or ``value'').
+However, the Local Storage has several advantages over cookies:
+
+\begin{itemize}
+\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from the server side; however, in our case, being only able to handle the objects from within JavaScript is an advantage.
+\item The size limit both for individual objects and for the total amount of data stored is larger.
+\item Instead of setting expiry time, the programmer simply decides whether the objects should be stored temporarily (for a browser session) or permanently (which is our case).
+\item The API is cleaner.
+\end{itemize}
+
+Still, thanks to the similarity of Local Storage to cookies, it would be quite easy to implement a fallback for browsers without Local Storage support using cookies. We decided not to do that because, as far as we know, most browsers installed on users' computers nowadays should support Local Storage. However, we might add this feature in future if there is a need for it.
+
+\subsubsection{Implementation}
 The Offline Mode support is separated into three parts: the {\tt LocalStorageHandler}, the {\tt Storable} interface, and classes implementing the interface (i.e. the {\tt SetUserTranslation} class).
+
 
 \subsubsection{Storable interface}
 \label{gui:subsubsec:storable}
@@ -287,6 +336,7 @@ Once the user is back online and logs in again, the {\tt LocalStorageHandler} ex
 When each of the loaded objects has either succeeded or failed, the user is informed about the result. In case of errors, he can decide to retry loading the failed data or to delete them.
 
 \subsection{SubgestBox}
+\label{gui:subgest}
 
 An important class is the {\tt SubgestBox}, or ``SUBtitle sugGESTion BOX'', which provides a textbox-like interface and visualizes the TM results, offering a variety of means of navigation through them. It is based on the IFrame HTML element to support also multi-line and formatted inputs. The TM results are shown as a pop-up suggestion list when the textbox is focused. Another features like auto-scrolling to a certain place of the screen and height auto-adjustment for multi-line inputs were added to improve the user experience. The behaviour and features mentioned requires a custom event handling, this is provided by the SubgestHandler class (common to all the SubgestBoxes within a Translation Workspace).
 

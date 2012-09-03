@@ -237,52 +237,13 @@ The design of the GUI was driven by the intentions of effectiveness, while retai
 \label{fig:before_bootstrap}
 \end{figure}
 
-%Trying to be user friendly
-
-%\begin{itemize}
-%\item expected behavior
-%\item as litle controls as possible
-%- can be controlled by mouse %(except for typing)
-%\item TranslationWorkspace can be controlled both by mouse and by keyboard, as the user is expected to spend most of the time in Translation Workspace by typing, and the need to switch between the mouse and the keyboard would decrease his efficiency
-%\item other pages controlled only by mouse, which feels natural enough; a typical user spends most of the time in Translation Workspace, therefore having to use the mouse on the other pages is not expected to be an efficiency problem
-%\end{itemize}
-
-%changing data .. idea: it should be possible to change anything if there is not a strong reason why not
-%\begin{itemize}
-%\item change document title, movie title... by clicking on it (seems natural, added a tooltip)
-
-%\item change timing or source text: we think that this is not usually required so it is under a double click to prevent unwanted activation (and a tooltip again)
-
-%\item we offer the user the possibility to change the source text because if there is an error, the suggestions might be incorrect (the suggestions are regenerated on changing the source)
-
-%\item we do not offer deleting chunks because this would be difficult to implement properly in GUI; however, the default behavior is not to export the untranslated chunks, so not translating a chunk is roughly equivalent to deleting it
-
-%\item we do not allow to change the source subtitle file (this would actually mean deleting the whole old document and creating a new one, probably only keeping the title -- so we leave this for the user to do himself); however, smaller edits can be done directly in TW
-%\end{itemize}
-
 \subsubsection{GUI Pages}
 
 We started having one page only, the Translation Workspace, which was sufficient for development of the application for several months. Later we added the Document  Creator page as the default one, which replaced itself by the Translation Workspace once a document was created, and this was sufficient for some more time. However, we eventually could not avoid adding more pages and the need to explicitly handle multiple pages became obvious.
 
-We immediately found out a week point of GWT here: it has nearly no native support for multiple pages. This was quite a surprising issue to us, since in any other web development technology or framework that we know, creating a new page and switching pages are really simple tasks. GWT, however, observes the idea of having one HTML file and one JavaScript file only that handle everything. (It is technically possible to create multiple pages by creating multiple GWT projects, each corresponding to one page, but this is not recommended for many good reasons.)
+This lead to some problems, because GWT cannot easily handle more pages, which genuinely surprised us.
 
-The GWT way of switching pages is by replacing the contents of the Root Panel (which represents the visible part of a page), or any other Panel placed within the Root Panel (which we decided to use so that some elements, such as the menu, are present on all pages). The switching is done without reloading, simply by creating an instance of the new page and directly setting it as the contents of the panel (without any convenience functions for that to our knowledge).
-
-All the pages have the same URL by default, but GWT offers the History class for changing the URL and reacting to changes to URL (however, it is not linked to page switching by design -- this remains for each programmer to do by himself). There are also {\tt Hyperlink} widgets, which represent a link to a different page, with the default action being changing the URL and invoking the appropriate handler (a {\tt ValueChangeHandler}).
-The URL contains an anchor with the name of the page (e.g.\ {\tt \#DocumentCreator} or {\tt \#WelcomeScreen}), and the History class is able to provide the name of the anchor to the user and to invoke the ValueChangeHandler when the URL changes.
-
-We decided to use the {\tt History} class and {\tt Hyperlinks} to implement the menu and page switching. We create a {\tt PageHandler} class which implements the {\tt ValueChangeHandler} -- it turns the anchor string into a value of Page enum, checks whether the requested page can be loaded (especially based on the user log in / log out state) and loads the appropriate page. It also provides public methods to other parts of GUI so that they can switch pages, modifying the URL at the same time (so that the browser refresh works as expected).
-
-However, we encountered one issue with the {\tt Hyperlinks}: the {\tt ValueChangeHandler} is invoked only if the value of URL changes, which means that if the user clicks a menu link which points to the page loaded (e.g. while creating a document, the user decides to restart and clicks the document creator link), the handler is not invoked. As this behavior is hard-coded into the {\tt Hyperlink} class, we had to abandon the Hyperlinks and used {\tt NavLinks} instead (a simple link with no default interaction with the History), with click handlers invoking the {\tt ValueChangeHandler}.
-
-%When reviewing the resulting code, we found out that the History class and the {\tt ValueChangeHandler} do not provide any benefit to us any more, so we removed them completely. Only then did we find out that the History class can also correctly handle the browser's forward/backward button behavior, so we re-added it, but it is only used for that purpose now.
-
-%Another issue encountered was the fact that passing the page name as an anchor name is not always convenient and sometimes is not possible at all. If the page requires some additional parameters -- such as the password change page, where the user can change his password based on a link sent to his mailbox, containing a temporary token and the username as parameters -- the resulting address looks odd (e.g.\ http://filmtit.cz/?username=a\&token=df5ds3f\#ChangePassword). Moreover, the OpenID validation mechanism we used requires URL of a return page as a parameter, to which it adds parameters containing information about the validation process, but it is only able to add the parameters at the end of the address, resulting in an incorrect URL. For such cases, we decided to offer an alternative way of specifying the page to be loaded in the URL by setting the page parameter (e.g.\ http://filmtit.cz/?page=ChangePassword\&username=a\&token=df5ds3f).
-
-%This solution finally proved to offer all features required.
-
-We also had a discussion about the expected page to be loaded in various situations. E.g.\ if the user is in Translation Workspace and logs out, the URL page parameter stayed on Translation Workspace by default, although Welcome Screen is displayed instead because a logged out user does not have access to Translation Workspace. If he then logged back in without switching the page, the document he had opened before logging out was reopened again.
-Eventually, the behavior was modified so that the URL is always changed to Welcome Page when the users explicitly log out, but the URL is not modified if the users are logged out automatically, typically because their Session ID expire. Reasoning: if they were logged out implicitly, it is probable that they did not want that and would like to continue with their work as soon as possible. However, if they logged out explicitly, they probably finished their work and expects the application to be ``closed'', i.e.\ not remembering the last state of their work.
+We describe the problems and their solutions in the chapter~\ref{gui:gwt}
 
 
 \subsubsection{Handling Parsing Errors}
@@ -303,99 +264,21 @@ We decided to introduce heuristics to decide whether to reject the whole file: i
 \label{ip:subsubsec:offline}
 
 At first, our intention was to make the whole application able to run offline. However, it was not a priority and was not even part of the official specification.
-Eventually, we decided that the only part that has to be able to work offline is the Translation Workspace, as doing the translation itself is the most time-consuming part of the whole process for a user. We believe that the user can prepare everything while online, wait until the translation suggestions are loaded, and then spend some time offline translating the document.
 
-We also decided to require for the application to stay open while the user goes offline, as it would be difficult to reload the application offline
--- e.g.\ the whole application would have to be stored offline, which we wanted to avoid in the first place by designing FilmTit as a web application.
-However, it is obvious that the data created by the user in Offline Mode must be stored locally even if the application is closed.
-Thus, only storing {\tt setUserTranslation} calls and invoking them once the user goes back online turned out to be sufficient.
+When we tried the HTML5 Local Storage, though, the offline mode seemed to be actually easy to implement using this technology, while the support for it is good across web browsers.
 
-%\paragraph{Technology}
-
-We decided to use HTML5 Local Storage, which is similar to the well-known cookies mechanism from which it evolved.
-Like Cookies, the stored object has two ``useful'' string fields, the name (or ``key'') and the contents (or ``value'').
-However, the Local Storage has several advantages over cookies:
-
-\begin{itemize}
-\item The objects are not sent to the browser on loading the page but are stored and retrieved on request. This would actually be a disadvantage if we wanted to interact with the storage from the server side; however, in our case, being only able to handle the objects from within JavaScript is an advantage.
-\item The size limit both for individual objects and for the total amount of data stored is larger.
-\item Instead of setting expiry time, the programmer simply decides whether the objects should be stored temporarily (for a browser session) or permanently (which is our case).
-\item The API is cleaner.
-\end{itemize}
-
-Still, thanks to the similarity of Local Storage to cookies, it would be quite easy to implement a fallback for browsers without Local Storage support using cookies. We decided not to do that because, as far as we know, most browsers installed on users' computers nowadays should support Local Storage. However, we might add this feature in future if there is a need for it.
-
-%\paragraph{Extendability}
-%Although currently only one class, SetUserTranslation, can be stored in Offline Mode, the Offline Mode support is designed to be easily extendable if we decide to store other data in Local Storage as well.
-%To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the Storable interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
-%(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on coming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if necessary.)
-%
-%Although currently only one class, {\tt SetUserTranslation}, can be stored in Offline Mode, the Offline Mode support is designed to be easily extendable if we decide to store other data in Local Storage as well.
-%To add support for storing another class in the Local Storage, the class would have to implement the five methods defined by the {\tt Storable} interface (especially the serialization and deserialization methods, the other three are trivial to implement). Apart from that, only some handling logic would have to be added or modified, such as reaction to the GUI being probably offline, etc.
-%(In the current implementation, it is silently supposed that the stored objects are RPCs that should be invoked on comming back online. However, this is reflected mainly in the way the Offline Mode procedures communicate with the user, which would be easy to change if necessary.)
-%
-%\paragraph{Object Identification}
-%When some objects are stored in the Local Storage, they can only be accessed through the Local Storage interface, which is flat and does not support any advanced structures -- the programmer can only get the number of all of the objects in the storage, iterate over their keys, and retrieve a value of an object based on its key. (Plus setting and deleting the objects of course.)
-%Thus, we had to find our own way of identifying the objects correctly, so that we correctly inform the user about objects he has stored (not objects that other users stored) and correctly deserialize them and perform any actions required -- this means that not only the object contents but also an identifier of its class and of the current user have to be included. We found two possible solutions:
-%
-%\begin{itemize}
-%
-%\item store a special object or objects in the storage, describing the other objects:
-%
-%\begin{itemize}
-%\item efficient retrieval of the description of the contents of the storage
-%\item could simulate a simple file-system with a tree structure of files and folders
-%\item the object key can be any uniquely generated string
-%\item not reliable as the user can interrupt the application at any time and can also change the values stored by the application
-%\item could still be used as a non-authoritative cache
-%\end{itemize}
-%
-%\item each object contains all necessary information in its key
-%
-%\begin{itemize}
-%\item simpler to implement
-%\item very little danger of data corruption
-%\item keeps the flat structure
-%\item the object key must include all important information to identify the object
-%\item all object keys must be loaded to know the contents of the storage (but it takes at most a few seconds in a typical case)
-%\end{itemize}
-%
-%\end{itemize}
-
-%We decided to use the second approach, which we believe should be always used to prevent data corruption; however, we think that it would be beneficial to also implement and add the first approach as an additional layer of abstraction above the individual objects.
-
-% \item decided that this might be good to add in future but there seems to be no need at the moment
-% \item started with the ``key fields'' of the objects (document id and chunk index in case of SetUserTranslation)
-% \item then also added the class name to make it extendable (although it has not been extended)
-% \item then added username because there might be various FilmTit users using the same browser
-% \item and eventually changed username into user ID because now the user can change his username
-
-%\subsubsection{Hibernate Issues}
-%
-%Before starting the project, few team members had any experience with an object-relation mapping library for Java. Initially we were also thinking about not using such a library and using the \emph{JDBC} connection directly -- that was the option we chose for the translation memory core where we work only with a few tables with simple relations and with specific SQL queries. For the User Space, where we expected a much more complicated structure, we thought that using an object-relation mapping would be more beneficial and decided to use one.
-%% AN object-relation mapping!!! for X's sake, it begins with an "[o]", how can you say "a object..."?! or is it because you say [vobjekt]? :-)
-%
-%After initial research, we found that Hibernate seems to be the most frequently used library for object relation mapping and decided to use it. There were more than 20,000 discussions on \emph{stackoverflow.com} which gave us hope that solution for any problems we might have could be easily found on the Internet. 
-%
-%Details of the mapping itself can be found in Section~\ref{subsec:database_mapping}, the structure of the mapped database is in Figure~\ref{fig:em_of_us}.
-%
-%Because we started with Hibernate version 3, all properties we wanted to make persistent had to provide getters and setters. The requirement to have a getter and a setter for each property may sound as violating the encapsulation feature of the Object Oriented Programming, but in fact the getters and setters can be private (as Hibernate can still access them via reflection). Each class also must have a parameter-less constructor, but it also can be private.
-%
-%New versions of Hibernate allow to use the fields of the classes directly, but since the mapped classes are usually wrappers of the shared classes, most of the fields are only accessed through getters and setters in the rest of the application, so we just use getters and setters for all the properties. Despite we ended up using Hibernate version 4.1.0, we are quite conservative in terms of using its features and keep all the mapping in separate XML files despite it can be done by annotations directly in the source file and do not access fields directly, but always use getters and setters.
-% "the fields are not directly accessible from the mapped class" ?!?!?! WTF ?!?!?! you can make a class which cannot access its own fields???
-
-%The previously mentioned requirements of Hibernate were very often sources of minor bugs -- mostly forgetting to add a private setter (which soon lead to exceptions and was easy to find), or forgetting to add a new property into the mapping (which did not lead to immediately observable errors, as this only had the result of the property not being persistent; moreover, when a new property was added, it was usually not covered in tests at that time, so it typically took some time to find the bug.)
-
-%Another problem was that although Hibernate can adjust the database scheme to the mapping if the mapping changes, it was often not able to change it in a proper way and it was necessary to drop the User Space tables in the database and let Hibernate create them from scratch. This of course always caused loss of the data we tested the application on. More importantly, this means that it would be very hard to change the mapping in the application once it is released -- it would probably require managing the database scheme changes partly or fully manually.
+The Offline mode is described in bigger detail in Chapter~\ref{gui:offlinemode}
 
 
 \subsubsection{Subgestboxes}
 
-One of the most important features of the application's user interface is the behavior of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class' name, {\tt SubgestBox}, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
+One of the most important features of the application's user interface is the behavior of the actual translation workspace, particularly the text-boxes where user writes their translations and which provide the pop-up suggestions from the translation memory. Since the functional requirements for these boxes were gradually refined throughout the development process, their implementation also underwent several stages of evolution. However, their class\' name, {\tt SubgestBox}, remained from the early stages, implying the idea of a box offering suggestions for subtitles.
 
-Since the GWT pre-implemented {\tt SuggestBox} did not meet our requirements we had to find our own solution using HTML IFrames and GWT {\tt RichTextArea}.
+Since the GWT pre-implemented {\tt SuggestBox} did not meet our requirements we had to find our own solution using HTML IFrames and GWT {\tt RichTextArea}. It provided all the functionality we have requested, but there was a significant performance problem -- the browser often became irresponsive when loading hundreds of them. We solved this by distinguishing so-called ``fake'' and ``real'' {\tt SubgestBoxes}; it is described in bigger detail in Chapter~\ref{gui:subgest}.
 
-The {\tt RichTextArea}, being based on the IFrame HTML element, provided all the functionality we have requested (although some of it is not as simply accessible as we expected), but there was yet another problem with it. Having one IFrame for each chunk on the page, i.e. hundreds of them for an average movie, turned out to be quite a significant performance problem -- the browser often became irresponsive. In the end, we have solved this issue by distinguishing so-called ``fake'' and ``real'' {\tt SubgestBoxes}; the former being simple {\tt TextAreas} and displayed by default in the translation workspace, on focus transforming into the latter, the real IFrame-based {\tt SubgestBoxes} with all the functionality. This also required special approach in CSS styling.
+
+%We don't want to repeat GUI chapter
+%The {\tt RichTextArea}, being based on the IFrame HTML element, provided all the functionality we have requested (although some of it is not as simply accessible as we expected), but there was yet another problem with it. Having one IFrame for each chunk on the page, i.e. hundreds of them for an average movie, turned out to be quite a significant performance problem -- the browser often became irresponsive. In the end, we have solved this issue by distinguishing so-called ``fake'' and ``real'' {\tt SubgestBoxes}; the former being simple {\tt TextAreas} and displayed by default in the translation workspace, on focus transforming into the latter, the real IFrame-based {\tt SubgestBoxes} with all the functionality. This also required special approach in CSS styling.
 
 Another issues as focus handling, automatic scrolling, dealing with endlines (see Table~\ref{implprocess:RichTextAreaNewlines} for details) and automatic resizing had to be solved in order to make the Translation Workspace more user-friendly.
 
@@ -482,7 +365,10 @@ To also enable editing the files, the Translation Workspace became the only page
 
 Although the candidate search was started early in the development process, the ranking of candidates was not completed until the main development phase. Since we base the ranking on combining various scores with weights, it is necessary to estimate these weights from data. In order to produce the annotated data for this, all other parts of the system had to be fully functional. Because of this, we could finalize the ranking and train the ranking models only later in the main development phase.
 
+\subsubsection{Machine translation}
+Altough machine translation with Moses was thought to be a nice possibility to have, at the end we were very surprised with how accurate it is on our data (seeing it being more successful than Google Translate was a \emph{very} gratifying moment) and how quick we managed to finally get it.
 
+The only problematic part was fitting both our application and Moses on the same small virtual machine we were given for this project. However, when we deleted all unnecessary data from the disk and ran with only the binarized models, we were able to run it fine (even when we have only about 1 GB of free disk memory, but it seems to be enough for Jetty).
 
 \subsection{Final Development}
 \label{subsec:final_development}
@@ -500,19 +386,23 @@ stability of the application and its responsiveness.
 
 \section{Evaluating the Development Process}
 
+\subsection{Technologies}
 One of the crucial decision for the project was the choice of technologies. Most of the technologies we used -- Maven, Scala, Hibernate, GWT -- were new to some of us and we also had not much experience with the other. Combining these technologies together was a difficult task and would probably even be for an experienced Java developer. Generally, because we were not too very familiar with the technologies, we spent most of the time solving technical issues. There are numerous research challenges, mostly in the fuzzy matching part, which had to remain untouched due to that. Nevertheless, it is doubtful if this was caused only by technical difficulty or by paying too much attention to less important technical tasks.
 
-On the other hand, our choice of technologies appeared to be good since it saved a significant amount of work for us due to the possibility to share an implementation of a class. Using the Scala language for the core also made the parallelization much easier.
-
-Although we spent a long time on discussions of how the structure of the project would look like, we did not avoid a radical change of the design of the application a few months after the project started. Nearly the whole User Space code had to be dropped and it was also necessary to totally remake the client components existing so far.
 
 A bottleneck of the development process was also that not all of us were familiar with all of the technologies. It happened several times that somebody could not continue developing a particular part of the project and had to wait for another team member to fix the issue.
 
+On the other hand, our choice of technologies appeared to also be good since it saved a significant amount of work for us due to the possibility to share an implementation of a class. Using the Scala language for the core also made the parallelization much easier.
+
+\subsection{Structure}
+Although we spent a long time on discussions of how the structure of the project would look like, we did not avoid a radical change of the design of the application a few months after the project started. Nearly the whole User Space code had to be dropped and it was also necessary to totally remake the client components existing so far.
+
+\subsection{Efficiency, communication}
 During the whole time we had the problem that our development process was not as effective as we would imagine and it was also difficult to find a suitable communication platform. Although we saw each other often to discuss the project issues and had regular meetings, a working online communication played a crucial role for us.
 
 As a very first communication channel, we established a mailing list at Google groups. All the notifications and comments from Github were redirected to that mailing list, as well as results of Jenkins builds. Soon, we started to receive dozens of FilmTit email every day and it started to be quite difficult the follow the conversations and find items in the conversation history.
 
-Because of this, we tried to use Piratedpad\footnote{\url{http://www.piratenpad.de/}}. It is free a web-based collaborative real-time editor, allowing authors to simultaneously edit a text document, and see all of the participants' edits in real-time, with the ability to display each author's text in their own color. There is also a chat box in the sidebar to allow meta communication. The service is run by the German Pirate Party. We tried to use the tool to gather personal plans and ``todos'', bug reports, etc. After some time, the pads became messy and the mailing group became the main communication channel again. We were also solving many issues bilaterally using various instant messaging systems.
+Because of this, we tried to use PiratednPad\footnote{\url{http://www.piratenpad.de/}}. It is free a web-based collaborative real-time editor, allowing authors to simultaneously edit a text document, and see all of the participants\' edits in real-time, with the ability to display each author's text in their own color. There is also a chat box in the sidebar to allow meta communication. The service is run by the German Pirate Party. We tried to use the tool to gather personal plans and ``todos'', bug reports, etc. After some time, the pads became messy and the mailing group became the main communication channel again. We were also solving many issues bilaterally using various instant messaging systems.
 
 In July, %when the most intensive work on project started,
 we launched a Skype group chat. It effectively replaced the personal meetings, which was much sought after as usually several members were out of Prague at a time, but fortunately, they typically had an Internet connection.
@@ -534,7 +424,7 @@ Fortunately, because almost every time there were at least some team members onl
 	\item implementation of the VLC playback and java applet
 	\item processing the OpenSubtitles.org data
 	\item preparing and optimization of the Moses system to our use
-	\item initialization of Jetty webserver, general bugfixes
+	\item initialization of Jetty webserver
 \end{itemize}
 
 \subsection*{Josef Čech}
