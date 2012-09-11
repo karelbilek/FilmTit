@@ -221,10 +221,10 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 }
 
 iframe.gwt-RichTextArea, .pre_subgestbox {
-	-webkit-border-radius: 2px !important;
-	-moz-border-radius: 2px !important;
-	border-radius: 2px !important;
-	border: 1px solid #eee !important;
+	-webkit-border-radius: 3px !important;
+	-moz-border-radius: 3px !important;
+	border-radius: 3px !important;
+	border: 1px solid #ddd !important;
 /*	border-bottom: 1px solid #aaa !important;*/
 }
 
