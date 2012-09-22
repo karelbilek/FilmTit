@@ -1,4 +1,4 @@
-\documentclass[11pt, oneside]{book}
+\documentclass[11pt, oneside]{article}
 \usepackage[utf8]{inputenc}
 %\usepackage[czech]{babel}
 \usepackage{a4wide}
@@ -6,7 +6,7 @@
 \usepackage[textsize=footnotesize]{todonotes}
 \usepackage{setspace}
 
-\usepackage[left=2.5cm,top=3cm,bottom=3cm,right=2.5cm]{geometry}
+%\usepackage[left=2.5cm,top=3cm,bottom=3cm,right=2.5cm]{geometry}
 %\usepackage{arydshln} % dotted line
 \usepackage{multirow} 
 \usepackage{multicol}
@@ -25,10 +25,6 @@
 %\renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
 
 
-\usepackage[sc]{mathpazo}
-\linespread{1.05}         % Palatino needs more leading (space between lines)
-\usepackage[T1]{fontenc}
-
 \usepackage{tabularx}
 \usepackage{varwidth}
 
@@ -36,16 +32,6 @@
 \usepackage{relsize}
 \usepackage{hyperref}
 \usepackage{graphics}
-
-%From here: http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-crossreferences-and-hyperlinks
-\usepackage{xcolor}
-\definecolor{dark-red}{rgb}{0.4,0.15,0.15}
-\definecolor{dark-blue}{rgb}{0.15,0.15,0.4}
-\definecolor{medium-blue}{rgb}{0,0,0.5}
-\hypersetup{
-    colorlinks, linkcolor={dark-red},
-    citecolor={dark-blue}, urlcolor={medium-blue}
-}
 
 
 \usepackage{sectsty}
@@ -55,7 +41,6 @@
 \providecommand{\SetAlgoLined}{\SetLine}
 \providecommand{\DontPrintSemicolon}{\dontprintsemicolon}
 
-\allsectionsfont{\sffamily\mdseries\larger}
 
 
 
@@ -64,68 +49,8 @@
 % so that the PDF links link to the figure and not to its caption
 \usepackage[hypcap]{caption}
 
-%-----------------------------------------------------------%
-% Source Codes
-%-----------------------------------------------------------%
-	%Colours:
-	\definecolor{jorange}{rgb}{1,0.71,0.0588235294}
-	\definecolor{joGrau}{rgb}{0.95,0.95,0.95}
-	\definecolor{joGrau2}{rgb}{0.85,0.85,0.85}
-	\definecolor{joDunkelGrau}{rgb}{0.7,0.7,0.7}
-	\definecolor{joDunkelGrau2}{rgb}{0.5,0.5,0.5}
-	\definecolor{joCommentGrau}{rgb}{0.55,0.55,0.55}
-
-	\lstset{
-		basicstyle={\footnotesize},
-		numberstyle=\footnotesize \color{joDunkelGrau},
-		keywordstyle={\bfseries},
-		tabsize=5,
-		rulecolor = \color{joDunkelGrau},
-		backgroundcolor=\color{joGrau},
-		framesep=4pt,
-		breaklines=true,
-		numbers=left,
-		framexleftmargin=0pt,
-		framexrightmargin=5pt,
-		framexbottommargin=0pt,
-		framextopmargin=0pt,
-		breakatwhitespace=true,
-		showspaces=false,
-		commentstyle=\color{joCommentGrau}\textbf,
-		captionpos=b,
-		showstringspaces=false,
-		extendedchars=true,
-		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
-		columns=fullflexible,
-		framerule=0.3pt,
-		frame=trbl,
-		prebreak=\mbox{},
-		postbreak=\mbox{$\hookrightarrow$\hspace{0.2cm}}
-	}
-	% "define" Scala
-	\lstdefinelanguage{scala}{
-	  morekeywords={abstract,case,catch,class,def,%
-	    do,else,extends,false,final,finally,%
-	    for,if,implicit,import,match,mixin,%
-	    new,null,object,override,package,%
-	    private,protected,requires,return,sealed,%
-	    super,this,throw,trait,true,try,%
-	    type,val,var,while,with,yield},
-	  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
-	  sensitive=true,
-	  morecomment=[l]{//},
-	  morecomment=[n]{/*}{*/},
-	  morestring=[b]",
-	  morestring=[b]',
-	  morestring=[b]"""
-	}
-
-	%Space between listings in multiple colums
-	\setlength{\columnsep}{20mm}	
-
-
-\title{Filmtit documentation}
-\author{}
+\title{Automatic translation of movie subtitles}
+\author{Karel Bílek, with substantial help by Jindřich Libovický}
 %\date{} % Activate to display a given date or no date (if empty),
          % o
 
@@ -142,71 +67,20 @@
 
 
 \begin{document}
+    \maketitle
 
 
-\pagenumbering{Roman}
+\section{Introduction}
+Follow the white rabbit.
 
-\input{titlePage}
-
-\tableofcontents
-\sloppy
-
-\newpage
-
-\pagenumbering{arabic}
-\setcounter{page}{1}
-
-\part{Documentation}
-
-
-\chapter*{Glossary}
-\input{glossary}
-
-
-\chapter{Introduction}
-\input{introduction}
-
-\chapter{General Introduction to the Area}
-\input{translationmemories}
-
-\chapter{Project Structure}
-\input{structure}
-
-%\chapter{Shared classes}
-%\input{share}
-
-\chapter{Building the Corpus}
+\section{Building the Corpus}
 \input{opensubtitles}
 
-\chapter{Core Translation Memory}
-\input{coretm}
-
-\chapter{Training Machine Translation}
+\section{Training Machine Translation}
 \input{moses}
 
-\chapter{User Space}
-\input{userspace}
-
-\chapter{Communication between GUI and US}
-\input{rpc}
-
-\chapter{Graphical User Interface}
-\input{gui}
-
-\label{part:manuals}
-
-\part{Development Process Documentation}
-
-\chapter{Implementation and Development Process}
-\input{implementation_process}
-
-\part{Manuals}
-
-\chapter{Technical Manual}
-\input{technicalmanual}
-
-\chapter{User Manual}
-\input{usersmanual}
+\section{Final remarks}
+There is no spoon.
 
 
 \end{document}
