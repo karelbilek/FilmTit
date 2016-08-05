@@ -49,9 +49,9 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 		if (event.getSource() instanceof SubgestBox) { // should be
             final SubgestBox subbox = (SubgestBox) event.getSource();
             long time = subbox.getChunk().getStartTimeLongNonZero();
-            if (workspace.getVlcPlayer() != null) {
+            /*if (workspace.getVlcPlayer() != null) {
                 workspace.getVlcPlayer().maybePlayWindow(time);
-            }
+            }*/
 
             subbox.loadSuggestions(); // if not already loaded - the check is inside
 

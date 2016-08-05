@@ -24,7 +24,7 @@
     <name>FilmTit</name>
 
     <modules>
-        <module>applet</module>
+        <!--<module>applet</module>-->
         <module>userspace</module>
         <module>share</module>
         <module>core</module>

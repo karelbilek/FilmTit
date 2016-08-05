@@ -43,6 +43,7 @@ public class GuiStructure extends Composite {
 	
 	private static GuiStructureUiBinder uiBinder = GWT.create(GuiStructureUiBinder.class);
 
+
 	interface GuiStructureUiBinder extends UiBinder<Widget, GuiStructure> {
 	}
 
@@ -292,6 +293,9 @@ public class GuiStructure extends Composite {
 	
     @UiField
 	HTMLPanel panelForVLC;
+    
+    @UiField
+        HTMLPanel panelForVideo;
 
     /**
      * Returns the panel in which the VLC player is to be shown.
@@ -299,4 +303,13 @@ public class GuiStructure extends Composite {
     public HTMLPanel getPanelForVLC() {
         return panelForVLC;
     }
+    
+       /**
+     * @return the panelForVideo
+     */
+    public HTMLPanel getPanelForVideo() {
+        return panelForVideo;
+    }
+    
+    
 }

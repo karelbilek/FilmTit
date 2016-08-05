@@ -36,7 +36,8 @@ import cz.filmtit.client.callables.*;
 import cz.filmtit.client.dialogs.TimeEditDialog;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
-import cz.filmtit.client.widgets.VLCWidget;
+//import cz.filmtit.client.widgets.VLCWidget;
+import cz.filmtit.client.widgets.VideoWidget;
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.Parser;
 
@@ -155,19 +156,31 @@ public class TranslationWorkspace extends Composite {
     private String videoPath = null;
     private boolean isVideo=false;
 
-    private VLCWidget vlcPlayer;
+  //  private VLCWidget vlcPlayer;
+    private VideoWidget videoPlayer;
+   
     
     /**
      * Returns the player associated with this workspace.
      */
-    public VLCWidget getVlcPlayer(){
-        return vlcPlayer;
+  //  public VLCWidget getVlcPlayer(){
+   //     return vlcPlayer;
+   // }
+    
+    /**
+     * @return the videoPlayer
+     */
+    public VideoWidget getVideoPlayer() {
+        return videoPlayer;
     }
     
     //UI elements for VLC
-    private HTMLPanel playerFixedPanel = null;
-    private HTMLPanel fixedWrapper = null;
+ //   private HTMLPanel playerFixedPanel = null;
+ //   private HTMLPanel fixedWrapper = null;
     
+        //UI elements for VideoWidget
+    private HTMLPanel videoPlayerFixedPanel = null;
+    private HTMLPanel videoFixedWrapper = null;
     
     // UI binder fields
     @UiField
@@ -179,6 +192,8 @@ public class TranslationWorkspace extends Composite {
     
     @UiField
     HorizontalPanel translationHPanel;
+
+    
   
     private boolean sourceSelected = false;
 
@@ -200,8 +215,10 @@ public class TranslationWorkspace extends Composite {
         // id = Random.nextInt(Integer.MAX_VALUE);
         currentWorkspace = this;
         
-        isVideo = (videoPath!=null);
-        this.videoPath = videoPath;
+        isVideo = true;
+        
+      //  isVideo = (videoPath!=null);
+      //  this.videoPath = videoPath;
         
         setCurrentDocument(doc);
         
@@ -263,21 +280,22 @@ public class TranslationWorkspace extends Composite {
      * Getting around the VLC bug when it randomly stops. 
      */
     public void reloadPlayer() {
-        VLCWidget newWidget = vlcPlayer.higherNonce();
+       /* VLCWidget newWidget = vlcPlayer.higherNonce();
         fixedWrapper.addAndReplaceElement(newWidget, "video");
-        vlcPlayer = newWidget;
+        vlcPlayer = newWidget;*/
+       
     }
     
     /**
      * Closes the player.
      */
     public void turnOffPlayer() {
-    	if (playerFixedPanel != null) {
-            playerFixedPanel.removeFromParent();
+    	if (videoPlayerFixedPanel != null) {
+            videoPlayerFixedPanel.removeFromParent();
     	}
-    	if (vlcPlayer != null) {
+    	/*if (vlcPlayer != null) {
             vlcPlayer.setHiddenTrue();
-    	}
+    	}*/
     }
     
     ///////////////////////////////////////
@@ -302,8 +320,8 @@ public class TranslationWorkspace extends Composite {
         sourceSelected = false;
         translationStarted = false;
         Gui.getGuiStructure().contentPanel.removeStyleName("parsing");
-        if (playerFixedPanel != null){
-            Gui.getPanelForVLC().remove(playerFixedPanel);
+        if (videoPlayerFixedPanel != null){
+            Gui.getPanelForVideo().remove(videoPlayerFixedPanel);
         }
     }
    
@@ -605,12 +623,14 @@ public class TranslationWorkspace extends Composite {
     
 
      private void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
-          if (isVideo) {
-              playerFixedPanel = new HTMLPanel("");
-              fixedWrapper = new HTMLPanel("");
+         
+              videoPlayerFixedPanel = new HTMLPanel("");
+              videoFixedWrapper = new HTMLPanel("");
 
-              vlcPlayer = VLCWidget.initVLCWidget(videoPath, playerFixedPanel, table, fixedWrapper, synchronizer, this);            
-          }
+              videoPlayer = VideoWidget.initVideoWidget(videoPath, videoPlayerFixedPanel, table, videoFixedWrapper, synchronizer, this);
+
+             // vlcPlayer = VLCWidget.initVLCWidget(videoPath, playerFixedPanel, table, fixedWrapper, synchronizer, this);            
+
           
           
           Scheduler.get().scheduleIncremental(new ShowOriginalCommand(original));
@@ -926,7 +946,7 @@ public class TranslationWorkspace extends Composite {
     }
 
     private int getVideoHeight() {
-        return ( isVideo ? playerFixedPanel.getOffsetHeight() : 0 );
+        return ( isVideo ? videoPlayerFixedPanel.getOffsetHeight() : 0 );
     }
 
     private native int getScrollOffsetY(Element e) /*-{
