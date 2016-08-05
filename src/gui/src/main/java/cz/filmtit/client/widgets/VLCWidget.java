@@ -48,7 +48,7 @@ public class VLCWidget extends HTML {
     /**
      * Plays window 30s around a given time. It also tries to detect whether
      * the VLC stopped playing when it shouldn't and therefore probably crashed.
-     * @param position A given time around which to play the window.
+     * @param position A given time around which to play the window
      */
     public void maybePlayWindow(long position) {
         if (hidden) {

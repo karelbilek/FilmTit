@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.SubtitleSynchronizer;
 import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.share.ChunkStringGenerator;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import java.util.Collection;
@@ -28,11 +29,13 @@ public class VideoWidget extends HTML {
     SubtitleSynchronizer synchronizer;
     HTML sourceLabel;
     HTML targetLabel;
-    public int reloadedTimes;
     TranslationWorkspace workspace;
     String path;
     int width;
     int height;
+    private long lastPosition = -10000000;
+    private static long WINDOWSIZE = 30000;
+    private Collection<TranslationResult> currentLoaded = null;
 
     public static String buildVideoWidgetCode(int width, int height) {
 
@@ -130,6 +133,60 @@ public class VideoWidget extends HTML {
 
     }
 
+    public static void maybeSetHTML(HTML elem, String what) {
+        String withBr = what.replaceAll("\n", "<br/>");
+        if (!elem.getHTML().equals(withBr)) {
+            elem.setHTML(withBr);
+        }
+    }
+
+    public void updateGUI(double time) {
+        try {
+            //it is null at the very beginning
+            if (currentLoaded != null) {
+                List<TranslationResult> correct = getCorrect(currentLoaded, time);
+                String source = ChunkStringGenerator.listWithSameTimeToString(correct, ChunkStringGenerator.SOURCE_SIDE);
+                String target = ChunkStringGenerator.listWithSameTimeToString(correct, ChunkStringGenerator.TARGET_SIDE);
+                maybeSetHTML(sourceLabel, source);
+                maybeSetHTML(targetLabel, target);
+            }
+        } catch (Exception e) {
+            StringBuilder sb = new StringBuilder();
+
+            // exception name and message
+            sb.append(e.toString());
+            sb.append('\n');
+            // exception stacktrace
+            StackTraceElement[] st = e.getStackTrace();
+            for (StackTraceElement stackTraceElement : st) {
+                sb.append(stackTraceElement);
+                sb.append('\n');
+            }
+
+            String result = sb.toString();
+
+            Window.alert(result);
+
+        }
+    }
+
+    public void maybePlayWindow(long position) {
+
+        if (position / WINDOWSIZE != lastPosition / WINDOWSIZE) {
+
+            long windownum = position / WINDOWSIZE;
+            lastPosition = position;
+
+            final double begin = ((windownum > 0) ? (windownum * WINDOWSIZE) : 1);
+            final double end = ((windownum + 1) * WINDOWSIZE);
+
+            currentLoaded = synchronizer.getTranslationResultsByTime(begin - 5000, end);
+
+            playPart(begin, end);
+
+        }
+    }
+
     public static VideoWidget initVideoWidget(String path, HTMLPanel playerFixedPanel, FlexTable table,
             HTMLPanel playerFixedWrapper, SubtitleSynchronizer synchronizer,
             TranslationWorkspace workspace) {
@@ -210,6 +267,45 @@ public class VideoWidget extends HTML {
         }        
             
     }-*/;
-    
-    
+
+    //This is better to make public because I don't trust JSNI.
+    /**
+     * Current start of playing movie window. Used in JSNI, that's the reason
+     * why it's public, shouldn't be changed.
+     */
+   // public double currentStart = 0;
+
+    /**
+     * Current end of playing movie window. Used in JSNI, that's the reason why
+     * it's public, shouldn't be changed.
+     */
+    //public double currentEnd = 0;
+
+    private void playPart(double begin, double end) {
+       // currentEnd = end;
+       //currentStart = begin;
+
+        try {
+            playPartNative(begin, end);
+        } catch (Exception e) {
+            Window.alert("Unexpected exception " + e);
+        }
+    }
+
+    private native void playPartNative(double begin, double end) /*-{
+        var video = $wnd.document.getElementById('video');
+        
+        if (video != null && video.attr('src') != undefined) {
+
+            video.currentTime = begin;
+            video.addEventListener('timeupdate', function() {
+                if(this.currentTime > end){
+                    this.pause();
+                }
+            });
+            
+        }
+
+    }-*/;
+
 }
