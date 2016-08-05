@@ -988,6 +988,11 @@ public class TranslationWorkspace extends Composite {
             setActiveSuggestionWidget(null);
         }
     }
+    
+    public native void alert(String message)/*-{
+        $wnd.alert(message);
+            
+    }-*/;
 
 
 

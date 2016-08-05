@@ -59,27 +59,11 @@ public class VideoWidget extends HTML {
         s.append("</p>");
 
         s.append("</video>");
+        s.append("</br>");
         s.append("<input type=\"file\" id=\"file_button\" accept=\"video/*\"/>");
-        s.append("<input type=\"text\" id=\"yturl\" value=\"Youtube URL\"/>");
-        s.append("<button type=\"button\" id=\"confirm_button\">Confirm</button>");
+     //   s.append("<input type=\"text\" id=\"yturl\" value=\"Youtube URL\"/>");
+     //   s.append("<button type=\"button\" id=\"confirm_button\">Confirm</button>");
         s.append("<script src=\"http://vjs.zencdn.net/5.10.7/video.js\"></script>");
-        /*    s.append("<script>");
-        s.append("var video = videojs('my-video');\n"
-                + "        var button = document.getElementById(\"confirm_button\").addEventListener(\"click\", function() {\n"
-                + "            var file = document.files[0];\n"
-                + "            var url = document.getElementById(\"yturl\").value;\n"
-                + "            if (file != nul) {\n"
-                + "                var canPlay = video.canPlayType(type);\n"
-                + "                    if (canPlay) {\n"
-                + "                        var fileURL = URL.createObjectURL(file);\n"
-                + "                        video.src = fileURL;\n"
-                + "                    }\n"
-                + "            } else if (url && url != \"Youtube URL\") {\n"
-                + "                video.src = url;\n"
-                + "            }\n"
-                + "        }); \n"
-        );
-        s.append("</script>");*/
 
         return s.toString();
     }
@@ -129,7 +113,6 @@ public class VideoWidget extends HTML {
     @Override
     protected void onLoad() {
         attachListener();
-        //setSource(this.getElement());
 
     }
 
@@ -219,24 +202,7 @@ public class VideoWidget extends HTML {
         return videoPlayer;
     }
 
-    private static native void setSource(Element el) /*-{
-        var video = el.querySelector("#video");
-        el.getElementById('confirm_button').addEventListener("click", function() {
-            var file = $wnd.document.files[0];
-            var url = el.getElementById('yturl').value;
-            if (file != nul) {
-                var canPlay = video.canPlayType(type);
-                    if (canPlay) {
-                        var fileURL = URL.createObjectURL(file);
-                        video.src = fileURL;
-                    }
-            } else if (url && url != "Youtube URL") {
-                video.src = url;
-            }
-        }); 
 
-
-    }-*/;
 
     private native void attachListener() /*-{
         $wnd.document.getElementById('file_button').addEventListener("change", function(){
@@ -246,20 +212,21 @@ public class VideoWidget extends HTML {
             if (file != null && video.canPlayType(file.type)) {            
                 var fileURL = URL.createObjectURL(file);
                 video.src = fileURL;
+                that.@cz.filmtit.client.widgets.VideoWidget::togglePlaying()();
             }
         });    
         
-        $wnd.document.getElementById('confirm_button').addEventListener("click", function(){ 
-            var url = $wnd.document.getElementById('yturl').value;
-            $wnd.alert(url);
-        });
     }-*/;
 
     private native void togglePlaying() /*-{
         var video = $wnd.document.getElementById('video');
+
+        $wnd.alert("Toggle Playing!");
             
-        if (video != null && video.attr('src') != undefined) {
+        if (video != null && video.src != '') {
+            $wnd.alert("In Video");
             if (video.paused) {
+                $wnd.alert("Video was paused");
                 video.play;
             } else {
                 video.pause;
@@ -293,11 +260,15 @@ public class VideoWidget extends HTML {
     }
 
     private native void playPartNative(double begin, double end) /*-{
+            
         var video = $wnd.document.getElementById('video');
-        
-        if (video != null && video.attr('src') != undefined) {
-
+            
+        if (video != null && video.src != '') {
+            
+            var text = begin.toString().concat(" ", end.toString());
+            
             video.currentTime = begin;
+            video.play;
             video.addEventListener('timeupdate', function() {
                 if(this.currentTime > end){
                     this.pause();
