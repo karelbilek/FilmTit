@@ -197,4 +197,19 @@ public class VideoWidget extends HTML {
             $wnd.alert(url);
         });
     }-*/;
+
+    private native void togglePlaying() /*-{
+        var video = $wnd.document.getElementById('video');
+            
+        if (video != null && video.attr('src') != undefined) {
+            if (video.paused) {
+                video.play;
+            } else {
+                video.pause;
+            }
+        }        
+            
+    }-*/;
+    
+    
 }
