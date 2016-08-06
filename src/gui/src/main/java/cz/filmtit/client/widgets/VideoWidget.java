@@ -212,7 +212,6 @@ public class VideoWidget extends HTML {
             if (file != null && video.canPlayType(file.type)) {            
                 var fileURL = URL.createObjectURL(file);
                 video.src = fileURL;
-                widget.@cz.filmtit.client.widgets.VideoWidget::togglePlaying()();
                 
             }
         });    
@@ -232,22 +231,8 @@ public class VideoWidget extends HTML {
             
     }-*/;
 
-    //This is better to make public because I don't trust JSNI.
-    /**
-     * Current start of playing movie window. Used in JSNI, that's the reason
-     * why it's public, shouldn't be changed.
-     */
-   // public double currentStart = 0;
-
-    /**
-     * Current end of playing movie window. Used in JSNI, that's the reason why
-     * it's public, shouldn't be changed.
-     */
-    //public double currentEnd = 0;
 
     private void playPart(double begin, double end) {
-       // currentEnd = end;
-       //currentStart = begin;
 
         try {
             playPartNative(begin, end);
@@ -261,11 +246,10 @@ public class VideoWidget extends HTML {
         var video = $wnd.document.getElementById('video');
             
         if (video != null && video.src != '') {
-            
-            var text = begin.toString().concat(" ", end.toString());
-            
+                        
             video.currentTime = begin;
             video.play();
+            
             video.addEventListener('timeupdate', function() {
                 if(this.currentTime > end){
                     this.pause();
