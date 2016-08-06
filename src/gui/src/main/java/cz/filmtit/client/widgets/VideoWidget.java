@@ -112,7 +112,7 @@ public class VideoWidget extends HTML {
 
     @Override
     protected void onLoad() {
-        attachListener();
+        attachListener(this);
 
     }
 
@@ -204,7 +204,7 @@ public class VideoWidget extends HTML {
 
 
 
-    private native void attachListener() /*-{
+    private native void attachListener(VideoWidget widget) /*-{
         $wnd.document.getElementById('file_button').addEventListener("change", function(){
             var file = this.files[0];   
             var video = $wnd.document.getElementById('video');
@@ -212,7 +212,8 @@ public class VideoWidget extends HTML {
             if (file != null && video.canPlayType(file.type)) {            
                 var fileURL = URL.createObjectURL(file);
                 video.src = fileURL;
-                that.@cz.filmtit.client.widgets.VideoWidget::togglePlaying()();
+                widget.@cz.filmtit.client.widgets.VideoWidget::togglePlaying()();
+                
             }
         });    
         
@@ -220,16 +221,12 @@ public class VideoWidget extends HTML {
 
     private native void togglePlaying() /*-{
         var video = $wnd.document.getElementById('video');
-
-        $wnd.alert("Toggle Playing!");
             
         if (video != null && video.src != '') {
-            $wnd.alert("In Video");
             if (video.paused) {
-                $wnd.alert("Video was paused");
-                video.play;
+                video.play();
             } else {
-                video.pause;
+                video.pause();
             }
         }        
             
@@ -268,7 +265,7 @@ public class VideoWidget extends HTML {
             var text = begin.toString().concat(" ", end.toString());
             
             video.currentTime = begin;
-            video.play;
+            video.play();
             video.addEventListener('timeupdate', function() {
                 if(this.currentTime > end){
                     this.pause();
