@@ -4,9 +4,9 @@
     <l2>cs</l2>
 
     <database>
-        <connector>jdbc:postgresql://localhost/filmTit</connector>
-        <user>matus</user>
-        <password>4AMmnt0hpnd</password>
+        <connector>jdbc:postgresql://localhost/filmtit</connector>
+        <user>postgres</user>
+        <password>postgres</password>
     </database>
 
     <model_path>models/</model_path>
