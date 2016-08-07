@@ -65,7 +65,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
 		@Override	
         public void onSuccessAfterLog(DocumentResponse result) {
 
-            workspace = new TranslationWorkspace(result.document, moviePath, DocumentOrigin.NEW);
+            workspace = new TranslationWorkspace(result.document, DocumentOrigin.NEW);
             documentCreator.reactivate();
             documentId = result.document.getId();
             mediaSelector = new MediaSelector(result.mediaSourceSuggestions, this);

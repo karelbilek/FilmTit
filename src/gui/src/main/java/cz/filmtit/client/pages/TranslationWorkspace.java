@@ -153,7 +153,6 @@ public class TranslationWorkspace extends Composite {
     private static final int SOURCE_DIALOGMARK_COLNUMBER = 1;
     private static final int TARGET_DIALOGMARK_COLNUMBER = 3;
 
-    private String videoPath = null;
     private boolean isVideo=false;
 
   //  private VLCWidget vlcPlayer;
@@ -206,7 +205,7 @@ public class TranslationWorkspace extends Composite {
     /**
      * Creates and shows the workspace.
      */
-    public TranslationWorkspace(Document doc, String videoPath, DocumentOrigin documentOrigin) {
+    public TranslationWorkspace(Document doc, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
         Gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);
@@ -216,10 +215,7 @@ public class TranslationWorkspace extends Composite {
         currentWorkspace = this;
         
         isVideo = true;
-        
-      //  isVideo = (videoPath!=null);
-      //  this.videoPath = videoPath;
-        
+                
         setCurrentDocument(doc);
         
 
@@ -627,7 +623,7 @@ public class TranslationWorkspace extends Composite {
               videoPlayerFixedPanel = new HTMLPanel("");
               videoFixedWrapper = new HTMLPanel("");
 
-              videoPlayer = VideoWidget.initVideoWidget(videoPath, videoPlayerFixedPanel, table, videoFixedWrapper, synchronizer, this);
+              videoPlayer = VideoWidget.initVideoWidget(videoPlayerFixedPanel, table, videoFixedWrapper, synchronizer, this);
 
              // vlcPlayer = VLCWidget.initVLCWidget(videoPath, playerFixedPanel, table, fixedWrapper, synchronizer, this);            
 

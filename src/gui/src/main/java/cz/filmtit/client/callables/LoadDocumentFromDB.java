@@ -52,7 +52,7 @@ public class LoadDocumentFromDB extends cz.filmtit.client.Callable<Document> {
         
         // prepare empty TranslationWorkspace
         String moviePath = doc.getMoviePath();
-        final TranslationWorkspace workspace = new TranslationWorkspace(doc, moviePath, DocumentOrigin.FROM_DB);
+        final TranslationWorkspace workspace = new TranslationWorkspace(doc, DocumentOrigin.FROM_DB);
         
         // prepare the TranslationResults
         final List<TranslationResult> results  = doc.getSortedTranslationResults();

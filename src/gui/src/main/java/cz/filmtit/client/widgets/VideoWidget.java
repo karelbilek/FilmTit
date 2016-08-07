@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.filmtit.client.widgets;
 
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -14,7 +8,6 @@ import cz.filmtit.client.Gui;
 import cz.filmtit.client.SubtitleSynchronizer;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.share.ChunkStringGenerator;
-import cz.filmtit.share.TimedChunk;
 import cz.filmtit.share.TranslationResult;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -22,7 +15,7 @@ import java.util.List;
 
 /**
  *
- * @author matus
+ * @author Matus Namesny
  */
 public class VideoWidget extends HTML {
 
@@ -33,26 +26,23 @@ public class VideoWidget extends HTML {
     String path;
     int width;
     int height;
-    private long lastPosition = -10000000;
-    private static long WINDOWSIZE = 30000;
+    private static final long WINDOWSIZE = 30000;
     private Collection<TranslationResult> currentLoaded = null;
 
+    /**
+     * Builds HTML code representing VideoWidget
+     *
+     * @param width width of player
+     * @param height height of player
+     * @return HTML code
+     */
     public static String buildVideoWidgetCode(int width, int height) {
 
         StringBuilder s = new StringBuilder();
         s.append("<video id=\"video\" name=\"video\" class=\"video-js\" controls preload=\"auto\" ");
         s.append("width=").append(width).append("height=").append(height);
+        s.append(">\n");
 
-        /*      if (src.contains("youtube.com") || src.contains("youtu.be")) {
-            s.append("data-setup='{ \"techOrder\": [\"youtube\"], \"sources\": [{ \"type\": \"video/youtube\", \"src\":").append(src).append("}], \"youtube\": { \"iv_load_policy\": 1 } }'>");
-        } else if (src.endsWith("mp4")) {
-            s.append(">");
-            s.append("<source src=").append(src).append("type='video/mp4'>");
-        } else if (src.endsWith("webm")) {
-            s.append(">");
-            s.append("<source src=").append(src).append("type='video/webm'>");
-        }*/
-        s.append(">");
         s.append("<p class=\"vjs-no-js\">");
         s.append("To view this video please enable JavaScript, and consider upgrading to a web browser that");
         s.append("<a href=\"http://videojs.com/html5-video-support/\" target=\"_blank\">supports HTML5 video</a>");
@@ -61,13 +51,21 @@ public class VideoWidget extends HTML {
         s.append("</video>");
         s.append("</br>");
         s.append("<input type=\"file\" id=\"file_button\" accept=\"video/*\"/>");
-     //   s.append("<input type=\"text\" id=\"yturl\" value=\"Youtube URL\"/>");
-     //   s.append("<button type=\"button\" id=\"confirm_button\">Confirm</button>");
-        s.append("<script src=\"http://vjs.zencdn.net/5.10.7/video.js\"></script>");
 
         return s.toString();
     }
 
+    /**
+     * Creates new Video Widget
+     *
+     * @param width width of player
+     * @param height height of player
+     * @param left HTML on the left side of player
+     * @param right HTML on the right side of player
+     * @param synchronizer SubtitleSynchronizer to tell the VideoWidget correct
+     * subtitles for a time
+     * @param workspace Workspace where the widget is loaded
+     */
     protected VideoWidget(int width, int height, HTML left, HTML right, SubtitleSynchronizer synchronizer, final TranslationWorkspace workspace) {
         super(buildVideoWidgetCode(width, height));
 
@@ -80,6 +78,15 @@ public class VideoWidget extends HTML {
         this.workspace = workspace;
     }
 
+    /**
+     * Returns all chunks that are displayed at a given time.
+     *
+     *
+     * @param subset The subset of chunks that we search in. It should be
+     * already sorted (it is what we get from TreeSet)
+     * @param time The given time.
+     * @return TranslationResults that are displayed at a given time.
+     */
     public List<TranslationResult> getCorrect(Collection<TranslationResult> subset, double time) {
         //subset should be already sorted by starting times
         List<TranslationResult> res = null;
@@ -113,9 +120,17 @@ public class VideoWidget extends HTML {
     @Override
     protected void onLoad() {
         attachListener(this);
-
     }
 
+    /**
+     * Replaces the contents of HTML element, if it is actually different from
+     * what we want to replace it with.
+     *
+     * @param elem Element where we want to put text.
+     * @param what Text that we want to put there. newlines are converted to
+     * &lt;br&gt;. No check for HTML is done, so beware XSS issues. (I am not
+     * sure if we actually do check for XSS anywhere.)
+     */
     public static void maybeSetHTML(HTML elem, String what) {
         String withBr = what.replaceAll("\n", "<br/>");
         if (!elem.getHTML().equals(withBr)) {
@@ -123,6 +138,12 @@ public class VideoWidget extends HTML {
         }
     }
 
+    /**
+     * Updates GUI, when Video player is at some time. (IDE might show that it's
+     * not used, but it is used by JNI)
+     *
+     * @param time What is the current time?
+     */
     public void updateGUI(double time) {
         try {
             //it is null at the very beginning
@@ -153,24 +174,36 @@ public class VideoWidget extends HTML {
         }
     }
 
-    public void maybePlayWindow(long position) {
+    /**
+     * Plays window 30s around a given time. 
+     * @param position A given time around which to play the window
+     */
+    public void maybePlayWindow(Long position) {
 
-        if (position / WINDOWSIZE != lastPosition / WINDOWSIZE) {
+        long windownum = position / WINDOWSIZE;
 
-            long windownum = position / WINDOWSIZE;
-            lastPosition = position;
+        final double begin = ((windownum > 0) ? (windownum * WINDOWSIZE) : 1);
+        final double end = ((windownum + 1) * WINDOWSIZE);
 
-            final double begin = ((windownum > 0) ? (windownum * WINDOWSIZE) : 1);
-            final double end = ((windownum + 1) * WINDOWSIZE);
+        currentLoaded = synchronizer.getTranslationResultsByTime(begin - 5000, end);
 
-            currentLoaded = synchronizer.getTranslationResultsByTime(begin - 5000, end);
+        playPart(begin, end);
 
-            playPart(begin, end);
-
-        }
     }
 
-    public static VideoWidget initVideoWidget(String path, HTMLPanel playerFixedPanel, FlexTable table,
+    /**
+     * Construct a Video widget for Workspace. Should be used instead of
+     * constructor which is protected
+     *
+     * @param playerFixedPanel Top fixed panel where the player will be
+     * @param table Table of the player
+     * @param playerFixedWrapper Wrapper for the fixed class
+     * @param synchronizer Synchronizer, that holds the subtitles
+     * @param workspace Workspace that will get changed and that created the Video
+     * widget
+     * @return The new Video widget
+     */
+    public static VideoWidget initVideoWidget(HTMLPanel playerFixedPanel, FlexTable table,
             HTMLPanel playerFixedWrapper, SubtitleSynchronizer synchronizer,
             TranslationWorkspace workspace) {
 
@@ -202,8 +235,11 @@ public class VideoWidget extends HTML {
         return videoPlayer;
     }
 
-
-
+    /**
+     * Attaches listener to the button
+     *
+     * @param widget this widget
+     */
     private native void attachListener(VideoWidget widget) /*-{
         $wnd.document.getElementById('file_button').addEventListener("change", function(){
             var file = this.files[0];   
@@ -212,12 +248,14 @@ public class VideoWidget extends HTML {
             if (file != null && video.canPlayType(file.type)) {            
                 var fileURL = URL.createObjectURL(file);
                 video.src = fileURL;
-                
             }
         });    
         
     }-*/;
 
+    /**
+     * If player is playing then it pauses it, otherwise starts playing
+     */
     private native void togglePlaying() /*-{
         var video = $wnd.document.getElementById('video');
             
@@ -231,7 +269,12 @@ public class VideoWidget extends HTML {
             
     }-*/;
 
-
+    /**
+     * Plays part of video. Serves as proxy for @playPartNative
+     *
+     * @param begin start time
+     * @param end end time
+     */
     private void playPart(double begin, double end) {
 
         try {
@@ -241,21 +284,30 @@ public class VideoWidget extends HTML {
         }
     }
 
+    /**
+     * Plays part of video and periodically updates GUI
+     *
+     * @param begin
+     * @param end
+     */
     private native void playPartNative(double begin, double end) /*-{
             
         var video = $wnd.document.getElementById('video');
-            
+                        
         if (video != null && video.src != '') {
                         
             video.currentTime = begin;
             video.play();
             
-            video.addEventListener('timeupdate', function() {
-                if(this.currentTime > end){
-                    this.pause();
-                }
-            });
-            
+            setTimeout(function look() { 
+                var it = video.currentTime;
+                widget.@cz.filmtit.client.widgets.VideoWidget::updateGUI(*)(it);
+                if(it>end) {                    
+                    widget.@cz.filmtit.client.widgets.VideoWidget::togglePlaying()();
+                } else {
+                    setTimeout(look, 600);
+                } 
+            }, 600);                        
         }
 
     }-*/;
