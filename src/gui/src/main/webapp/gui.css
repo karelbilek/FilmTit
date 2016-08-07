@@ -24,9 +24,10 @@
 
 .fixedPlayer {
     position:fixed;
-    height:250px;
+    height:260px;
     z-index:2;
     top:40px;
+    background: whitesmoke;
 }
 
 
