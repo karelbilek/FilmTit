@@ -20,6 +20,15 @@
         <property name="translatedChunksCount" type="int" column="translatedChunksCount" />
         <property name="toBeDeleted" type="boolean" column="toBeDeleted" />
         <property name="localMoviePath" type="java.lang.String" column="movieAddress" />
+        <!--   <property name="lockedByUser" type="long" column="lockedByUser" /> -->
+     
+        <one-to-one name="lockedByUser" class="cz.filmtit.userspace.USUser" cascade="save-update" constrained="true"/>
+                             
+        <set name="documentUsers" cascade="all">
+            <key column="documents_id"/>
+            <one-to-many class="cz.filmtit.share.DocumentUsers"/>            
+        </set>
+        
     </class>
 
 </hibernate-mapping>

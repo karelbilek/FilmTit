@@ -19,6 +19,7 @@ package cz.filmtit.userspace;
 
 import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Document;
+import cz.filmtit.share.DocumentUsers;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.MediaSource;
 import org.hibernate.Session;
@@ -56,6 +57,10 @@ public class USDocument extends DatabaseObject {
      * but is not displayed to the user.
      */
     private volatile boolean toBeDeleted = false;
+    
+    private Set<DocumentUsers> documentUsers;
+    
+    private volatile Long lockedByUser;
 
     /**
      * A constructor used when a new document is created. It wraps the shared document sent by the client (at that time
@@ -69,6 +74,8 @@ public class USDocument extends DatabaseObject {
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         owner = user;
         this.ownerDatabaseId = user.getDatabaseId();
+        
+        this.lockedByUser = user.getDatabaseId();
 
         // save it to the database right away
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -411,5 +418,33 @@ public class USDocument extends DatabaseObject {
         translationResults.put(chunkIndex, usTranslationResult);
         document.getTranslationResults().put(chunkIndex, usTranslationResult.getTranslationResult());
         document.setTotalChunksCount(translationResults.size());
+    }
+
+    /**
+     * @return the documentUsers
+     */
+    public Set<DocumentUsers> getDocumentUsers() {
+        return documentUsers;
+    }
+
+    /**
+     * @param documentUsers the documentUsers to set
+     */
+    public void setDocumentUsers(Set<DocumentUsers> documentUsers) {
+        this.documentUsers = documentUsers;
+    }
+
+    /**
+     * @return the lockedByUser
+     */
+    public Long getLockedByUser() {
+        return lockedByUser;
+    }
+
+    /**
+     * @param lockedByUser the lockedByUser to set
+     */
+    public void setLockedByUser(Long lockedByUser) {
+        this.lockedByUser = lockedByUser;
     }
 }

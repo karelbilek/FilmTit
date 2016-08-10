@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="cz.filmtit.share.DocumentUsers" table="DocumentUsers">
+        <id name="userId" column="user_id">
+            <generator class="foreign">
+                <param name="property">userId</param>
+            </generator>
+        </id>
+        
+        <one-to-one name="userId" class="cz.filmtit.userspace.USUser" constrained="true" cascade="all"/>
+    </class>
+</hibernate-mapping>

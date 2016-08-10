@@ -14,7 +14,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package cz.filmtit.share;
 
 import java.io.Serializable;
@@ -27,10 +26,9 @@ import java.util.Set;
  *
  * @author Joachim Daiber
  */
-
 public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializable, Serializable {
 
-	private static final long serialVersionUID = 5899275001958847886L;
+    private static final long serialVersionUID = 5899275001958847886L;
     /**
      * Long identificator
      */
@@ -53,11 +51,12 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
     private String thumbnailURL;
 
     public MediaSource() {
-		// nothing
-	}
+        // nothing
+    }
 
     /**
      * Sets identificator
+     *
      * @param id identificator
      */
     public void setId(Long id) {
@@ -66,13 +65,16 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Gets title of MediaSource
-     * @return  String      */
+     *
+     * @return String
+     */
     public String getTitle() {
         return title;
     }
 
     /**
      * Sets title of MediaSource
+     *
      * @param title
      */
     public void setTitle(String title) {
@@ -81,7 +83,8 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Gets year of MediaSource
-     * @return   String  year
+     *
+     * @return String year
      */
     public String getYear() {
         return year;
@@ -89,6 +92,7 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Sets year of MediaSource
+     *
      * @param year
      */
     public void setYear(String year) {
@@ -97,17 +101,20 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Gets genres
+     *
      * @return all genres
      */
     public Set<String> getGenres() {
-        if (genres == null)
+        if (genres == null) {
             return new HashSet<String>();
-        else
+        } else {
             return genres;
+        }
     }
 
     /**
      * Gets MediaSources identificator
+     *
      * @return identificator
      */
     public Long getId() {
@@ -116,6 +123,7 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Sets genres
+     *
      * @param genres
      */
     public void setGenres(Set<String> genres) {
@@ -124,7 +132,8 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Creates string representation.
-     * @return  If is year non-empty reates "title (year)"  otherwise  "title"
+     *
+     * @return If is year non-empty reates "title (year)" otherwise "title"
      */
     @Override
     public String toString() {
@@ -137,8 +146,9 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
     }
 
     /**
-     * Parses and sets a list genres provided as a comma separated list of string.
-     * Used by Hibernate.
+     * Parses and sets a list genres provided as a comma separated list of
+     * string. Used by Hibernate.
+     *
      * @param genres
      */
     public void setGenresString(String genres) {
@@ -150,13 +160,13 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
     }
 
     /**
-     * Gets the genres as a comma separated list of strings.
-     * Used by Hibernate.
+     * Gets the genres as a comma separated list of strings. Used by Hibernate.
+     *
      * @return Comma separated list of genres.
      */
     private String getGenresString() {
         StringBuilder genresBuilder = new StringBuilder("");
-        if (genres!=null) {
+        if (genres != null) {
             for (String genre : genres) {
                 genresBuilder.append(genre + ",");
             }
@@ -167,8 +177,9 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Creates instance
-     * @param title  Title of MediaSource
-     * @param year   Year of MediaSource
+     *
+     * @param title Title of MediaSource
+     * @param year Year of MediaSource
      * @param genres Genres of MediaSource separated by space
      */
     public MediaSource(String title, String year, String genres) {
@@ -180,8 +191,9 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Instance withou genres
-     * @param title  Title of MediaSource
-     * @param year   Year of MediaSource
+     *
+     * @param title Title of MediaSource
+     * @param year Year of MediaSource
      */
     public MediaSource(String title, String year) {
         this(title, year, "");
@@ -189,13 +201,19 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Compares two MediaSource objects if they are same
+     *
      * @param o obect which should be MediaSource
-     * @return  True if are the same object or have same properties otherwise false
+     * @return True if are the same object or have same properties otherwise
+     * false
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MediaSource)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MediaSource)) {
+            return false;
+        }
 
         MediaSource that = (MediaSource) o;
 
@@ -208,6 +226,7 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Generates hasCodes for instance MediaSource
+     *
      * @return Int Combinations of hashCodes of properties
      */
     @Override
@@ -221,7 +240,8 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Sets url of thumbnail
-     * @param thumbnailURL  url
+     *
+     * @param thumbnailURL url
      */
     public void setThumbnailURL(String thumbnailURL) {
         this.thumbnailURL = thumbnailURL;
@@ -229,11 +249,10 @@ public class MediaSource implements com.google.gwt.user.client.rpc.IsSerializabl
 
     /**
      * Gets url of thumbnail
-     * @return  url
+     *
+     * @return url
      */
     public String getThumbnailURL() {
         return thumbnailURL;
     }
 }
-
-

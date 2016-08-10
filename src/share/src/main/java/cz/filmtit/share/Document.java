@@ -67,6 +67,9 @@ public class Document implements IsSerializable, Serializable, Comparable<Docume
      * Database ID od the user owning the document
      */
     private long userId = Long.MIN_VALUE;
+    
+    private Set<DocumentUsers> documentUsers;
+    private volatile Long lockedByUser;
 
     /**
      * Map of the translation results the document consists of
@@ -292,6 +295,34 @@ public class Document implements IsSerializable, Serializable, Comparable<Docume
         if (this.lastChange > other.lastChange) { return -1; }
         if (this.lastChange < other.lastChange) { return 1; }
         return 0;
+    }
+
+    /**
+     * @return the documentUsers
+     */
+    public Set<DocumentUsers> getDocumentUsers() {
+        return documentUsers;
+    }
+
+    /**
+     * @param documentUsers the documentUsers to set
+     */
+    public void setDocumentUsers(Set<DocumentUsers> documentUsers) {
+        this.documentUsers = documentUsers;
+    }
+
+    /**
+     * @return the lockedByUser
+     */
+    public Long getLockedByUser() {
+        return lockedByUser;
+    }
+
+    /**
+     * @param lockedByUser the lockedByUser to set
+     */
+    public void setLockedByUser(Long lockedByUser) {
+        this.lockedByUser = lockedByUser;
     }
 }
 
