@@ -23,6 +23,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -30,6 +32,8 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
@@ -40,8 +44,15 @@ import org.vectomatic.file.FileUploadExt;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
 import cz.filmtit.client.callables.CreateDocument;
+import cz.filmtit.client.callables.GetListOfUsers;
+import cz.filmtit.client.subgestbox.MultipleTextBox;
+import cz.filmtit.share.LevelLogEnum;
+import java.util.Arrays;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This page is used to create a new document.
@@ -61,12 +72,33 @@ public class DocumentCreator extends Composite {
 
     private FileReader freader;
 
+    private MultiWordSuggestOracle oracle;
+
+    private MultipleTextBox box;
+
     /**
      * Shows the page.
      */
     public DocumentCreator() {
-        initWidget(uiBinder.createAndBindUi(this));
 
+        oracle = new MultiWordSuggestOracle();
+        new GetListOfUsers(oracle);
+        
+        box = new MultipleTextBox();
+        documentUsers = new SuggestBox(oracle, box);
+
+        initWidget(uiBinder.createAndBindUi(this));
+        
+        lock.setValue(true);
+        lock.setEnabled(false);
+        
+        documentUsers.getTextBox().addFocusHandler(new FocusHandler() {
+            @Override
+            public void onFocus(FocusEvent event) {
+                documentUsers.getTextBox().setFocus(true);
+            }
+        });
+        
         // movie title copying
         txtTitle.addStyleName("copying_title");
 
@@ -189,8 +221,9 @@ public class DocumentCreator extends Composite {
     }*/
     @UiField
     FormActions bottomControlGroup;
-
+    
     private void createDocumentFromText(String subtext) {
+        Gui.log(LevelLogEnum.Error, "DocumentCreator.createDocumentFromText: ", String.valueOf(box.getText().length()));
         btnCreateDocument.setEnabled(false);
         lblCreateProgress.setVisible(true);
         lblCreateProgress.setText("Creating the document...");
@@ -202,6 +235,7 @@ public class DocumentCreator extends Composite {
                 subtext,
                 "srt",
                 getMoviePathOrNull(),
+                getUsers(),
                 this
         );
         // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success       
@@ -242,6 +276,12 @@ public class DocumentCreator extends Composite {
     ControlGroup filePasteControlGroup;
     @UiField
     TextArea txtFilePaste;
+
+    @UiField(provided = true)
+    SuggestBox documentUsers;
+    
+    @UiField
+    com.google.gwt.user.client.ui.CheckBox lock;
 
     /*@UiField
     CheckBox useMT;
@@ -290,6 +330,14 @@ public class DocumentCreator extends Composite {
         } else {
             return "utf-8";  // default value
         }
+    }
+    
+    private List<String> getUsers() {
+        String text = box.getFullText(); 
+        String[] split = text.split(",");
+        
+
+        return Arrays.asList(split);
     }
 
     /**

@@ -45,6 +45,7 @@ import java.net.URLDecoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.hibernate.Query;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -79,6 +80,48 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Instance of Hibernate util.
      */
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
+
+    @Override
+    public List<User> getListOfUsers() {
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        List list = session.createQuery("from USUser").list();
+        List<User> users = new ArrayList<User>();
+        
+        for (Object o : list) {
+            USUser u = (USUser) o;
+            users.add(u.getUser());
+        }
+        
+        usHibernateUtil.closeAndCommitSession(session);
+
+        return users;
+    }
+
+    @Override
+    public Integer lockDocument(Long userId, Long documentId) {
+        
+        logger.error("filmTitBackendServer", "lockDocument: " + documentId);
+        
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        Query query = session.createQuery("FROM USDocument WHERE id = :docId");
+        query.setParameter("docId", documentId);
+        List list = query.list();
+        int toReturn;
+        
+        USDocument doc = (USDocument) list.get(0);
+        if (doc.getLockedByUser() != 0 || doc.getLockedByUser() != userId) {
+            toReturn = 1;
+        } else {
+            Query updateQuery = session.createQuery("UPDATE USDocument set lockedbyuser = :userId WHERE id = :docId");
+            updateQuery.setParameter("userId", userId);
+            updateQuery.setParameter("docId", documentId);
+            toReturn = updateQuery.executeUpdate();            
+        }
+        
+        usHibernateUtil.closeAndCommitSession(session);        
+        return toReturn;
+
+    }
 
     public enum CheckUserEnum {
         UserName,
@@ -199,9 +242,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @throws InvalidSessionIdException Throws exception when there does not exist a session of given ID.
      */
     @Override
-    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
+    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language,List<String> users, String moviePath)
             throws InvalidSessionIdException {
-        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, moviePath);
+     //   logger.error("createNewDocument: users.size(): ", String.valueOf(users.size()));
+        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, users, moviePath);
     }
 
     /**

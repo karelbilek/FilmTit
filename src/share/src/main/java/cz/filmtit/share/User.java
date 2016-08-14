@@ -186,4 +186,8 @@ public class User implements Serializable, IsSerializable {
 
         return clone;
     }
+    
+    public User() {
+        //nothing
+    }
 }

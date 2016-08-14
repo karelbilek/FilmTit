@@ -27,7 +27,9 @@ package cz.filmtit.share.tests;
 
 
 import cz.filmtit.share.Document;
+import cz.filmtit.share.DocumentUsers;
 import cz.filmtit.share.Language;
+import java.util.ArrayList;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

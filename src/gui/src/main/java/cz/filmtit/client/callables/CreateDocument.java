@@ -32,6 +32,8 @@ import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.MediaSource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates the document (without source chunks, which have to be added by
@@ -51,6 +53,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
     private String subtext;
     private String subformat;
     private String moviePath;
+    private List<String> users;
 
     // results to store before MediaSelector returns
     private Dialog mediaSelector;
@@ -118,7 +121,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
      * @param documentCreator the document creator used to create the document
      */
     public CreateDocument(String documentTitle, String movieTitle, String language,
-            String subtext, String subformat, String moviePath, DocumentCreator documentCreator) {
+            String subtext, String subformat, String moviePath, List<String> users, DocumentCreator documentCreator) {
         super();
 
         this.documentTitle = documentTitle;
@@ -128,6 +131,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
         this.subformat = subformat;
         this.moviePath = moviePath;
         this.documentCreator = documentCreator;
+        this.users = users;
 
         enqueue();
     }
@@ -135,7 +139,7 @@ public class CreateDocument extends Callable<DocumentResponse> implements Receiv
     @Override
     protected void call() {
         Gui.log("Creating document " + documentTitle + "; its language is " + language);
-        filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, moviePath, this);
+        filmTitService.createNewDocument(Gui.getSessionID(), documentTitle, movieTitle, language, users, moviePath, this);
     }
 
 }

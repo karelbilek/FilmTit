@@ -14,8 +14,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package cz.filmtit.client.callables;
+
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
@@ -31,41 +31,42 @@ import cz.filmtit.share.*;
 import java.util.*;
 
 /**
- * Returns all documents owned by the user, ordered by date and time of last change.
- * The documents returned are then shown on the userpage.
+ * Returns all documents owned by the user, ordered by date and time of last
+ * change. The documents returned are then shown on the userpage.
+ *
  * @author rur
  *
  */
 public class GetListOfDocuments extends Callable<List<Document>> {
 
-	// parameters
-	private UserPage userpage;
-	
+    // parameters
+    private UserPage userpage;
+
     @Override
     public void onSuccessAfterLog(List<Document> result) {
         Gui.log("received " + result.size() + " documents");
-        
+
         userpage.setDocuments(result);
-        for (Document d:result) {
-            Gui.log("GUI Dalsi document. Ma "+d.getTranslationResults().size()+" prfku.");
+        for (Document d : result) {
+            Gui.log("GUI Dalsi document. Ma " + d.getTranslationResults().size() + " prfku.");
         }
     }
 
     /**
-     * Returns all documents owned by the user, ordered by date and time of last change.
-     * The documents returned are then shown on the userpage.
+     * Returns all documents owned by the user, ordered by date and time of last
+     * change. The documents returned are then shown on the userpage.
      */
-	public GetListOfDocuments(UserPage userpage) {
-		super();
+    public GetListOfDocuments(UserPage userpage) {
+        super();
 
-		this.userpage = userpage;
-		
-		enqueue();
-	}
-    
+        this.userpage = userpage;
 
-	@Override protected void call() {
+        enqueue();
+    }
+
+    @Override
+    protected void call() {
         filmTitService.getListOfDocuments(Gui.getSessionID(), this);
-	}
+    }
 
 }

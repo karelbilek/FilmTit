@@ -25,6 +25,7 @@ import cz.filmtit.share.MediaSource;
 import org.hibernate.Session;
 
 import java.util.*;
+import org.apache.log4j.Logger;
 
 /**
  * Represents a subtitle file the user work with. It is a wrapper of the shared Document class. Some of the properties
@@ -58,9 +59,9 @@ public class USDocument extends DatabaseObject {
      */
     private volatile boolean toBeDeleted = false;
     
-    private Set<DocumentUsers> documentUsers;
-    
     private volatile Long lockedByUser;
+    
+    private volatile List<DocumentUsers> documentUsers;
 
     /**
      * A constructor used when a new document is created. It wraps the shared document sent by the client (at that time
@@ -68,14 +69,15 @@ public class USDocument extends DatabaseObject {
      * @param document Shared document object.
      * @param user Owner of the document.
      */
-    public USDocument(Document document, USUser user) {
+    public USDocument(Document document, USUser user, List<DocumentUsers> documentUsers) {
         this.document = document;
         document.setLastChange(new Date().getTime()); // current time, not be 1970 by default
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         owner = user;
-        this.ownerDatabaseId = user.getDatabaseId();
         
+        this.ownerDatabaseId = user.getDatabaseId();        
         this.lockedByUser = user.getDatabaseId();
+        this.documentUsers = documentUsers;
 
         // save it to the database right away
         Session dbSession = usHibernateUtil.getSessionWithActiveTransaction();
@@ -423,14 +425,14 @@ public class USDocument extends DatabaseObject {
     /**
      * @return the documentUsers
      */
-    public Set<DocumentUsers> getDocumentUsers() {
+    public List<DocumentUsers> getDocumentUsers() {
         return documentUsers;
     }
 
     /**
      * @param documentUsers the documentUsers to set
      */
-    public void setDocumentUsers(Set<DocumentUsers> documentUsers) {
+    public void setDocumentUsers(List<DocumentUsers> documentUsers) {
         this.documentUsers = documentUsers;
     }
 

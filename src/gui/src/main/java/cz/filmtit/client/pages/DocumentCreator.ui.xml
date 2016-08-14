@@ -102,8 +102,17 @@
                     </b:Controls>
                 </b:ControlGroup>
             </b:Fieldset-->
-
             
+            
+
+            <b:Fieldset>
+                <b:Legend>Add users</b:Legend>
+                <b:ControlGroup>
+                    <g:SuggestBox ui:field="documentUsers"></g:SuggestBox>
+                    <br/>
+                    <g:CheckBox ui:field="lock" text="Lock for other users"></g:CheckBox>
+                </b:ControlGroup>
+            </b:Fieldset>
 
             <b:Fieldset>
                 <b:FormActions ui:field="bottomControlGroup">

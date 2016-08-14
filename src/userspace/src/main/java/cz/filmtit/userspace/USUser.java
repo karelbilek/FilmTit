@@ -84,9 +84,9 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Private default constructor used by Hibernate.
+     * Public default constructor used by Hibernate.
      */
-    private USUser() {
+    public USUser() {
         this.user = new User();
         ownedDocuments = null;
     }
@@ -127,26 +127,26 @@ public class USUser extends DatabaseObject {
      * Propagates setting the database ID from the setDatabaseId setter to the wrapped object.
      * @param id Database ID.
      */
-    protected void setSharedClassDatabaseId(long id) { user.setId(id); }
+    protected void setSharedClassDatabaseId(long id) { getUser().setId(id); }
     /**
      * Supplies the id value from the wrapped object to the getDatabaseId getter of the parent DatabaseObject.
      * @return Identifier from the wrapped object.
      */
-    protected long getSharedClassDatabaseId() { return user.getId(); }
+    protected long getSharedClassDatabaseId() { return getUser().getId(); }
 
     /**
      * Gets the name of the user. (Calls the wrapped object.)
      * @return User name.
      */
     public String getUserName() {
-        return user.getName();
+        return getUser().getName();
     }
 /**
      * Sets the user name. (Calls the wrapped object.) Used by Hibernate only.
      * @param name  User name
      */
     public void setUserName(String name) {
-        user.setName(name);    }
+        getUser().setName(name);    }
 
     /**
      * Gets the user's openId identifier. Used by Hibernate only.
@@ -185,7 +185,7 @@ public class USUser extends DatabaseObject {
      * @return User's email address.
      */
     public String getEmail() {
-        return user.getEmail();
+        return getUser().getEmail();
     }
 
     /**
@@ -193,7 +193,7 @@ public class USUser extends DatabaseObject {
      * @return User's email address.
      */
     public void setEmail(String email){
-        user.setEmail(email);
+        getUser().setEmail(email);
     }
 
     /**
@@ -201,7 +201,7 @@ public class USUser extends DatabaseObject {
      * @return Flag if the user is permanently logged in.
      */
     public boolean isPermanentlyLoggedId() {
-        return user.isPermanentlyLoggedIn();
+        return getUser().isPermanentlyLoggedIn();
     }
 
     /**
@@ -209,7 +209,7 @@ public class USUser extends DatabaseObject {
      * @param permanentlyLoggedId Flag if the user is permanently logged in.
      */
     public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
-        user.setPermanentlyLoggedIn(permanentlyLoggedId);
+        getUser().setPermanentlyLoggedIn(permanentlyLoggedId);
     }
 
     /**
@@ -218,7 +218,7 @@ public class USUser extends DatabaseObject {
      * @return Maximum number of suggestions displayed in the app.
      */
     public int getMaximumNumberOfSuggestions() {
-        return user.getMaximumNumberOfSuggestions();
+        return getUser().getMaximumNumberOfSuggestions();
     }
 
     /**
@@ -227,7 +227,7 @@ public class USUser extends DatabaseObject {
      * @param maximumNumberOfSuggestions Maximum number of suggestions displayed in the app.
      */
     public void setMaximumNumberOfSuggestions(int maximumNumberOfSuggestions) {
-        user.setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
+        getUser().setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
     }
 
     /**
@@ -235,7 +235,7 @@ public class USUser extends DatabaseObject {
      * @return  Flag if the user wants machine translation.
      */
     public boolean getUseMoses() {
-         return user.getUseMoses();
+         return getUser().getUseMoses();
     }
 
     /**
@@ -243,7 +243,7 @@ public class USUser extends DatabaseObject {
      * @param useMoses Flag if the user wants machine translation.
      */
     public void setUseMoses(boolean useMoses) {
-        user.setUseMoses(useMoses);
+        getUser().setUseMoses(useMoses);
     }
 
     /**
@@ -281,6 +281,13 @@ public class USUser extends DatabaseObject {
      * @return User object without documents.
      */
     public User sharedUserWithoutDocuments() {
-        return user.getCloneWithoutDocuments();
+        return getUser().getCloneWithoutDocuments();
+    }
+
+    /**
+     * @return the user
+     */
+    public User getUser() {
+        return user;
     }
 }

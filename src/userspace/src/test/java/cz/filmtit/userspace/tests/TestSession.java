@@ -81,7 +81,7 @@ public class TestSession {
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, "");
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, new ArrayList<String>(), "");
 
         assertNotNull(response.mediaSourceSuggestions);
         assertTrue(response.document.getId() != Long.MIN_VALUE);
@@ -220,7 +220,7 @@ public class TestSession {
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, "");
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, new ArrayList<String>(), "");
         Document clientDocument = response.document;
         if (response.mediaSourceSuggestions.size() > 0) {
             session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
@@ -251,7 +251,7 @@ public class TestSession {
     public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException, InvalidValueException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory, "");
+        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory, new ArrayList<String>(),"");
         long documentId = resp.document.getId();
 
         // generate few chunks
@@ -336,7 +336,7 @@ public class TestSession {
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Test", "en", ""), sampleUser);
+            USDocument usDocument = new USDocument(new Document("Test", "en", ""), sampleUser, new ArrayList<DocumentUsers>());
             usDocument.setOwner(sampleUser);
             long documentID = usDocument.getDatabaseId();
 
