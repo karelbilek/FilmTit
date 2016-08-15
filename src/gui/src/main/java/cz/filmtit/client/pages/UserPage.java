@@ -259,7 +259,7 @@ public class UserPage extends Composite {
     void editDocument(Document document) {
 
       //  Gui.log(LevelLogEnum.Error, "editDocument", String.valueOf(document.getId()));
-        new LockDocument(Gui.getUserID(), document.getId(), this);
+        new LockDocument(Gui.getUserID() , document.getId(), this);
         
         if (callLockResult != 0) {
             Window.alert("Document is locked by another user!");

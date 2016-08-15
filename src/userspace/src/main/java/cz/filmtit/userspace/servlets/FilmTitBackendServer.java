@@ -103,9 +103,9 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         logger.error("filmTitBackendServer", "lockDocument: " + documentId);
         
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        Query query = session.createQuery("FROM USDocument WHERE id = :docId");
-        query.setParameter("docId", documentId);
-        List list = query.list();
+        Query docQuery = session.createQuery("FROM USDocument WHERE id = :docId");
+        docQuery.setParameter("docId", documentId);
+        List list = docQuery.list();
         int toReturn;
         
         USDocument doc = (USDocument) list.get(0);

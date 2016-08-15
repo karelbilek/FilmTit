@@ -22,7 +22,7 @@ import cz.filmtit.core.ConfigurationSingleton;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.core.tests.TestUtil;
 import cz.filmtit.share.Document;
-import cz.filmtit.share.DocumentUsers;
+import cz.filmtit.userspace.DocumentUsers;
 import cz.filmtit.share.TimedChunk;
 import cz.filmtit.userspace.USDocument;
 import cz.filmtit.userspace.USHibernateUtil;

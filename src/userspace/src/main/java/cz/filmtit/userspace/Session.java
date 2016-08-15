@@ -395,7 +395,7 @@ public class Session {
         List<DocumentUsers> documentUsers = new ArrayList<DocumentUsers>();
 
         for (USUser user : users) {
-            documentUsers.add(new DocumentUsers(user.getDatabaseId()));
+            documentUsers.add(new DocumentUsers(user));
         }
 
         //  usDocument.getDocument().setDocumentUsers(documentUsers);
@@ -572,6 +572,10 @@ public class Session {
 
         for (USDocument usDocument : user.getOwnedDocuments().values()) {
             result.add(usDocument.getDocument().documentWithoutResults());
+        }
+        
+        for (USDocument accessibleDocument : user.getAccessibleDocuments()) {
+            result.add(accessibleDocument.getDocument().documentWithoutResults());
         }
 
         Collections.sort(result);

@@ -19,13 +19,11 @@ package cz.filmtit.userspace;
 
 import cz.filmtit.share.ChunkIndex;
 import cz.filmtit.share.Document;
-import cz.filmtit.share.DocumentUsers;
 import cz.filmtit.share.Language;
 import cz.filmtit.share.MediaSource;
 import org.hibernate.Session;
 
 import java.util.*;
-import org.apache.log4j.Logger;
 
 /**
  * Represents a subtitle file the user work with. It is a wrapper of the shared Document class. Some of the properties
@@ -449,4 +447,6 @@ public class USDocument extends DatabaseObject {
     public void setLockedByUser(Long lockedByUser) {
         this.lockedByUser = lockedByUser;
     }
+
+
 }

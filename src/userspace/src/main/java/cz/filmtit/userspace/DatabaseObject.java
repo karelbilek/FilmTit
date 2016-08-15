@@ -17,8 +17,6 @@ along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
 
 package cz.filmtit.userspace;
 
-import cz.filmtit.share.DocumentUsers;
-import java.util.List;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
@@ -114,12 +112,6 @@ public abstract class DatabaseObject {
             }
         }
         
-        if (this instanceof USDocument) {
-            USDocument doc = (USDocument) this;
-            
-            List<DocumentUsers> documentUsers = doc.getDocumentUsers();
-          //  logger.error(documentUsers.size());
-        }
 
         if (databaseId == Long.MIN_VALUE) {
             session.save(this);

@@ -14,7 +14,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package cz.filmtit.userspace;
 
 import cz.filmtit.core.ConfigurationSingleton;
@@ -22,13 +21,16 @@ import cz.filmtit.share.User;
 import org.hibernate.Session;
 
 import java.util.*;
+import org.hibernate.Query;
 
 /**
- * Represents a user of the application in the user space. It is a wrapper of the User
- * class from the share namespace.
+ * Represents a user of the application in the user space. It is a wrapper of
+ * the User class from the share namespace.
+ *
  * @author Jindřich Libovický
  */
 public class USUser extends DatabaseObject {
+
     /**
      * The wrapped shared object.
      */
@@ -44,8 +46,9 @@ public class USUser extends DatabaseObject {
     private volatile String openId;
 
     /**
-     * Creates a new user given his user name and other credits. It is used in cases a user logs for the first time
-     * in the application.
+     * Creates a new user given his user name and other credits. It is used in
+     * cases a user logs for the first time in the application.
+     *
      * @param userName The name of the new user.
      * @param password The new password
      * @param email The email of new user
@@ -65,8 +68,9 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Creates a new user given his user name. It is used in cases a user logs for the first time
-     * in the application.
+     * Creates a new user given his user name. It is used in cases a user logs
+     * for the first time in the application.
+     *
      * @param userName The name of the new user.
      */
     public USUser(String userName) {
@@ -92,14 +96,16 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * A list of the documents owned by the user stored as the User Space wrappers of the
-     * Document objects from the share namespace.
+     * A list of the documents owned by the user stored as the User Space
+     * wrappers of the Document objects from the share namespace.
      */
     private Map<Long, USDocument> ownedDocuments = null;
 
     /**
      * Gets the list of documents owned by this user.
-     * @return List of USDocument objects wrapping the Document objects, but with empty suggestion lists
+     *
+     * @return List of USDocument objects wrapping the Document objects, but
+     * with empty suggestion lists
      */
     public synchronized Map<Long, USDocument> getOwnedDocuments() {
         //  if the list of owned documents is empty...
@@ -108,48 +114,87 @@ public class USUser extends DatabaseObject {
             org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
             // query the documents owned by the user
-            List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid " +
-                    "and d.toBeDeleted = false").setParameter("uid", getDatabaseId()).list();
+            List result = session.createQuery("select d from USDocument d where d.ownerDatabaseId = :uid "
+                    + "and d.toBeDeleted = false").setParameter("uid", getDatabaseId()).list();
 
             // store it to the variable
             for (Object o : result) {
-                USDocument doc = (USDocument)o;
+                USDocument doc = (USDocument) o;
                 doc.setOwner(this);
                 ownedDocuments.put(doc.getDatabaseId(), doc);
             }
-            
+
             usHibernateUtil.closeAndCommitSession(session);
         }
         return ownedDocuments;
     }
 
+    private List<USDocument> accessibleDocuments;
+
     /**
-     * Propagates setting the database ID from the setDatabaseId setter to the wrapped object.
+     * @return the accessibleDocuments
+     */
+    public List<USDocument> getAccessibleDocuments() {
+        if (accessibleDocuments == null) {
+            accessibleDocuments = new ArrayList<USDocument>();
+            
+            org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+            
+            Query query = session.createQuery("SELECT d FROM USDocument d RIGHT JOIN d.documentUsers DocumentUsers WHERE DocumentUsers.user = :user");
+            query.setEntity("user", this);
+            logger.error(query.getQueryString());
+            List list = query.list();
+            
+            for (Object o : list) {
+                accessibleDocuments.add((USDocument) o);
+            }
+            
+            usHibernateUtil.closeAndCommitSession(session);
+        }
+        return accessibleDocuments;
+    }
+
+    /**
+     * Propagates setting the database ID from the setDatabaseId setter to the
+     * wrapped object.
+     *
      * @param id Database ID.
      */
-    protected void setSharedClassDatabaseId(long id) { getUser().setId(id); }
+    protected void setSharedClassDatabaseId(long id) {
+        getUser().setId(id);
+    }
+
     /**
-     * Supplies the id value from the wrapped object to the getDatabaseId getter of the parent DatabaseObject.
+     * Supplies the id value from the wrapped object to the getDatabaseId getter
+     * of the parent DatabaseObject.
+     *
      * @return Identifier from the wrapped object.
      */
-    protected long getSharedClassDatabaseId() { return getUser().getId(); }
+    protected long getSharedClassDatabaseId() {
+        return getUser().getId();
+    }
 
     /**
      * Gets the name of the user. (Calls the wrapped object.)
+     *
      * @return User name.
      */
     public String getUserName() {
         return getUser().getName();
     }
-/**
+
+    /**
      * Sets the user name. (Calls the wrapped object.) Used by Hibernate only.
-     * @param name  User name
+     *
+     * @param name User name
      */
     public void setUserName(String name) {
-        getUser().setName(name);    }
+        getUser().setName(name);
+    }
 
     /**
      * Gets the user's openId identifier. Used by Hibernate only.
+     *
      * @return OpenID
      */
     private String getOpenId() {
@@ -158,7 +203,8 @@ public class USUser extends DatabaseObject {
 
     /**
      * Sets the user's openId identifier. User by Hibernate only.
-     * @param id     User's openID.
+     *
+     * @param id User's openID.
      */
     private void setOpenId(String id) {
         openId = id;
@@ -166,6 +212,7 @@ public class USUser extends DatabaseObject {
 
     /**
      * Gets the hash of user's password.
+     *
      * @return Hash of the user's password
      */
     public String getPassword() {
@@ -174,6 +221,7 @@ public class USUser extends DatabaseObject {
 
     /**
      * Sets hash of the user's password.
+     *
      * @param password Hash of the user's password.
      */
     public void setPassword(String password) {
@@ -182,6 +230,7 @@ public class USUser extends DatabaseObject {
 
     /**
      * Gets the user's email. (Calls the wrapped object.)
+     *
      * @return User's email address.
      */
     public String getEmail() {
@@ -190,14 +239,17 @@ public class USUser extends DatabaseObject {
 
     /**
      * Set user's email. (Calls the wrapped object.)
+     *
      * @return User's email address.
      */
-    public void setEmail(String email){
+    public void setEmail(String email) {
         getUser().setEmail(email);
     }
 
     /**
-     * Gets the flag if the user is permanently logged in. (Calls the wrapped object.)
+     * Gets the flag if the user is permanently logged in. (Calls the wrapped
+     * object.)
+     *
      * @return Flag if the user is permanently logged in.
      */
     public boolean isPermanentlyLoggedId() {
@@ -205,7 +257,9 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Sets the flag if the user is permanently logged in. (Calls the wrapped object.)
+     * Sets the flag if the user is permanently logged in. (Calls the wrapped
+     * object.)
+     *
      * @param permanentlyLoggedId Flag if the user is permanently logged in.
      */
     public void setPermanentlyLoggedId(boolean permanentlyLoggedId) {
@@ -213,8 +267,9 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Gets the maximum number of suggestions user want to receive during a document editing.
-     * (Calls the wrapped object.)
+     * Gets the maximum number of suggestions user want to receive during a
+     * document editing. (Calls the wrapped object.)
+     *
      * @return Maximum number of suggestions displayed in the app.
      */
     public int getMaximumNumberOfSuggestions() {
@@ -222,24 +277,30 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Sets the maximum number of suggestions user want to receive during a document editing.
-     * (Calls the wrapped object.)
-     * @param maximumNumberOfSuggestions Maximum number of suggestions displayed in the app.
+     * Sets the maximum number of suggestions user want to receive during a
+     * document editing. (Calls the wrapped object.)
+     *
+     * @param maximumNumberOfSuggestions Maximum number of suggestions displayed
+     * in the app.
      */
     public void setMaximumNumberOfSuggestions(int maximumNumberOfSuggestions) {
         getUser().setMaximumNumberOfSuggestions(maximumNumberOfSuggestions);
     }
 
     /**
-     * Gets the flag if the wants to include results of machine translation together with the suggestions.
-     * @return  Flag if the user wants machine translation.
+     * Gets the flag if the wants to include results of machine translation
+     * together with the suggestions.
+     *
+     * @return Flag if the user wants machine translation.
      */
     public boolean getUseMoses() {
-         return getUser().getUseMoses();
+        return getUser().getUseMoses();
     }
 
     /**
-     * Sets the flag if the wants to include results of machine translation together with the suggestions.
+     * Sets the flag if the wants to include results of machine translation
+     * together with the suggestions.
+     *
      * @param useMoses Flag if the user wants machine translation.
      */
     public void setUseMoses(boolean useMoses) {
@@ -247,8 +308,10 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Adds a document to the in-memory collection of documents owned by the user. The document itself including
-     * it's connection to the user are saved to the already in the document constructor.
+     * Adds a document to the in-memory collection of documents owned by the
+     * user. The document itself including it's connection to the user are saved
+     * to the already in the document constructor.
+     *
      * @param document
      */
     public void addDocument(USDocument document) {
@@ -257,6 +320,7 @@ public class USUser extends DatabaseObject {
 
     /**
      * Saves the user (not the document he owns) to the database.
+     *
      * @param dbSession An active database session.
      */
     public void saveToDatabase(Session dbSession) {
@@ -264,7 +328,9 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Deletes the user from the database and marks all the document he own as ready to be deleted.
+     * Deletes the user from the database and marks all the document he own as
+     * ready to be deleted.
+     *
      * @param dbSession An active database session.
      */
     public void deleteFromDatabase(Session dbSession) {
@@ -276,8 +342,9 @@ public class USUser extends DatabaseObject {
     }
 
     /**
-     * Gets the wrapped user object clone without documents. It is used to send the client information about the
-     * user after user logs in.
+     * Gets the wrapped user object clone without documents. It is used to send
+     * the client information about the user after user logs in.
+     *
      * @return User object without documents.
      */
     public User sharedUserWithoutDocuments() {

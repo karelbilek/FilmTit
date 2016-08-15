@@ -1,4 +1,4 @@
-/*Copyright 2012 FilmTit authors - Karel Bílek, Josef Čech, Joachim Daiber, Jindřich Libovický, Rudolf Rosa, Jan Václ
+ /*Copyright 2012 FilmTit authors - Karel Bílek, Josef Čech, Joachim Daiber, Jindřich Libovický, Rudolf Rosa, Jan Václ
 
 This file is part of FilmTit.
 
@@ -27,9 +27,7 @@ package cz.filmtit.share.tests;
 
 
 import cz.filmtit.share.Document;
-import cz.filmtit.share.DocumentUsers;
 import cz.filmtit.share.Language;
-import java.util.ArrayList;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

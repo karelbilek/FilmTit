@@ -18,13 +18,9 @@ package cz.filmtit.client.callables;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.DialogBox;
 import cz.filmtit.client.Callable;
 import cz.filmtit.client.Gui;
 import cz.filmtit.client.ReceivesSelectSource;
-import cz.filmtit.client.PageHandler.Page;
 import cz.filmtit.client.dialogs.Dialog;
 import cz.filmtit.client.dialogs.MediaSelector;
 import cz.filmtit.client.pages.DocumentCreator;
@@ -32,7 +28,6 @@ import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.pages.TranslationWorkspace.DocumentOrigin;
 import cz.filmtit.share.DocumentResponse;
 import cz.filmtit.share.MediaSource;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

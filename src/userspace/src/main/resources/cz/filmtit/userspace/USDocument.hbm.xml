@@ -25,7 +25,7 @@
         <list name="documentUsers" cascade="all">
             <key column="documents_id"/>
             <list-index column="idx"/>
-            <one-to-many class="cz.filmtit.share.DocumentUsers" />            
+            <one-to-many class="cz.filmtit.userspace.DocumentUsers" />            
         </list>
         
     </class>

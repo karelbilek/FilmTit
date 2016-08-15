@@ -9,8 +9,6 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.ui.TextBoxBase;
-import cz.filmtit.client.Gui;
-import cz.filmtit.share.LevelLogEnum;
 
 public class MultipleTextBox extends TextBoxBase {
 
@@ -42,7 +40,6 @@ public class MultipleTextBox extends TextBoxBase {
     @Override
     public String getText() {
         String wholeString = super.getText();
-       // Gui.log(LevelLogEnum.Error, "MultipleTextBox.getText() ", wholeString);
         String lastString = wholeString;
         if (wholeString != null && !wholeString.trim().equals("")) {
             int lastComma = wholeString.trim().lastIndexOf(",");
@@ -50,9 +47,6 @@ public class MultipleTextBox extends TextBoxBase {
                 lastString = wholeString.trim().substring(lastComma + 1);
             }
         }
-        
-        Gui.log(LevelLogEnum.Error, "MultipleTextBox.getText() ", lastString);
-
         return lastString;
     }
     
