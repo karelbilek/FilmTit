@@ -14,14 +14,15 @@ import java.io.Serializable;
 public class DocumentUsers implements Serializable{
     
     private volatile Long id;
-    private volatile USUser user;
+    private volatile Long userId;
+    private volatile String moviePath;
     
     public DocumentUsers() {
         //nothing;
     }
     
-    public DocumentUsers(USUser user) {
-        this.user = user;
+    public DocumentUsers(Long userId) {
+        this.userId = userId;
     }
 
     /**
@@ -39,18 +40,34 @@ public class DocumentUsers implements Serializable{
     }
 
     /**
-     * @return the user
+     * @return the userId
      */
-    public USUser getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
     /**
-     * @param user the user to set
+     * @param userId the userId to set
      */
-    public void setUser(USUser user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
+
+    /**
+     * @return the moviePath
+     */
+    public String getMoviePath() {
+        return moviePath;
+    }
+
+    /**
+     * @param moviePath the moviePath to set
+     */
+    public void setMoviePath(String moviePath) {
+        this.moviePath = moviePath;
+    }
+
+
     
     
     

@@ -43,10 +43,8 @@ import cz.filmtit.client.callables.ChangeDocumentTitle;
 import cz.filmtit.client.callables.ChangeMovieTitle;
 import cz.filmtit.client.callables.DeleteDocument;
 import cz.filmtit.client.callables.GetListOfDocuments;
-import cz.filmtit.client.callables.LockDocument;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.share.Document;
-import cz.filmtit.share.LevelLogEnum;
 
 /**
  * A page providing listing of user documents and the possibility to edit them
@@ -257,13 +255,6 @@ public class UserPage extends Composite {
     }
 
     void editDocument(Document document) {
-
-      //  Gui.log(LevelLogEnum.Error, "editDocument", String.valueOf(document.getId()));
-        new LockDocument(Gui.getUserID() , document.getId(), this);
-        
-        if (callLockResult != 0) {
-            Window.alert("Document is locked by another user!");
-        }
         
         Gui.getPageHandler().setDocumentId(document.getId());
         Gui.getPageHandler().loadPage(Page.TranslationWorkspace);

@@ -20,7 +20,7 @@
         <property name="translatedChunksCount" type="int" column="translatedChunksCount" />
         <property name="toBeDeleted" type="boolean" column="toBeDeleted" />
         <property name="localMoviePath" type="java.lang.String" column="movieAddress" />
-        <property name="lockedByUser" type="long" column="lockedByUser" /> 
+        <property name="shareId" type="long" column="shareId" />
                                   
         <list name="documentUsers" cascade="all">
             <key column="documents_id"/>

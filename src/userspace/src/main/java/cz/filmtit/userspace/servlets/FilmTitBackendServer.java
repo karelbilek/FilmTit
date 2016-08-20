@@ -97,32 +97,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return users;
     }
 
-    @Override
-    public Integer lockDocument(Long userId, Long documentId) {
-        
-        logger.error("filmTitBackendServer", "lockDocument: " + documentId);
-        
-        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        Query docQuery = session.createQuery("FROM USDocument WHERE id = :docId");
-        docQuery.setParameter("docId", documentId);
-        List list = docQuery.list();
-        int toReturn;
-        
-        USDocument doc = (USDocument) list.get(0);
-        if (doc.getLockedByUser() != 0 || doc.getLockedByUser() != userId) {
-            toReturn = 1;
-        } else {
-            Query updateQuery = session.createQuery("UPDATE USDocument set lockedbyuser = :userId WHERE id = :docId");
-            updateQuery.setParameter("userId", userId);
-            updateQuery.setParameter("docId", documentId);
-            toReturn = updateQuery.executeUpdate();            
-        }
-        
-        usHibernateUtil.closeAndCommitSession(session);        
-        return toReturn;
-
-    }
-
     public enum CheckUserEnum {
         UserName,
         UserNamePass,

@@ -135,22 +135,21 @@ public class USUser extends DatabaseObject {
      * @return the accessibleDocuments
      */
     public List<USDocument> getAccessibleDocuments() {
-        if (accessibleDocuments == null) {
-            accessibleDocuments = new ArrayList<USDocument>();
-            
-            org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-            
-            Query query = session.createQuery("SELECT d FROM USDocument d RIGHT JOIN d.documentUsers DocumentUsers WHERE DocumentUsers.user = :user");
-            query.setEntity("user", this);
-            logger.error(query.getQueryString());
-            List list = query.list();
-            
-            for (Object o : list) {
-                accessibleDocuments.add((USDocument) o);
-            }
-            
-            usHibernateUtil.closeAndCommitSession(session);
+        accessibleDocuments = new ArrayList<USDocument>();
+
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+
+        Query query = session.createQuery("SELECT d FROM USDocument d RIGHT JOIN d.documentUsers DocumentUsers WHERE DocumentUsers.userId = :userId");
+        query.setParameter("userId", getDatabaseId());
+        
+        List list = query.list();
+
+        for (Object o : list) {
+            accessibleDocuments.add((USDocument) o);
         }
+
+        usHibernateUtil.closeAndCommitSession(session);
+
         return accessibleDocuments;
     }
 

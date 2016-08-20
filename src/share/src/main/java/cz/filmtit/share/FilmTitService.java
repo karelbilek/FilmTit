@@ -78,16 +78,7 @@ public interface FilmTitService extends RemoteService {
      * Return list of all users in database
      * @return 
      */
-    List<User> getListOfUsers();
-    
-    /**
-     * User locks document
-     * @param userId user which locks document
-     * @param documentId document to lock
-     * @return 0 if locking is successful
-     */
-    Integer lockDocument(Long userId, Long documentId);
-            
+    List<User> getListOfUsers();            
 
     /**
      * Returns the document with the given id, with source chunks but without

@@ -395,7 +395,7 @@ public class Session {
         List<DocumentUsers> documentUsers = new ArrayList<DocumentUsers>();
 
         for (USUser user : users) {
-            documentUsers.add(new DocumentUsers(user));
+            documentUsers.add(new DocumentUsers(user.getDatabaseId()));
         }
 
         //  usDocument.getDocument().setDocumentUsers(documentUsers);
