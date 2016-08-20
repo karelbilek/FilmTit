@@ -97,6 +97,24 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return users;
     }
 
+    @Override
+    public Long getShareId(Document doc) {
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        USDocument document = (USDocument) session.load(USDocument.class, doc.getId());
+        
+        Long shareId = document.getShareId();
+        
+        if (shareId == null) {
+            shareId = doc.getId() * doc.getId() + 2 * doc.getId();
+            document.setShareId(shareId);
+        }
+        
+        session.saveOrUpdate(document);
+        usHibernateUtil.closeAndCommitSession(session);
+        
+        return shareId;        
+    }
+
     public enum CheckUserEnum {
         UserName,
         UserNamePass,

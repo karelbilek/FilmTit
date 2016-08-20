@@ -96,7 +96,7 @@ public class USDocument extends DatabaseObject {
     /**
      * A private default constructor (for Hibernate).
      */
-    private USDocument() {
+    public USDocument() {
         document = new Document();
         translationResults = Collections.synchronizedSortedMap(new TreeMap<ChunkIndex, USTranslationResult>());
         ownerDatabaseId = 0;

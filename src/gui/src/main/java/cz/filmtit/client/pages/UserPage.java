@@ -44,6 +44,7 @@ import cz.filmtit.client.callables.ChangeMovieTitle;
 import cz.filmtit.client.callables.DeleteDocument;
 import cz.filmtit.client.callables.GetListOfDocuments;
 import cz.filmtit.client.dialogs.DownloadDialog;
+import cz.filmtit.client.dialogs.ShareDialog;
 import cz.filmtit.share.Document;
 
 /**
@@ -221,6 +222,20 @@ public class UserPage extends Composite {
                 new DownloadDialog(doc);
             }
         });
+        
+        // share button
+        com.google.gwt.user.cellview.client.Column<Document, String> shareButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
+            @Override
+            public String getValue(Document doc) {
+                return "Share";
+            }
+        };
+
+        shareButton.setFieldUpdater(new FieldUpdater<Document, String>() {
+            public void update(int index, Document doc, String value) {
+                new ShareDialog(doc);
+            }
+        });
 
         // delete button
         com.google.gwt.user.cellview.client.Column<Document, String> deleteButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
@@ -244,6 +259,7 @@ public class UserPage extends Composite {
         docTable.addColumn(doneClm, "Translated");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
+        docTable.addColumn(shareButton, "Share");
         docTable.addColumn(exportSubtitlesButton, "Export");
         docTable.addColumn(deleteButton, "Delete");
 

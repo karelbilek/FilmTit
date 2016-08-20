@@ -541,4 +541,6 @@ public interface FilmTitService extends RemoteService {
      * user was looged in that time
      */
     Void logGuiMessage(LevelLogEnum level, String context, String message, String sessionID);
+    
+    Long getShareId(Document doc);
 }
