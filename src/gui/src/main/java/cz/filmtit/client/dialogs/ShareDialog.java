@@ -22,7 +22,6 @@ import cz.filmtit.share.Document;
  */
 public class ShareDialog extends Dialog {
 
-    private Long shareId;
     private Document doc;
 
     private static ShareDialogUiBinder uiBinder = GWT.create(ShareDialogUiBinder.class);
@@ -44,6 +43,8 @@ public class ShareDialog extends Dialog {
         
         shareIdBox.setReadOnly(true);
         shareIdBox.selectAll();
+        
+        new GetShareId(this.doc, this);
     }
 
     public ShareDialog() {
@@ -51,6 +52,6 @@ public class ShareDialog extends Dialog {
     }
 
     @UiField
-    TextBox shareIdBox;
+    public TextBox shareIdBox;
 
 }

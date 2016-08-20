@@ -28,6 +28,11 @@ public class GetShareId extends Callable<Long> {
     }
 
     @Override
+    public void onSuccessAfterLog(Long result) {
+        shareDialog.shareIdBox.setText(result.toString());
+    }
+
+    @Override
     protected void call() {
         filmTitService.getShareId(doc, this);
     }
