@@ -43,9 +43,11 @@ import cz.filmtit.client.callables.ChangeDocumentTitle;
 import cz.filmtit.client.callables.ChangeMovieTitle;
 import cz.filmtit.client.callables.DeleteDocument;
 import cz.filmtit.client.callables.GetListOfDocuments;
+import cz.filmtit.client.dialogs.AddDocumentDialog;
 import cz.filmtit.client.dialogs.DownloadDialog;
 import cz.filmtit.client.dialogs.ShareDialog;
 import cz.filmtit.share.Document;
+import cz.filmtit.share.LevelLogEnum;
 
 /**
  * A page providing listing of user documents and the possibility to edit them
@@ -294,12 +296,21 @@ public class UserPage extends Composite {
 
     @UiField
     Button btnDisplayCreator;
-
+    
     @UiHandler("btnDisplayCreator")
     void onClick(ClickEvent event) {
         // loading a new DocumentCreator
         Gui.getPageHandler().forgetCurrentDocumentCreator();
         Gui.getPageHandler().loadPage(Page.DocumentCreator);
+    }
+    
+    @UiField
+    Button btnAddNewDoc;
+    
+    @UiHandler("btnAddNewDoc")
+    void newDocOnClick(ClickEvent event) {
+        Gui.log(LevelLogEnum.Error, "btnNewDoc", "It works!");
+        new AddDocumentDialog();
     }
 
     @UiField

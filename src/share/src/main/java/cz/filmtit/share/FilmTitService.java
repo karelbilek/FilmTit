@@ -542,5 +542,10 @@ public interface FilmTitService extends RemoteService {
      */
     Void logGuiMessage(LevelLogEnum level, String context, String message, String sessionID);
     
+    
+    
+    
     Long getShareId(Document doc);
+    
+    Void addDocument(String shareId, User user) throws InvalidShareIdException;
 }

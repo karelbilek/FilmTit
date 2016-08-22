@@ -6,6 +6,7 @@
 
 	<g:HTMLPanel styleName="user_page">
         <b:Button type="PRIMARY" ui:field="btnDisplayCreator" addStyleNames="new_document_button">Create a new document</b:Button>
+        <b:Button type="PRIMARY" ui:field="btnAddNewDoc" addStyleNames="new_document_button">Add document</b:Button>
 
         <b:PageHeader subtext="Edit your subtitle files">Documents</b:PageHeader>
 

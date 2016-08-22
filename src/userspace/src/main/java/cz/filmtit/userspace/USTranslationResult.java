@@ -45,6 +45,8 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      * A reference to the document this translation result is part of.
      */
     private USDocument document;
+    
+    private volatile Long lockedByUser;
 
     /**
      * Sets the document the Translation Result belongs to. It is called either when a new translation
@@ -398,5 +400,19 @@ public class USTranslationResult extends DatabaseObject implements Comparable<US
      */
     public void setChunkActive (boolean active) {
     	translationResult.getSourceChunk().isActive = active;
+    }
+
+    /**
+     * @return the lockedByUser
+     */
+    public Long getLockedByUser() {
+        return lockedByUser;
+    }
+
+    /**
+     * @param lockedByUser the lockedByUser to set
+     */
+    public void setLockedByUser(Long lockedByUser) {
+        this.lockedByUser = lockedByUser;
     }
 }

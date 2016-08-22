@@ -115,6 +115,34 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         return shareId;        
     }
 
+    @Override
+    public Void addDocument(String shareId, User user) throws InvalidShareIdException{
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        
+        Query query = session.createQuery("FROM USDocument d WHERE d.shareId = :shareId");
+        
+        long parsed = Long.parseLong(shareId);
+        query.setParameter("shareId", parsed);
+        List list = query.list();
+        
+        if (list == null || list.isEmpty()) {
+            
+            session.close();
+            throw new InvalidShareIdException(shareId);
+            
+        } else {
+        
+            USDocument doc = (USDocument) list.get(0);
+            doc.getDocumentUsers().add(new DocumentUsers(user.getId()));        
+            session.update(doc);
+        
+        }
+        
+        usHibernateUtil.closeAndCommitSession(session);        
+        return null;
+        
+    }
+
     public enum CheckUserEnum {
         UserName,
         UserNamePass,

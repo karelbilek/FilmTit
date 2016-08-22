@@ -186,7 +186,8 @@ public class TranslationWorkspace extends Composite {
     ScrollPanel scrollPanel;
     @UiField
     SimplePanel emptyPanel;
-	@UiField
+    
+    @UiField
     FlexTable table;
     
     @UiField
@@ -341,33 +342,31 @@ public class TranslationWorkspace extends Composite {
     	}
     	
 
-          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
-          List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
-          List<TranslationResult> results = new LinkedList<TranslationResult>();
+        List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
+        List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
+        List<TranslationResult> results = new LinkedList<TranslationResult>();
         
-          for (TranslationResult tr:translations) {
-              TimedChunk sChunk = tr.getSourceChunk();
-              synchronizer.putTranslationResult(tr);
-              synchronizer.putSourceChunk(sChunk, -1, false);
+        for (TranslationResult tr:translations) {
+            TimedChunk sChunk = tr.getSourceChunk();
+            synchronizer.putTranslationResult(tr);
+            synchronizer.putSourceChunk(sChunk, -1, false);
+            String tChunk = tr.getUserTranslation();
+             
+            ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
-              String tChunk = tr.getUserTranslation();
-              
+            this.currentDocument.translationResults.put(chunkIndex, tr);
 
-              ChunkIndex chunkIndex = sChunk.getChunkIndex();
-
-              this.currentDocument.translationResults.put(chunkIndex, tr);
-
-              allChunks.add(sChunk);
+            allChunks.add(sChunk);
 
 
-              if (tChunk==null || tChunk.equals("")){
-                 untranslatedOnes.add(sChunk);
-              } else {
-                 results.add(tr);
-              }
-          }
+            if (tChunk==null || tChunk.equals("")){
+               untranslatedOnes.add(sChunk);
+            } else {
+               results.add(tr);
+            }
+        }
           
-          dealWithChunks(allChunks, results, untranslatedOnes);
+        dealWithChunks(allChunks, results, untranslatedOnes);
           
     }
 
