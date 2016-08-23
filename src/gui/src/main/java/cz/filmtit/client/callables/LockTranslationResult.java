@@ -6,7 +6,9 @@
 package cz.filmtit.client.callables;
 
 import cz.filmtit.client.Callable;
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.subgestbox.SubgestBox;
+import cz.filmtit.share.LevelLogEnum;
 import cz.filmtit.share.TranslationResult;
 import cz.filmtit.share.User;
 
@@ -14,35 +16,32 @@ import cz.filmtit.share.User;
  *
  * @author matus
  */
-public class LockTranslationResult extends Callable<Void>{
-    
+public class LockTranslationResult extends Callable<Void> {
+
     TranslationResult tResult;
-    User user;
     SubgestBox subgestBox;
-    
+
     public LockTranslationResult() {
         // do nothing
     }
-    
-    public LockTranslationResult(TranslationResult tResult, User user, SubgestBox subgestBox) {
+
+    public LockTranslationResult(SubgestBox subgestBox) {
         super();
-        this.tResult = tResult;
-        this.user = user;
         this.subgestBox = subgestBox;
+        this.tResult = subgestBox.getTranslationResult();
+
+        Gui.log(LevelLogEnum.Error, "LockTranslationResult", String.valueOf(tResult.getId()));
         enqueue();
     }
-    
+
     @Override
     public void onSuccessAfterLog(Void result) {
-        //TODO make IFrame change border color
+        Gui.log(LevelLogEnum.Error, "lockTranslationResult", String.valueOf(tResult.getChunkId()));
     }
-    
-    
+
     @Override
     protected void call() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        
-        //TODO implement locking on server
+        filmTitService.lockTranslationResult(tResult, Gui.getSessionID(), this);
     }
-    
+
 }

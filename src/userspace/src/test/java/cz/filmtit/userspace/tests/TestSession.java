@@ -81,7 +81,7 @@ public class TestSession {
     public void testDocumentResponse() throws NoSuchFieldException, IllegalAccessException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, new ArrayList<String>(), "");
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, "");
 
         assertNotNull(response.mediaSourceSuggestions);
         assertTrue(response.document.getId() != Long.MIN_VALUE);
@@ -220,7 +220,7 @@ public class TestSession {
 
         Session session = new Session(sampleUser);
 
-        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, new ArrayList<String>(), "");
+        DocumentResponse response = session.createNewDocument("Lost S01E01", "Lost", "en", mediaSourceFactory, "");
         Document clientDocument = response.document;
         if (response.mediaSourceSuggestions.size() > 0) {
             session.selectSource(clientDocument.getId(), response.mediaSourceSuggestions.get(0));
@@ -251,7 +251,7 @@ public class TestSession {
     public void testSaveSourceChunks() throws InvalidDocumentIdException, InterruptedException, InvalidChunkIdException, InvalidValueException {
         Session session = new Session(getSampleUser());
 
-        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory, new ArrayList<String>(),"");
+        DocumentResponse resp = session.createNewDocument("Lost", "Lost", "en", mediaSourceFactory, "");
         long documentId = resp.document.getId();
 
         // generate few chunks

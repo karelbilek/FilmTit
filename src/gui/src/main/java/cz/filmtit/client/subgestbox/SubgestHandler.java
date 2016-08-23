@@ -24,6 +24,8 @@ import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 import cz.filmtit.client.Gui;
+import cz.filmtit.client.callables.LockTranslationResult;
+import cz.filmtit.client.callables.UnlockTranslationResult;
 import cz.filmtit.client.pages.TranslationWorkspace;
 
 /**
@@ -48,6 +50,8 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
     public void onFocus(FocusEvent event) {
         if (event.getSource() instanceof SubgestBox) { // should be
             final SubgestBox subbox = (SubgestBox) event.getSource();
+            
+            new LockTranslationResult(subbox);
 
             subbox.loadSuggestions(); // if not already loaded - the check is inside
 
@@ -134,6 +138,8 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                 workspace.submitUserTranslation(subbox.getTranslationResult());
                 subbox.updateLastText();
             }
+            
+            new UnlockTranslationResult(subbox.getTranslationResult(), subbox);
 
         }
     }

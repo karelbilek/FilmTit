@@ -68,11 +68,6 @@ public class Document implements IsSerializable, Serializable, Comparable<Docume
     private long userId = Long.MIN_VALUE;
 
     /**
-     * List of users having access to the document
-     */
-   // private List<DocumentUsers> documentUsers;
-
-    /**
      * Map of the translation results the document consists of
      */
     public TreeMap<ChunkIndex, TranslationResult> translationResults = new TreeMap<ChunkIndex, TranslationResult>();
@@ -331,19 +326,5 @@ public class Document implements IsSerializable, Serializable, Comparable<Docume
         }
         return 0;
     }
-
-    /**
-     * @return the documentUsers
-     */
-   /* public List<DocumentUsers> getDocumentUsers() {
-        return documentUsers;
-    }
-
-    /**
-     * @param documentUsers the documentUsers to set
-     */
- /*   public void setDocumentUsers(List<DocumentUsers> documentUsers) {
-        this.documentUsers = documentUsers;
-    }*/
 
 }

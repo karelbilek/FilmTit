@@ -47,6 +47,10 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
      * ID of the translation suggestion selected by the user
      */
     private volatile long selectedTranslationPairID;
+    /**
+     * shared id
+     */
+    private volatile long id;
 
     /**
      * Default constructor for GWT.
@@ -234,5 +238,19 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
         clone.sourceChunk = sourceChunk;
         clone.userTranslation = userTranslation;
         return clone;
+    }
+
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
     }
 }

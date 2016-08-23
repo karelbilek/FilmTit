@@ -46,7 +46,7 @@ public interface FilmTitService extends RemoteService {
      * @throws InvalidSessionIdException Throws exception when there does not
      * exist a session of given ID.
      */
-    DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, List<String> users, String moviePath)
+    DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
             throws InvalidSessionIdException;
 
     /**
@@ -72,13 +72,7 @@ public interface FilmTitService extends RemoteService {
      * exist a session of given ID.
      */
     List<Document> getListOfDocuments(String sessionID)
-            throws InvalidSessionIdException;
-    
-    /**
-     * Return list of all users in database
-     * @return 
-     */
-    List<User> getListOfUsers();            
+            throws InvalidSessionIdException;      
 
     /**
      * Returns the document with the given id, with source chunks but without
@@ -548,4 +542,8 @@ public interface FilmTitService extends RemoteService {
     Long getShareId(Document doc);
     
     Void addDocument(String shareId, User user) throws InvalidShareIdException;
+    
+    Void lockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException, AlreadyLockedException;
+    
+    Void unlockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException;
 }

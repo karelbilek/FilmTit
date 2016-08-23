@@ -6,9 +6,10 @@
 package cz.filmtit.client.callables;
 
 import cz.filmtit.client.Callable;
+import cz.filmtit.client.Gui;
 import cz.filmtit.client.subgestbox.SubgestBox;
+import cz.filmtit.share.LevelLogEnum;
 import cz.filmtit.share.TranslationResult;
-import cz.filmtit.share.User;
 
 /**
  *
@@ -16,31 +17,28 @@ import cz.filmtit.share.User;
  */
 public class UnlockTranslationResult extends Callable<Void>{
     TranslationResult tResult;
-    User user;
     SubgestBox subgestBox;
     
     public UnlockTranslationResult() {
         // do nothing
     }
     
-    public UnlockTranslationResult(TranslationResult tResult, User user, SubgestBox subgestBox) {
+    public UnlockTranslationResult(TranslationResult tResult, SubgestBox subgestBox) {
         super();
         this.tResult = tResult;
-        this.user = user;
         this.subgestBox = subgestBox;
         enqueue();
     }
     
     @Override
     public void onSuccessAfterLog(Void result) {
-        //TODO make IFrame change border color
+        Gui.log(LevelLogEnum.Error, "unlockTranslationResult", String.valueOf(tResult.getChunkId()));
     }
+    
     
     
     @Override
     protected void call() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        
-        //TODO implement unlocking on server
+        filmTitService.unlockTranslationResult(tResult, Gui.getSessionID(), this);
     }
 }

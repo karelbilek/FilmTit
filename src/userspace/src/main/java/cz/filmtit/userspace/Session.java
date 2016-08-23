@@ -19,6 +19,7 @@ package cz.filmtit.userspace;
 import cz.filmtit.core.model.MediaSourceFactory;
 import cz.filmtit.core.model.TranslationMemory;
 import cz.filmtit.share.*;
+import cz.filmtit.share.exceptions.AlreadyLockedException;
 import cz.filmtit.share.exceptions.InvalidChunkIdException;
 import cz.filmtit.share.exceptions.InvalidDocumentIdException;
 import cz.filmtit.share.exceptions.InvalidValueException;
@@ -75,6 +76,41 @@ public class Session {
      * Instance of the singleton class for managing database sessions.
      */
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
+
+    public Void lockTranslationResult(TranslationResult tResult) throws AlreadyLockedException {
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+
+        USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
+        
+        logger.error(tResult.getId());
+
+        if (translationResult.getLockedByUser() != null) {
+            throw new AlreadyLockedException(String.valueOf(tResult.getId()));
+        } else {
+            translationResult.setLockedByUser(this.getUserDatabaseId());
+        }
+
+        session.saveOrUpdate(translationResult);
+        usHibernateUtil.closeAndCommitSession(session);
+
+        return null;
+
+    }
+
+    public Void unlockTranslationResult(TranslationResult tResult) {
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+
+        USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
+        
+        if (translationResult.getLockedByUser() == this.getUserDatabaseId()) {
+            translationResult.setLockedByUser(null);
+        }
+        
+        session.saveOrUpdate(translationResult);
+        usHibernateUtil.closeAndCommitSession(session);
+        
+        return null;
+    }
 
     /**
      * Type for describing the stae of the session. <b>active</b> means the
@@ -271,19 +307,18 @@ public class Session {
         }
 
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        
-        
+
         Query query = session.createQuery("FROM USDocument WHERE lockedbyuser = :user_id");
-        query.setParameter("user_id", user.getDatabaseId());        
+        query.setParameter("user_id", user.getDatabaseId());
         List list = query.list();
-        
+
         for (Object object : list) {
             USDocument doc = (USDocument) object;
             Query updateQuery = session.createQuery("UPDATE USDocument set lockedbyuser = 0 WHERE id = :docid");
             updateQuery.setParameter("docid", doc.databaseId);
             updateQuery.executeUpdate();
         }
-        
+
         session.save(this);
         usHibernateUtil.closeAndCommitSession(session);
     }
@@ -381,22 +416,12 @@ public class Session {
      * @param moviePath Path the to movie vide on the user's machine.
      * @return An object wrapping a shared document object of given
      */
-    public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory, List<String> usernames, String moviePath) {
+    public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory, String moviePath) {
         updateLastOperationTime();
-        
-   /*     logger.error(usernames.size());
-        
-        for (String username : usernames) {
-            logger.error(username);
-        }*/
 
-        List<USUser> users = getUsers(usernames);
-        //long docDatabaseId1 = usDocument.getDatabaseId();
+
         List<DocumentUsers> documentUsers = new ArrayList<DocumentUsers>();
 
-        for (USUser user : users) {
-            documentUsers.add(new DocumentUsers(user.getDatabaseId()));
-        }
 
         //  usDocument.getDocument().setDocumentUsers(documentUsers);
         USDocument usDocument = new USDocument(new Document(documentTitle, language, moviePath), user, documentUsers);
@@ -408,31 +433,6 @@ public class Session {
         logger.info("User " + user.getUserName() + " opened document " + usDocument.getDatabaseId() + " ("
                 + usDocument.getTitle() + ").");
         return new DocumentResponse(usDocument.getDocument(), suggestions);
-    }
-
-    private List<USUser> getUsers(List<String> usernames) {
-        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        List list = session.createQuery("from USUser").list();
-
-        List<USUser> users = new ArrayList<USUser>();
-        
-        //logger.error("username: " + usernames.size());
-        
-        /*for (String username : usernames) {
-            logger.error(username);
-        }*/
-
-        for (Object o : list) {
-            USUser u = (USUser) o;
-           // logger.error(u.getUserName());
-            if (usernames.contains(u.getUserName())) {
-                users.add(u);
-            }
-        }
-
-        usHibernateUtil.closeAndCommitSession(session);
-
-        return users;
     }
 
     /**
@@ -573,7 +573,7 @@ public class Session {
         for (USDocument usDocument : user.getOwnedDocuments().values()) {
             result.add(usDocument.getDocument().documentWithoutResults());
         }
-        
+
         for (USDocument accessibleDocument : user.getAccessibleDocuments()) {
             result.add(accessibleDocument.getDocument().documentWithoutResults());
         }

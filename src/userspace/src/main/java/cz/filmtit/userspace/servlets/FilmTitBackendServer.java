@@ -82,22 +82,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     @Override
-    public List<User> getListOfUsers() {
-        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-        List list = session.createQuery("from USUser").list();
-        List<User> users = new ArrayList<User>();
-        
-        for (Object o : list) {
-            USUser u = (USUser) o;
-            users.add(u.getUser());
-        }
-        
-        usHibernateUtil.closeAndCommitSession(session);
-
-        return users;
-    }
-
-    @Override
     public Long getShareId(Document doc) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         USDocument document = (USDocument) session.load(USDocument.class, doc.getId());
@@ -141,6 +125,16 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
         usHibernateUtil.closeAndCommitSession(session);        
         return null;
         
+    }
+
+    @Override
+    public Void lockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException, AlreadyLockedException {
+        return getSessionIfCan(sessionID).lockTranslationResult(tResult);
+    }
+
+    @Override
+    public Void unlockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).unlockTranslationResult(tResult);
     }
 
     public enum CheckUserEnum {
@@ -262,10 +256,10 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * @throws InvalidSessionIdException Throws exception when there does not exist a session of given ID.
      */
     @Override
-    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language,List<String> users, String moviePath)
+    public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
             throws InvalidSessionIdException {
      //   logger.error("createNewDocument: users.size(): ", String.valueOf(users.size()));
-        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, users, moviePath);
+        return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, moviePath);
     }
 
     /**
