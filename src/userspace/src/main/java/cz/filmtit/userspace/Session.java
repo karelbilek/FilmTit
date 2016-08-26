@@ -80,12 +80,18 @@ public class Session {
     public Void lockTranslationResult(TranslationResult tResult) throws AlreadyLockedException {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
-        USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
-        
-        logger.error(tResult.getId());
+        //USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
+        Query query = session.createQuery("FROM USTranslationResult t WHERE t.documentDatabaseId = :did AND t.sharedId = :sid AND t.partNumber = :pid");
+        query.setParameter("did", tResult.getDocumentId());
+        query.setParameter("sid", tResult.getChunkId());
+        query.setParameter("pid", tResult.getSourceChunk().getChunkIndex().getPartNumber());
 
-        if (translationResult.getLockedByUser() != null) {
-            throw new AlreadyLockedException(String.valueOf(tResult.getId()));
+        //logger.error(tResult.getId() + " " + tResult.getChunkId() + " " + tResult.getDocumentId() + " " + tResult.getSourceChunk().chunkIndex.getPartNumber());
+
+        USTranslationResult translationResult = (USTranslationResult) query.list().get(0);
+
+        if ((translationResult.getLockedByUser() != null) && (translationResult.getLockedByUser() != this.getUserDatabaseId()) && (translationResult.getLockedByUser() != 0)) {
+            throw new AlreadyLockedException(String.valueOf(translationResult.getLockedByUser() + " " + this.getUserDatabaseId()));
         } else {
             translationResult.setLockedByUser(this.getUserDatabaseId());
         }
@@ -100,15 +106,23 @@ public class Session {
     public Void unlockTranslationResult(TranslationResult tResult) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
-        USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
-        
+        //USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
+        Query query = session.createQuery("FROM USTranslationResult t WHERE t.documentDatabaseId = :did AND t.sharedId = :sid AND t.partNumber = :pid");
+        query.setParameter("did", tResult.getDocumentId());
+        query.setParameter("sid", tResult.getChunkId());
+        query.setParameter("pid", tResult.getSourceChunk().getChunkIndex().getPartNumber());
+
+        //logger.error(tResult.getId() + " " + tResult.getChunkId() + " " + tResult.getDocumentId() + " " + tResult.getSourceChunk().chunkIndex.getPartNumber());
+
+        USTranslationResult translationResult = (USTranslationResult) query.list().get(0);
+
         if (translationResult.getLockedByUser() == this.getUserDatabaseId()) {
             translationResult.setLockedByUser(null);
         }
-        
+
         session.saveOrUpdate(translationResult);
         usHibernateUtil.closeAndCommitSession(session);
-        
+
         return null;
     }
 
@@ -307,18 +321,6 @@ public class Session {
         }
 
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
-
-        Query query = session.createQuery("FROM USDocument WHERE lockedbyuser = :user_id");
-        query.setParameter("user_id", user.getDatabaseId());
-        List list = query.list();
-
-        for (Object object : list) {
-            USDocument doc = (USDocument) object;
-            Query updateQuery = session.createQuery("UPDATE USDocument set lockedbyuser = 0 WHERE id = :docid");
-            updateQuery.setParameter("docid", doc.databaseId);
-            updateQuery.executeUpdate();
-        }
-
         session.save(this);
         usHibernateUtil.closeAndCommitSession(session);
     }
@@ -419,9 +421,7 @@ public class Session {
     public DocumentResponse createNewDocument(String documentTitle, String movieTitle, String language, MediaSourceFactory mediaSourceFactory, String moviePath) {
         updateLastOperationTime();
 
-
         List<DocumentUsers> documentUsers = new ArrayList<DocumentUsers>();
-
 
         //  usDocument.getDocument().setDocumentUsers(documentUsers);
         USDocument usDocument = new USDocument(new Document(documentTitle, language, moviePath), user, documentUsers);

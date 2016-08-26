@@ -36,7 +36,6 @@ import cz.filmtit.client.callables.*;
 import cz.filmtit.client.dialogs.TimeEditDialog;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
-//import cz.filmtit.client.widgets.VLCWidget;
 import cz.filmtit.client.widgets.VideoWidget;
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.Parser;
@@ -51,6 +50,48 @@ import java.util.*;
 public class TranslationWorkspace extends Composite {
 
 	private static TranslationWorkspaceUiBinder uiBinder = GWT.create(TranslationWorkspaceUiBinder.class);
+
+    /**
+     * @return the lockedSubgestBox
+     */
+    public SubgestBox getLockedSubgestBox() {
+        return lockedSubgestBox;
+    }
+
+    /**
+     * @param lockedSubgestBox the lockedSubgestBox to set
+     */
+    public void setLockedSubgestBox(SubgestBox lockedSubgestBox) {
+        this.lockedSubgestBox = lockedSubgestBox;
+    }
+
+    /**
+     * @return the timer
+     */
+    public com.google.gwt.user.client.Timer getTimer() {
+        return timer;
+    }
+
+    /**
+     * @param timer the timer to set
+     */
+    public void setTimer(com.google.gwt.user.client.Timer timer) {
+        this.timer = timer;
+    }
+
+    /**
+     * @return the prevLockedSubgestBox
+     */
+    public SubgestBox getPrevLockedSubgestBox() {
+        return prevLockedSubgestBox;
+    }
+
+    /**
+     * @param prevLockedSubgestBox the prevLockedSubgestBox to set
+     */
+    public void setPrevLockedSubgestBox(SubgestBox prevLockedSubgestBox) {
+        this.prevLockedSubgestBox = prevLockedSubgestBox;
+    }
 
 	interface TranslationWorkspaceUiBinder extends UiBinder<Widget, TranslationWorkspace> {
 	}
@@ -269,6 +310,23 @@ public class TranslationWorkspace extends Composite {
         Gui.getGuiStructure().contentPanel.setWidget(this);
         Gui.getGuiStructure().contentPanel.setStyleName("translating");
         Gui.getGuiStructure().contentPanel.addStyleName("parsing");
+        
+        timer = new com.google.gwt.user.client.Timer() {
+            @Override
+            public void run() {
+                lockedSubgestBox.getTranslationResult().setUserTranslation(lockedSubgestBox.getTextWithNewlines());
+
+            // submitting only when the contents have changed
+                if (lockedSubgestBox.textChanged()) {
+                    submitUserTranslation(lockedSubgestBox.getTranslationResult(), null);
+                    lockedSubgestBox.updateLastText();
+                } else {
+                    new UnlockTranslationResult(lockedSubgestBox, currentWorkspace);
+                }
+                
+                prevLockedSubgestBox.addStyleDependentName("unlocked");
+            }
+        };
 	}
 
     
@@ -357,7 +415,6 @@ public class TranslationWorkspace extends Composite {
             this.currentDocument.translationResults.put(chunkIndex, tr);
 
             allChunks.add(sChunk);
-
 
             if (tChunk==null || tChunk.equals("")){
                untranslatedOnes.add(sChunk);
@@ -547,14 +604,22 @@ public class TranslationWorkspace extends Composite {
      /**
       * Send the given translation result as a "user-feedback" to the userspace
       * @param transresult
+     * @param toSaveAndUnlock
+     * @param toLock
       */
-     public void submitUserTranslation(TranslationResult transresult) {
+     public void submitUserTranslation(TranslationResult transresult, SubgestBox toLock) {
           String combinedTRId = transresult.getDocumentId() + ":" + transresult.getSourceChunk().getChunkIndex();
           Gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
 
           ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-          new SetUserTranslation(chunkIndex, transresult.getDocumentId(),
-                                          transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+          
+          if (toLock != null) {          
+            new SetUserTranslation(chunkIndex, transresult.getDocumentId(),
+                                              transresult.getUserTranslation(), transresult.getSelectedTranslationPairID(), lockedSubgestBox, this, toLock);
+          } else {
+              new SetUserTranslation(chunkIndex, transresult.getDocumentId(),
+                                              transresult.getUserTranslation(), transresult.getSelectedTranslationPairID(), lockedSubgestBox, this);
+          }
           
           synchronizer.putTranslationResult(transresult);
           //reverseTimeMap.put((double)(transresult.getSourceChunk().getStartTimeLong()), transresult);
@@ -982,12 +1047,17 @@ public class TranslationWorkspace extends Composite {
             }
             setActiveSuggestionWidget(null);
         }
-    }
+    }   
     
     public native void alert(String message)/*-{
         $wnd.alert(message);
             
     }-*/;
+    
+    private SubgestBox lockedSubgestBox;
+    private SubgestBox prevLockedSubgestBox;
+    
+    private com.google.gwt.user.client.Timer timer;
 
 
 

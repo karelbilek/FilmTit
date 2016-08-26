@@ -27,6 +27,8 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.rpc.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.core.client.*;
+import cz.filmtit.client.pages.TranslationWorkspace;
+import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.share.*;
 
 import java.util.*;
@@ -49,6 +51,14 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
     private String userTranslation;
     private long chosenTranslationPair;
 
+    private boolean toUnlock = false;
+    private boolean toLockNext = false;
+
+    private SubgestBox toUnlockBox;
+    private SubgestBox toLockBox;
+
+    private TranslationWorkspace workspace;
+
     @Override
     public String getName() {
         return getNameWithParameters(chunkIndex, documentId, userTranslation, chosenTranslationPair);
@@ -59,6 +69,13 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
         if (LocalStorageHandler.isUploading()) {
             LocalStorageHandler.SuccessOnLoadFromLocalStorage(this);
         }
+
+        if (toUnlock && toLockNext) {
+            new UnlockTranslationResult(toUnlockBox, workspace, toLockBox);
+        } else if (toUnlock) {
+            new UnlockTranslationResult(toUnlockBox, workspace);
+        }
+
     }
 
     /**
@@ -81,9 +98,53 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
         enqueue();
     }
 
+    public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
+            String userTranslation, long chosenTranslationPair, SubgestBox toUnlockBox, TranslationWorkspace workspace) {
+        super();
+
+        this.chunkIndex = chunkIndex;
+        this.documentId = documentId;
+        this.userTranslation = userTranslation;
+        this.chosenTranslationPair = chosenTranslationPair;
+
+        this.toUnlock = true;
+        this.toUnlockBox = toUnlockBox;
+
+        this.workspace = workspace;
+
+        enqueue();
+    }
+
+    public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
+            String userTranslation, long chosenTranslationPair, SubgestBox toUnlockBox, TranslationWorkspace workspace, SubgestBox toLockBox) {
+        super();
+
+        this.chunkIndex = chunkIndex;
+        this.documentId = documentId;
+        this.userTranslation = userTranslation;
+        this.chosenTranslationPair = chosenTranslationPair;
+
+        this.toUnlock = true;
+        this.toUnlockBox = toUnlockBox;
+
+        this.toLockNext = true;
+        this.toLockBox = toLockBox;
+
+        this.workspace = workspace;
+
+        
+        
+        enqueue();
+    }
+
     @Override
     protected void call() {
-        if (LocalStorageHandler.isOnline()) {
+        Gui.log(LevelLogEnum.Error,"SetUserTranslation","Call: SetUserTranslation");
+        filmTitService.setUserTranslation(Gui.getSessionID(), chunkIndex,
+                documentId, userTranslation, chosenTranslationPair,
+                this);
+
+        /*      if (LocalStorageHandler.isOnline()) {
             filmTitService.setUserTranslation(Gui.getSessionID(), chunkIndex,
                     documentId, userTranslation, chosenTranslationPair,
                     this);
@@ -95,7 +156,8 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
                 Gui.log("ERROR: Cannot save to local storage: " + keyValuePair);
                 displayWindow("ERROR: Cannot save to local storage: " + keyValuePair);
             }
-        }
+        }*/
+        
     }
 
     // local storage

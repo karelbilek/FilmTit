@@ -32,7 +32,7 @@ import cz.filmtit.client.pages.TranslationWorkspace;
  * Universal event-handler for all {@link SubgestBox} instances in one
  * {@link TranslationWorkspace} instance.
  */
-public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, BlurHandler, ClickHandler {
+public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandler, BlurHandler, ClickHandler, ChangeHandler {
 
     private TranslationWorkspace workspace;
 
@@ -50,9 +50,26 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
     public void onFocus(FocusEvent event) {
         if (event.getSource() instanceof SubgestBox) { // should be
             final SubgestBox subbox = (SubgestBox) event.getSource();
-            
-            new LockTranslationResult(subbox);
 
+            if (workspace.getLockedSubgestBox() == null) {
+                new LockTranslationResult(subbox, workspace);
+            } else {
+                SubgestBox toSaveAndUnlock = workspace.getLockedSubgestBox();
+                toSaveAndUnlock.getTranslationResult().setUserTranslation(toSaveAndUnlock.getTextWithNewlines());
+                // submitting only when the contents have changed
+
+                if (toSaveAndUnlock.textChanged()) {
+                    workspace.submitUserTranslation(toSaveAndUnlock.getTranslationResult(), subbox);
+                    toSaveAndUnlock.updateLastText();
+                } else {
+                    new UnlockTranslationResult(toSaveAndUnlock, workspace, subbox);
+                }
+                
+                //workspace.submitUserTranslation(toSaveAndUnlock.getTranslationResult(), subbox);
+                //toSaveAndUnlock.updateLastText();
+
+            }
+            
             subbox.loadSuggestions(); // if not already loaded - the check is inside
 
             // hide the suggestion widget corresponding to the SubgestBox
@@ -131,15 +148,6 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
     public void onBlur(BlurEvent event) {
         if (event.getSource() instanceof SubgestBox) { // should be
             SubgestBox subbox = (SubgestBox) event.getSource();
-            subbox.getTranslationResult().setUserTranslation(subbox.getTextWithNewlines());
-
-            // submitting only when the contents have changed
-            if (subbox.textChanged()) {
-                workspace.submitUserTranslation(subbox.getTranslationResult());
-                subbox.updateLastText();
-            }
-            
-            new UnlockTranslationResult(subbox.getTranslationResult(), subbox);
 
         }
     }
@@ -155,19 +163,29 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
                     subbox.updateVerticalSize();
                 }
             });
+            
+            workspace.getTimer().schedule(60000);
         }
     }
 
     @Override
     public void onClick(ClickEvent event) {
-        workspace.alert("SuggestBox Clicked");
+        //workspace.alert("SubgestBox Clicked");
 
         final SubgestBox subbox = (SubgestBox) event.getSource();
+        // new LockTranslationResult(subbox, workspace);
+
         long time = subbox.getChunk().getStartTimeLongNonZero();
 
         if (workspace.getVideoPlayer() != null) {
             workspace.getVideoPlayer().maybePlayWindow(time);
         }
+    }
+
+    @Override
+    public void onChange(ChangeEvent event) {
+        workspace.getTimer().cancel();
+        workspace.getTimer().schedule(60000);
     }
 
 }

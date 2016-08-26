@@ -185,6 +185,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
         this.addKeyDownHandler(this.workspace.subgestHandler);
         this.addKeyUpHandler(this.workspace.subgestHandler);
         this.addBlurHandler(this.workspace.subgestHandler);
+        this.addClickHandler(this.workspace.subgestHandler);
 
         this.setTabIndex(tabIndex);
 
@@ -416,7 +417,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
      *
      * @return the text contents with unified newlines
      */
-    protected String getTextWithNewlines() {
+    public String getTextWithNewlines() {
         String text = this.getHTML();
         RegExp newlineTags = RegExp.compile("<p>|<div>|<br>", "g");
         RegExp toClean = RegExp.compile("</p>|</div>|&nbsp;", "g");
@@ -434,7 +435,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
      *
      * @return
      */
-    protected boolean textChanged() {
+    public boolean textChanged() {
         return !this.getTextWithNewlines().equals(this.lastText);
     }
 
@@ -443,7 +444,7 @@ public class SubgestBox extends RichTextArea implements Comparable<SubgestBox> {
      * To be used when the text is sent to be saved as the user translation via
      * SetUserTranslation.
      */
-    protected void updateLastText() {
+    public void updateLastText() {
         this.lastText = this.getTextWithNewlines();
     }
 
