@@ -32,16 +32,18 @@ public class UnlockTranslationResult extends Callable<Void> {
     public UnlockTranslationResult(SubgestBox subgestBox, TranslationWorkspace workspace) {
         super();
 
+        retries = 0;
         this.tResult = subgestBox.getTranslationResult();
         this.subgestBox = subgestBox;
         this.workspace = workspace;
-
+        
         enqueue();
     }
 
     public UnlockTranslationResult(SubgestBox subgestBox, TranslationWorkspace workspace, SubgestBox toLockBox) {
         super();
 
+        retries = 0;
         this.tResult = subgestBox.getTranslationResult();
         this.subgestBox = subgestBox;
         this.workspace = workspace;
@@ -54,7 +56,7 @@ public class UnlockTranslationResult extends Callable<Void> {
 
     @Override
     public void onSuccessAfterLog(Void result) {
-        Gui.log(LevelLogEnum.Error, "unlockTranslationResult", String.valueOf(tResult.getChunkId()));
+        Gui.log(LevelLogEnum.Notice, "UnlockTranslationResult", "Unlocked Translation Result id: " + String.valueOf(tResult.getChunkId()));
         workspace.setLockedSubgestBox(null);
         workspace.setPrevLockedSubgestBox(subgestBox);
         subgestBox.setFocus(false);
@@ -67,7 +69,7 @@ public class UnlockTranslationResult extends Callable<Void> {
 
     @Override
     protected void call() {
-        Gui.log(LevelLogEnum.Error,"UnlockTranslationResult","Call: UnlockTranslationResult");
-        filmTitService.unlockTranslationResult(tResult, Gui.getSessionID(), this);
+        filmTitService.unlockTranslationResult(tResult.getSourceChunk().getChunkIndex(),
+                tResult.getDocumentId(), Gui.getSessionID(), this);
     }
 }

@@ -279,6 +279,14 @@ public interface FilmTitService extends RemoteService {
      */
     List<TranslationResult> getTranslationResults(String sessionID, List<TimedChunk> chunks)
             throws InvalidSessionIdException, InvalidDocumentIdException;
+    
+    /**
+     * Reloads translation results from database
+     * @param documentId
+     * @return
+     * @throws InvalidDocumentIdException 
+     */
+    Document reloadTranslationResults(Long documentId) throws InvalidDocumentIdException;
 
     /**
      * Stop generating translation results for the given chunks (to be used when
@@ -545,5 +553,5 @@ public interface FilmTitService extends RemoteService {
     
     Void lockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException, AlreadyLockedException;
     
-    Void unlockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException;
+    Void unlockTranslationResult(ChunkIndex chunkIndex, Long documentId, String sessionID) throws InvalidSessionIdException;
 }

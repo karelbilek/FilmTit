@@ -28,46 +28,46 @@ public class LockTranslationResult extends Callable<Void> {
 
     public LockTranslationResult(SubgestBox subgestBox, TranslationWorkspace workspace) {
         super();
+
+        retries = 0;
         this.subgestBox = subgestBox;
         this.tResult = subgestBox.getTranslationResult();
         this.workspace = workspace;
         this.subgestBox.setEnabled(false);
 
-        /*  SubgestBox prevLockedSubgestBox = this.workspace.getLockedSubgestBox();
-        if (prevLockedSubgestBox != null) {
-            new UnlockTranslationResult(prevLockedSubgestBox, this.workspace);
-        }*/
-        //   Gui.log(LevelLogEnum.Error, "LockTranslationResult", String.valueOf(tResult.getId() + " " + tResult.getChunkId() + " " + tResult.getDocumentId()));
         enqueue();
     }
 
     @Override
     protected void onFinalError(String message) {
-        super.onFinalError(message);
+        
         subgestBox.setEnabled(true);
-        // subgestBox.setFocus(false);
         subgestBox.addStyleDependentName("unlocked");
+        subgestBox.setEnabled(false);
+        workspace.setPrevLockedSubgestBox(subgestBox);
+        
     }
 
     @Override
     public void onSuccessAfterLog(Void result) {
-        Gui.log(LevelLogEnum.Error, "lockTranslationResult", String.valueOf(tResult.getChunkId()));
+        Gui.log(LevelLogEnum.Notice, "LockTranslationResult", "Locked Translation Result id: " + String.valueOf(tResult.getChunkId()) + " SessionId: " + Gui.getSessionID());
         subgestBox.setEnabled(true);
-        //   workspace.alert("Locked subtitle n " + subgestBox.getChunk().getId());
         workspace.setLockedSubgestBox(subgestBox);
 
         if (workspace.getPrevLockedSubgestBox() != null) {
             workspace.getPrevLockedSubgestBox().removeStyleDependentName("unlocked");
+            workspace.getPrevLockedSubgestBox().setEnabled(true);
         }
 
         workspace.getTimer().schedule(60000);
         subgestBox.addStyleDependentName("locked");
 
+        new ReloadTranslationResults(workspace.getCurrentDocument().getId(), workspace);
+
     }
 
     @Override
     protected void call() {
-        Gui.log(LevelLogEnum.Error,"LockTranslationResult","Call: LockTranslationResult");
         filmTitService.lockTranslationResult(tResult, Gui.getSessionID(), this);
     }
 

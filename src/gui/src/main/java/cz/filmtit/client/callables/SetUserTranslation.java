@@ -16,22 +16,11 @@ You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
 package cz.filmtit.client.callables;
 
-import com.google.gwt.storage.client.Storage;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
-
 import cz.filmtit.client.*;
 
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.user.client.rpc.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.core.client.*;
 import cz.filmtit.client.pages.TranslationWorkspace;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.share.*;
-
-import java.util.*;
 
 /**
  * Save the user translation of the given chunk (no matter whether it is user's
@@ -51,7 +40,6 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
     private String userTranslation;
     private long chosenTranslationPair;
 
-    private boolean toUnlock = false;
     private boolean toLockNext = false;
 
     private SubgestBox toUnlockBox;
@@ -70,10 +58,25 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
             LocalStorageHandler.SuccessOnLoadFromLocalStorage(this);
         }
 
+        Gui.log(LevelLogEnum.Notice, "SetUserTranslation", "Set User Translation " + userTranslation);
+
+        workspace.setLockedSubgestBox(null);
+        workspace.setPrevLockedSubgestBox(toUnlockBox);
+        toUnlockBox.setFocus(false);
+        toUnlockBox.removeStyleDependentName("locked");
+
+        /*
+
         if (toUnlock && toLockNext) {
             new UnlockTranslationResult(toUnlockBox, workspace, toLockBox);
         } else if (toUnlock) {
             new UnlockTranslationResult(toUnlockBox, workspace);
+        }
+        
+         */
+        // Setting user translation also unlocks the translation result so we only need to lock a new one
+        if (toLockNext) {
+            new LockTranslationResult(toLockBox, workspace);
         }
 
     }
@@ -87,18 +90,6 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
      * in the Local Storage.
      */
     public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
-            String userTranslation, long chosenTranslationPair) {
-        super();
-
-        this.chunkIndex = chunkIndex;
-        this.documentId = documentId;
-        this.userTranslation = userTranslation;
-        this.chosenTranslationPair = chosenTranslationPair;
-
-        enqueue();
-    }
-
-    public SetUserTranslation(ChunkIndex chunkIndex, long documentId,
             String userTranslation, long chosenTranslationPair, SubgestBox toUnlockBox, TranslationWorkspace workspace) {
         super();
 
@@ -107,9 +98,7 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
         this.userTranslation = userTranslation;
         this.chosenTranslationPair = chosenTranslationPair;
 
-        this.toUnlock = true;
         this.toUnlockBox = toUnlockBox;
-
         this.workspace = workspace;
 
         enqueue();
@@ -124,7 +113,6 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
         this.userTranslation = userTranslation;
         this.chosenTranslationPair = chosenTranslationPair;
 
-        this.toUnlock = true;
         this.toUnlockBox = toUnlockBox;
 
         this.toLockNext = true;
@@ -132,14 +120,11 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
 
         this.workspace = workspace;
 
-        
-        
         enqueue();
     }
 
     @Override
     protected void call() {
-        Gui.log(LevelLogEnum.Error,"SetUserTranslation","Call: SetUserTranslation");
         filmTitService.setUserTranslation(Gui.getSessionID(), chunkIndex,
                 documentId, userTranslation, chosenTranslationPair,
                 this);
@@ -157,7 +142,6 @@ public class SetUserTranslation extends Callable<Void> implements Storable {
                 displayWindow("ERROR: Cannot save to local storage: " + keyValuePair);
             }
         }*/
-        
     }
 
     // local storage

@@ -117,7 +117,7 @@ public abstract class DatabaseObject {
             session.save(this);
         }
         else {
-            session.update(this);
+            session.merge(this);
         }
     }
 

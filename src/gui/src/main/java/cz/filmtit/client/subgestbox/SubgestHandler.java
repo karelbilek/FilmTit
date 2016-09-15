@@ -53,20 +53,17 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
 
             if (workspace.getLockedSubgestBox() == null) {
                 new LockTranslationResult(subbox, workspace);
-            } else {
+            } else if (workspace.getLockedSubgestBox() != subbox){
                 SubgestBox toSaveAndUnlock = workspace.getLockedSubgestBox();
                 toSaveAndUnlock.getTranslationResult().setUserTranslation(toSaveAndUnlock.getTextWithNewlines());
+                
                 // submitting only when the contents have changed
-
                 if (toSaveAndUnlock.textChanged()) {
-                    workspace.submitUserTranslation(toSaveAndUnlock.getTranslationResult(), subbox);
+                    workspace.submitUserTranslation(toSaveAndUnlock, subbox);
                     toSaveAndUnlock.updateLastText();
                 } else {
                     new UnlockTranslationResult(toSaveAndUnlock, workspace, subbox);
-                }
-                
-                //workspace.submitUserTranslation(toSaveAndUnlock.getTranslationResult(), subbox);
-                //toSaveAndUnlock.updateLastText();
+                }                
 
             }
             
@@ -148,7 +145,6 @@ public class SubgestHandler implements FocusHandler, KeyDownHandler, KeyUpHandle
     public void onBlur(BlurEvent event) {
         if (event.getSource() instanceof SubgestBox) { // should be
             SubgestBox subbox = (SubgestBox) event.getSource();
-
         }
     }
 

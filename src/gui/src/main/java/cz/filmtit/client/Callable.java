@@ -16,10 +16,8 @@ You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
 package cz.filmtit.client;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import cz.filmtit.client.dialogs.LoginDialog;
 import cz.filmtit.share.exceptions.*;
@@ -294,6 +292,7 @@ public abstract class Callable<T> implements AsyncCallback<T> {
         timeOutTimer.cancel();
         if (!hasReturned) {
             Gui.log(LevelLogEnum.Warning, "RPC FAILURE", getName() + " WITH " + returned.toString());
+            
             if (onEachReturn(returned)) {
                 if (returned instanceof StatusCodeException && ((StatusCodeException) returned).getStatusCode() == 0) {
                     // this happens if there is no connection to the server, and reportedly in other cases as well

@@ -82,7 +82,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
     @Override
-    public Long getShareId(Document doc) {
+    public synchronized Long getShareId(Document doc) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         USDocument document = (USDocument) session.load(USDocument.class, doc.getId());
         
@@ -100,7 +100,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public Void addDocument(String shareId, User user) throws InvalidShareIdException{
+    public synchronized Void addDocument(String shareId, User user) throws InvalidShareIdException{
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
         
         Query query = session.createQuery("FROM USDocument d WHERE d.shareId = :shareId");
@@ -128,13 +128,29 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     }
 
     @Override
-    public Void lockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException, AlreadyLockedException {
+    public synchronized Void lockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException, AlreadyLockedException {
         return getSessionIfCan(sessionID).lockTranslationResult(tResult);
     }
 
     @Override
-    public Void unlockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException {
-        return getSessionIfCan(sessionID).unlockTranslationResult(tResult);
+    public synchronized Void unlockTranslationResult(ChunkIndex chunkIndex, Long documentId, String sessionID) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).unlockTranslationResult(chunkIndex, documentId);
+    }
+
+    @Override
+    public synchronized Document reloadTranslationResults(Long documentId) throws InvalidDocumentIdException {
+        
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        USDocument usdoc = (USDocument) session.get(USDocument.class, documentId);        
+        usHibernateUtil.closeAndCommitSession(session);
+        
+        if (usdoc == null) {
+            throw new InvalidDocumentIdException(documentId.toString());
+        }
+        
+        usdoc.loadChunksFromDb();
+        
+        return usdoc.getDocument();
     }
 
     public enum CheckUserEnum {
@@ -258,7 +274,6 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
     @Override
     public DocumentResponse createNewDocument(String sessionID, String documentTitle, String movieTitle, String language, String moviePath)
             throws InvalidSessionIdException {
-     //   logger.error("createNewDocument: users.size(): ", String.valueOf(users.size()));
         return getSessionIfCan(sessionID).createNewDocument(documentTitle, movieTitle, language, mediaSourceFactory, moviePath);
     }
 
@@ -292,6 +307,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * but not translation suggestions.
      * @param sessionID Session ID
      * @param documentID ID of the document to be loaded
+     * @return 
      * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */

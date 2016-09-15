@@ -77,16 +77,13 @@ public class Session {
      */
     private static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
 
-    public Void lockTranslationResult(TranslationResult tResult) throws AlreadyLockedException {
+    public synchronized Void lockTranslationResult(TranslationResult tResult) throws AlreadyLockedException {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
-        //USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
         Query query = session.createQuery("FROM USTranslationResult t WHERE t.documentDatabaseId = :did AND t.sharedId = :sid AND t.partNumber = :pid");
         query.setParameter("did", tResult.getDocumentId());
         query.setParameter("sid", tResult.getChunkId());
         query.setParameter("pid", tResult.getSourceChunk().getChunkIndex().getPartNumber());
-
-        //logger.error(tResult.getId() + " " + tResult.getChunkId() + " " + tResult.getDocumentId() + " " + tResult.getSourceChunk().chunkIndex.getPartNumber());
 
         USTranslationResult translationResult = (USTranslationResult) query.list().get(0);
 
@@ -103,18 +100,17 @@ public class Session {
 
     }
 
-    public Void unlockTranslationResult(TranslationResult tResult) {
+    public synchronized Void unlockTranslationResult(ChunkIndex chunkIndex, Long documentId) {
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
 
-        //USTranslationResult translationResult = (USTranslationResult) session.load(USTranslationResult.class, tResult.getId());
         Query query = session.createQuery("FROM USTranslationResult t WHERE t.documentDatabaseId = :did AND t.sharedId = :sid AND t.partNumber = :pid");
-        query.setParameter("did", tResult.getDocumentId());
-        query.setParameter("sid", tResult.getChunkId());
-        query.setParameter("pid", tResult.getSourceChunk().getChunkIndex().getPartNumber());
+        query.setParameter("did", documentId);
+        query.setParameter("sid", chunkIndex.getId());
+        query.setParameter("pid", chunkIndex.getPartNumber());
 
-        //logger.error(tResult.getId() + " " + tResult.getChunkId() + " " + tResult.getDocumentId() + " " + tResult.getSourceChunk().chunkIndex.getPartNumber());
+        List list = query.list();
 
-        USTranslationResult translationResult = (USTranslationResult) query.list().get(0);
+        USTranslationResult translationResult = (USTranslationResult) list.get(0);
 
         if (translationResult.getLockedByUser() == this.getUserDatabaseId()) {
             translationResult.setLockedByUser(null);
@@ -154,6 +150,7 @@ public class Session {
      */
     public Session(USUser user) {
         activeDocuments = Collections.synchronizedMap(new HashMap<Long, USDocument>());
+        //lockedTranslationResults = new ArrayList<TranslationResult>();
 
         sessionStart = new Date().getTime();
         updateLastOperationTime();
@@ -321,6 +318,18 @@ public class Session {
         }
 
         org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+
+        Query query = session.createQuery("FROM USTranslationResult t WHERE t.lockedByUser = :user");
+        query.setParameter("user", this.getUserDatabaseId());
+
+        List list = query.list();
+
+        for (Object o : list) {
+            USTranslationResult translationResult = (USTranslationResult) o;
+            translationResult.setLockedByUser(null);
+            session.save(translationResult);
+        }
+
         session.save(this);
         usHibernateUtil.closeAndCommitSession(session);
     }
@@ -1075,7 +1084,7 @@ public class Session {
      * @throws InvalidDocumentIdException It throws an exception if the document
      * with such ID is not owned by the user.
      */
-    public USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
+    public synchronized USDocument getActiveDocument(long documentID) throws InvalidDocumentIdException {
         if (!activeDocuments.containsKey(documentID)) {
             logger.info("Loading document " + documentID + "to memory.");
             loadDocumentIfNotActive(documentID);
@@ -1096,15 +1105,20 @@ public class Session {
      * with such ID is not owned by the user.
      */
     private synchronized USDocument loadDocumentIfNotActive(long documentID) throws InvalidDocumentIdException {
-        if (user.getOwnedDocuments().containsKey(documentID)) {
-            USDocument usDocument = user.getOwnedDocuments().get(documentID);
-            usDocument.loadChunksFromDb();
-            activeDocuments.put(documentID, usDocument);
-            logger.info("User " + user.getUserName() + " opened document " + documentID + " ("
-                    + usDocument.getTitle() + ").");
-            return usDocument;
+
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        USDocument usDocument = (USDocument) session.get(USDocument.class, documentID);
+
+        if (usDocument == null) {
+            throw new InvalidDocumentIdException(String.valueOf(documentID));
         }
-        throw new InvalidDocumentIdException("User does not have document with such ID.");
+
+        usDocument.loadChunksFromDb();
+        activeDocuments.put(documentID, usDocument);
+        logger.info("User " + user.getUserName() + " opened document " + documentID + " ("
+                + usDocument.getTitle() + ").");
+        return usDocument;
+
     }
 
     /**
