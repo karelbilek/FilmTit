@@ -14,6 +14,7 @@
             <property name="documentDatabaseId" type="long" column="documentId" />
             <property name="sharedId" type="int" column="sharedId" />
             <property name="partNumber" type="int" column="partNumber" />
+            <property name="lockedByUser" type="long" column="lockedByUser" />
         </properties>
 
         <!-- name, type, column -->

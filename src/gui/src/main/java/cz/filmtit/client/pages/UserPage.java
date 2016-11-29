@@ -14,9 +14,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package cz.filmtit.client.pages;
-
 
 import java.util.Date;
 import java.util.List;
@@ -45,59 +43,79 @@ import cz.filmtit.client.callables.ChangeDocumentTitle;
 import cz.filmtit.client.callables.ChangeMovieTitle;
 import cz.filmtit.client.callables.DeleteDocument;
 import cz.filmtit.client.callables.GetListOfDocuments;
+import cz.filmtit.client.dialogs.AddDocumentDialog;
 import cz.filmtit.client.dialogs.DownloadDialog;
+import cz.filmtit.client.dialogs.ShareDialog;
 import cz.filmtit.share.Document;
+import cz.filmtit.share.LevelLogEnum;
 
 /**
  * A page providing listing of user documents and the possibility to edit them
  *
  */
 public class UserPage extends Composite {
+    
+    private Integer callLockResult;
 
-	private static UserPageUiBinder uiBinder = GWT
-			.create(UserPageUiBinder.class);
+    private static UserPageUiBinder uiBinder = GWT
+            .create(UserPageUiBinder.class);
 
-	interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
-	}
+    /**
+     * @return the callLockResult
+     */
+    public Integer getCallLockResult() {
+        return callLockResult;
+    }
 
-	/**
-	 * Shows the page and loads the list of user's documents.
-	 */
-	public UserPage() {
-		initWidget(uiBinder.createAndBindUi(this));
+    /**
+     * @param callLockResult the callLockResult to set
+     */
+    public void setCallLockResult(Integer callLockResult) {
+        this.callLockResult = callLockResult;
+    }
 
-		/**
-		 * A column consisting of EdiTextCells with a title (aka a tool-tip)
-		 * @author rur
-		 *
-		 */
-		abstract class EditableTitledColumn extends Column<Document, String> {
-			
-			private String title;
+    interface UserPageUiBinder extends UiBinder<Widget, UserPage> {
+    }
 
-			public String getTitle() {
-				return title;
-			}
+    /**
+     * Shows the page and loads the list of user's documents.
+     */
+    public UserPage() {
+        initWidget(uiBinder.createAndBindUi(this));
 
-			public void setTitle(String title) {
-				this.title = title;
-			}
+        /**
+         * A column consisting of EdiTextCells with a title (aka a tool-tip)
+         *
+         * @author rur
+         *
+         */
+        abstract class EditableTitledColumn extends Column<Document, String> {
 
-			public EditableTitledColumn(String title) {
-				super(new EditTextCell());
-				this.title = title;
-			}
+            private String title;
 
-			@Override
-			public void render(Context context, Document object,
-					SafeHtmlBuilder sb) {
-				sb.appendHtmlConstant("<div title=\"" + title + "\">");
-				super.render(context, object, sb);
-				sb.appendHtmlConstant("</div>");
-			}
-		}
-		
-		// column with Document title
+            public String getTitle() {
+                return title;
+            }
+
+            public void setTitle(String title) {
+                this.title = title;
+            }
+
+            public EditableTitledColumn(String title) {
+                super(new EditTextCell());
+                this.title = title;
+            }
+
+            @Override
+            public void render(Context context, Document object,
+                    SafeHtmlBuilder sb) {
+                sb.appendHtmlConstant("<div title=\"" + title + "\">");
+                super.render(context, object, sb);
+                sb.appendHtmlConstant("</div>");
+            }
+        }
+
+        // column with Document title
         Column<Document, String> nameClm = new EditableTitledColumn("click to change document title") {
             @Override
             public String getValue(Document doc) {
@@ -106,73 +124,68 @@ public class UserPage extends Composite {
         };
         // use ChangeDocumentTitle() to change the title
         nameClm.setFieldUpdater(new FieldUpdater<Document, String>() {
-			@Override
-			public void update(int index, Document doc, String newTitle) {
-				if (newTitle == null || newTitle.isEmpty()) {
-					// we don't accept the new title
-					// refresh to show the original one
-					Gui.getPageHandler().refresh();
-				}
-				else if (newTitle.equals(doc.getTitle())) {
-					// not changed, ignore
-				}
-				else {
-					new ChangeDocumentTitle(doc.getId(), newTitle);
-					doc.setTitle(newTitle);
-				}
-			}
-		});
-        
+            @Override
+            public void update(int index, Document doc, String newTitle) {
+                if (newTitle == null || newTitle.isEmpty()) {
+                    // we don't accept the new title
+                    // refresh to show the original one
+                    Gui.getPageHandler().refresh();
+                } else if (newTitle.equals(doc.getTitle())) {
+                    // not changed, ignore
+                } else {
+                    new ChangeDocumentTitle(doc.getId(), newTitle);
+                    doc.setTitle(newTitle);
+                }
+            }
+        });
+
         // column with Movie title
         Column<Document, String> mSourceClm = new EditableTitledColumn("click to change movie title") {
             @Override
             public String getValue(Document doc) {
                 if (doc.getMovie() == null) {
                     return "(none)";
-                }
-                else {
+                } else {
                     return doc.getMovie().toString();
                 }
             }
-            
+
         };
         // use ChangeMovieTitle() to change the title
         mSourceClm.setFieldUpdater(new FieldUpdater<Document, String>() {
-			@Override
-			public void update(int index, Document doc, String newTitle) {
-				if (newTitle == null || newTitle.isEmpty()) {
-					// we don't accept the new title
-					// refresh to show the original one
-					Gui.getPageHandler().refresh();
-				}
-				else if (doc.getMovie() != null && doc.getMovie().toString().equals(newTitle)) {
-					// not changed, ignore
-				}
-				else {
-					// TODO: should lock the page while waiting for media sources
-					new ChangeMovieTitle(doc.getId(), newTitle);
-				}
-			}
-		});
-        
+            @Override
+            public void update(int index, Document doc, String newTitle) {
+                if (newTitle == null || newTitle.isEmpty()) {
+                    // we don't accept the new title
+                    // refresh to show the original one
+                    Gui.getPageHandler().refresh();
+                } else if (doc.getMovie() != null && doc.getMovie().toString().equals(newTitle)) {
+                    // not changed, ignore
+                } else {
+                    // TODO: should lock the page while waiting for media sources
+                    new ChangeMovieTitle(doc.getId(), newTitle);
+                }
+            }
+        });
+
         // column with translation direction
         TextColumn<Document> languageClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-            	// TODO: do you prefer names or codes?
+                // TODO: do you prefer names or codes?
                 return doc.getLanguage().getTranslationDirectionNames();
             }
         };
-        
+
         // percentage of translated chunks
         TextColumn<Document> doneClm = new TextColumn<Document>() {
             @Override
             public String getValue(Document doc) {
-                return Double.toString(Math.round(10000 * doc.getTranslatedChunksCount() /
-                        doc.getTotalChunksCount()) / 100) + "%";
+                return Double.toString(Math.round(10000 * doc.getTranslatedChunksCount()
+                        / doc.getTotalChunksCount()) / 100) + "%";
             }
         };
-        
+
         // date and time of last edit of the document (table is sorted by this column)
         TextColumn<Document> lastEditedClm = new TextColumn<Document>() {
             @Override
@@ -183,13 +196,13 @@ public class UserPage extends Composite {
         };
 
         com.github.gwtbootstrap.client.ui.ButtonCell buttonCell = new com.github.gwtbootstrap.client.ui.ButtonCell();
-        
+
         // edit button
         com.google.gwt.user.cellview.client.Column<Document, String> buttonClm = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
-             @Override
-             public String getValue(Document doc) {
+            @Override
+            public String getValue(Document doc) {
                 return "Edit";
-             }
+            }
         };
 
         buttonClm.setFieldUpdater(new FieldUpdater<Document, String>() {
@@ -202,34 +215,45 @@ public class UserPage extends Composite {
         com.google.gwt.user.cellview.client.Column<Document, String> exportSubtitlesButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
             @Override
             public String getValue(Document doc) {
-               return "Export";
+                return "Export";
             }
-       };
+        };
 
-       exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
-           public void update(int index, Document doc, String value) {
-        	   new DownloadDialog(doc);
-           }
-       });
-
-       // delete button
-       com.google.gwt.user.cellview.client.Column<Document, String> deleteButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
-           @Override
-           public String getValue(Document doc) {
-               return "Delete";
-           }
-       };
-       
-       deleteButton.setFieldUpdater(new FieldUpdater<Document, String>() {
-           public void update(int index, Document doc, String value) {
-        	   if (Window.confirm("Do you really want to delete the document " + doc.getTitle() + "?")) {
-        		   new DeleteDocument(doc.getId());
-        	   }
-           }
-       });
-
-
+        exportSubtitlesButton.setFieldUpdater(new FieldUpdater<Document, String>() {
+            public void update(int index, Document doc, String value) {
+                new DownloadDialog(doc);
+            }
+        });
         
+        // share button
+        com.google.gwt.user.cellview.client.Column<Document, String> shareButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
+            @Override
+            public String getValue(Document doc) {
+                return "Share";
+            }
+        };
+
+        shareButton.setFieldUpdater(new FieldUpdater<Document, String>() {
+            public void update(int index, Document doc, String value) {
+                new ShareDialog(doc);
+            }
+        });
+
+        // delete button
+        com.google.gwt.user.cellview.client.Column<Document, String> deleteButton = new com.google.gwt.user.cellview.client.Column<Document, String>(buttonCell) {
+            @Override
+            public String getValue(Document doc) {
+                return "Delete";
+            }
+        };
+
+        deleteButton.setFieldUpdater(new FieldUpdater<Document, String>() {
+            public void update(int index, Document doc, String value) {
+                if (Window.confirm("Do you really want to delete the document " + doc.getTitle() + "?")) {
+                    new DeleteDocument(doc.getId());
+                }
+            }
+        });
 
         docTable.addColumn(nameClm, "Document");
         docTable.addColumn(mSourceClm, "Movie/TV Show");
@@ -237,36 +261,35 @@ public class UserPage extends Composite {
         docTable.addColumn(doneClm, "Translated");
         docTable.addColumn(lastEditedClm, "Last edited");
         docTable.addColumn(buttonClm, "Edit");
+        docTable.addColumn(shareButton, "Share");
         docTable.addColumn(exportSubtitlesButton, "Export");
         docTable.addColumn(deleteButton, "Delete");
-      
-        
+
         // load documents
         new GetListOfDocuments(this);
 
-        
         Gui.getGuiStructure().contentPanel.setStyleName("users_page");
         Gui.getGuiStructure().contentPanel.setWidget(this);
-	}
-
-	
-    void editDocument(Document document) {
-    	Gui.getPageHandler().setDocumentId(document.getId());
-    	Gui.getPageHandler().loadPage(Page.TranslationWorkspace);
     }
-    
+
+    void editDocument(Document document) {
+        
+        Gui.getPageHandler().setDocumentId(document.getId());
+        Gui.getPageHandler().loadPage(Page.TranslationWorkspace);
+    }
+
     /**
      * Called by GetListOfDocuments to show the documents of the user.
      */
     public void setDocuments(List<Document> documents) {
         if (documents.size() == 0) {
-            emptyLabel.setText("You don't have any documents. Let's create some!"); 
+            emptyLabel.setText("You don't have any documents. Let's create some!");
             emptyLabel.setVisible(true);
         }
         docTable.setRowCount(documents.size(), true);
         docTable.setRowData(0, documents);
         docTable.redraw();
-     }
+    }
 
     @UiField
     Label emptyLabel;
@@ -276,16 +299,24 @@ public class UserPage extends Composite {
     
     @UiHandler("btnDisplayCreator")
     void onClick(ClickEvent event) {
-		// loading a new DocumentCreator
-		Gui.getPageHandler().forgetCurrentDocumentCreator();
-    	Gui.getPageHandler().loadPage(Page.DocumentCreator);
+        // loading a new DocumentCreator
+        Gui.getPageHandler().forgetCurrentDocumentCreator();
+        Gui.getPageHandler().loadPage(Page.DocumentCreator);
     }
-
+    
+    @UiField
+    Button btnAddNewDoc;
+    
+    @UiHandler("btnAddNewDoc")
+    void newDocOnClick(ClickEvent event) {
+        Gui.log(LevelLogEnum.Error, "btnNewDoc", "It works!");
+        new AddDocumentDialog();
+    }
 
     @UiField
     com.github.gwtbootstrap.client.ui.CellTable<Document> docTable;
 
- /*   @UiField
+    /*   @UiField
     TabPanel tabPanel;
 
     @UiField
@@ -293,5 +324,4 @@ public class UserPage extends Composite {
 
     @UiField
     Tab tabNewDocument;*/
-
 }

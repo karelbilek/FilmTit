@@ -38,12 +38,12 @@
             <groupId>cz.filmtit</groupId>
             <version>${filmtit.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <artifactId>applet</artifactId>
             <groupId>cz.filmtit</groupId>
             <version>${filmtit.version}</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency>-->
 
 
     </dependencies>
@@ -55,7 +55,7 @@
 
 
             <!---copying the stupid applet-->
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.1</version>
@@ -79,7 +79,7 @@
                     </configuration>
                 </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <!-- GWT Maven Plugin -->
             <plugin>

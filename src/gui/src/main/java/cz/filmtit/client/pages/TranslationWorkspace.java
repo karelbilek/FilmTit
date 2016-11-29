@@ -36,7 +36,7 @@ import cz.filmtit.client.callables.*;
 import cz.filmtit.client.dialogs.TimeEditDialog;
 import cz.filmtit.client.subgestbox.SubgestBox;
 import cz.filmtit.client.subgestbox.SubgestHandler;
-import cz.filmtit.client.widgets.VLCWidget;
+import cz.filmtit.client.widgets.VideoWidget;
 import cz.filmtit.share.*;
 import cz.filmtit.share.parsing.Parser;
 
@@ -50,6 +50,55 @@ import java.util.*;
 public class TranslationWorkspace extends Composite {
 
 	private static TranslationWorkspaceUiBinder uiBinder = GWT.create(TranslationWorkspaceUiBinder.class);
+
+    /**
+     * @return the lockedSubgestBox
+     */
+    public SubgestBox getLockedSubgestBox() {
+        return lockedSubgestBox;
+    }
+
+    /**
+     * @param lockedSubgestBox the lockedSubgestBox to set
+     */
+    public void setLockedSubgestBox(SubgestBox lockedSubgestBox) {
+        this.lockedSubgestBox = lockedSubgestBox;
+    }
+
+    /**
+     * @return the timer
+     */
+    public com.google.gwt.user.client.Timer getTimer() {
+        return timer;
+    }
+
+    /**
+     * @param timer the timer to set
+     */
+    public void setTimer(com.google.gwt.user.client.Timer timer) {
+        this.timer = timer;
+    }
+
+    /**
+     * @return the prevLockedSubgestBox
+     */
+    public SubgestBox getPrevLockedSubgestBox() {
+        return prevLockedSubgestBox;
+    }
+
+    /**
+     * @param prevLockedSubgestBox the prevLockedSubgestBox to set
+     */
+    public void setPrevLockedSubgestBox(SubgestBox prevLockedSubgestBox) {
+        this.prevLockedSubgestBox = prevLockedSubgestBox;
+    }
+
+    /**
+     * @return the currentDocument
+     */
+    public Document getCurrentDocument() {
+        return currentDocument;
+    }
 
 	interface TranslationWorkspaceUiBinder extends UiBinder<Widget, TranslationWorkspace> {
 	}
@@ -152,33 +201,47 @@ public class TranslationWorkspace extends Composite {
     private static final int SOURCE_DIALOGMARK_COLNUMBER = 1;
     private static final int TARGET_DIALOGMARK_COLNUMBER = 3;
 
-    private String videoPath = null;
     private boolean isVideo=false;
 
-    private VLCWidget vlcPlayer;
+  //  private VLCWidget vlcPlayer;
+    private VideoWidget videoPlayer;
+   
     
     /**
      * Returns the player associated with this workspace.
      */
-    public VLCWidget getVlcPlayer(){
-        return vlcPlayer;
+  //  public VLCWidget getVlcPlayer(){
+   //     return vlcPlayer;
+   // }
+    
+    /**
+     * @return the videoPlayer
+     */
+    public VideoWidget getVideoPlayer() {
+        return videoPlayer;
     }
     
     //UI elements for VLC
-    private HTMLPanel playerFixedPanel = null;
-    private HTMLPanel fixedWrapper = null;
+ //   private HTMLPanel playerFixedPanel = null;
+ //   private HTMLPanel fixedWrapper = null;
     
+        //UI elements for VideoWidget
+    private HTMLPanel videoPlayerFixedPanel = null;
+    private HTMLPanel videoFixedWrapper = null;
     
     // UI binder fields
     @UiField
     ScrollPanel scrollPanel;
     @UiField
     SimplePanel emptyPanel;
-	@UiField
+    
+    @UiField
     FlexTable table;
     
     @UiField
     HorizontalPanel translationHPanel;
+
+    
   
     private boolean sourceSelected = false;
 
@@ -191,7 +254,7 @@ public class TranslationWorkspace extends Composite {
     /**
      * Creates and shows the workspace.
      */
-    public TranslationWorkspace(Document doc, String videoPath, DocumentOrigin documentOrigin) {
+    public TranslationWorkspace(Document doc, DocumentOrigin documentOrigin) {
         initWidget(uiBinder.createAndBindUi(this));
 
         Gui.getPageHandler().setPageUrl(Page.TranslationWorkspace);
@@ -200,9 +263,8 @@ public class TranslationWorkspace extends Composite {
         // id = Random.nextInt(Integer.MAX_VALUE);
         currentWorkspace = this;
         
-        isVideo = (videoPath!=null);
-        this.videoPath = videoPath;
-        
+        isVideo = true;
+                
         setCurrentDocument(doc);
         
 
@@ -241,8 +303,6 @@ public class TranslationWorkspace extends Composite {
         //translationHPanel.setCellWidth(emptyPanel, "0%");
 
         
-        
-        
         this.subgestHandler = new SubgestHandler(this);
         
         table.setWidget(0, TIMES_COLNUMBER,      new Label("Timing"));
@@ -255,29 +315,35 @@ public class TranslationWorkspace extends Composite {
         Gui.getGuiStructure().contentPanel.setWidget(this);
         Gui.getGuiStructure().contentPanel.setStyleName("translating");
         Gui.getGuiStructure().contentPanel.addStyleName("parsing");
-	}
+        
+        timer = new com.google.gwt.user.client.Timer() {
+            @Override
+            public void run() {
+                lockedSubgestBox.getTranslationResult().setUserTranslation(lockedSubgestBox.getTextWithNewlines());
 
-    
-    /**
-     * Restarts the player.
-     * Getting around the VLC bug when it randomly stops. 
-     */
-    public void reloadPlayer() {
-        VLCWidget newWidget = vlcPlayer.higherNonce();
-        fixedWrapper.addAndReplaceElement(newWidget, "video");
-        vlcPlayer = newWidget;
-    }
+            // submitting only when the contents have changed
+                if (lockedSubgestBox.textChanged()) {
+                    submitUserTranslation(lockedSubgestBox, null);
+                    lockedSubgestBox.updateLastText();
+                } else {
+                    new UnlockTranslationResult(lockedSubgestBox, currentWorkspace);
+                }
+                
+                prevLockedSubgestBox.addStyleDependentName("unlocked");
+            }
+        };
+	}
     
     /**
      * Closes the player.
      */
     public void turnOffPlayer() {
-    	if (playerFixedPanel != null) {
-            playerFixedPanel.removeFromParent();
+    	if (videoPlayerFixedPanel != null) {
+            videoPlayerFixedPanel.removeFromParent();
     	}
-    	if (vlcPlayer != null) {
+    	/*if (vlcPlayer != null) {
             vlcPlayer.setHiddenTrue();
-    	}
+    	}*/
     }
     
     ///////////////////////////////////////
@@ -302,8 +368,8 @@ public class TranslationWorkspace extends Composite {
         sourceSelected = false;
         translationStarted = false;
         Gui.getGuiStructure().contentPanel.removeStyleName("parsing");
-        if (playerFixedPanel != null){
-            Gui.getPanelForVLC().remove(playerFixedPanel);
+        if (videoPlayerFixedPanel != null){
+            Gui.getPanelForVideo().remove(videoPlayerFixedPanel);
         }
     }
    
@@ -327,34 +393,52 @@ public class TranslationWorkspace extends Composite {
     	}
     	
 
-          List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
-          List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
-          List<TranslationResult> results = new LinkedList<TranslationResult>();
+        List<TimedChunk> untranslatedOnes = new LinkedList<TimedChunk>();
+        List<TimedChunk> allChunks = new LinkedList<TimedChunk>();
+        List<TranslationResult> results = new LinkedList<TranslationResult>();
         
-          for (TranslationResult tr:translations) {
-              TimedChunk sChunk = tr.getSourceChunk();
-              synchronizer.putTranslationResult(tr);
-              synchronizer.putSourceChunk(sChunk, -1, false);
+        for (TranslationResult tr:translations) {
+            TimedChunk sChunk = tr.getSourceChunk();
+            synchronizer.putTranslationResult(tr);
+            synchronizer.putSourceChunk(sChunk, -1, false);
+            String tChunk = tr.getUserTranslation();
+             
+            ChunkIndex chunkIndex = sChunk.getChunkIndex();
 
-              String tChunk = tr.getUserTranslation();
-              
+            this.getCurrentDocument().translationResults.put(chunkIndex, tr);
 
-              ChunkIndex chunkIndex = sChunk.getChunkIndex();
+            allChunks.add(sChunk);
 
-              this.currentDocument.translationResults.put(chunkIndex, tr);
-
-              allChunks.add(sChunk);
-
-
-              if (tChunk==null || tChunk.equals("")){
-                 untranslatedOnes.add(sChunk);
-              } else {
-                 results.add(tr);
-              }
-          }
+            if (tChunk==null || tChunk.equals("")){
+               untranslatedOnes.add(sChunk);
+            } else {
+               results.add(tr);
+            }
+        }
           
-          dealWithChunks(allChunks, results, untranslatedOnes);
+        dealWithChunks(allChunks, results, untranslatedOnes);
           
+    }
+    
+    public void fillTranslationResults(List<TranslationResult> translations) {
+        
+        List<TranslationResult> translated = new ArrayList<TranslationResult>();
+        
+        for (TranslationResult tr:translations) {
+            TimedChunk sChunk = tr.getSourceChunk();
+            synchronizer.putTranslationResult(tr);
+            synchronizer.putSourceChunk(sChunk, -1, false);
+            String tChunk = tr.getUserTranslation();
+             
+            ChunkIndex chunkIndex = sChunk.getChunkIndex();
+            this.getCurrentDocument().translationResults.put(chunkIndex, tr);
+
+            if (tChunk!=null && !tChunk.equals("")){
+                translated.add(tr);
+            }
+        }
+        
+        Scheduler.get().scheduleIncremental(new ShowUserTranslatedCommand(translated));
     }
 
      /**
@@ -389,7 +473,7 @@ public class TranslationWorkspace extends Composite {
           long startTime = System.currentTimeMillis();
           List<TimedChunk> chunklist = null;
           try {
-              chunklist = subtextparser.parse(subtext, this.currentDocument.getId(), Language.EN);
+              chunklist = subtextparser.parse(subtext, this.getCurrentDocument().getId(), Language.EN);
           }
           catch (Exception e) {
         	  // user interaction
@@ -400,7 +484,7 @@ public class TranslationWorkspace extends Composite {
               //Gui.exceptionCatcher(e, false);
         	  // action
         	  Gui.getPageHandler().loadPage(Page.DocumentCreator, true);
-              new DeleteDocumentSilently(currentDocument.getId());
+              new DeleteDocumentSilently(getCurrentDocument().getId());
         	  // return prematurely
         	  return;
 		  }
@@ -412,7 +496,7 @@ public class TranslationWorkspace extends Composite {
           for (TimedChunk chunk : chunklist) {
               ChunkIndex chunkIndex = chunk.getChunkIndex();
               TranslationResult tr = new TranslationResult(chunk);
-              this.currentDocument.translationResults.put(chunkIndex, tr);
+              this.getCurrentDocument().translationResults.put(chunkIndex, tr);
               synchronizer.putTranslationResult(tr);
               synchronizer.putSourceChunk(tr, -1, false);
           }
@@ -534,16 +618,25 @@ public class TranslationWorkspace extends Composite {
      /**
       * Send the given translation result as a "user-feedback" to the userspace
       * @param transresult
+     * @param toSaveAndUnlock
+     * @param toLock
       */
-     public void submitUserTranslation(TranslationResult transresult) {
-          String combinedTRId = transresult.getDocumentId() + ":" + transresult.getSourceChunk().getChunkIndex();
-          Gui.log("sending user feedback with values: " + combinedTRId + ", " + transresult.getUserTranslation() + ", " + transresult.getSelectedTranslationPairID());
+     public void submitUserTranslation(SubgestBox toSaveAndUnlock, SubgestBox toLock) {
+         TranslationResult transResult = toSaveAndUnlock.getTranslationResult();
+          String combinedTRId = transResult.getDocumentId() + ":" + transResult.getSourceChunk().getChunkIndex();
+          Gui.log("sending user feedback with values: " + combinedTRId + ", " + transResult.getUserTranslation() + ", " + transResult.getSelectedTranslationPairID());
 
-          ChunkIndex chunkIndex = transresult.getSourceChunk().getChunkIndex();
-          new SetUserTranslation(chunkIndex, transresult.getDocumentId(),
-                                          transresult.getUserTranslation(), transresult.getSelectedTranslationPairID());
+          ChunkIndex chunkIndex = transResult.getSourceChunk().getChunkIndex();
           
-          synchronizer.putTranslationResult(transresult);
+          if (toLock != null) {          
+            new SetUserTranslation(chunkIndex, transResult.getDocumentId(),
+                                              transResult.getUserTranslation(), transResult.getSelectedTranslationPairID(), lockedSubgestBox, this, toLock);
+          } else {
+              new SetUserTranslation(chunkIndex, transResult.getDocumentId(),
+                                              transResult.getUserTranslation(), transResult.getSelectedTranslationPairID(), lockedSubgestBox, this);
+          }
+          
+          synchronizer.putTranslationResult(transResult);
           //reverseTimeMap.put((double)(transresult.getSourceChunk().getStartTimeLong()), transresult);
      }
 
@@ -605,12 +698,11 @@ public class TranslationWorkspace extends Composite {
     
 
      private void dealWithChunks(List<TimedChunk> original, List<TranslationResult> translated, List<TimedChunk> untranslated) {
-          if (isVideo) {
-              playerFixedPanel = new HTMLPanel("");
-              fixedWrapper = new HTMLPanel("");
+         
+              videoPlayerFixedPanel = new HTMLPanel("");
+              videoFixedWrapper = new HTMLPanel("");
 
-              vlcPlayer = VLCWidget.initVLCWidget(videoPath, playerFixedPanel, table, fixedWrapper, synchronizer, this);            
-          }
+              videoPlayer = VideoWidget.initVideoWidget(videoPlayerFixedPanel, table, videoFixedWrapper, synchronizer, this);
           
           
           Scheduler.get().scheduleIncremental(new ShowOriginalCommand(original));
@@ -810,8 +902,7 @@ public class TranslationWorkspace extends Composite {
      * @param transresult - the TranslationResult to be shown
      */
     public void showResult(final TranslationResult transresult) {
-        
-        
+                
         if (!synchronizer.isChunkDisplayed(transresult)) {
             //try it again after some time
              new com.google.gwt.user.client.Timer() { 
@@ -926,7 +1017,7 @@ public class TranslationWorkspace extends Composite {
     }
 
     private int getVideoHeight() {
-        return ( isVideo ? playerFixedPanel.getOffsetHeight() : 0 );
+        return ( isVideo ? videoPlayerFixedPanel.getOffsetHeight() : 0 );
     }
 
     private native int getScrollOffsetY(Element e) /*-{
@@ -967,7 +1058,17 @@ public class TranslationWorkspace extends Composite {
             }
             setActiveSuggestionWidget(null);
         }
-    }
+    }   
+    
+    public native void alert(String message)/*-{
+        $wnd.alert(message);
+            
+    }-*/;
+    
+    private SubgestBox lockedSubgestBox;
+    private SubgestBox prevLockedSubgestBox;
+    
+    private com.google.gwt.user.client.Timer timer;
 
 
 

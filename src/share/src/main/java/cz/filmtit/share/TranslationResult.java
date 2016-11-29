@@ -14,7 +14,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package cz.filmtit.share;
 
 import cz.filmtit.share.annotations.Annotation;
@@ -25,9 +24,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Class representing the result sent from the core corresponding to the request by a source-chunk,
- * packaging the given source-chunk and the translation-suggestions from the core.
- * Additionally, the translation from the user is present, for its storage and feedback.
+ * Class representing the result sent from the core corresponding to the request
+ * by a source-chunk, packaging the given source-chunk and the
+ * translation-suggestions from the core. Additionally, the translation from the
+ * user is present, for its storage and feedback.
  */
 public class TranslationResult implements com.google.gwt.user.client.rpc.IsSerializable, Comparable<TranslationResult>, Serializable {
 
@@ -47,6 +47,10 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
      * ID of the translation suggestion selected by the user
      */
     private volatile long selectedTranslationPairID;
+    /**
+     * shared id
+     */
+    private volatile long id;
 
     /**
      * Default constructor for GWT.
@@ -57,6 +61,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Creates a translation result from the timed chunk in source language
+     *
      * @param sourceChunk A timed chunk
      */
     public TranslationResult(TimedChunk sourceChunk) {
@@ -65,6 +70,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Gets the ID of the subtitle item the is from
+     *
      * @return ID of subtitle item
      */
     public int getChunkId() {
@@ -72,7 +78,9 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
     }
 
     /**
-     * Sets the ID of subtitle item if it has not been set before, throws an exception otherwise.
+     * Sets the ID of subtitle item if it has not been set before, throws an
+     * exception otherwise.
+     *
      * @param id ID of the source language timed chunk
      */
     public void setChunkId(int id) {
@@ -81,14 +89,17 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Gets ID of the document the tranlsation result belongs to.
+     *
      * @return Document ID
      */
     public long getDocumentId() {
-    	return sourceChunk.getDocumentId();
+        return sourceChunk.getDocumentId();
     }
 
     /**
-     * Sets ID of the document the translation result belongs to if it has no been set before.
+     * Sets ID of the document the translation result belongs to if it has no
+     * been set before.
+     *
      * @param documentId Document ID
      */
     public void setDocumentId(long documentId) {
@@ -97,6 +108,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Gets the translation suggestion to the translation result.
+     *
      * @return List of tranlsation suggestions
      */
     public List<TranslationPair> getTmSuggestions() {
@@ -105,6 +117,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Sets the list of tranlsation suggestions.
+     *
      * @param tmSuggestions List of tranlsation suggestion
      */
     public void setTmSuggestions(List<TranslationPair> tmSuggestions) {
@@ -113,7 +126,9 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Gets a timed chunk created from the users tranlsation
-     * @param isDialogue Flag if it is dialog (and therefore should be preceded by a dash)
+     *
+     * @param isDialogue Flag if it is dialog (and therefore should be preceded
+     * by a dash)
      * @return Timed chunk with users tranlsation
      */
     public TimedChunk getUserTranslationAsChunk(boolean isDialogue) {
@@ -126,9 +141,9 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
         return tc;
     }
 
-
     /**
      * Gets the user translation
+     *
      * @return The user translation
      */
     public String getUserTranslation() {
@@ -137,6 +152,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Sets the user translation
+     *
      * @param userTranslation New user translation
      */
     public void setUserTranslation(String userTranslation) {
@@ -145,7 +161,8 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Gets the ID translation pair selected by user.
-     * @return  ID translation pair selected by user
+     *
+     * @return ID translation pair selected by user
      */
     public long getSelectedTranslationPairID() {
         return selectedTranslationPairID;
@@ -153,6 +170,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Sets the ID translation pair selected by user.
+     *
      * @param selectedTranslationPairID ID translation pair selected by user
      */
     public void setSelectedTranslationPairID(long selectedTranslationPairID) {
@@ -161,6 +179,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Gets the source timed chunk
+     *
      * @return The source timed chunk
      */
     public TimedChunk getSourceChunk() {
@@ -169,6 +188,7 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Sets the source timed chunk
+     *
      * @param sourceChunk The source timed chunk
      */
     public void setSourceChunk(TimedChunk sourceChunk) {
@@ -177,42 +197,60 @@ public class TranslationResult implements com.google.gwt.user.client.rpc.IsSeria
 
     /**
      * Compares the two TranslationResults according to their source chunks.
+     *
      * @param that Other translation result
      */
-	public int compareTo(TranslationResult that) {		
-		return this.sourceChunk.compareTo(that.sourceChunk);
-	}
-	
-	/**
-	 * If comparing two TranslationResults, they are equal iff their proper compareTo returns 0.
+    public int compareTo(TranslationResult that) {
+        return this.sourceChunk.compareTo(that.sourceChunk);
+    }
+
+    /**
+     * If comparing two TranslationResults, they are equal iff their proper
+     * compareTo returns 0.
+     *
      * @param that Other translation result
      * @return Flag if they are equal
-	 */
-	@Override
-	public boolean equals(Object that) {
-		if (that instanceof TranslationResult) {
-			return (this.compareTo((TranslationResult) that) == 0) ? true : false;
-		}
-		else return super.equals(that);
-	}
-	
-	/**
-	 * Prints out the source chunk surface form.
-	 */
-	@Override
-	public String toString() {
-		return "TranslationResult[" + sourceChunk.toString() + "->" + userTranslation + "(" + selectedTranslationPairID + ")]";
-	}
+     */
+    @Override
+    public boolean equals(Object that) {
+        if (that instanceof TranslationResult) {
+            return (this.compareTo((TranslationResult) that) == 0) ? true : false;
+        } else {
+            return super.equals(that);
+        }
+    }
+
+    /**
+     * Prints out the source chunk surface form.
+     */
+    @Override
+    public String toString() {
+        return "TranslationResult[" + sourceChunk.toString() + "->" + userTranslation + "(" + selectedTranslationPairID + ")]";
+    }
 
     public TranslationResult resultWithoutSuggestions() {
-         if (tmSuggestions == null || tmSuggestions.size() == 0) {
-             return this;
-         }
+        if (tmSuggestions == null || tmSuggestions.size() == 0) {
+            return this;
+        }
 
         TranslationResult clone = new TranslationResult();
         clone.selectedTranslationPairID = selectedTranslationPairID;
         clone.sourceChunk = sourceChunk;
         clone.userTranslation = userTranslation;
         return clone;
+    }
+
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
     }
 }

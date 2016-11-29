@@ -45,6 +45,7 @@ import java.net.URLDecoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.hibernate.Query;
 
 
 public class FilmTitBackendServer extends RemoteServiceServlet implements
@@ -79,6 +80,78 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * Instance of Hibernate util.
      */
     protected static USHibernateUtil usHibernateUtil = USHibernateUtil.getInstance();
+
+    @Override
+    public synchronized Long getShareId(Document doc) {
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        USDocument document = (USDocument) session.load(USDocument.class, doc.getId());
+        
+        Long shareId = document.getShareId();
+        
+        if (shareId == null) {
+            shareId = doc.getId() * doc.getId() + 2 * doc.getId();
+            document.setShareId(shareId);
+        }
+        
+        session.saveOrUpdate(document);
+        usHibernateUtil.closeAndCommitSession(session);
+        
+        return shareId;        
+    }
+
+    @Override
+    public synchronized Void addDocument(String shareId, User user) throws InvalidShareIdException{
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        
+        Query query = session.createQuery("FROM USDocument d WHERE d.shareId = :shareId");
+        
+        long parsed = Long.parseLong(shareId);
+        query.setParameter("shareId", parsed);
+        List list = query.list();
+        
+        if (list == null || list.isEmpty()) {
+            
+            session.close();
+            throw new InvalidShareIdException(shareId);
+            
+        } else {
+        
+            USDocument doc = (USDocument) list.get(0);
+            doc.getDocumentUsers().add(new DocumentUsers(user.getId()));        
+            session.update(doc);
+        
+        }
+        
+        usHibernateUtil.closeAndCommitSession(session);        
+        return null;
+        
+    }
+
+    @Override
+    public synchronized Void lockTranslationResult(TranslationResult tResult, String sessionID) throws InvalidSessionIdException, AlreadyLockedException {
+        return getSessionIfCan(sessionID).lockTranslationResult(tResult);
+    }
+
+    @Override
+    public synchronized Void unlockTranslationResult(ChunkIndex chunkIndex, Long documentId, String sessionID) throws InvalidSessionIdException {
+        return getSessionIfCan(sessionID).unlockTranslationResult(chunkIndex, documentId);
+    }
+
+    @Override
+    public synchronized Document reloadTranslationResults(Long documentId) throws InvalidDocumentIdException {
+        
+        org.hibernate.Session session = usHibernateUtil.getSessionWithActiveTransaction();
+        USDocument usdoc = (USDocument) session.get(USDocument.class, documentId);        
+        usHibernateUtil.closeAndCommitSession(session);
+        
+        if (usdoc == null) {
+            throw new InvalidDocumentIdException(documentId.toString());
+        }
+        
+        usdoc.loadChunksFromDb();
+        
+        return usdoc.getDocument();
+    }
 
     public enum CheckUserEnum {
         UserName,
@@ -234,6 +307,7 @@ public class FilmTitBackendServer extends RemoteServiceServlet implements
      * but not translation suggestions.
      * @param sessionID Session ID
      * @param documentID ID of the document to be loaded
+     * @return 
      * @throws InvalidSessionIdException Throws an exception when there does not exist a session of given ID.
      * @throws InvalidDocumentIdException Throws an exception when the user does not have document of given ID.
      */

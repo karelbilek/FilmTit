@@ -14,7 +14,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FilmTit.  If not, see <http://www.gnu.org/licenses/>.*/
-
 package cz.filmtit.client.pages;
 
 import com.github.gwtbootstrap.client.ui.*;
@@ -24,84 +23,82 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.Widget;
 
 import cz.filmtit.client.Gui;
-import cz.filmtit.client.PageHandler.Page;
-import cz.filmtit.client.widgets.FileLoadWidget;
 import org.vectomatic.file.File;
 import org.vectomatic.file.FileList;
 import org.vectomatic.file.FileReader;
 import org.vectomatic.file.FileUploadExt;
 import org.vectomatic.file.events.LoadEndEvent;
 import org.vectomatic.file.events.LoadEndHandler;
-import cz.filmtit.share.User;
-import cz.filmtit.client.ReceivesSettings;
 import cz.filmtit.client.callables.CreateDocument;
-import cz.filmtit.client.callables.LoadSettings;
-import cz.filmtit.client.callables.SetUseMT;
-
+import cz.filmtit.share.LevelLogEnum;
+import java.util.Arrays;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * This page is used to create a new document.
+ *
  * @author rur
  *
  */
 public class DocumentCreator extends Composite {
 
-	private static DocumentCreatorUiBinder uiBinder = GWT
-			.create(DocumentCreatorUiBinder.class);
+    private static DocumentCreatorUiBinder uiBinder = GWT
+            .create(DocumentCreatorUiBinder.class);
 
-	interface DocumentCreatorUiBinder extends UiBinder<Widget, DocumentCreator> {
-	}
+    interface DocumentCreatorUiBinder extends UiBinder<Widget, DocumentCreator> {
+    }
 
     boolean copyingTitle = true;
 
     private FileReader freader;
 
+
     /**
      * Shows the page.
      */
-	public DocumentCreator() {
-		initWidget(uiBinder.createAndBindUi(this));
-		
-		
-		// movie title copying
-		
+    public DocumentCreator() {
+
+        initWidget(uiBinder.createAndBindUi(this));
+              
+        // movie title copying
         txtTitle.addStyleName("copying_title");
 
         txtMovieTitle.addKeyUpHandler(new KeyUpHandler() {
-			@Override
-			public void onKeyUp(KeyUpEvent event) {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
                 if (copyingTitle) {
                     txtTitle.setText(txtMovieTitle.getText());
-                }            
-			}
-		});
-        
+                }
+            }
+        });
+
         txtTitle.addKeyDownHandler(new KeyDownHandler() {
-			@Override
-			public void onKeyDown(KeyDownEvent event) {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
                 if (copyingTitle) {
                     copyingTitle = false;
                     txtTitle.removeStyleName("copying_title");
-                }            
-			}
-		});
+                }
+            }
+        });
 
-        
         // --- file reading interface via lib-gwt-file --- //
-        
         //final FileReader
         try {
             freader = new FileReader();
@@ -166,7 +163,7 @@ public class DocumentCreator extends Composite {
             filePasteControlGroup.setVisible(true);
         }
 
-        btnApplet.addClickHandler(new ClickHandler() {
+        /*       btnApplet.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 
@@ -177,15 +174,13 @@ public class DocumentCreator extends Composite {
                 btnApplet.setLoadingText("Loading....");
                 btnApplet.state().loading();
            }
-        });
-
-        
+        });*/
         Gui.getGuiStructure().contentPanel.setWidget(this);
-        
+
         Gui.getPageHandler().setCurrentDocumentCreator(this);
-	}
-		
-	/*@Override
+    }
+
+    /*@Override
 	public void onSettingsReceived(User user) {
 		useMT.setValue(user.getUseMoses());
         reactivate();
@@ -194,28 +189,21 @@ public class DocumentCreator extends Composite {
 	protected boolean getUseMT() {
 	    return useMT.getValue();
 	}*/
-
-
-    public void addressSet(FileLoadWidget widget, String address) {
+ /*public void addressSet(FileLoadWidget widget, String address) {
        
 		moviePath.setText(address);
 		btnApplet.state().reset();
         
 
-    }
-    
+    }*/
     @UiField
     FormActions bottomControlGroup;
     
-    
-
     private void createDocumentFromText(String subtext) {
         btnCreateDocument.setEnabled(false);
         lblCreateProgress.setVisible(true);
         lblCreateProgress.setText("Creating the document...");
-        
-        
-		
+
         new CreateDocument(
                 getDocumentTitle(),
                 getMovieTitle(),
@@ -224,23 +212,19 @@ public class DocumentCreator extends Composite {
                 "srt",
                 getMoviePathOrNull(),
                 this
-                );                
-    // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success       
-        
+        );
+        // sets TranslationWorkspace.currentDocument and calls TranslationWorkspace.processText() on success       
+
     }
-    
-	
+
     @UiField
     TextBox txtTitle;
 
-	@UiField
-	TextBox txtMovieTitle;
-
-
-
     @UiField
-	TextBox moviePath;
+    TextBox txtMovieTitle;
 
+    /*   @UiField
+	TextBox moviePath;*/
     @UiField
     ListBox lsbLanguage;
 
@@ -249,7 +233,6 @@ public class DocumentCreator extends Composite {
     RadioButton rdbFormatSrt;
     @UiField
     RadioButton rdbFormatSub;*/
-
     @UiField
     RadioButton rdbEncodingUtf8;
     @UiField
@@ -268,32 +251,31 @@ public class DocumentCreator extends Composite {
     ControlGroup filePasteControlGroup;
     @UiField
     TextArea txtFilePaste;
+    
 
     /*@UiField
     CheckBox useMT;
-    */
+     */
     @UiField
     Button btnCreateDocument;
     @UiField
     Label lblCreateProgress;
-    
+
     /*private void deactivate() {
         btnCreateDocument.setEnabled(false);
     }
     
     private void reactivate() {
         btnCreateDocument.setEnabled(true); 
-    } */  
-    
-    
-    @UiField
-    Button btnApplet;
-
+    } */
+ /*  @UiField
+    Button btnApplet;*/
     private String getMoviePathOrNull() {
-        if (moviePath.getText()==null || moviePath.getText().equals("")) {
+        /*  if (moviePath.getText()==null || moviePath.getText().equals("")) {
             return null;
         }
-        return moviePath.getText();
+        return moviePath.getText();*/
+        return null;
     }
 
     private String getDocumentTitle() {
@@ -311,24 +293,23 @@ public class DocumentCreator extends Composite {
     private String getChosenEncoding() {
         if (rdbEncodingUtf8.getValue()) {
             return "utf-8";
-        }
-        else if (rdbEncodingWin.getValue()) {
+        } else if (rdbEncodingWin.getValue()) {
             return "windows-1250";
-        }
-        else if (rdbEncodingIso.getValue()) {
+        } else if (rdbEncodingIso.getValue()) {
             return "iso-8859-2";
+        } else {
+            return "utf-8";  // default value
         }
-        else return "utf-8";  // default value
     }
     
+
     /**
      * prepare for being reshown to the user
      */
-
-	public void reactivate() {
+    public void reactivate() {
         btnCreateDocument.setEnabled(true);
         lblCreateProgress.setVisible(false);
-	}
+    }
 
     /*public String getChosenSubFormat() {
         if (rdbFormatSrt.getValue()) {
@@ -339,8 +320,4 @@ public class DocumentCreator extends Composite {
         }
         else return "srt";	// default value
     }*/
-
-
-
-
 }

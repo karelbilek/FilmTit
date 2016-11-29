@@ -37,3 +37,5 @@ gui/src/main/webapp/WEB-INF/lib/
 # runtime stuff
 
 live.log.1
+
+myconfiguration.xml

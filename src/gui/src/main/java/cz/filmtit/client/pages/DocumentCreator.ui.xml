@@ -78,7 +78,7 @@
             </b:Fieldset>
 
 
-            <b:Fieldset>
+          <!--  <b:Fieldset>
                 <b:Legend>Movie playback</b:Legend>
                 <b:NavLink ui:field="playerInfo" targetHistoryToken="PlayerInfo" styleName="playerInfoLink">Read this before using the playback</b:NavLink>
 
@@ -89,7 +89,7 @@
                         <b:Button ui:field="btnApplet">Load</b:Button>
                     </b:Controls>
                 </b:ControlGroup>
-            </b:Fieldset>
+            </b:Fieldset> -->
 
 
             <!--b:Fieldset>
@@ -102,7 +102,6 @@
                     </b:Controls>
                 </b:ControlGroup>
             </b:Fieldset-->
-
             
 
             <b:Fieldset>

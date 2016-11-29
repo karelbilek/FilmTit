@@ -27,6 +27,7 @@
         <mapping resource="cz/filmtit/userspace/session.hbm.xml"/>
         <mapping resource="cz/filmtit/userspace/MediaSource.hbm.xml" />
         <mapping resource="cz/filmtit/userspace/log.hbm.xml" />
+        <mapping resource="cz/filmtit/userspace/DocumentUsers.hbm.xml" />
         <!--<mapping resource="cz/filmtit/userspace/TranslationPair.hbm.xml" /> -->
 
 

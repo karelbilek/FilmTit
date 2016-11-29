@@ -44,19 +44,22 @@
 
         <g:HTMLPanel ui:field="panelForVLC">
         </g:HTMLPanel>
+        
+        <g:HTMLPanel ui:field="panelForVideo">
+        </g:HTMLPanel>
 
 
         <g:HTMLPanel styleName="content">
 
-        <b:Row>
-            <b:Column size="7">
+            <b:Row>
+                <b:Column size="7">
 
-                <b:FluidRow>
-                    <g:ScrollPanel ui:field="contentPanel" stylePrimaryName="contentPanel" width="984px" />
-                </b:FluidRow>
+                    <b:FluidRow>
+                        <g:ScrollPanel ui:field="contentPanel" stylePrimaryName="contentPanel" width="984px" />
+                    </b:FluidRow>
 
-            </b:Column>
-        </b:Row>
+                </b:Column>
+            </b:Row>
 
         </g:HTMLPanel>
         <!--div style="position:absolute; bottom:-50em; right:0">

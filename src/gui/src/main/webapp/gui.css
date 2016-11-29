@@ -24,10 +24,10 @@
 
 .fixedPlayer {
     position:fixed;
-    height:250px;
-    background:black;
+    height:260px;
     z-index:2;
     top:40px;
+    background: whitesmoke;
 }
 
 
@@ -191,6 +191,14 @@ body textarea.subgest_fullwidth {
     width:396px;
 }
 
+.gwt-RichTextArea-locked {
+    border-color: green !important;
+}
+
+.gwt-RichTextArea-unlocked {
+    border-color: red !important;
+}
+
 body textarea.subgest_halfwidth {
     width:220px;
 }
@@ -224,7 +232,7 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
 	-webkit-border-radius: 3px !important;
 	-moz-border-radius: 3px !important;
 	border-radius: 3px !important;
-	border: 1px solid #ddd !important;
+/*	border: 1px solid !important; */
 /*	border-bottom: 1px solid #aaa !important;*/
 }
 
@@ -279,7 +287,6 @@ iframe.gwt-RichTextArea, .pre_subgestbox {
     width: 270px;
     min-height: 10px;
     color:white;
-    background: black;
     position: relative;
     top: 80px;
     float:left;

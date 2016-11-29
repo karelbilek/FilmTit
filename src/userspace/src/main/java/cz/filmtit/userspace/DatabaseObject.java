@@ -111,12 +111,13 @@ public abstract class DatabaseObject {
                 throw new RuntimeException("session id < 0");
             }
         }
+        
 
         if (databaseId == Long.MIN_VALUE) {
             session.save(this);
         }
         else {
-            session.update(this);
+            session.merge(this);
         }
     }
 

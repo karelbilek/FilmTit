@@ -336,7 +336,7 @@ public class TestSession {
 
 
         for (int i = 0; i < 3; ++i) {
-            USDocument usDocument = new USDocument(new Document("Test", "en", ""), sampleUser);
+            USDocument usDocument = new USDocument(new Document("Test", "en", ""), sampleUser, new ArrayList<DocumentUsers>());
             usDocument.setOwner(sampleUser);
             long documentID = usDocument.getDatabaseId();
 

@@ -24,7 +24,7 @@
     <name>FilmTit</name>
 
     <modules>
-        <module>applet</module>
+        <!--<module>applet</module>-->
         <module>userspace</module>
         <module>share</module>
         <module>core</module>
@@ -156,10 +156,10 @@
             <url>http://scala-tools.org/repo-releases</url>
         </repository>
 
-        <repository>
+    <!--    <repository>
             <id>maven.iscpif.fr</id>
             <url>http://maven.iscpif.fr/public</url>
-        </repository>
+        </repository> -->
 
         <repository>
             <id>typesafe</id>
